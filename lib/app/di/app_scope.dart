@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -27,6 +28,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IRecordRepository>(create: (_) => dependencies.createRecordRepository()),
         RepositoryProvider<IBackupGateway>(create: (_) => dependencies.createBackupGateway()),
         RepositoryProvider<WebLinks>(create: (_) => WebLinks(dependencies.appConfig.contentBaseUrl)),
+        RepositoryProvider<IWelcomeStore>(create: (_) => dependencies.createWelcomeStore()),
       ],
       child: MultiBlocProvider(
         providers: [

@@ -57,6 +57,27 @@ void main() {
     expect(calls, 0);
   });
 
+  test('createWelcomeStore keeps the flag under the support directory, resolved on first use', () async {
+    final root = Directory.systemTemp.createTempSync('welcome_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    var calls = 0;
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async {
+        calls++;
+        return root;
+      },
+    );
+
+    final store = dependencies.createWelcomeStore();
+    expect(store, isA<FlagWelcomeStore>());
+    expect(calls, 0);
+    expect(await store.seen(), isFalse);
+    await store.markSeen();
+    expect(await store.seen(), isTrue);
+    expect(File('${root.path}/flags/welcome-seen').existsSync(), isTrue);
+  });
+
   test('the backup goes through the platform gateway', () {
     const dependencies = AppDependencies(appConfig: AppConfig.test(contentBaseUrl: testContentBaseUrl));
 

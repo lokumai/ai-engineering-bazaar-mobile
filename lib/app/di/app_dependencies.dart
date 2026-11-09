@@ -7,11 +7,13 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
+import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
@@ -49,4 +51,22 @@ class AppDependencies {
 
   /// The backup gateway over the platform's save dialog and file picker; it opens nothing until called.
   IBackupGateway createBackupGateway() => PlatformBackupGateway();
+
+  /// Whether Welcome was seen, as a file flag under [supportDirectory]`/flags/`, apart from the record.
+  IWelcomeStore createWelcomeStore() => FlagWelcomeStore(FileFlagStore(baseDirectory: supportDirectory));
+}
+
+/// The welcome feature's port over the app's file flags: the flag `welcome-seen`.
+final class FlagWelcomeStore implements IWelcomeStore {
+  const FlagWelcomeStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _flag = 'welcome-seen';
+
+  @override
+  Future<bool> seen() => _flags.isSet(_flag);
+
+  @override
+  Future<void> markSeen() => _flags.set(_flag);
 }

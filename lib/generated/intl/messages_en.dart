@@ -323,5 +323,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
+    "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
+    "welcome_lede": MessageLookupByLibrary.simpleMessage(
+      "The AI engineering course, on this device. No account: the progress stays here.",
+    ),
+    "welcome_maker": MessageLookupByLibrary.simpleMessage("Lokum AI"),
   };
 }

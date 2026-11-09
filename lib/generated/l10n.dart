@@ -108,6 +108,26 @@ class S {
     return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
   }
 
+  /// `The AI engineering course, on this device. No account: the progress stays here.`
+  String get welcome_lede {
+    return Intl.message(
+      'The AI engineering course, on this device. No account: the progress stays here.',
+      name: 'welcome_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the bazaar`
+  String get welcome_enter {
+    return Intl.message('Enter the bazaar', name: 'welcome_enter', desc: '', args: []);
+  }
+
+  /// `Lokum AI`
+  String get welcome_maker {
+    return Intl.message('Lokum AI', name: 'welcome_maker', desc: '', args: []);
+  }
+
   /// `Up next`
   String get home_up_next {
     return Intl.message('Up next', name: 'home_up_next', desc: '', args: []);

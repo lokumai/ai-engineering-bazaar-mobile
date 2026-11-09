@@ -17,6 +17,10 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
+import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,6 +50,14 @@ class _SmokeDependencies extends FixtureAppDependencies {
   IRecordRepository createRecordRepository() => FileRecordRepository(baseDirectory: () async => dir);
 }
 
+/// The smoke wiring with the real Welcome flag under [dir], as a first launch has it.
+class _FirstLaunchDependencies extends _SmokeDependencies {
+  const _FirstLaunchDependencies(super.dir);
+
+  @override
+  IWelcomeStore createWelcomeStore() => FlagWelcomeStore(FileFlagStore(baseDirectory: () async => dir));
+}
+
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated
 /// until [done] holds, failing after [rounds] rounds.
 Future<void> _drain(WidgetTester tester, bool Function() done, {required String what, int rounds = 100}) async {
@@ -68,6 +80,30 @@ void main() {
 
     expect(find.byType(HomePage), findsOneWidget);
     expect(find.byType(BazaarShell), findsOneWidget);
+  });
+
+  testWidgets('the first launch shows Welcome, entering opens Home, and the next launch opens Home directly', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final enter = find.byKey(const Key('welcome-enter'));
+
+    await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+    await _drain(tester, () => enter.evaluate().isNotEmpty, what: 'Welcome');
+    expect(find.byType(WelcomeView), findsOneWidget);
+    expect(find.byType(HomePage), findsNothing);
+
+    await tester.ensureVisible(enter);
+    await tester.pump();
+    await tester.tap(enter);
+    await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+    await _drain(tester, () => File('${dir.path}/flags/welcome-seen').existsSync(), what: 'the Welcome flag');
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+    await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
+    expect(find.byType(WelcomeView), findsNothing);
   });
 
   testWidgets(
