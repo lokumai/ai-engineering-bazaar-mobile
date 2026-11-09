@@ -43,8 +43,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // The oidc_android redirect activity listens on this scheme; it must match OidcSettings.defaultRedirectScheme.
-        manifestPlaceholders["oidcRedirectScheme"] = "com.example.flutterblocadvance"
         // The DSN is the public key that --dart-define already compiles into the Dart snapshot.
         val nativeSentryDsn = if (isProdTarget) dartDefines["SENTRY_DSN"].orEmpty() else ""
         buildConfigField("String", "SENTRY_DSN", buildConfigString(nativeSentryDsn))
