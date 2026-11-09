@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc_advance/app/app.dart';
 import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
+import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
 import 'package:flutter_bloc_advance/app/router/not_found_page.dart';
+import 'package:flutter_bloc_advance/app/shell/app_shell.dart';
 import 'package:flutter_bloc_advance/app/shell/sidebar/sidebar_widget.dart';
 import 'package:flutter_bloc_advance/core/testing/app_key_constants.dart';
 import 'package:flutter_bloc_advance/features/auth/presentation/pages/login_page.dart';
-import 'package:flutter_bloc_advance/features/dashboard/presentation/pages/dashboard_home_page.dart';
 import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
 import 'package:flutter_bloc_advance/infrastructure/auth/oidc/oidc_client.dart';
 import 'package:flutter_bloc_advance/infrastructure/config/auth_config.dart';
@@ -154,6 +155,23 @@ void main() {
   }
 
   group('AppRouterFactory', () {
+    testWidgets('/ shows the placeholder home page, named home, inside the shell', (tester) async {
+      setDesktopViewport(tester);
+      TestEnv.authenticate();
+      await tester.pumpWidget(const App(language: 'en'));
+      await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
+
+      final router = routerFromApp(tester);
+      expect(router.state.uri.path, ApplicationRoutesConstants.home);
+      expect(router.state.name, 'home');
+      final home = find.byType(HomePlaceholderPage);
+      expect(home, findsOneWidget);
+      expect(find.ancestor(of: home, matching: find.byType(AppShell)), findsOneWidget);
+      expect(find.descendant(of: home, matching: find.text('AI Engineering Bazaar')), findsOneWidget);
+    });
+
     testWidgets('redirects unauthenticated users to login', (tester) async {
       setDesktopViewport(tester);
       await tester.pumpWidget(const App(language: 'en'));
@@ -184,6 +202,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'en'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       final returnUrl = Uri.encodeQueryComponent('https://evil.example/settings');
       routerFromApp(tester).go('${ApplicationRoutesConstants.login}?returnUrl=$returnUrl');
@@ -201,7 +221,7 @@ void main() {
 
       expect(loginFrames, isEmpty, reason: 'frames that built the login page');
       expect(routerFromApp(tester).state.uri.path, ApplicationRoutesConstants.home);
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
       verifyNever(
         () => analytics.logScreenView(
           screenName: any(named: 'screenName', that: equals('login')),
@@ -270,7 +290,7 @@ void main() {
   // On the web each navigation adds an entry to the browser's history, and the back and forward buttons bring one back.
   // These guard what the router and its redirect do with such an entry.
   group('AppRouterFactory - browser back and forward', () {
-    testWidgets('back after going from / to /settings shows the dashboard, and forward shows settings again', (
+    testWidgets('back after going from / to /settings shows the home page, and forward shows settings again', (
       tester,
     ) async {
       setDesktopViewport(tester);
@@ -285,7 +305,7 @@ void main() {
       await browser.back();
 
       expect(routerFromApp(tester).state.uri.path, ApplicationRoutesConstants.home);
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
       expect(browser.location, ApplicationRoutesConstants.home);
 
       await browser.forward();
@@ -335,7 +355,7 @@ void main() {
       await browser.back();
 
       expect(find.byType(LoginScreen), findsNothing);
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
       expect(routerFromApp(tester).state.uri.path, ApplicationRoutesConstants.home);
       expect(browser.location, ApplicationRoutesConstants.home);
     });
@@ -366,7 +386,7 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(App(language: 'en', dependencies: _OidcDependencies()));
       await tester.pumpAndSettle();
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
 
       routerFromApp(tester).go(ApplicationRoutesConstants.changePassword);
       await tester.pumpAndSettle();
@@ -425,7 +445,7 @@ void main() {
 
       // A misconfigured oidc build can neither sign in nor restore a stored session.
       if (dependencies.authMode is OidcAuthMode) {
-        testWidgets('in $mode mode, signed in, /oauth2redirect lands on the dashboard', (tester) async {
+        testWidgets('in $mode mode, signed in, /oauth2redirect lands on the home page', (tester) async {
           setDesktopViewport(tester);
           TestEnv.authenticate();
           await tester.pumpWidget(App(language: 'en', dependencies: dependencies));
@@ -437,7 +457,7 @@ void main() {
           await tester.pumpAndSettle();
 
           expect(routerFromApp(tester).state.uri.toString(), ApplicationRoutesConstants.home);
-          expect(find.byType(DashboardHomePage), findsOneWidget);
+          expect(find.byType(HomePlaceholderPage), findsOneWidget);
         });
       }
     }
@@ -447,6 +467,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'en'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       routerFromApp(tester).go('/oauth2redirect?code=SECRETCODE&state=SECRETSTATE');
       await tester.pumpAndSettle();

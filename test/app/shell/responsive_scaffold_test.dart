@@ -14,7 +14,7 @@ import 'package:go_router/go_router.dart';
 import '../../support/test_env.dart';
 
 void main() {
-  // The real app, signed in, on the dashboard, on a device whose system bars cover [insets] of the screen.
+  // The real app, signed in, on the home page, on a device whose system bars cover [insets] of the screen.
   Future<void> pumpSignedIn(WidgetTester tester, {required Size size, required FakeViewPadding insets}) async {
     addTearDown(tester.view.reset);
     tester.view.physicalSize = size;
@@ -25,6 +25,8 @@ void main() {
 
     await tester.pumpWidget(const App(language: 'en'));
     await tester.pumpAndSettle();
+    // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(ResponsiveScaffold), findsOneWidget);
   }
 

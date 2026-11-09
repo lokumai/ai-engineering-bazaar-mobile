@@ -20,40 +20,30 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'tr';
 
-  static String m0(count) => "${Intl.plural(count, other: 'Önbellekte ${count} öğe')}";
+  static String m0(field, count) => "${field} en fazla ${count} karakter olmalıdır";
 
-  static String m1(count) => "${Intl.plural(count, other: '${count} uç nokta')}";
+  static String m1(field, count) => "${field} en az ${count} karakter olmalıdır";
 
-  static String m2(count) => "Hata: ${count}";
+  static String m2(field) => "${field} zorunludur";
 
-  static String m3(enabled, total) => "${enabled}/${total} etkin";
+  static String m3(url) => "${url} açılamadı";
 
-  static String m4(count) => "${count} açık";
+  static String m4(currentVersion, minimumVersion) => "Mevcut: ${currentVersion}  •  Gerekli: ${minimumVersion}";
 
-  static String m5(field, count) => "${field} en fazla ${count} karakter olmalıdır";
+  static String m5(time) => "Tahmini bitiş: ${time}";
 
-  static String m6(field, count) => "${field} en az ${count} karakter olmalıdır";
+  static String m6(email) => "OTP kodu ${email} adresine gönderildi";
 
-  static String m7(field) => "${field} zorunludur";
+  static String m7(max) => "Şifre en fazla ${max} karakter uzunluğunda olmalıdır";
 
-  static String m8(url) => "${url} açılamadı";
+  static String m8(min) => "Şifre en az ${min} karakter uzunluğunda olmalıdır";
 
-  static String m9(currentVersion, minimumVersion) => "Mevcut: ${currentVersion}  •  Gerekli: ${minimumVersion}";
+  static String m9(count) => "${Intl.plural(count, other: '${count} satır listelendi.')}";
 
-  static String m10(time) => "Tahmini bitiş: ${time}";
-
-  static String m11(email) => "OTP kodu ${email} adresine gönderildi";
-
-  static String m12(max) => "Şifre en fazla ${max} karakter uzunluğunda olmalıdır";
-
-  static String m13(min) => "Şifre en az ${min} karakter uzunluğunda olmalıdır";
-
-  static String m14(count) => "${Intl.plural(count, other: '${count} satır listelendi.')}";
-
-  static String m15(translate) =>
+  static String m10(translate) =>
       "${Intl.select(translate, {'account': 'Hesabım', 'userManagement': 'Kullanıcı Yönetimi', 'settings': 'Ayarlar', 'logout': 'Çıkış', 'info': 'Bilgiler', 'language': 'Diller', 'theme': 'Tema', 'new_user': 'Yeni Kullanıcı Ekle', 'list_user': 'Kullanıcılar', 'other': 'Diğer'})}";
 
-  static String m16(error) => "Kaydedilemedi: ${error}";
+  static String m11(error) => "Kaydedilemedi: ${error}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -94,57 +84,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_user": MessageLookupByLibrary.simpleMessage("Kullanıcı Oluştur"),
     "current_password": MessageLookupByLibrary.simpleMessage("Mevcut Şifre"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Panel"),
-    "dashboard_app_configuration": MessageLookupByLibrary.simpleMessage("Uygulama Yapılandırması"),
-    "dashboard_cache": MessageLookupByLibrary.simpleMessage("Önbellek"),
-    "dashboard_cached_item_count": m0,
-    "dashboard_circuit_breaker": MessageLookupByLibrary.simpleMessage("Devre Kesici"),
-    "dashboard_circuit_breaker_health": MessageLookupByLibrary.simpleMessage("Devre Kesici Durumu"),
-    "dashboard_circuit_state_closed": MessageLookupByLibrary.simpleMessage("Kapalı"),
-    "dashboard_circuit_state_half_open": MessageLookupByLibrary.simpleMessage("Yarı açık"),
-    "dashboard_circuit_state_open": MessageLookupByLibrary.simpleMessage("Açık"),
-    "dashboard_clear_cache": MessageLookupByLibrary.simpleMessage("Önbelleği Temizle"),
-    "dashboard_connectivity": MessageLookupByLibrary.simpleMessage("Bağlantı"),
-    "dashboard_current_version": MessageLookupByLibrary.simpleMessage("Mevcut Sürüm"),
-    "dashboard_endpoint_count": m1,
-    "dashboard_environment": MessageLookupByLibrary.simpleMessage("Ortam"),
-    "dashboard_error_title": MessageLookupByLibrary.simpleMessage("Panel Hatası"),
-    "dashboard_failure_count": m2,
-    "dashboard_feature_flags": MessageLookupByLibrary.simpleMessage("Özellik Bayrakları"),
-    "dashboard_feature_flags_enabled": m3,
-    "dashboard_interceptor_auth": MessageLookupByLibrary.simpleMessage("İsteklere JWT belirtecini ekler"),
-    "dashboard_interceptor_cache": MessageLookupByLibrary.simpleMessage("GET yanıtlarını süreli önbelleğe alır"),
-    "dashboard_interceptor_chain": MessageLookupByLibrary.simpleMessage("Interceptor Zinciri"),
-    "dashboard_interceptor_connectivity": MessageLookupByLibrary.simpleMessage("Çevrimdışıyken istekleri reddeder"),
-    "dashboard_interceptor_dev_console": MessageLookupByLibrary.simpleMessage(
-      "İstekleri geliştirici konsoluna kaydeder",
-    ),
-    "dashboard_interceptor_idempotency": MessageLookupByLibrary.simpleMessage(
-      "POST/PUT/PATCH için isteğe bağlı Idempotency-Key",
-    ),
-    "dashboard_interceptor_logging": MessageLookupByLibrary.simpleMessage("Yapılandırılmış istek ve yanıt günlüğü"),
-    "dashboard_interceptor_mock": MessageLookupByLibrary.simpleMessage("Geliştirme ve testte sahte veri sunar"),
-    "dashboard_interceptor_resilience": MessageLookupByLibrary.simpleMessage("Yeniden deneme ve devre kesici"),
-    "dashboard_interceptor_token_refresh": MessageLookupByLibrary.simpleMessage(
-      "Süresi dolan erişim belirteçlerini yeniler",
-    ),
-    "dashboard_maintenance_mode": MessageLookupByLibrary.simpleMessage("Bakım Modu"),
-    "dashboard_minimum_version": MessageLookupByLibrary.simpleMessage("En Düşük Sürüm"),
-    "dashboard_no_endpoints": MessageLookupByLibrary.simpleMessage("Henüz izlenen uç nokta yok"),
-    "dashboard_no_feature_flags": MessageLookupByLibrary.simpleMessage("Yapılandırılmış özellik bayrağı yok"),
-    "dashboard_off": MessageLookupByLibrary.simpleMessage("KAPALI"),
-    "dashboard_offline": MessageLookupByLibrary.simpleMessage("Çevrimdışı"),
-    "dashboard_on": MessageLookupByLibrary.simpleMessage("AÇIK"),
-    "dashboard_online": MessageLookupByLibrary.simpleMessage("Çevrimiçi"),
-    "dashboard_open_count": m4,
-    "dashboard_open_dynamic_forms": MessageLookupByLibrary.simpleMessage("Dinamik Formları Aç"),
-    "dashboard_reset_circuit_breakers": MessageLookupByLibrary.simpleMessage("Devre Kesicileri Sıfırla"),
-    "dashboard_title": MessageLookupByLibrary.simpleMessage("Sistem Paneli"),
     "delete_confirmation": MessageLookupByLibrary.simpleMessage("Silmek istediğinize emin misiniz?"),
     "delete_user": MessageLookupByLibrary.simpleMessage("Kullanıcı Sil"),
-    "dynamic_form_field_max_length": m5,
-    "dynamic_form_field_min_length": m6,
+    "dynamic_form_field_max_length": m0,
+    "dynamic_form_field_min_length": m1,
     "dynamic_form_field_numeric": MessageLookupByLibrary.simpleMessage("Sayı olmalıdır"),
-    "dynamic_form_field_required": m7,
+    "dynamic_form_field_required": m2,
     "dynamic_form_submitted": MessageLookupByLibrary.simpleMessage("Form başarıyla gönderildi"),
     "dynamic_forms": MessageLookupByLibrary.simpleMessage("Dinamik Formlar"),
     "edit": MessageLookupByLibrary.simpleMessage("Düzenle"),
@@ -174,7 +119,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "error_auth_send_otp_failed": MessageLookupByLibrary.simpleMessage("OTP kodu gönderilemedi"),
     "error_auth_session_persist_failed": MessageLookupByLibrary.simpleMessage("Oturum kaydedilemedi"),
     "error_generic": MessageLookupByLibrary.simpleMessage("Bir şeyler ters gitti"),
-    "error_link_open_failed": m8,
+    "error_link_open_failed": m3,
     "error_network_cert_invalid": MessageLookupByLibrary.simpleMessage(
       "Bağlantının güvenli olduğu doğrulanamadığı için engellendi. Daha sonra ya da başka bir ağda tekrar deneyin.",
     ),
@@ -198,7 +143,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Güncelleme bağlantısı geçersiz. En son sürümü yüklemek için uygulama mağazanızı açın.",
     ),
     "force_update_title": MessageLookupByLibrary.simpleMessage("Güncelleme Gerekli"),
-    "force_update_versions": m9,
+    "force_update_versions": m4,
     "forgot_password_description": MessageLookupByLibrary.simpleMessage(
       "E-posta adresinizi girin, şifrenizi sıfırlamanız için size bir bağlantı gönderelim.",
     ),
@@ -260,7 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Oturumunuz kapatıldı, ancak kayıtlı verilerin bir kısmı bu cihazdan silinemedi.",
     ),
     "logout_sure": MessageLookupByLibrary.simpleMessage("Çıkış yapmak istediğinize emin misiniz?"),
-    "maintenance_estimated_end": m10,
+    "maintenance_estimated_end": m5,
     "maintenance_message": MessageLookupByLibrary.simpleMessage(
       "Planlı bir bakım çalışması yapıyoruz. Lütfen kısa bir süre sonra tekrar deneyin.",
     ),
@@ -283,14 +228,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "only_numbers": MessageLookupByLibrary.simpleMessage("Sadece sayılar kullanılabilir"),
     "otp_code": MessageLookupByLibrary.simpleMessage("OTP Kodu"),
     "otp_length": MessageLookupByLibrary.simpleMessage("OTP 6 haneli olmalıdır"),
-    "otp_sent_to_email": m11,
+    "otp_sent_to_email": m6,
     "password_forgot": MessageLookupByLibrary.simpleMessage("Şifremi unuttum"),
     "password_hide": MessageLookupByLibrary.simpleMessage("Şifreyi gizle"),
-    "password_max_length": m12,
-    "password_min_length": m13,
+    "password_max_length": m7,
+    "password_min_length": m8,
     "password_show": MessageLookupByLibrary.simpleMessage("Şifreyi göster"),
     "previous": MessageLookupByLibrary.simpleMessage("Önceki"),
-    "quick_actions": MessageLookupByLibrary.simpleMessage("Hızlı İşlemler"),
     "refresh": MessageLookupByLibrary.simpleMessage("Yenile"),
     "register": MessageLookupByLibrary.simpleMessage("Kayıt Ol"),
     "register_subtitle": MessageLookupByLibrary.simpleMessage("Hesabınızı oluşturun"),
@@ -313,7 +257,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "sidebar_expand": MessageLookupByLibrary.simpleMessage("Genişlet"),
     "submit": MessageLookupByLibrary.simpleMessage("Gönder"),
     "success": MessageLookupByLibrary.simpleMessage("Başarılı"),
-    "table_rows_listed": m14,
+    "table_rows_listed": m9,
     "theme": MessageLookupByLibrary.simpleMessage("Tema"),
     "theme_dialog_subtitle": MessageLookupByLibrary.simpleMessage("Tercih ettiğiniz tema stilini seçin"),
     "theme_dialog_title": MessageLookupByLibrary.simpleMessage("Tema Seçin"),
@@ -325,7 +269,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_palette_nature_description": MessageLookupByLibrary.simpleMessage("Adaçayı yeşili, sakin ve doğal"),
     "theme_palette_sunset": MessageLookupByLibrary.simpleMessage("Gün Batımı"),
     "theme_palette_sunset_description": MessageLookupByLibrary.simpleMessage("Sıcak taş, zengin ve davetkâr"),
-    "translate_menu_title": m15,
+    "translate_menu_title": m10,
     "turkish": MessageLookupByLibrary.simpleMessage("Türkçe"),
     "unsaved_changes": MessageLookupByLibrary.simpleMessage(
       "Kaydedilmemiş değişiklikleriniz var. Çıkmak istediğinize emin misiniz?",
@@ -347,7 +291,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "user_editor_info_title": MessageLookupByLibrary.simpleMessage("Kullanıcı Bilgileri"),
     "user_editor_view_subtitle": MessageLookupByLibrary.simpleMessage("Kullanıcı ayrıntılarını görüntüleyin."),
     "user_extended_info_button": MessageLookupByLibrary.simpleMessage("Detaylar"),
-    "user_extended_info_save_failed": m16,
+    "user_extended_info_save_failed": m11,
     "user_extended_info_saved": MessageLookupByLibrary.simpleMessage("Kaydedildi"),
     "user_extended_info_title": MessageLookupByLibrary.simpleMessage("Genişletilmiş Bilgi"),
     "user_list_actions": MessageLookupByLibrary.simpleMessage("İşlemler"),

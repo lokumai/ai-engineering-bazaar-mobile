@@ -34,7 +34,6 @@ import 'package:flutter_bloc_advance/features/auth/data/services/misconfigured_s
 import 'package:flutter_bloc_advance/features/auth/data/services/sso_session_startup_impl.dart';
 import 'package:flutter_bloc_advance/features/auth/domain/services/sso_auto_redirect_gate.dart';
 import 'package:flutter_bloc_advance/shared/dynamic_forms/domain/repositories/dynamic_form_repository.dart';
-import 'package:flutter_bloc_advance/features/dashboard/application/dashboard_cubit.dart';
 import 'package:flutter_bloc_advance/features/lifecycle/application/lifecycle_bloc.dart';
 import 'package:flutter_bloc_advance/features/lifecycle/application/lifecycle_event.dart';
 import 'package:flutter_bloc_advance/features/lifecycle/application/usecases/fetch_app_config_usecase.dart';
@@ -42,10 +41,7 @@ import 'package:flutter_bloc_advance/features/lifecycle/domain/repositories/life
 import 'package:flutter_bloc_advance/features/users/application/authority_bloc.dart';
 import 'package:flutter_bloc_advance/features/users/application/usecases/list_authorities_usecase.dart';
 import 'package:flutter_bloc_advance/infrastructure/auth/oidc/oidc_client.dart';
-import 'package:flutter_bloc_advance/infrastructure/cache/shared_prefs_cache_storage.dart';
-import 'package:flutter_bloc_advance/infrastructure/connectivity/connectivity_service.dart';
 import 'package:flutter_bloc_advance/infrastructure/http/api_client.dart';
-import 'package:flutter_bloc_advance/infrastructure/http/interceptors/resilience_interceptor.dart';
 import 'package:flutter_bloc_advance/infrastructure/http/token_rotation.dart';
 import 'package:flutter_bloc_advance/core/feature_flags/feature_flag_service.dart';
 import 'package:flutter_bloc_advance/features/users/domain/repositories/user_repository.dart';
@@ -277,15 +273,6 @@ class AppScope extends StatelessWidget {
           // Created with the app instead of on first use, so the stored collapse state is restored before the shell
           // first shows the sidebar, which would otherwise open expanded and then animate closed.
           BlocProvider<SidebarBloc>(lazy: false, create: (_) => SidebarBloc()..add(const RestoreSidebarCollapse())),
-          BlocProvider<SystemDashboardCubit>(
-            create: (context) => SystemDashboardCubit(
-              connectivityService: ConnectivityService.instance,
-              featureFlagService: FeatureFlagService.instance,
-              resilienceInterceptor: ResilienceInterceptor.instance,
-              cacheStorage: SharedPrefsCacheStorage.instance,
-              apiClient: context.read<ApiClient>(),
-            ),
-          ),
         ],
         child: child,
       ),

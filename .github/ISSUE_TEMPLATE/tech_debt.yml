@@ -101,7 +101,6 @@ body:
       options:
         - account
         - auth
-        - dashboard
         - dynamic_forms
         - lifecycle
         - settings

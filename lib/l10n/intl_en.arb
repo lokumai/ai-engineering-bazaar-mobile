@@ -89,7 +89,6 @@
   "language": "Language",
   "dashboard": "Dashboard",
   "refresh": "Refresh",
-  "quick_actions": "Quick Actions",
   "community_title": "Join the Community",
   "community_subtitle": "This project is open source. Your contributions make it better!",
   "community_star": "Star & Fork",
@@ -289,93 +288,6 @@
   "@settings_theme_subtitle": {},
   "retry": "Retry",
   "@retry": {},
-  "dashboard_error_title": "Dashboard Error",
-  "@dashboard_error_title": {},
-  "dashboard_title": "System Dashboard",
-  "@dashboard_title": {},
-  "dashboard_connectivity": "Connectivity",
-  "@dashboard_connectivity": {},
-  "dashboard_online": "Online",
-  "@dashboard_online": {},
-  "dashboard_offline": "Offline",
-  "@dashboard_offline": {},
-  "dashboard_circuit_breaker": "Circuit Breaker",
-  "@dashboard_circuit_breaker": {},
-  "dashboard_endpoint_count": "{count, plural, =1{1 endpoint} other{{count} endpoints}}",
-  "@dashboard_endpoint_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_open_count": "{count} open",
-  "@dashboard_open_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_cache": "Cache",
-  "@dashboard_cache": {},
-  "dashboard_cached_item_count": "{count, plural, =1{1 item cached} other{{count} items cached}}",
-  "@dashboard_cached_item_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_feature_flags": "Feature Flags",
-  "@dashboard_feature_flags": {},
-  "dashboard_feature_flags_enabled": "{enabled}/{total} enabled",
-  "@dashboard_feature_flags_enabled": {
-    "placeholders": {
-      "enabled": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_circuit_breaker_health": "Circuit Breaker Health",
-  "@dashboard_circuit_breaker_health": {},
-  "dashboard_no_endpoints": "No endpoints tracked yet",
-  "@dashboard_no_endpoints": {},
-  "dashboard_failure_count": "Failures: {count}",
-  "@dashboard_failure_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_no_feature_flags": "No feature flags configured",
-  "@dashboard_no_feature_flags": {},
-  "dashboard_app_configuration": "App Configuration",
-  "@dashboard_app_configuration": {},
-  "dashboard_current_version": "Current Version",
-  "@dashboard_current_version": {},
-  "dashboard_minimum_version": "Minimum Version",
-  "@dashboard_minimum_version": {},
-  "dashboard_maintenance_mode": "Maintenance Mode",
-  "@dashboard_maintenance_mode": {},
-  "dashboard_on": "ON",
-  "@dashboard_on": {},
-  "dashboard_off": "OFF",
-  "@dashboard_off": {},
-  "dashboard_environment": "Environment",
-  "@dashboard_environment": {},
-  "dashboard_interceptor_chain": "Interceptor Chain",
-  "@dashboard_interceptor_chain": {},
-  "dashboard_clear_cache": "Clear Cache",
-  "@dashboard_clear_cache": {},
-  "dashboard_reset_circuit_breakers": "Reset Circuit Breakers",
-  "@dashboard_reset_circuit_breakers": {},
-  "dashboard_open_dynamic_forms": "Open Dynamic Forms",
-  "@dashboard_open_dynamic_forms": {},
   "cancel": "Cancel",
   "@cancel": {},
   "inactive": "Inactive",
@@ -486,30 +398,6 @@
   "@user_list_empty": {},
   "app_title": "AI Engineering Bazaar",
   "@app_title": {},
-  "dashboard_circuit_state_closed": "Closed",
-  "@dashboard_circuit_state_closed": {},
-  "dashboard_circuit_state_half_open": "Half-open",
-  "@dashboard_circuit_state_half_open": {},
-  "dashboard_circuit_state_open": "Open",
-  "@dashboard_circuit_state_open": {},
-  "dashboard_interceptor_connectivity": "Rejects requests when offline",
-  "@dashboard_interceptor_connectivity": {},
-  "dashboard_interceptor_auth": "Attaches JWT token to requests",
-  "@dashboard_interceptor_auth": {},
-  "dashboard_interceptor_token_refresh": "Refreshes expired access tokens",
-  "@dashboard_interceptor_token_refresh": {},
-  "dashboard_interceptor_idempotency": "Opt-in Idempotency-Key for POST/PUT/PATCH",
-  "@dashboard_interceptor_idempotency": {},
-  "dashboard_interceptor_resilience": "Retry + circuit breaker",
-  "@dashboard_interceptor_resilience": {},
-  "dashboard_interceptor_cache": "GET response caching with TTL",
-  "@dashboard_interceptor_cache": {},
-  "dashboard_interceptor_dev_console": "Records requests in dev console",
-  "@dashboard_interceptor_dev_console": {},
-  "dashboard_interceptor_logging": "Structured request/response logging",
-  "@dashboard_interceptor_logging": {},
-  "dashboard_interceptor_mock": "Serves mock data in dev/test",
-  "@dashboard_interceptor_mock": {},
   "error_auth_oidc_config": "Single sign-on is not configured correctly in this app. Contact your administrator.",
   "@error_auth_oidc_config": {},
   "error_auth_oidc_discovery": "The identity provider could not be reached. Try again later, or contact your administrator if this continues.",

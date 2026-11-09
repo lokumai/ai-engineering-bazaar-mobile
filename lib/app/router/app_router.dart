@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc_advance/app/router/app_root_page.dart';
 import 'package:flutter_bloc_advance/app/router/app_router_refresh_notifier.dart';
 import 'package:flutter_bloc_advance/app/router/forbidden_page.dart';
+import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
 import 'package:flutter_bloc_advance/app/router/not_found_page.dart';
 import 'package:flutter_bloc_advance/app/router/route_role_requirements.dart';
 // safeRedirectTarget lives in core/ so features/ guards can consume it too.
@@ -13,7 +14,6 @@ import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
 import 'package:flutter_bloc_advance/features/account/navigation/account_routes.dart';
 import 'package:flutter_bloc_advance/features/auth/navigation/auth_routes.dart';
 import 'package:flutter_bloc_advance/features/auth/presentation/pages/login_page.dart';
-import 'package:flutter_bloc_advance/features/dashboard/navigation/dashboard_routes.dart';
 import 'package:flutter_bloc_advance/features/settings/navigation/settings_routes.dart';
 import 'package:flutter_bloc_advance/shared/design_system/components/app_page_transition.dart';
 import 'package:flutter_bloc_advance/shared/dynamic_forms/navigation/dynamic_forms_routes.dart';
@@ -67,7 +67,12 @@ class AppRouterFactory {
             child: AppShell(state: state, child: child),
           ),
           routes: [
-            ...DashboardFeatureRoutes.routes,
+            GoRoute(
+              name: 'home',
+              path: ApplicationRoutesConstants.home,
+              pageBuilder: (context, state) =>
+                  appTransitionPage(state: state, type: AppPageTransitionType.fade, child: const HomePlaceholderPage()),
+            ),
             ...AccountFeatureRoutes.routes,
             ...UsersFeatureRoutes.routes,
             ...SettingsFeatureRoutes.routes,

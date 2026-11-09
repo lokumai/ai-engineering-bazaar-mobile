@@ -25,7 +25,7 @@ void main() {
   GoRouter routerOf(WidgetTester tester) =>
       tester.widget<MaterialApp>(find.byType(MaterialApp)).routerConfig! as GoRouter;
 
-  // The real app, signed in, on the dashboard, after the mock API has answered.
+  // The real app, signed in, on the home page, after the mock API has answered.
   Future<void> pumpSignedInOnDashboard(
     WidgetTester tester, {
     Size size = const Size(1600, 1600),
@@ -41,6 +41,8 @@ void main() {
 
     await tester.pumpWidget(App(language: language));
     await tester.pumpAndSettle();
+    // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+    await tester.pump(const Duration(seconds: 1));
   }
 
   Future<void> selectFromUserMenu(WidgetTester tester, String label) async {
@@ -133,6 +135,8 @@ void main() {
 
         await tester.pumpWidget(App(language: language));
         await tester.pumpAndSettle();
+        // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+        await tester.pump(const Duration(seconds: 1));
 
         final button = find.descendant(of: find.byType(TopBarWidget), matching: find.byType(IconButton));
         expect(tester.getSemantics(button), isSemantics(tooltip: label, isButton: true, hasTapAction: true));

@@ -64,6 +64,8 @@ Future<List<MethodCall>> _pumpApp(WidgetTester tester, {bool signedIn = true}) a
   }
   await tester.pumpWidget(_app);
   await tester.pumpAndSettle();
+  // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+  await tester.pump(const Duration(seconds: 1));
   return history;
 }
 
@@ -122,7 +124,7 @@ Future<void> _openDirtyAccountForm(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Opens the sample form that the dashboard links to.
+/// Opens the sample form at /dynamic-forms/sample.
 Future<void> _openDynamicForm(WidgetTester tester) async {
   _router(tester).go('/dynamic-forms/sample');
   await tester.pumpAndSettle();
@@ -206,7 +208,7 @@ void main() {
       await _answer(tester, leave: false);
       expect(find.byType(AccountScreen), findsOneWidget);
 
-      // Leaving goes where the page's own back button goes: the dashboard, as the page is the shell's only page.
+      // Leaving goes where the page's own back button goes: the home page, as the page is the shell's only page.
       await _androidBack(tester);
       await _answer(tester, leave: true);
       expect(find.byType(AccountScreen), findsNothing);

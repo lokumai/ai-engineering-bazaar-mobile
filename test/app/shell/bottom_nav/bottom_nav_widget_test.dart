@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc_advance/app/router/app_routes_constants.dart';
-import 'package:flutter_bloc_advance/features/dashboard/presentation/pages/dashboard_home_page.dart';
+import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
 import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
 import 'package:flutter_bloc_advance/features/users/presentation/pages/user_list_page.dart';
 import 'package:flutter_bloc_advance/infrastructure/storage/local_storage.dart';
@@ -39,7 +39,7 @@ void main() {
       ('List User', ApplicationRoutesConstants.userList, ListUserScreen),
       ('Settings', ApplicationRoutesConstants.settings, SettingsScreen),
     ]) {
-      testWidgets('tapping $label opens $location in place of the dashboard', (tester) async {
+      testWidgets('tapping $label opens $location in place of the home page', (tester) async {
         await pumpAdminOnPhone(tester);
 
         await tester.tap(inBottomNav(label));
@@ -58,7 +58,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(routerOf(tester).state.uri.path, ApplicationRoutesConstants.home);
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
       expect(routerOf(tester).canPop(), isFalse, reason: 'a destination replaces the page instead of stacking on it');
     });
   });

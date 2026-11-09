@@ -126,6 +126,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(App(language: 'en', analytics: analytics));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
       return routerFromApp(tester);
     }
 
@@ -137,7 +139,7 @@ void main() {
       expect(loggedScreens(), ['login']);
     });
 
-    testWidgets('logs the dashboard once when an authenticated session starts', (tester) async {
+    testWidgets('logs the home page once when an authenticated session starts', (tester) async {
       await startAuthenticated(tester);
 
       expect(loggedScreens(), ['home']);

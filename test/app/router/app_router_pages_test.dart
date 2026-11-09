@@ -8,7 +8,7 @@ import 'package:flutter_bloc_advance/app/router/forbidden_page.dart';
 import 'package:flutter_bloc_advance/app/router/not_found_page.dart';
 import 'package:flutter_bloc_advance/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter_bloc_advance/features/auth/presentation/pages/register_page.dart';
-import 'package:flutter_bloc_advance/features/dashboard/presentation/pages/dashboard_home_page.dart';
+import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
 import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -97,6 +97,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'en'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       expect(routerFromApp(tester).state.uri.path, ApplicationRoutesConstants.home);
       expect(rootPages(tester).last, isA<MaterialPage<void>>());
@@ -107,6 +109,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'en'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       routerFromApp(tester).go(ApplicationRoutesConstants.userList);
       await tester.pumpAndSettle();
@@ -157,6 +161,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'tr'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       routerFromApp(tester).go('/does-not-exist');
       await tester.pumpAndSettle();
@@ -179,6 +185,8 @@ void main() {
       TestEnv.authenticate();
       await tester.pumpWidget(const App(language: 'tr'));
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
 
       routerFromApp(tester).go('/does-not-exist');
       await tester.pumpAndSettle();
@@ -210,7 +218,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(router.state.uri.path, ApplicationRoutesConstants.home);
-        expect(find.byType(DashboardHomePage), findsOneWidget);
+        expect(find.byType(HomePlaceholderPage), findsOneWidget);
       });
 
       testWidgets('returns to the shell after $label has settled', (tester) async {
@@ -227,7 +235,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(router.state.uri.path, ApplicationRoutesConstants.home);
-        expect(find.byType(DashboardHomePage), findsOneWidget);
+        expect(find.byType(HomePlaceholderPage), findsOneWidget);
       });
 
       testWidgets('shows $label without an entering transition', (tester) async {
@@ -235,6 +243,8 @@ void main() {
         TestEnv.authenticate();
         await tester.pumpWidget(const App(language: 'en'));
         await tester.pumpAndSettle();
+        // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+        await tester.pump(const Duration(seconds: 1));
 
         routerFromApp(tester).go(location);
         await tester.pump();
@@ -264,7 +274,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(ForbiddenPage), findsNothing);
-      expect(find.byType(DashboardHomePage), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsOneWidget);
     }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
     testWidgets('declares every route with a pageBuilder', (tester) async {

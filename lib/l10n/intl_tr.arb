@@ -89,7 +89,6 @@
   "language": "Dil",
   "dashboard": "Panel",
   "refresh": "Yenile",
-  "quick_actions": "Hızlı İşlemler",
   "community_title": "Topluluğa Katılın",
   "community_subtitle": "Bu proje açık kaynaktır. Katkılarınız onu daha iyi yapar!",
   "community_star": "Yıldız & Fork",
@@ -289,93 +288,6 @@
   "@settings_theme_subtitle": {},
   "retry": "Tekrar Dene",
   "@retry": {},
-  "dashboard_error_title": "Panel Hatası",
-  "@dashboard_error_title": {},
-  "dashboard_title": "Sistem Paneli",
-  "@dashboard_title": {},
-  "dashboard_connectivity": "Bağlantı",
-  "@dashboard_connectivity": {},
-  "dashboard_online": "Çevrimiçi",
-  "@dashboard_online": {},
-  "dashboard_offline": "Çevrimdışı",
-  "@dashboard_offline": {},
-  "dashboard_circuit_breaker": "Devre Kesici",
-  "@dashboard_circuit_breaker": {},
-  "dashboard_endpoint_count": "{count, plural, other{{count} uç nokta}}",
-  "@dashboard_endpoint_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_open_count": "{count} açık",
-  "@dashboard_open_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_cache": "Önbellek",
-  "@dashboard_cache": {},
-  "dashboard_cached_item_count": "{count, plural, other{Önbellekte {count} öğe}}",
-  "@dashboard_cached_item_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_feature_flags": "Özellik Bayrakları",
-  "@dashboard_feature_flags": {},
-  "dashboard_feature_flags_enabled": "{enabled}/{total} etkin",
-  "@dashboard_feature_flags_enabled": {
-    "placeholders": {
-      "enabled": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_circuit_breaker_health": "Devre Kesici Durumu",
-  "@dashboard_circuit_breaker_health": {},
-  "dashboard_no_endpoints": "Henüz izlenen uç nokta yok",
-  "@dashboard_no_endpoints": {},
-  "dashboard_failure_count": "Hata: {count}",
-  "@dashboard_failure_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_no_feature_flags": "Yapılandırılmış özellik bayrağı yok",
-  "@dashboard_no_feature_flags": {},
-  "dashboard_app_configuration": "Uygulama Yapılandırması",
-  "@dashboard_app_configuration": {},
-  "dashboard_current_version": "Mevcut Sürüm",
-  "@dashboard_current_version": {},
-  "dashboard_minimum_version": "En Düşük Sürüm",
-  "@dashboard_minimum_version": {},
-  "dashboard_maintenance_mode": "Bakım Modu",
-  "@dashboard_maintenance_mode": {},
-  "dashboard_on": "AÇIK",
-  "@dashboard_on": {},
-  "dashboard_off": "KAPALI",
-  "@dashboard_off": {},
-  "dashboard_environment": "Ortam",
-  "@dashboard_environment": {},
-  "dashboard_interceptor_chain": "Interceptor Zinciri",
-  "@dashboard_interceptor_chain": {},
-  "dashboard_clear_cache": "Önbelleği Temizle",
-  "@dashboard_clear_cache": {},
-  "dashboard_reset_circuit_breakers": "Devre Kesicileri Sıfırla",
-  "@dashboard_reset_circuit_breakers": {},
-  "dashboard_open_dynamic_forms": "Dinamik Formları Aç",
-  "@dashboard_open_dynamic_forms": {},
   "cancel": "İptal",
   "@cancel": {},
   "inactive": "Pasif",
@@ -486,30 +398,6 @@
   "@user_list_empty": {},
   "app_title": "AI Engineering Bazaar",
   "@app_title": {},
-  "dashboard_circuit_state_closed": "Kapalı",
-  "@dashboard_circuit_state_closed": {},
-  "dashboard_circuit_state_half_open": "Yarı açık",
-  "@dashboard_circuit_state_half_open": {},
-  "dashboard_circuit_state_open": "Açık",
-  "@dashboard_circuit_state_open": {},
-  "dashboard_interceptor_connectivity": "Çevrimdışıyken istekleri reddeder",
-  "@dashboard_interceptor_connectivity": {},
-  "dashboard_interceptor_auth": "İsteklere JWT belirtecini ekler",
-  "@dashboard_interceptor_auth": {},
-  "dashboard_interceptor_token_refresh": "Süresi dolan erişim belirteçlerini yeniler",
-  "@dashboard_interceptor_token_refresh": {},
-  "dashboard_interceptor_idempotency": "POST/PUT/PATCH için isteğe bağlı Idempotency-Key",
-  "@dashboard_interceptor_idempotency": {},
-  "dashboard_interceptor_resilience": "Yeniden deneme ve devre kesici",
-  "@dashboard_interceptor_resilience": {},
-  "dashboard_interceptor_cache": "GET yanıtlarını süreli önbelleğe alır",
-  "@dashboard_interceptor_cache": {},
-  "dashboard_interceptor_dev_console": "İstekleri geliştirici konsoluna kaydeder",
-  "@dashboard_interceptor_dev_console": {},
-  "dashboard_interceptor_logging": "Yapılandırılmış istek ve yanıt günlüğü",
-  "@dashboard_interceptor_logging": {},
-  "dashboard_interceptor_mock": "Geliştirme ve testte sahte veri sunar",
-  "@dashboard_interceptor_mock": {},
   "error_auth_oidc_config": "Bu uygulamada tek oturum açma doğru yapılandırılmamış. Yöneticinize başvurun.",
   "@error_auth_oidc_config": {},
   "error_auth_oidc_discovery": "Kimlik sağlayıcıya ulaşılamadı. Daha sonra yeniden deneyin; sorun sürerse yöneticinize başvurun.",

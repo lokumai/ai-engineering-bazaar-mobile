@@ -287,6 +287,8 @@ void main() {
       await _choosePreferences();
       await tester.pumpWidget(_app);
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
       expect(await SharedPrefsCacheStorage().count(), isPositive, reason: 'the dashboard caches its account request');
 
       await tester.pump(const Duration(minutes: 5));
@@ -305,6 +307,8 @@ void main() {
       await _choosePreferences();
       await tester.pumpWidget(_app);
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
       expect(await SharedPrefsCacheStorage().count(), isPositive, reason: 'the dashboard caches its account request');
 
       await _logOut(tester);

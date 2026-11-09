@@ -29,7 +29,7 @@ void main() {
 
   Finder inSidebar(String label) => find.descendant(of: find.byType(SidebarWidget), matching: find.text(label));
 
-  // The real app, signed in as an admin, on the dashboard. An admin sees every menu entry and may open the user list.
+  // The real app, signed in as an admin, on the home page. An admin sees every menu entry and may open the user list.
   Future<void> pumpAdminOnDashboard(
     WidgetTester tester, {
     Size size = const Size(1600, 1600),
@@ -43,6 +43,8 @@ void main() {
 
     await tester.pumpWidget(App(language: language));
     await tester.pumpAndSettle();
+    // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+    await tester.pump(const Duration(seconds: 1));
   }
 
   // The real app, signed in, on settings: the sidebar is the same on every shell page and settings has no loading
@@ -211,6 +213,8 @@ void main() {
       }
       final width = sidebarWidth(tester);
       await tester.pumpAndSettle();
+      // The mock API answers the account request after 500 ms; the home page does not animate meanwhile.
+      await tester.pump(const Duration(seconds: 1));
       return width;
     }
 
