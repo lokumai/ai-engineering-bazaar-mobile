@@ -203,7 +203,7 @@ class _QuestionView extends StatelessWidget {
                 : pick == i
                 ? _Outcome.wrong
                 : _Outcome.other,
-            onPressed: () => cubit.pick(i),
+            onPressed: answered ? null : () => cubit.pick(i),
           ),
           const SizedBox(height: 8),
         ],
@@ -249,7 +249,9 @@ class _OptionButton extends StatelessWidget {
   final String text;
   final bool selected;
   final _Outcome outcome;
-  final VoidCallback onPressed;
+
+  /// Null once the question is answered: the option is then disabled, as the web's `aria-disabled` option is.
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -275,6 +277,7 @@ class _OptionButton extends StatelessWidget {
       button: true,
       inMutuallyExclusiveGroup: true,
       selected: selected,
+      enabled: onPressed != null,
       label: '$letter $text',
       onTap: onPressed,
       excludeSemantics: true,

@@ -118,8 +118,8 @@ void main() {
         isInMutuallyExclusiveGroup: true,
         isSelected: true,
         hasSelectedState: true,
+        hasEnabledState: true,
         isButton: true,
-        hasTapAction: true,
         label: 'B Two',
       ),
     );
@@ -128,11 +128,41 @@ void main() {
       matchesSemantics(
         isInMutuallyExclusiveGroup: true,
         hasSelectedState: true,
+        hasEnabledState: true,
         isButton: true,
-        hasTapAction: true,
         label: 'A One',
       ),
     );
+  });
+
+  testWidgets('an answered question offers its options as disabled, with no tap', (tester) async {
+    await open(tester);
+
+    expect(
+      tester.getSemantics(find.text('Three')),
+      isSemantics(hasEnabledState: true, isEnabled: true, isButton: true, hasTapAction: true, label: 'C Three'),
+    );
+
+    await tapText(tester, 'Two');
+
+    for (final (letter, option) in [('A', 'One'), ('B', 'Two'), ('C', 'Three'), ('D', 'Four')]) {
+      expect(
+        tester.getSemantics(find.text(option)),
+        isSemantics(
+          hasEnabledState: true,
+          isEnabled: false,
+          isButton: true,
+          hasTapAction: false,
+          label: '$letter $option',
+        ),
+        reason: option,
+      );
+    }
+    for (final ink in tester.widgetList<InkWell>(
+      find.ancestor(of: find.text('Three'), matching: find.byType(InkWell)),
+    )) {
+      expect(ink.onTap, isNull);
+    }
   });
 
   testWidgets('a right answer says Correct.', (tester) async {

@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/content_builders.dart';
@@ -183,6 +184,38 @@ void main() {
     expect((children[1] as TextSpan).text, '⁠');
     expect(tester.widget<LogoView>(find.byType(LogoView)).fontSize, 16); // the style's font size in the harness
     expect(tester.widget<LogoView>(find.byType(LogoView)).src, 'course-images/alpha/logos/x.svg');
+  });
+
+  testWidgets('a link holding a logo and its name is one link node named by the name', (tester) async {
+    final handle = tester.ensureSemantics();
+    final recorded = <LinkTarget>[];
+    await pump(tester, const [
+      TextInline(text: 'Run it with '),
+      LinkInline(
+        target: ExternalTarget(url: 'https://ollama.com/'),
+        inlines: [
+          LogoInline(src: 'course-images/alpha/logos/x.svg', alt: '', mono: false),
+          TextInline(text: 'Ollama'),
+        ],
+      ),
+      TextInline(text: ' on a laptop.'),
+    ], onLink: recorded.add);
+
+    final links = <SemanticsNode>[];
+    void collect(SemanticsNode node) {
+      if (node.flagsCollection.isLink) links.add(node);
+      node.visitChildren((child) {
+        collect(child);
+        return true;
+      });
+    }
+
+    collect(tester.getSemantics(find.byType(InlineText)));
+    expect(links.map((node) => node.label), ['Ollama']);
+
+    links.single.owner!.performAction(links.single.id, SemanticsAction.tap);
+    expect(recorded, const [ExternalTarget(url: 'https://ollama.com/')]);
+    handle.dispose();
   });
 
   testWidgets('a rebuild replaces the recognizers and keeps links working', (tester) async {

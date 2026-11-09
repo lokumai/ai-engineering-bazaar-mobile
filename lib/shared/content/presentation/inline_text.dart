@@ -130,7 +130,8 @@ class _SpanBuilder {
           ),
         ),
       ),
-      TextSpan(text: _wordJoiner, recognizer: recognizer),
+      // No recognizer and no label: a span with a recognizer is a link node of its own, and the joiner has no name.
+      const TextSpan(text: _wordJoiner, semanticsLabel: ''),
     ],
     UnknownInline(:final inlines) => build(inlines, recognizer),
   };

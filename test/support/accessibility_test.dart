@@ -66,4 +66,36 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     await expectLater(expectPlatformGuidelines(tester, platform: TargetPlatform.windows), throwsStateError);
   });
+
+  group('expectPlatformGuidelines tap targets', () {
+    Widget target(TargetPlatform platform) => MaterialApp(
+      theme: ThemeData(platform: platform),
+      home: Center(
+        child: Semantics(
+          label: 'Go',
+          button: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 46, height: 46, child: ColoredBox(color: Color(0xffffffff))),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets('the Android guideline asks for 48', (tester) async {
+      await tester.pumpWidget(target(TargetPlatform.android));
+      Object? failure;
+      try {
+        await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
+      } on TestFailure catch (error) {
+        failure = error;
+      }
+      expect(failure, isA<TestFailure>(), reason: 'a 46 by 46 target is under the 48 of Android');
+    });
+
+    testWidgets('the iOS guideline asks for 44', (tester) async {
+      await tester.pumpWidget(target(TargetPlatform.iOS));
+      await expectPlatformGuidelines(tester, platform: TargetPlatform.iOS);
+    });
+  });
 }

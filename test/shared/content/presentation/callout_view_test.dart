@@ -8,9 +8,11 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/callout_view.d
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../support/accessibility.dart';
 import '../../../support/content_builders.dart';
 
 CalloutBlock callout(
@@ -88,6 +90,38 @@ void main() {
     expect(title.color, BazaarFixedColors.onCaution);
     expect(styleOf(tester, 'Body.').color, BazaarFixedColors.onCaution);
   });
+
+  testWidgets('a quote inside a warning takes its own ink and keeps the callout alignment', (tester) async {
+    await pumpBlocks(
+      tester,
+      const [
+        CalloutBlock(
+          kind: CalloutKind.warning,
+          title: [TextInline(text: 'Stop here')],
+          blocks: [
+            ParagraphBlock(inlines: [TextInline(text: 'Body.')], lead: false),
+            QuoteBlock(
+              label: 'NOTE',
+              blocks: [
+                ParagraphBlock(inlines: [TextInline(text: 'Quoted.')], lead: false),
+              ],
+            ),
+          ],
+          action: null,
+        ),
+      ],
+      brightness: Brightness.dark,
+      platform: defaultTargetPlatform,
+    );
+
+    expect(styleOf(tester, 'Body.').color, BazaarFixedColors.onCaution);
+    expect(styleOf(tester, 'Quoted.').color, BazaarColors.dark.onSurface);
+    final quoted = tester.widget<InlineText>(
+      find.ancestor(of: find.text('Quoted.'), matching: find.byType(InlineText)),
+    );
+    expect(quoted.textAlign, TextAlign.center);
+    await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  }, variant: bazaarPlatforms);
 
   testWidgets('a callout is a container named by its title', (tester) async {
     await pumpBlocks(tester, [

@@ -328,6 +328,7 @@ class _Quote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
+    final scope = ProseScope.maybeOf(context);
     return Container(
       decoration: BoxDecoration(
         color: colors.surfaceRaised,
@@ -352,7 +353,12 @@ class _Quote extends StatelessWidget {
                 ),
               ),
             ),
-          BlockList(blocks: block.blocks, render: render, nested: true),
+          // The card draws its own ground, so it takes its own ink; a callout's alignment and width cap still hold.
+          ProseScope(
+            textAlign: scope?.textAlign ?? TextAlign.start,
+            paragraphMaxWidth: scope?.paragraphMaxWidth,
+            child: BlockList(blocks: block.blocks, render: render, nested: true),
+          ),
         ],
       ),
     );
