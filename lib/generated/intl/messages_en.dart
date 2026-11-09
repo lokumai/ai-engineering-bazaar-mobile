@@ -36,49 +36,56 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m7(ready, total) => "${ready} of ${total} written";
 
-  static String m8(hours) => "~${hours} h";
+  static String m8(day) => "Backed up ${day}";
 
-  static String m9(hours, minutes) => "~${hours} h ${minutes} min";
+  static String m9(seconds) =>
+      "${Intl.plural(seconds, one: 'Reset. You can undo it for 1 second.', other: 'Reset. You can undo it for ${seconds} seconds.')}";
 
-  static String m10(minutes) => "~${minutes} min";
+  static String m10(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
 
-  static String m11(url) => "Could not open ${url}";
+  static String m11(hours) => "~${hours} h";
 
-  static String m12(approved, total) => "${approved}/${total} completed";
+  static String m12(hours, minutes) => "~${hours} h ${minutes} min";
 
-  static String m13(total) => "--/${total} completed";
+  static String m13(minutes) => "~${minutes} min";
 
-  static String m14(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+  static String m14(url) => "Could not open ${url}";
 
-  static String m15(title) => "Complete ${title}";
+  static String m15(approved, total) => "${approved}/${total} completed";
 
-  static String m16(track) => "Every module, ${track}";
+  static String m16(total) => "--/${total} completed";
 
-  static String m17(approved, total) => "${approved}/${total}";
+  static String m17(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
-  static String m18(number, title) => "${number} ${title}";
+  static String m18(title) => "Complete ${title}";
 
-  static String m19(signed, total) => "${signed} of ${total}";
+  static String m19(track) => "Every module, ${track}";
 
-  static String m20(index, count) => "Question ${index} of ${count}";
+  static String m20(approved, total) => "${approved}/${total}";
 
-  static String m21(score, total) => "${score} of ${total}";
+  static String m21(number, title) => "${number} ${title}";
 
-  static String m22(count) => "${count} questions on the main points of this module";
+  static String m22(signed, total) => "${signed} of ${total}";
 
-  static String m23(letter) => "Not this one. The answer is ${letter}.";
+  static String m23(index, count) => "Question ${index} of ${count}";
 
-  static String m24(date) => "Completed ${date}";
+  static String m24(score, total) => "${score} of ${total}";
 
-  static String m25(minutes) => "${minutes} min";
+  static String m25(count) => "${count} questions on the main points of this module";
 
-  static String m26(number, count) => "MODULE ${number} OF ${count}";
+  static String m26(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m27(label) => "${label} · Planned";
+  static String m27(date) => "Completed ${date}";
 
-  static String m28(hash, date) => "Rev ${hash} · ${date}";
+  static String m28(minutes) => "${minutes} min";
 
-  static String m29(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m29(number, count) => "MODULE ${number} OF ${count}";
+
+  static String m30(label) => "${label} · Planned";
+
+  static String m31(hash, date) => "Rev ${hash} · ${date}";
+
+  static String m32(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -113,17 +120,60 @@ class MessageLookup extends MessageLookupByLibrary {
       "The course content in this app could not be read. Reinstalling the app restores it.",
     ),
     "content_broken_title": MessageLookupByLibrary.simpleMessage("The course cannot be opened"),
+    "content_notice_cache_discarded": MessageLookupByLibrary.simpleMessage(
+      "The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.",
+    ),
     "content_unreadable": MessageLookupByLibrary.simpleMessage(
       "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
-    "duration_hours": m8,
-    "duration_hours_minutes": m9,
-    "duration_minutes": m10,
-    "error_link_open_failed": m11,
-    "level_completed": m12,
-    "level_completed_pending": m13,
+    "data_back_up": MessageLookupByLibrary.simpleMessage("Back up to a file"),
+    "data_backed_up": m8,
+    "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
+      "The backup file could not be written. Nothing was marked as backed up.",
+    ),
+    "data_line_text": MessageLookupByLibrary.simpleMessage(
+      "Your progress is saved on this device only. A backup file keeps it safe if the app\'s data is cleared, and moves it to another device or to the website.",
+    ),
+    "data_reset": MessageLookupByLibrary.simpleMessage("Reset"),
+    "data_reset_closed": MessageLookupByLibrary.simpleMessage("Reset. The time to undo it has passed."),
+    "data_reset_counting": m9,
+    "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
+      "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
+    ),
+    "data_restore": MessageLookupByLibrary.simpleMessage("Restore from a file"),
+    "data_restore_empty": MessageLookupByLibrary.simpleMessage(
+      "Nothing was changed. That file holds no progress; only a backup file does.",
+    ),
+    "data_restore_malformed": MessageLookupByLibrary.simpleMessage(
+      "That file is not a backup the app or the website wrote. Nothing was changed.",
+    ),
+    "data_restore_newer": MessageLookupByLibrary.simpleMessage(
+      "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
+    ),
+    "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
+    "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
+    "data_tally_states": m10,
+    "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
+    "duration_hours": m11,
+    "duration_hours_minutes": m12,
+    "duration_minutes": m13,
+    "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
+      "A device backup may still hold an earlier copy of your progress.",
+    ),
+    "erase_confirm": MessageLookupByLibrary.simpleMessage("Erase all data"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("Type ERASE to confirm"),
+    "erase_keep": MessageLookupByLibrary.simpleMessage("Keep my data"),
+    "erase_mark": MessageLookupByLibrary.simpleMessage("Erase"),
+    "erase_scope": MessageLookupByLibrary.simpleMessage(
+      "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
+    ),
+    "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
+    "error_link_open_failed": m14,
+    "level_completed": m15,
+    "level_completed_pending": m16,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
-    "level_module_count": m14,
+    "level_module_count": m17,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
@@ -134,58 +184,93 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("No such module"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
-    "progress_complete_module": m15,
-    "progress_every_module": m16,
-    "progress_level_dial": m17,
-    "progress_module_link": m18,
+    "progress_complete_module": m18,
+    "progress_every_module": m19,
+    "progress_level_dial": m20,
+    "progress_module_link": m21,
     "progress_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "progress_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
-    "progress_tab_count": m19,
+    "progress_tab_count": m22,
     "progress_tabs_label": MessageLookupByLibrary.simpleMessage("Progress by track"),
     "progress_title": MessageLookupByLibrary.simpleMessage("Your progress"),
+    "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
+      "The copy could not be written. The set-aside record is unchanged.",
+    ),
+    "quarantine_copy_saved": MessageLookupByLibrary.simpleMessage("Saved a copy of the set-aside record."),
+    "quarantine_delete": MessageLookupByLibrary.simpleMessage("Delete it"),
+    "quarantine_delete_body": MessageLookupByLibrary.simpleMessage(
+      "This version of the app cannot read it. Deleting it cannot be undone.",
+    ),
+    "quarantine_delete_confirm": MessageLookupByLibrary.simpleMessage("Delete"),
+    "quarantine_delete_title": MessageLookupByLibrary.simpleMessage("Delete the set-aside record?"),
+    "quarantine_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
+    "quarantine_kept_note": MessageLookupByLibrary.simpleMessage(
+      "An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.",
+    ),
+    "quarantine_kept_readout": MessageLookupByLibrary.simpleMessage("A STORED RECORD IS SET ASIDE"),
+    "quarantine_label": MessageLookupByLibrary.simpleMessage("Record status"),
+    "quarantine_malformed_note": MessageLookupByLibrary.simpleMessage(
+      "The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.",
+    ),
+    "quarantine_malformed_readout": MessageLookupByLibrary.simpleMessage(
+      "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
+    ),
+    "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
+      "Update the app to read it. The stored record is kept on this device unchanged.",
+    ),
+    "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
+      "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
+    ),
+    "quarantine_save_copy": MessageLookupByLibrary.simpleMessage("Save a copy"),
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m20,
+    "quiz_progress": m23,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_count": m21,
+    "quiz_score_count": m24,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m22,
+    "quiz_subtitle": m25,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
-    "quiz_wrong": m23,
+    "quiz_wrong": m26,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m24,
+    "reader_completed_on": m27,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m25,
-    "reader_module_of": m26,
+    "reader_minutes": m28,
+    "reader_module_of": m29,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m27,
+    "reader_pager_planned": m30,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m28,
+    "reader_revision": m31,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m29,
+    "record_not_saved": m32,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
+    "restore_confirm_effect": MessageLookupByLibrary.simpleMessage(
+      "Restoring replaces it with the progress in the file.",
+    ),
+    "restore_confirm_holds": MessageLookupByLibrary.simpleMessage("On this device now:"),
+    "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("Replace"),
+    "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Replace the progress on this device?"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
   };

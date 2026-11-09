@@ -407,5 +407,111 @@
   "progress_state_complete": "Complete",
   "@progress_state_complete": {},
   "progress_state_not_yet": "Not yet",
-  "@progress_state_not_yet": {}
+  "@progress_state_not_yet": {},
+  "data_line_text": "Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.",
+  "@data_line_text": {},
+  "data_back_up": "Back up to a file",
+  "@data_back_up": {},
+  "data_restore": "Restore from a file",
+  "@data_restore": {},
+  "data_reset": "Reset",
+  "@data_reset": {},
+  "data_undo": "Undo",
+  "@data_undo": {},
+  "data_backed_up": "Backed up {day}",
+  "@data_backed_up": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "data_backup_not_written": "The backup file could not be written. Nothing was marked as backed up.",
+  "@data_backup_not_written": {},
+  "data_restored": "Restored from the file.",
+  "@data_restored": {},
+  "data_restore_empty": "Nothing was changed. That file holds no progress; only a backup file does.",
+  "@data_restore_empty": {},
+  "data_restore_newer": "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
+  "@data_restore_newer": {},
+  "data_restore_malformed": "That file is not a backup the app or the website wrote. Nothing was changed.",
+  "@data_restore_malformed": {},
+  "data_restore_unreadable": "That file could not be opened.",
+  "@data_restore_unreadable": {},
+  "data_reset_counting": "{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}",
+  "@data_reset_counting": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "data_reset_closed": "Reset. The time to undo it has passed.",
+  "@data_reset_closed": {},
+  "data_reset_not_finished": "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
+  "@data_reset_not_finished": {},
+  "data_tally_states": "{count, plural, =1{1 module state} other{{count} module states}}",
+  "@data_tally_states": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "data_tally_nothing": "NOTHING RECORDED ON THIS DEVICE",
+  "@data_tally_nothing": {},
+  "erase_mark": "Erase",
+  "@erase_mark": {},
+  "erase_title": "Erase all progress on this device?",
+  "@erase_title": {},
+  "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
+  "@erase_scope": {},
+  "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
+  "@erase_backup_statement": {},
+  "erase_field_label": "Type ERASE to confirm",
+  "@erase_field_label": {},
+  "erase_confirm": "Erase all data",
+  "@erase_confirm": {},
+  "erase_keep": "Keep my data",
+  "@erase_keep": {},
+  "restore_confirm_title": "Replace the progress on this device?",
+  "@restore_confirm_title": {},
+  "restore_confirm_holds": "On this device now:",
+  "@restore_confirm_holds": {},
+  "restore_confirm_effect": "Restoring replaces it with the progress in the file.",
+  "@restore_confirm_effect": {},
+  "restore_confirm_replace": "Replace",
+  "@restore_confirm_replace": {},
+  "quarantine_label": "Record status",
+  "@quarantine_label": {},
+  "quarantine_newer_readout": "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
+  "@quarantine_newer_readout": {},
+  "quarantine_newer_note": "Update the app to read it. The stored record is kept on this device unchanged.",
+  "@quarantine_newer_note": {},
+  "quarantine_malformed_readout": "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
+  "@quarantine_malformed_readout": {},
+  "quarantine_malformed_note": "The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.",
+  "@quarantine_malformed_note": {},
+  "quarantine_kept_readout": "A STORED RECORD IS SET ASIDE",
+  "@quarantine_kept_readout": {},
+  "quarantine_kept_note": "An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.",
+  "@quarantine_kept_note": {},
+  "quarantine_save_copy": "Save a copy",
+  "@quarantine_save_copy": {},
+  "quarantine_copy_saved": "Saved a copy of the set-aside record.",
+  "@quarantine_copy_saved": {},
+  "quarantine_copy_not_written": "The copy could not be written. The set-aside record is unchanged.",
+  "@quarantine_copy_not_written": {},
+  "quarantine_delete": "Delete it",
+  "@quarantine_delete": {},
+  "quarantine_delete_title": "Delete the set-aside record?",
+  "@quarantine_delete_title": {},
+  "quarantine_delete_body": "This version of the app cannot read it. Deleting it cannot be undone.",
+  "@quarantine_delete_body": {},
+  "quarantine_delete_confirm": "Delete",
+  "@quarantine_delete_confirm": {},
+  "quarantine_keep": "Keep it",
+  "@quarantine_keep": {},
+  "content_notice_cache_discarded": "The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.",
+  "@content_notice_cache_discarded": {}
 }

@@ -1,14 +1,20 @@
 @Tags(['widget'])
 library;
 
+import 'dart:convert';
+
 import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
 import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/progress_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
@@ -18,8 +24,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
+import '../progress_host.dart';
 
 /// The record with `alpha/first` completed For Engineers.
 RecordData _firstCompleted() => signOff(RecordData.empty, 'alpha/first', null, '2026-03-15T10:00:00.000Z');
@@ -54,9 +63,17 @@ Future<void> _pump(
   required GoRouter router,
   required RecordBloc record,
   TrackCubit? track,
+  ContentBloc? content,
+  IBackupGateway? gateway,
 }) async {
   await tester.pumpWidget(
-    bazaarTestApp(router: router, content: readyContentBloc(), record: record, track: track ?? _trackCubit()),
+    bazaarTestApp(
+      router: router,
+      content: content ?? readyContentBloc(),
+      record: record,
+      track: track ?? _trackCubit(),
+      backupGateway: gateway,
+    ),
   );
   await tester.pump();
 }
@@ -67,6 +84,26 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pump();
 }
+
+/// A content bloc at [ContentReady] over the catalog fixture with the cacheDiscarded notice.
+ContentBloc _discardedContentBloc() {
+  final bloc = MockContentBloc();
+  whenListen(
+    bloc,
+    const Stream<ContentState>.empty(),
+    initialState: ContentReady(
+      index: catalogFixtureIndex(),
+      origin: ContentOrigin.bundled,
+      notice: ContentNotice.cacheDiscarded,
+      refresh: const RefreshIdle(),
+    ),
+  );
+  return bloc;
+}
+
+/// A backup file whose record has `alpha/second` completed.
+const _restorable =
+    '{"schema":1,"savedAt":"2026-03-15T10:00:00.000Z","data":{"sheets":{"alpha/second":{"signedOff":"2026-03-15T10:00:00.000Z"}}}}';
 
 Finder _plannedIn(String key) =>
     find.descendant(of: find.byKey(Key('progress_row_$key')), matching: find.bySemanticsLabel('Planned'));
@@ -345,6 +382,9 @@ void main() {
       find.text('For Everyone'),
       find.bySemanticsLabel('Complete First Module'),
       find.text('01 First Module'),
+      find.text('Back up to a file'),
+      find.text('Restore from a file'),
+      find.text('Reset'),
     ]) {
       await tester.ensureVisible(target);
       await tester.pump();
@@ -357,13 +397,85 @@ void main() {
       bazaarTestApp(
         platform: defaultTargetPlatform,
         router: _router(),
-        content: readyContentBloc(),
-        record: readyRecordBloc(_firstCompleted()),
+        content: _discardedContentBloc(),
+        record: recordBlocAt(
+          record: _firstCompleted(),
+          quarantine: QuarantineReason.malformed,
+          quarantineKept: true,
+          writeState: const WriteQuota(),
+        ),
         track: _trackCubit(),
       ),
     );
     await tester.pump();
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  testWidgets('the notices sit above the tabs and the data line below the cards', (tester) async {
+    await _pump(
+      tester,
+      router: _router(),
+      content: _discardedContentBloc(),
+      record: recordBlocAt(quarantine: QuarantineReason.newer, quarantineKept: true),
+    );
+
+    final notice = tester.getTopLeft(find.textContaining('The downloaded content could not be read')).dy;
+    final quarantine = tester.getTopLeft(find.bySemanticsLabel('Record status')).dy;
+    final tabs = tester.getTopLeft(find.text('For Engineers')).dy;
+    final dataLine = tester.getTopLeft(find.text('Back up to a file')).dy;
+    expect(tester.getTopLeft(find.text('Your progress')).dy, lessThan(notice));
+    expect(notice, lessThan(quarantine));
+    expect(quarantine, lessThan(tabs));
+    expect(tester.getTopLeft(find.text('Planned')).dy, lessThan(dataLine));
+  });
+
+  testWidgets('without a notice nothing stands above the tabs', (tester) async {
+    await _pump(tester, router: _router(), record: readyRecordBloc());
+
+    expect(find.bySemanticsLabel('Record status'), findsNothing);
+    expect(find.textContaining('The downloaded content could not be read'), findsNothing);
+    expect(find.text('Back up to a file'), findsOneWidget);
+  });
+
+  testWidgets('a pending restore opens the confirmation', (tester) async {
+    for (final (answer, replaced) in [('Replace', 1), ('Keep my data', 0)]) {
+      final recordBloc = readyRecordBloc(_firstCompleted()) as MockRecordBloc;
+      final gateway = MockBackupGateway();
+      when(gateway.pickJson)
+          .thenAnswer((_) async => PickedBackupBytes(bytes: Uint8List.fromList(utf8.encode(_restorable))));
+      await _pump(tester, router: _router(), record: recordBloc, gateway: gateway);
+
+      await _tap(tester, find.text('Restore from a file'));
+      await tester.pumpAndSettle();
+      expect(find.text('Replace the progress on this device?'), findsOneWidget, reason: answer);
+      expect(find.text('1 module state'), findsOneWidget, reason: answer);
+
+      await tester.tap(find.text(answer));
+      await tester.pumpAndSettle();
+      expect(find.byType(Dialog), findsNothing);
+      if (replaced == 1) {
+        verify(() => recordBloc.add(any(that: isA<RecordReplaced>()))).called(1);
+        expect(find.text('Restored from the file.'), findsOneWidget);
+      } else {
+        verifyNever(() => recordBloc.add(any(that: isA<RecordReplaced>())));
+        expect(find.text('Restored from the file.'), findsNothing);
+      }
+    }
+  });
+
+  testWidgets('a write failure shows the write notice under the cards', (tester) async {
+    final recordBloc = recordBlocAt(writeState: const WriteQuota());
+    await _pump(tester, router: _router(), record: recordBloc);
+
+    expect(find.byType(RecordWriteNotice), findsOneWidget);
+    final notice = tester.getTopLeft(find.byType(RecordWriteNotice)).dy;
+    expect(tester.getTopLeft(find.text('06 Sixth Module')).dy, lessThan(notice));
+    expect(notice, lessThan(tester.getTopLeft(find.text('Back up to a file')).dy));
+
+    tester.widget<RecordWriteNotice>(find.byType(RecordWriteNotice)).onBackUp();
+    await tester.pump();
+    final events = verify(() => recordBloc.add(captureAny())).captured;
+    expect(events.whereType<BackupStarted>(), hasLength(1));
   });
 }

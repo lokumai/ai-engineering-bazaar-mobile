@@ -6,7 +6,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +80,8 @@ MockContentRepository missingContentRepository() {
 }
 
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
-/// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], and the web links use
+/// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], [backupGateway] and
+/// [recordRepository] (which the progress page's data line reads) to fresh mocks, and the web links use
 /// [testContentBaseUrl].
 Widget bazaarTestApp({
   required GoRouter router,
@@ -86,6 +89,8 @@ Widget bazaarTestApp({
   RecordBloc? record,
   TrackCubit? track,
   IContentRepository? repository,
+  IBackupGateway? backupGateway,
+  IRecordRepository? recordRepository,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
 }) {
@@ -93,6 +98,8 @@ Widget bazaarTestApp({
     providers: [
       RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
       RepositoryProvider<IContentRepository>.value(value: repository ?? missingContentRepository()),
+      RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
+      RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
     ],
     child: MultiBlocProvider(
       providers: [

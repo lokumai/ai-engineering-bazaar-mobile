@@ -594,6 +594,325 @@ class S {
   String get progress_state_not_yet {
     return Intl.message('Not yet', name: 'progress_state_not_yet', desc: '', args: []);
   }
+
+  /// `Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.`
+  String get data_line_text {
+    return Intl.message(
+      'Your progress is saved on this device only. A backup file keeps it safe if the app\'s data is cleared, and moves it to another device or to the website.',
+      name: 'data_line_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back up to a file`
+  String get data_back_up {
+    return Intl.message('Back up to a file', name: 'data_back_up', desc: '', args: []);
+  }
+
+  /// `Restore from a file`
+  String get data_restore {
+    return Intl.message('Restore from a file', name: 'data_restore', desc: '', args: []);
+  }
+
+  /// `Reset`
+  String get data_reset {
+    return Intl.message('Reset', name: 'data_reset', desc: '', args: []);
+  }
+
+  /// `Undo`
+  String get data_undo {
+    return Intl.message('Undo', name: 'data_undo', desc: '', args: []);
+  }
+
+  /// `Backed up {day}`
+  String data_backed_up(String day) {
+    return Intl.message('Backed up $day', name: 'data_backed_up', desc: '', args: [day]);
+  }
+
+  /// `The backup file could not be written. Nothing was marked as backed up.`
+  String get data_backup_not_written {
+    return Intl.message(
+      'The backup file could not be written. Nothing was marked as backed up.',
+      name: 'data_backup_not_written',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restored from the file.`
+  String get data_restored {
+    return Intl.message('Restored from the file.', name: 'data_restored', desc: '', args: []);
+  }
+
+  /// `Nothing was changed. That file holds no progress; only a backup file does.`
+  String get data_restore_empty {
+    return Intl.message(
+      'Nothing was changed. That file holds no progress; only a backup file does.',
+      name: 'data_restore_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That file was written by a newer version of the app or the website. Update the app, then restore it again.`
+  String get data_restore_newer {
+    return Intl.message(
+      'That file was written by a newer version of the app or the website. Update the app, then restore it again.',
+      name: 'data_restore_newer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That file is not a backup the app or the website wrote. Nothing was changed.`
+  String get data_restore_malformed {
+    return Intl.message(
+      'That file is not a backup the app or the website wrote. Nothing was changed.',
+      name: 'data_restore_malformed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That file could not be opened.`
+  String get data_restore_unreadable {
+    return Intl.message('That file could not be opened.', name: 'data_restore_unreadable', desc: '', args: []);
+  }
+
+  /// `{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}`
+  String data_reset_counting(int seconds) {
+    return Intl.plural(
+      seconds,
+      one: 'Reset. You can undo it for 1 second.',
+      other: 'Reset. You can undo it for $seconds seconds.',
+      name: 'data_reset_counting',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Reset. The time to undo it has passed.`
+  String get data_reset_closed {
+    return Intl.message('Reset. The time to undo it has passed.', name: 'data_reset_closed', desc: '', args: []);
+  }
+
+  /// `The reset did not finish: the app could not delete its files. The progress on this device is unchanged.`
+  String get data_reset_not_finished {
+    return Intl.message(
+      'The reset did not finish: the app could not delete its files. The progress on this device is unchanged.',
+      name: 'data_reset_not_finished',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 module state} other{{count} module states}}`
+  String data_tally_states(int count) {
+    return Intl.plural(
+      count,
+      one: '1 module state',
+      other: '$count module states',
+      name: 'data_tally_states',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `NOTHING RECORDED ON THIS DEVICE`
+  String get data_tally_nothing {
+    return Intl.message('NOTHING RECORDED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
+  }
+
+  /// `Erase`
+  String get erase_mark {
+    return Intl.message('Erase', name: 'erase_mark', desc: '', args: []);
+  }
+
+  /// `Erase all progress on this device?`
+  String get erase_title {
+    return Intl.message('Erase all progress on this device?', name: 'erase_title', desc: '', args: []);
+  }
+
+  /// `This removes the record from this device, including the copy set aside from a version of the app this one could not read.`
+  String get erase_scope {
+    return Intl.message(
+      'This removes the record from this device, including the copy set aside from a version of the app this one could not read.',
+      name: 'erase_scope',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A device backup may still hold an earlier copy of your progress.`
+  String get erase_backup_statement {
+    return Intl.message(
+      'A device backup may still hold an earlier copy of your progress.',
+      name: 'erase_backup_statement',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type ERASE to confirm`
+  String get erase_field_label {
+    return Intl.message('Type ERASE to confirm', name: 'erase_field_label', desc: '', args: []);
+  }
+
+  /// `Erase all data`
+  String get erase_confirm {
+    return Intl.message('Erase all data', name: 'erase_confirm', desc: '', args: []);
+  }
+
+  /// `Keep my data`
+  String get erase_keep {
+    return Intl.message('Keep my data', name: 'erase_keep', desc: '', args: []);
+  }
+
+  /// `Replace the progress on this device?`
+  String get restore_confirm_title {
+    return Intl.message('Replace the progress on this device?', name: 'restore_confirm_title', desc: '', args: []);
+  }
+
+  /// `On this device now:`
+  String get restore_confirm_holds {
+    return Intl.message('On this device now:', name: 'restore_confirm_holds', desc: '', args: []);
+  }
+
+  /// `Restoring replaces it with the progress in the file.`
+  String get restore_confirm_effect {
+    return Intl.message(
+      'Restoring replaces it with the progress in the file.',
+      name: 'restore_confirm_effect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Replace`
+  String get restore_confirm_replace {
+    return Intl.message('Replace', name: 'restore_confirm_replace', desc: '', args: []);
+  }
+
+  /// `Record status`
+  String get quarantine_label {
+    return Intl.message('Record status', name: 'quarantine_label', desc: '', args: []);
+  }
+
+  /// `PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.`
+  String get quarantine_newer_readout {
+    return Intl.message(
+      'PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.',
+      name: 'quarantine_newer_readout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update the app to read it. The stored record is kept on this device unchanged.`
+  String get quarantine_newer_note {
+    return Intl.message(
+      'Update the app to read it. The stored record is kept on this device unchanged.',
+      name: 'quarantine_newer_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.`
+  String get quarantine_malformed_readout {
+    return Intl.message(
+      'PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.',
+      name: 'quarantine_malformed_readout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.`
+  String get quarantine_malformed_note {
+    return Intl.message(
+      'The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.',
+      name: 'quarantine_malformed_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A STORED RECORD IS SET ASIDE`
+  String get quarantine_kept_readout {
+    return Intl.message('A STORED RECORD IS SET ASIDE', name: 'quarantine_kept_readout', desc: '', args: []);
+  }
+
+  /// `An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.`
+  String get quarantine_kept_note {
+    return Intl.message(
+      'An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.',
+      name: 'quarantine_kept_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save a copy`
+  String get quarantine_save_copy {
+    return Intl.message('Save a copy', name: 'quarantine_save_copy', desc: '', args: []);
+  }
+
+  /// `Saved a copy of the set-aside record.`
+  String get quarantine_copy_saved {
+    return Intl.message('Saved a copy of the set-aside record.', name: 'quarantine_copy_saved', desc: '', args: []);
+  }
+
+  /// `The copy could not be written. The set-aside record is unchanged.`
+  String get quarantine_copy_not_written {
+    return Intl.message(
+      'The copy could not be written. The set-aside record is unchanged.',
+      name: 'quarantine_copy_not_written',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete it`
+  String get quarantine_delete {
+    return Intl.message('Delete it', name: 'quarantine_delete', desc: '', args: []);
+  }
+
+  /// `Delete the set-aside record?`
+  String get quarantine_delete_title {
+    return Intl.message('Delete the set-aside record?', name: 'quarantine_delete_title', desc: '', args: []);
+  }
+
+  /// `This version of the app cannot read it. Deleting it cannot be undone.`
+  String get quarantine_delete_body {
+    return Intl.message(
+      'This version of the app cannot read it. Deleting it cannot be undone.',
+      name: 'quarantine_delete_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get quarantine_delete_confirm {
+    return Intl.message('Delete', name: 'quarantine_delete_confirm', desc: '', args: []);
+  }
+
+  /// `Keep it`
+  String get quarantine_keep {
+    return Intl.message('Keep it', name: 'quarantine_keep', desc: '', args: []);
+  }
+
+  /// `The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.`
+  String get content_notice_cache_discarded {
+    return Intl.message(
+      'The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.',
+      name: 'content_notice_cache_discarded',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
