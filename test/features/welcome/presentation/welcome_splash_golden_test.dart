@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../support/bazaar_app_harness.dart';
 import '../../../support/golden_app.dart';
 
-/// The gate as its entrance ends, while the record still loads: reduced motion draws it in place at once.
+/// The opening as its entrance ends, while the record still loads: reduced motion draws it in place at once.
 Widget _splash(Brightness brightness) => SizedBox.fromSize(
   size: kGoldenScreenSize,
   child: goldenScreen(

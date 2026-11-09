@@ -66,7 +66,7 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
     expect(find.text('the app'), findsOneWidget, reason: 'built behind the scene, ready when it fades');
 
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.fade + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
     expect(find.text('the app'), findsOneWidget);
@@ -84,7 +84,7 @@ void main() {
     expect(_scene, findsOneWidget);
 
     states.add(_ready);
-    await _frames(tester, WelcomeSplash.fade + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSplash.exit + const Duration(milliseconds: 100));
     expect(_scene, findsNothing);
   });
 
@@ -96,7 +96,7 @@ void main() {
       initialState: const ContentBroken(code: ContentErrorCode.bundledIndexUnreadable),
     );
     await tester.pumpWidget(_splash(content: content, record: loadingRecordBloc()));
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.fade + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
   });
@@ -132,7 +132,7 @@ void main() {
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 0);
 
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.fade + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 1);
   });
@@ -143,7 +143,7 @@ void main() {
     await tester.pump();
     await tester.pump(WelcomeSplash.entrance);
 
-    expect(find.bySemanticsLabel(RegExp('gate|cast|lamp', caseSensitive: false)), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('logo|band', caseSensitive: false)), findsNothing);
     expect(
       find.descendant(
         of: _scene,
