@@ -1212,6 +1212,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Opens Settings to change the track and the language`
+  String get reading_badge_hint {
+    return Intl.message(
+      'Opens Settings to change the track and the language',
+      name: 'reading_badge_hint',
+      desc: 'Screen reader hint of the bar\'s track and language badge (plan 1R).',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

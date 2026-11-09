@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/app/shell/reading_badge.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
@@ -107,8 +108,11 @@ class _Bar extends StatelessWidget {
   /// Whether a page was pushed over the one below it, so the bar offers the way back.
   final bool canPop;
 
+  /// The bar's least height: thinner than the mockup's 58 (plan 1R).
+  static const double _height = 48;
+
   /// The logo's side at text scale 1; it grows with the title.
-  static const double _logo = 30;
+  static const double _logo = 26;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +127,7 @@ class _Bar extends StatelessWidget {
           bottom: false,
           child: ConstrainedBox(
             // A minimum, never a fixed height, so a large text scale grows the bar (spec 3.10).
-            constraints: const BoxConstraints(minHeight: BazaarLayout.bar),
+            constraints: const BoxConstraints(minHeight: _height),
             child: Padding(
               padding: EdgeInsetsDirectional.only(
                 start: canPop ? AppSpacing.xs : AppSpacing.lg,
@@ -141,6 +145,8 @@ class _Bar extends StatelessWidget {
                     child: Image.asset(_logoAsset, width: logo, height: logo, filterQuality: FilterQuality.medium),
                   ),
                   Expanded(child: Text(S.of(context).app_title, style: style)),
+                  // It shares the row with the title, so a large text scale wraps both rather than cutting either.
+                  const Flexible(child: ReadingBadge()),
                 ],
               ),
             ),

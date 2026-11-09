@@ -599,5 +599,9 @@
   "track_everyone": "For Everyone",
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
+  },
+  "reading_badge_hint": "Opens Settings to change the track and the language",
+  "@reading_badge_hint": {
+    "description": "Screen reader hint of the bar's track and language badge (plan 1R)."
   }
 }

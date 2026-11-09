@@ -26,7 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
+import 'package:ai_engineering_bazaar/app/shell/reading_badge.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -127,7 +127,10 @@ void main() {
     expect(find.byType(WelcomeView), findsNothing);
     await _drain(
       tester,
-      () => find.descendant(of: find.byType(TrackLabel), matching: find.text('For Everyone')).evaluate().isNotEmpty,
+      () => find
+          .descendant(of: find.byType(ReadingBadge), matching: find.textContaining('For Everyone'))
+          .evaluate()
+          .isNotEmpty,
       what: 'the chosen track after a restart',
     );
   });

@@ -180,5 +180,6 @@
   "settings_language": "زبان",
   "settings_language_note": "رابط برنامه و درس‌ها به این زبان نمایش داده می‌شوند. درسی که هنوز ترجمه نشده به انگلیسی باز می‌شود.",
   "track_engineers": "برای مهندسان",
-  "track_everyone": "برای همه"
+  "track_everyone": "برای همه",
+  "reading_badge_hint": "تنظیمات را برای تغییر مسیر و زبان باز می‌کند"
 }

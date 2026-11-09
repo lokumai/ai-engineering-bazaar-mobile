@@ -180,5 +180,6 @@
   "settings_language": "Dil",
   "settings_language_note": "Arayüz ve modüller bu dilde açılır. Henüz çevrilmemiş bir modül İngilizce açılır.",
   "track_engineers": "Mühendisler için",
-  "track_everyone": "Herkes için"
+  "track_everyone": "Herkes için",
+  "reading_badge_hint": "Yolu ve dili değiştirmek için Ayarlar'ı açar"
 }

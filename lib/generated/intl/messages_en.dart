@@ -265,6 +265,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
+    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("Opens Settings to change the track and the language"),
     "record_not_saved": m31,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),

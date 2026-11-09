@@ -267,6 +267,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("Bölümler"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("Herkes için yazılanlara bak"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Kursun başı"),
+    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("Yolu ve dili değiştirmek için Ayarlar\'ı açar"),
     "record_not_saved": m31,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),

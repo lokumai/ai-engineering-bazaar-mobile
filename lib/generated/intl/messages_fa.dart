@@ -265,6 +265,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("بخش‌ها"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("دیدن آنچه «برای همه» نوشته شده است"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("آغاز دوره"),
+    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("تنظیمات را برای تغییر مسیر و زبان باز می‌کند"),
     "record_not_saved": m31,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),

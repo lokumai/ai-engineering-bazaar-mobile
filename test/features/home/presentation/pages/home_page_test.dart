@@ -9,7 +9,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_di
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -60,7 +59,6 @@ void main() {
     await _pumpHome(tester);
 
     expect(find.byType(HomePage), findsOneWidget);
-    expect(find.descendant(of: find.byType(TrackLabel), matching: find.text('For Engineers')), findsOneWidget);
     expect(find.text('UP NEXT'), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget);
     expect(find.text('20 min'), findsOneWidget);
