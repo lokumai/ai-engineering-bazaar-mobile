@@ -106,11 +106,12 @@ Three of them change a decision taken above or a requirement; those are marked, 
 
 The owner ran the app from a clean install. Each step lands on the same branch and pull request, as its own commit through the gate.
 
-- [x] **1R A thinner bar that says what is read.** The navy bar looked tall and empty. It is thinner, and its end carries a small badge with the track and the language (`For Engineers · EN`); a tap opens Settings, where both change. The track line on Home, the catalog and the level page is gone.
+- [x] **1R A thinner bar.** The navy bar looked tall and empty. It is thinner (48). A badge naming the track and the language was tried at its end, then taken out on the owner's look; the bar holds the logo and the name only. The track line on Home, the catalog and the level page is gone too.
 - [x] **1S Welcome, livelier and whole.** The scene reaches the top of the screen under the status bar, so the white strip and the lattice no longer cut it off. It enters in steps: the light in the gate opens, the people step in one after the other, the lamps drop and swing; under reduced motion it is still. The second step asks for the language as well as the track.
 - [x] **1T The first landing is the catalog.** Up next means little to someone who has read nothing. After Welcome the app opens the catalog; every later launch opens Home.
 - [x] **1U Progress shows the current track.** The track is chosen once and changed in Settings, so Progress drops its track tabs and shows the current track only.
 - [x] **1V A module completed For Engineers counts For Everyone.** *Changes the record's use, not its format.* Completing a module For Engineers also completes its For Everyone version, when that is written; the reverse does not hold, and undoing For Engineers leaves For Everyone as it is.
+- [x] **1X A guide on the first launch.** Someone new to the app does not know what it holds. After the language and the track, Welcome shows How the bazaar works once: the levels, the short modules, marking what is finished, and the course kept on the device offline. Open the catalog ends Welcome; only then is it recorded as seen.
 - [ ] **1W Quiz scores (on hold).** The owner would like Progress to show how each quiz went. The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
 
 ## Phase 2: small fixes in the reader

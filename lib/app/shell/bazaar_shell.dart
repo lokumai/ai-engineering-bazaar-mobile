@@ -1,4 +1,3 @@
-import 'package:ai_engineering_bazaar/app/shell/reading_badge.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
@@ -145,8 +144,6 @@ class _Bar extends StatelessWidget {
                     child: Image.asset(_logoAsset, width: logo, height: logo, filterQuality: FilterQuality.medium),
                   ),
                   Expanded(child: Text(S.of(context).app_title, style: style)),
-                  // It shares the row with the title, so a large text scale wraps both rather than cutting either.
-                  const Flexible(child: ReadingBadge()),
                 ],
               ),
             ),

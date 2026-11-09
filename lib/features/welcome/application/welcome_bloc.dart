@@ -6,7 +6,8 @@ part 'welcome_event.dart';
 part 'welcome_state.dart';
 
 /// Shows Welcome on the first launch only (plan Phase 1I): it asks the [IWelcomeStore] at start; entering the bazaar
-/// asks for the track (plan 1L), and choosing one records Welcome as seen, so the next launch opens Home directly.
+/// asks for the language and the track (plan 1L, 1S), then a short guide says how the bazaar works (plan 1X); reading
+/// it records Welcome as seen, so the next launch opens Home directly.
 /// The chosen track itself is kept by the track cubit; this bloc only steps through the screens.
 ///
 /// A Bloc rather than a Cubit, since it touches storage (`CLAUDE.md`, Bloc vs Cubit).
@@ -15,6 +16,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     on<WelcomeStarted>(_onStarted);
     on<WelcomeEntered>(_onEntered);
     on<WelcomeTrackChosen>(_onTrackChosen);
+    on<WelcomeIntroRead>(_onIntroRead);
   }
 
   final IWelcomeStore _store;
@@ -27,9 +29,13 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     if (state is WelcomeShowing) emit(const WelcomeChoosingTrack());
   }
 
+  void _onTrackChosen(WelcomeTrackChosen event, Emitter<WelcomeState> emit) {
+    if (state is WelcomeChoosingTrack) emit(const WelcomeIntroducing());
+  }
+
   /// The app opens at once; the flag is written behind it.
-  Future<void> _onTrackChosen(WelcomeTrackChosen event, Emitter<WelcomeState> emit) async {
-    if (state is! WelcomeChoosingTrack) return;
+  Future<void> _onIntroRead(WelcomeIntroRead event, Emitter<WelcomeState> emit) async {
+    if (state is! WelcomeIntroducing) return;
     emit(const WelcomeDone());
     await _store.markSeen();
   }

@@ -85,6 +85,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
+  static String m32(count, first) =>
+      "دوره در ${count} سطح چیده شده و با ${first} شروع می‌شود. از سطح اول شروع کنید و هر وقت آماده بودید به سطح بعد بروید.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
@@ -261,7 +264,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("بخش‌ها"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("دیدن آنچه «برای همه» نوشته شده است"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("آغاز دوره"),
-    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("تنظیمات را برای تغییر مسیر و زبان باز می‌کند"),
     "record_not_saved": m30,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),
@@ -316,6 +318,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("ورود به بازار"),
     "welcome_headline": MessageLookupByLibrary.simpleMessage("مهندسی هوش مصنوعی، به قلم کسانی که آن را می‌سازند."),
+    "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
+      "وقتی درسی را تمام کردید، آن را تکمیل‌شده علامت بزنید. صفحهٔ پیشرفت نشان می‌دهد چه خوانده‌اید و صفحهٔ خانه درس بعدی را نشان می‌دهد.",
+    ),
+    "welcome_intro_complete_title": MessageLookupByLibrary.simpleMessage("آنچه را تمام می‌کنید علامت بزنید"),
+    "welcome_intro_levels": m32,
+    "welcome_intro_levels_title": MessageLookupByLibrary.simpleMessage("سطح به سطح"),
+    "welcome_intro_modules": MessageLookupByLibrary.simpleMessage(
+      "هر درس 20 تا 30 دقیقه مطالعه است، همراه با نمودار و کد. در پایان برخی درس‌ها چند پرسش برای سنجیدن خودتان هست.",
+    ),
+    "welcome_intro_modules_title": MessageLookupByLibrary.simpleMessage("درس‌های کوتاه"),
+    "welcome_intro_offline": MessageLookupByLibrary.simpleMessage(
+      "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین گوشی می‌ماند.",
+    ),
+    "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("روی همین دستگاه، بدون اینترنت"),
+    "welcome_intro_start": MessageLookupByLibrary.simpleMessage("باز کردن کاتالوگ"),
+    "welcome_intro_title": MessageLookupByLibrary.simpleMessage("بازار چطور کار می‌کند"),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(
       "دورهٔ مهندسی هوش مصنوعی، روی همین دستگاه. بدون حساب کاربری: پیشرفت شما همین‌جا می‌ماند.",
     ),

@@ -1203,12 +1203,102 @@ class S {
     );
   }
 
-  /// `Opens Settings to change the track and the language`
-  String get reading_badge_hint {
+  /// `How the bazaar works`
+  String get welcome_intro_title {
     return Intl.message(
-      'Opens Settings to change the track and the language',
-      name: 'reading_badge_hint',
-      desc: 'Screen reader hint of the bar\'s track and language badge (plan 1R).',
+      'How the bazaar works',
+      name: 'welcome_intro_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Level by level`
+  String get welcome_intro_levels_title {
+    return Intl.message(
+      'Level by level',
+      name: 'welcome_intro_levels_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.`
+  String welcome_intro_levels(int count, String first) {
+    return Intl.message(
+      'The course is set out in $count levels, starting with $first. Begin with the first and move on when you are ready.',
+      name: 'welcome_intro_levels',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [count, first],
+    );
+  }
+
+  /// `Short modules`
+  String get welcome_intro_modules_title {
+    return Intl.message(
+      'Short modules',
+      name: 'welcome_intro_modules_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
+  String get welcome_intro_modules {
+    return Intl.message(
+      'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
+      name: 'welcome_intro_modules',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Mark what you finish`
+  String get welcome_intro_complete_title {
+    return Intl.message(
+      'Mark what you finish',
+      name: 'welcome_intro_complete_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.`
+  String get welcome_intro_complete {
+    return Intl.message(
+      'At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.',
+      name: 'welcome_intro_complete',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `On this device, offline`
+  String get welcome_intro_offline_title {
+    return Intl.message(
+      'On this device, offline',
+      name: 'welcome_intro_offline_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
+  String get welcome_intro_offline {
+    return Intl.message(
+      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
+      name: 'welcome_intro_offline',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Open the catalog`
+  String get welcome_intro_start {
+    return Intl.message(
+      'Open the catalog',
+      name: 'welcome_intro_start',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }

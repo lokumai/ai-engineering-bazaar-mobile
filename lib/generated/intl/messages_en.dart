@@ -85,6 +85,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(reason) => "The check for updates did not finish: ${reason}.";
 
+  static String m32(count, first) =>
+      "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
@@ -261,7 +264,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("Opens Settings to change the track and the language"),
     "record_not_saved": m30,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
@@ -314,6 +316,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
     "welcome_headline": MessageLookupByLibrary.simpleMessage("AI engineering, written by the people who build it."),
+    "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
+      "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
+    ),
+    "welcome_intro_complete_title": MessageLookupByLibrary.simpleMessage("Mark what you finish"),
+    "welcome_intro_levels": m32,
+    "welcome_intro_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
+    "welcome_intro_modules": MessageLookupByLibrary.simpleMessage(
+      "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+    ),
+    "welcome_intro_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
+    "welcome_intro_offline": MessageLookupByLibrary.simpleMessage(
+      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+    ),
+    "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
+    "welcome_intro_start": MessageLookupByLibrary.simpleMessage("Open the catalog"),
+    "welcome_intro_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(
       "The AI engineering course, on this device. No account: the progress stays here.",
     ),

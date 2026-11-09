@@ -41,15 +41,22 @@ void main() {
 
   final store = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
-    'entering asks for the track; choosing one opens the app and records it once (plan 1L)',
+    'entering asks for the track, then the guide; reading it opens the app and records it once (plan 1L, 1X)',
     build: () => WelcomeBloc(store: store),
     act: (bloc) => bloc
       ..add(const WelcomeStarted())
       ..add(const WelcomeEntered())
       ..add(const WelcomeEntered())
       ..add(const WelcomeTrackChosen())
-      ..add(const WelcomeTrackChosen()),
-    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack(), const WelcomeDone()],
+      ..add(const WelcomeTrackChosen())
+      ..add(const WelcomeIntroRead())
+      ..add(const WelcomeIntroRead()),
+    expect: () => [
+      const WelcomeShowing(),
+      const WelcomeChoosingTrack(),
+      const WelcomeIntroducing(),
+      const WelcomeDone(),
+    ],
     verify: (_) {
       expect(store.writes, 1);
       expect(store.wasSeen, isTrue);
@@ -58,13 +65,15 @@ void main() {
 
   final notYet = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
-    'Welcome is not recorded before a track is chosen',
+    'Welcome is not recorded before the guide is read',
     build: () => WelcomeBloc(store: notYet),
     act: (bloc) => bloc
       ..add(const WelcomeStarted())
+      ..add(const WelcomeIntroRead())
       ..add(const WelcomeTrackChosen())
-      ..add(const WelcomeEntered()),
-    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack()],
+      ..add(const WelcomeEntered())
+      ..add(const WelcomeTrackChosen()),
+    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack(), const WelcomeIntroducing()],
     verify: (_) => expect(notYet.writes, 0),
   );
 

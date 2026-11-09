@@ -85,6 +85,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
+  static String m32(count, first) =>
+      "Kurs, ${first} ile başlayan ${count} seviyeye ayrılır. İlkinden başla, hazır olduğunda bir sonrakine geç.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
@@ -263,7 +266,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_sections": MessageLookupByLibrary.simpleMessage("Bölümler"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("Herkes için yazılanlara bak"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Kursun başı"),
-    "reading_badge_hint": MessageLookupByLibrary.simpleMessage("Yolu ve dili değiştirmek için Ayarlar\'ı açar"),
     "record_not_saved": m30,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),
@@ -316,6 +318,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("Bazaar\'a gir"),
     "welcome_headline": MessageLookupByLibrary.simpleMessage("Yapay zekâ mühendisliği, onu inşa edenlerin kaleminden."),
+    "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
+      "Bir modülü bitirince tamamlandı olarak işaretle. İlerleme ne okuduğunu, Ana sayfa sırada ne olduğunu gösterir.",
+    ),
+    "welcome_intro_complete_title": MessageLookupByLibrary.simpleMessage("Bitirdiğini işaretle"),
+    "welcome_intro_levels": m32,
+    "welcome_intro_levels_title": MessageLookupByLibrary.simpleMessage("Seviye seviye"),
+    "welcome_intro_modules": MessageLookupByLibrary.simpleMessage(
+      "Her modül, diyagramlar ve kodla 20 ile 30 dakikalık bir okuma. Bazılarının sonunda kendini sınaman için birkaç soru var.",
+    ),
+    "welcome_intro_modules_title": MessageLookupByLibrary.simpleMessage("Kısa modüller"),
+    "welcome_intro_offline": MessageLookupByLibrary.simpleMessage(
+      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu telefonda kalır.",
+    ),
+    "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
+    "welcome_intro_start": MessageLookupByLibrary.simpleMessage("Kataloğu aç"),
+    "welcome_intro_title": MessageLookupByLibrary.simpleMessage("Bazaar nasıl işler"),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(
       "Yapay zekâ mühendisliği kursu, bu cihazda. Hesap yok: ilerlemen burada kalır.",
     ),

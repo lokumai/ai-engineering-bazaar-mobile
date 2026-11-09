@@ -587,8 +587,53 @@
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
   },
-  "reading_badge_hint": "Opens Settings to change the track and the language",
-  "@reading_badge_hint": {
-    "description": "Screen reader hint of the bar's track and language badge (plan 1R)."
+  "welcome_intro_title": "How the bazaar works",
+  "@welcome_intro_title": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_levels_title": "Level by level",
+  "@welcome_intro_levels_title": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_levels": "The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.",
+  "@welcome_intro_levels": {
+    "description": "Welcome's first-launch guide (plan 1X).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "String",
+        "example": "Fundamentals"
+      }
+    }
+  },
+  "welcome_intro_modules_title": "Short modules",
+  "@welcome_intro_modules_title": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+  "@welcome_intro_modules": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_complete_title": "Mark what you finish",
+  "@welcome_intro_complete_title": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_complete": "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
+  "@welcome_intro_complete": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_offline_title": "On this device, offline",
+  "@welcome_intro_offline_title": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+  "@welcome_intro_offline": {
+    "description": "Welcome's first-launch guide (plan 1X)."
+  },
+  "welcome_intro_start": "Open the catalog",
+  "@welcome_intro_start": {
+    "description": "Welcome's first-launch guide (plan 1X)."
   }
 }

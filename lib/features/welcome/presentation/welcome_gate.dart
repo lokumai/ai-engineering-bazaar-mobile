@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -18,7 +19,7 @@ class WelcomeGate extends StatelessWidget {
 
   final Widget child;
 
-  /// Called with the chosen track once a reader who saw Welcome chose one; the app opens that track's catalog, since
+  /// Called with the chosen track once a reader who saw Welcome chose one and read the guide; the app opens that track's catalog, since
   /// Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch that skips Welcome.
   final ValueChanged<Track>? onFinished;
 
@@ -35,7 +36,12 @@ class WelcomeGate extends StatelessWidget {
             onChosen: (track) {
               unawaited(context.read<TrackCubit>().choose(track));
               context.read<WelcomeBloc>().add(const WelcomeTrackChosen());
-              onFinished?.call(track);
+            },
+          ),
+          WelcomeIntroducing() => WelcomeIntroView(
+            onDone: () {
+              context.read<WelcomeBloc>().add(const WelcomeIntroRead());
+              onFinished?.call(context.read<TrackCubit>().state);
             },
           ),
           WelcomeDone() => child,

@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -132,6 +133,15 @@ void main() {
     await tester.tap(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
 
+    expect(find.byType(WelcomeIntroView), findsOneWidget, reason: 'the guide, on the first launch only (plan 1X)');
+    expect(find.text('How the bazaar works'), findsOneWidget);
+    expect(store.wasSeen, isFalse, reason: 'not before the guide is read');
+    expect(finished, isEmpty);
+    await tester.ensureVisible(find.byKey(WelcomeIntroView.doneKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(WelcomeIntroView.doneKey));
+    await tester.pumpAndSettle();
+
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeView), findsNothing);
     expect(store.wasSeen, isTrue);
@@ -232,5 +242,43 @@ void main() {
     await tester.pumpAndSettle();
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  group('the guide (plan 1X)', () {
+    /// Steps through Welcome to the guide.
+    Future<void> toGuide(WidgetTester tester) async {
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(_enter);
+      await tester.pumpAndSettle();
+      await tester.tap(_enter);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('welcome-start')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('welcome-start')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('keeps the way on reachable at text scale 2.0', (tester) async {
+      await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore()), scale: 2.0);
+      await toGuide(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(WelcomeIntroView), findsOneWidget);
+      await tester.ensureVisible(find.byKey(WelcomeIntroView.doneKey));
+      await tester.pumpAndSettle();
+      expectHittable(tester, find.byKey(WelcomeIntroView.doneKey));
+    });
+
+    testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform));
+      await toGuide(tester);
+
+      expect(find.text('How the bazaar works'), findsOneWidget);
+      await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+    });
   });
 }

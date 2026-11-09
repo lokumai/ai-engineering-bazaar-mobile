@@ -12,6 +12,7 @@ import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dar
 import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -24,9 +25,9 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_sto
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
-import 'package:ai_engineering_bazaar/app/shell/reading_badge.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -116,6 +117,11 @@ void main() {
       await tester.ensureVisible(start);
       await tester.pump();
       await tester.tap(start);
+      final intro = find.byKey(WelcomeIntroView.doneKey);
+      await _drain(tester, () => intro.evaluate().isNotEmpty, what: 'the guide (plan 1X)');
+      await tester.ensureVisible(intro);
+      await tester.pump();
+      await tester.tap(intro);
       await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
       expect(find.byType(HomePage), findsNothing);
       await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
@@ -128,10 +134,7 @@ void main() {
       expect(find.byType(WelcomeView), findsNothing);
       await _drain(
         tester,
-        () => find
-            .descendant(of: find.byType(ReadingBadge), matching: find.textContaining('For Everyone'))
-            .evaluate()
-            .isNotEmpty,
+        () => tester.element(find.byType(HomePage)).read<TrackCubit>().state == Track.everyone,
         what: 'the chosen track after a restart',
       );
     },

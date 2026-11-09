@@ -6,7 +6,6 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/cata
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/app/shell/reading_badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,12 +79,7 @@ void main() {
       tester.getBottomLeft(barSurface).dy,
       reason: 'under the bar',
     );
-    expect(find.descendant(of: find.byType(ReadingBadge), matching: find.text('For Engineers · EN')), findsOneWidget);
-    expect(
-      find.text('For Everyone'),
-      findsNothing,
-      reason: 'plan 1L: no switch on the pages; the bar names the track (1R)',
-    );
+    expect(find.text('For Everyone'), findsNothing, reason: 'plan 1L: no switch on the pages');
   });
 
   testWidgets('the bar asks for light status bar icons, since it is navy in both themes', (tester) async {
@@ -170,22 +164,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/everyone/sheets');
     expect(selected(), 1);
-  });
-
-  testWidgets('the bar\'s badge opens Settings, where the track and the language change (plan 1R)', (tester) async {
-    final router = await _pumpAt(tester, '/sheets', TrackCubit());
-
-    await tester.tap(find.byKey(ReadingBadge.badgeKey));
-    await tester.pumpAndSettle();
-
-    expect(_path(router), '/settings');
-  });
-
-  testWidgets('a page of the other track, opened by a link, names that track', (tester) async {
-    final track = TrackCubit();
-    await _pumpAt(tester, '/everyone/sheets/beta', track);
-
-    expect(find.descendant(of: find.byType(ReadingBadge), matching: find.text('For Everyone · EN')), findsOneWidget);
   });
 
   testWidgets('text scale 2.0', (tester) async {

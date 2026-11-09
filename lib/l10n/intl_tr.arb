@@ -179,5 +179,14 @@
   "settings_language_note": "Arayüz ve modüller bu dilde açılır. Henüz çevrilmemiş bir modül İngilizce açılır.",
   "track_engineers": "Mühendisler için",
   "track_everyone": "Herkes için",
-  "reading_badge_hint": "Yolu ve dili değiştirmek için Ayarlar'ı açar"
+  "welcome_intro_title": "Bazaar nasıl işler",
+  "welcome_intro_levels_title": "Seviye seviye",
+  "welcome_intro_levels": "Kurs, {first} ile başlayan {count} seviyeye ayrılır. İlkinden başla, hazır olduğunda bir sonrakine geç.",
+  "welcome_intro_modules_title": "Kısa modüller",
+  "welcome_intro_modules": "Her modül, diyagramlar ve kodla 20 ile 30 dakikalık bir okuma. Bazılarının sonunda kendini sınaman için birkaç soru var.",
+  "welcome_intro_complete_title": "Bitirdiğini işaretle",
+  "welcome_intro_complete": "Bir modülü bitirince tamamlandı olarak işaretle. İlerleme ne okuduğunu, Ana sayfa sırada ne olduğunu gösterir.",
+  "welcome_intro_offline_title": "Bu cihazda, internetsiz",
+  "welcome_intro_offline": "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu telefonda kalır.",
+  "welcome_intro_start": "Kataloğu aç"
 }
