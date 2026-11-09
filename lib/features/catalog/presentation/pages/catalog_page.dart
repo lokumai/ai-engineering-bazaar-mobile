@@ -51,6 +51,7 @@ class _CatalogPageState extends State<CatalogPage> {
         Semantics(header: true, child: Text(l10n.catalog_title, style: Theme.of(context).textTheme.headlineSmall)),
         const SizedBox(height: AppSpacing.lg),
         CatalogFilterBar(
+          index: index,
           track: widget.track,
           levels: levelsOf(index, rows),
           level: null,

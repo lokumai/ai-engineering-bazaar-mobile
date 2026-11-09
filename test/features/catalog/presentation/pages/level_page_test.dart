@@ -12,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,11 +64,19 @@ bool _selected(WidgetTester tester, Finder chip) => tester.widget<ChoiceChip>(ch
 Finder _inCards(Finder finder) => find.descendant(of: find.byType(CatalogCards), matching: finder);
 
 /// The card of the module titled [title].
-Finder _card(String title) => find.ancestor(of: _inCards(find.text(title)), matching: find.byType(Card));
+Finder _card(String title) => find.ancestor(of: _inCards(find.text(title)), matching: find.byType(BazaarCard));
 
 Finder _inCard(String title, String text) => find.descendant(of: _card(title), matching: find.text(text));
 
+/// Scrolls the page until [finder] is built: the page's list builds lazily, so the cards under its header are not built
+/// until they come near the screen.
+Future<void> _build(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  await tester.scrollUntilVisible(finder, 200, scrollable: find.byType(Scrollable).last);
+}
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
+  await _build(tester, finder);
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
@@ -240,7 +249,8 @@ void main() {
   testWidgets('the cards', (tester) async {
     await _pumpLevel(tester, '/sheets/alpha');
 
-    expect(find.byType(Card), findsNWidgets(3));
+    await _build(tester, find.byType(CatalogCards));
+    expect(find.byType(BazaarCard), findsNWidgets(3));
     expect(_inCard('First Module', 'Alpha Level 01'), findsOneWidget);
     expect(_inCard('Second Module', 'Alpha Level 02'), findsOneWidget);
     expect(_inCard('Third Module', 'Alpha Level 03'), findsOneWidget);
@@ -279,6 +289,7 @@ void main() {
 
   testWidgets('For Everyone', (tester) async {
     await _pumpLevel(tester, '/everyone/sheets/alpha');
+    await _build(tester, find.byType(CatalogCards));
 
     expect(_card('First Module'), findsOneWidget);
     expect(find.text('First Story'), findsNothing);
@@ -305,7 +316,8 @@ void main() {
 
     await _tap(tester, _chip('Ready'));
     expect(find.text('Showing 2 of 6'), findsOneWidget);
-    expect(find.byType(Card), findsNWidgets(2));
+    await _build(tester, find.byType(CatalogCards));
+    expect(find.byType(BazaarCard), findsNWidgets(2));
     expect(_card('Third Module'), findsNothing);
   });
 

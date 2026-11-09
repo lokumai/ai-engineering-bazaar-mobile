@@ -14,6 +14,8 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,8 +24,8 @@ import 'package:go_router/go_router.dart';
 /// Cards view (A10): the level title, the lead line, the meter text, then the catalog with this level chosen (the
 /// filter bar, A45, and the cards, or the empty state), then the level's `General notes` when it has a document.
 ///
-/// The meter's segment gauge is left out: its text carries it (the gauge is `aria-hidden` on the web). The Status filter
-/// and the open Description are local UI state. An unknown level shows [NotFoundView].
+/// The meter's segment gauge is drawn in the level's hue under its text, which carries it for assistive technology
+/// (the gauge is `aria-hidden` on the web). The Status filter and the open Description are local UI state. An unknown level shows [NotFoundView].
 class LevelPage extends StatefulWidget {
   const LevelPage({super.key, required this.track, required this.level});
 
@@ -68,13 +70,10 @@ class _LevelPageState extends State<LevelPage> {
       RecordLoading() => null,
     };
     // `--/{total}` until the record is read, as the web's server render.
-    final String meter;
-    if (view == null) {
-      meter = l10n.level_completed_pending(entry.total);
-    } else {
-      final count = categoryProgress(view, curriculumFor(index, track))[entry.slug]!;
-      meter = l10n.level_completed(count.approved, count.total);
-    }
+    final count = view == null ? null : categoryProgress(view, curriculumFor(index, track))[entry.slug]!;
+    final meter = count == null
+        ? l10n.level_completed_pending(entry.total)
+        : l10n.level_completed(count.approved, count.total);
     final minutes = index.modules
         .where((module) => module.level == entry.slug)
         .fold(0, (sum, module) => sum + module.minutes);
@@ -94,8 +93,21 @@ class _LevelPageState extends State<LevelPage> {
           style: textTheme.bodyMedium,
         ),
         Text(meter, style: textTheme.bodyMedium),
+        // The gauge of the meter, in the level's hue; the text above carries it, as the web's gauge is `aria-hidden`.
+        if (count case final count?) ...[
+          const SizedBox(height: AppSpacing.sm),
+          ExcludeSemantics(
+            child: SegmentMeter(
+              done: count.approved,
+              total: count.total,
+              color: levelHue(context, levelPosition(index, entry.slug)),
+              semanticLabel: meter,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         CatalogFilterBar(
+          index: index,
           track: track,
           levels: levelsOf(index, rows),
           level: entry.slug,

@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 
 /// A module number as the catalog prints it, zero-padded to two digits (web `SheetRow.number`).
 String moduleNumber(int number) => number.toString().padLeft(2, '0');
@@ -22,3 +23,6 @@ String levelLeadLine(S s, {required int modules, required int minutes}) =>
 /// A card's Requires fact (web `SheetRow.requires`): the prerequisite numbers joined by `, `, or `Nothing`.
 String requiresLabel(S s, List<int> numbers) =>
     numbers.isEmpty ? s.card_requires_nothing : numbers.map((number) => '$number').join(', ');
+
+/// The 0-based place of the level [slug] in [index], which picks its hue (`levelHue`).
+int levelPosition(BundleIndex index, String slug) => index.levels.indexWhere((level) => level.slug == slug);
