@@ -1,5 +1,4 @@
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -12,10 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The catalog root of [track] (web `/sheets/` and `/everyone/sheets/`) in the web's default Overview view (A10): the
-/// title, the level chips, then the overview.
+/// title, then the levels, each opening its modules.
 ///
-/// The catalog has no bloc of its own: the rows are a pure function, and the Level filter is the route: its chips open
-/// a level page.
+/// The catalog has no bloc of its own: the rows are a pure function, and which levels are open is the overview's own
+/// state.
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.track});
 
@@ -41,8 +40,6 @@ class CatalogPage extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Semantics(header: true, child: Text(l10n.catalog_title, style: Theme.of(context).textTheme.headlineSmall)),
         const SizedBox(height: AppSpacing.lg),
-        CatalogFilterBar(index: index, track: track, levels: levelsOf(index, rows), level: null),
-        const SizedBox(height: AppSpacing.xl),
         CatalogOverview(track: track, index: index, rows: rows),
       ],
     );

@@ -27,6 +27,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -144,6 +145,18 @@ void main() {
         await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
+        // The levels are closed buttons: the first one opens its modules.
+        await tester.tap(find.byKey(CatalogOverview.levelKey('alpha')));
+        await tester.pump();
+        await _drain(
+          tester,
+          () => find.descendant(of: find.byType(CatalogPage), matching: find.text(title)).evaluate().isNotEmpty,
+          what: 'the modules of the first level',
+        );
+        // The modules unfold over a short animation; tap the title once it is in place.
+        await tester.pump(const Duration(seconds: 1));
+        await tester.ensureVisible(find.descendant(of: find.byType(CatalogPage), matching: find.text(title)));
+        await tester.pump(const Duration(seconds: 1));
         await tester.tap(find.descendant(of: find.byType(CatalogPage), matching: find.text(title)));
         await tester.pump();
         await _drain(tester, () => completion.evaluate().isNotEmpty, what: 'the reader of $title');

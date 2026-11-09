@@ -69,23 +69,8 @@
   "@loading": {},
   "catalog_title": "Catalog",
   "@catalog_title": {},
-  "catalog_level_label": "Level:",
-  "@catalog_level_label": {},
-  "catalog_filter_all": "All",
-  "@catalog_filter_all": {},
   "catalog_filter_completed": "Completed",
   "@catalog_filter_completed": {},
-  "catalog_written": "{ready} of {total} written",
-  "@catalog_written": {
-    "placeholders": {
-      "ready": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "module_planned": "Planned",
   "@module_planned": {},
   "level_module_count": "{count, plural, =1{1 module} other{{count} modules}}",

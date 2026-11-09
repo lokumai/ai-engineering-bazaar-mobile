@@ -54,7 +54,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 ### Catalog
 
 - **R30** The catalog root mirrors the web's Overview: one section per level, its modules, `Planned` for an unwritten module.
-- **R31** The level page mirrors the web's Cards view with the Level chips (A10, A45). The web's Status chips and its `Showing` count are left out on purpose (plan 1N, owner's review): each card already says whether it is planned or completed. This is a known difference from the web.
+- **R31** The catalog root lists the levels as buttons that open their modules under them; the level page keeps the web's Cards view (A10). The web's Level and Status filters and its `Showing` count are left out on purpose (plan 1N, owner's review): the level buttons replace the Level filter, and each card already says whether it is planned or completed. This is a known difference from the web.
 - **R32** Length is shown in minutes only, until the web publishes a word count (proposed web change 1).
 
 ### Reader

@@ -1,7 +1,6 @@
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/level_notes.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -91,8 +90,6 @@ class _LevelPageState extends State<LevelPage> {
             ),
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
-        CatalogFilterBar(index: index, track: track, levels: levelsOf(index, rows), level: entry.slug),
         const SizedBox(height: AppSpacing.xl),
         CatalogCards(
           track: track,

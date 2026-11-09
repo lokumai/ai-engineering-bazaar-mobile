@@ -42,9 +42,11 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-/// Opens [title] from the catalog root by its row or section title, which pushes it.
-Future<void> _pushFromCatalog(WidgetTester tester, String title) =>
-    _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text(title)));
+/// Opens the module [title] from the catalog root: its level [level] opens first, then the module is pushed.
+Future<void> _pushFromCatalog(WidgetTester tester, String level, String title) async {
+  await _tap(tester, find.bySemanticsLabel(RegExp('^$level,')));
+  await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text(title)));
+}
 
 /// The platform calls the framework makes; Android back with nothing to pop asks for `SystemNavigator.pop`.
 List<String> _watchPlatformCalls(WidgetTester tester) {
@@ -97,7 +99,7 @@ void main() {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     expect(find.byType(BackButton), findsNothing);
 
-    await _pushFromCatalog(tester, 'First Module');
+    await _pushFromCatalog(tester, 'Alpha Level', 'First Module');
     expect(find.byType(BackButton), findsOneWidget);
 
     await _tap(tester, find.byType(BackButton));
@@ -108,12 +110,9 @@ void main() {
   testWidgets('Android back pops a pushed page and leaves the app only from the first page', (tester) async {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     final calls = _watchPlatformCalls(tester);
-    await _pushFromCatalog(tester, 'Beta Level');
-    await _tap(tester, find.text('Fourth Module'));
+    await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
     expect(_path(router), '/courses/beta/fourth');
 
-    await _back(tester);
-    expect(_path(router), '/sheets/beta');
     await _back(tester);
     expect(_path(router), '/sheets');
     expect(calls, isNot(contains('SystemNavigator.pop')));

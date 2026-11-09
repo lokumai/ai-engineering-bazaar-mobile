@@ -248,24 +248,9 @@ class S {
     return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
   }
 
-  /// `Level:`
-  String get catalog_level_label {
-    return Intl.message('Level:', name: 'catalog_level_label', desc: '', args: []);
-  }
-
-  /// `All`
-  String get catalog_filter_all {
-    return Intl.message('All', name: 'catalog_filter_all', desc: '', args: []);
-  }
-
   /// `Completed`
   String get catalog_filter_completed {
     return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
-  }
-
-  /// `{ready} of {total} written`
-  String catalog_written(int ready, int total) {
-    return Intl.message('$ready of $total written', name: 'catalog_written', desc: '', args: [ready, total]);
   }
 
   /// `Planned`

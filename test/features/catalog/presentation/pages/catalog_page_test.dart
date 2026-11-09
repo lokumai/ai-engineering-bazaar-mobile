@@ -34,16 +34,10 @@ Future<GoRouter> _pumpCatalog(WidgetTester tester, [String location = '/sheets']
 /// The path of the page on top, a pushed one included.
 String _path(GoRouter router) => router.state.uri.path;
 
-Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
-
-Finder get _levelAll => _chip('All');
-
-bool _selected(WidgetTester tester, Finder chip) => tester.widget<ChoiceChip>(chip).selected;
-
 Finder _inOverview(String text) => find.descendant(of: find.byType(CatalogOverview), matching: find.text(text));
 
-/// The tap target of the overview row titled [title].
-Finder _row(String title) => find.ancestor(of: _inOverview(title), matching: find.byType(InkWell)).first;
+/// The button of the level titled [title], found by the start of its spoken label.
+Finder _level(String title) => find.bySemanticsLabel(RegExp('^$title,'));
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -53,7 +47,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('shows the title, both filter rows and the count', (tester) async {
+  testWidgets('shows the title and one closed button per level, with no filters (owner review)', (tester) async {
     await _pumpCatalog(tester);
 
     expect(
@@ -61,90 +55,78 @@ void main() {
       findsOneWidget,
       reason: 'the header, outside the NavigationBar',
     );
-    expect(find.text('Level:'), findsOneWidget);
-    expect(_chip('All'), findsOneWidget);
-    for (final label in ['Alpha Level', 'Beta Level', 'Gamma Level']) {
-      expect(_chip(label), findsOneWidget, reason: label);
+    expect(find.byType(ChoiceChip), findsNothing);
+    for (final slug in ['alpha', 'beta', 'gamma']) {
+      expect(find.byKey(CatalogOverview.levelKey(slug)), findsOneWidget, reason: slug);
     }
-    expect(_selected(tester, _levelAll), isTrue);
-    // Plan 1N: no Status chips and no count; each row says whether it is planned.
-    expect(find.text('Status:'), findsNothing);
-    for (final label in ['Ready', 'Planned', 'Completed', 'Not completed']) {
-      expect(_chip(label), findsNothing, reason: label);
-    }
-    expect(find.textContaining('Showing'), findsNothing);
+    expect(
+      tester.getSemantics(_level('Alpha Level')),
+      isSemantics(label: 'Alpha Level, 3 modules · ~1 h 15 min', isButton: true, hasExpandedState: true),
+    );
+    expect(_inOverview('First Module'), findsNothing, reason: 'closed at first');
   });
 
-  testWidgets('the overview has one section per level with its written bar', (tester) async {
+  testWidgets('a level opens its modules under it, and a second tap closes them', (tester) async {
     await _pumpCatalog(tester);
 
-    expect(find.bySemanticsLabel('2 of 3 written'), findsOneWidget);
-    expect(find.bySemanticsLabel('1 of 2 written'), findsOneWidget);
-    expect(find.bySemanticsLabel('1 of 1 written'), findsOneWidget);
-    expect(find.descendant(of: _row('First Module'), matching: find.text('01')), findsOneWidget);
-    expect(_inOverview('Planned'), findsNWidgets(2));
-    for (final title in ['Third Module', 'Fifth Module']) {
-      expect(
-        find.descendant(of: _row(title), matching: find.text('Planned')),
-        findsOneWidget,
-        reason: title,
-      );
+    await _tap(tester, _level('Alpha Level'));
+    expect(tester.getSemantics(_level('Alpha Level')), isSemantics(isExpanded: true, hasExpandedState: true));
+    for (final title in ['First Module', 'Second Module', 'Third Module']) {
+      expect(_inOverview(title), findsOneWidget, reason: title);
     }
-    for (final title in ['First Module', 'Second Module', 'Fourth Module', 'Sixth Module']) {
-      expect(
-        find.descendant(of: _row(title), matching: find.text('Planned')),
-        findsNothing,
-        reason: title,
-      );
-    }
+    expect(_inOverview('Fourth Module'), findsNothing, reason: 'beta stays closed');
+    expect(
+      find.descendant(of: find.byType(CatalogOverview), matching: find.byIcon(Icons.check_circle_outline)),
+      findsOneWidget,
+      reason: 'alpha/first is completed',
+    );
+    expect(_inOverview('Planned'), findsOneWidget, reason: 'alpha/third is planned For Engineers');
+
+    await _tap(tester, _level('Beta Level'));
+    expect(_inOverview('First Module'), findsOneWidget, reason: 'several levels open at once');
+    expect(_inOverview('Fourth Module'), findsOneWidget);
+
+    await _tap(tester, _level('Alpha Level'));
+    expect(_inOverview('First Module'), findsNothing);
+    expect(tester.getSemantics(_level('Alpha Level')), isSemantics(isExpanded: false, hasExpandedState: true));
   });
 
-  testWidgets('the For Everyone catalog', (tester) async {
+  testWidgets('the For Everyone catalog lists the same modules, planned where not written', (tester) async {
     await _pumpCatalog(tester, '/everyone/sheets');
+    await _tap(tester, _level('Alpha Level'));
 
     expect(_inOverview('First Module'), findsOneWidget);
     expect(find.text('First Story'), findsNothing);
-    expect(find.bySemanticsLabel('1 of 3 written'), findsOneWidget);
-    expect(find.bySemanticsLabel('1 of 2 written'), findsOneWidget);
-    expect(find.bySemanticsLabel('1 of 1 written'), findsOneWidget);
+    expect(_inOverview('Planned'), findsNWidgets(2), reason: 'alpha/second and alpha/third');
   });
 
-  group('links', () {
-    testWidgets('a module title opens the module of the track', (tester) async {
-      var router = await _pumpCatalog(tester);
-      await _tap(tester, _inOverview('First Module'));
-      expect(_path(router), '/courses/alpha/first');
+  testWidgets('a module opens the module of the track, and back finds its level still open', (tester) async {
+    var router = await _pumpCatalog(tester);
+    await _tap(tester, _level('Alpha Level'));
+    await _tap(tester, _inOverview('First Module'));
+    expect(_path(router), '/courses/alpha/first');
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(_path(router), '/sheets');
+    expect(_inOverview('First Module'), findsOneWidget);
 
-      router = await _pumpCatalog(tester, '/everyone/sheets');
-      await _tap(tester, _inOverview('First Module'));
-      expect(_path(router), '/everyone/courses/alpha/first');
-    });
-
-    testWidgets('a section title opens the level page', (tester) async {
-      final router = await _pumpCatalog(tester);
-      await _tap(tester, _inOverview('Beta Level'));
-      expect(_path(router), '/sheets/beta');
-    });
-
-    testWidgets('a level chip opens the level page', (tester) async {
-      final router = await _pumpCatalog(tester);
-      await _tap(tester, _chip('Beta Level'));
-      expect(_path(router), '/sheets/beta');
-    });
+    router = await _pumpCatalog(tester, '/everyone/sheets');
+    await _tap(tester, _level('Alpha Level'));
+    await _tap(tester, _inOverview('First Module'));
+    expect(_path(router), '/everyone/courses/alpha/first');
   });
 
   testWidgets('text scale 2.0', (tester) async {
     await pumpAtTextScale(tester, bazaarTestApp(router: _router(), record: _firstCompleted()), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    for (final chip in [_levelAll, _chip('Gamma Level')]) {
-      await tester.ensureVisible(chip);
+    await _tap(tester, _level('Alpha Level'));
+    expect(tester.takeException(), isNull);
+    for (final target in [_level('Gamma Level'), _inOverview('Third Module')]) {
+      await tester.ensureVisible(target);
       await tester.pump();
-      expectHittable(tester, chip);
+      expectHittable(tester, target);
     }
-    await tester.ensureVisible(find.text('First Module'));
-    await tester.pump();
-    expectHittable(tester, find.text('First Module'));
   });
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {

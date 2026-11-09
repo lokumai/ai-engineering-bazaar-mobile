@@ -4,7 +4,6 @@ library;
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -53,12 +52,6 @@ Future<GoRouter> _pumpLevel(WidgetTester tester, String location, {RecordBloc? r
 
 /// The path of the page on top, a pushed one included.
 String _path(GoRouter router) => router.state.uri.path;
-
-Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
-
-Finder get _levelAll => _chip('All');
-
-bool _selected(WidgetTester tester, Finder chip) => tester.widget<ChoiceChip>(chip).selected;
 
 Finder _inCards(Finder finder) => find.descendant(of: find.byType(CatalogCards), matching: finder);
 
@@ -178,11 +171,9 @@ void main() {
         findsOneWidget,
         reason: 'the level title is the page header',
       );
-      expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(find.text('Level:')).dy));
+      expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(find.byType(CatalogCards)).dy));
       expect(find.text('3 modules · ~1 h 15 min'), findsOneWidget);
       expect(find.text('1/3 completed'), findsOneWidget);
-      expect(_selected(tester, _chip('Alpha Level')), isTrue);
-      expect(_selected(tester, _levelAll), isFalse);
     });
 
     testWidgets('beta', (tester) async {
@@ -190,7 +181,6 @@ void main() {
 
       expect(find.text('2 modules · ~1 h'), findsOneWidget);
       expect(find.text('0/2 completed'), findsOneWidget);
-      expect(_selected(tester, _chip('Beta Level')), isTrue);
     });
 
     testWidgets('gamma', (tester) async {
@@ -296,40 +286,14 @@ void main() {
     expect(_inCard('Second Module', 'Description'), findsNothing);
   });
 
-  testWidgets('no Status chips and no count (plan 1N); the planned card says so itself', (tester) async {
+  testWidgets('no filters (owner review); the planned card says so itself', (tester) async {
     await _pumpLevel(tester, '/sheets/alpha');
 
-    expect(find.text('Status:'), findsNothing);
-    for (final label in ['Ready', 'Planned', 'Completed', 'Not completed']) {
-      expect(_chip(label), findsNothing, reason: label);
-    }
+    expect(find.byType(ChoiceChip), findsNothing);
     expect(find.textContaining('Showing'), findsNothing);
     await _build(tester, find.byType(CatalogCards));
     expect(find.byType(BazaarCard), findsNWidgets(3));
     expect(_inCard('Third Module', 'Planned'), findsOneWidget);
-  });
-
-  testWidgets('the selected level chip keeps a pushed level page', (tester) async {
-    final router = await _pumpLevel(tester, '/sheets');
-    await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text('Beta Level')));
-    expect(_path(router), '/sheets/beta');
-
-    await _tap(tester, _chip('Beta Level'));
-    expect(_path(router), '/sheets/beta');
-    expect(_selected(tester, _chip('Beta Level')), isTrue);
-    expect(router.canPop(), isTrue, reason: 'the catalog stays below');
-  });
-
-  group('a level chip opens the other level', () {
-    for (final (track, prefix) in [('For Engineers', '/sheets'), ('For Everyone', '/everyone/sheets')]) {
-      testWidgets(track, (tester) async {
-        final router = await _pumpLevel(tester, '$prefix/alpha');
-
-        await _tap(tester, _chip('Beta Level'));
-        expect(_path(router), '$prefix/beta');
-        expect(_selected(tester, _chip('Beta Level')), isTrue);
-      });
-    }
   });
 
   group('links', () {
@@ -343,12 +307,6 @@ void main() {
       final router = await _pumpLevel(tester, '/everyone/sheets/alpha');
       await _tap(tester, _inCards(find.text('First Module')));
       expect(_path(router), '/everyone/courses/alpha/first');
-    });
-
-    testWidgets('the level chip All opens the catalog root', (tester) async {
-      final router = await _pumpLevel(tester, '/sheets/alpha');
-      await _tap(tester, _levelAll);
-      expect(_path(router), '/sheets');
     });
   });
 
@@ -367,11 +325,7 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    for (final target in [
-      _chip('Gamma Level'),
-      _inCards(find.text('First Module')),
-      _inCard('First Module', 'Description'),
-    ]) {
+    for (final target in [_inCards(find.text('First Module')), _inCard('First Module', 'Description')]) {
       await tester.ensureVisible(target);
       await tester.pump();
       expectHittable(tester, target);

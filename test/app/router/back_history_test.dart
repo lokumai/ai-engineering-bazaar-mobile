@@ -10,8 +10,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/bazaar_app_harness.dart';
 
-/// Back follows the pages the reader opened (plan 1M): opening a page pushes it, a level chip on a level page takes
-/// that page's place, and only the bottom navigation starts the history again.
+/// Back follows the pages the reader opened (plan 1M): opening a page pushes it, and only the bottom navigation starts
+/// the history again.
 void main() {
   Future<GoRouter> pumpAt(WidgetTester tester, String location) async {
     final router = AppRouterFactory(initialLocation: location).create();
@@ -32,53 +32,27 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder chip(String label) => find.widgetWithText(ChoiceChip, label);
-
   Future<void> back(WidgetTester tester) => tap(tester, find.byType(BackButton));
 
-  testWidgets('a level chip on the catalog root pushes the level, so back returns to the root', (tester) async {
-    final router = await pumpAt(tester, '/sheets');
-
-    await tap(tester, chip('Beta Level'));
-    expect(path(router), '/sheets/beta');
-
-    await back(tester);
-    expect(path(router), '/sheets');
-    expect(find.byType(BackButton), findsNothing);
-  });
-
-  testWidgets('a level chip on a level page takes its place, so back skips the levels tried', (tester) async {
+  testWidgets('a module opened from Home returns to Home', (tester) async {
     final router = await pumpAt(tester, '/');
-    await tap(tester, find.descendant(of: find.byType(HomeLevelRow), matching: find.text('Alpha Level')));
-    expect(path(router), '/sheets/alpha');
-
-    await tap(tester, chip('Beta Level'));
-    await tap(tester, chip('Gamma Level'));
-    expect(path(router), '/sheets/gamma');
-
-    await back(tester);
-    expect(path(router), '/', reason: 'back to Home, where the level was opened');
-  });
-
-  testWidgets('All on a level page opened from the root returns to that root', (tester) async {
-    final router = await pumpAt(tester, '/sheets');
-    await tap(tester, chip('Alpha Level'));
-    await tap(tester, chip('Beta Level'));
-
-    await tap(tester, chip('All'));
-    expect(path(router), '/sheets');
-    expect(find.byType(BackButton), findsNothing, reason: 'the root itself, not a second copy over it');
-  });
-
-  testWidgets('All on a level page opened from Home puts the root in its place', (tester) async {
-    final router = await pumpAt(tester, '/');
-    await tap(tester, find.descendant(of: find.byType(HomeLevelRow), matching: find.text('Alpha Level')));
-
-    await tap(tester, chip('All'));
-    expect(path(router), '/sheets');
+    await tap(tester, find.text('Open the module'));
+    expect(path(router), '/courses/alpha/first');
 
     await back(tester);
     expect(path(router), '/');
+    expect(find.byType(BackButton), findsNothing);
+  });
+
+  testWidgets('a module opened from the catalog returns to the catalog, its level still open', (tester) async {
+    final router = await pumpAt(tester, '/sheets');
+    await tap(tester, find.bySemanticsLabel(RegExp('^Beta Level,')));
+    await tap(tester, find.text('Fourth Module'));
+    expect(path(router), '/courses/beta/fourth');
+
+    await back(tester);
+    expect(path(router), '/sheets');
+    expect(find.text('Fourth Module'), findsOneWidget);
   });
 
   testWidgets('a module opened from a level page returns to it, and the level page to Home', (tester) async {
