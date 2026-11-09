@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "slug": "alpha",
+  "title": "Alpha",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Lead text for the alpha level."
+        }
+      ],
+      "lead": true
+    }
+  ]
+}

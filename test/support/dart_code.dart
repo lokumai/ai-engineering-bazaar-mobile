@@ -30,6 +30,37 @@ String codeOnly(String source) {
   return code.toString();
 }
 
+/// Every string literal of [source] outside comments, in source order, as its 1-based line and the text between its
+/// quotes. Escapes and interpolations stay as written; adjacent literals are separate entries, and a literal inside an
+/// interpolation is part of the text of the literal around it.
+List<({int line, String text})> stringLiterals(String source) {
+  final literals = <({int line, String text})>[];
+  var line = 1;
+  var i = 0;
+  while (i < source.length) {
+    final int next;
+    if (source.startsWith('//', i)) {
+      final end = source.indexOf('\n', i);
+      next = end == -1 ? source.length : end;
+    } else if (source.startsWith('/*', i)) {
+      final end = source.indexOf('*/', i + 2);
+      next = end == -1 ? source.length : end + 2;
+    } else if (source[i] == "'" || source[i] == '"') {
+      final quote = source.startsWith(source[i] * 3, i) ? source[i] * 3 : source[i];
+      next = _writeString(source, i, StringBuffer());
+      final open = i + quote.length;
+      // An unterminated literal runs to the end of the source and has no closing quote to drop.
+      final closed = next - quote.length >= open && source.startsWith(quote, next - quote.length);
+      literals.add((line: line, text: source.substring(open, closed ? next - quote.length : next)));
+    } else {
+      next = i + 1;
+    }
+    line += '\n'.allMatches(source.substring(i, next)).length;
+    i = next;
+  }
+  return literals;
+}
+
 /// The index of the bracket in [code], an output of [codeOnly], that closes the one before [start].
 int closingBracket(String code, int start) => _closing(code, start, strings: false);
 

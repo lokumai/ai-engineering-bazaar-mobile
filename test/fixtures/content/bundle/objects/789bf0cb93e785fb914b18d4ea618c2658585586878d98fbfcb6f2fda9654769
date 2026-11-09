@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "key": "beta/third",
+  "track": "engineers",
+  "lang": "en",
+  "dir": "ltr",
+  "title": "Third Module",
+  "objectives": {
+    "lang": "en",
+    "items": []
+  },
+  "prerequisites": [
+    {
+      "key": "alpha/second",
+      "number": 2,
+      "title": "Second Module",
+      "drawn": true,
+      "track": "engineers",
+      "lang": "en"
+    }
+  ],
+  "previous": {
+    "key": "alpha/second",
+    "number": 2,
+    "title": "Second Module",
+    "drawn": true,
+    "track": "engineers",
+    "lang": "en"
+  },
+  "next": null,
+  "toc": [],
+  "body": null,
+  "draft": {
+    "summary": "A planned synthetic module.",
+    "parts": [
+      "Part one",
+      "Part two"
+    ],
+    "written": [
+      {
+        "type": "heading",
+        "depth": 2,
+        "id": "early",
+        "inlines": [
+          {
+            "type": "text",
+            "text": "Early notes"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "inlines": [
+          {
+            "type": "text",
+            "text": "Notes written before the module is drawn."
+          }
+        ]
+      }
+    ]
+  },
+  "quiz": null
+}

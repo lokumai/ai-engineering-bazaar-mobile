@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "key": "alpha/first",
+  "track": "everyone",
+  "lang": "en",
+  "dir": "ltr",
+  "title": "First Story",
+  "objectives": {
+    "lang": "en",
+    "items": [
+      "Read a synthetic story."
+    ]
+  },
+  "prerequisites": [],
+  "previous": null,
+  "next": {
+    "key": "alpha/second",
+    "number": 2,
+    "title": "Second Module",
+    "drawn": true,
+    "track": "engineers",
+    "lang": "en"
+  },
+  "toc": [],
+  "body": [
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "A synthetic story for every reader."
+        }
+      ],
+      "lead": true
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Read "
+        },
+        {
+          "type": "link",
+          "target": {
+            "kind": "module",
+            "key": "alpha/second",
+            "track": "engineers",
+            "lang": "en"
+          },
+          "inlines": [
+            {
+              "type": "text",
+              "text": "the next module"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " next."
+        }
+      ]
+    },
+    {
+      "type": "diagram",
+      "number": "1",
+      "title": "Synthetic mindmap",
+      "svg": {
+        "light": "api/v1/diagrams/c63f57d179cfa40d893a096c156c03d0.svg",
+        "dark": "api/v1/diagrams/da1edd2a0129f03d838131d67f7ca336.svg"
+      }
+    }
+  ],
+  "draft": null,
+  "quiz": null
+}
