@@ -49,4 +49,30 @@ void main() {
       expect(File('$kotlinMain/MainActivity.kt').readAsStringSync(), contains('"dev.lokumai.bazaar/native_sentry"'));
     });
   });
+
+  group('iOS identity', () {
+    test('Runner is dev.lokumai.bazaar and RunnerTests is dev.lokumai.bazaar.RunnerTests', () {
+      final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      final ids = [for (final match in RegExp(r'PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);').allMatches(project)) match[1]];
+
+      // File order: Runner Profile, RunnerTests Debug, Release, Profile, then Runner Debug and Release.
+      expect(ids, [
+        'dev.lokumai.bazaar',
+        'dev.lokumai.bazaar.RunnerTests',
+        'dev.lokumai.bazaar.RunnerTests',
+        'dev.lokumai.bazaar.RunnerTests',
+        'dev.lokumai.bazaar',
+        'dev.lokumai.bazaar',
+      ]);
+    });
+
+    // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label too.
+    test('CFBundleDisplayName and CFBundleName are Bazaar', () {
+      final plist = File('ios/Runner/Info.plist').readAsStringSync();
+
+      for (final key in ['CFBundleDisplayName', 'CFBundleName']) {
+        expect(RegExp('<key>$key</key>\\s*<string>Bazaar</string>').hasMatch(plist), isTrue, reason: key);
+      }
+    });
+  });
 }
