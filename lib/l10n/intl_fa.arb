@@ -100,8 +100,6 @@
   "progress_title": "پیشرفت شما",
   "progress_stat_completed": "{count, plural, =1{درس تکمیل‌شده} other{درس تکمیل‌شده}}",
   "progress_stat_days": "{count, plural, =1{روز فعال} other{روز فعال}}",
-  "progress_tabs_label": "پیشرفت به تفکیک مسیر",
-  "progress_tab_count": "{signed} از {total}",
   "progress_level_dial": "{approved}/{total}",
   "progress_module_link": "{number} {title}",
   "progress_complete_module": "تکمیل {title}",

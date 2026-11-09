@@ -98,7 +98,7 @@ class LevelCard extends StatelessWidget {
             ModuleRow(
               key: Key('progress_row_${fact.slug}'),
               fact: fact,
-              // The For Engineers title in both tabs, as the web's (A34).
+              // The For Engineers title in both tracks, as the web's (A34).
               title: index.module(fact.slug)!.tracks[Track.engineers]!.title,
               track: track,
               signed: record?.signedOff(fact.slug, track) != null,

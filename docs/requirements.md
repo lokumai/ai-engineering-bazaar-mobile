@@ -80,6 +80,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R65** Back up writes the web's export file; restore reads the web's export, refuses a newer schema, and asks before replacing a non-empty record.
 - **R66** Reset needs the word ERASE, shows the counts and the backup line, deletes the record files, and can be undone for 10 s (A42).
 - **R67** The record is included in the device backup, and the erase screen says so (D89).
+- **R68** The progress page shows the current track only; the web's tab per track is left out, since the track is chosen once and changed in Settings (plan 1U). This is a known difference from the web.
 
 ### Settings
 

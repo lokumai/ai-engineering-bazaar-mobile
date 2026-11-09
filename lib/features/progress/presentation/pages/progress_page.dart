@@ -17,7 +17,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The progress page at `/profile` (web `src/app/profile/page.tsx:84-104`, Decision A8): [ProgressView] over the ready
-/// content, with the content notice and the quarantine notice above the tabs, and the write notice and the data line
+/// content, with the content notice and the quarantine notice above the cards, and the write notice and the data line
 /// under the cards. The other content states draw nothing; they never mount, since the app gate mounts the router only
 /// once the content is ready.
 class ProgressPage extends StatelessWidget {

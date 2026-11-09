@@ -63,29 +63,27 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m20(count) => "${Intl.plural(count, one: 'active day', other: 'active days')}";
 
-  static String m21(signed, total) => "${signed} of ${total}";
+  static String m21(index, count) => "Question ${index} of ${count}";
 
-  static String m22(index, count) => "Question ${index} of ${count}";
+  static String m22(score, total) => "${score} of ${total}";
 
-  static String m23(score, total) => "${score} of ${total}";
+  static String m23(count) => "${count} questions on the main points of this module";
 
-  static String m24(count) => "${count} questions on the main points of this module";
+  static String m24(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m25(letter) => "Not this one. The answer is ${letter}.";
+  static String m25(date) => "Completed ${date}";
 
-  static String m26(date) => "Completed ${date}";
+  static String m26(minutes) => "${minutes} min";
 
-  static String m27(minutes) => "${minutes} min";
+  static String m27(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m28(number, count) => "MODULE ${number} OF ${count}";
+  static String m28(label) => "${label} · Planned";
 
-  static String m29(label) => "${label} · Planned";
+  static String m29(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m30(hash, date) => "Rev ${hash} · ${date}";
+  static String m30(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
-  static String m31(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
-
-  static String m32(reason) => "The check for updates did not finish: ${reason}.";
+  static String m31(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -193,8 +191,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "progress_stat_days": m20,
     "progress_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "progress_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
-    "progress_tab_count": m21,
-    "progress_tabs_label": MessageLookupByLibrary.simpleMessage("Progress by track"),
     "progress_title": MessageLookupByLibrary.simpleMessage("Your progress"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "The copy could not be written. The set-aside record is unchanged.",
@@ -230,35 +226,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m22,
+    "quiz_progress": m21,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_count": m23,
+    "quiz_score_count": m22,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m24,
+    "quiz_subtitle": m23,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
-    "quiz_wrong": m25,
+    "quiz_wrong": m24,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m26,
+    "reader_completed_on": m25,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m27,
-    "reader_module_of": m28,
+    "reader_minutes": m26,
+    "reader_module_of": m27,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m29,
+    "reader_pager_planned": m28,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m30,
+    "reader_revision": m29,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
@@ -266,7 +262,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
     "reading_badge_hint": MessageLookupByLibrary.simpleMessage("Opens Settings to change the track and the language"),
-    "record_not_saved": m31,
+    "record_not_saved": m30,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -290,7 +286,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m32,
+    "settings_refresh_failed": m31,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",

@@ -649,16 +649,6 @@ class S {
     );
   }
 
-  /// `Progress by track`
-  String get progress_tabs_label {
-    return Intl.message('Progress by track', name: 'progress_tabs_label', desc: '', args: []);
-  }
-
-  /// `{signed} of {total}`
-  String progress_tab_count(String signed, int total) {
-    return Intl.message('$signed of $total', name: 'progress_tab_count', desc: '', args: [signed, total]);
-  }
-
   /// `{approved}/{total}`
   String progress_level_dial(String approved, int total) {
     return Intl.message('$approved/$total', name: 'progress_level_dial', desc: '', args: [approved, total]);

@@ -100,8 +100,6 @@
   "progress_title": "İlerlemen",
   "progress_stat_completed": "{count, plural, =1{tamamlanan modül} other{tamamlanan modül}}",
   "progress_stat_days": "{count, plural, =1{aktif gün} other{aktif gün}}",
-  "progress_tabs_label": "Yola göre ilerleme",
-  "progress_tab_count": "{signed} / {total}",
   "progress_level_dial": "{approved}/{total}",
   "progress_module_link": "{number} {title}",
   "progress_complete_module": "{title} modülünü tamamla",

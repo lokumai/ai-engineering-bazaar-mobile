@@ -156,19 +156,23 @@ class _MemoryRecordRepository implements IRecordRepository {
   Future<void> deleteQuarantine() => throw UnimplementedError();
 }
 
+/// Makes [track] the current track, as Settings does, and lets the page follow it.
+Future<void> _showTrack(WidgetTester tester, Track track) async {
+  tester.element(find.byType(ProgressView)).read<TrackCubit>().select(track);
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('shows the title, both tabs with their counts and the legend', (tester) async {
+  testWidgets('shows the title, the current track only and the legend (plan 1U)', (tester) async {
     await _pump(tester, router: _router(), record: readyRecordBloc());
 
     expect(find.text('Your progress'), findsOneWidget);
-    expect(find.text('For Engineers'), findsOneWidget);
-    expect(find.text('For Everyone'), findsOneWidget);
-    expect(find.text('0 of 6'), findsNWidgets(2));
+    expect(find.byType(TabBar), findsNothing);
+    expect(find.text('For Everyone'), findsNothing);
     for (final word in ['Complete', 'Not yet', 'Planned']) {
       expect(find.text(word), findsOneWidget);
     }
     expect(find.bySemanticsLabel('Every module, For Engineers'), findsOneWidget);
-    expect(find.bySemanticsLabel('Progress by track'), findsOneWidget);
   });
 
   testWidgets('the stats show the modules completed in the shown track and the active days', (tester) async {
@@ -184,8 +188,8 @@ void main() {
     expect(find.bySemanticsLabel('2 modules completed'), findsOneWidget);
     expect(find.bySemanticsLabel('2 active days'), findsOneWidget);
 
-    await _tap(tester, find.text('For Everyone'));
-    expect(find.bySemanticsLabel('0 modules completed'), findsOneWidget, reason: 'the count follows the tab');
+    await _showTrack(tester, Track.everyone);
+    expect(find.bySemanticsLabel('0 modules completed'), findsOneWidget, reason: 'the count follows the track');
     expect(
       find.bySemanticsLabel('2 active days'),
       findsOneWidget,
@@ -209,41 +213,23 @@ void main() {
   testWidgets('prints -- while the record loads', (tester) async {
     await _pump(tester, router: _router(), record: loadingRecordBloc());
 
-    expect(find.text('-- of 6'), findsNWidgets(2));
     for (final dial in ['--/3', '--/2', '--/1']) {
       expect(find.text(dial), findsOneWidget);
     }
   });
 
-  testWidgets('opens on the TrackCubit track and a tab never changes the track', (tester) async {
+  testWidgets('shows the TrackCubit track and follows it (plan 1U)', (tester) async {
     final trackCubit = _trackCubit()..select(Track.everyone);
     await _pump(tester, router: _router(), record: readyRecordBloc(), track: trackCubit);
 
     expect(find.byKey(const Key('progress_panel_everyone')), findsOneWidget);
     expect(find.byKey(const Key('progress_panel_engineers')), findsNothing);
-    await _tap(tester, find.text('For Engineers'));
 
-    expect(find.byKey(const Key('progress_panel_engineers')), findsOneWidget);
-    expect(find.byKey(const Key('progress_panel_everyone')), findsNothing);
-    expect(trackCubit.state, Track.everyone);
-  });
-
-  testWidgets('the tab follows the track until a tab is chosen', (tester) async {
-    final trackCubit = _trackCubit();
-    await _pump(tester, router: _router(), record: readyRecordBloc(), track: trackCubit);
-    expect(find.byKey(const Key('progress_panel_engineers')), findsOneWidget);
-
-    trackCubit.select(Track.everyone);
+    trackCubit.select(Track.engineers);
     // The cubit's stream delivers the state in a microtask, so the page rebuilds on the frame after it.
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('progress_panel_everyone')), findsOneWidget);
-
-    await _tap(tester, find.text('For Engineers'));
-    trackCubit
-      ..select(Track.engineers)
-      ..select(Track.everyone);
-    await tester.pumpAndSettle();
     expect(find.byKey(const Key('progress_panel_engineers')), findsOneWidget);
+    expect(find.byKey(const Key('progress_panel_everyone')), findsNothing);
   });
 
   testWidgets('a level card lists every module in number order with its dial', (tester) async {
@@ -278,10 +264,10 @@ void main() {
     expect(tester.getTopLeft(find.text('Not yet')).dy, lessThan(tester.getTopLeft(find.text('Planned')).dy));
   });
 
-  testWidgets('rows show the For Engineers title and link into the tab track', (tester) async {
+  testWidgets('rows show the For Engineers title and link into the current track', (tester) async {
     final router = _router();
     await _pump(tester, router: router, record: readyRecordBloc());
-    await _tap(tester, find.text('For Everyone'));
+    await _showTrack(tester, Track.everyone);
 
     expect(find.text('First Story'), findsNothing);
     expect(find.text('01 First Story'), findsNothing);
@@ -292,7 +278,7 @@ void main() {
     expect(router.state.uri.path, '/everyone/courses/alpha/third');
   });
 
-  testWidgets('a row in the For Engineers tab opens the For Engineers module', (tester) async {
+  testWidgets('a row For Engineers opens the For Engineers module', (tester) async {
     final router = _router();
     await _pump(tester, router: router, record: readyRecordBloc());
     await _tap(tester, find.text('02 Second Module'));
@@ -301,10 +287,10 @@ void main() {
     expect(router.state.uri.path, '/courses/alpha/second');
   });
 
-  testWidgets('a written row toggles the tab track with revision null', (tester) async {
+  testWidgets('a written row toggles the current track with revision null', (tester) async {
     final recordBloc = readyRecordBloc() as MockRecordBloc;
     await _pump(tester, router: _router(), record: recordBloc);
-    await _tap(tester, find.text('For Everyone'));
+    await _showTrack(tester, Track.everyone);
     await _tap(tester, find.bySemanticsLabel('Complete First Module'));
 
     final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
@@ -324,9 +310,9 @@ void main() {
     );
   });
 
-  testWidgets('a completion in one track is not shown in the other tab', (tester) async {
+  testWidgets('a completion in one track is not shown in the other', (tester) async {
     await _pump(tester, router: _router(), record: readyRecordBloc(_firstCompleted()));
-    await _tap(tester, find.text('For Everyone'));
+    await _showTrack(tester, Track.everyone);
 
     expect(
       tester.getSemantics(find.bySemanticsLabel('Complete First Module')),
@@ -341,36 +327,34 @@ void main() {
     expect(find.bySemanticsLabel('Complete Third Module'), findsNothing);
     expect(_plannedIn('alpha/third'), findsOneWidget);
     expect(_plannedIn('alpha/second'), findsNothing); // written in For Engineers
-    await _tap(tester, find.text('For Everyone'));
+    await _showTrack(tester, Track.everyone);
 
     expect(_plannedIn('alpha/second'), findsOneWidget);
     expect(find.bySemanticsLabel('Complete Second Module'), findsNothing);
   });
 
-  testWidgets('a toggle in one tab leaves the other tab counts unchanged', (tester) async {
+  testWidgets('a toggle in one track leaves the other track unchanged', (tester) async {
     final repository = _MemoryRecordRepository();
     final record = RecordBloc(repository: repository)..add(const RecordStarted());
     addTearDown(record.close);
     await _pump(tester, router: _router(), record: record);
     await tester.pumpAndSettle();
-    expect(find.text('0 of 6'), findsNWidgets(2));
+    expect(find.text('0/3'), findsOneWidget);
 
     await _tap(tester, find.bySemanticsLabel('Complete First Module'));
     await tester.pumpAndSettle();
-    expect(find.text('1 of 6'), findsOneWidget); // For Engineers
-    expect(find.text('0 of 6'), findsOneWidget); // For Everyone
     expect(find.text('1/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
     expect(repository.lastWritten, contains('"everyoneSheets":{}'));
 
-    await _tap(tester, find.text('For Everyone'));
+    await _showTrack(tester, Track.everyone);
     expect(find.text('0/3'), findsOneWidget);
     await _tap(tester, find.bySemanticsLabel('Complete First Module'));
     await tester.pumpAndSettle();
-    expect(find.text('1 of 6'), findsNWidgets(2));
+    expect(find.text('1/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"everyoneSheets":{"alpha/first":{"signedOff":"'));
 
-    await _tap(tester, find.text('For Engineers'));
+    await _showTrack(tester, Track.engineers);
     expect(find.text('1/3'), findsOneWidget); // the For Engineers dial is unchanged by the For Everyone toggle
   });
 
@@ -382,7 +366,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Erase all data'));
     await tester.pumpAndSettle();
-    expect(find.text('0 of 6'), findsNWidgets(2));
+    expect(find.text('0/3'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await _tap(tester, find.text('Undo'));
     await tester.pumpAndSettle();
@@ -394,10 +378,10 @@ void main() {
     addTearDown(record.close);
     await _pump(tester, router: _router(), record: record, recordRepository: repository);
     await tester.pumpAndSettle();
-    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.text('1/3'), findsOneWidget);
 
     await resetThenUndo(tester);
-    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.text('1/3'), findsOneWidget);
     expect(find.byType(RecordWriteNotice), findsOneWidget);
     expect(repository.stored, isNull);
   });
@@ -410,13 +394,13 @@ void main() {
     await tester.pumpAndSettle();
 
     await resetThenUndo(tester);
-    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.text('1/3'), findsOneWidget);
     expect(find.byType(RecordWriteNotice), findsNothing);
     expect(repository.writes, 1);
     expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
   });
 
-  testWidgets('ProgressView shows its slots above the tabs and below the panel', (tester) async {
+  testWidgets('ProgressView shows its slots under the title and below the panel', (tester) async {
     final router = GoRouter(
       routes: [
         GoRoute(
@@ -438,7 +422,7 @@ void main() {
 
     final above = tester.getTopLeft(find.byKey(const Key('above'))).dy;
     expect(tester.getTopLeft(find.text('Your progress')).dy, lessThan(above));
-    expect(above, lessThan(tester.getTopLeft(find.text('For Engineers')).dy));
+    expect(above, lessThan(tester.getTopLeft(find.byKey(const Key('progress_panel_engineers'))).dy));
     expect(tester.getTopLeft(find.text('Planned')).dy, lessThan(tester.getTopLeft(find.byKey(const Key('below'))).dy));
   });
 
@@ -466,7 +450,6 @@ void main() {
 
     expect(tester.takeException(), isNull);
     for (final target in [
-      find.text('For Everyone'),
       find.bySemanticsLabel('Complete First Module'),
       find.text('01 First Module'),
       find.text('Back up to a file'),
@@ -499,7 +482,7 @@ void main() {
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets('the notices sit above the tabs and the data line below the cards', (tester) async {
+  testWidgets('the notices sit above the cards and the data line below them', (tester) async {
     await _pump(
       tester,
       router: _router(),
@@ -509,15 +492,15 @@ void main() {
 
     final notice = tester.getTopLeft(find.textContaining('The downloaded content could not be read')).dy;
     final quarantine = tester.getTopLeft(find.bySemanticsLabel('Record status')).dy;
-    final tabs = tester.getTopLeft(find.text('For Engineers')).dy;
+    final panel = tester.getTopLeft(find.byKey(const Key('progress_panel_engineers'))).dy;
     final dataLine = tester.getTopLeft(find.text('Back up to a file')).dy;
     expect(tester.getTopLeft(find.text('Your progress')).dy, lessThan(notice));
     expect(notice, lessThan(quarantine));
-    expect(quarantine, lessThan(tabs));
+    expect(quarantine, lessThan(panel));
     expect(tester.getTopLeft(find.text('Planned')).dy, lessThan(dataLine));
   });
 
-  testWidgets('without a notice nothing stands above the tabs', (tester) async {
+  testWidgets('without a notice nothing stands above the cards', (tester) async {
     await _pump(tester, router: _router(), record: readyRecordBloc());
 
     expect(find.bySemanticsLabel('Record status'), findsNothing);

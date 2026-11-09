@@ -367,19 +367,6 @@
       }
     }
   },
-  "progress_tabs_label": "Progress by track",
-  "@progress_tabs_label": {},
-  "progress_tab_count": "{signed} of {total}",
-  "@progress_tab_count": {
-    "placeholders": {
-      "signed": {
-        "type": "String"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "progress_level_dial": "{approved}/{total}",
   "@progress_level_dial": {
     "placeholders": {
