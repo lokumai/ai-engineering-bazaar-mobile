@@ -215,19 +215,12 @@ void main() {
     testWidgets('never builds the login page on an authenticated cold start', (tester) async {
       setDesktopViewport(tester);
       TestEnv.authenticate();
-      final analytics = MockAnalyticsService();
-      await tester.pumpWidget(App(language: 'en', analytics: analytics));
+      await tester.pumpWidget(App(language: 'en'));
       final loginFrames = await pumpShellRecordingLogin(tester);
 
       expect(loginFrames, isEmpty, reason: 'frames that built the login page');
       expect(routerFromApp(tester).state.uri.path, ApplicationRoutesConstants.home);
       expect(find.byType(HomePlaceholderPage), findsOneWidget);
-      verifyNever(
-        () => analytics.logScreenView(
-          screenName: any(named: 'screenName', that: equals('login')),
-          screenClass: any(named: 'screenClass'),
-        ),
-      );
     });
 
     testWidgets('opens a deep link on an authenticated cold start', (tester) async {

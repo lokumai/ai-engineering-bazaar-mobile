@@ -154,18 +154,11 @@ void main() {
       final storedToken = Completer<String?>();
       final secureStorage = MockISecureStorage();
       when(() => secureStorage.read(any())).thenAnswer((_) => storedToken.future);
-      final analytics = MockAnalyticsService();
-      await tester.pumpWidget(App(language: 'en', secureStorage: secureStorage, analytics: analytics));
+      await tester.pumpWidget(App(language: 'en', secureStorage: secureStorage));
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.bySemanticsLabel('Loading...'), findsOneWidget);
       expect(find.byType(LoginScreen), findsNothing);
-      verifyNever(
-        () => analytics.logScreenView(
-          screenName: any(named: 'screenName'),
-          screenClass: any(named: 'screenClass'),
-        ),
-      );
 
       storedToken.complete(null);
       await tester.pumpAndSettle();

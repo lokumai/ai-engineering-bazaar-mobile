@@ -20,7 +20,6 @@ import 'package:flutter_bloc_advance/features/users/domain/repositories/user_rep
 import 'package:flutter_bloc_advance/core/analytics/analytics_service.dart';
 import 'package:flutter_bloc_advance/core/analytics/log_analytics_service.dart';
 import 'package:flutter_bloc_advance/core/security/idle_timeout_observer.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_analytics_service.dart';
 import 'package:flutter_bloc_advance/infrastructure/auth/oidc/oidc_client.dart';
 import 'package:flutter_bloc_advance/infrastructure/auth/oidc/oidc_token_rotation.dart';
 import 'package:flutter_bloc_advance/infrastructure/cache/shared_prefs_cache_storage.dart';
@@ -55,16 +54,8 @@ class AppDependencies {
   /// How the user signs in, read from `AUTH_PROVIDER` at bootstrap.
   final AuthMode authMode;
 
-  /// Returns the analytics implementation appropriate for the active
-  /// environment. Production + non-empty DSN → [SentryAnalyticsService]
-  /// (Sentry SDK assumed already-initialized by bootstrap); any other
-  /// case → [LogAnalyticsService] (local-only, no network egress).
-  IAnalyticsService createAnalyticsService() {
-    if (appConfig.sentryDsn != null) {
-      return SentryAnalyticsService();
-    }
-    return LogAnalyticsService();
-  }
+  /// Crash reporting logs through this on the device; Sentry's own hooks report crashes when a DSN is set.
+  IAnalyticsService createAnalyticsService() => LogAnalyticsService();
 
   /// Which 401 means that the bearer is no longer valid, so the HTTP layer refreshes the session and ends it when the
   /// refresh cannot fix the 401. Every 401 by default. An app on a backend that also answers 401 for other reasons

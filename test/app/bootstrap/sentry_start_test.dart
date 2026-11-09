@@ -1,7 +1,6 @@
 import 'package:flutter_bloc_advance/app/bootstrap/sentry_start.dart';
 import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
 import 'package:flutter_bloc_advance/core/analytics/log_analytics_service.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_analytics_service.dart';
 import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/platform/platform.dart';
@@ -41,13 +40,13 @@ class _InitCalls {
 
 void main() {
   group('SentryStart.gate', () {
-    test('keeps the config when the host app started the native SDK', () async {
+    test('keeps the config when the host app started the native SDK, and logs analytics on the device', () async {
       final start = SentryStart(isNativeSdkReady: () async => true);
 
       final config = await start.gate(_prodWithDsn);
 
       expect(config.sentryDsn, _dsn);
-      expect(const AppDependencies(appConfig: _prodWithDsn).createAnalyticsService(), isA<SentryAnalyticsService>());
+      expect(const AppDependencies(appConfig: _prodWithDsn).createAnalyticsService(), isA<LogAnalyticsService>());
     });
 
     // A release build whose host did not start the native SDK runs as without a DSN: no Dart SDK, and the log
@@ -117,7 +116,7 @@ void main() {
       expect(options.enablePrintBreadcrumbs, isFalse);
       expect(options.dsn, _dsn);
       expect(options.release, '1.0.0+1');
-      expect(options.tracesSampleRate, 0.2);
+      expect(options.tracesSampleRate, 0);
     });
 
     test('installs a beforeSend that masks an email and a beforeBreadcrumb that masks one', () async {

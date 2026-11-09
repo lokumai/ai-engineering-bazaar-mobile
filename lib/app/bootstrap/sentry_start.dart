@@ -50,7 +50,7 @@ final _log = AppLogger.getLogger('SentryStart');
 
 /// The options `AppBootstrap.run` starts the Dart SDK with: the DSN, the
 /// scrubbing hooks of [installSentryScrubbers], the native start of
-/// [configureNativeSdkStart], the trace sample rate and the release.
+/// [configureNativeSdkStart], a zero trace sample rate, so no navigation transaction is sent, and the release.
 ///
 /// On Android the host app starts the native SDK, so a native option set
 /// here must also be set in `NativeSentry.kt` of the Android host app (under
@@ -59,6 +59,6 @@ void configureSentryOptions(SentryFlutterOptions options, {required String dsn, 
   options.dsn = dsn;
   installSentryScrubbers(options);
   configureNativeSdkStart(options);
-  options.tracesSampleRate = 0.2;
+  options.tracesSampleRate = 0;
   options.release = release;
 }

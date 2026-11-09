@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc_advance/core/errors/app_api_exception.dart';
 import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_analytics_service.dart';
 import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -480,7 +479,9 @@ void main() {
     });
 
     test('sends an error event without the email or the JWT, in the event or in its breadcrumbs', () async {
-      SentryAnalyticsService().logUserAction(action: 'open_user', target: 'jane.doe@example.com');
+      await Sentry.addBreadcrumb(
+        Breadcrumb(category: 'ui.action', message: 'open_user', data: {'target': 'jane.doe@example.com'}),
+      );
       await Sentry.addBreadcrumb(
         Breadcrumb.http(url: Uri.parse('https://api.example.test/admin/users/jane.doe@example.com'), method: 'GET'),
       );

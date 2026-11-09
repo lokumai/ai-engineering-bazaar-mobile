@@ -65,10 +65,7 @@ class AppBootstrap {
     // Connectivity monitoring
     await ConnectivityService.instance.initialize();
 
-    // Analytics & crash reporting. When `--dart-define=SENTRY_DSN=...`
-    // is provided in a production build, [AppDependencies] returns the
-    // Sentry-backed implementation. Anywhere else, the local-only
-    // logging implementation.
+    // Analytics & crash reporting.
     //
     // CrashReporter always installs framework / PlatformDispatcher hooks for
     // local logging. When Sentry is active it installs its OWN hooks that both
@@ -101,14 +98,8 @@ class AppBootstrap {
     await sentry.run(
       appConfig.sentryDsn,
       release: '${AppConstants.appVersion}+${AppConstants.appBuildNumber}',
-      appRunner: () => runApp(
-        App(
-          language: config.defaultLanguage,
-          dependencies: dependencies,
-          secureStorage: secureStorage,
-          analytics: analytics,
-        ),
-      ),
+      appRunner: () =>
+          runApp(App(language: config.defaultLanguage, dependencies: dependencies, secureStorage: secureStorage)),
     );
   }
 }
