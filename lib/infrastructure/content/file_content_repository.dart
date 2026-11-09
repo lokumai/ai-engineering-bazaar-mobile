@@ -20,6 +20,10 @@ import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 /// object leaves for the next start). `cacheDirectory` is resolved once, at the start of [open], so the repository
 /// can be built synchronously; every other method throws a [StateError] until [open] has completed. [refresh] fetches
 /// newer content from the site through `http`.
+///
+/// [readObject] resolves a site path through the current index, then through the indexes this session served before
+/// it, most recent first, so a page open during a refresh keeps its files (spec 3.4.3 row 6). Their objects are all
+/// still on the device: in the bundle, or in `objects/`, which only the next start's garbage collection prunes.
 final class FileContentRepository implements IContentRepository {
   FileContentRepository({required this._bundled, required this._cacheDirectory, required this._http});
 
@@ -39,7 +43,7 @@ final class FileContentRepository implements IContentRepository {
     final store = Directory('${(await _cacheDirectory()).path}/content');
 
     final (index, origin, notice) = await _startup(store, bundledIndex, bundledObjects);
-    _opened = _Opened(store: store, index: index, bundledObjects: bundledObjects);
+    _opened = _Opened(store: store, index: index, earlier: const [], bundledObjects: bundledObjects);
     return ContentOpening(index: index, origin: origin, notice: notice);
   }
 
@@ -163,7 +167,12 @@ final class FileContentRepository implements IContentRepository {
     await _writeAndRename(File('$store/indexes/${index.contentVersion}.json'), indexBytes);
     await _writeAndRename(File('$store/current'), utf8.encode(index.contentVersion));
 
-    _opened = _Opened(store: opened.store, index: index, bundledObjects: opened.bundledObjects);
+    _opened = _Opened(
+      store: opened.store,
+      index: index,
+      earlier: [opened.index, ...opened.earlier],
+      bundledObjects: opened.bundledObjects,
+    );
     return ContentUpdated(index: index);
   }
 
@@ -177,7 +186,7 @@ final class FileContentRepository implements IContentRepository {
   @override
   Future<Uint8List> readObject(String sitePath) async {
     final opened = _requireOpened();
-    final sha256Name = opened.index.sha256Of(sitePath);
+    final sha256Name = opened.sha256Of(sitePath);
     if (sha256Name == null) throw ContentMissingException(sitePath);
 
     if (opened.bundledObjects.contains(sha256Name)) {
@@ -219,13 +228,24 @@ final class FileContentRepository implements IContentRepository {
   _Opened _requireOpened() => _opened ?? (throw StateError('open() has not completed'));
 }
 
-/// What [FileContentRepository.open] settled: the store directory, the current index and the bundled sha256 set.
+/// What [FileContentRepository.open] settled, and each adopted refresh after it: the store directory, the current
+/// index, the indexes served before it this session (most recent first) and the bundled sha256 set.
 final class _Opened {
-  const _Opened({required this.store, required this.index, required this.bundledObjects});
+  const _Opened({required this.store, required this.index, required this.earlier, required this.bundledObjects});
 
   final Directory store;
   final BundleIndex index;
+  final List<BundleIndex> earlier;
   final Set<String> bundledObjects;
+
+  /// The sha256 [sitePath] names in the current index, or else in the most recent earlier index that lists it.
+  String? sha256Of(String sitePath) {
+    for (final served in [index, ...earlier]) {
+      final sha256Name = served.sha256Of(sitePath);
+      if (sha256Name != null) return sha256Name;
+    }
+    return null;
+  }
 }
 
 /// A downloaded object whose bytes do not match the sha256 it was requested by: a stale copy at the edge (A25).

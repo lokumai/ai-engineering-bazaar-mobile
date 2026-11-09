@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -11,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/diagram_view.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/diagram_frame_ink.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -33,14 +35,15 @@ const themes = DiagramThemes(
 
 void main() {
   late MockContentRepository repository;
+  late Uint8List darkBytes;
   setUpAll(() => S.load(const Locale('en')));
 
   setUp(() {
     repository = MockContentRepository();
     final light = File('$_diagrams/77235fba878b47f1d72f180d8babf2c4.svg').readAsBytesSync();
-    final dark = File('$_diagrams/9bb8502b0371cba0d2e5b7e98362455e.svg').readAsBytesSync();
+    darkBytes = File('$_diagrams/9bb8502b0371cba0d2e5b7e98362455e.svg').readAsBytesSync();
     when(() => repository.readObject('api/v1/diagrams/l.svg')).thenAnswer((_) async => Uint8List.fromList(light));
-    when(() => repository.readObject('api/v1/diagrams/d.svg')).thenAnswer((_) async => Uint8List.fromList(dark));
+    when(() => repository.readObject('api/v1/diagrams/d.svg')).thenAnswer((_) async => darkBytes);
   });
 
   BoxDecoration frameDecoration(WidgetTester tester) =>
@@ -143,6 +146,53 @@ void main() {
     );
     await settleContent(tester);
 
+    expect(find.text(S.current.content_unreadable), findsOneWidget);
+  });
+
+  testWidgets('a theme change while the light read is pending draws the dark variant and drops the light bytes', (
+    tester,
+  ) async {
+    final lightRead = Completer<Uint8List>();
+    final lightBytes = Uint8List.fromList(File('$_diagrams/77235fba878b47f1d72f180d8babf2c4.svg').readAsBytesSync());
+    when(() => repository.readObject('api/v1/diagrams/l.svg')).thenAnswer((_) => lightRead.future);
+
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.light,
+      repository: repository,
+    );
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.dark,
+      repository: repository,
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await settleContent(tester);
+    lightRead.complete(lightBytes);
+    await settleContent(tester);
+
+    final loader = tester.widget<SvgPicture>(find.byType(SvgPicture)).bytesLoader as SvgBytesLoader;
+    expect(loader.bytes, darkBytes);
+    expect(frameDecoration(tester).color, const Color(0xFF333333));
+    verify(() => repository.readObject('api/v1/diagrams/l.svg')).called(1);
+    verify(() => repository.readObject('api/v1/diagrams/d.svg')).called(1);
+  });
+
+  testWidgets('an SVG that does not parse shows the unreadable state', (tester) async {
+    when(() => repository.readObject(any())).thenAnswer((_) async => Uint8List.fromList('<svg><g'.codeUnits));
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.light,
+      repository: repository,
+    );
+    await settleContent(tester);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
     expect(find.text(S.current.content_unreadable), findsOneWidget);
   });
 }

@@ -1,15 +1,20 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
+import '../../support/content_refresh_cases.dart';
 import 'content_cache.dart';
 
 void main() {
@@ -113,6 +118,93 @@ void main() {
 
     final next = await fixtureRepository(cacheRoot).open();
     expect(next.origin, ContentOrigin.bundled);
+  });
+
+  group('a page open during a refresh keeps its files (spec 3.4.3 row 6)', () {
+    const oldDark = 'api/v1/diagrams/9bb8502b0371cba0d2e5b7e98362455e.svg';
+    const newDark = 'api/v1/diagrams/0123456789abcdef0123456789abcdef.svg';
+    final redrawn = utf8.encode('<svg xmlns="http://www.w3.org/2000/svg" id="redrawn"/>');
+
+    /// [site] with its index replaced by [index] with [changes] applied and [files] in place of its `files`.
+    void publish(Map<String, List<int>> site, Map<String, Object?> changes, Map<String, Object?> files) {
+      final index = jsonDecode(utf8.decode(site['api/v1/index.json']!)) as Map<String, Object?>;
+      site['api/v1/index.json'] = utf8.encode(jsonEncode({...index, ...changes, 'files': files}));
+    }
+
+    Map<String, Object?> filesOf(Map<String, List<int>> site) =>
+        (jsonDecode(utf8.decode(site['api/v1/index.json']!)) as Map<String, Object?>)['files']! as Map<String, Object?>;
+
+    String darkOf(ModuleDoc doc) => doc.body!.whereType<DiagramBlock>().single.svgDark;
+
+    /// The published site with `alpha/first`'s dark diagram redrawn: [oldDark] leaves `files`, [newDark] names the
+    /// redrawn bytes, and the refreshed document points at [newDark].
+    Map<String, List<int>> redrawnSite() {
+      final site = publishedSite();
+      final document = utf8.encode(utf8.decode(site[refreshedPath]!).replaceAll(oldDark, newDark));
+      final files = {...filesOf(site)}..remove(oldDark);
+      files[refreshedPath] = sha256.convert(document).toString();
+      files[newDark] = sha256.convert(redrawn).toString();
+      publish(site, const {}, files);
+      return {...site, refreshedPath: document, newDark: redrawn};
+    }
+
+    test('the diagram path of the document on screen still reads after a refresh redraws it', () async {
+      final repository = fixtureRepository(cacheRoot, site: serving(redrawnSite()));
+      await repository.open();
+      final shown = await repository.readModuleDoc(refreshedPath);
+      expect(darkOf(shown), oldDark);
+
+      expect(await repository.refresh(), isA<ContentUpdated>());
+
+      expect(await repository.readObject(oldDark), fixtureObject(oldDark));
+      final refreshed = await repository.readModuleDoc(refreshedPath);
+      expect(darkOf(refreshed), newDark);
+      expect(await repository.readObject(newDark), redrawn);
+    });
+
+    test('an object an earlier refresh downloaded still reads after a later refresh drops its path', () async {
+      final site = redrawnSite();
+      final repository = fixtureRepository(cacheRoot, site: serving(site));
+      await repository.open();
+      expect(await repository.refresh(), isA<ContentUpdated>());
+      final files = {...filesOf(site)}..remove(newDark);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      expect(await repository.refresh(), isA<ContentUpdated>());
+
+      expect(await repository.readObject(newDark), redrawn);
+      expect(await repository.readObject(oldDark), fixtureObject(oldDark));
+      await expectLater(
+        repository.readObject('api/v1/none.json'),
+        throwsA(const ContentMissingException('api/v1/none.json')),
+      );
+    });
+
+    test('the current index wins over an earlier one for a path both list', () async {
+      final site = redrawnSite();
+      final repository = fixtureRepository(cacheRoot, site: serving(site));
+      await repository.open();
+      expect(await repository.refresh(), isA<ContentUpdated>());
+
+      expect(
+        ContentParser.parseIndex(utf8.decode(site['api/v1/index.json']!)).sha256Of(refreshedPath),
+        isNot(fixtureIndex().sha256Of(refreshedPath)),
+      );
+      expect(await repository.readObject(refreshedPath), site[refreshedPath]);
+    });
+
+    test('a downloaded object read through an earlier index keeps the sha256 check and the corrupt marker', () async {
+      final site = redrawnSite();
+      final repository = fixtureRepository(cacheRoot, site: serving(site));
+      await repository.open();
+      expect(await repository.refresh(), isA<ContentUpdated>());
+      final files = {...filesOf(site)}..remove(newDark);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      expect(await repository.refresh(), isA<ContentUpdated>());
+      File('$content/objects/${sha256.convert(redrawn)}').writeAsBytesSync([1, 2, 3]);
+
+      await expectLater(repository.readObject(newDark), throwsA(const ContentCorruptException(newDark)));
+      expect(File('$content/corrupt').existsSync(), isTrue);
+    });
   });
 
   test('FixtureAssetBundle serves the fixture bundle and its overrides, and nothing else', () async {

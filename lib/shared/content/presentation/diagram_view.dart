@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// A bundled diagram in its frame: `svg.light` on the light `diagramThemes` ground, or `svg.dark` on the dark one, with
-/// the frame edge of that variant (A26), zoomable inside an [InteractiveViewer] and labelled with its caption.
+/// the frame edge of that variant (A26), zoomable inside an [InteractiveViewer] and labelled with its caption. A
+/// diagram that is missing, corrupt or does not parse shows [ContentUnreadable].
 ///
 /// [variant] defaults to the theme's brightness, which in the app follows the system setting. The caption text under
 /// the frame is the block renderer's.
@@ -47,7 +48,12 @@ class DiagramView extends StatelessWidget {
                 builder: (context, bytes) => InteractiveViewer(
                   minScale: 1,
                   maxScale: 4,
-                  child: SvgPicture.memory(bytes, width: constraints.maxWidth),
+                  child: SvgPicture.memory(
+                    bytes,
+                    width: constraints.maxWidth,
+                    // An SVG the parser rejects would otherwise leave an empty frame.
+                    errorBuilder: (_, _, _) => const ContentUnreadable(),
+                  ),
                 ),
                 unreadable: (context) => const ContentUnreadable(),
               ),

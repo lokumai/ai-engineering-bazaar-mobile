@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter/widgets.dart';
@@ -99,6 +100,11 @@ void main() {
           reason: '${track.id} ${entry.key} opened as $state',
         );
         expect(tester.takeException(), isNull, reason: '${track.id} ${entry.key}');
+        expect(
+          find.byType(ContentUnreadable, skipOffstage: false),
+          findsNothing,
+          reason: '${track.id} ${entry.key} shows an unreadable figure or diagram',
+        );
         opened.add('${track.id} ${entry.key}');
       }
     }

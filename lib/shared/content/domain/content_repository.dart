@@ -16,9 +16,10 @@ abstract interface class IContentRepository {
   /// Checks the site for newer content (spec 3.4.4), against the current index.
   Future<RefreshOutcome> refresh();
 
-  /// The bytes [sitePath] names in the current index, checked against its sha256.
+  /// The bytes [sitePath] names in the current index, or else in the most recent index this session served before it,
+  /// checked against its sha256: a page open during a refresh keeps its files (spec 3.4.3 row 6).
   ///
-  /// Throws [ContentMissingException] when the index does not name it or the object is not on the device, and
+  /// Throws [ContentMissingException] when none of those indexes names it or the object is not on the device, and
   /// [ContentCorruptException] when the stored bytes do not match.
   Future<Uint8List> readObject(String sitePath);
 
