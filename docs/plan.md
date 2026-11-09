@@ -74,7 +74,7 @@ The owner ran 1A to 1I on the Android emulator. These steps land on the same bra
 Three of them change a decision taken above or a requirement; those are marked, and the requirement is updated in the same commit.
 
 - [x] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
-- [ ] **1K Welcome, redrawn.** The Welcome screen looks poor on the phone: the gate is cropped, and the five WebP figures are small and blurred. The screen is designed again before it is built again: a sketch first, agreed with the owner, then the code. It stays shown on the first launch only.
+- [x] **1K Welcome, redrawn.** The Welcome screen looked poor on the phone next to the mockup's. It now follows the mockup's layout: the gate cropped to its centre in a 400 high frame with a light in its arch, the two hanging lamps at the corners (drawn to WebP from the mockup, `assets/welcome/SOURCE.md`), the people standing across the gate's foot, and the mockup's headline in English ("AI engineering, written by the people who build it."). The lamps drop and swing to rest once; nothing keeps moving. The mockup's serif display face is not used, since the web downloads no font (`src/app/layout.tsx`, M16).
 - [x] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch took room on Home, the catalog and the reader, though most readers choose once.
   - Welcome asks for the track after Enter the bazaar, with the web's line for each track (`src/app/page.tsx`). The choice is kept as two file flags under Application Support (`track-chosen`, `track-everyone`), never in the record.
   - The switch is gone from Home, the catalog, the level page and the reader; each page names its track in a small label. Settings has a Reading section where the track changes.
@@ -90,10 +90,10 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - Found: the emulator's records (`adb shell dumpsys dropbox`) hold two ANRs since the morning, both of the emulator's own Phone app (`com.android.phone`), at 17:18, as the emulator booted ("failed to complete startup"). The reader has no ANR and no crash on record.
   - The reader skips about 0.7 s of frames twice at a cold start of a debug build, as a debug build does while it compiles; an ANR needs a 5 s stall.
   - Closed with no code change. If the dialog comes back, note the app name it shows; if it is Bazaar, read `adb shell dumpsys dropbox --print data_app_anr` and reopen this step.
-- [ ] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs showed nearly the same thing: the levels with a count and a dial. Each tab gets one job:
+- [x] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs showed nearly the same thing: the levels with a count and a dial. Each tab gets one job:
   - [x] **Home:** what to read now. Up next, the two written modules not completed after it, and a link to the catalog; no level list.
   - [x] **Catalog:** everything there is to read. The levels as buttons that open their modules (1N).
-  - [ ] **Progress:** what has been done. The stats, the levels with their dials, the completed modules, and the data line.
+  - [x] **Progress:** what has been done. It keeps its stats, its levels with their dials and modules, and the data line; with the dials gone from Home and the catalog, it is the one tab that shows them.
 - [ ] **1Q The interface follows the content's language.** *Changes D113 ("only content is multilingual").* When the language is Turkish, the interface is in Turkish too.
   - Every string goes into `intl_tr.arb`, written in the same register as the English copy.
   - Settings' language choice changes both.

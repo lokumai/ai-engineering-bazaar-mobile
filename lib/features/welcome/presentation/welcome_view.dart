@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
@@ -14,20 +16,24 @@ abstract final class WelcomeArt {
     'assets/welcome/cast_mei.webp',
     'assets/welcome/cast_piri.webp',
   ];
+  static const lampLeft = 'assets/welcome/lamp_left.webp';
+  static const lampRight = 'assets/welcome/lamp_right.webp';
 }
 
-/// The Welcome screen (the mockup's first screen, plan Phase 1I): the lattice band, the gate with the people of the
-/// web's home page in front of it, the app's name and its lead line, Enter the bazaar, and the maker's mark.
+/// The Welcome screen, laid out as the team's mockup draws it (plan 1K): the lattice band, the gate cropped to its
+/// centre with a light in its arch, two lamps hanging at the corners, the people of the web's home page in front of
+/// it, the line that says what the course is, its lead line, Enter the bazaar, and the maker's mark.
 ///
-/// The gate opens, the people step in and the words rise, once; under reduced motion everything is drawn in place at
-/// once (spec 3.10). The pictures are decoration, hidden from assistive technology.
+/// The gate opens, the lamps drop and swing to rest, the people step in and the words rise, once; the motion ends,
+/// so nothing moves while the reader decides. Under reduced motion everything is drawn in place at once (spec 3.10).
+/// The pictures are decoration, hidden from assistive technology.
 class WelcomeView extends StatefulWidget {
   const WelcomeView({super.key, required this.onEnter});
 
   final VoidCallback onEnter;
 
   /// How long the entrance takes when motion is allowed.
-  static const entrance = Duration(milliseconds: 1800);
+  static const entrance = Duration(milliseconds: 2600);
 
   @override
   State<WelcomeView> createState() => _WelcomeViewState();
@@ -53,9 +59,9 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
   }
 
   /// The part of the entrance between [begin] and [end], eased.
-  Animation<double> _part(double begin, double end) => CurvedAnimation(
+  Animation<double> _part(double begin, double end, {Curve curve = BazaarMotion.bazaar}) => CurvedAnimation(
     parent: _motion,
-    curve: Interval(begin, end, curve: BazaarMotion.bazaar),
+    curve: Interval(begin, end, curve: curve),
   );
 
   @override
@@ -63,8 +69,6 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final words = _part(0.55, 0.85);
-    final button = _part(0.7, 1);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -77,21 +81,25 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ExcludeSemantics(
-                      child: _Scene(gate: _part(0, 0.6), cast: _motion),
+                      child: _Scene(motion: _motion, part: _part),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                       child: _Rise(
-                        animation: words,
+                        animation: _part(0.66, 0.92),
                         child: Column(
                           spacing: 12,
                           children: [
                             Semantics(
                               header: true,
                               child: Text(
-                                s.app_title,
+                                s.welcome_headline,
                                 textAlign: TextAlign.center,
-                                style: theme.textTheme.displaySmall?.copyWith(color: colors.onSurfaceTitle),
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  color: colors.onSurfaceTitle,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.15,
+                                ),
                               ),
                             ),
                             Text(
@@ -106,7 +114,7 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
                       child: _Rise(
-                        animation: button,
+                        animation: _part(0.76, 1),
                         child: FilledButton.icon(
                           key: const Key('welcome-enter'),
                           onPressed: widget.onEnter,
@@ -119,18 +127,21 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20, top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 8,
-                        children: [
-                          const ExcludeSemantics(
-                            child: Image(image: AssetImage('assets/brand/lokum_logo.webp'), width: 22, height: 22),
-                          ),
-                          Text(
-                            s.welcome_maker,
-                            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                          ),
-                        ],
+                      child: _Rise(
+                        animation: _part(0.82, 1),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 8,
+                          children: [
+                            const ExcludeSemantics(
+                              child: Image(image: AssetImage('assets/brand/lokum_logo.webp'), width: 22, height: 22),
+                            ),
+                            Text(
+                              s.welcome_maker,
+                              style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -144,34 +155,47 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
   }
 }
 
-/// The gate, cropped to its centre as the mockup crops it, with the people in a row in front of it.
+/// The picture over the words: the gate in a 400 high frame, the light in its arch, the two lamps, and the people
+/// standing in a row across its foot and just below it, as the mockup places them on a 390 wide phone.
 class _Scene extends StatelessWidget {
-  const _Scene({required this.gate, required this.cast});
+  const _Scene({required this.motion, required this.part});
 
-  final Animation<double> gate;
+  final Animation<double> motion;
+  final Animation<double> Function(double begin, double end, {Curve curve}) part;
 
-  /// The whole entrance: each person steps in on a part of it.
-  final Animation<double> cast;
-
-  static const double _height = 360;
+  static const double _frame = 400;
+  static const double _height = 466;
   static const double _gateWidth = 680;
-  static const double _person = 64;
+
+  /// Each person's height, from the left, and the order they step in, from the centre out.
+  static const _heights = [108.0, 124.0, 118.0, 104.0, 112.0];
+  static const _order = [2, 1, 0, 3, 4];
 
   @override
   Widget build(BuildContext context) {
+    final gate = part(0, 0.62);
+    final glow = part(0.35, 0.8);
     return SizedBox(
       height: _height,
-      child: ClipRect(
-        child: Stack(
-          children: [
-            Positioned.fill(
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: _frame,
+            child: ClipRect(
               child: AnimatedBuilder(
                 animation: gate,
                 builder: (context, child) => Opacity(
                   opacity: gate.value,
-                  child: Transform.scale(scale: 1.14 - 0.14 * gate.value, child: child),
+                  child: Transform.scale(
+                    scale: 1.14 - 0.14 * gate.value,
+                    alignment: const Alignment(0, 0.4),
+                    child: child,
+                  ),
                 ),
-                // The gate keeps its width on any screen: a phone shows its centre, a wider screen the whole of it.
+                // The gate keeps its width on any screen: a phone shows its centre, a wider screen more of it.
                 child: const OverflowBox(
                   minWidth: _gateWidth,
                   maxWidth: _gateWidth,
@@ -180,30 +204,98 @@ class _Scene extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 2,
-                children: [
-                  for (final (position, art) in WelcomeArt.cast.indexed)
-                    _Rise(
-                      animation: CurvedAnimation(
-                        parent: cast,
-                        curve: Interval(0.3 + 0.06 * position, 0.6 + 0.06 * position, curve: BazaarMotion.bazaar),
+          ),
+          // The light in the arch.
+          Positioned(
+            top: 214,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: FadeTransition(
+                opacity: glow,
+                child: const SizedBox.square(
+                  dimension: 120,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [Color(0xF2FFF6DC), Color(0x73FFECBE), Color(0x00FFECBE)],
+                        stops: [0, 0.4, 0.7],
                       ),
-                      distance: 60,
-                      child: Image(image: AssetImage(art), width: _person, height: _person * 400 / 220),
                     ),
-                ],
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: -4,
+            left: 18,
+            child: _Lamp(art: WelcomeArt.lampLeft, height: 128, drop: part(0.18, 0.55), swing: part(0.5, 1)),
+          ),
+          Positioned(
+            top: -4,
+            right: 18,
+            child: _Lamp(art: WelcomeArt.lampRight, height: 96, drop: part(0.25, 0.6), swing: part(0.55, 1), phase: -1),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: 2,
+              children: [
+                for (final (position, art) in WelcomeArt.cast.indexed)
+                  _Rise(
+                    animation: part(0.34 + 0.05 * _order[position], 0.6 + 0.05 * _order[position]),
+                    distance: 60,
+                    child: Image(
+                      image: AssetImage(art),
+                      height: _heights[position],
+                      width: _heights[position] * 330 / 600,
+                      filterQuality: FilterQuality.medium,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+/// A lamp that drops in from above on [drop], then swings from its cord on [swing], less each time, to rest.
+class _Lamp extends StatelessWidget {
+  const _Lamp({required this.art, required this.height, required this.drop, required this.swing, this.phase = 1});
+
+  final String art;
+  final double height;
+  final Animation<double> drop;
+  final Animation<double> swing;
+
+  /// 1 swings right first, -1 left first.
+  final double phase;
+
+  /// The widest swing, in radians (about 6 degrees, as the mockup's).
+  static const double _amplitude = 0.105;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([drop, swing]),
+      builder: (context, child) {
+        final t = swing.value;
+        // Two and a half swings that die down to rest.
+        final angle = phase * _amplitude * (1 - t) * math.sin(t * math.pi * 5);
+        return Transform.translate(
+          offset: Offset(0, -150 * (1 - drop.value)),
+          child: Transform.rotate(angle: angle, alignment: Alignment.topCenter, child: child),
+        );
+      },
+      child: Image(image: AssetImage(art), height: height, filterQuality: FilterQuality.medium),
     );
   }
 }

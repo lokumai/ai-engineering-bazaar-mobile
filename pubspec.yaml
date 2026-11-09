@@ -70,6 +70,8 @@ flutter:
     - assets/welcome/cast_bit.webp
     - assets/welcome/cast_mei.webp
     - assets/welcome/cast_piri.webp
+    - assets/welcome/lamp_left.webp
+    - assets/welcome/lamp_right.webp
   fonts:
     - family: Vazirmatn
       fonts:

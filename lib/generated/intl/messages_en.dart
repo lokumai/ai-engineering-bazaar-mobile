@@ -310,6 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Home, the catalog and the reader open this track. A link into the other track still opens it.",
     ),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
+    "welcome_headline": MessageLookupByLibrary.simpleMessage("AI engineering, written by the people who build it."),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(
       "The AI engineering course, on this device. No account: the progress stays here.",
     ),

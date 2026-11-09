@@ -23,6 +23,10 @@
   "@nav_progress": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
+  "welcome_headline": "AI engineering, written by the people who build it.",
+  "@welcome_headline": {
+    "description": "The mockup's Welcome headline, in English."
+  },
   "welcome_lede": "The AI engineering course, on this device. No account: the progress stays here.",
   "@welcome_lede": {},
   "welcome_enter": "Enter the bazaar",

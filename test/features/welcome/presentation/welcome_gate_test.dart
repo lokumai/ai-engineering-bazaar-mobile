@@ -98,7 +98,7 @@ void main() {
 
     expect(find.byType(WelcomeView), findsOneWidget);
     expect(find.text('the app'), findsNothing);
-    expect(find.text('AI Engineering Bazaar'), findsOneWidget);
+    expect(find.text('AI engineering, written by the people who build it.'), findsOneWidget);
     expect(find.text('Enter the bazaar'), findsOneWidget);
     expect(find.text('Lokum AI'), findsOneWidget);
 
@@ -134,16 +134,14 @@ void main() {
     expect(find.byType(WelcomeView), findsNothing);
   });
 
-  testWidgets('the app name is a header and the pictures say nothing', (tester) async {
+  testWidgets('the headline is a header and the pictures say nothing', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(_gate(_MemoryWelcomeStore()));
     await tester.pumpAndSettle();
 
-    expect(
-      tester.getSemantics(find.text('AI Engineering Bazaar')),
-      isSemantics(label: 'AI Engineering Bazaar', isHeader: true),
-    );
-    expect(find.bySemanticsLabel(RegExp('gate|cast', caseSensitive: false)), findsNothing);
+    const headline = 'AI engineering, written by the people who build it.';
+    expect(tester.getSemantics(find.text(headline)), isSemantics(label: headline, isHeader: true));
+    expect(find.bySemanticsLabel(RegExp('gate|cast|lamp', caseSensitive: false)), findsNothing);
     handle.dispose();
   });
 

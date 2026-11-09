@@ -103,6 +103,16 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
+  /// `AI engineering, written by the people who build it.`
+  String get welcome_headline {
+    return Intl.message(
+      'AI engineering, written by the people who build it.',
+      name: 'welcome_headline',
+      desc: 'The mockup\'s Welcome headline, in English.',
+      args: [],
+    );
+  }
+
   /// `The AI engineering course, on this device. No account: the progress stays here.`
   String get welcome_lede {
     return Intl.message(
