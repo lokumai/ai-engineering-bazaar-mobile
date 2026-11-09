@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_radius.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/semantic_colors.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 
 class BlocTab extends StatefulWidget {
   const BlocTab({super.key});
@@ -92,7 +93,7 @@ class _BlocTransitionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final semantic = context.semanticColors;
+    final bazaar = context.bazaarColors;
     final isError = entry.event == 'ERROR';
 
     return ExpansionTile(
@@ -122,11 +123,11 @@ class _BlocTransitionTile extends StatelessWidget {
         style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
       ),
       children: [
-        _buildStateBox(context, 'Previous State', entry.currentState, semantic.info),
+        _buildStateBox(context, 'Previous State', entry.currentState, bazaar.primary),
         const SizedBox(height: AppSpacing.sm),
         Center(child: Icon(Icons.arrow_downward, size: 16, color: colorScheme.onSurfaceVariant)),
         const SizedBox(height: AppSpacing.sm),
-        _buildStateBox(context, 'Next State', entry.nextState, isError ? colorScheme.error : semantic.success),
+        _buildStateBox(context, 'Next State', entry.nextState, isError ? bazaar.fault : BazaarFixedColors.success),
       ],
     );
   }

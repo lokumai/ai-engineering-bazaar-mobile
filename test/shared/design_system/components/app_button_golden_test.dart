@@ -1,7 +1,7 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_button.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/test_env.dart';
@@ -37,6 +37,9 @@ void main() {
     'AppButton — dark',
     fileName: 'app_button_dark',
     pumpBeforeTest: pumpOnce,
-    builder: () => Theme(data: AppTheme.dark(), child: grid()),
+    builder: () => Theme(
+      data: bazaarTheme(brightness: Brightness.dark, platform: TargetPlatform.android),
+      child: grid(),
+    ),
   );
 }

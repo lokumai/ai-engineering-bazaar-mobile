@@ -4,7 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,7 +36,12 @@ void main() {
       ],
     );
     addTearDown(router.dispose);
-    await tester.pumpWidget(MaterialApp.router(theme: AppTheme.light(), routerConfig: router));
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
+        routerConfig: router,
+      ),
+    );
     await tester.tap(find.byType(TextButton));
     // The sheet's animation is pumped through rather than settled.
     await tester.pump();

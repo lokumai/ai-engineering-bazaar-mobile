@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_radius.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/semantic_colors.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 
 /// Time-Travel Debugging tab for the Developer Console.
 ///
@@ -169,8 +170,6 @@ class _SnapshotTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final semantic = context.semanticColors;
-
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       childrenPadding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
@@ -211,22 +210,28 @@ class _SnapshotTile extends StatelessWidget {
       ),
       children: [
         // State diff view
-        _buildDiffView(context, semantic, colorScheme, textTheme),
+        _buildDiffView(context, colorScheme, textTheme),
       ],
     );
   }
 
-  Widget _buildDiffView(BuildContext context, SemanticColors semantic, ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildDiffView(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Previous state
-        _buildStateBlock(context, 'Before', snapshot.previousState, colorScheme.error.withAlpha(20), colorScheme),
+        _buildStateBlock(
+          context,
+          'Before',
+          snapshot.previousState,
+          context.bazaarColors.fault.withAlpha(20),
+          colorScheme,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Center(child: Icon(Icons.arrow_downward, size: 16, color: colorScheme.onSurfaceVariant)),
         const SizedBox(height: AppSpacing.sm),
         // Next state
-        _buildStateBlock(context, 'After', snapshot.state, semantic.success.withAlpha(20), colorScheme),
+        _buildStateBlock(context, 'After', snapshot.state, BazaarFixedColors.success.withAlpha(20), colorScheme),
       ],
     );
   }

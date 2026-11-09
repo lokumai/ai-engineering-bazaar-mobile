@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_bl
 import 'package:ai_engineering_bazaar/core/logging/app_bloc_observer.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_constants.dart';
 
 class AppBootstrap {
@@ -20,6 +21,7 @@ class AppBootstrap {
     @visibleForTesting SentryStart sentry = const SentryStart(),
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
+    registerFontLicences();
 
     await AppConstants.initPackageInfo();
 

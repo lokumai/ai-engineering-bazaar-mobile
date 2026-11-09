@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../theme/semantic_colors.dart';
+import '../bazaar_theme.dart';
+import '../bazaar_tokens.g.dart';
 import '../tokens/app_spacing.dart';
 
 /// Badge variants.
@@ -16,15 +17,14 @@ class AppBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final (bg, fg) = _colors(context, colorScheme);
+    final (bg, fg, edge) = _colors(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: variant == AppBadgeVariant.outline ? Colors.transparent : bg,
+        color: bg,
         borderRadius: BorderRadius.circular(100),
-        border: variant == AppBadgeVariant.outline ? Border.all(color: colorScheme.outline, width: 1) : null,
+        border: edge == null ? null : Border.all(color: edge),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -40,21 +40,17 @@ class AppBadge extends StatelessWidget {
     );
   }
 
-  (Color bg, Color fg) _colors(BuildContext context, ColorScheme cs) {
-    final sc = context.semanticColors;
-    switch (variant) {
-      case AppBadgeVariant.filled:
-        return (cs.primary, cs.onPrimary);
-      case AppBadgeVariant.secondary:
-        return (cs.secondaryContainer, cs.onSecondaryContainer);
-      case AppBadgeVariant.destructive:
-        return (cs.error, cs.onError);
-      case AppBadgeVariant.outline:
-        return (Colors.transparent, cs.onSurface);
-      case AppBadgeVariant.success:
-        return (sc.success, sc.onSuccess);
-      case AppBadgeVariant.warning:
-        return (sc.warning, sc.onWarning);
-    }
+  /// The ground, text and border of the variant. Chromatic tokens never carry badge text (A18): a status shows in the
+  /// border, and the text stays on-surface or on its tested pair.
+  (Color bg, Color fg, Color? edge) _colors(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final c = context.bazaarColors;
+    return switch (variant) {
+      AppBadgeVariant.filled => (cs.primary, cs.onPrimary, null),
+      AppBadgeVariant.secondary || AppBadgeVariant.outline => (c.surfaceRaised, c.onSurface, c.line),
+      AppBadgeVariant.destructive => (c.surfaceRaised, c.onSurface, c.fault),
+      AppBadgeVariant.success => (c.surfaceRaised, c.onSurface, BazaarFixedColors.success),
+      AppBadgeVariant.warning => (BazaarFixedColors.caution, BazaarFixedColors.onCaution, null),
+    };
   }
 }

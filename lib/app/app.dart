@@ -3,7 +3,8 @@ import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -32,8 +33,8 @@ class _AppState extends State<App> {
       child: MaterialApp.router(
         // The name the task switcher shows.
         onGenerateTitle: (context) => S.of(context).app_title,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
+        theme: bazaarTheme(brightness: Brightness.light, platform: defaultTargetPlatform),
+        darkTheme: bazaarTheme(brightness: Brightness.dark, platform: defaultTargetPlatform),
         themeMode: ThemeMode.system,
         themeAnimationDuration: Duration.zero,
         localizationsDelegates: const [

@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -23,6 +24,8 @@ void main() {
       expect(app.themeMode, ThemeMode.system);
       expect(app.theme!.brightness, Brightness.light);
       expect(app.darkTheme!.brightness, Brightness.dark);
+      expect(app.theme!.extension<BazaarColors>(), BazaarColors.light);
+      expect(app.darkTheme!.extension<BazaarColors>(), BazaarColors.dark);
     });
 
     testWidgets('names the app with app_title', (tester) async {

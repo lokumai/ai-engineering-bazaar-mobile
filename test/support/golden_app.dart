@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,7 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// variant.
 Widget goldenScreen(Widget screen, {bool dark = false}) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: dark ? AppTheme.dark() : AppTheme.light(),
+  theme: dark
+      ? bazaarTheme(brightness: Brightness.dark, platform: TargetPlatform.android)
+      : bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
   localizationsDelegates: const [
     S.delegate,
     GlobalMaterialLocalizations.delegate,

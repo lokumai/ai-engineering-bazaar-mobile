@@ -56,3 +56,8 @@ flutter:
   assets:
     - assets/content/
     - assets/content/objects/
+    - assets/fonts/OFL.txt
+  fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn-Regular.ttf
