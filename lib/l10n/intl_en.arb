@@ -152,5 +152,23 @@
   "card_requires": "Requires",
   "@card_requires": {},
   "card_requires_nothing": "Nothing",
-  "@card_requires_nothing": {}
+  "@card_requires_nothing": {},
+  "content_unreadable": "This part of the course could not be read on this device. Restart the app to reload it.",
+  "@content_unreadable": {},
+  "block_figure_caption": "FIG. {number}",
+  "@block_figure_caption": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "block_table_caption": "TBL. {number}",
+  "@block_table_caption": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

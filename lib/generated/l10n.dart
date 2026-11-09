@@ -269,6 +269,26 @@ class S {
   String get card_requires_nothing {
     return Intl.message('Nothing', name: 'card_requires_nothing', desc: '', args: []);
   }
+
+  /// `This part of the course could not be read on this device. Restart the app to reload it.`
+  String get content_unreadable {
+    return Intl.message(
+      'This part of the course could not be read on this device. Restart the app to reload it.',
+      name: 'content_unreadable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FIG. {number}`
+  String block_figure_caption(String number) {
+    return Intl.message('FIG. $number', name: 'block_figure_caption', desc: '', args: [number]);
+  }
+
+  /// `TBL. {number}`
+  String block_table_caption(String number) {
+    return Intl.message('TBL. $number', name: 'block_table_caption', desc: '', args: [number]);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
@@ -11,6 +12,7 @@ import 'package:ai_engineering_bazaar/features/settings/navigation/settings_rout
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,9 +24,13 @@ class AppRouterFactory {
 
   static final _log = AppLogger.getLogger('AppRouterFactory');
 
+  /// A location to start at instead of [initialLocation], from `--dart-define=DEBUG_START_ROUTE`; honoured in debug
+  /// and profile builds (the device spike and the performance run open a page without taps), never in release.
+  static const _debugStartRoute = String.fromEnvironment('DEBUG_START_ROUTE');
+
   GoRouter create() {
     return GoRouter(
-      initialLocation: initialLocation,
+      initialLocation: !kReleaseMode && _debugStartRoute.isNotEmpty ? _debugStartRoute : initialLocation,
       debugLogDiagnostics: true,
       errorPageBuilder: (context, state) {
         // The page tells the user in the app language; the router's own error, in English, goes to the log.
@@ -65,6 +71,8 @@ class AppRouterFactory {
             _page('moduleEveryone', '/everyone/courses/:level/:module', const RoutePlaceholder()),
             _page('progress', BazaarPaths.progress, const RoutePlaceholder()),
             ...SettingsFeatureRoutes.routes,
+            // The device spike's gallery (spec 3.6.4), in debug builds only.
+            if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
           ],
         ),
         // The web's catalog paths that are not pages of their own here.

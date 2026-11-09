@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
@@ -13,7 +14,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
+import '../mocks/mock_classes.dart';
 import 'catalog_fixture_index.dart';
 import 'content_fixture.dart';
 
@@ -62,18 +65,35 @@ RecordBloc loadingRecordBloc() {
   return bloc;
 }
 
+/// A content repository on which every object and document read throws [ContentMissingException] naming its path, so
+/// a page that reads content settles on its unreadable state instead of waiting.
+MockContentRepository missingContentRepository() {
+  final repository = MockContentRepository();
+  Future<Never> missing(Invocation invocation) async =>
+      throw ContentMissingException(invocation.positionalArguments.first as String);
+  when(() => repository.readObject(any())).thenAnswer(missing);
+  when(() => repository.readModuleDoc(any())).thenAnswer(missing);
+  when(() => repository.readLevelDoc(any())).thenAnswer(missing);
+  return repository;
+}
+
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
-/// ready blocs, [track] to a new [TrackCubit], and the web links use [testContentBaseUrl].
+/// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], and the web links use
+/// [testContentBaseUrl].
 Widget bazaarTestApp({
   required GoRouter router,
   ContentBloc? content,
   RecordBloc? record,
   TrackCubit? track,
+  IContentRepository? repository,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
 }) {
-  return RepositoryProvider<WebLinks>.value(
-    value: const WebLinks(testContentBaseUrl),
+  return MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
+      RepositoryProvider<IContentRepository>.value(value: repository ?? missingContentRepository()),
+    ],
     child: MultiBlocProvider(
       providers: [
         BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),

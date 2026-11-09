@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
@@ -87,6 +88,18 @@ void main() {
       });
     }
   }
+
+  // Tests run with kDebugMode true; the default missingContentRepository() makes every document unreadable, so the
+  // gallery settles.
+  testWidgets('/debug/gallery opens the content gallery in a debug build', (tester) async {
+    final router = const AppRouterFactory(initialLocation: '/debug/gallery').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router));
+    await tester.pumpAndSettle();
+
+    expect(router.routerDelegate.currentConfiguration.last.route.name, 'debugGallery');
+    expect(find.byType(ContentGalleryPage), findsOneWidget);
+  });
 
   testWidgets('route transitions take no time under reduced motion', (tester) async {
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
