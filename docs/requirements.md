@@ -18,6 +18,7 @@ This file collects what is binding from the sources that are in reach:
 | Web repo `kia-context/specs/MANIFESTO.md` section 7 | One course, two apps (D111) |
 | Web repo `kia-context/specs/ARCHITECTURE.md` section 13 | The content bundle contract (`src/lib/bundle/schema.ts`) |
 | Web repo `kia-context/logs/BRAINSTORM.md` | D89 (the bundle), D111 (parity), D112 (WebP images), D113 (only content is multilingual) |
+| The mobile mockup, [Bazaar Mobil Taslak](https://claude.ai/artifact/4YZcwzuafAdcpsfGwWryp4) | The look of the redesign (plan Phase 1); never what the app shows or does |
 
 When two sources disagree, the web repo's decisions win on what the product does, and `CLAUDE.md` wins on how this code is written.
 
@@ -47,7 +48,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R20** Both tracks, For Engineers and For Everyone, with a track switch in the bar. The current track lives in memory for the session and starts at For Engineers (A11).
 - **R21** Routes follow the web's paths: `/`, `/everyone/sheets`, `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
 - **R22** No outside link or intent chooses the first page; deep linking is off (A5, final review).
-- **R23** The bottom navigation holds Catalog, Progress and Settings.
+- **R23** The bottom navigation holds Catalog, Progress and Settings; the redesign adds Home in front of them (plan Phase 1).
 
 ### Catalog
 
@@ -112,7 +113,9 @@ When two sources disagree, the web repo's decisions win on what the product does
 - Turkish and Persian content in the app (the bundle already carries it, D89).
 - Accounts, sync and any server state.
 - A theme or language menu; the app follows the device's light or dark mode.
-- Level hues in the catalog and the level meter's segment gauge (PR #1 design choices).
+- Reading position, word counts, saved quiz results and search: the bundle and the record carry none of them (plan Phase 1, Phase 5).
+
+Level hues and the level meter's segment gauge, left out by PR #1, come back with the redesign (plan Phase 1).
 
 ## 6. Acceptance
 
