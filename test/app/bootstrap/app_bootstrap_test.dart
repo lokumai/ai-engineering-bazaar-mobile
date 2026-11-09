@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../support/content_fixture.dart';
+
 /// Records what AppBootstrap.run asks of the Sentry start, answers the gate with [gated], and starts nothing.
 class _RecordingSentryStart implements SentryStart {
   _RecordingSentryStart(this.gated);
@@ -53,21 +55,60 @@ void main() {
       tester,
     ) async {
       final sentry = _RecordingSentryStart(
-        const AppConfig(environment: Environment.prod, sentryDsnDefine: 'https://public@example.invalid/1'),
+        const AppConfig(
+          environment: Environment.prod,
+          contentBaseUrl: testContentBaseUrl,
+          sentryDsnDefine: 'https://public@example.invalid/1',
+        ),
       );
       final flutterErrorHandler = FlutterError.onError;
       final platformErrorHandler = PlatformDispatcher.instance.onError;
       final observer = Bloc.observer;
+      final built = <AppConfig>[];
 
       await tester.runAsync(
-        () => AppBootstrap.run(const AppBootstrapConfig(environment: Environment.test), sentry: sentry),
+        () => AppBootstrap.run(
+          const AppBootstrapConfig(environment: Environment.prod),
+          sentry: sentry,
+          dependencies: (config) {
+            built.add(config);
+            return FixtureAppDependencies(appConfig: config);
+          },
+        ),
       );
       FlutterError.onError = flutterErrorHandler;
       PlatformDispatcher.instance.onError = platformErrorHandler;
       Bloc.observer = observer;
 
-      expect(sentry.gatedConfigs.map((config) => config.environment), [Environment.test]);
+      expect(sentry.gatedConfigs.map((config) => config.environment), [Environment.prod]);
       expect(sentry.runDsns, ['https://public@example.invalid/1']);
+      expect(built, [same(sentry.gated)]);
+    });
+
+    // Spec 3.7: main_local without --dart-define=CONTENT_BASE_URL fails at start, before anything is built.
+    testWidgets('refuses a config without a content base URL', (tester) async {
+      final sentry = _RecordingSentryStart(const AppConfig(environment: Environment.dev, contentBaseUrl: ''));
+      final built = <AppConfig>[];
+      Object? caught;
+
+      await tester.runAsync(() async {
+        try {
+          await AppBootstrap.run(
+            const AppBootstrapConfig(environment: Environment.dev),
+            sentry: sentry,
+            dependencies: (config) {
+              built.add(config);
+              return FixtureAppDependencies(appConfig: config);
+            },
+          );
+        } on StateError catch (error) {
+          caught = error;
+        }
+      });
+
+      expect(caught, isA<StateError>().having((e) => e.message, 'message', contains('CONTENT_BASE_URL')));
+      expect(built, isEmpty);
+      expect(sentry.runDsns, isEmpty);
     });
   });
 }

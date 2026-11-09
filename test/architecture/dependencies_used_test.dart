@@ -6,10 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// from a Dart file under lib/, test/, tool/ or integration_test/, or from analysis_options.yaml, except the entries
 /// below, each with its reason. An entry of _unusedOnPurpose that gains an importer fails, so it is deleted then.
 const _usedWithoutImport = {'intl_utils': 'the ARB generator, run as fvm dart run intl_utils:generate'};
-const _unusedOnPurpose = {
-  'clock': 'the record clock, imported from Task 8.1',
-  'bloc_test': 'the ContentBloc tests, imported from Task 7.5',
-};
+const _unusedOnPurpose = {'clock': 'the record clock, imported from Task 8.1'};
 
 List<String> _section(String pubspec, String name) {
   final lines = pubspec.split('\n');

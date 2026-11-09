@@ -16,7 +16,7 @@ Flutter BLoC Advance Template - a production-ready Flutter application using BLo
 fvm flutter pub get
 
 # Run locally
-fvm flutter run --target lib/main/main_local.dart
+fvm flutter run --target lib/main/main_local.dart --dart-define=CONTENT_BASE_URL=https://ai-bazaar.lokum.dev/
 
 # Run production
 fvm flutter run --target lib/main/main_prod.dart

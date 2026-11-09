@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
+import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
 import '../../support/content_fixture.dart';
 
@@ -55,8 +58,17 @@ void writeCache(
 /// A later instant than the fixture's `2026-01-02T03:04:05.000Z`.
 const laterPublishedAt = '2026-02-01T00:00:00.000Z';
 
-FileContentRepository fixtureRepository(Directory cacheRoot, {Map<String, String> overrides = const {}}) =>
-    FileContentRepository(
-      bundled: BundledContent(bundle: FixtureAssetBundle(overrides: overrides)),
-      cacheDirectory: () async => cacheRoot,
-    );
+/// A repository over the fixture bundle and [cacheRoot] whose site is [site]; by default every request answers 500.
+FileContentRepository fixtureRepository(
+  Directory cacheRoot, {
+  Map<String, String> overrides = const {},
+  MockClientHandler? site,
+}) => FileContentRepository(
+  bundled: BundledContent(bundle: FixtureAssetBundle(overrides: overrides)),
+  cacheDirectory: () async => cacheRoot,
+  http: siteHttp(site),
+);
+
+/// A [ContentHttp] over [testContentBaseUrl] whose requests [site] answers; by default every request answers 500.
+ContentHttp siteHttp([MockClientHandler? site]) =>
+    ContentHttp(client: MockClient(site ?? (_) async => http.Response('', 500)), contentBaseUrl: testContentBaseUrl);

@@ -7,9 +7,15 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../support/content_fixture.dart';
+
 const _dsn = 'https://public@example.invalid/1';
 
-const _prodWithDsn = AppConfig(environment: Environment.prod, sentryDsnDefine: _dsn);
+const _prodWithDsn = AppConfig(
+  environment: Environment.prod,
+  contentBaseUrl: testContentBaseUrl,
+  sentryDsnDefine: _dsn,
+);
 
 /// The platform sentry_flutter reports on an Android device, where it picks its Java binding.
 class _AndroidPlatform extends Platform {

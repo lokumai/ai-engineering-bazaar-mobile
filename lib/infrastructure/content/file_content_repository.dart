@@ -11,21 +11,24 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart'
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
+import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 
 /// The content repository over the bundled snapshot and the downloaded object store (spec 3.4.1).
 ///
 /// The store lives at `<cacheRoot>/content/`, where `cacheRoot` is what `cacheDirectory` returned: `objects/<sha256>`,
 /// `indexes/<contentVersion>.json`, `current` (the current `contentVersion`) and `corrupt` (the marker a mismatched
 /// object leaves for the next start). `cacheDirectory` is resolved once, at the start of [open], so the repository
-/// can be built synchronously; every other method throws a [StateError] until [open] has completed.
+/// can be built synchronously; every other method throws a [StateError] until [open] has completed. [refresh] fetches
+/// newer content from the site through `http`.
 final class FileContentRepository implements IContentRepository {
-  FileContentRepository({required this._bundled, required this._cacheDirectory});
+  FileContentRepository({required this._bundled, required this._cacheDirectory, required this._http});
 
   static final _log = AppLogger.getLogger('FileContentRepository');
   static final _contentVersion = RegExp(r'^[0-9a-f]{64}$');
 
   final BundledContent _bundled;
   final Future<Directory> Function() _cacheDirectory;
+  final ContentHttp _http;
 
   _Opened? _opened;
 
@@ -108,10 +111,67 @@ final class FileContentRepository implements IContentRepository {
     }
   }
 
+  /// Spec 3.4.4 with A25: a failed step leaves `current` and the current index unchanged; objects already written
+  /// stay until the next start collects them.
   @override
   Future<RefreshOutcome> refresh() async {
-    _requireOpened();
-    throw UnimplementedError('refresh arrives in Task 7.5');
+    final opened = _requireOpened();
+    try {
+      return await _refresh(opened);
+    } on Object catch (error) {
+      final code = switch (error) {
+        ContentFetchException(:final code) => code,
+        ContentFormatException() || FormatException() => ContentErrorCode.format,
+        _ChecksumMismatch() => ContentErrorCode.checksum,
+        FileSystemException() => ContentErrorCode.storage,
+        _ => null,
+      };
+      if (code == null) rethrow;
+      _log.warn('content refresh failed: {}', [code]);
+      return ContentRefreshFailed(code: code);
+    }
+  }
+
+  Future<RefreshOutcome> _refresh(_Opened opened) async {
+    final majors = ContentParser.parseMajors(utf8.decode(await _http.get('api/index.json')));
+    if (!majors.majors.contains(1)) return const ContentNeedsAppUpdate();
+
+    final indexBytes = await _http.get('api/v1/index.json');
+    final index = ContentParser.parseIndex(utf8.decode(indexBytes));
+    final current = opened.index;
+    if (index.contentVersion == current.contentVersion ||
+        !index.publishedAtInstant.isAfter(current.publishedAtInstant)) {
+      return const ContentUpToDate();
+    }
+
+    final store = opened.store.path;
+    final pathOf = <String, String>{};
+    for (final MapEntry(key: sitePath, value: sha256Name) in [...index.files.entries, ...index.images.entries]) {
+      pathOf.putIfAbsent(sha256Name, () => sitePath);
+    }
+    for (final MapEntry(key: sha256Name, value: sitePath) in pathOf.entries) {
+      if (opened.bundledObjects.contains(sha256Name)) continue;
+      final object = File('$store/objects/$sha256Name');
+      if (await object.exists()) continue;
+      final bytes = await _http.get(sitePath, version: sha256Name);
+      if (sha256.convert(bytes).toString() != sha256Name) throw const _ChecksumMismatch();
+      await Directory('$store/objects').create(recursive: true);
+      await _writeAndRename(object, bytes);
+    }
+
+    await Directory('$store/indexes').create(recursive: true);
+    await _writeAndRename(File('$store/indexes/${index.contentVersion}.json'), indexBytes);
+    await _writeAndRename(File('$store/current'), utf8.encode(index.contentVersion));
+
+    _opened = _Opened(store: opened.store, index: index, bundledObjects: opened.bundledObjects);
+    return ContentUpdated(index: index);
+  }
+
+  /// Writes [bytes] to `<file>.tmp`, flushed, then renames it to [file].
+  static Future<void> _writeAndRename(File file, List<int> bytes) async {
+    final temporary = File('${file.path}.tmp');
+    await temporary.writeAsBytes(bytes, flush: true);
+    await temporary.rename(file.path);
   }
 
   @override
@@ -166,4 +226,9 @@ final class _Opened {
   final Directory store;
   final BundleIndex index;
   final Set<String> bundledObjects;
+}
+
+/// A downloaded object whose bytes do not match the sha256 it was requested by: a stale copy at the edge (A25).
+final class _ChecksumMismatch implements Exception {
+  const _ChecksumMismatch();
 }

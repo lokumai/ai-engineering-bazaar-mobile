@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
-import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/content_fixture.dart';
+
 void main() {
   group('App', () {
     testWidgets('mounts the router on the first frame, on the home page', (tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       expect(find.byType(HomePlaceholderPage), findsOneWidget);
     });
 
     testWidgets('follows the system theme with the light and dark app themes', (tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -29,14 +30,14 @@ void main() {
     });
 
     testWidgets('names the app with app_title', (tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       expect(tester.widget<Title>(find.byType(Title)).title, 'AI Engineering Bazaar');
     });
 
     testWidgets('provides the AppConfig of its dependencies', (tester) async {
-      await tester.pumpWidget(const App(dependencies: AppDependencies(appConfig: AppConfig.test())));
+      await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       expect(tester.element(find.byType(HomePlaceholderPage)).read<AppConfig>().environment, Environment.test);

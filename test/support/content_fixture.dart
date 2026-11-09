@@ -5,10 +5,20 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../mocks/mock_classes.dart';
 
 const contentFixtureBundle = 'test/fixtures/content/bundle';
+
+/// The `contentBaseUrl` every test runs with; an expected web URL in a test reads `https://content.test/...`.
+const testContentBaseUrl = 'https://content.test/';
 
 /// An asset bundle that serves `assets/content/<x>` from `test/fixtures/content/bundle/<x>`, so the code under test
 /// reads the synthetic snapshot where the app reads the real one.
@@ -33,4 +43,23 @@ final class FixtureAssetBundle extends CachingAssetBundle {
   }
 
   static ByteData _byteData(List<int> bytes) => ByteData.sublistView(Uint8List.fromList(bytes));
+}
+
+/// A content repository that opens the fixture bundle (bundled, no notice) and whose refresh finds nothing newer.
+MockContentRepository readyContentRepository() {
+  final repository = MockContentRepository();
+  final index = ContentParser.parseIndex(File('$contentFixtureBundle/index.json').readAsStringSync());
+  when(() => repository.open())
+      .thenAnswer((_) async => ContentOpening(index: index, origin: ContentOrigin.bundled, notice: null));
+  when(() => repository.refresh()).thenAnswer((_) async => const ContentUpToDate());
+  return repository;
+}
+
+/// App dependencies for widget tests: the test config with [testContentBaseUrl] and [readyContentRepository], so no
+/// test opens the bundled snapshot, calls `path_provider` or reaches the network.
+class FixtureAppDependencies extends AppDependencies {
+  const FixtureAppDependencies({super.appConfig = const AppConfig.test(contentBaseUrl: testContentBaseUrl)});
+
+  @override
+  IContentRepository createContentRepository() => readyContentRepository();
 }

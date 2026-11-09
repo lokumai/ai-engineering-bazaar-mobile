@@ -75,6 +75,34 @@ void main() {
           'would carry the session tokens as soon as backup is turned back on',
     );
   });
+
+  // A32: the app loads content over https only. The platform defaults already refuse cleartext; these pin them.
+  test('no manifest allows cleartext traffic', () {
+    final manifests = Directory('android/app/src')
+        .listSync()
+        .whereType<Directory>()
+        .map((source) => File('${source.path}/AndroidManifest.xml'))
+        .where((manifest) => manifest.existsSync())
+        .toList();
+    expect(manifests, isNotEmpty);
+
+    final allowing = [
+      for (final manifest in manifests)
+        for (final attribute in const ['usesCleartextTraffic="true"', 'networkSecurityConfig'])
+          if (_readWithoutXmlComments(manifest.path).contains(attribute)) '${manifest.path}: $attribute',
+    ];
+    expect(allowing, isEmpty, reason: 'these manifests open the app to cleartext traffic:\n${allowing.join('\n')}');
+  });
+
+  test('iOS allows no arbitrary loads', () {
+    final plist = _readWithoutXmlComments('ios/Runner/Info.plist');
+
+    final allowing = const [
+      'NSAllowsArbitraryLoads',
+      'NSExceptionAllowsInsecureHTTPLoads',
+    ].where(plist.contains).toList();
+    expect(allowing, isEmpty, reason: 'ios/Runner/Info.plist opens the app to cleartext traffic: $allowing');
+  });
 }
 
 /// Reads [path] without its XML comments.

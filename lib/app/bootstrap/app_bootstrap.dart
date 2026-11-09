@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap_config.dart';
+import 'package:ai_engineering_bazaar/app/bootstrap/content_base_url.dart';
 import 'package:ai_engineering_bazaar/app/bootstrap/sentry_start.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/analytics/crash_reporter.dart';
@@ -15,10 +16,14 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_constants.dart';
 
 class AppBootstrap {
-  /// Starts the app as [config] says. [sentry] decides whether Sentry starts and starts it; a test passes its own.
+  /// Starts the app as [config] says. [sentry] decides whether Sentry starts and starts it, and [dependencies] builds
+  /// the app's dependencies from the config; a test passes its own of both.
+  ///
+  /// Throws a [StateError] when the config has no usable `contentBaseUrl` (spec 3.7).
   static Future<void> run(
     AppBootstrapConfig config, {
     @visibleForTesting SentryStart sentry = const SentryStart(),
+    @visibleForTesting AppDependencies Function(AppConfig config)? dependencies,
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
     registerFontLicences();
@@ -31,7 +36,13 @@ class AppBootstrap {
     // Decided before anything reads the config: when Sentry may not start (a release build whose Android host did not
     // start the native SDK), the config loses its DSN, so the app runs exactly as without one.
     final appConfig = await sentry.gate(AppConfig.fromEnvironment(config.environment));
-    final dependencies = AppDependencies(appConfig: appConfig);
+    try {
+      requireContentBaseUrl(appConfig.contentBaseUrl);
+    } on StateError catch (error) {
+      log.error('{}', [error]);
+      rethrow;
+    }
+    final appDependencies = (dependencies ?? (c) => AppDependencies(appConfig: c))(appConfig);
 
     // Analytics & crash reporting.
     //
@@ -41,7 +52,7 @@ class AppBootstrap {
     // errors to the Sentry-backed analytics here — doing so reports every crash
     // twice. With Sentry off, forwarding to the local logging analytics is the
     // only sink, so it stays enabled.
-    final analytics = dependencies.createAnalyticsService();
+    final analytics = appDependencies.createAnalyticsService();
     final sentryActive = appConfig.sentryDsn != null;
     CrashReporter.install(analytics, forwardToAnalytics: !sentryActive);
 
@@ -57,7 +68,7 @@ class AppBootstrap {
     await sentry.run(
       appConfig.sentryDsn,
       release: '${AppConstants.appVersion}+${AppConstants.appBuildNumber}',
-      appRunner: () => runApp(App(dependencies: dependencies)),
+      appRunner: () => runApp(App(dependencies: appDependencies)),
     );
   }
 }

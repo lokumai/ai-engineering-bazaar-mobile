@@ -1,4 +1,7 @@
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:mocktail/mocktail.dart';
+
+class MockContentRepository extends Mock implements IContentRepository {}
 
 // Fake classes for fallback values
 class FakeUri extends Fake implements Uri {}

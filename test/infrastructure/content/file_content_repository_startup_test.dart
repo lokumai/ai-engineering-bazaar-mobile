@@ -150,6 +150,7 @@ void main() {
         calls++;
         return cacheRoot;
       },
+      http: siteHttp(),
     );
     expect(calls, 0);
 

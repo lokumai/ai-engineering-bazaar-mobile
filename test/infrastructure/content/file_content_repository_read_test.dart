@@ -49,6 +49,7 @@ void main() {
     final repository = FileContentRepository(
       bundled: BundledContent(bundle: _WithoutAsset('${BundledContent.objectsPrefix}$sha')),
       cacheDirectory: () async => cacheRoot,
+      http: siteHttp(),
     );
     await repository.open();
 
