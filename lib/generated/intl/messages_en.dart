@@ -104,6 +104,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "error_link_open_failed": m11,
     "level_completed": m12,
     "level_completed_pending": m13,
+    "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
     "level_module_count": m14,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),

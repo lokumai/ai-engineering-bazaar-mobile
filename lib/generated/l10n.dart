@@ -245,6 +245,11 @@ class S {
     return Intl.message('--/$total completed', name: 'level_completed_pending', desc: '', args: [total]);
   }
 
+  /// `General notes`
+  String get level_general_notes {
+    return Intl.message('General notes', name: 'level_general_notes', desc: '', args: []);
+  }
+
   /// `Description`
   String get card_description {
     return Intl.message('Description', name: 'card_description', desc: '', args: []);

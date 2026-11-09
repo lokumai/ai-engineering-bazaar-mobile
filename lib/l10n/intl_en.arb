@@ -137,6 +137,8 @@
       }
     }
   },
+  "level_general_notes": "General notes",
+  "@level_general_notes": {},
   "card_description": "Description",
   "@card_description": {},
   "card_length": "Length",

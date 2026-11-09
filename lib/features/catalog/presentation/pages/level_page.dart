@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labe
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_no_match.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/level_notes.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -18,7 +19,7 @@ import 'package:go_router/go_router.dart';
 
 /// The level page of [track] (web `LevelCatalog`, `src/components/catalog/LevelCatalog.tsx:20-97`) in the web's default
 /// Cards view (A10): the level title, the lead line, the meter text, then the catalog with this level chosen (the
-/// filter bar, A45, and the cards, or the empty state).
+/// filter bar, A45, and the cards, or the empty state), then the level's `General notes` when it has a document.
 ///
 /// The meter's segment gauge is left out: its text carries it (the gauge is `aria-hidden` on the web). The Status filter
 /// and the open Description are local UI state. An unknown level shows [NotFoundView].
@@ -102,6 +103,7 @@ class _LevelPageState extends State<LevelPage> {
             openDescription: _openDescription,
             onDescription: (key) => setState(() => _openDescription = key),
           ),
+        if (entry.readme case final readme?) LevelNotes(readme: readme, diagramThemes: index.diagramThemes),
       ],
     );
   }

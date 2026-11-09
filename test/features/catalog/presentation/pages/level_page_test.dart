@@ -4,6 +4,8 @@ library;
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
@@ -13,9 +15,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
+import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
 
 RecordData _signed(String slug) => signOff(RecordData.empty, slug, 'abc1234', '2026-11-09T10:00:00.000Z');
 
@@ -68,7 +73,89 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+const _alphaReadme = 'api/v1/levels/alpha.json';
+
+/// [catalogFixtureIndex] with alpha's entry rebuilt with a level document at [_alphaReadme].
+BundleIndex _indexWithAlphaReadme() {
+  final index = catalogFixtureIndex();
+  return BundleIndex(
+    contentVersion: index.contentVersion,
+    publishedAt: index.publishedAt,
+    publishedAtInstant: index.publishedAtInstant,
+    tracks: index.tracks,
+    diagramFont: index.diagramFont,
+    diagramThemes: index.diagramThemes,
+    levels: [
+      for (final level in index.levels)
+        level.slug == 'alpha'
+            ? LevelEntry(
+                slug: level.slug,
+                title: level.title,
+                status: level.status,
+                blurb: level.blurb,
+                total: level.total,
+                readme: _alphaReadme,
+              )
+            : level,
+    ],
+    modules: index.modules,
+    moved: index.moved,
+    files: index.files,
+    images: index.images,
+  );
+}
+
 void main() {
+  group('the level notes', () {
+    testWidgets('a level without a document shows no notes and reads none', (tester) async {
+      final repository = MockContentRepository();
+      final router = _router('/sheets/alpha');
+      await tester.pumpWidget(bazaarTestApp(router: router, record: _firstCompleted(), repository: repository));
+      await tester.pumpAndSettle();
+
+      expect(find.text('General notes'), findsNothing);
+      verifyNever(() => repository.readLevelDoc(any()));
+    });
+
+    testWidgets('a level with a document shows its notes below the cards', (tester) async {
+      final repository = MockContentRepository();
+      when(() => repository.readLevelDoc(_alphaReadme)).thenAnswer(
+        (_) async => const LevelDoc(
+          slug: 'alpha',
+          title: 'Alpha',
+          blocks: [
+            ParagraphBlock(inlines: [TextInline(text: 'Level note.')], lead: true),
+          ],
+        ),
+      );
+      final router = _router('/sheets/alpha');
+      await tester.pumpWidget(
+        bazaarTestApp(
+          router: router,
+          content: readyContentBloc(_indexWithAlphaReadme()),
+          record: _firstCompleted(),
+          repository: repository,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // The page is a lazy list: scroll until the notes are built, then bring them into view.
+      final notes = find.text('General notes');
+      final page = find.descendant(of: find.byType(LevelPage), matching: find.byType(Scrollable)).first;
+      await tester.scrollUntilVisible(notes, 200, scrollable: page);
+      await tester.pumpAndSettle();
+
+      final lastCard = _card('Third Module');
+      await tester.ensureVisible(lastCard);
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(notes).dy, greaterThan(tester.getTopLeft(lastCard).dy));
+      await tester.ensureVisible(find.text('Level note.', findRichText: true));
+      await tester.pumpAndSettle();
+      expect(find.text('Level note.', findRichText: true), findsOneWidget);
+      verify(() => repository.readLevelDoc(_alphaReadme)).called(1);
+    });
+  });
+
   group('the head of the page', () {
     testWidgets('alpha', (tester) async {
       await _pumpLevel(tester, '/sheets/alpha');
