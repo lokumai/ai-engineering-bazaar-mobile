@@ -93,6 +93,34 @@ void main() {
     expect(allowing, isEmpty, reason: 'these manifests open the app to cleartext traffic:\n${allowing.join('\n')}');
   });
 
+  // Owner decision 15 and A9: no OS deep link reaches the router. Flutter's embedding treats a missing
+  // flutter_deeplinking_enabled as true and hands the data URI of any explicit intent to go_router.
+  test('the main activity turns Flutter deep linking off', () {
+    final manifest = _readWithoutXmlComments(manifestPath);
+    final mainActivity = RegExp(
+      r'<activity\s[^>]*android:name="\.MainActivity"[^>]*>(.*?)</activity>',
+      dotAll: true,
+    ).firstMatch(manifest);
+    expect(mainActivity, isNotNull, reason: '$manifestPath declares no .MainActivity');
+
+    expect(
+      RegExp(r'<meta-data\s+android:name="flutter_deeplinking_enabled"\s+android:value="false"\s*/>')
+          .hasMatch(mainActivity![1]!),
+      isTrue,
+      reason: '.MainActivity in $manifestPath lacks flutter_deeplinking_enabled=false, so an intent URI opens a route',
+    );
+  });
+
+  test('iOS turns Flutter deep linking off', () {
+    final plist = _readWithoutXmlComments('ios/Runner/Info.plist');
+
+    expect(
+      RegExp(r'<key>FlutterDeepLinkingEnabled</key>\s*<false/>').hasMatch(plist),
+      isTrue,
+      reason: 'ios/Runner/Info.plist lacks FlutterDeepLinkingEnabled set to false',
+    );
+  });
+
   test('iOS allows no arbitrary loads', () {
     final plist = _readWithoutXmlComments('ios/Runner/Info.plist');
 

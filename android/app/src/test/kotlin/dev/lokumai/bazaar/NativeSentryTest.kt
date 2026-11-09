@@ -66,4 +66,11 @@ class NativeSentryTest {
         assertEquals("sentry.java.android.flutter", options.sdkVersion!!.name)
         assertEquals("sentry.native.android.flutter", options.nativeSdkName)
     }
+
+    // Crash reports only: a release-health session envelope never passes beforeSend, and sentry-java tracks sessions
+    // by default.
+    @Test
+    fun turnsAutomaticSessionTrackingOff() {
+        assertFalse(configured().isEnableAutoSessionTracking)
+    }
 }

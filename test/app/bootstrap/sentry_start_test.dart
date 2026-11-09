@@ -25,6 +25,14 @@ class _AndroidPlatform extends Platform {
   OperatingSystem get operatingSystem => OperatingSystem.android;
 }
 
+/// The platform sentry_flutter reports on an iOS device, where it passes the Dart options to sentry-cocoa.
+class _IosPlatform extends Platform {
+  const _IosPlatform();
+
+  @override
+  OperatingSystem get operatingSystem => OperatingSystem.ios;
+}
+
 /// Records each SentryFlutter.init call instead of starting the SDK.
 class _InitCalls {
   final options = <SentryFlutterOptions>[];
@@ -117,6 +125,17 @@ void main() {
       expect(options.release, '1.0.0+1');
       expect(options.tracesSampleRate, 0);
     });
+
+    // O2 and A5: crash reports only. A release-health session envelope never passes beforeSend.
+    for (final platform in const <Platform>[_AndroidPlatform(), _IosPlatform()]) {
+      test('turns automatic session tracking off on ${platform.operatingSystem.name}', () {
+        final options = SentryFlutterOptions(platform: platform);
+
+        configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+        expect(options.enableAutoSessionTracking, isFalse);
+      });
+    }
 
     test('installs a beforeSend that masks an email and a beforeBreadcrumb that masks one', () async {
       final options = SentryFlutterOptions(platform: const _AndroidPlatform());

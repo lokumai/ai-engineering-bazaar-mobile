@@ -33,7 +33,9 @@ fvm flutter run --target lib/main/main_prod.dart
 ```
 
 `main_prod` uses `https://ai-bazaar.lokum.dev/`.
-Sentry starts only in prod and only with a `SENTRY_DSN` define; it sends scrubbed crash reports and nothing else.
+Sentry starts only in prod and only with a `SENTRY_DSN` define; it sends crash reports and nothing else: no release-health sessions, no performance traces, no route names.
+The app scrubs every crash report on Android and every Dart crash report on iOS.
+On iOS the native SDK's own crash events and breadcrumbs leave the device as that SDK records them, unscrubbed.
 
 ## Refresh the snapshot
 

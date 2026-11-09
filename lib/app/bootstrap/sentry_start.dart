@@ -50,7 +50,9 @@ final _log = AppLogger.getLogger('SentryStart');
 
 /// The options `AppBootstrap.run` starts the Dart SDK with: the DSN, the
 /// scrubbing hooks of [installSentryScrubbers], the native start of
-/// [configureNativeSdkStart], a zero trace sample rate, so no navigation transaction is sent, and the release.
+/// [configureNativeSdkStart], a zero trace sample rate, so no navigation transaction is sent, automatic session
+/// tracking off, so no release-health session is sent (a session envelope never passes the scrubbers), and the
+/// release. The only events that leave the device are crash reports.
 ///
 /// On Android the host app starts the native SDK, so a native option set
 /// here must also be set in `NativeSentry.kt` of the Android host app (under
@@ -60,5 +62,7 @@ void configureSentryOptions(SentryFlutterOptions options, {required String dsn, 
   installSentryScrubbers(options);
   configureNativeSdkStart(options);
   options.tracesSampleRate = 0;
+  // Also set in NativeSentry.kt, since on Android this option does not reach the native SDK.
+  options.enableAutoSessionTracking = false;
   options.release = release;
 }

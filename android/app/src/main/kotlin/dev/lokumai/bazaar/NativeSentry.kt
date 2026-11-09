@@ -21,8 +21,9 @@ import io.sentry.protocol.SdkVersion
  * sentry_flutter passes no Dart option to this SDK, so [configure] repeats what it would set (configureAndroidOptions
  * in sentry_flutter 10.1.0, lib/src/native/java/sentry_native_java_init.dart) where the sentry-java 8.61.0 default
  * differs from the Dart one: scope sync, trace id generation, the 5 second timeouts, logs, metrics and the SDK names.
- * The other options it sets keep the sentry-java default, which equals the Dart default (session tracking, ANR,
- * tombstones, threads, stack traces, breadcrumbs, cache and attachment limits, client reports, sendDefaultPii).
+ * It also turns session tracking off, as configureSentryOptions does on the Dart side, so only crash reports leave the
+ * device. The other options it sets keep the sentry-java default, which equals the Dart default (ANR, tombstones,
+ * threads, stack traces, breadcrumbs, cache and attachment limits, client reports, sendDefaultPii).
  * Not mirrored: the Dart SDK's integrations and packages, which sentry_flutter adds to the native SDK version, and
  * Session Replay, whose recorder callbacks are created in Dart. A native option set on the Dart side
  * (configureSentryOptions in lib/app/bootstrap/sentry_start.dart) must be set here too, or it does nothing on
@@ -65,6 +66,8 @@ object NativeSentry {
         options.readTimeoutMillis = DART_TIMEOUT_MILLIS
         options.logs.isEnabled = true
         options.metrics.isEnabled = true
+        // Crash reports only: a release-health session envelope never passes beforeSend.
+        options.isEnableAutoSessionTracking = false
         val version = io.sentry.android.core.BuildConfig.VERSION_NAME
         options.sdkVersion = (options.sdkVersion ?: SdkVersion(JAVA_SDK_NAME, version)).apply { name = JAVA_SDK_NAME }
         options.sentryClientName = "$JAVA_SDK_NAME/$version"

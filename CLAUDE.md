@@ -249,7 +249,7 @@ Reader-visible copy follows the web's register (A12), and `test/architecture/arb
 
 - `main_local` and `main_prod` differ only in their `Environment` (`lib/infrastructure/config/environment.dart`) and their content base URL.
 - `main_local` requires `CONTENT_BASE_URL`; the app allows no cleartext traffic, and a content request times out after 30 s (A32, A43).
-- Sentry starts only in prod with a `SENTRY_DSN` define, and sends only scrubbed crash events: no navigator observer, `tracesSampleRate` 0, since a route carries a module key.
+- Sentry starts only in prod with a `SENTRY_DSN` define, and sends crash reports only: no navigator observer and `tracesSampleRate` 0, since a route carries a module key, and automatic session tracking off in `configureSentryOptions` and in `NativeSentry.kt` (on Android the Dart option does not reach the native SDK). Dart events, and on Android the native SDK's events and breadcrumbs, are scrubbed; on iOS the native SDK's own crash events and breadcrumbs are not.
 
 ## Adding a New Feature
 
