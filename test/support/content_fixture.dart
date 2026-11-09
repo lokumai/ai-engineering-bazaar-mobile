@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mocktail/mocktail.dart';
@@ -55,11 +56,27 @@ MockContentRepository readyContentRepository() {
   return repository;
 }
 
-/// App dependencies for widget tests: the test config with [testContentBaseUrl] and [readyContentRepository], so no
-/// test opens the bundled snapshot, calls `path_provider` or reaches the network.
+/// A record repository whose launch read finds no record and whose every write and file operation succeeds.
+MockRecordRepository readyRecordRepository() {
+  final repository = MockRecordRepository();
+  when(() => repository.load()).thenAnswer((_) async => const RecordLoadEmpty(quarantineKept: false));
+  when(() => repository.write(any())).thenAnswer((_) async => WriteResult.saved);
+  when(() => repository.readStored()).thenAnswer((_) async => const StoredBytes(record: null, quarantine: null));
+  when(() => repository.deleteAll()).thenAnswer((_) async {});
+  when(() => repository.restore(any())).thenAnswer((_) async {});
+  when(() => repository.deleteQuarantine()).thenAnswer((_) async {});
+  return repository;
+}
+
+/// App dependencies for widget tests: the test config with [testContentBaseUrl], [readyContentRepository] and
+/// [readyRecordRepository], so no test opens the bundled snapshot, calls `path_provider`, touches the record files or
+/// reaches the network.
 class FixtureAppDependencies extends AppDependencies {
   const FixtureAppDependencies({super.appConfig = const AppConfig.test(contentBaseUrl: testContentBaseUrl)});
 
   @override
   IContentRepository createContentRepository() => readyContentRepository();
+
+  @override
+  IRecordRepository createRecordRepository() => readyRecordRepository();
 }

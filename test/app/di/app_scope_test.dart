@@ -2,6 +2,9 @@ import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +22,25 @@ final class _ContentDependencies extends FixtureAppDependencies {
   @override
   IContentRepository createContentRepository() => repository;
 }
+
+/// Fixture dependencies whose record repository is [repository].
+final class _RecordDependencies extends FixtureAppDependencies {
+  const _RecordDependencies(this.repository);
+
+  final MockRecordRepository repository;
+
+  @override
+  IRecordRepository createRecordRepository() => repository;
+}
+
+const _emptyReady = RecordReady(
+  record: RecordData.empty,
+  writeState: WriteSaved(),
+  quarantine: null,
+  quarantineKept: false,
+  launchReadFailed: false,
+  undo: null,
+);
 
 void main() {
   testWidgets('provides the AppConfig of its dependencies', (tester) async {
@@ -59,5 +81,44 @@ void main() {
     verify(() => mock.refresh()).called(1);
     expect(identical(context.read<IContentRepository>(), mock), isTrue);
     expect(context.read<ContentBloc>().state, isA<ContentReady>());
+  });
+
+  testWidgets('provides the record repository and starts RecordBloc without a reader', (tester) async {
+    final mock = readyRecordRepository();
+    late BuildContext captured;
+    await tester.pumpWidget(
+      AppScope(
+        dependencies: _RecordDependencies(mock),
+        child: Builder(
+          builder: (context) {
+            captured = context;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    verify(() => mock.load()).called(1);
+    expect(identical(captured.read<IRecordRepository>(), mock), isTrue);
+    expect(captured.read<RecordBloc>().state, _emptyReady);
+  });
+
+  testWidgets('FixtureAppDependencies starts the record empty without touching files', (tester) async {
+    late BuildContext captured;
+    await tester.pumpWidget(
+      AppScope(
+        dependencies: const FixtureAppDependencies(),
+        child: Builder(
+          builder: (context) {
+            captured = context;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(captured.read<RecordBloc>().state, _emptyReady);
   });
 }
