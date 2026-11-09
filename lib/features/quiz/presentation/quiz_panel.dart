@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_cubit.dart';
@@ -5,6 +6,9 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,11 +31,12 @@ Size _textSize(BuildContext context, String text, TextStyle style) {
   return size;
 }
 
-/// The quiz at the end of a For Engineers module, as the web's `QuickQuiz.tsx` in its disclosure
-/// (`ModuleSheet.tsx:493-509`): collapsed at start, one question at a time, then the score and a recap.
+/// The quiz at the end of a For Engineers module (web `QuickQuiz.tsx`, `ModuleSheet.tsx:493-509`) as the redesign
+/// draws it (plan Phase 1F): a card in the reader that opens the quiz full screen over the reader, one question at a
+/// time, then the score and a recap. The quiz has no route of its own, as the web's has none (A9).
 ///
-/// The [QuizCubit] sits above the disclosure, so collapsing the panel keeps the answers; nothing is written to the
-/// record.
+/// The [QuizCubit] lives with the card, so closing the quiz and opening it again keeps the answers, as collapsing the
+/// web's disclosure does; nothing is written to the record (R51).
 class QuizPanel extends StatelessWidget {
   const QuizPanel({super.key, required this.items});
 
@@ -39,57 +44,102 @@ class QuizPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
     return BlocProvider(
       create: (_) => QuizCubit(items),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.surfaceRaised,
-          border: Border.all(color: colors.primary),
-          borderRadius: const BorderRadius.all(BazaarRadii.xl),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.all(BazaarRadii.xl),
-          child: Material(
-            type: MaterialType.transparency,
-            child: ExpansionTile(
-              maintainState: true,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-              iconColor: colors.onSurface,
-              collapsedIconColor: colors.onSurface,
-              leading: ExcludeSemantics(
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-                  child: Text(
-                    '?',
-                    style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-              title: Text(
-                s.quiz_title,
-                style: TextStyle(
-                  fontSize: BazaarType.item.size,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurfaceTitle,
-                ),
-              ),
-              subtitle: Text(
-                s.quiz_subtitle(items.length),
-                style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
-              ),
-              children: [_QuizBody(items: items)],
-            ),
+      child: _QuizCard(items: items),
+    );
+  }
+}
+
+/// The card that opens the quiz: the question disc, the title, the count and an arrow, one button as a whole.
+class _QuizCard extends StatelessWidget {
+  const _QuizCard({required this.items});
+
+  final List<QuizItem> items;
+
+  void _open(BuildContext context) {
+    final cubit = context.read<QuizCubit>();
+    unawaited(
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => BlocProvider.value(
+            value: cubit,
+            child: QuizScreen(items: items),
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final colors = context.bazaarColors;
+    return BazaarCard(
+      key: const Key('quiz-card'),
+      padding: const EdgeInsets.all(14),
+      onTap: () => _open(context),
+      child: Row(
+        spacing: 12,
+        children: [
+          ExcludeSemantics(
+            child: Container(
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+              child: Text(
+                '?',
+                style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  s.quiz_title,
+                  style: TextStyle(
+                    fontSize: BazaarType.control.size,
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurfaceTitle,
+                  ),
+                ),
+                Text(
+                  s.quiz_subtitle(items.length),
+                  style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+                ),
+              ],
+            ),
+          ),
+          ExcludeSemantics(child: Icon(Icons.arrow_forward, color: colors.primary)),
+        ],
+      ),
+    );
+  }
+}
+
+/// The quiz full screen: the bar with the quiz's title and a close button over the lattice band, then the current
+/// question or the results. Closing returns to the reader where it was.
+class QuizScreen extends StatelessWidget {
+  const QuizScreen({super.key, required this.items});
+
+  final List<QuizItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: const CloseButton(),
+        title: Text(S.of(context).quiz_title),
+        bottom: const PreferredSize(preferredSize: Size.fromHeight(LatticeBand.height), child: LatticeBand()),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        child: _QuizBody(items: items),
       ),
     );
   }
@@ -414,6 +464,21 @@ class _ResultsView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // The score as the mockup's dial; the line under it says the same for assistive technology.
+        Center(
+          child: ExcludeSemantics(
+            child: CompletionDial(
+              done: score,
+              total: items.length,
+              color: BazaarFixedColors.success,
+              center: '$score/${items.length}',
+              semanticLabel: count,
+              size: 120,
+              ring: 12,
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
         Semantics(
           key: const Key('quiz-score'),
           container: true,
@@ -444,9 +509,11 @@ class _ResultsView extends StatelessWidget {
           runSpacing: 8,
           children: [
             OutlinedButton(onPressed: cubit.backToQuestions, child: Text(s.quiz_back_to_questions)),
-            FilledButton(onPressed: cubit.restart, child: Text(s.quiz_start_over)),
+            OutlinedButton(onPressed: cubit.restart, child: Text(s.quiz_start_over)),
           ],
         ),
+        const SizedBox(height: 12),
+        FilledButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(s.quiz_back_to_module)),
       ],
     );
   }

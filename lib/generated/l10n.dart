@@ -555,6 +555,11 @@ class S {
     return Intl.message('Question $index of $count', name: 'quiz_progress', desc: '', args: [index, count]);
   }
 
+  /// `Back to the module`
+  String get quiz_back_to_module {
+    return Intl.message('Back to the module', name: 'quiz_back_to_module', desc: '', args: []);
+  }
+
   /// `Start over`
   String get quiz_start_over {
     return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);

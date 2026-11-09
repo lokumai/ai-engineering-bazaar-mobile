@@ -332,6 +332,8 @@
       }
     }
   },
+  "quiz_back_to_module": "Back to the module",
+  "@quiz_back_to_module": {},
   "quiz_start_over": "Start over",
   "@quiz_start_over": {},
   "quiz_correct": "Correct.",
