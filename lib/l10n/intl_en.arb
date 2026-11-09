@@ -373,6 +373,22 @@
   "@quiz_back_to_questions": {},
   "progress_title": "Your progress",
   "@progress_title": {},
+  "progress_stat_completed": "{count, plural, =1{module completed} other{modules completed}}",
+  "@progress_stat_completed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progress_stat_days": "{count, plural, =1{active day} other{active days}}",
+  "@progress_stat_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "progress_tabs_label": "Progress by track",
   "@progress_tabs_label": {},
   "progress_tab_count": "{signed} of {total}",

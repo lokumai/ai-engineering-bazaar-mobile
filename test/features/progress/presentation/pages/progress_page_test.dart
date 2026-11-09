@@ -171,6 +171,29 @@ void main() {
     expect(find.bySemanticsLabel('Progress by track'), findsOneWidget);
   });
 
+  testWidgets('the stats show the modules completed in the shown track and the active days', (tester) async {
+    final record = signOff(
+      signOff(RecordData.empty, 'alpha/first', 'abc1234', '2026-11-08T10:00:00.000Z'),
+      'alpha/second',
+      'abc1234',
+      '2026-11-09T10:00:00.000Z',
+    );
+    await _pump(tester, router: _router(), record: readyRecordBloc(record));
+
+    final handle = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('2 modules completed'), findsOneWidget);
+    expect(find.bySemanticsLabel('2 active days'), findsOneWidget);
+
+    await _tap(tester, find.text('For Everyone'));
+    expect(find.bySemanticsLabel('0 modules completed'), findsOneWidget, reason: 'the count follows the tab');
+    expect(
+      find.bySemanticsLabel('2 active days'),
+      findsOneWidget,
+      reason: 'the days are the record\'s, not a track\'s',
+    );
+    handle.dispose();
+  });
+
   testWidgets('the title is a header', (tester) async {
     await _pump(tester, router: _router(), record: readyRecordBloc());
 

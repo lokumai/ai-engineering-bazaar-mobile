@@ -10,6 +10,8 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +20,8 @@ import 'package:go_router/go_router.dart';
 const progressNoReading = '--';
 
 /// A level's card on the progress page (web `CourseCompletion.tsx:149-277`): the heading (the 1-based position padded
-/// to two digits, then the title), the [CompletionDial], and one [ModuleRow] per module of the level.
+/// to two digits, then the title), the [CompletionDial], and one [ModuleRow] per module of the level. The redesign
+/// draws it as an arch card with the level's hue along its top and in its dial (plan Phase 1G).
 class LevelCard extends StatelessWidget {
   const LevelCard({
     super.key,
@@ -54,53 +57,53 @@ class LevelCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final count = this.count;
-    return Card.outlined(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              spacing: AppSpacing.md,
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    container: true,
-                    child: Wrap(
-                      spacing: AppSpacing.sm,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          (position + 1).toString().padLeft(2, '0'),
-                          style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceMuted),
-                        ),
-                        Text(level.title, style: theme.textTheme.titleMedium),
-                      ],
-                    ),
+    final hue = levelHue(context, position);
+    return BazaarCard(
+      shape: BazaarCardShape.arch,
+      accent: hue,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            spacing: AppSpacing.md,
+            children: [
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  container: true,
+                  child: Wrap(
+                    spacing: AppSpacing.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        (position + 1).toString().padLeft(2, '0'),
+                        style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceMuted),
+                      ),
+                      Text(level.title, style: theme.textTheme.titleMedium),
+                    ],
                   ),
                 ),
-                CompletionDial(
-                  text: count == null
-                      ? s.progress_level_dial(progressNoReading, level.total)
-                      : s.progress_level_dial(count.approved.toString(), count.total),
-                  fraction: count == null || count.total == 0 ? 0 : count.approved / count.total,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            for (final fact in facts)
-              ModuleRow(
-                key: Key('progress_row_${fact.slug}'),
-                fact: fact,
-                // The For Engineers title in both tabs, as the web's (A34).
-                title: index.module(fact.slug)!.tracks[Track.engineers]!.title,
-                track: track,
-                signed: record?.signedOff(fact.slug, track) != null,
               ),
-          ],
-        ),
+              CompletionDial(
+                text: count == null
+                    ? s.progress_level_dial(progressNoReading, level.total)
+                    : s.progress_level_dial(count.approved.toString(), count.total),
+                fraction: count == null || count.total == 0 ? 0 : count.approved / count.total,
+                fill: hue,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          for (final fact in facts)
+            ModuleRow(
+              key: Key('progress_row_${fact.slug}'),
+              fact: fact,
+              // The For Engineers title in both tabs, as the web's (A34).
+              title: index.module(fact.slug)!.tracks[Track.engineers]!.title,
+              track: track,
+              signed: record?.signedOff(fact.slug, track) != null,
+            ),
+        ],
       ),
     );
   }
@@ -109,13 +112,16 @@ class LevelCard extends StatelessWidget {
 /// The level's dial (web `completion.css:540-553`): a ring filled to the completed fraction with [text] inside. It is
 /// hidden from assistive technology, as the web's (`aria-hidden`), since the rows carry each state.
 class CompletionDial extends StatelessWidget {
-  const CompletionDial({super.key, required this.text, required this.fraction});
+  const CompletionDial({super.key, required this.text, required this.fraction, required this.fill});
 
   /// `{approved}/{total}`, or `--/{total}` while the record loads.
   final String text;
 
   /// From 0 to 1.
   final double fraction;
+
+  /// The filled part of the ring: the level's hue.
+  final Color fill;
 
   static const double _size = 56;
 
@@ -126,7 +132,7 @@ class CompletionDial extends StatelessWidget {
       child: SizedBox.square(
         dimension: _size,
         child: CustomPaint(
-          painter: _DialPainter(fraction: fraction, track: colors.line, fill: BazaarFixedColors.success),
+          painter: _DialPainter(fraction: fraction, track: colors.surfaceSunken, fill: fill),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.sm),
             child: Center(

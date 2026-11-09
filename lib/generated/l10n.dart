@@ -620,6 +620,30 @@ class S {
     return Intl.message('Your progress', name: 'progress_title', desc: '', args: []);
   }
 
+  /// `{count, plural, =1{module completed} other{modules completed}}`
+  String progress_stat_completed(int count) {
+    return Intl.plural(
+      count,
+      one: 'module completed',
+      other: 'modules completed',
+      name: 'progress_stat_completed',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{active day} other{active days}}`
+  String progress_stat_days(int count) {
+    return Intl.plural(
+      count,
+      one: 'active day',
+      other: 'active days',
+      name: 'progress_stat_days',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Progress by track`
   String get progress_tabs_label {
     return Intl.message('Progress by track', name: 'progress_tabs_label', desc: '', args: []);

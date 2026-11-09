@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -69,6 +70,7 @@ class _ProgressViewState extends State<ProgressView> with TickerProviderStateMix
       RecordLoading() => null,
     };
     final minHeight = minTapTarget(theme.platform);
+    final colors = context.bazaarColors;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -84,6 +86,10 @@ class _ProgressViewState extends State<ProgressView> with TickerProviderStateMix
             label: s.progress_tabs_label,
             child: TabBar(
               controller: _controller,
+              indicatorColor: colors.primary,
+              labelColor: colors.onSurfaceTitle,
+              unselectedLabelColor: colors.onSurfaceMuted,
+              dividerColor: colors.line,
               onTap: (tapped) => setState(() => _chosen = tracks[tapped].track),
               tabs: [
                 for (final info in tracks)
@@ -101,7 +107,14 @@ class _ProgressViewState extends State<ProgressView> with TickerProviderStateMix
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
+          if (record != null) ...[
+            _Stats(
+              completed: signedCount(trackView(record, shown), curriculumFor(index, shown)).signed,
+              days: record.days.length,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           _Panel(
             key: Key('progress_panel_${tracks[position].track.id}'),
             info: tracks[position],
@@ -119,6 +132,59 @@ class _ProgressViewState extends State<ProgressView> with TickerProviderStateMix
   String _signedText(RecordData? record, Track track) {
     if (record == null) return progressNoReading;
     return signedCount(trackView(record, track), curriculumFor(widget.index, track)).signed.toString();
+  }
+}
+
+/// The stats the record carries (the redesign, plan Phase 1G): the modules completed in the shown track and the days
+/// on which anything was written (the record's `days`), each a number over its label, read as one line.
+class _Stats extends StatelessWidget {
+  const _Stats({required this.completed, required this.days});
+
+  final int completed;
+  final int days;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Row(
+      spacing: AppSpacing.sm,
+      children: [
+        Expanded(
+          child: _Stat(value: completed, label: s.progress_stat_completed(completed)),
+        ),
+        Expanded(
+          child: _Stat(value: days, label: s.progress_stat_days(days)),
+        ),
+      ],
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat({required this.value, required this.label});
+
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.bazaarColors;
+    return Semantics(
+      label: '$value $label',
+      excludeSemantics: true,
+      child: BazaarCard(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 2,
+          children: [
+            Text('$value', style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurfaceTitle)),
+            Text(label, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+          ],
+        ),
+      ),
+    );
   }
 }
 

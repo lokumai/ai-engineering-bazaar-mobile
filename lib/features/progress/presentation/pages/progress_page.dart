@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -76,7 +77,7 @@ class _ProgressWithData extends StatelessWidget {
                 writeState: writeState!,
                 onBackUp: () => context.read<DataBloc>().add(const BackupRequested()),
               ),
-            const DataLine(),
+            const BazaarCard(child: DataLine()),
           ],
         ),
       ),
