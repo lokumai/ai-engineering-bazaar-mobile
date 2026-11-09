@@ -82,5 +82,75 @@
     }
   },
   "module_planned": "Planned",
-  "@module_planned": {}
+  "@module_planned": {},
+  "level_module_count": "{count, plural, =1{1 module} other{{count} modules}}",
+  "@level_module_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_minutes": "~{minutes} min",
+  "@duration_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_hours": "~{hours} h",
+  "@duration_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_hours_minutes": "~{hours} h {minutes} min",
+  "@duration_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "level_completed": "{approved}/{total} completed",
+  "@level_completed": {
+    "placeholders": {
+      "approved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "level_completed_pending": "--/{total} completed",
+  "@level_completed_pending": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "card_description": "Description",
+  "@card_description": {},
+  "card_length": "Length",
+  "@card_length": {},
+  "card_length_minutes": "{minutes} min",
+  "@card_length_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "card_requires": "Requires",
+  "@card_requires": {},
+  "card_requires_nothing": "Nothing",
+  "@card_requires_nothing": {}
 }

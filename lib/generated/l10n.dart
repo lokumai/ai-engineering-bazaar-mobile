@@ -207,6 +207,68 @@ class S {
   String get module_planned {
     return Intl.message('Planned', name: 'module_planned', desc: '', args: []);
   }
+
+  /// `{count, plural, =1{1 module} other{{count} modules}}`
+  String level_module_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 module',
+      other: '$count modules',
+      name: 'level_module_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `~{minutes} min`
+  String duration_minutes(int minutes) {
+    return Intl.message('~$minutes min', name: 'duration_minutes', desc: '', args: [minutes]);
+  }
+
+  /// `~{hours} h`
+  String duration_hours(int hours) {
+    return Intl.message('~$hours h', name: 'duration_hours', desc: '', args: [hours]);
+  }
+
+  /// `~{hours} h {minutes} min`
+  String duration_hours_minutes(int hours, int minutes) {
+    return Intl.message('~$hours h $minutes min', name: 'duration_hours_minutes', desc: '', args: [hours, minutes]);
+  }
+
+  /// `{approved}/{total} completed`
+  String level_completed(int approved, int total) {
+    return Intl.message('$approved/$total completed', name: 'level_completed', desc: '', args: [approved, total]);
+  }
+
+  /// `--/{total} completed`
+  String level_completed_pending(int total) {
+    return Intl.message('--/$total completed', name: 'level_completed_pending', desc: '', args: [total]);
+  }
+
+  /// `Description`
+  String get card_description {
+    return Intl.message('Description', name: 'card_description', desc: '', args: []);
+  }
+
+  /// `Length`
+  String get card_length {
+    return Intl.message('Length', name: 'card_length', desc: '', args: []);
+  }
+
+  /// `{minutes} min`
+  String card_length_minutes(int minutes) {
+    return Intl.message('$minutes min', name: 'card_length_minutes', desc: '', args: [minutes]);
+  }
+
+  /// `Requires`
+  String get card_requires {
+    return Intl.message('Requires', name: 'card_requires', desc: '', args: []);
+  }
+
+  /// `Nothing`
+  String get card_requires_nothing {
+    return Intl.message('Nothing', name: 'card_requires_nothing', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

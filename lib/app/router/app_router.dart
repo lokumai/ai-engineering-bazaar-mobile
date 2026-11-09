@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/app/router/route_placeholder.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
@@ -50,8 +51,16 @@ class AppRouterFactory {
           routes: [
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
-            _page('level', '/sheets/:level', const RoutePlaceholder()),
-            _page('levelEveryone', '/everyone/sheets/:level', const RoutePlaceholder()),
+            _pageOf(
+              'level',
+              '/sheets/:level',
+              (state) => LevelPage(track: Track.engineers, level: state.pathParameters['level']!),
+            ),
+            _pageOf(
+              'levelEveryone',
+              '/everyone/sheets/:level',
+              (state) => LevelPage(track: Track.everyone, level: state.pathParameters['level']!),
+            ),
             _page('module', '/courses/:level/:module', const RoutePlaceholder()),
             _page('moduleEveryone', '/everyone/courses/:level/:module', const RoutePlaceholder()),
             _page('progress', BazaarPaths.progress, const RoutePlaceholder()),
@@ -69,9 +78,12 @@ class AppRouterFactory {
     );
   }
 
-  static GoRoute _page(String name, String path, Widget child) => GoRoute(
+  static GoRoute _page(String name, String path, Widget child) => _pageOf(name, path, (_) => child);
+
+  /// A route whose page reads the [GoRouterState], for its path parameters.
+  static GoRoute _pageOf(String name, String path, Widget Function(GoRouterState state) build) => GoRoute(
     name: name,
     path: path,
-    pageBuilder: (context, state) => appTransitionPage(context: context, state: state, child: child),
+    pageBuilder: (context, state) => appTransitionPage(context: context, state: state, child: build(state)),
   );
 }
