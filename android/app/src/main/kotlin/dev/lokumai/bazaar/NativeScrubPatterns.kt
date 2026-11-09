@@ -1,4 +1,4 @@
-package com.cevheri.flutter.flutter_bloc_advance
+package dev.lokumai.bazaar
 
 /**
  * Copies of the scrub policy in lib/core/security/sensitive_data_scrubber.dart and

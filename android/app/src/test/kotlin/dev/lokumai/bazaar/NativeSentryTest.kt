@@ -1,4 +1,4 @@
-package com.cevheri.flutter.flutter_bloc_advance
+package dev.lokumai.bazaar
 
 import io.sentry.Breadcrumb
 import io.sentry.Hint

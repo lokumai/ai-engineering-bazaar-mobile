@@ -1,4 +1,4 @@
-package com.cevheri.flutter.flutter_bloc_advance
+package dev.lokumai.bazaar
 
 import android.app.Application
 

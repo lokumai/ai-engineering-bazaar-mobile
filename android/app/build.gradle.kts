@@ -27,7 +27,7 @@ val isProdTarget = File(project.findProperty("target") as String? ?: "").name ==
 fun buildConfigString(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
-    namespace = "com.cevheri.flutter.flutter_bloc_advance"
+    namespace = "dev.lokumai.bazaar"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -37,7 +37,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cevheri.flutter.flutter_bloc_advance"
+        applicationId = "dev.lokumai.bazaar"
         // sentry_flutter 10 requires Android API 26 or higher.
         minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
