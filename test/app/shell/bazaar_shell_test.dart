@@ -6,7 +6,7 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/cata
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,9 +15,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
-
-final _engineers = find.byKey(TrackSwitch.segmentKey(Track.engineers));
-final _everyone = find.byKey(TrackSwitch.segmentKey(Track.everyone));
 
 Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
@@ -66,16 +63,8 @@ Future<void> _back(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-void _expectSelected(WidgetTester tester, Track track) {
-  expect(tester.getSemantics(find.byKey(TrackSwitch.segmentKey(track))), isSemantics(isSelected: true, isButton: true));
-  expect(
-    tester.getSemantics(find.byKey(TrackSwitch.segmentKey(track.other))),
-    isSemantics(isSelected: false, isButton: true),
-  );
-}
-
 void main() {
-  testWidgets('the bar shows the logo and the app title over the lattice band; the switch is on the page', (
+  testWidgets('the bar shows the logo and the app title over the lattice band; the page names its track', (
     tester,
   ) async {
     await _pumpAt(tester, '/sheets', TrackCubit());
@@ -83,15 +72,14 @@ void main() {
     final bar = find.ancestor(of: find.byType(Image), matching: find.byType(Row)).first;
     final barSurface = find.ancestor(of: bar, matching: find.byType(Material)).first;
     expect(find.descendant(of: bar, matching: find.text('AI Engineering Bazaar')), findsOneWidget);
-    expect(find.descendant(of: bar, matching: find.byType(TrackSwitch)), findsNothing);
     expect(find.byType(LatticeBand), findsOneWidget);
     expect(
       tester.getTopLeft(find.byType(LatticeBand)).dy,
       tester.getBottomLeft(barSurface).dy,
       reason: 'under the bar',
     );
-    expect(tester.getSemantics(_engineers), isSemantics(label: 'For Engineers', isSelected: true, isButton: true));
-    expect(tester.getSemantics(_everyone), isSemantics(label: 'For Everyone', isSelected: false, isButton: true));
+    expect(find.descendant(of: find.byType(TrackLabel), matching: find.text('For Engineers')), findsOneWidget);
+    expect(find.text('For Everyone'), findsNothing, reason: 'plan 1L: no switch on the pages');
   });
 
   testWidgets('the bar asks for light status bar icons, since it is navy in both themes', (tester) async {
@@ -117,73 +105,21 @@ void main() {
     expect(find.byType(BackButton), findsNothing);
   });
 
-  testWidgets('the switch keeps the page in the other track', (tester) async {
-    final router = await _pumpAt(tester, '/sheets/alpha', TrackCubit());
-
-    await tester.tap(_everyone);
-    await tester.pumpAndSettle();
-    expect(_path(router), '/everyone/sheets/alpha');
-
-    router.go('/courses/alpha/first');
-    await tester.pumpAndSettle();
-    await tester.tap(_everyone);
-    await tester.pumpAndSettle();
-    expect(_path(router), '/everyone/courses/alpha/first');
-
-    router.go('/everyone/sheets');
-    await tester.pumpAndSettle();
-    await tester.tap(_engineers);
-    await tester.pumpAndSettle();
-    expect(_path(router), '/sheets');
-  });
-
-  testWidgets('the switch on a pushed page opens the other track on top, and back returns to it', (tester) async {
-    final track = TrackCubit();
-    final router = await _pumpAt(tester, '/sheets', track);
+  testWidgets('Android back pops a pushed page and leaves the app only from the first page', (tester) async {
+    final router = await _pumpAt(tester, '/sheets', TrackCubit());
+    final calls = _watchPlatformCalls(tester);
     await _pushFromCatalog(tester, 'Beta Level');
-    // Open a card's Description: state of this page, kept while it stays below.
-    await _tap(tester, find.text('Description'));
-    expect(find.text('Summary of the fourth module.'), findsOneWidget);
-
-    // The segment of the page shown does nothing: the page and the catalog below it stay.
-    await _tap(tester, _engineers);
-    expect(_path(router), '/sheets/beta');
-    expect(find.text('Summary of the fourth module.'), findsOneWidget);
-    expect(router.canPop(), isTrue);
-
-    await _tap(tester, _everyone);
-    expect(_path(router), '/everyone/sheets/beta');
-    expect(track.state, Track.everyone);
-
-    final calls = _watchPlatformCalls(tester);
-    await _back(tester);
-    expect(calls, isNot(contains('SystemNavigator.pop')));
-    expect(_path(router), '/sheets/beta');
-    expect(find.text('Summary of the fourth module.'), findsOneWidget, reason: 'the page below keeps its state');
-    expect(track.state, Track.engineers);
-    _expectSelected(tester, Track.engineers);
+    await _tap(tester, find.text('Fourth Module'));
+    expect(_path(router), '/courses/beta/fourth');
 
     await _back(tester);
-    expect(calls, isNot(contains('SystemNavigator.pop')));
+    expect(_path(router), '/sheets/beta');
+    await _back(tester);
     expect(_path(router), '/sheets');
-  });
-
-  testWidgets('back after a switch on a pushed module returns to the module of the first track', (tester) async {
-    final track = TrackCubit();
-    final router = await _pumpAt(tester, '/sheets', track);
-    await _pushFromCatalog(tester, 'First Module');
-    expect(_path(router), '/courses/alpha/first');
-
-    await _tap(tester, _everyone);
-    expect(_path(router), '/everyone/courses/alpha/first');
-    _expectSelected(tester, Track.everyone);
-
-    final calls = _watchPlatformCalls(tester);
-    await _back(tester);
     expect(calls, isNot(contains('SystemNavigator.pop')));
-    expect(_path(router), '/courses/alpha/first');
-    expect(track.state, Track.engineers);
-    _expectSelected(tester, Track.engineers);
+
+    await _back(tester);
+    expect(calls, contains('SystemNavigator.pop'));
   });
 
   testWidgets('opening a track page remembers its track', (tester) async {
@@ -233,15 +169,11 @@ void main() {
     expect(selected(), 1);
   });
 
-  testWidgets('on Home, a page of neither track, the switch changes the remembered track only', (tester) async {
+  testWidgets('a page of the other track, opened by a link, names that track', (tester) async {
     final track = TrackCubit();
-    final router = await _pumpAt(tester, '/', track);
+    await _pumpAt(tester, '/everyone/sheets/beta', track);
 
-    await _tap(tester, _everyone);
-
-    expect(_path(router), '/');
-    expect(track.state, Track.everyone);
-    _expectSelected(tester, Track.everyone);
+    expect(find.descendant(of: find.byType(TrackLabel), matching: find.text('For Everyone')), findsOneWidget);
   });
 
   testWidgets('text scale 2.0', (tester) async {
@@ -250,8 +182,6 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    expectHittable(tester, _engineers);
-    expectHittable(tester, _everyone);
     expectHittable(tester, _destination('Home'));
     expectHittable(tester, _destination('Catalog'));
     expectHittable(tester, _destination('Progress'));

@@ -10,6 +10,9 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -85,6 +88,30 @@ Future<void> _pump(
 
 void main() {
   setUpAll(registerAllFallbackValues);
+
+  testWidgets('the track is chosen here, and kept (plan 1L)', (tester) async {
+    final store = _TrackStore();
+    final track = TrackCubit(store: store);
+    addTearDown(track.close);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), track: track));
+    await tester.pump();
+
+    expect(find.text('Reading'), findsOneWidget);
+    expect(
+      tester.getSemantics(find.byKey(settingsTrackKey(Track.engineers))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+
+    await tester.tap(find.byKey(settingsTrackKey(Track.everyone)));
+    await tester.pump();
+
+    expect(track.state, Track.everyone);
+    expect(store.kept, Track.everyone);
+    expect(
+      tester.getSemantics(find.byKey(settingsTrackKey(Track.everyone))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+  });
 
   testWidgets('shows the title and the content status', (tester) async {
     await _pump(tester);
@@ -172,6 +199,8 @@ void main() {
     final content = _contentBloc();
     await _pump(tester, content: content);
 
+    await tester.ensureVisible(find.text('Check for updates'));
+    await tester.pump();
     await tester.tap(find.text('Check for updates'));
     await tester.pump();
 
@@ -241,6 +270,8 @@ void main() {
   testWidgets('Licences opens the licence page under the app name', (tester) async {
     await _pump(tester);
 
+    await tester.ensureVisible(find.text('Licences'));
+    await tester.pump();
     await tester.tap(find.text('Licences'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500)); // the page spins while licences load
@@ -255,6 +286,8 @@ void main() {
 
     final contexts = <BuildContext>[];
     await _pump(tester, openDevConsole: contexts.add);
+    await tester.ensureVisible(find.text('Developer console'));
+    await tester.pump();
     await tester.tap(find.text('Developer console'));
     await tester.pump();
 
@@ -291,4 +324,14 @@ void main() {
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
+}
+
+final class _TrackStore implements ITrackStore {
+  Track? kept;
+
+  @override
+  Future<Track?> chosen() async => kept;
+
+  @override
+  Future<void> choose(Track track) async => kept = track;
 }

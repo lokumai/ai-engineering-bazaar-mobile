@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,8 +26,11 @@ Widget _screen({required bool dark}) {
       refresh: const RefreshUpToDate(),
     ),
   );
-  return BlocProvider<ContentBloc>.value(
-    value: content,
+  return MultiBlocProvider(
+    providers: [
+      BlocProvider<ContentBloc>.value(value: content),
+      BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
+    ],
     child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
   );
 }

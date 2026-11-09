@@ -287,6 +287,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
+    "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
     "settings_refresh_failed": m33,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
@@ -308,11 +309,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source": MessageLookupByLibrary.simpleMessage("Source"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
-    "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
+    "settings_track": MessageLookupByLibrary.simpleMessage("Track"),
+    "settings_track_note": MessageLookupByLibrary.simpleMessage(
+      "Home, the catalog and the reader open this track. A link into the other track still opens it.",
+    ),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(
       "The AI engineering course, on this device. No account: the progress stays here.",
     ),
     "welcome_maker": MessageLookupByLibrary.simpleMessage("Lokum AI"),
+    "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
+    "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
+      "The technical modules: how each part works, with the code and the numbers behind it.",
+    ),
+    "welcome_track_everyone": MessageLookupByLibrary.simpleMessage(
+      "The same modules in plain words, for readers with no technical background.",
+    ),
+    "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
+      "Every module comes in two versions. You can change this any time in Settings.",
+    ),
+    "welcome_track_title": MessageLookupByLibrary.simpleMessage("How would you like to read?"),
   };
 }

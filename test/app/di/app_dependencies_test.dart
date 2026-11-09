@@ -76,7 +76,7 @@ void main() {
     expect(await store.seen(), isFalse);
     await store.markSeen();
     expect(await store.seen(), isTrue);
-    expect(File('${root.path}/flags/welcome-seen').existsSync(), isTrue);
+    expect(File('${root.path}/flags/welcome-2-seen').existsSync(), isTrue);
   });
 
   test('createTrackStore keeps the choice as flags under the support directory (plan 1L)', () async {

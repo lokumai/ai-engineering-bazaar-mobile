@@ -61,13 +61,14 @@ class AppDependencies {
   ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: supportDirectory));
 }
 
-/// The welcome feature's port over the app's file flags: the flag `welcome-seen`.
+/// The welcome feature's port over the app's file flags: the flag `welcome-2-seen`. Welcome 2 asks for the track
+/// (plan 1L), so a reader who saw the first Welcome (`welcome-seen`) sees it once more.
 final class FlagWelcomeStore implements IWelcomeStore {
   const FlagWelcomeStore(this._flags);
 
   final FileFlagStore _flags;
 
-  static const _flag = 'welcome-seen';
+  static const _flag = 'welcome-2-seen';
 
   @override
   Future<bool> seen() => _flags.isSet(_flag);

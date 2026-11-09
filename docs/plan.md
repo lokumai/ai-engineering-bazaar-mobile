@@ -75,11 +75,11 @@ Three of them change a decision taken above or a requirement; those are marked, 
 
 - [x] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
 - [ ] **1K Welcome, redrawn.** The Welcome screen looks poor on the phone: the gate is cropped, and the five WebP figures are small and blurred. The screen is designed again before it is built again: a sketch first, agreed with the owner, then the code. It stays shown on the first launch only.
-- [ ] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch takes room on Home, the catalog and the reader, though most readers choose once.
-  - Welcome asks for the track as its last step, and the answer is kept with the Welcome flag.
-  - The switch leaves Home, the catalog, the level page and the reader, and moves to Settings.
-  - A link into the other track (a deep link, or a link in a module's text) still opens that track, and the page says which track it is in.
-  - Open: what happens for a reader who already went through Welcome before this change. Proposed: ask once on the next launch.
+- [x] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch took room on Home, the catalog and the reader, though most readers choose once.
+  - Welcome asks for the track after Enter the bazaar, with the web's line for each track (`src/app/page.tsx`). The choice is kept as two file flags under Application Support (`track-chosen`, `track-everyone`), never in the record.
+  - The switch is gone from Home, the catalog, the level page and the reader; each page names its track in a small label. Settings has a Reading section where the track changes.
+  - A link into the other track still opens that track for the run, without changing the choice.
+  - Welcome's flag is now `welcome-2-seen`, so a reader who saw the first Welcome sees the new one, and the track question, once.
 - [x] **1M Back follows the pages the reader opened.** The back button in the bar went to the previous step of the path, not to the previous page: someone reading a module expects back to return to that module.
   - The places that called `context.go` replaced the history: the level chips, the catalog link in a module's text (`link_actions.dart`), and See what is written For Everyone (`not_written_view.dart`). They now push, so back returns to the page they were on.
   - The level chips are a filter: from the catalog root a level is pushed; on a level page the chosen level takes the page's place, so back skips the levels tried; All returns to the root below when there is one.

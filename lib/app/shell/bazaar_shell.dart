@@ -12,8 +12,8 @@ import 'package:go_router/go_router.dart';
 /// The frame of every page inside the router's ShellRoute: the cobalt bar with a back button when there is a page to
 /// go back to, the Lokum logo and the app title (spec 3.8: a custom widget, never on the page ground), the lattice band
 /// under it, the page, and the bottom navigation (web nav labels `Home`, `Catalog` and `Progress`,
-/// `src/components/shell/MainNav.tsx`; `Settings` is app copy). The track switch is on the pages of a track (the
-/// redesign, plan Phase 1B).
+/// `src/components/shell/MainNav.tsx`; `Settings` is app copy). The track is chosen once and changed in Settings (plan
+/// 1L).
 ///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).

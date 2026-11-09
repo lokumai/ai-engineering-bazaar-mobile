@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,6 +25,13 @@ class WelcomeGate extends StatelessWidget {
         builder: (context, state) => switch (state) {
           WelcomeChecking() => ColoredBox(color: Theme.of(context).colorScheme.surface),
           WelcomeShowing() => WelcomeView(onEnter: () => context.read<WelcomeBloc>().add(const WelcomeEntered())),
+          WelcomeChoosingTrack() => WelcomeTrackView(
+            initial: context.read<TrackCubit>().state,
+            onChosen: (track) {
+              unawaited(context.read<TrackCubit>().choose(track));
+              context.read<WelcomeBloc>().add(const WelcomeTrackChosen());
+            },
+          ),
           WelcomeDone() => child,
         },
       ),

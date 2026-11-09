@@ -6,6 +6,12 @@ import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +19,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/accessibility.dart';
+import '../../../support/bazaar_app_harness.dart';
+import '../../../support/catalog_fixture_index.dart';
 
 final class _MemoryWelcomeStore implements IWelcomeStore {
   _MemoryWelcomeStore({this.wasSeen = false});
@@ -29,34 +37,63 @@ final class _MemoryWelcomeStore implements IWelcomeStore {
 const _app = Text('the app');
 final _enter = find.byKey(const Key('welcome-enter'));
 
-Widget _gate(IWelcomeStore store, {TargetPlatform platform = TargetPlatform.android, bool reducedMotion = false}) =>
-    RepositoryProvider<IWelcomeStore>.value(
-      value: store,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: bazaarTheme(brightness: Brightness.light, platform: platform),
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        locale: const Locale('en'),
-        builder: (context, child) => reducedMotion
-            ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
-            : child!,
-        home: const WelcomeGate(child: _app),
-      ),
-    );
+ContentBloc _content() {
+  final content = MockContentBloc();
+  whenListen(
+    content,
+    const Stream<ContentState>.empty(),
+    initialState: ContentReady(
+      index: catalogFixtureIndex(),
+      origin: ContentOrigin.bundled,
+      notice: null,
+      refresh: const RefreshUpToDate(),
+    ),
+  );
+  return content;
+}
+
+Widget _gate(
+  IWelcomeStore store, {
+  TargetPlatform platform = TargetPlatform.android,
+  bool reducedMotion = false,
+  TrackCubit? track,
+}) => RepositoryProvider<IWelcomeStore>.value(
+  value: store,
+  child: MultiBlocProvider(
+    providers: [
+      BlocProvider<ContentBloc>.value(value: _content()),
+      if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
+    ],
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: bazaarTheme(brightness: Brightness.light, platform: platform),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      locale: const Locale('en'),
+      builder: (context, child) => reducedMotion
+          ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
+          : child!,
+      home: const WelcomeGate(child: _app),
+    ),
+  ),
+);
 
 double _opacityAbove(WidgetTester tester, Finder finder) =>
     tester.widget<Opacity>(find.ancestor(of: finder, matching: find.byType(Opacity)).first).opacity;
 
 void main() {
-  testWidgets('the first launch shows Welcome, and entering opens the app and records it', (tester) async {
+  testWidgets('the first launch shows Welcome, asks the track, and the choice opens the app and records it', (
+    tester,
+  ) async {
     final store = _MemoryWelcomeStore();
-    await tester.pumpWidget(_gate(store));
+    final track = TrackCubit();
+    addTearDown(track.close);
+    await tester.pumpWidget(_gate(store, track: track));
     await tester.pumpAndSettle();
 
     expect(find.byType(WelcomeView), findsOneWidget);
@@ -70,9 +107,23 @@ void main() {
     await tester.tap(_enter);
     await tester.pumpAndSettle();
 
+    expect(find.byType(WelcomeTrackView), findsOneWidget);
+    expect(find.text('How would you like to read?'), findsOneWidget);
+    expect(store.wasSeen, isFalse, reason: 'not before a track is chosen');
+    final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+    expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: false));
+    await tester.tap(everyone);
+    await tester.pumpAndSettle();
+    expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
+    await tester.ensureVisible(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
+
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeView), findsNothing);
     expect(store.wasSeen, isTrue);
+    expect(track.state, Track.everyone);
   });
 
   testWidgets('a later launch opens the app directly', (tester) async {

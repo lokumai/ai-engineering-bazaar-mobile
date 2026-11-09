@@ -24,6 +24,9 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_sto
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -56,6 +59,9 @@ class _FirstLaunchDependencies extends _SmokeDependencies {
 
   @override
   IWelcomeStore createWelcomeStore() => FlagWelcomeStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: () async => dir));
 }
 
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated
@@ -82,7 +88,7 @@ void main() {
     expect(find.byType(BazaarShell), findsOneWidget);
   });
 
-  testWidgets('the first launch shows Welcome, entering opens Home, and the next launch opens Home directly', (
+  testWidgets('the first launch shows Welcome and asks the track; the next launch opens Home in that track', (
     tester,
   ) async {
     final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
@@ -97,13 +103,28 @@ void main() {
     await tester.ensureVisible(enter);
     await tester.pump();
     await tester.tap(enter);
+    final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+    await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
+    await tester.tap(everyone);
+    await tester.pump();
+    final start = find.byKey(const Key('welcome-start'));
+    await tester.ensureVisible(start);
+    await tester.pump();
+    await tester.tap(start);
     await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
-    await _drain(tester, () => File('${dir.path}/flags/welcome-seen').existsSync(), what: 'the Welcome flag');
+    await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
+    await _drain(tester, () => File('${dir.path}/flags/track-chosen').existsSync(), what: 'the chosen track');
+    expect(File('${dir.path}/flags/track-everyone').existsSync(), isTrue);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
     await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
     expect(find.byType(WelcomeView), findsNothing);
+    await _drain(
+      tester,
+      () => find.descendant(of: find.byType(TrackLabel), matching: find.text('For Everyone')).evaluate().isNotEmpty,
+      what: 'the chosen track after a restart',
+    );
   });
 
   testWidgets(

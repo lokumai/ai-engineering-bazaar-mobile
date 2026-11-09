@@ -41,17 +41,31 @@ void main() {
 
   final store = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
-    'entering opens the app and records it once',
+    'entering asks for the track; choosing one opens the app and records it once (plan 1L)',
     build: () => WelcomeBloc(store: store),
     act: (bloc) => bloc
       ..add(const WelcomeStarted())
       ..add(const WelcomeEntered())
-      ..add(const WelcomeEntered()),
-    expect: () => [const WelcomeShowing(), const WelcomeDone()],
+      ..add(const WelcomeEntered())
+      ..add(const WelcomeTrackChosen())
+      ..add(const WelcomeTrackChosen()),
+    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack(), const WelcomeDone()],
     verify: (_) {
       expect(store.writes, 1);
       expect(store.wasSeen, isTrue);
     },
+  );
+
+  final notYet = _MemoryWelcomeStore();
+  blocTest<WelcomeBloc, WelcomeState>(
+    'Welcome is not recorded before a track is chosen',
+    build: () => WelcomeBloc(store: notYet),
+    act: (bloc) => bloc
+      ..add(const WelcomeStarted())
+      ..add(const WelcomeTrackChosen())
+      ..add(const WelcomeEntered()),
+    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack()],
+    verify: (_) => expect(notYet.writes, 0),
   );
 
   blocTest<WelcomeBloc, WelcomeState>(

@@ -103,11 +103,6 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
-  /// `Track`
-  String get track_switch_label {
-    return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
-  }
-
   /// `The AI engineering course, on this device. No account: the progress stays here.`
   String get welcome_lede {
     return Intl.message(
@@ -126,6 +121,46 @@ class S {
   /// `Lokum AI`
   String get welcome_maker {
     return Intl.message('Lokum AI', name: 'welcome_maker', desc: '', args: []);
+  }
+
+  /// `How would you like to read?`
+  String get welcome_track_title {
+    return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
+  }
+
+  /// `Every module comes in two versions. You can change this any time in Settings.`
+  String get welcome_track_lede {
+    return Intl.message(
+      'Every module comes in two versions. You can change this any time in Settings.',
+      name: 'welcome_track_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The technical modules: how each part works, with the code and the numbers behind it.`
+  String get welcome_track_engineers {
+    return Intl.message(
+      'The technical modules: how each part works, with the code and the numbers behind it.',
+      name: 'welcome_track_engineers',
+      desc: 'The web\'s line for the For Engineers track, src/app/page.tsx.',
+      args: [],
+    );
+  }
+
+  /// `The same modules in plain words, for readers with no technical background.`
+  String get welcome_track_everyone {
+    return Intl.message(
+      'The same modules in plain words, for readers with no technical background.',
+      name: 'welcome_track_everyone',
+      desc: 'The web\'s line for the For Everyone track, src/app/page.tsx.',
+      args: [],
+    );
+  }
+
+  /// `Start reading`
+  String get welcome_start {
+    return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
   }
 
   /// `Up next`
@@ -968,6 +1003,26 @@ class S {
     return Intl.message(
       'The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.',
       name: 'content_notice_cache_discarded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading`
+  String get settings_reading {
+    return Intl.message('Reading', name: 'settings_reading', desc: '', args: []);
+  }
+
+  /// `Track`
+  String get settings_track {
+    return Intl.message('Track', name: 'settings_track', desc: '', args: []);
+  }
+
+  /// `Home, the catalog and the reader open this track. A link into the other track still opens it.`
+  String get settings_track_note {
+    return Intl.message(
+      'Home, the catalog and the reader open this track. A link into the other track still opens it.',
+      name: 'settings_track_note',
       desc: '',
       args: [],
     );

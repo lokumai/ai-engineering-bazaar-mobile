@@ -10,12 +10,12 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track switch, the continue
+/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
 /// card, the levels with their completion, and the offline note.
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
@@ -42,8 +42,8 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
       children: [
         if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
-        const TrackSwitch(),
-        const SizedBox(height: 22),
+        const TrackLabel(),
+        const SizedBox(height: 4),
         // Shown in capitals as the mockup's label; read as written.
         Semantics(
           header: true,

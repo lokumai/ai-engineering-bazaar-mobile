@@ -9,7 +9,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_di
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -85,11 +85,11 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('Home is the first page: the switch, the next module, the levels and the offline note', (tester) async {
+  testWidgets('Home is the first page: the track, the next module, the levels and the offline note', (tester) async {
     await _pumpHome(tester);
 
     expect(find.byType(HomePage), findsOneWidget);
-    expect(find.byType(TrackSwitch), findsOneWidget);
+    expect(find.descendant(of: find.byType(TrackLabel), matching: find.text('For Engineers')), findsOneWidget);
     expect(find.text('UP NEXT'), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget);
     expect(find.text('20 min'), findsOneWidget);
@@ -135,12 +135,13 @@ void main() {
     expect(_path(router), '/profile');
   });
 
-  testWidgets('the switch shows the other track on Home without leaving it', (tester) async {
+  testWidgets('Home follows the current track', (tester) async {
     final track = TrackCubit();
     addTearDown(track.close);
     final router = await _pumpHome(tester, record: _completed(['alpha/first']), track: track);
 
-    await _tap(tester, find.byKey(TrackSwitch.segmentKey(Track.everyone)));
+    track.select(Track.everyone);
+    await tester.pumpAndSettle();
 
     expect(_path(router), '/');
     expect(track.state, Track.everyone);
@@ -164,8 +165,6 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    expectHittable(tester, find.byKey(TrackSwitch.segmentKey(Track.engineers)));
-    expectHittable(tester, find.byKey(TrackSwitch.segmentKey(Track.everyone)));
     await tester.ensureVisible(find.text('Open the module'));
     await tester.pump();
     expectHittable(tester, find.text('Open the module'));

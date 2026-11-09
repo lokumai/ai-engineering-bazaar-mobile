@@ -17,6 +17,11 @@ final class WelcomeShowing extends WelcomeState {
   const WelcomeShowing();
 }
 
+/// Enter the bazaar was tapped: the reader chooses a track (plan 1L).
+final class WelcomeChoosingTrack extends WelcomeState {
+  const WelcomeChoosingTrack();
+}
+
 /// Welcome was seen: the app is shown.
 final class WelcomeDone extends WelcomeState {
   const WelcomeDone();

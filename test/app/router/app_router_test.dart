@@ -134,6 +134,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Developer console'), findsOneWidget);
+    await tester.ensureVisible(find.text('Developer console'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Developer console'));
     await tester.pumpAndSettle();
 

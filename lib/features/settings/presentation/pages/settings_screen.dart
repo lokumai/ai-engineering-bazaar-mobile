@@ -7,15 +7,22 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the content status with Check for
+/// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the track the reader chose (plan 1L,
+/// the one place it changes after Welcome), the content status with Check for
 /// updates (spec 3.4.2 to 3.4.4), the licences, and the developer console when [openDevConsole] is set.
 ///
 /// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). The data
 /// flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
 /// since the app gate mounts the router only once the content is ready.
+/// The key of [track]'s segment in the track setting.
+Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, this.openDevConsole});
 
@@ -58,6 +65,31 @@ class _SettingsView extends StatelessWidget {
             ContentNoticeBanner(notice: ready.notice),
             const SizedBox(height: AppSpacing.lg),
           ],
+          SectionRule(title: s.settings_reading),
+          const SizedBox(height: AppSpacing.md),
+          BazaarCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.sm,
+              children: [
+                Text(s.settings_track, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<Track>(
+                  semanticLabel: s.settings_track,
+                  selected: context.watch<TrackCubit>().state,
+                  onSelected: (track) => context.read<TrackCubit>().choose(track),
+                  segments: [
+                    for (final info in index.tracks)
+                      BazaarSegment(value: info.track, label: info.label, key: settingsTrackKey(info.track)),
+                  ],
+                ),
+                Text(
+                  s.settings_track_note,
+                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_content),
           const SizedBox(height: AppSpacing.md),
           BazaarCard(

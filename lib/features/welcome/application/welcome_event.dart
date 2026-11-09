@@ -16,3 +16,8 @@ final class WelcomeStarted extends WelcomeEvent {
 final class WelcomeEntered extends WelcomeEvent {
   const WelcomeEntered();
 }
+
+/// A track was chosen: Welcome is done.
+final class WelcomeTrackChosen extends WelcomeEvent {
+  const WelcomeTrackChosen();
+}
