@@ -46,8 +46,11 @@ class _RevisionLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Measured in the style Text draws: it adds bold when the platform asks for Bold Text, and bold is wider.
+        var drawn = DefaultTextStyle.of(context).style.merge(style);
+        if (MediaQuery.boldTextOf(context)) drawn = drawn.merge(const TextStyle(fontWeight: FontWeight.bold));
         final painter = TextPainter(
-          text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
+          text: TextSpan(text: text, style: drawn),
           textDirection: Directionality.of(context),
           textScaler: MediaQuery.textScalerOf(context),
           maxLines: 1,
