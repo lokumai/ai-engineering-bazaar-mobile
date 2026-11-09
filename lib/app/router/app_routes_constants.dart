@@ -2,8 +2,6 @@
 ///
 /// This class contains all the routes used in the application.
 class ApplicationRoutesConstants {
-  static const home = '/';
-
   // Settings routes
   static const settings = '/settings';
 

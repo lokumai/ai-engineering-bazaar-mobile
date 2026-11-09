@@ -63,24 +63,69 @@ class S {
     return Intl.message('Could not open $url', name: 'error_link_open_failed', desc: '', args: [url]);
   }
 
-  /// `Home`
-  String get home {
-    return Intl.message('Home', name: 'home', desc: '', args: []);
-  }
-
-  /// `Page Not Found`
+  /// `No such module`
   String get not_found_title {
-    return Intl.message('Page Not Found', name: 'not_found_title', desc: '', args: []);
+    return Intl.message('No such module', name: 'not_found_title', desc: '', args: []);
   }
 
-  /// `The page you requested could not be found.`
+  /// `This address is not a module in the curriculum. The catalog lists every one that is.`
   String get not_found_message {
-    return Intl.message('The page you requested could not be found.', name: 'not_found_message', desc: '', args: []);
+    return Intl.message(
+      'This address is not a module in the curriculum. The catalog lists every one that is.',
+      name: 'not_found_message',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `AI Engineering Bazaar`
   String get app_title {
     return Intl.message('AI Engineering Bazaar', name: 'app_title', desc: '', args: []);
+  }
+
+  /// `Catalog`
+  String get nav_catalog {
+    return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
+  }
+
+  /// `Progress`
+  String get nav_progress {
+    return Intl.message('Progress', name: 'nav_progress', desc: '', args: []);
+  }
+
+  /// `Settings`
+  String get nav_settings {
+    return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
+  }
+
+  /// `Track`
+  String get track_switch_label {
+    return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
+  }
+
+  /// `Open on the web`
+  String get open_on_the_web {
+    return Intl.message('Open on the web', name: 'open_on_the_web', desc: '', args: []);
+  }
+
+  /// `The course cannot be opened`
+  String get content_broken_title {
+    return Intl.message('The course cannot be opened', name: 'content_broken_title', desc: '', args: []);
+  }
+
+  /// `The course content in this app could not be read. Reinstalling the app restores it.`
+  String get content_broken_message {
+    return Intl.message(
+      'The course content in this app could not be read. Reinstalling the app restores it.',
+      name: 'content_broken_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading`
+  String get loading {
+    return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
 }
 

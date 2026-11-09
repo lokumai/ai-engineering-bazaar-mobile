@@ -25,7 +25,9 @@ part 'record_state.dart';
 /// Every event goes through one handler under `sequential()`, so writes, erases and undos never overlap and run in
 /// the order they were added (Review Focus 4). The record in memory stays authoritative when a write fails.
 /// RecordBloc owns the erase's undo window (Decision A42).
-final class RecordBloc extends Bloc<RecordEvent, RecordState> {
+///
+/// An interface class rather than a final one, so widget tests can provide a `MockBloc` that implements it.
+interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   RecordBloc({required this._repository}) : super(const RecordLoading()) {
     on<RecordEvent>(_onEvent, transformer: EventTransformers.queue());
   }

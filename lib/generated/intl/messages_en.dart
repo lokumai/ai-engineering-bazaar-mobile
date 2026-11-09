@@ -25,10 +25,21 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "content_broken_message": MessageLookupByLibrary.simpleMessage(
+      "The course content in this app could not be read. Reinstalling the app restores it.",
+    ),
+    "content_broken_title": MessageLookupByLibrary.simpleMessage("The course cannot be opened"),
     "error_link_open_failed": m0,
-    "home": MessageLookupByLibrary.simpleMessage("Home"),
-    "not_found_message": MessageLookupByLibrary.simpleMessage("The page you requested could not be found."),
-    "not_found_title": MessageLookupByLibrary.simpleMessage("Page Not Found"),
+    "loading": MessageLookupByLibrary.simpleMessage("Loading"),
+    "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
+    "nav_progress": MessageLookupByLibrary.simpleMessage("Progress"),
+    "nav_settings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "not_found_message": MessageLookupByLibrary.simpleMessage(
+      "This address is not a module in the curriculum. The catalog lists every one that is.",
+    ),
+    "not_found_title": MessageLookupByLibrary.simpleMessage("No such module"),
+    "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
   };
 }

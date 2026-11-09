@@ -9,12 +9,26 @@
       }
     }
   },
-  "home": "Home",
-  "@home": {},
-  "not_found_title": "Page Not Found",
+  "not_found_title": "No such module",
   "@not_found_title": {},
-  "not_found_message": "The page you requested could not be found.",
+  "not_found_message": "This address is not a module in the curriculum. The catalog lists every one that is.",
   "@not_found_message": {},
   "app_title": "AI Engineering Bazaar",
-  "@app_title": {}
+  "@app_title": {},
+  "nav_catalog": "Catalog",
+  "@nav_catalog": {},
+  "nav_progress": "Progress",
+  "@nav_progress": {},
+  "nav_settings": "Settings",
+  "@nav_settings": {},
+  "track_switch_label": "Track",
+  "@track_switch_label": {},
+  "open_on_the_web": "Open on the web",
+  "@open_on_the_web": {},
+  "content_broken_title": "The course cannot be opened",
+  "@content_broken_title": {},
+  "content_broken_message": "The course content in this app could not be read. Reinstalling the app restores it.",
+  "@content_broken_message": {},
+  "loading": "Loading",
+  "@loading": {}
 }

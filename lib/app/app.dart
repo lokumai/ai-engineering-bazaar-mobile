@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
@@ -45,6 +46,8 @@ class _AppState extends State<App> {
         ],
         supportedLocales: S.delegate.supportedLocales,
         routerConfig: _router,
+        // The router shows only once the content and the record are ready (spec 3.7).
+        builder: (context, child) => AppGate(child: child!),
       ),
     );
   }

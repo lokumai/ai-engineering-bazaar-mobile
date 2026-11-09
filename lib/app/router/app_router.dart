@@ -1,21 +1,29 @@
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
-import 'package:ai_engineering_bazaar/app/shell/app_shell.dart';
+import 'package:ai_engineering_bazaar/app/router/route_placeholder.dart';
+import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {
-  const AppRouterFactory();
+  const AppRouterFactory({this.initialLocation = BazaarPaths.catalogEngineers});
+
+  /// Where the router starts.
+  final String initialLocation;
 
   static final _log = AppLogger.getLogger('AppRouterFactory');
 
   GoRouter create() {
     return GoRouter(
-      initialLocation: ApplicationRoutesConstants.home,
+      initialLocation: initialLocation,
       debugLogDiagnostics: true,
       errorPageBuilder: (context, state) {
         // The page tells the user in the app language; the router's own error, in English, goes to the log.
@@ -27,23 +35,43 @@ class AppRouterFactory {
           child: const NotFoundPage(),
         );
       },
+      // The web's routes (Decision A9): the For Engineers catalog is `/` (the web's `/sheets/`), the For Everyone one
+      // `/everyone/sheets`; `/dashboard`, `/path` and `/report` are gone on the web and have no route, and there are
+      // no moved-address forwards. go_router 18.1.1 strips a trailing slash from every location before matching
+      // (`configuration.dart:243-256`, `parser.dart:102-106`), so no slash redirect is needed.
       routes: [
         ShellRoute(
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
-            child: AppShell(child: child),
+            child: DevConsoleShortcut(
+              child: BazaarShell(location: state.uri.path, child: child),
+            ),
           ),
           routes: [
-            GoRoute(
-              name: 'home',
-              path: ApplicationRoutesConstants.home,
-              pageBuilder: (context, state) =>
-                  appTransitionPage(state: state, type: AppPageTransitionType.fade, child: const HomePlaceholderPage()),
-            ),
+            _page('catalog', BazaarPaths.catalogEngineers, const HomePlaceholderPage()),
+            _page('catalogEveryone', BazaarPaths.catalogEveryone, const HomePlaceholderPage()),
+            _page('level', '/sheets/:level', const RoutePlaceholder()),
+            _page('levelEveryone', '/everyone/sheets/:level', const RoutePlaceholder()),
+            _page('module', '/courses/:level/:module', const RoutePlaceholder()),
+            _page('moduleEveryone', '/everyone/courses/:level/:module', const RoutePlaceholder()),
+            _page('progress', BazaarPaths.progress, const RoutePlaceholder()),
             ...SettingsFeatureRoutes.routes,
           ],
+        ),
+        // The web's catalog paths that are not pages of their own here.
+        GoRoute(path: '/sheets', redirect: (_, _) => BazaarPaths.catalogEngineers),
+        GoRoute(path: '/courses', redirect: (_, _) => BazaarPaths.catalogEngineers),
+        GoRoute(
+          path: '/courses/:level',
+          redirect: (_, state) => BazaarPaths.level(Track.engineers, state.pathParameters['level']!),
         ),
       ],
     );
   }
+
+  static GoRoute _page(String name, String path, Widget child) => GoRoute(
+    name: name,
+    path: path,
+    pageBuilder: (context, state) => appTransitionPage(context: context, state: state, child: child),
+  );
 }

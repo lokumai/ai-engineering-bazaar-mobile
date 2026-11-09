@@ -1,73 +1,116 @@
-import 'package:flutter/material.dart';
+@Tags(['widget'])
+library;
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
-import 'package:ai_engineering_bazaar/app/shell/app_shell.dart';
+import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
-import 'package:ai_engineering_bazaar/generated/l10n.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-Future<GoRouter> pumpAt(WidgetTester tester, String location) async {
+import '../../support/bazaar_app_harness.dart';
+
+/// Pumps the app's router at `/`, then goes to [location] and settles.
+Future<RouteMatchList> _matchAt(WidgetTester tester, String location) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(
-    MaterialApp.router(
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      locale: const Locale('en'),
-      routerConfig: router,
-    ),
-  );
+  await tester.pumpWidget(bazaarTestApp(router: router));
   router.go(location);
   await tester.pumpAndSettle();
-  return router;
+  return router.routerDelegate.currentConfiguration;
 }
 
+/// [location] as written and, except for `/`, with a trailing slash: go_router 18.1.1 strips the slash before matching.
+Set<String> _forms(String location) => {location, if (location != '/') '$location/'};
+
 void main() {
-  group('AppRouterFactory', () {
-    test('starts on /', () {
-      final router = const AppRouterFactory().create();
-      addTearDown(router.dispose);
+  test('starts on /', () {
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
 
-      expect(router.routeInformationProvider.value.uri.path, '/');
-    });
+    expect(router.routeInformationProvider.value.uri.path, '/');
+  });
 
-    testWidgets('/ shows the home page inside the shell', (tester) async {
-      await pumpAt(tester, '/');
+  // (location, path after redirects, route name, path parameters)
+  const rows = <(String, String, String, Map<String, String>)>[
+    ('/', '/', 'catalog', {}),
+    ('/everyone/sheets', '/everyone/sheets', 'catalogEveryone', {}),
+    ('/sheets', '/', 'catalog', {}),
+    ('/sheets/alpha', '/sheets/alpha', 'level', {'level': 'alpha'}),
+    ('/everyone/sheets/alpha', '/everyone/sheets/alpha', 'levelEveryone', {'level': 'alpha'}),
+    ('/courses', '/', 'catalog', {}),
+    ('/courses/alpha', '/sheets/alpha', 'level', {'level': 'alpha'}),
+    ('/courses/alpha/first', '/courses/alpha/first', 'module', {'level': 'alpha', 'module': 'first'}),
+    (
+      '/everyone/courses/alpha/first',
+      '/everyone/courses/alpha/first',
+      'moduleEveryone',
+      {'level': 'alpha', 'module': 'first'},
+    ),
+    ('/profile', '/profile', 'progress', {}),
+    ('/settings', '/settings', 'settings', {}),
+  ];
+  for (final (location, path, name, params) in rows) {
+    for (final form in _forms(location)) {
+      testWidgets('$form opens $name at $path inside the shell', (tester) async {
+        final match = await _matchAt(tester, form);
 
-      expect(find.byType(HomePlaceholderPage), findsOneWidget);
-      expect(find.ancestor(of: find.byType(HomePlaceholderPage), matching: find.byType(AppShell)), findsOneWidget);
-    });
+        expect(match.isError, isFalse);
+        expect(match.uri.path, path);
+        expect(match.last.route.name, name);
+        expect(match.pathParameters, params);
+        expect(find.byType(BazaarShell), findsOneWidget);
+      });
+    }
+  }
 
-    testWidgets('/settings shows the settings page inside the shell', (tester) async {
-      await pumpAt(tester, '/settings');
+  const notFound = [
+    '/dashboard',
+    '/path',
+    '/report',
+    '/everyone',
+    '/everyone/courses',
+    '/everyone/courses/alpha',
+    '/sheets/alpha/first',
+    '/legend',
+    '/nope',
+  ];
+  for (final location in notFound) {
+    for (final form in _forms(location)) {
+      testWidgets('$form shows the not-found page outside the shell', (tester) async {
+        final match = await _matchAt(tester, form);
 
-      expect(find.byType(SettingsScreen), findsOneWidget);
-      expect(find.ancestor(of: find.byType(SettingsScreen), matching: find.byType(AppShell)), findsOneWidget);
-    });
+        expect(match.isError, isTrue);
+        expect(find.byType(NotFoundPage), findsOneWidget);
+        expect(find.byType(BazaarShell), findsNothing);
+      });
+    }
+  }
 
-    testWidgets('an unknown path shows the not-found page outside the shell', (tester) async {
-      await pumpAt(tester, '/no-such-page');
+  testWidgets('route transitions take no time under reduced motion', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router));
+    router.go('/settings');
+    await tester.pump();
 
-      expect(find.byType(NotFoundPage), findsOneWidget);
-      expect(find.byType(AppShell), findsNothing);
-    });
+    final route = ModalRoute.of(tester.element(find.byType(SettingsScreen)))!;
+    expect(route.transitionDuration, Duration.zero);
+    expect(route.reverseTransitionDuration, Duration.zero);
+  });
 
-    testWidgets('the not-found page goes home', (tester) async {
-      final router = await pumpAt(tester, '/no-such-page');
+  testWidgets('route transitions animate otherwise', (tester) async {
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router));
+    router.go('/settings');
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Home'));
-      await tester.pumpAndSettle();
-
-      expect(router.state.uri.path, '/');
-      expect(find.byType(HomePlaceholderPage), findsOneWidget);
-    });
+    final route = ModalRoute.of(tester.element(find.byType(SettingsScreen)))!;
+    expect(route.transitionDuration, isNot(Duration.zero));
+    expect(route.reverseTransitionDuration, isNot(Duration.zero));
   });
 }

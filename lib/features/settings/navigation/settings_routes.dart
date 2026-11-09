@@ -8,8 +8,12 @@ class SettingsFeatureRoutes {
     GoRoute(
       name: 'settings',
       path: ApplicationRoutesConstants.settings,
-      pageBuilder: (context, state) =>
-          appTransitionPage(state: state, type: AppPageTransitionType.fade, child: const SettingsPage()),
+      pageBuilder: (context, state) => appTransitionPage(
+        context: context,
+        state: state,
+        type: AppPageTransitionType.fade,
+        child: const SettingsPage(),
+      ),
     ),
   ];
 }

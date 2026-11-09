@@ -2,9 +2,12 @@ import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,5 +123,23 @@ void main() {
     await tester.pump();
 
     expect(captured.read<RecordBloc>().state, _emptyReady);
+  });
+
+  testWidgets('AppScope provides the track and the web links', (tester) async {
+    late BuildContext captured;
+    await tester.pumpWidget(
+      AppScope(
+        dependencies: const FixtureAppDependencies(),
+        child: Builder(
+          builder: (context) {
+            captured = context;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+
+    expect(captured.read<TrackCubit>().state, Track.engineers);
+    expect(captured.read<WebLinks>().contentBaseUrl, testContentBaseUrl);
   });
 }

@@ -16,7 +16,9 @@ part 'content_state.dart';
 ///
 /// [ContentStarted] opens the repository and then asks for one refresh; Settings asks for more with
 /// [ContentRefreshRequested]. A request that arrives while a refresh runs is dropped.
-final class ContentBloc extends Bloc<ContentEvent, ContentState> {
+///
+/// An interface class rather than a final one, so widget tests can provide a `MockBloc` that implements it.
+interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
   ContentBloc({required this._repository}) : super(const ContentLoading()) {
     on<ContentStarted>(_onStarted);
     on<ContentRefreshRequested>(_onRefreshRequested, transformer: droppable());

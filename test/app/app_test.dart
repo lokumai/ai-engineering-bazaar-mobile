@@ -6,14 +6,18 @@ import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/bazaar_app_harness.dart';
 import '../support/content_fixture.dart';
 
 void main() {
   group('App', () {
-    testWidgets('mounts the router on the first frame, on the home page', (tester) async {
+    testWidgets('mounts the router once content and record are ready', (tester) async {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
-      await tester.pump();
 
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(HomePlaceholderPage), findsNothing);
+
+      await pumpUntilFound(tester, find.byType(HomePlaceholderPage));
       expect(find.byType(HomePlaceholderPage), findsOneWidget);
     });
 
@@ -38,7 +42,7 @@ void main() {
 
     testWidgets('provides the AppConfig of its dependencies', (tester) async {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
-      await tester.pump();
+      await pumpUntilFound(tester, find.byType(HomePlaceholderPage));
 
       expect(tester.element(find.byType(HomePlaceholderPage)).read<AppConfig>().environment, Environment.test);
     });
