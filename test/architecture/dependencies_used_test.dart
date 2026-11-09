@@ -7,8 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 /// below, each with its reason. An entry of _unusedOnPurpose that gains an importer fails, so it is deleted then.
 const _usedWithoutImport = {'intl_utils': 'the ARB generator, run as fvm dart run intl_utils:generate'};
 const _unusedOnPurpose = {
-  'crypto': 'sha256 of the content snapshot and objects, imported from Task 6.1',
-  'http': 'the snapshot download and the content refresh, imported from Task 6.1',
   'clock': 'the record clock, imported from Task 8.1',
   'bloc_test': 'the ContentBloc tests, imported from Task 7.5',
 };

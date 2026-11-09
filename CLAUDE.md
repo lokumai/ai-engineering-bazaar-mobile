@@ -38,6 +38,9 @@ cd android && ./gradlew :app:testDebugUnitTest -Ptarget=lib/main/main_prod.dart
 fvm dart run intl_utils:generate
 fvm dart format lib/generated --line-length=120   # intl_utils writes 80 columns; CI checks 120
 
+# Content snapshot (generated: never edit assets/content/ or test/fixtures/record_conformance/v1.json)
+fvm dart run tool/refresh_content_snapshot.dart --base-url https://ai-bazaar.lokum.dev/ --content-version <contentVersion>
+
 # Build
 fvm flutter build apk --release --target lib/main/main_prod.dart
 ```

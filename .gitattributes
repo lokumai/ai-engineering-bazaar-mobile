@@ -1,0 +1,2 @@
+assets/content/** -text
+test/fixtures/record_conformance/v1.json -text
