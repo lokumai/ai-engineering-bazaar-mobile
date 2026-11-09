@@ -49,15 +49,8 @@ The mockup decides the look; the requirements decide what the app shows and does
 
 ### Steps
 
-The steps land in three pull requests, each on its own branch, so that a review sees a whole part of the app at once:
-
-| Pull request | Steps | What a reviewer sees |
-| --- | --- | --- |
-| Redesign 1: foundation, shell and Home | 1A, 1B, 1C | The new look, the new bar and the first new page |
-| Redesign 2: catalog, reader and quiz | 1D, 1E, 1F | The reading path from a level to a module and its quiz |
-| Redesign 3: progress, settings and welcome | 1G, 1H, 1I | The record pages and the first launch |
-
-Inside a pull request each step is one or more commits, each with its code and its tests together.
+The whole phase lands in one pull request on one branch, so that a review sees the redesign as a whole.
+Inside it each step is one or more commits, each with its code and its tests together, in the order below.
 Every commit passes the gate with the goldens regenerated and the accessibility checks (text scale 2.0, the reader 3.0).
 
 - [ ] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
@@ -125,7 +118,7 @@ The rest (register fixes, contrast fixes, conformance cases) are listed in the P
 
 ## How each step is done
 
-1. A branch per pull request, from `main`; a pull request holds a whole part of the app, not a single step.
+1. One branch and one pull request per phase, from `main`, however many commits it takes.
 2. New features go in their own folder under `lib/features/`, apart from every other feature (R80).
 3. Tests first, mirroring the feature under `test/features/`.
 4. The gate through `heavy` before every commit.
