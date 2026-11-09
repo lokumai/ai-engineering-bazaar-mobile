@@ -3,11 +3,11 @@ import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
-import 'package:ai_engineering_bazaar/app/router/route_placeholder.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
+import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
@@ -71,7 +71,7 @@ class AppRouterFactory {
             ),
             _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
-            _page('progress', BazaarPaths.progress, const RoutePlaceholder()),
+            _page('progress', BazaarPaths.progress, const ProgressPage()),
             ...SettingsFeatureRoutes.routes,
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),

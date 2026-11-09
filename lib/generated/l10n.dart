@@ -549,6 +549,51 @@ class S {
   String get quiz_back_to_questions {
     return Intl.message('Back to the questions', name: 'quiz_back_to_questions', desc: '', args: []);
   }
+
+  /// `Your progress`
+  String get progress_title {
+    return Intl.message('Your progress', name: 'progress_title', desc: '', args: []);
+  }
+
+  /// `Progress by track`
+  String get progress_tabs_label {
+    return Intl.message('Progress by track', name: 'progress_tabs_label', desc: '', args: []);
+  }
+
+  /// `{signed} of {total}`
+  String progress_tab_count(String signed, int total) {
+    return Intl.message('$signed of $total', name: 'progress_tab_count', desc: '', args: [signed, total]);
+  }
+
+  /// `{approved}/{total}`
+  String progress_level_dial(String approved, int total) {
+    return Intl.message('$approved/$total', name: 'progress_level_dial', desc: '', args: [approved, total]);
+  }
+
+  /// `{number} {title}`
+  String progress_module_link(String number, String title) {
+    return Intl.message('$number $title', name: 'progress_module_link', desc: '', args: [number, title]);
+  }
+
+  /// `Complete {title}`
+  String progress_complete_module(String title) {
+    return Intl.message('Complete $title', name: 'progress_complete_module', desc: '', args: [title]);
+  }
+
+  /// `Every module, {track}`
+  String progress_every_module(String track) {
+    return Intl.message('Every module, $track', name: 'progress_every_module', desc: '', args: [track]);
+  }
+
+  /// `Complete`
+  String get progress_state_complete {
+    return Intl.message('Complete', name: 'progress_state_complete', desc: '', args: []);
+  }
+
+  /// `Not yet`
+  String get progress_state_not_yet {
+    return Intl.message('Not yet', name: 'progress_state_not_yet', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

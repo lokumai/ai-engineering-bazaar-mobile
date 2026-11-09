@@ -22,4 +22,5 @@ void registerAllFallbackValues() {
   registerFallbackValue(const StoredBytes(record: null, quarantine: null));
   registerFallbackValue(const ReaderCompletionToggled());
   registerFallbackValue(const CompletionToggled(key: 'alpha/first', revision: null, track: Track.engineers));
+  registerFallbackValue(const RecordStarted());
 }

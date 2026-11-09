@@ -350,5 +350,62 @@
   "quiz_recap_wrong": ", not correct",
   "@quiz_recap_wrong": {},
   "quiz_back_to_questions": "Back to the questions",
-  "@quiz_back_to_questions": {}
+  "@quiz_back_to_questions": {},
+  "progress_title": "Your progress",
+  "@progress_title": {},
+  "progress_tabs_label": "Progress by track",
+  "@progress_tabs_label": {},
+  "progress_tab_count": "{signed} of {total}",
+  "@progress_tab_count": {
+    "placeholders": {
+      "signed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progress_level_dial": "{approved}/{total}",
+  "@progress_level_dial": {
+    "placeholders": {
+      "approved": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progress_module_link": "{number} {title}",
+  "@progress_module_link": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_complete_module": "Complete {title}",
+  "@progress_complete_module": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_every_module": "Every module, {track}",
+  "@progress_every_module": {
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_state_complete": "Complete",
+  "@progress_state_complete": {},
+  "progress_state_not_yet": "Not yet",
+  "@progress_state_not_yet": {}
 }
