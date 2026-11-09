@@ -35,7 +35,7 @@
   "@welcome_maker": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
-  "welcome_track_lede": "Every module comes in two versions. You can change this any time in Settings.",
+  "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
   "@welcome_track_lede": {},
   "welcome_track_engineers": "The technical modules: how each part works, with the code and the numbers behind it.",
   "@welcome_track_engineers": {

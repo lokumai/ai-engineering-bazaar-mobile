@@ -328,7 +328,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Aynı modüller, sade bir dille, teknik geçmişi olmayan okurlar için.",
     ),
     "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "Her modülün iki sürümü var. Bunu istediğin zaman Ayarlar\'dan değiştirebilirsin.",
+      "Dilini ve her modülün iki sürümünden birini seç. İkisini de istediğin zaman Ayarlar\'dan değiştirebilirsin.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("Nasıl okumak istersin?"),
   };

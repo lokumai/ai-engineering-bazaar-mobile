@@ -328,7 +328,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "همین درس‌ها به زبان ساده، برای خوانندگانی که پیش‌زمینهٔ فنی ندارند.",
     ),
     "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "هر درس دو نسخه دارد. هر زمان بخواهید می‌توانید این را در تنظیمات تغییر دهید.",
+      "زبان خود و یکی از دو نسخهٔ هر درس را انتخاب کنید. هر زمان بخواهید می‌توانید هر دو را در تنظیمات تغییر دهید.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("دوست دارید چطور بخوانید؟"),
   };

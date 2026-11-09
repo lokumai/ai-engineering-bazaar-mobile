@@ -326,7 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "The same modules in plain words, for readers with no technical background.",
     ),
     "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "Every module comes in two versions. You can change this any time in Settings.",
+      "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("How would you like to read?"),
   };

@@ -138,10 +138,10 @@ class S {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
   }
 
-  /// `Every module comes in two versions. You can change this any time in Settings.`
+  /// `Choose your language and one of the two versions of every module. You can change both any time in Settings.`
   String get welcome_track_lede {
     return Intl.message(
-      'Every module comes in two versions. You can change this any time in Settings.',
+      'Choose your language and one of the two versions of every module. You can change both any time in Settings.',
       name: 'welcome_track_lede',
       desc: '',
       args: [],

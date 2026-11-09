@@ -6,11 +6,17 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
+
+import 'dart:async';
+
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Welcome's second screen (plan 1L): the reader chooses a track once, with the web's line for each (web
-/// `src/app/page.tsx`, the two stalls); Settings changes it later. Start reading hands the choice to [onChosen].
+/// Welcome's second screen (plan 1L, 1S): the reader chooses the language and a track once, with the web's line for
+/// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at
+/// once; Start reading hands the track to [onChosen].
 class WelcomeTrackView extends StatefulWidget {
   const WelcomeTrackView({super.key, required this.initial, required this.onChosen});
 
@@ -19,6 +25,8 @@ class WelcomeTrackView extends StatefulWidget {
   final ValueChanged<Track> onChosen;
 
   static Key optionKey(Track track) => ValueKey('welcome-track-${track.id}');
+
+  static Key languageKey(String language) => ValueKey('welcome-language-$language');
 
   @override
   State<WelcomeTrackView> createState() => _WelcomeTrackViewState();
@@ -73,6 +81,27 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                       s.welcome_track_lede,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
+                    ),
+                    // The language first: choosing one turns this screen into it at once (plan 1S).
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 8,
+                      children: [
+                        Text(s.settings_language, style: theme.textTheme.titleSmall),
+                        BazaarSegmentedControl<String>(
+                          semanticLabel: s.settings_language,
+                          selected: context.watch<LanguageCubit>().state,
+                          onSelected: (language) => unawaited(context.read<LanguageCubit>().choose(language)),
+                          segments: [
+                            for (final language in LanguageCubit.supported)
+                              BazaarSegment(
+                                value: language,
+                                label: LanguageCubit.names[language]!,
+                                key: WelcomeTrackView.languageKey(language),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                     for (final info in index.tracks)
                       _TrackOption(

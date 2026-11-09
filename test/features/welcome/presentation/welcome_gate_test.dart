@@ -89,6 +89,14 @@ Widget _gate(
 double _opacityAbove(WidgetTester tester, Finder finder) =>
     tester.widget<Opacity>(find.ancestor(of: finder, matching: find.byType(Opacity)).first).opacity;
 
+/// The left lamp's turn: the sine in its rotation, 0 at rest.
+double _lampTurn(WidgetTester tester) => tester
+    .widget<Transform>(
+      find.ancestor(of: find.image(const AssetImage(WelcomeArt.lampLeft)), matching: find.byType(Transform)).first,
+    )
+    .transform
+    .storage[1];
+
 void main() {
   testWidgets('the first launch shows Welcome, asks the track, and the choice opens the app and records it', (
     tester,
@@ -162,6 +170,21 @@ void main() {
     expect(_opacityAbove(tester, _enter), 1);
   });
 
+  testWidgets('after the entrance the scene stays alive for a while, then rests (plan 1S)', (tester) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore()));
+    // Frame by frame through the entrance and a little of the scene's life, as a device draws it.
+    for (var i = 0; i < 40; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(_lampTurn(tester), isNot(closeTo(0, 1e-4)), reason: 'the lamp sways');
+    expect(tester.hasRunningAnimations, isTrue);
+
+    await tester.pump(WelcomeView.ambience);
+    await tester.pump();
+    expect(_lampTurn(tester), closeTo(0, 1e-6), reason: 'and comes to rest');
+    expect(tester.hasRunningAnimations, isFalse);
+  });
+
   testWidgets('under reduced motion everything is in place at once', (tester) async {
     await tester.pumpWidget(_gate(_MemoryWelcomeStore(), reducedMotion: true));
     await tester.pump();
@@ -169,6 +192,25 @@ void main() {
 
     expect(_opacityAbove(tester, _enter), 1);
     expect(tester.hasRunningAnimations, isFalse);
+    await tester.pump(WelcomeView.entrance + WelcomeView.ambience);
+    expect(_lampTurn(tester), closeTo(0, 1e-6), reason: 'nothing sways either');
+  });
+
+  testWidgets('the track step chooses the language too, at once (plan 1S)', (tester) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore()));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(_enter);
+    await tester.pumpAndSettle();
+    await tester.tap(_enter);
+    await tester.pumpAndSettle();
+
+    final language = tester.element(find.byType(WelcomeTrackView)).read<LanguageCubit>();
+    expect(find.text('Türkçe'), findsOneWidget);
+    expect(find.text('فارسی'), findsOneWidget);
+    await tester.tap(find.byKey(WelcomeTrackView.languageKey('tr')));
+    await tester.pump();
+
+    expect(language.state, 'tr');
   });
 
   testWidgets('text scale 2.0 keeps the way in reachable', (tester) async {
