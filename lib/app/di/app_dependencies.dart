@@ -18,6 +18,8 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
 /// Builds the infrastructure the app runs on; a test subclass overrides the factories with doubles.
 class AppDependencies {
@@ -54,6 +56,9 @@ class AppDependencies {
 
   /// Whether Welcome was seen, as a file flag under [supportDirectory]`/flags/`, apart from the record.
   IWelcomeStore createWelcomeStore() => FlagWelcomeStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The chosen track, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 1L).
+  ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: supportDirectory));
 }
 
 /// The welcome feature's port over the app's file flags: the flag `welcome-seen`.
@@ -69,4 +74,31 @@ final class FlagWelcomeStore implements IWelcomeStore {
 
   @override
   Future<void> markSeen() => _flags.set(_flag);
+}
+
+/// The track cubit's port over the app's file flags: `track-chosen` once a track was chosen, and `track-everyone` while
+/// that choice is For Everyone.
+final class FlagTrackStore implements ITrackStore {
+  const FlagTrackStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _chosen = 'track-chosen';
+  static const _everyone = 'track-everyone';
+
+  @override
+  Future<Track?> chosen() async {
+    if (!await _flags.isSet(_chosen)) return null;
+    return await _flags.isSet(_everyone) ? Track.everyone : Track.engineers;
+  }
+
+  @override
+  Future<void> choose(Track track) async {
+    if (track == Track.everyone) {
+      await _flags.set(_everyone);
+    } else {
+      await _flags.clear(_everyone);
+    }
+    await _flags.set(_chosen);
+  }
 }

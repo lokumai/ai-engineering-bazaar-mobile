@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
@@ -76,6 +77,28 @@ void main() {
     await store.markSeen();
     expect(await store.seen(), isTrue);
     expect(File('${root.path}/flags/welcome-seen').existsSync(), isTrue);
+  });
+
+  test('createTrackStore keeps the choice as flags under the support directory (plan 1L)', () async {
+    final root = Directory.systemTemp.createTempSync('track_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createTrackStore();
+    expect(store, isA<FlagTrackStore>());
+    expect(await store.chosen(), isNull);
+
+    await store.choose(Track.everyone);
+    expect(await store.chosen(), Track.everyone);
+    expect(await dependencies.createTrackStore().chosen(), Track.everyone, reason: 'kept for the next start');
+
+    await store.choose(Track.engineers);
+    expect(await store.chosen(), Track.engineers);
+    expect(File('${root.path}/flags/track-chosen').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
   test('the backup goes through the platform gateway', () {

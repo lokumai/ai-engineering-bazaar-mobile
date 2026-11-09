@@ -19,6 +19,17 @@ void main() {
     expect(await store.isSet('other'), isFalse, reason: 'each flag is its own file');
   });
 
+  test('a cleared flag is unset; clearing an unset flag is fine', () async {
+    final store = FileFlagStore(baseDirectory: () async => root);
+
+    await store.clear('track-everyone');
+    await store.set('track-everyone');
+    await store.clear('track-everyone');
+
+    expect(await store.isSet('track-everyone'), isFalse);
+    expect(File('${root.path}/flags/track-everyone').existsSync(), isFalse);
+  });
+
   test('the flags live under flags/, apart from the record', () async {
     await FileFlagStore(baseDirectory: () async => root).set('welcome-seen');
 

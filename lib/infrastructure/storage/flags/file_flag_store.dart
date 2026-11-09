@@ -5,8 +5,8 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 /// Named on and off flags of the app itself, one empty file each under `<baseDirectory>/flags/`, apart from the
 /// record (the record stays the web's, byte for byte, R60).
 ///
-/// A flag is set once and never cleared. A flag that cannot be read counts as not set, and one that cannot be written
-/// is logged and stays unset: the app then shows again what the flag would have hidden, which costs a tap, never data.
+/// A flag that cannot be read counts as not set, and one that cannot be written or cleared is logged and stays as it
+/// was: the app then shows again what the flag would have hidden, which costs a tap, never data.
 /// `baseDirectory` is called on first use and its result kept; a call that fails is not kept.
 final class FileFlagStore {
   FileFlagStore({required this._baseDirectory});
@@ -39,6 +39,16 @@ final class FileFlagStore {
       await file.create(recursive: true);
     } on FileSystemException catch (error) {
       _log.warn('flag {} not written: {}', [name, error]);
+    }
+  }
+
+  /// Clears the flag [name]; a flag that is not set stays so.
+  Future<void> clear(String name) async {
+    try {
+      final file = await _file(name);
+      if (await file.exists()) await file.delete();
+    } on FileSystemException catch (error) {
+      _log.warn('flag {} not cleared: {}', [name, error]);
     }
   }
 }

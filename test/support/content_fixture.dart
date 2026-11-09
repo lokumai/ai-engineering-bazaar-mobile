@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
@@ -95,4 +96,7 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IWelcomeStore createWelcomeStore() => const SeenWelcomeStore();
+
+  @override
+  ITrackStore createTrackStore() => const MemoryTrackStore();
 }
