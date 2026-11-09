@@ -69,7 +69,7 @@ The fixes land together in one pull request; each fix is its own commit, test fi
 
 - [ ] **2.1 Table rows.** The parser checks `align` against `head` but not each row's length (`lib/shared/content/domain/content_parser.dart`), and Flutter's `Table` asserts on rows of unequal length. Reject such a table as a format error, or pad the row, as the web does.
 - [ ] **2.2 Logo errors.** `LogoView` has no `errorBuilder`, unlike `DiagramView`, so a logo SVG that does not parse is not caught. Show nothing or the unreadable line.
-- [ ] **2.3 A test that fails on a slow runner.** `test/shared/content/application/content_bloc_test.dart` waits 100 ms for a refresh over the real file repository; on CI the last state came later once and the job failed (PR #2, first run). Wait for the state itself, or give the wait room, so the test does not depend on the runner's speed.
+- [x] **2.3 A test that fails on a slow runner.** `test/shared/content/application/content_bloc_test.dart` waited 100 ms for a refresh over the real file repository, and on CI the last state came later in three runs of PR #2. Done in PR #2: the test waits for the refresh's last state, with a 30 s timeout.
 
 ## Phase 3: parity with the website (D111)
 
