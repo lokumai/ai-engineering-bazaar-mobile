@@ -81,7 +81,7 @@ void main() {
   });
   test(
     'strings are escaped as JSON.stringify escapes them',
-    () => expect(encodeCompact(' /"\\\u0001\uD800'), '" /\\"\\\\\\u0001\\ud800"'),
+    () => expect(encodeCompact('\u2028/"\\\u0001\uD800'), '"\u2028/\\"\\\\\\u0001\\ud800"'),
   );
   test(
     'export form is JSON.stringify(x, null, 2) with no trailing newline',

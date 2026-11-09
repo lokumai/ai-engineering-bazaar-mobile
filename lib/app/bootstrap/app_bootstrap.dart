@@ -46,12 +46,12 @@ class AppBootstrap {
 
     // Analytics & crash reporting.
     //
-    // CrashReporter always installs framework / PlatformDispatcher hooks for
-    // local logging. When Sentry is active it installs its OWN hooks that both
-    // capture the error and chain to ours, so we must NOT also forward uncaught
-    // errors to the Sentry-backed analytics here — doing so reports every crash
-    // twice. With Sentry off, forwarding to the local logging analytics is the
-    // only sink, so it stays enabled.
+    // CrashReporter always installs framework / PlatformDispatcher hooks that
+    // log every uncaught error. When Sentry is active it installs its own hooks
+    // that capture the error and chain to ours, so Sentry reports the crash and
+    // the error is not forwarded to the analytics service as well. With Sentry
+    // off, the analytics service (LogAnalyticsService) also logs the head of
+    // the stack trace, so forwarding stays on.
     final analytics = appDependencies.createAnalyticsService();
     final sentryActive = appConfig.sentryDsn != null;
     CrashReporter.install(analytics, forwardToAnalytics: !sentryActive);

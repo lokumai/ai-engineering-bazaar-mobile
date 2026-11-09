@@ -220,9 +220,11 @@ The `Device tests` workflow (`.github/workflows/device_tests.yml`) runs them on 
 - `log_lazy_arguments_test`: no `AppLogger` argument builds its text before the call.
 - `log_placeholders_test`: every `AppLogger` call has one `{}` per argument.
 - `log_secrets_test`: no `AppLogger` argument names a credential.
+- `no_invisible_literals_test`: no Dart source under `lib/`, `test/`, `integration_test/` or `tool/` writes an invisible or space character, such as U+2060 or U+FFFC, as a literal instead of an escape.
 - `package_name_test`: the package is `ai_engineering_bazaar` and nothing imports the template's package.
 - `platform_folders_test`: only `android/` and `ios/` exist, and iOS uses no CocoaPods.
 - `route_telemetry_test`: no code records a route for analytics or Sentry, since a route path carries a module key.
+- `run_configurations_test`: every committed IDE run configuration of `main_local.dart` passes `CONTENT_BASE_URL`.
 - `sentry_native_scrub_patterns_test`: the Kotlin scrub patterns of the Android host equal the Dart ones, and the Gradle DSN gate holds.
 - `test_file_naming_test`: no test file is named `*.test.dart`, which `flutter test` would never run.
 - `tokens_generated_test`: `lib/shared/design_system/bazaar_tokens.g.dart` equals a fresh run of the token generator over the snapshot.

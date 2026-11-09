@@ -113,7 +113,7 @@ void main() {
   });
   test('erasedRecord is the empty record itself', () => expect(erasedRecord(withSheets({})), same(RecordData.empty)));
   test('confirmsErase trims with the JS set and ignores case', () {
-    for (final typed in ['ERASE', ' erase ', 'Erase　']) {
+    for (final typed in ['ERASE', ' erase ', 'Erase\u3000']) {
       expect(confirmsErase(typed), isTrue, reason: typed);
     }
     for (final typed in ['E RASE', 'ERASE\u0085', 'ERASED', '']) {

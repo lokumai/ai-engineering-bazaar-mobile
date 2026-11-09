@@ -104,7 +104,7 @@ String _plainText(Inline inline) => switch (inline) {
 
 final _whitespace = RegExp(r'\s+');
 
-String _normalised(String text) => text.replaceAll('￼', '').replaceAll(_whitespace, ' ').trim().toLowerCase();
+String _normalised(String text) => text.replaceAll('\uFFFC', '').replaceAll(_whitespace, ' ').trim().toLowerCase();
 
 /// Every `RichText` whose text contains [text], ignoring case, placeholders (a logo span) and runs of whitespace.
 Finder findProse(String text) {

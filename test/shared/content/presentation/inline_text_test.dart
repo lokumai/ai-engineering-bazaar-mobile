@@ -86,7 +86,7 @@ void main() {
     ]);
 
     final arrow = leafSpans(rootSpan(tester)).last;
-    expect(arrow.text, '⁠↗');
+    expect(arrow.text, '\u2060↗');
     expect(arrow.semanticsLabel, '');
     expect(arrow.style!.color, tester.element(find.byType(InlineText)).bazaarColors.onSurfaceFaint);
     expect(arrow.style!.fontSize, BazaarType.mark.size);
@@ -181,7 +181,7 @@ void main() {
 
     final children = rootSpan(tester).children!;
     expect(children[0], isA<WidgetSpan>());
-    expect((children[1] as TextSpan).text, '⁠');
+    expect((children[1] as TextSpan).text, '\u2060');
     expect(tester.widget<LogoView>(find.byType(LogoView)).fontSize, 16); // the style's font size in the harness
     expect(tester.widget<LogoView>(find.byType(LogoView)).src, 'course-images/alpha/logos/x.svg');
   });

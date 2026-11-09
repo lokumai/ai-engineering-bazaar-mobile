@@ -18,7 +18,7 @@ const Map<String, String> _allowed = {};
 final _interpolation = RegExp(r'\$\{[^}]*\}|\$[A-Za-z_]\w*');
 final _whitespace = RegExp(r'\s+');
 
-RegExp _keyPattern(String key) => RegExp('(?<![\\w/-])${RegExp.escape(key)}(?![\\w/-])');
+RegExp _keyPattern(String key) => RegExp('(?<![\\w-])${RegExp.escape(key)}(?![\\w-])');
 
 RegExp _titlePattern(String title) => RegExp('(?<!\\w)${RegExp.escape(title)}(?!\\w)', caseSensitive: false);
 
@@ -75,6 +75,13 @@ void main() {
     const source =
         "// alpha/first\nfinal a = 'opens alpha/first now'; final b = \"FIRST MODULE\"; final c = 'alpha/first-draft';";
     expect(_factsIn(source, keys: {'alpha/first'}, titles: {'First Module'}), ['2: alpha/first', '2: First Module']);
+  });
+
+  test('the matcher finds a key inside a route, a URL or a bundle path', () {
+    const source =
+        "final a = '/courses/alpha/first'; final b = 'https://x.dev/everyone/courses/alpha/first/'; "
+        "final c = 'api/v1/modules/alpha/first/en.json';";
+    expect(_factsIn(source, keys: {'alpha/first'}, titles: {}), ['1: alpha/first', '1: alpha/first', '1: alpha/first']);
   });
 
   test('the matcher ignores interpolations and words that only contain a title', () {

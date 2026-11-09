@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 typedef LinkHandler = void Function(LinkTarget target);
 
 /// The word joiner: no line break may fall where it stands.
-const _wordJoiner = '⁠';
+const _wordJoiner = '\u2060';
 
 /// A run of inline content drawn as one piece of rich text in [style].
 ///

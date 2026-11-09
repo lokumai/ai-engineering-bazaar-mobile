@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
@@ -18,8 +19,10 @@ import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
 import '../../../../support/catalog_fixture_index.dart';
 
-/// A [MockContentBloc] that stays at [ContentReady] over [catalogFixtureIndex] with [origin], [notice] and [refresh].
+/// A [MockContentBloc] that stays at [ContentReady] over [index] (default [catalogFixtureIndex]) with [origin],
+/// [notice] and [refresh].
 MockContentBloc _contentBloc({
+  BundleIndex? index,
   ContentOrigin origin = ContentOrigin.bundled,
   ContentNotice? notice,
   RefreshStatus refresh = const RefreshUpToDate(),
@@ -28,9 +31,27 @@ MockContentBloc _contentBloc({
   whenListen(
     bloc,
     const Stream<ContentState>.empty(),
-    initialState: ContentReady(index: catalogFixtureIndex(), origin: origin, notice: notice, refresh: refresh),
+    initialState: ContentReady(index: index ?? catalogFixtureIndex(), origin: origin, notice: notice, refresh: refresh),
   );
   return bloc;
+}
+
+/// [catalogFixtureIndex] published at [instant] instead.
+BundleIndex _publishedAt(DateTime instant) {
+  final index = catalogFixtureIndex();
+  return BundleIndex(
+    contentVersion: index.contentVersion,
+    publishedAt: instant.toIso8601String(),
+    publishedAtInstant: instant,
+    tracks: index.tracks,
+    diagramFont: index.diagramFont,
+    diagramThemes: index.diagramThemes,
+    levels: index.levels,
+    modules: index.modules,
+    moved: index.moved,
+    files: index.files,
+    images: index.images,
+  );
 }
 
 /// A router whose `/settings` builds [SettingsScreen] with [openDevConsole].
@@ -85,6 +106,15 @@ void main() {
 
     expect(find.text('2026-11-01'), findsOneWidget);
     expect(find.text('2026-10-31'), findsNothing);
+  });
+
+  testWidgets('the published day of a late instant is its UTC day', (tester) async {
+    // 2026-11-01T23:30:00.000Z is 2026-11-02 in every zone an hour or more east of UTC, so this case catches a local
+    // day there, and the case above catches it west of UTC. A host on UTC (CI) cannot tell the two days apart.
+    await _pump(tester, content: _contentBloc(index: _publishedAt(DateTime.utc(2026, 11, 1, 23, 30))));
+
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('2026-11-02'), findsNothing);
   });
 
   testWidgets('a downloaded snapshot says so', (tester) async {

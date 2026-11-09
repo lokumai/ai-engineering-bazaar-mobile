@@ -99,16 +99,16 @@ body:
       description: Which feature modules or shared layers does this touch?
       multiple: true
       options:
-        - account
-        - auth
-        - dynamic_forms
-        - lifecycle
+        - app
+        - catalog
+        - reader
+        - quiz
+        - progress
         - settings
-        - users
-        - shared
+        - shared/content
+        - shared/record
         - core
         - infrastructure
-        - app
         - other
 
   - type: textarea

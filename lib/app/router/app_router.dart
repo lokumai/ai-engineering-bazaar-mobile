@@ -39,7 +39,7 @@ class AppRouterFactory {
         _log.warn('No page for location {}: {}', [state.uri, state.error]);
         return appRootPage(
           state: state,
-          // An error state has no route name or path, and an unnamed page is invisible to analytics.
+          // An error state has no route name or path, so the page is named after the not-found route.
           name: ApplicationRoutesConstants.notFound,
           child: const NotFoundPage(),
         );

@@ -1,12 +1,10 @@
 /// Single source of truth for "what counts as sensitive" when data leaves
 /// the app: to a crash report ([sentryBeforeSend] for the event,
-/// [sentryBeforeBreadcrumb] for each breadcrumb), to the local debug logs
-/// ([LoggingInterceptor] verbose mode), to the Network tab of the dev
-/// console ([DevConsoleInterceptor]), to the text of an HTTP error
-/// ([ApiClient], [scrubErrorBody]), or to the console through [AppLogger].
-/// AppLogger masks the credential keys of a Map or a List argument with
-/// [scrubBodyKeys], and runs every line it prints through [maskSecrets] and
-/// [maskEmails].
+/// [sentryBeforeBreadcrumb] for each breadcrumb) or to the console through
+/// [AppLogger]. AppLogger masks the credential keys of a Map or a List
+/// argument with [scrubBodyKeys], and runs every line it prints through
+/// [maskSecrets] and [maskEmails]. [scrubBodyText] and [scrubErrorBody]
+/// scrub a request or a response body; no code in the app calls them today.
 ///
 /// Keeping one copy of the redaction policy is a security invariant, not
 /// just DRY: two divergent copies guarantee that one exit eventually
@@ -193,7 +191,7 @@ Map<K, V> scrubHeaders<K, V>(Map<K, V> headers) {
 Object? scrubBodyKeys(Object? body) => _scrubKeys(body, _isSensitiveKey);
 
 /// Returns [body], a request or a response body, as text without its
-/// credentials, for a view that shows it, such as the dev console. A JSON
+/// credentials, for a view that shows it. A JSON
 /// string, a Map or a List has its values masked as [scrubBodyKeys] masks
 /// them, and every JWT is masked last. A body with nothing to mask keeps
 /// its text, the formatting of a JSON string included.
@@ -205,8 +203,8 @@ String scrubBodyText(Object? body, {Set<String> sensitiveKeys = const {}}) =>
     _scrubBodyText(body, _sensitiveKeyTest(sensitiveKeys), const []);
 
 /// Returns [body], the body of an error response, as text without the
-/// credentials it may hold. ApiClient puts it into the exception it throws,
-/// whose text reaches the log, the dev console and Sentry.
+/// credentials it may hold, for the text of an exception, which reaches the
+/// log and Sentry. No code in the app calls it today.
 ///
 /// It is scrubbed as [scrubBodyText] scrubs a body with [sensitiveKeys],
 /// and the values under [echoedValueKeys] are masked too. Every value of

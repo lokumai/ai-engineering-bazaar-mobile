@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 /// Creates a [MaterialPage] for a root page outside the shell that appears without an entering transition and leaves
 /// with the Material one, keeping the iOS back swipe. Its key, name and restoration id come from [appPlatformPage],
-/// so navigator observers such as analytics name it the same way.
+/// so it is named the way every other page is.
 ///
 /// While a root page that replaces the shell is still entering, the root navigator keeps the exiting shell page
 /// mounted. A shell page that comes back in that window builds the shell Navigator a second time with the same
