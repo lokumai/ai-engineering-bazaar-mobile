@@ -1,6 +1,6 @@
 # Feature-First Clean Boundaries
 
-This document defines the target architecture for `flutter_bloc_advance`.
+This document defines the target architecture for `ai_engineering_bazaar`.
 
 ## Goals
 
@@ -45,9 +45,11 @@ infrastructure -> shared/record/domain
 Forbidden imports:
 
 ```text
-feature_a -> feature_b/presentation
-feature_a -> feature_b/data
+feature_a -> feature_b
+features -> app (except app/router/app_routes_constants)
 shared -> features
+shared -> app
+shared -> infrastructure
 core -> shared
 core -> features
 infrastructure -> features/presentation
@@ -83,7 +85,7 @@ Examples:
 
 - Router composition
 - Global providers
-- Session bootstrap
+- Content and record bootstrap
 - Shell layout
 - Theme and localization bootstrap
 
@@ -119,7 +121,6 @@ Do not place theme, routes, widgets, or screens under `core/`.
 
 - UI should never instantiate repositories directly.
 - Feature pages should depend on feature application state only.
-- Session/auth state is app-level.
 - Shell state is app-level.
 - Feature state remains inside the feature module.
 

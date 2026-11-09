@@ -1,4 +1,4 @@
-# Contributing to Flutter BLOC Template
+# Contributing to AI Engineering Bazaar mobile
 
 We welcome contributions to this project! To ensure a smooth and efficient process, please follow the guidelines below.
 
@@ -56,14 +56,12 @@ bash
 - sync your fork on GitHub
 - git pull on your local machine
 - resolve conflicts
-- run commands sequentially
+- run commands sequentially; the last one is the gate every commit passes, and it runs through `heavy`, one full gate at a time
     ```shell
-        flutter clean
-        flutter pub get
-        dart run intl_utils:generate
-        dart format lib/generated --line-length=120
-        flutter analyze
-        flutter test --coverage
+        fvm flutter pub get
+        fvm dart run intl_utils:generate
+        fvm dart format lib/generated --line-length=120
+        heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 65'
     ```
 - fix errors if needed
 

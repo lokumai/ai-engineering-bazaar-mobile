@@ -1,88 +1,35 @@
-# Flutter Template Changelog
+# Changelog
 
-@formatter:off
-* All notable changes to this project will be documented in this file.
-* The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project  adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-* This template is based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+The app began as a copy of the flutter_bloc_advance template; the template's history stays in git (`git show 1277105:CHANGELOG.md`).
 
-### Guiding Principles
+## [Unreleased]
 
-- Changelogs are for humans, not machines.
-- There should be an entry for every single version.
-- The same types of changes should be grouped.
-- Versions and sections should be linkable.
-- The latest version comes first.
-- The release date of each version is displayed.
-- Mention whether you follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-### Types of changes
-
-- `Added` for new features.
-- `Changed` for changes in existing functionality.
-- `Deprecated` for soon-to-be removed features.
-- `Removed` for now removed features.
-- `Fixed` for any bug fixes.
-- `Security` in case of vulnerabilities.
-- `Performance` for improvements in performance.
-- `Style` for changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- `Docs` for documentation only changes
-- `Build` for changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-
-### [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-
-A specification for adding human and machine readable meaning to commit messages.
-
-- `feat` a new feature
-- `fix` a bug fix
-- `docs` documentation only changes
-- `style` changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- `refactor` a code change that neither fixes a bug nor adds a feature
-- `perf` a code change that improves performance
-- `test` adding missing tests or correcting existing tests
-- `build` changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-- `chore` other changes
-- **BREAKING CHANGE**: a commit that has a footer BREAKING CHANGE:, or appends a ! after the type/scope, introduces a breaking API change (correlating with MAJOR in Semantic Versioning). A BREAKING  CHANGE can be part of commits of any type.
-
----
-
-### Well-known flutter-analyzer issues
-
-
----
-
-### Appendix Issues
-
-
----
-
-@formatter:off
-
-# Releases
-
-## [Unreleased]()
 ### Added
-- Dashboard: model, mock repository, cubit, and basic UI wiring.
-- Dashboard: provide `DashboardCubit` with mock repository in `HomeScreen`.
-- Dashboard: quick actions redesigned as chip-like buttons with a “More” bottom-sheet.
-- Web build: add build web actions.
+
+- The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch.
+- A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
+- Both tracks, For Engineers and For Everyone, with a track switch in the bar.
+- The catalog root and the level page, with the Level and Status filters.
+- The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts and the contents drawer.
+- The module quiz.
+- The progress page with one tab per track, and the data line: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record.
+- Progress kept on the device in the web's record format, held to the web's conformance fixture.
+- Settings with the content status, Check for updates, the licences and a debug-only dev console button.
+- Device tests under `integration_test/` and a workflow that runs them on demand.
 
 ### Changed
-- Drawer: refactor state management and initialization.
-- Icon utilities: replace `string_2_icon` with `icon_utils` and update drawer widget.
-- Formatting: set Dart formatter `page_width` to 125 in `analysis_options.yaml`; clean up trailing newlines and apply consistent formatting.
-- Dependencies: update Flutter and package versions.
-- Dashboard: initial design/wireframe, repo scan, and baseline tests.
 
-### Fixed
-- Theme: resolve race-condition during theme switching.
-- Dashboard: remove direct `part` import from `HomeScreen`.
-- Web: fix web build and deploy to target.
+- The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
+- The Dart package name is `ai_engineering_bazaar`.
+- The template palettes are replaced by the Bazaar theme, built from design tokens generated from the snapshot.
 
 ### Removed
-- None
 
-### BREAKING CHANGES
-- None
-
-
----
+- The web, macOS, Linux and Windows platforms.
+- Sonar.
+- Login, users, accounts, OIDC and the mock API.
+- Local storage, the lifecycle check, locale switching and theme switching.
+- The analytics route observer.
+- The Turkish strings.
