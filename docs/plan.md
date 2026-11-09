@@ -117,6 +117,17 @@ The owner ran the app from a clean install. Each step lands on the same branch a
 - [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn; it stays until the owner settles the opening.
 - [ ] **1W Quiz scores (on hold).** The owner would like Progress to show how each quiz went. The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
 
+### Review round 3: Progress inside the catalog, and quizzes to practise (proposed 2026-11-10, to discuss)
+
+- [ ] **1AB Progress inside the catalog.** The owner proposes showing each module's completion in the catalog itself, using Progress's tick boxes and level dials, so that a separate Progress tab may not be needed. Before Progress is removed, these questions must be settled:
+  - Where do Back up, Restore and Reset go? Settings is the likely place. They are R-requirements and cannot be dropped.
+  - Do the counts go with it? These are the modules completed and the active days. Home or the catalog's header could carry them.
+  - Does a For Everyone reader lose anything? Progress shows only the current track since 1U, so the catalog of that track carries the same information.
+- [ ] **1AC A Quiz tab in place of Progress.** If 1AB removes Progress, the fourth bottom item becomes Quiz. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) without going through the reader.
+- [ ] **1AD Practice on Home.** Home offers practice that refreshes what the reader has already read: quizzes of the modules they completed, reached directly from Home. Open questions:
+  - How are the quizzes picked? Possible ways are the most recently completed modules, a random pick, or the oldest completed modules.
+  - Does it depend on 1W (quiz scores)? Without scores, practice cannot favour the quizzes that went badly.
+
 ## Phase 2: small fixes in the reader
 
 The fixes land together in one pull request; each fix is its own commit, test first, through the gate.
