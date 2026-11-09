@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// A valid `api/v1/index.json` as a fresh, mutable map on every call.
@@ -70,6 +72,49 @@ Map<String, dynamic> validIndexJson() => jsonDecode(
       'api/v1/diagrams/fedcba9876543210fedcba9876543210.svg': '9' * 64,
     },
     'images': {'course-images/alpha/figure.png': 'e' * 64, 'course-images/alpha/logos/mark.svg': '8' * 64},
+  }),
+) as Map<String, dynamic>;
+
+/// The parse of [validIndexJson].
+BundleIndex parsedTestIndex() => ContentParser.parseIndex(jsonEncode(validIndexJson()));
+
+/// A valid For Engineers module document (`api/v1/modules/alpha/first/en.json`) with an empty body, as a fresh,
+/// mutable map on every call.
+Map<String, dynamic> validModuleDocJson() => jsonDecode(
+  jsonEncode({
+    'schemaVersion': 1,
+    'key': 'alpha/first',
+    'track': 'engineers',
+    'lang': 'en',
+    'dir': 'ltr',
+    'title': 'First Module',
+    'objectives': {
+      'lang': 'en',
+      'items': ['Read a synthetic module.'],
+    },
+    'prerequisites': [],
+    'previous': null,
+    'next': {
+      'key': 'alpha/second',
+      'number': 2,
+      'title': 'Second Module',
+      'drawn': true,
+      'track': 'engineers',
+      'lang': 'en',
+    },
+    'toc': [
+      {'id': 'setup', 'text': 'Setup', 'depth': 2, 'mark': 'I'},
+    ],
+    'body': [],
+    'draft': null,
+    'quiz': [
+      {
+        'question': 'Q?',
+        'options': ['a', 'b', 'c', 'd'],
+        'answer': 2,
+        'explain': 'Because.',
+      },
+    ],
   }),
 ) as Map<String, dynamic>;
 
