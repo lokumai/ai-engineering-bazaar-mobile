@@ -5,13 +5,16 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the content status with Check for
 /// updates (spec 3.4.2 to 3.4.4), the licences, and the developer console when [openDevConsole] is set.
 ///
-/// The data flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
+/// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). The data
+/// flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
 /// since the app gate mounts the router only once the content is ready.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, this.openDevConsole});
@@ -55,36 +58,55 @@ class _SettingsView extends StatelessWidget {
             ContentNoticeBanner(notice: ready.notice),
             const SizedBox(height: AppSpacing.lg),
           ],
-          _SectionTitle(s.settings_content),
-          _Fact(label: s.settings_content_version, value: index.contentVersion.substring(0, 12)),
-          _Fact(label: s.settings_published, value: _utcDay(index.publishedAtInstant)),
-          _Fact(
-            label: s.settings_source,
-            value: switch (ready.origin) {
-              ContentOrigin.bundled => s.settings_source_bundled,
-              ContentOrigin.downloaded => s.settings_source_downloaded,
-            },
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
-          _Action(
-            label: s.settings_check_for_updates,
-            onPressed: switch (ready.refresh) {
-              RefreshChecking() => null,
-              RefreshIdle() ||
-              RefreshUpToDate() ||
-              RefreshUpdated() ||
-              RefreshFailed() ||
-              RefreshNeedsAppUpdate() => () => context.read<ContentBloc>().add(const ContentRefreshRequested()),
-            },
+          SectionRule(title: s.settings_content),
+          const SizedBox(height: AppSpacing.md),
+          BazaarCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Fact(label: s.settings_content_version, value: index.contentVersion.substring(0, 12)),
+                _Fact(label: s.settings_published, value: _utcDay(index.publishedAtInstant)),
+                _Fact(
+                  label: s.settings_source,
+                  value: switch (ready.origin) {
+                    ContentOrigin.bundled => s.settings_source_bundled,
+                    ContentOrigin.downloaded => s.settings_source_downloaded,
+                  },
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
+                _Action(
+                  label: s.settings_check_for_updates,
+                  onPressed: switch (ready.refresh) {
+                    RefreshChecking() => null,
+                    RefreshIdle() ||
+                    RefreshUpToDate() ||
+                    RefreshUpdated() ||
+                    RefreshFailed() ||
+                    RefreshNeedsAppUpdate() => () => context.read<ContentBloc>().add(const ContentRefreshRequested()),
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          _SectionTitle(s.settings_about),
-          _Action(
-            label: s.settings_licences,
-            onPressed: () => showLicensePage(context: context, applicationName: s.app_title),
+          SectionRule(title: s.settings_about),
+          const SizedBox(height: AppSpacing.md),
+          BazaarCard(
+            shape: BazaarCardShape.leaf,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Action(
+                  label: s.settings_licences,
+                  onPressed: () => showLicensePage(context: context, applicationName: s.app_title),
+                ),
+                if (openDevConsole != null)
+                  _Action(label: s.settings_dev_console, onPressed: () => openDevConsole(context)),
+              ],
+            ),
           ),
-          if (openDevConsole != null) _Action(label: s.settings_dev_console, onPressed: () => openDevConsole(context)),
         ],
       ),
     );
@@ -112,20 +134,6 @@ class _SettingsView extends StatelessWidget {
     ContentErrorCode.missing ||
     ContentErrorCode.corrupt => s.settings_refresh_reason_stored,
   };
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Semantics(header: true, child: Text(text, style: Theme.of(context).textTheme.titleMedium)),
-    );
-  }
 }
 
 /// One labelled value of the content status, read as one node.
