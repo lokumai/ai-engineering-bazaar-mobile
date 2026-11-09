@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc_advance/core/analytics/analytics_service.dart';
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 
 /// Sets up global error handlers for crash reporting.
 ///
@@ -15,9 +15,9 @@ class CrashReporter {
   /// [analytics]. Set it to `false` when the Sentry SDK is active: Sentry
   /// installs its own `FlutterError.onError` / `PlatformDispatcher.onError`
   /// integrations that both capture the error AND chain to the handler
-  /// installed here. Forwarding to the Sentry-backed analytics in that case
-  /// reports every crash twice. With forwarding off, this reporter keeps doing
-  /// local logging and Sentry remains the single uncaught-error sink.
+  /// installed here, so Sentry already reports the crash. With forwarding off,
+  /// this reporter keeps doing local logging and Sentry remains the single
+  /// uncaught-error sink.
   static void install(IAnalyticsService analytics, {bool forwardToAnalytics = true}) {
     // Flutter framework errors (widget build, layout, paint)
     FlutterError.onError = (details) {

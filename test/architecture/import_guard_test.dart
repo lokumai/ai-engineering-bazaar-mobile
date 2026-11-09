@@ -2,71 +2,40 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Verifies architectural dependency rules from CLAUDE.md:
+/// Verifies the architectural dependency rules of CLAUDE.md:
 ///
-/// - `app/` → features, shared, infrastructure, core
-/// - `features/` → shared, infrastructure, core (NOT other features' internals)
-/// - `shared/` → core only (NO features or infrastructure imports)
-/// - `core/` → nothing (NO shared, features, or infrastructure imports)
+/// - `app/` -> features, shared, infrastructure, core
+/// - `features/` -> shared, infrastructure, core (NOT other features' internals, NOT `app/` apart from the known
+///   exception below)
+/// - `shared/` -> core only (NO features, app or infrastructure imports)
+/// - `core/` -> nothing (NO shared, features, infrastructure or app imports)
+/// - `infrastructure/` -> NO features or app imports, and nothing from shared/ apart from `shared/content/domain/` and
+///   `shared/record/domain/`
+/// - `shared/content/domain/` and `shared/record/domain/` -> no Flutter and no I/O (`package:flutter/`, `dart:ui`,
+///   `dart:io`)
+///
+/// The rules read every single-quoted `import` and `export` line of `lib/` (outside `lib/generated/`) that names this
+/// package, whose name comes from `pubspec.yaml`. Two self-checks keep them from passing vacuously: at least one
+/// import of the package must be read, and no `import`, `export` or `part` directive may use double quotes.
 ///
 /// It also keeps url_launcher behind `shared/utils/external_link.dart`, so every link tells the user when it does not
 /// open.
-///
-/// Pre-existing violations are documented as known exceptions below.
-/// These should be fixed incrementally; adding NEW exceptions is discouraged.
 
-// ---------------------------------------------------------------------------
-// Known exceptions — pre-existing tech debt to fix in future phases.
-// Each entry: 'relative_file_path → imported_path_fragment'
-// ---------------------------------------------------------------------------
-
-/// core/ importing infrastructure/ (security_utils needs storage for JWT)
-const _knownCoreExceptions = {'lib/core/security/security_utils.dart → infrastructure/storage/local_storage'};
-
-/// shared/ importing app/ (theme/language dialogs depend on app-level blocs)
-const _knownSharedExceptions = {
-  'lib/shared/widgets/theme_selection_dialog.dart → app/theme/theme_bloc',
-  'lib/shared/widgets/language_selection_dialog.dart → app/localization/locale_cubit',
-};
-
-/// features/ importing other features' internals (auth↔account coupling)
-const _knownCrossFeatureExceptions = {
-  'lib/features/dashboard/presentation/pages/dashboard_home_page.dart → account/application/account_bloc',
-  'lib/features/dashboard/presentation/pages/dashboard_home_page.dart → lifecycle/application/lifecycle_bloc',
-  'lib/features/dashboard/presentation/pages/dashboard_home_page.dart → lifecycle/domain/entities/app_config_entity',
-  'lib/features/dashboard/presentation/pages/dashboard_home_page.dart → lifecycle/application/lifecycle_state',
-  'lib/features/account/data/repositories/account_repository.dart → users/data/models/user',
-  'lib/features/auth/navigation/auth_routes.dart → account/domain/repositories/account_repository',
-  // Cross-feature use case imports moved here when the BLoC constructors
-  // switched to required-use-case DI (#86). Proper fix is to relocate the
-  // Register/Forgot/Change BlocProviders out of auth/navigation into
-  // app/di/app_scope so the cross-feature coupling lives at the composition
-  // root. That move would change BLoC lifecycle (route-scoped → app-scoped),
-  // so it's deferred to its own issue.
-  'lib/features/auth/navigation/auth_routes.dart → account/application/usecases/change_password_usecase',
-  'lib/features/auth/navigation/auth_routes.dart → account/application/usecases/register_account_usecase',
-  'lib/features/auth/navigation/auth_routes.dart → account/application/usecases/reset_password_usecase',
-  'lib/features/auth/application/forgot_password_bloc.dart → account/application/usecases/reset_password_usecase',
-  'lib/features/auth/application/login_bloc.dart → account/application/usecases/get_account_usecase',
-  'lib/features/auth/application/change_password_bloc.dart → account/application/usecases/change_password_usecase',
-  'lib/features/auth/application/change_password_bloc.dart → account/data/models/change_password',
-  'lib/features/auth/application/register_bloc.dart → account/application/usecases/register_account_usecase',
-  // (Note: dynamic_forms used to live under features/ and required 6 known
-  // exceptions for every consumer. It is now correctly placed under shared/
-  // as a feature-agnostic forms engine, so those exceptions are removed —
-  // features → shared/dynamic_forms is a normal allowed import direction.)
-};
-
-/// features/ importing app/ (route constants used for navigation)
+/// Known exception: features/ may import the route constants of app/.
 const _knownFeatureAppExceptions = {
-  'app/router/app_routes_constants', // all features may import this for now
+  'app/router/app_routes_constants', // settings_routes.dart navigates by these constants
 };
+
+/// The parts of shared/ that infrastructure/ may import: the domain folders of the content and record kernels.
+const _sharedKernelForInfrastructure = ['shared/content/domain/', 'shared/record/domain/'];
 
 void main() {
   group('Architecture Guard Tests', () {
     late List<File> dartFiles;
+    late String packageName;
 
     setUpAll(() {
+      packageName = _readPackageName();
       final libDir = Directory('lib');
       dartFiles = libDir
           .listSync(recursive: true)
@@ -81,16 +50,12 @@ void main() {
       final coreFiles = dartFiles.where((f) => f.path.contains('/core/'));
 
       for (final file in coreFiles) {
-        final imports = _getImports(file);
-        for (final import in imports) {
-          if (import.contains('/shared/') ||
-              import.contains('/features/') ||
-              import.contains('/infrastructure/') ||
-              import.contains('/app/')) {
-            final key = '${_relative(file.path)} → ${_importFragment(import)}';
-            if (!_isKnownException(key, _knownCoreExceptions)) {
-              violations.add('${_relative(file.path)}: imports $import');
-            }
+        for (final import in _getImports(file, packageName)) {
+          if (import.path.contains('/shared/') ||
+              import.path.contains('/features/') ||
+              import.path.contains('/infrastructure/') ||
+              import.path.contains('/app/')) {
+            violations.add('${_relative(file.path)}: imports ${import.path}');
           }
         }
       }
@@ -107,13 +72,9 @@ void main() {
       final sharedFiles = dartFiles.where((f) => f.path.contains('/shared/'));
 
       for (final file in sharedFiles) {
-        final imports = _getImports(file);
-        for (final import in imports) {
-          if (import.contains('/features/') || import.contains('/app/')) {
-            final key = '${_relative(file.path)} → ${_importFragment(import)}';
-            if (!_isKnownException(key, _knownSharedExceptions)) {
-              violations.add('${_relative(file.path)}: imports $import');
-            }
+        for (final import in _getImports(file, packageName)) {
+          if (import.path.contains('/features/') || import.path.contains('/app/')) {
+            violations.add('${_relative(file.path)}: imports ${import.path}');
           }
         }
       }
@@ -129,18 +90,12 @@ void main() {
         final featureName = _extractFeatureName(file.path);
         if (featureName == null) continue;
 
-        final imports = _getImports(file);
-        for (final import in imports) {
-          if (!import.contains('/features/')) continue;
+        for (final import in _getImports(file, packageName)) {
+          if (!import.path.contains('/features/')) continue;
 
-          final importedFeature = _extractFeatureNameFromImport(import);
-          if (importedFeature != null && importedFeature != featureName) {
-            if (!import.contains('/shared/')) {
-              final key = '${_relative(file.path)} → ${_importFragment(import)}';
-              if (!_isKnownException(key, _knownCrossFeatureExceptions)) {
-                violations.add('${_relative(file.path)} ($featureName) imports from $importedFeature: $import');
-              }
-            }
+          final importedFeature = _extractFeatureNameFromImport(import.path);
+          if (importedFeature != null && importedFeature != featureName && !import.path.contains('/shared/')) {
+            violations.add('${_relative(file.path)} ($featureName) imports from $importedFeature: ${import.path}');
           }
         }
       }
@@ -153,12 +108,11 @@ void main() {
       final featureFiles = dartFiles.where((f) => f.path.contains('/features/'));
 
       for (final file in featureFiles) {
-        final imports = _getImports(file);
-        for (final import in imports) {
-          if (import.contains('/app/')) {
-            final fragment = _importFragment(import);
+        for (final import in _getImports(file, packageName)) {
+          if (import.path.contains('/app/')) {
+            final fragment = _importFragment(import.path, packageName);
             if (!_knownFeatureAppExceptions.any((e) => fragment.contains(e))) {
-              violations.add('${_relative(file.path)}: imports $import');
+              violations.add('${_relative(file.path)}: imports ${import.path}');
             }
           }
         }
@@ -172,10 +126,9 @@ void main() {
       final infraFiles = dartFiles.where((f) => f.path.contains('/infrastructure/'));
 
       for (final file in infraFiles) {
-        final imports = _getImports(file);
-        for (final import in imports) {
-          if (import.contains('/features/') || import.contains('/app/')) {
-            violations.add('${_relative(file.path)}: imports $import');
+        for (final import in _getImports(file, packageName)) {
+          if (import.path.contains('/features/') || import.path.contains('/app/')) {
+            violations.add('${_relative(file.path)}: imports ${import.path}');
           }
         }
       }
@@ -185,6 +138,35 @@ void main() {
         isEmpty,
         reason: 'infrastructure/ must not import from features/ or app/:\n${violations.join('\n')}',
       );
+    });
+
+    test('infrastructure/ must not import shared/ except shared/content/domain and shared/record/domain', () {
+      final allowed = <String>[];
+      final violations = <String>[];
+      for (final file in dartFiles.where((f) => f.path.contains('/infrastructure/'))) {
+        for (final import in _getImports(file, packageName).where((i) => i.path.contains('/shared/'))) {
+          (_sharedKernelForInfrastructure.any(_importFragment(import.path, packageName).startsWith)
+                  ? allowed
+                  : violations)
+              .add('${_relative(file.path)}: imports ${import.path}');
+        }
+      }
+      expect(allowed, isNotEmpty, reason: 'the rule must see lib/infrastructure/content import the content domain');
+      expect(violations, isEmpty, reason: violations.join('\n'));
+    });
+
+    test('shared/content/domain and shared/record/domain import no Flutter and no I/O', () {
+      final forbidden = RegExp(r'''^import\s+'(package:flutter/|dart:ui|dart:io)''');
+      final domainFiles = dartFiles
+          .where((f) => _sharedKernelForInfrastructure.any((kernel) => _relative(f.path).startsWith('lib/$kernel')))
+          .toList();
+      final violations = [
+        for (final file in domainFiles)
+          for (final (index, line) in file.readAsLinesSync().indexed)
+            if (forbidden.hasMatch(line)) '${_relative(file.path)}:${index + 1}',
+      ];
+      expect(domainFiles, isNotEmpty, reason: 'no file under the two domain folders was read');
+      expect(violations, isEmpty, reason: 'the domain folders import no Flutter and no I/O:\n${violations.join('\n')}');
     });
 
     test('only shared/utils/external_link.dart imports url_launcher', () {
@@ -204,33 +186,94 @@ void main() {
             'because the manifest declares no <queries> intent for them:\n${violations.join('\n')}',
       );
     });
+
+    test('shared/ must not import from infrastructure/', () {
+      final violations = [
+        for (final file in dartFiles.where((f) => f.path.contains('/shared/')))
+          for (final import in _getImports(file, packageName))
+            if (import.path.contains('/infrastructure/')) '${_relative(file.path)}: imports ${import.path}',
+      ];
+      expect(violations, isEmpty, reason: 'shared/ must not import from infrastructure/:\n${violations.join('\n')}');
+    });
+
+    test('the guard reads the package name from pubspec.yaml and sees its package imports', () {
+      expect(packageName, isNot(contains(' ')));
+      final packageImports = [
+        for (final file in dartFiles)
+          for (final import in _getImports(file, packageName))
+            if (import.fromPackage) import,
+      ];
+      expect(
+        packageImports,
+        isNotEmpty,
+        reason: 'no import of package:$packageName/ was read, so every rule passes vacuously',
+      );
+    });
+
+    test('no import, export or part directive in lib/ uses double quotes', () {
+      final doubleQuoted = RegExp(r'''^\s*(?:import|export|part)\s+"''');
+      final violations = [
+        for (final file in dartFiles)
+          for (final (index, line) in file.readAsLinesSync().indexed)
+            if (doubleQuoted.hasMatch(line)) '${_relative(file.path)}:${index + 1}',
+      ];
+      expect(violations, isEmpty, reason: 'the guard reads single-quoted directives only:\n${violations.join('\n')}');
+    });
+
+    test('reads import and export lines of this package only, resolving relative ones', () {
+      final dir = Directory.systemTemp.createTempSync('import_guard');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/lib/shared/x.dart')
+        ..createSync(recursive: true)
+        ..writeAsStringSync(
+          "import 'package:$packageName/core/a.dart';\nimport 'package:other_name/b.dart';\nexport '../core/c.dart';\n",
+        );
+      expect(_getImports(file, packageName), [
+        (path: 'package:$packageName/core/a.dart', fromPackage: true),
+        (path: 'package:$packageName/core/c.dart', fromPackage: false),
+      ]);
+    });
+
+    test('every features/ to app/ exception still excuses an import', () {
+      final fragments = [
+        for (final file in dartFiles.where((f) => f.path.contains('/features/')))
+          for (final import in _getImports(file, packageName)) _importFragment(import.path, packageName),
+      ];
+      for (final exception in _knownFeatureAppExceptions) {
+        expect(fragments.any((f) => f.contains(exception)), isTrue, reason: '$exception excuses nothing; delete it');
+      }
+    });
   });
 }
 
-/// Extract package and relative imports from a Dart file (ignore dart: and external packages).
-List<String> _getImports(File file) {
-  final lines = file.readAsLinesSync();
-  final result = <String>[];
+/// The `name:` of `pubspec.yaml`, the package whose imports the rules read.
+String _readPackageName() {
+  final match = RegExp(r'^name:\s*(\S+)\s*$', multiLine: true).firstMatch(File('pubspec.yaml').readAsStringSync());
+  if (match == null) throw StateError('pubspec.yaml has no name');
+  return match.group(1)!;
+}
 
-  for (final line in lines) {
-    if (!line.startsWith('import ')) continue;
-    final match = RegExp(r"import '([^']+)'").firstMatch(line);
+/// The `import` and `export` lines of [file] that name [packageName], directly or by a relative path; relative paths
+/// are resolved to `package:<packageName>/...` and marked `fromPackage: false`. `dart:` and other packages are skipped.
+List<({String path, bool fromPackage})> _getImports(File file, String packageName) {
+  final directive = RegExp(r"^(?:import|export)\s+'([^']+)'");
+  final result = <({String path, bool fromPackage})>[];
+
+  for (final line in file.readAsLinesSync()) {
+    final match = directive.firstMatch(line);
     if (match == null) continue;
     final importPath = match.group(1)!;
 
-    if (importPath.contains('flutter_bloc_advance')) {
-      result.add(importPath);
+    if (importPath.startsWith('package:$packageName/')) {
+      result.add((path: importPath, fromPackage: true));
     } else if (importPath.startsWith('.')) {
-      // Resolve relative import to package-style path for consistent checking
       final filePath = file.path.replaceAll('\\', '/');
       final lastSlash = filePath.lastIndexOf('/');
       final fileDir = lastSlash != -1 ? filePath.substring(0, lastSlash) : '.';
       final resolved = _resolveRelativePath(fileDir, importPath);
-      // Convert to package:flutter_bloc_advance/... style
       final libIndex = resolved.indexOf('/lib/');
       if (libIndex != -1) {
-        final packagePath = 'package:flutter_bloc_advance/${resolved.substring(libIndex + 5)}';
-        result.add(packagePath);
+        result.add((path: 'package:$packageName/${resolved.substring(libIndex + 5)}', fromPackage: false));
       }
     }
   }
@@ -267,14 +310,7 @@ String? _extractFeatureNameFromImport(String import) {
 /// Make path relative for readable output.
 String _relative(String path) => path.replaceAll(RegExp(r'^.*/lib/'), 'lib/');
 
-/// Extract a short fragment from the import path (after package:flutter_bloc_advance/).
-String _importFragment(String import) {
-  return import.replaceAll('package:flutter_bloc_advance/', '').replaceAll('.dart', '');
-}
-
-/// Check if a violation key matches any known exception (substring match).
-bool _isKnownException(String key, Set<String> knownExceptions) {
-  return knownExceptions.any(
-    (exception) => key.contains(exception.split(' → ').first) && key.contains(exception.split(' → ').last),
-  );
+/// A short fragment of an import path: without `package:<packageName>/` and `.dart`.
+String _importFragment(String import, String packageName) {
+  return import.replaceAll('package:$packageName/', '').replaceAll('.dart', '');
 }

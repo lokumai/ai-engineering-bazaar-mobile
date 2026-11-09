@@ -3,10 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc_advance/core/errors/app_api_exception.dart';
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_analytics_service.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -480,14 +478,16 @@ void main() {
     });
 
     test('sends an error event without the email or the JWT, in the event or in its breadcrumbs', () async {
-      SentryAnalyticsService().logUserAction(action: 'open_user', target: 'jane.doe@example.com');
+      await Sentry.addBreadcrumb(
+        Breadcrumb(category: 'ui.action', message: 'open_user', data: {'target': 'jane.doe@example.com'}),
+      );
       await Sentry.addBreadcrumb(
         Breadcrumb.http(url: Uri.parse('https://api.example.test/admin/users/jane.doe@example.com'), method: 'GET'),
       );
       await Sentry.addBreadcrumb(Breadcrumb.console(message: 'Authorization: Bearer $jwt'));
 
-      // What ApiClient throws for a 404 whose body names the request path.
-      await Sentry.captureException(FetchDataException('Not found: {"path":"/api/admin/users/jane.doe@example.com"}'));
+      // An exception whose text names the request path.
+      await Sentry.captureException(const _RequestFailed());
 
       final sent = sentEvents.single;
       expect(sent, isNot(contains('jane.doe')));
@@ -561,4 +561,10 @@ class _CapturingTransport implements Transport {
     }
     return SentryId.newId();
   }
+}
+
+final class _RequestFailed implements Exception {
+  const _RequestFailed();
+  @override
+  String toString() => 'Error During Communication: Not found: {"path":"/api/admin/users/jane.doe@example.com"}';
 }

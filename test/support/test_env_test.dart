@@ -1,48 +1,32 @@
 @Tags(['widget'])
 library;
 
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
-import 'package:flutter_bloc_advance/core/feature_flags/feature_flag_service.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'test_env.dart';
-
 void main() {
-  // Regression: only the first testWidgets in a file got mock responses, because rootBundle kept the asset Future that
-  // test created in its FakeAsync zone (see the asset cache reset in test/flutter_test_config.dart). Two runs on
-  // purpose: only the one that runs second can fail. The response is checked after pumping instead of awaited, so a
-  // regression fails here at once instead of hanging until the test times out.
-  group('TestEnv.apiClient', () {
-    for (final run in const ['first', 'second']) {
-      testWidgets('serves the mock account in the $run testWidgets of a file', (tester) async {
-        TestEnv.authenticate();
-
-        Response<String>? response;
-        unawaited(TestEnv.apiClient().get('/account').then((value) => response = value));
-        // Dio runs each interceptor in a Timer.run, so the request only moves while fake time does.
-        await tester.pump(const Duration(seconds: 1));
-
-        expect(response, isNotNull, reason: 'the mock request never completed');
-        expect(response!.statusCode, 200);
-        expect(jsonDecode(response!.data!), containsPair('login', 'admin'));
-      });
-    }
-  });
-
-  // Two runs on purpose: the flag set by the first must be gone in the second.
+  // Two runs on purpose: the transitions left by the first must be gone in the second, cleared by the global
+  // TestEnv.reset.
   group('TestEnv.reset', () {
-    test('a test sets a feature flag', () {
-      FeatureFlagService.instance.updateFlags({'leaked_flag': true});
+    test('a test leaves a transition in both dev console stores', () {
+      DevConsoleStore.instance.addBlocTransition(
+        BlocTransitionEntry(
+          blocName: 'LeakedBloc',
+          event: 'E',
+          currentState: 'A',
+          nextState: 'B',
+          timestamp: DateTime.utc(2026),
+        ),
+      );
+      TimeTravelStore.instance.recordTransition(blocName: 'LeakedBloc', event: 'E', currentState: 0, nextState: 1);
 
-      expect(FeatureFlagService.instance.isEnabled('leaked_flag'), isTrue);
+      expect(DevConsoleStore.instance.blocEntries, hasLength(1));
     });
 
-    test('the next test starts without feature flags', () {
-      expect(FeatureFlagService.instance.allFlags, isEmpty);
-      expect(FeatureFlagService.instance.lastFetched, isNull);
+    test('the next test starts with both dev console stores empty', () {
+      expect(DevConsoleStore.instance.blocEntries, isEmpty);
+      expect(TimeTravelStore.instance.blocNames, isEmpty);
     });
   });
 }

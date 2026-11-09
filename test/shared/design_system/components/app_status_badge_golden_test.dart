@@ -1,7 +1,7 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/shared/design_system/components/app_status_badge.dart';
-import 'package:flutter_bloc_advance/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/components/app_status_badge.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/test_env.dart';
@@ -32,6 +32,9 @@ void main() {
   goldenTest(
     'AppStatusBadge — dark',
     fileName: 'app_status_badge_dark',
-    builder: () => Theme(data: AppTheme.dark(), child: grid()),
+    builder: () => Theme(
+      data: bazaarTheme(brightness: Brightness.dark, platform: TargetPlatform.android),
+      child: grid(),
+    ),
   );
 }

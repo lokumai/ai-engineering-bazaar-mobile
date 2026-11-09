@@ -11,8 +11,8 @@ enum AppPageTransitionType { fade, slideRight, slideUp }
 /// go_router 18 only detects material_ui's MaterialApp. Under the SDK MaterialApp it turns `builder:` routes into
 /// `NoTransitionPage`s, so every route must return an explicit page.
 ///
-/// Unlike go_router 17, path and query parameters are not copied into the page arguments: nothing reads them, and
-/// navigator observers such as Sentry's would otherwise record values like the email in `/login-otp-verify/:email`.
+/// Unlike go_router 17, path and query parameters are not copied into the page arguments: nothing reads them, and a
+/// navigator observer added later would otherwise record values such as the module key of a reader path (Decision A5).
 ///
 /// [name] replaces the route-derived name for a page that has no route of its own, such as the error page.
 MaterialPage<void> appPlatformPage({required Widget child, required GoRouterState state, String? name}) {
@@ -26,18 +26,23 @@ MaterialPage<void> appPlatformPage({required Widget child, required GoRouterStat
 
 /// Creates a CustomTransitionPage with consistent animations.
 ///
-/// Named like [appPlatformPage], because navigator observers such as analytics identify a screen by its page name.
+/// Named like [appPlatformPage], so every page carries the same kind of name.
+///
+/// [context] is the page builder's: when the platform asks for reduced motion, both durations are zero (Decision A40,
+/// spec 3.10). Skipping the animation inside `transitionsBuilder` alone would still keep the route's duration.
 CustomTransitionPage<T> appTransitionPage<T>({
+  required BuildContext context,
   required Widget child,
   required GoRouterState state,
   AppPageTransitionType type = AppPageTransitionType.fade,
 }) {
+  final still = MediaQuery.disableAnimationsOf(context);
   return CustomTransitionPage<T>(
     key: state.pageKey,
     name: state.name ?? state.path,
     child: child,
-    transitionDuration: AppDurations.slow,
-    reverseTransitionDuration: AppDurations.normal,
+    transitionDuration: still ? Duration.zero : AppDurations.slow,
+    reverseTransitionDuration: still ? Duration.zero : AppDurations.normal,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       // Respect reduced motion preferences
       if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {

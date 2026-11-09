@@ -2,8 +2,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/generated/l10n.dart';
-import 'package:flutter_bloc_advance/shared/utils/external_link.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,29 +55,5 @@ void main() {
         expect(calls.launchedUrls, [url]);
       });
     }
-  });
-
-  group('launchExternalUri', () {
-    for (final failure in UrlLauncherFailure.values) {
-      test(
-        'throws a StateError that names no part of the link, and never answers false, when ${failure.description}',
-        () async {
-          final calls = stubFailingUrlLauncher(failure);
-
-          await expectLater(
-            launchExternalUri(Uri.parse('$url?state=state-value')),
-            throwsA(isA<StateError>().having((error) => error.message, 'message', isNot(contains('example.com')))),
-          );
-          expect(calls.launchedUrls, ['$url?state=state-value']);
-        },
-      );
-    }
-
-    test('answers true when the link opens', () async {
-      final calls = stubOpeningUrlLauncher(canLaunch: false);
-
-      expect(await launchExternalUri(Uri.parse(url)), isTrue);
-      expect(calls.launchedUrls, [url]);
-    });
   });
 }

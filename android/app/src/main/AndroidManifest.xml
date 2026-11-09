@@ -3,15 +3,14 @@
          https://docs.flutter.dev/data-and-backend/networking. The debug and profile manifests declare
          it only for the Flutter tool, so release builds must not depend on a plugin merging it in. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Backup is disabled, as the flutter_secure_storage README recommends: the session tokens are
-         encrypted with an Android Keystore key that is never backed up, so a restored copy cannot be
-         decrypted. Device-to-device transfers can ignore allowBackup on Android 12 and higher, so the rules in
-         res/xml keep shared preferences out of them, and out of backups if backup is ever turned on. -->
+    <!-- Backup is on so the reader's progress follows them to a new device through Auto Backup and
+         device-to-device transfer. The rules in res/xml include only files/record/, where the app keeps
+         record.json, so the content cache and every other file stay on this device. -->
     <application
-        android:label="flutter_bloc_advance"
+        android:label="Bazaar"
         android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
         <activity
@@ -30,6 +29,12 @@
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
+              />
+            <!-- No OS deep link reaches the router: without this, Flutter hands the data URI of any
+                 intent that names this activity to go_router as its location. -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

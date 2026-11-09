@@ -1,290 +1,294 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
-import 'package:flutter_bloc_advance/core/testing/app_key_constants.dart';
-import 'package:flutter_bloc_advance/generated/l10n.dart';
-import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
-import 'package:flutter_bloc_advance/app/router/app_routes_constants.dart';
-import 'package:flutter_bloc_advance/app/shell/sidebar/sidebar_nav_item.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/auth_config.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/project_links.dart';
-import 'package:flutter_bloc_advance/infrastructure/storage/local_storage.dart';
-import 'package:flutter_bloc_advance/app/app.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mocktail/mocktail.dart';
 
-import '../../../../support/test_env.dart';
-import '../../../../support/url_launcher_stub.dart';
+import '../../../../mocks/mock_classes.dart';
+import '../../../../support/accessibility.dart';
+import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
 
-const _docs = 'https://docs.acme.example';
-
-/// Device preferences that refuse to store a language, like a device that is out of space.
-class _LanguageRefusingStorage implements AppLocalStorage {
-  const _LanguageRefusingStorage();
-
-  @override
-  Future<bool> save(String key, dynamic value) async =>
-      key == StorageKeys.language.key ? false : AppLocalStorage().save(key, value);
-  @override
-  Future<dynamic> read(String key) => AppLocalStorage().read(key);
-  @override
-  Future<bool> remove(String key) => AppLocalStorage().remove(key);
-  @override
-  Future<void> clear() => AppLocalStorage().clear();
-  @override
-  void setPreferencesInstance(SharedPreferences prefs) => AppLocalStorage().setPreferencesInstance(prefs);
+/// A [MockContentBloc] that stays at [ContentReady] over [index] (default [catalogFixtureIndex]) with [origin],
+/// [notice] and [refresh].
+MockContentBloc _contentBloc({
+  BundleIndex? index,
+  ContentOrigin origin = ContentOrigin.bundled,
+  ContentNotice? notice,
+  RefreshStatus refresh = const RefreshUpToDate(),
+}) {
+  final bloc = MockContentBloc();
+  whenListen(
+    bloc,
+    const Stream<ContentState>.empty(),
+    initialState: ContentReady(index: index ?? catalogFixtureIndex(), origin: origin, notice: notice, refresh: refresh),
+  );
+  return bloc;
 }
 
-class _LocalStorageDependencies extends AppDependencies {
-  const _LocalStorageDependencies(this.localStorage, {super.projectLinks});
+/// [catalogFixtureIndex] published at [instant] instead.
+BundleIndex _publishedAt(DateTime instant) {
+  final index = catalogFixtureIndex();
+  return BundleIndex(
+    contentVersion: index.contentVersion,
+    publishedAt: instant.toIso8601String(),
+    publishedAtInstant: instant,
+    tracks: index.tracks,
+    diagramFont: index.diagramFont,
+    diagramThemes: index.diagramThemes,
+    levels: index.levels,
+    modules: index.modules,
+    moved: index.moved,
+    files: index.files,
+    images: index.images,
+  );
+}
 
-  final AppLocalStorage localStorage;
+/// A router whose `/settings` builds [SettingsScreen] with [openDevConsole].
+GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
+  final router = GoRouter(
+    initialLocation: '/settings',
+    routes: [
+      GoRoute(
+        path: '/settings',
+        builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+  return router;
+}
 
-  @override
-  AppLocalStorage createLocalStorage() => localStorage;
+Future<void> _pump(
+  WidgetTester tester, {
+  ContentBloc? content,
+  void Function(BuildContext context)? openDevConsole,
+}) async {
+  await tester.pumpWidget(
+    bazaarTestApp(
+      router: _router(openDevConsole: openDevConsole),
+      content: content ?? _contentBloc(),
+    ),
+  );
+  await tester.pump();
 }
 
 void main() {
-  // The build gives the documentation website [docs] and signs in as [authMode] says.
-  Widget buildTestableWidget({
-    String docs = _docs,
-    Locale locale = const Locale('en'),
-    AuthMode authMode = const JwtAuthMode(),
-  }) {
-    final router = GoRouter(
-      initialLocation: ApplicationRoutesConstants.settings,
-      routes: [
-        GoRoute(
-          path: ApplicationRoutesConstants.settings,
-          builder: (context, state) => const Scaffold(body: SettingsScreen()),
-        ),
-        GoRoute(
-          path: ApplicationRoutesConstants.changePassword,
-          builder: (context, state) => const Scaffold(body: Placeholder()),
-        ),
-      ],
-    );
+  setUpAll(registerAllFallbackValues);
 
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<ProjectLinks>.value(value: ProjectLinks(docs: docs)),
-        RepositoryProvider<AuthMode>.value(value: authMode),
-      ],
-      child: MaterialApp.router(
-        routerConfig: router,
-        locale: locale,
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-      ),
-    );
+  testWidgets('shows the title and the content status', (tester) async {
+    await _pump(tester);
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Content'), findsOneWidget);
+    expect(find.text('ffffffffffff'), findsOneWidget); // the first 12 characters, not all 64
+    expect(find.text('f' * 64), findsNothing);
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('Bundled with the app'), findsOneWidget);
+    expect(find.text('Up to date'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+    expect(find.text('Licences'), findsOneWidget);
+  });
+
+  testWidgets('the published day is the UTC day of the instant', (tester) async {
+    // 2026-11-01T00:00:00.000Z is 2026-10-31 in every zone west of UTC; the UTC day is printed whatever the zone.
+    await _pump(tester);
+
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('2026-10-31'), findsNothing);
+  });
+
+  testWidgets('the published day of a late instant is its UTC day', (tester) async {
+    // 2026-11-01T23:30:00.000Z is 2026-11-02 in every zone an hour or more east of UTC, so this case catches a local
+    // day there, and the case above catches it west of UTC. A host on UTC (CI) cannot tell the two days apart.
+    await _pump(tester, content: _contentBloc(index: _publishedAt(DateTime.utc(2026, 11, 1, 23, 30))));
+
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('2026-11-02'), findsNothing);
+  });
+
+  testWidgets('a downloaded snapshot says so', (tester) async {
+    await _pump(tester, content: _contentBloc(origin: ContentOrigin.downloaded));
+
+    expect(find.text('Downloaded from the website'), findsOneWidget);
+    expect(find.text('Bundled with the app'), findsNothing);
+  });
+
+  const refreshLines = <(RefreshStatus, String)>[
+    (RefreshIdle(), 'Not checked since the app started'),
+    (RefreshChecking(), 'Checking for updates'),
+    (RefreshUpToDate(), 'Up to date'),
+    (RefreshUpdated(), 'Updated to the latest content'),
+    (RefreshNeedsAppUpdate(), 'Newer content needs a newer version of the app. Update the app to get it.'),
+    (RefreshFailed(ContentErrorCode.network), 'The check for updates did not finish: no connection to the website.'),
+    (
+      RefreshFailed(ContentErrorCode.httpStatus),
+      'The check for updates did not finish: the website answered with an error.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.format),
+      'The check for updates did not finish: the website sent content this version of the app cannot read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.checksum),
+      'The check for updates did not finish: a downloaded file did not match its checksum.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.storage),
+      'The check for updates did not finish: the app could not write to its storage.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.bundledIndexUnreadable),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.missing),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.corrupt),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+  ];
+  for (final (refresh, line) in refreshLines) {
+    testWidgets('the refresh status $refresh prints its line', (tester) async {
+      await _pump(tester, content: _contentBloc(refresh: refresh));
+
+      expect(find.text(line), findsOneWidget);
+    });
   }
 
-  // The real app, signed in, on settings. The shell shows the account name in the top bar once the mock API answers
-  // after its 500 ms delay, so let that land before the screen is compared. The build gives the documentation website
-  // [docs] and, when given, the device preferences [localStorage].
-  Future<void> pumpAppOnSettings(WidgetTester tester, {String docs = _docs, AppLocalStorage? localStorage}) async {
-    addTearDown(tester.view.reset);
-    tester.view.physicalSize = const Size(1600, 1600);
-    tester.view.devicePixelRatio = 1.0;
-    TestEnv.authenticate();
+  testWidgets('Check for updates asks the content bloc', (tester) async {
+    final content = _contentBloc();
+    await _pump(tester, content: content);
 
-    final projectLinks = ProjectLinks(docs: docs);
+    await tester.tap(find.text('Check for updates'));
+    await tester.pump();
+
+    verify(() => content.add(any(that: isA<ContentRefreshRequested>()))).called(1);
+  });
+
+  testWidgets('Check for updates is off while checking', (tester) async {
+    await _pump(tester, content: _contentBloc(refresh: const RefreshChecking()));
+
+    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    expect(button.onPressed, isNull);
+  });
+
+  testWidgets('Check for updates is on otherwise', (tester) async {
+    await _pump(tester, content: _contentBloc(refresh: const RefreshFailed(ContentErrorCode.network)));
+
+    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('the cacheDiscarded notice shows only when set', (tester) async {
+    const notice =
+        'The downloaded content could not be read, so the app removed it and shows the content that came with this '
+        'version. Check for updates in Settings to download it again.';
+    await _pump(tester);
+    expect(find.text(notice), findsNothing);
+
+    await _pump(tester, content: _contentBloc(notice: ContentNotice.cacheDiscarded));
+    expect(find.text(notice), findsOneWidget);
+  });
+
+  testWidgets('a download after a discarded cache clears the notice', (tester) async {
+    final repository = MockContentRepository();
+    when(() => repository.open()).thenAnswer(
+      (_) async => ContentOpening(
+        index: catalogFixtureIndex(),
+        origin: ContentOrigin.bundled,
+        notice: ContentNotice.cacheDiscarded,
+      ),
+    );
+    when(() => repository.refresh()).thenAnswer((_) async => ContentUpdated(index: catalogFixtureIndex()));
+    // The real bloc runs outside the fake clock; the screen then shows the state it ended in.
+    final updated = await tester.runAsync(() async {
+      final bloc = ContentBloc(repository: repository)..add(const ContentStarted());
+      final state = await bloc.stream.firstWhere((state) => state is ContentReady && state.refresh is RefreshUpdated);
+      await bloc.close();
+      return state;
+    });
+    final content = MockContentBloc();
+    whenListen(content, const Stream<ContentState>.empty(), initialState: updated!);
+    await _pump(tester, content: content);
+
+    expect(find.text('Downloaded from the website'), findsOneWidget);
+    expect(find.text('Updated to the latest content'), findsOneWidget);
+    expect(find.byType(ContentNoticeBanner), findsNothing);
+  });
+
+  testWidgets('the content states other than ready draw nothing', (tester) async {
+    final content = MockContentBloc();
+    whenListen(content, const Stream<ContentState>.empty(), initialState: const ContentLoading());
+    await _pump(tester, content: content);
+
+    expect(find.text('Content'), findsNothing);
+    expect(find.text('Check for updates'), findsNothing);
+  });
+
+  testWidgets('Licences opens the licence page under the app name', (tester) async {
+    await _pump(tester);
+
+    await tester.tap(find.text('Licences'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // the page spins while licences load
+
+    expect(find.byType(LicensePage), findsOneWidget);
+    expect(find.text('AI Engineering Bazaar'), findsWidgets);
+  });
+
+  testWidgets('the developer console button is there only with a callback', (tester) async {
+    await _pump(tester);
+    expect(find.text('Developer console'), findsNothing);
+
+    final contexts = <BuildContext>[];
+    await _pump(tester, openDevConsole: contexts.add);
+    await tester.tap(find.text('Developer console'));
+    await tester.pump();
+
+    expect(contexts, hasLength(1));
+  });
+
+  testWidgets('text scale 2.0', (tester) async {
+    await pumpAtTextScale(
+      tester,
+      bazaarTestApp(
+        router: _router(openDevConsole: (_) {}),
+        content: _contentBloc(notice: ContentNotice.cacheDiscarded),
+      ),
+      scale: 2.0,
+    );
+
+    expect(tester.takeException(), isNull);
+    for (final target in [find.text('Check for updates'), find.text('Licences'), find.text('Developer console')]) {
+      await tester.ensureVisible(target);
+      await tester.pump();
+      expectHittable(tester, target);
+    }
+  });
+
+  testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {
     await tester.pumpWidget(
-      App(
-        language: 'en',
-        dependencies: localStorage == null
-            ? AppDependencies(projectLinks: projectLinks)
-            : _LocalStorageDependencies(localStorage, projectLinks: projectLinks),
+      bazaarTestApp(
+        platform: defaultTargetPlatform,
+        router: _router(openDevConsole: (_) {}),
+        content: _contentBloc(notice: ContentNotice.cacheDiscarded),
       ),
     );
     await tester.pump();
-    (tester.widget<MaterialApp>(find.byType(MaterialApp)).routerConfig! as GoRouter).go(
-      ApplicationRoutesConstants.settings,
-    );
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pumpAndSettle();
-  }
 
-  group('SettingsScreen Tests', () {
-    testWidgets('renders all settings tiles', (WidgetTester tester) async {
-      TestEnv.authenticate();
-      await tester.pumpWidget(buildTestableWidget());
-      await tester.pumpAndSettle();
-
-      // Assert via Keys only — text-based asserts would couple the
-      // test to the active locale (every title comes from S.of(context)).
-      // Key presence is enough to guard the screen layout against
-      // accidental tile removal.
-      expect(find.byKey(settingsChangePasswordButtonKey), findsOneWidget);
-      expect(find.byKey(settingsChangeLanguageButtonKey), findsOneWidget);
-      expect(find.byKey(settingsWebsiteButtonKey), findsOneWidget);
-      // Logout intentionally lives only in the sidebar / topbar shell —
-      // settings does not own auth-session lifecycle (cross-feature).
-    });
-
-    // A made-up key: replacing the template's real placeholders across a project leaves this test as it is.
-    testWidgets('shows no Help & Resources section while the docs URL is a placeholder', (WidgetTester tester) async {
-      TestEnv.authenticate();
-      await tester.pumpWidget(buildTestableWidget(docs: '__DOCS__'));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(settingsChangePasswordButtonKey), findsOneWidget);
-      expect(find.byKey(settingsWebsiteButtonKey), findsNothing);
-      expect(find.text('Help & Resources'), findsNothing);
-    });
-
-    testWidgets('navigates to change password screen when button is pressed', (WidgetTester tester) async {
-      TestEnv.authenticate();
-      await tester.pumpWidget(buildTestableWidget());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(settingsChangePasswordButtonKey));
-      await tester.pumpAndSettle();
-
-      // Assert we navigated TO the change-password route (its content renders),
-      // not merely that the settings screen disappeared.
-      expect(find.byType(Placeholder), findsOneWidget);
-      expect(find.byType(SettingsScreen), findsNothing);
-    });
-  });
-
-  group('SettingsScreen in oidc mode', () {
-    for (final (build, authMode) in <(String, AuthMode)>[
-      ('an oidc build', OidcAuthMode(OidcSettings(issuer: Uri.parse('https://id.example.com'), clientId: 'app'))),
-      ('a misconfigured oidc build', const OidcMisconfiguredAuthMode('OIDC_ISSUER is required in oidc mode')),
-    ]) {
-      // The identity provider owns the password, so the app has no page to change it.
-      testWidgets('in $build, shows no change-password entry', (WidgetTester tester) async {
-        TestEnv.authenticate();
-        await tester.pumpWidget(buildTestableWidget(authMode: authMode));
-        await tester.pumpAndSettle();
-
-        expect(find.byKey(settingsChangePasswordButtonKey), findsNothing);
-        expect(find.text('Change Password'), findsNothing);
-        expect(find.byKey(settingsChangeLanguageButtonKey), findsOneWidget);
-        expect(find.byKey(settingsWebsiteButtonKey), findsOneWidget);
-      });
-    }
-  });
-
-  group('SettingsScreen - Turkish', () {
-    testWidgets('shows the subtitles and the appearance section in Turkish', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('tr')));
-      await tester.pumpAndSettle();
-
-      for (final text in [
-        'Hesap tercihlerinizi yönetin',
-        'Profil bilgilerinizi görüntüleyin veya düzenleyin',
-        'Şifrenizi güvenle güncelleyin',
-        'Görünüm',
-        'Tema',
-        'Tercih ettiğiniz tema stilini seçin',
-      ]) {
-        expect(find.text(text), findsOneWidget, reason: text);
-      }
-    });
-  });
-
-  group('SettingsScreen - website link that does not open', () {
-    for (final failure in UrlLauncherFailure.values) {
-      testWidgets('tapping Website shows a message when ${failure.description}', (WidgetTester tester) async {
-        final calls = stubFailingUrlLauncher(failure);
-        await pumpAppOnSettings(tester);
-
-        await expectTapShowsMessage(tester, find.byKey(settingsWebsiteButtonKey));
-        expect(calls.requestedUrls, contains(_docs));
-      });
-    }
-  });
-
-  group('SettingsScreen - language', () {
-    testWidgets('choosing Turkish shows the app in Turkish at once and again at the next start', (tester) async {
-      await pumpAppOnSettings(tester);
-      expect(find.text('Help & Resources'), findsOneWidget);
-
-      await tester.tap(find.byKey(settingsChangeLanguageButtonKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Türkçe'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Yardım ve Kaynaklar'), findsOneWidget);
-      expect(find.text('Çıkış Yap'), findsOneWidget, reason: 'the sidebar switches too');
-      expect(find.descendant(of: find.byKey(settingsChangeLanguageButtonKey), matching: find.text('Türkçe')), findsOne);
-      expect(find.text('Help & Resources'), findsNothing);
-
-      // The next cold start: a new App, which reads the stored language.
-      await tester.pumpWidget(const SizedBox());
-      await pumpAppOnSettings(tester);
-
-      expect(find.text('Yardım ve Kaynaklar'), findsOneWidget);
-      expect(find.text('Help & Resources'), findsNothing);
-    });
-
-    testWidgets('keeps the picked language after a logout and at the next start', (tester) async {
-      await pumpAppOnSettings(tester);
-      await tester.tap(find.byKey(settingsChangeLanguageButtonKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Türkçe'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.widgetWithIcon(SidebarNavItem, Icons.logout));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Evet'));
-      await tester.pumpAndSettle();
-      expect(find.byKey(loginButtonSubmitKey), findsOneWidget);
-      expect(find.text('Şifremi unuttum'), findsOneWidget);
-
-      // The next cold start: a new App, which reads the stored language.
-      await tester.pumpWidget(const SizedBox());
-      await tester.pumpWidget(const App(language: 'en'));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(loginButtonSubmitKey), findsOneWidget);
-      expect(find.text('Şifremi unuttum'), findsOneWidget);
-      expect(find.text('Forgot Password'), findsNothing);
-    });
-
-    testWidgets('keeps the language and says so when the device cannot store it', (tester) async {
-      await pumpAppOnSettings(tester, localStorage: const _LanguageRefusingStorage());
-
-      await tester.tap(find.byKey(settingsChangeLanguageButtonKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Türkçe'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Could not change the language'), findsOneWidget);
-      expect(find.text('Select Language'), findsNothing, reason: 'the dialog closes');
-      expect(find.text('Help & Resources'), findsOneWidget);
-      expect(find.text('Yardım ve Kaynaklar'), findsNothing);
-      expect(await AppLocalStorage().read(StorageKeys.language.key), isNull);
-
-      // Let the snack bar time out.
-      await tester.pump(const Duration(seconds: 10));
-      await tester.pumpAndSettle();
-    });
-  });
-
-  group('SettingsScreen - website link that opens', () {
-    for (final canLaunch in [true, false]) {
-      testWidgets('tapping Website opens it and shows no message when canLaunchUrl answers $canLaunch', (
-        WidgetTester tester,
-      ) async {
-        final calls = stubOpeningUrlLauncher(canLaunch: canLaunch);
-        await pumpAppOnSettings(tester);
-
-        await expectTapShowsNoMessage(tester, find.byKey(settingsWebsiteButtonKey));
-        expect(calls.launchedUrls, [_docs]);
-      });
-    }
+    await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 }

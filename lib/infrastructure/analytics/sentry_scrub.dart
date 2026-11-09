@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:flutter_bloc_advance/core/security/sensitive_data_scrubber.dart';
+import 'package:ai_engineering_bazaar/core/security/sensitive_data_scrubber.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// PII / token scrubber for Sentry events. Runs as the SDK's
@@ -85,10 +85,10 @@ SentryEvent sentryBeforeSend(SentryEvent event) {
 
 /// PII / token scrubber for Sentry breadcrumbs. Runs as the SDK's
 /// `beforeBreadcrumb` hook (see [installSentryScrubbers]) on every
-/// breadcrumb: those of `SentryAnalyticsService` and the navigation
-/// breadcrumbs. It also covers the http and ui breadcrumbs a fork adds
-/// through `sentry_dio` or `SentryUserInteractionWidget`, and a printed line
-/// if a fork turns print breadcrumbs back on. Masks emails, JWTs and the
+/// breadcrumb the Dart SDK records, such as those of its own integrations
+/// (the app lifecycle ones among them), and on a navigation, http or ui
+/// breadcrumb or a printed line, should a later change start recording
+/// one. Masks emails, JWTs and the
 /// other secrets [maskSecrets] finds in the message and in every string of
 /// the data, at any depth, and the value of every credential key of the
 /// data.
@@ -105,7 +105,8 @@ SentryEvent sentryBeforeSend(SentryEvent event) {
 /// see `configureNativeSdkStart`); on iOS and macOS they are not scrubbed
 /// yet.
 ///
-/// The key `state` is masked as an OIDC value, except in a navigation
+/// The key `state` is one of the [sensitiveExactKeys] (an OAuth or OpenID
+/// Connect `state` value) and is masked, except in a navigation
 /// breadcrumb whose `state` is one of [sentryNavigationTypes]: there
 /// `RouteObserverBreadcrumb` writes the navigator event under it.
 Breadcrumb? sentryBeforeBreadcrumb(Breadcrumb? breadcrumb) {
@@ -147,10 +148,9 @@ void installSentryScrubbers(SentryOptions options) {
   options.enablePrintBreadcrumbs = false;
 }
 
-/// Masks emails and JWTs in a URL or in one of its parts. Route and query
-/// parameters travel there: on web the SDK copies the page location into
-/// the request, so the email in `/login-otp-verify/:email` would reach
-/// Sentry, and a link such as `?token=` or `#access_token=` holds a JWT.
+/// Masks emails and JWTs in a URL or in one of its parts. A path, a query
+/// or a fragment can carry an email, and a link such as `?token=` or
+/// `#access_token=` holds a JWT.
 String? _scrubUrlPart(String? value) => value == null ? null : _maskText(value);
 
 /// Returns [headers] without the [sensitiveHeaderNames], with the whole value

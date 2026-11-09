@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "key": "alpha/second",
+  "track": "engineers",
+  "lang": "en",
+  "dir": "ltr",
+  "title": "Second Module",
+  "objectives": {
+    "lang": "en",
+    "items": [
+      "Read a second synthetic module."
+    ]
+  },
+  "prerequisites": [
+    {
+      "key": "alpha/first",
+      "number": 1,
+      "title": "First Module",
+      "drawn": true,
+      "track": "engineers",
+      "lang": "en"
+    }
+  ],
+  "previous": {
+    "key": "alpha/first",
+    "number": 1,
+    "title": "First Module",
+    "drawn": true,
+    "track": "engineers",
+    "lang": "en"
+  },
+  "next": {
+    "key": "beta/third",
+    "number": 3,
+    "title": "Third Module",
+    "drawn": false,
+    "track": "engineers",
+    "lang": "en"
+  },
+  "toc": [
+    {
+      "id": "notes",
+      "text": "Notes",
+      "depth": 2
+    }
+  ],
+  "body": [
+    {
+      "type": "heading",
+      "depth": 2,
+      "id": "notes",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Notes"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "The notes of the second module."
+        }
+      ]
+    }
+  ],
+  "draft": null,
+  "quiz": null
+}

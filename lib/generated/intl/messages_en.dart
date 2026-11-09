@@ -20,342 +20,291 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) => "${Intl.plural(count, one: '1 item cached', other: '${count} items cached')}";
+  static String m0(language) => "${language} code";
 
-  static String m1(count) => "${Intl.plural(count, one: '1 endpoint', other: '${count} endpoints')}";
+  static String m1(number) => "FIG. ${number}";
 
-  static String m2(count) => "Failures: ${count}";
+  static String m2(number) => "TBL. ${number}";
 
-  static String m3(enabled, total) => "${enabled}/${total} enabled";
+  static String m3(number) => "Table ${number}";
 
-  static String m4(count) => "${count} open";
+  static String m4(minutes) => "${minutes} min";
 
-  static String m5(field, count) =>
-      "${field} must be at most ${Intl.plural(count, one: '1 character', other: '${count} characters')}";
+  static String m5(total) => "No module matches both filters · 0 of ${total}";
 
-  static String m6(field, count) =>
-      "${field} must be at least ${Intl.plural(count, one: '1 character', other: '${count} characters')}";
+  static String m6(visible, total) => "Showing ${visible} of ${total}";
 
-  static String m7(field) => "${field} is required";
+  static String m7(ready, total) => "${ready} of ${total} written";
 
-  static String m8(url) => "Could not open ${url}";
+  static String m8(day) => "Backed up ${day}";
 
-  static String m9(currentVersion, minimumVersion) => "Current: ${currentVersion}  •  Required: ${minimumVersion}";
+  static String m9(seconds) =>
+      "${Intl.plural(seconds, one: 'Reset. You can undo it for 1 second.', other: 'Reset. You can undo it for ${seconds} seconds.')}";
 
-  static String m10(time) => "Estimated end: ${time}";
+  static String m10(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
 
-  static String m11(email) => "OTP sent to ${email}";
+  static String m11(hours) => "~${hours} h";
 
-  static String m12(max) => "Password cannot be more than ${max} characters long";
+  static String m12(hours, minutes) => "~${hours} h ${minutes} min";
 
-  static String m13(min) => "Password must be at least ${min} characters long";
+  static String m13(minutes) => "~${minutes} min";
 
-  static String m14(count) => "${Intl.plural(count, one: '1 row listed.', other: '${count} rows listed.')}";
+  static String m14(url) => "Could not open ${url}";
 
-  static String m15(translate) =>
-      "${Intl.select(translate, {'account': 'Account', 'userManagement': 'User Management', 'settings': 'Settings', 'logout': 'Logout', 'info': 'Info', 'language': 'Language', 'theme': 'Theme', 'new_user': 'New', 'list_user': 'List', 'other': 'Other'})}";
+  static String m15(approved, total) => "${approved}/${total} completed";
 
-  static String m16(error) => "Save failed: ${error}";
+  static String m16(total) => "--/${total} completed";
+
+  static String m17(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+
+  static String m18(title) => "Complete ${title}";
+
+  static String m19(track) => "Every module, ${track}";
+
+  static String m20(approved, total) => "${approved}/${total}";
+
+  static String m21(number, title) => "${number} ${title}";
+
+  static String m22(signed, total) => "${signed} of ${total}";
+
+  static String m23(index, count) => "Question ${index} of ${count}";
+
+  static String m24(score, total) => "${score} of ${total}";
+
+  static String m25(count) => "${count} questions on the main points of this module";
+
+  static String m26(letter) => "Not this one. The answer is ${letter}.";
+
+  static String m27(date) => "Completed ${date}";
+
+  static String m28(minutes) => "${minutes} min";
+
+  static String m29(number, count) => "MODULE ${number} OF ${count}";
+
+  static String m30(label) => "${label} · Planned";
+
+  static String m31(hash, date) => "Rev ${hash} · ${date}";
+
+  static String m32(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+
+  static String m33(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "account": MessageLookupByLibrary.simpleMessage("Account"),
-    "active": MessageLookupByLibrary.simpleMessage("Active"),
-    "admin": MessageLookupByLibrary.simpleMessage("Admin"),
-    "app_title": MessageLookupByLibrary.simpleMessage("Flutter BLoC Advance Template"),
-    "apply": MessageLookupByLibrary.simpleMessage("Apply"),
-    "authorities": MessageLookupByLibrary.simpleMessage("Authorities"),
-    "authorities_load_failed": MessageLookupByLibrary.simpleMessage("Roles unavailable"),
-    "back": MessageLookupByLibrary.simpleMessage("Back"),
-    "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
-    "change_password": MessageLookupByLibrary.simpleMessage("Change Password"),
-    "change_password_description": MessageLookupByLibrary.simpleMessage(
-      "Ensure your account is using a long, random password to stay secure.",
+    "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "block_code_label": m0,
+    "block_figure_caption": m1,
+    "block_program_output": MessageLookupByLibrary.simpleMessage("Program output"),
+    "block_table_caption": m2,
+    "block_table_region": m3,
+    "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
+    "card_description": MessageLookupByLibrary.simpleMessage("Description"),
+    "card_length": MessageLookupByLibrary.simpleMessage("Length"),
+    "card_length_minutes": m4,
+    "card_requires": MessageLookupByLibrary.simpleMessage("Requires"),
+    "card_requires_nothing": MessageLookupByLibrary.simpleMessage("Nothing"),
+    "catalog_filter_all": MessageLookupByLibrary.simpleMessage("All"),
+    "catalog_filter_completed": MessageLookupByLibrary.simpleMessage("Completed"),
+    "catalog_filter_not_completed": MessageLookupByLibrary.simpleMessage("Not completed"),
+    "catalog_filter_planned": MessageLookupByLibrary.simpleMessage("Planned"),
+    "catalog_filter_ready": MessageLookupByLibrary.simpleMessage("Ready"),
+    "catalog_level_label": MessageLookupByLibrary.simpleMessage("Level:"),
+    "catalog_no_match": m5,
+    "catalog_no_match_cue": MessageLookupByLibrary.simpleMessage(
+      "The two filters select different modules. Widen either one, or clear both to see the whole catalog again.",
     ),
-    "command_palette_account_description": MessageLookupByLibrary.simpleMessage("Your profile"),
-    "command_palette_change_password_description": MessageLookupByLibrary.simpleMessage("Update password"),
-    "command_palette_hint": MessageLookupByLibrary.simpleMessage("Type a command or search..."),
-    "command_palette_home_description": MessageLookupByLibrary.simpleMessage("Go to home"),
-    "command_palette_new_user_description": MessageLookupByLibrary.simpleMessage("Create a new user"),
-    "command_palette_no_results": MessageLookupByLibrary.simpleMessage("No results found"),
-    "command_palette_settings_description": MessageLookupByLibrary.simpleMessage("App preferences"),
-    "command_palette_users_description": MessageLookupByLibrary.simpleMessage("Manage users"),
-    "community_contribute": MessageLookupByLibrary.simpleMessage("Contribute"),
-    "community_discussions": MessageLookupByLibrary.simpleMessage("Discussions"),
-    "community_docs": MessageLookupByLibrary.simpleMessage("Documentation"),
-    "community_issue": MessageLookupByLibrary.simpleMessage("Open an Issue"),
-    "community_open_source": MessageLookupByLibrary.simpleMessage("Open Source"),
-    "community_sponsor": MessageLookupByLibrary.simpleMessage("Sponsor"),
-    "community_star": MessageLookupByLibrary.simpleMessage("Star & Fork"),
-    "community_subtitle": MessageLookupByLibrary.simpleMessage(
-      "This project is open source. Your contributions make it better!",
+    "catalog_show_all": MessageLookupByLibrary.simpleMessage("Show the whole catalog"),
+    "catalog_showing": m6,
+    "catalog_status_label": MessageLookupByLibrary.simpleMessage("Status:"),
+    "catalog_title": MessageLookupByLibrary.simpleMessage("Catalog"),
+    "catalog_written": m7,
+    "content_broken_message": MessageLookupByLibrary.simpleMessage(
+      "The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.",
     ),
-    "community_title": MessageLookupByLibrary.simpleMessage("Join the Community"),
-    "community_translate": MessageLookupByLibrary.simpleMessage("Translate"),
-    "connectivity_offline": MessageLookupByLibrary.simpleMessage("No internet connection"),
-    "create_user": MessageLookupByLibrary.simpleMessage("Create User"),
-    "current_password": MessageLookupByLibrary.simpleMessage("Current Password"),
-    "dashboard": MessageLookupByLibrary.simpleMessage("Dashboard"),
-    "dashboard_app_configuration": MessageLookupByLibrary.simpleMessage("App Configuration"),
-    "dashboard_cache": MessageLookupByLibrary.simpleMessage("Cache"),
-    "dashboard_cached_item_count": m0,
-    "dashboard_circuit_breaker": MessageLookupByLibrary.simpleMessage("Circuit Breaker"),
-    "dashboard_circuit_breaker_health": MessageLookupByLibrary.simpleMessage("Circuit Breaker Health"),
-    "dashboard_circuit_state_closed": MessageLookupByLibrary.simpleMessage("Closed"),
-    "dashboard_circuit_state_half_open": MessageLookupByLibrary.simpleMessage("Half-open"),
-    "dashboard_circuit_state_open": MessageLookupByLibrary.simpleMessage("Open"),
-    "dashboard_clear_cache": MessageLookupByLibrary.simpleMessage("Clear Cache"),
-    "dashboard_connectivity": MessageLookupByLibrary.simpleMessage("Connectivity"),
-    "dashboard_current_version": MessageLookupByLibrary.simpleMessage("Current Version"),
-    "dashboard_endpoint_count": m1,
-    "dashboard_environment": MessageLookupByLibrary.simpleMessage("Environment"),
-    "dashboard_error_title": MessageLookupByLibrary.simpleMessage("Dashboard Error"),
-    "dashboard_failure_count": m2,
-    "dashboard_feature_flags": MessageLookupByLibrary.simpleMessage("Feature Flags"),
-    "dashboard_feature_flags_enabled": m3,
-    "dashboard_interceptor_auth": MessageLookupByLibrary.simpleMessage("Attaches JWT token to requests"),
-    "dashboard_interceptor_cache": MessageLookupByLibrary.simpleMessage("GET response caching with TTL"),
-    "dashboard_interceptor_chain": MessageLookupByLibrary.simpleMessage("Interceptor Chain"),
-    "dashboard_interceptor_connectivity": MessageLookupByLibrary.simpleMessage("Rejects requests when offline"),
-    "dashboard_interceptor_dev_console": MessageLookupByLibrary.simpleMessage("Records requests in dev console"),
-    "dashboard_interceptor_idempotency": MessageLookupByLibrary.simpleMessage(
-      "Opt-in Idempotency-Key for POST/PUT/PATCH",
+    "content_broken_storage_message": MessageLookupByLibrary.simpleMessage(
+      "The app could not use its storage for the course content. Your progress on this device is kept.",
     ),
-    "dashboard_interceptor_logging": MessageLookupByLibrary.simpleMessage("Structured request/response logging"),
-    "dashboard_interceptor_mock": MessageLookupByLibrary.simpleMessage("Serves mock data in dev/test"),
-    "dashboard_interceptor_resilience": MessageLookupByLibrary.simpleMessage("Retry + circuit breaker"),
-    "dashboard_interceptor_token_refresh": MessageLookupByLibrary.simpleMessage("Refreshes expired access tokens"),
-    "dashboard_maintenance_mode": MessageLookupByLibrary.simpleMessage("Maintenance Mode"),
-    "dashboard_minimum_version": MessageLookupByLibrary.simpleMessage("Minimum Version"),
-    "dashboard_no_endpoints": MessageLookupByLibrary.simpleMessage("No endpoints tracked yet"),
-    "dashboard_no_feature_flags": MessageLookupByLibrary.simpleMessage("No feature flags configured"),
-    "dashboard_off": MessageLookupByLibrary.simpleMessage("OFF"),
-    "dashboard_offline": MessageLookupByLibrary.simpleMessage("Offline"),
-    "dashboard_on": MessageLookupByLibrary.simpleMessage("ON"),
-    "dashboard_online": MessageLookupByLibrary.simpleMessage("Online"),
-    "dashboard_open_count": m4,
-    "dashboard_open_dynamic_forms": MessageLookupByLibrary.simpleMessage("Open Dynamic Forms"),
-    "dashboard_reset_circuit_breakers": MessageLookupByLibrary.simpleMessage("Reset Circuit Breakers"),
-    "dashboard_title": MessageLookupByLibrary.simpleMessage("System Dashboard"),
-    "delete_confirmation": MessageLookupByLibrary.simpleMessage("Are you sure you want to delete?"),
-    "delete_user": MessageLookupByLibrary.simpleMessage("Delete User"),
-    "dynamic_form_field_max_length": m5,
-    "dynamic_form_field_min_length": m6,
-    "dynamic_form_field_numeric": MessageLookupByLibrary.simpleMessage("Must be a number"),
-    "dynamic_form_field_required": m7,
-    "dynamic_form_submitted": MessageLookupByLibrary.simpleMessage("Form submitted successfully"),
-    "dynamic_forms": MessageLookupByLibrary.simpleMessage("Dynamic Forms"),
-    "edit": MessageLookupByLibrary.simpleMessage("Edit"),
-    "edit_user": MessageLookupByLibrary.simpleMessage("Edit User"),
-    "email": MessageLookupByLibrary.simpleMessage("Email"),
-    "email_pattern": MessageLookupByLibrary.simpleMessage("Email must be a valid email address"),
-    "email_send": MessageLookupByLibrary.simpleMessage("Send Email"),
-    "english": MessageLookupByLibrary.simpleMessage("English"),
-    "error_account_password_required": MessageLookupByLibrary.simpleMessage(
-      "Both current and new password are required",
+    "content_broken_title": MessageLookupByLibrary.simpleMessage("The course cannot be opened"),
+    "content_notice_cache_discarded": MessageLookupByLibrary.simpleMessage(
+      "The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.",
     ),
-    "error_account_passwords_same": MessageLookupByLibrary.simpleMessage(
-      "New password must be different from current password",
+    "content_unreadable": MessageLookupByLibrary.simpleMessage(
+      "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
-    "error_auth_invalid_access_token": MessageLookupByLibrary.simpleMessage("Invalid access token"),
-    "error_auth_login_failed": MessageLookupByLibrary.simpleMessage("Login failed"),
-    "error_auth_oidc_config": MessageLookupByLibrary.simpleMessage(
-      "Single sign-on is not configured correctly in this app. Contact your administrator.",
+    "data_back_up": MessageLookupByLibrary.simpleMessage("Back up to a file"),
+    "data_backed_up": m8,
+    "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
+      "The backup file could not be written. Nothing was marked as backed up.",
     ),
-    "error_auth_oidc_discovery": MessageLookupByLibrary.simpleMessage(
-      "The identity provider could not be reached. Try again later, or contact your administrator if this continues.",
+    "data_line_text": MessageLookupByLibrary.simpleMessage(
+      "Your progress is saved on this device only. A backup file keeps it safe if the app\'s data is cleared, and moves it to another device or to the website.",
     ),
-    "error_auth_oidc_failed": MessageLookupByLibrary.simpleMessage("Sign-in failed. Please try again."),
-    "error_auth_oidc_logout_incomplete": MessageLookupByLibrary.simpleMessage(
-      "You are signed out of this app, but your session at the identity provider may still be active.",
+    "data_reset": MessageLookupByLibrary.simpleMessage("Reset"),
+    "data_reset_closed": MessageLookupByLibrary.simpleMessage("Reset. The time to undo it has passed."),
+    "data_reset_counting": m9,
+    "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
+      "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
     ),
-    "error_auth_oidc_no_role": MessageLookupByLibrary.simpleMessage(
-      "Your account has no role that allows access to this app. Ask your administrator.",
+    "data_restore": MessageLookupByLibrary.simpleMessage("Restore from a file"),
+    "data_restore_empty": MessageLookupByLibrary.simpleMessage(
+      "Nothing was changed. That file holds no progress; only a backup file does.",
     ),
-    "error_auth_otp_validation": MessageLookupByLibrary.simpleMessage("OTP validation failed"),
-    "error_auth_send_otp_failed": MessageLookupByLibrary.simpleMessage("Could not send the OTP code"),
-    "error_auth_session_persist_failed": MessageLookupByLibrary.simpleMessage("Could not save the session"),
-    "error_generic": MessageLookupByLibrary.simpleMessage("Something went wrong"),
-    "error_link_open_failed": m8,
-    "error_network_cert_invalid": MessageLookupByLibrary.simpleMessage(
-      "The connection could not be verified as secure, so it was blocked. Try again later or on another network.",
+    "data_restore_malformed": MessageLookupByLibrary.simpleMessage(
+      "That file is not a backup the app or the website wrote. Nothing was changed.",
     ),
-    "error_settings_change_language_failed": MessageLookupByLibrary.simpleMessage("Could not change the language"),
-    "error_title": MessageLookupByLibrary.simpleMessage("Error"),
-    "error_user_cannot_delete_admin": MessageLookupByLibrary.simpleMessage("Admin user cannot be deleted"),
-    "error_user_no_authorities": MessageLookupByLibrary.simpleMessage("No authorities found"),
-    "failed": MessageLookupByLibrary.simpleMessage("Failed"),
-    "first_name": MessageLookupByLibrary.simpleMessage("First Name"),
-    "forbidden_back_home": MessageLookupByLibrary.simpleMessage("Back to home"),
-    "forbidden_message": MessageLookupByLibrary.simpleMessage("You do not have permission to view this page."),
-    "forbidden_title": MessageLookupByLibrary.simpleMessage("Access denied"),
-    "force_update_button": MessageLookupByLibrary.simpleMessage("Update Now"),
-    "force_update_message": MessageLookupByLibrary.simpleMessage(
-      "A new version is available. Please update to continue using the app.",
+    "data_restore_newer": MessageLookupByLibrary.simpleMessage(
+      "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
     ),
-    "force_update_no_store_link": MessageLookupByLibrary.simpleMessage(
-      "Open your app store to install the latest version.",
+    "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
+    "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
+    "data_tally_states": m10,
+    "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
+    "duration_hours": m11,
+    "duration_hours_minutes": m12,
+    "duration_minutes": m13,
+    "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
+      "A device backup may still hold an earlier copy of your progress.",
     ),
-    "force_update_store_link_invalid": MessageLookupByLibrary.simpleMessage(
-      "The update link is not valid. Open your app store to install the latest version.",
+    "erase_confirm": MessageLookupByLibrary.simpleMessage("Erase all data"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("Type ERASE to confirm"),
+    "erase_keep": MessageLookupByLibrary.simpleMessage("Keep my data"),
+    "erase_mark": MessageLookupByLibrary.simpleMessage("Erase"),
+    "erase_scope": MessageLookupByLibrary.simpleMessage(
+      "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
     ),
-    "force_update_title": MessageLookupByLibrary.simpleMessage("Update Required"),
-    "force_update_versions": m9,
-    "forgot_password_description": MessageLookupByLibrary.simpleMessage(
-      "Enter your email address and we\'ll send you a link to reset your password.",
+    "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
+    "error_link_open_failed": m14,
+    "level_completed": m15,
+    "level_completed_pending": m16,
+    "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
+    "level_module_count": m17,
+    "loading": MessageLookupByLibrary.simpleMessage("Loading"),
+    "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
+    "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
+    "nav_progress": MessageLookupByLibrary.simpleMessage("Progress"),
+    "nav_settings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "not_found_message": MessageLookupByLibrary.simpleMessage(
+      "This address is not a module in the curriculum. The catalog lists every one that is.",
     ),
-    "guest": MessageLookupByLibrary.simpleMessage("Guest"),
-    "help_resources": MessageLookupByLibrary.simpleMessage("Help & Resources"),
-    "help_resources_subtitle": MessageLookupByLibrary.simpleMessage("Visit our website for documentation and guides"),
-    "home": MessageLookupByLibrary.simpleMessage("Home"),
-    "idle_timeout_signed_out": MessageLookupByLibrary.simpleMessage("You were signed out due to inactivity."),
-    "inactive": MessageLookupByLibrary.simpleMessage("Inactive"),
-    "invalid_email": MessageLookupByLibrary.simpleMessage("Invalid email address"),
-    "language": MessageLookupByLibrary.simpleMessage("Language"),
-    "language_select": MessageLookupByLibrary.simpleMessage("Select Language"),
-    "last_name": MessageLookupByLibrary.simpleMessage("Last Name"),
-    "list": MessageLookupByLibrary.simpleMessage("List"),
-    "list_user": MessageLookupByLibrary.simpleMessage("List User"),
-    "loading": MessageLookupByLibrary.simpleMessage("Loading..."),
-    "login": MessageLookupByLibrary.simpleMessage("Login"),
-    "login_brand_description": MessageLookupByLibrary.simpleMessage(
-      "Authentication, role-based access, user management,\ntheming, and multi-environment support in one robust starter.",
+    "not_found_title": MessageLookupByLibrary.simpleMessage("No such module"),
+    "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
+    "progress_complete_module": m18,
+    "progress_every_module": m19,
+    "progress_level_dial": m20,
+    "progress_module_link": m21,
+    "progress_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
+    "progress_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
+    "progress_tab_count": m22,
+    "progress_tabs_label": MessageLookupByLibrary.simpleMessage("Progress by track"),
+    "progress_title": MessageLookupByLibrary.simpleMessage("Your progress"),
+    "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
+      "The copy could not be written. The set-aside record is unchanged.",
     ),
-    "login_brand_headline": MessageLookupByLibrary.simpleMessage("Scale from prototype\nto production."),
-    "login_brand_stat_bloc_ready": MessageLookupByLibrary.simpleMessage("BLoC Ready"),
-    "login_brand_stat_layers": MessageLookupByLibrary.simpleMessage("Core Layers"),
-    "login_brand_stat_platforms": MessageLookupByLibrary.simpleMessage("Platforms"),
-    "login_button": MessageLookupByLibrary.simpleMessage("Login"),
-    "login_feature_architecture_description": MessageLookupByLibrary.simpleMessage(
-      "BLoC + Repository pattern with clear separation of concerns.",
+    "quarantine_copy_saved": MessageLookupByLibrary.simpleMessage("Saved a copy of the set-aside record."),
+    "quarantine_delete": MessageLookupByLibrary.simpleMessage("Delete it"),
+    "quarantine_delete_body": MessageLookupByLibrary.simpleMessage(
+      "This version of the app cannot read it. Deleting it cannot be undone.",
     ),
-    "login_feature_architecture_title": MessageLookupByLibrary.simpleMessage("Clean Architecture"),
-    "login_feature_auth_description": MessageLookupByLibrary.simpleMessage(
-      "Password and OTP login flows with role-based routing guards.",
+    "quarantine_delete_confirm": MessageLookupByLibrary.simpleMessage("Delete"),
+    "quarantine_delete_title": MessageLookupByLibrary.simpleMessage("Delete the set-aside record?"),
+    "quarantine_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
+    "quarantine_kept_note": MessageLookupByLibrary.simpleMessage(
+      "An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.",
     ),
-    "login_feature_auth_title": MessageLookupByLibrary.simpleMessage("Authentication & Access Control"),
-    "login_feature_mock_api_description": MessageLookupByLibrary.simpleMessage(
-      "Develop locally with mock data and switch to production endpoints.",
+    "quarantine_kept_readout": MessageLookupByLibrary.simpleMessage("A STORED RECORD IS SET ASIDE"),
+    "quarantine_label": MessageLookupByLibrary.simpleMessage("Record status"),
+    "quarantine_malformed_note": MessageLookupByLibrary.simpleMessage(
+      "The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.",
     ),
-    "login_feature_mock_api_title": MessageLookupByLibrary.simpleMessage("Mock to Real API"),
-    "login_no_account": MessageLookupByLibrary.simpleMessage("Don\'t have an account? "),
-    "login_or": MessageLookupByLibrary.simpleMessage("or"),
-    "login_otp_email_instructions": MessageLookupByLibrary.simpleMessage("Enter your email to receive OTP code"),
-    "login_password": MessageLookupByLibrary.simpleMessage("Password"),
-    "login_sso_browser_done": MessageLookupByLibrary.simpleMessage(
-      "Sign-in is complete. You can close this tab and return to the app.",
+    "quarantine_malformed_readout": MessageLookupByLibrary.simpleMessage(
+      "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
     ),
-    "login_sso_button": MessageLookupByLibrary.simpleMessage("Sign in with SSO"),
-    "login_sso_subtitle": MessageLookupByLibrary.simpleMessage("Sign in with your organization account."),
-    "login_switch_to_dark_mode": MessageLookupByLibrary.simpleMessage("Switch to dark mode"),
-    "login_switch_to_light_mode": MessageLookupByLibrary.simpleMessage("Switch to light mode"),
-    "login_user_name": MessageLookupByLibrary.simpleMessage("Username"),
-    "login_welcome_subtitle": MessageLookupByLibrary.simpleMessage("Enter your credentials to access your account"),
-    "login_welcome_title": MessageLookupByLibrary.simpleMessage("Welcome back"),
-    "login_with_email": MessageLookupByLibrary.simpleMessage("Login with Email"),
-    "logout": MessageLookupByLibrary.simpleMessage("Logout"),
-    "logout_stored_data_left": MessageLookupByLibrary.simpleMessage(
-      "You were signed out, but some stored data could not be removed from this device.",
+    "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
+      "Update the app to read it. The stored record is kept on this device unchanged.",
     ),
-    "logout_sure": MessageLookupByLibrary.simpleMessage("Are you sure you want to logout?"),
-    "maintenance_estimated_end": m10,
-    "maintenance_message": MessageLookupByLibrary.simpleMessage(
-      "We are performing scheduled maintenance. Please check back soon.",
+    "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
+      "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
     ),
-    "maintenance_retry": MessageLookupByLibrary.simpleMessage("Try Again"),
-    "maintenance_title": MessageLookupByLibrary.simpleMessage("Under Maintenance"),
-    "max_length_100": MessageLookupByLibrary.simpleMessage("Field cannot be more than 100 characters long"),
-    "max_length_20": MessageLookupByLibrary.simpleMessage("Field cannot be more than 20 characters long"),
-    "min_length_2": MessageLookupByLibrary.simpleMessage("Field must be at least 2 characters long"),
-    "min_length_4": MessageLookupByLibrary.simpleMessage("Field must be at least 4 characters long"),
-    "name": MessageLookupByLibrary.simpleMessage("Name"),
-    "new_item": MessageLookupByLibrary.simpleMessage("New"),
-    "new_password": MessageLookupByLibrary.simpleMessage("New Password"),
-    "new_user": MessageLookupByLibrary.simpleMessage("New User"),
-    "next": MessageLookupByLibrary.simpleMessage("Next"),
-    "no": MessageLookupByLibrary.simpleMessage("No"),
-    "no_changes_made": MessageLookupByLibrary.simpleMessage("No changes made"),
-    "no_data": MessageLookupByLibrary.simpleMessage("No Data"),
-    "not_found_message": MessageLookupByLibrary.simpleMessage("The page you requested could not be found."),
-    "not_found_title": MessageLookupByLibrary.simpleMessage("Page Not Found"),
-    "only_numbers": MessageLookupByLibrary.simpleMessage("Only numbers are allowed"),
-    "otp_code": MessageLookupByLibrary.simpleMessage("OTP Code"),
-    "otp_length": MessageLookupByLibrary.simpleMessage("OTP must be 6 characters long"),
-    "otp_sent_to_email": m11,
-    "password_forgot": MessageLookupByLibrary.simpleMessage("Forgot Password"),
-    "password_hide": MessageLookupByLibrary.simpleMessage("Hide password"),
-    "password_max_length": m12,
-    "password_min_length": m13,
-    "password_show": MessageLookupByLibrary.simpleMessage("Show password"),
-    "previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quick_actions": MessageLookupByLibrary.simpleMessage("Quick Actions"),
-    "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
-    "register": MessageLookupByLibrary.simpleMessage("Register"),
-    "register_subtitle": MessageLookupByLibrary.simpleMessage("Create your account"),
-    "required_field": MessageLookupByLibrary.simpleMessage("Required Field"),
-    "required_range": MessageLookupByLibrary.simpleMessage("Range is required"),
-    "resend_otp_code": MessageLookupByLibrary.simpleMessage("Resend OTP Code"),
-    "retry": MessageLookupByLibrary.simpleMessage("Retry"),
-    "role": MessageLookupByLibrary.simpleMessage("Role"),
-    "save": MessageLookupByLibrary.simpleMessage("Save"),
-    "send_otp_code": MessageLookupByLibrary.simpleMessage("Send OTP Code"),
+    "quarantine_save_copy": MessageLookupByLibrary.simpleMessage("Save a copy"),
+    "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
+    "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
+    "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
+    "quiz_progress": m23,
+    "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
+    "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
+    "quiz_score_count": m24,
+    "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
+    "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
+    "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
+    "quiz_subtitle": m25,
+    "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
+    "quiz_wrong": m26,
+    "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
+    "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
+    "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
+    "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
+    "reader_completed_on": m27,
+    "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
+    "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
+    "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
+    "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
+    "reader_minutes": m28,
+    "reader_module_of": m29,
+    "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
+    "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
+    "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
+    "reader_pager_planned": m30,
+    "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
+    "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
+    "reader_revision": m31,
+    "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
+    "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
+    "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
+    "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
+    "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
+    "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
+    "record_not_saved": m32,
+    "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
+    "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
+    "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
+    "restore_confirm_effect": MessageLookupByLibrary.simpleMessage(
+      "Restoring replaces it with the progress in the file.",
+    ),
+    "restore_confirm_holds": MessageLookupByLibrary.simpleMessage("On this device now:"),
+    "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("Replace"),
+    "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Replace the progress on this device?"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
-    "settings_account_subtitle": MessageLookupByLibrary.simpleMessage("View or edit your profile information"),
-    "settings_appearance": MessageLookupByLibrary.simpleMessage("Appearance"),
-    "settings_change_password_subtitle": MessageLookupByLibrary.simpleMessage("Update your password securely"),
-    "settings_subtitle": MessageLookupByLibrary.simpleMessage("Manage your account preferences"),
-    "settings_theme_subtitle": MessageLookupByLibrary.simpleMessage("Choose your preferred theme style"),
-    "sidebar_collapse": MessageLookupByLibrary.simpleMessage("Collapse"),
-    "sidebar_expand": MessageLookupByLibrary.simpleMessage("Expand"),
-    "submit": MessageLookupByLibrary.simpleMessage("Submit"),
-    "success": MessageLookupByLibrary.simpleMessage("Success"),
-    "table_rows_listed": m14,
-    "theme": MessageLookupByLibrary.simpleMessage("Theme"),
-    "theme_dialog_subtitle": MessageLookupByLibrary.simpleMessage("Select your preferred theme style"),
-    "theme_dialog_title": MessageLookupByLibrary.simpleMessage("Choose Theme"),
-    "theme_mode_dark": MessageLookupByLibrary.simpleMessage("Dark"),
-    "theme_mode_light": MessageLookupByLibrary.simpleMessage("Light"),
-    "theme_palette_classic": MessageLookupByLibrary.simpleMessage("Classic"),
-    "theme_palette_classic_description": MessageLookupByLibrary.simpleMessage("Neutral zinc, clean and minimal"),
-    "theme_palette_nature": MessageLookupByLibrary.simpleMessage("Nature"),
-    "theme_palette_nature_description": MessageLookupByLibrary.simpleMessage("Sage green, calm and organic"),
-    "theme_palette_sunset": MessageLookupByLibrary.simpleMessage("Sunset"),
-    "theme_palette_sunset_description": MessageLookupByLibrary.simpleMessage("Warm stone, rich and inviting"),
-    "translate_menu_title": m15,
-    "turkish": MessageLookupByLibrary.simpleMessage("Turkish"),
-    "unsaved_changes": MessageLookupByLibrary.simpleMessage(
-      "You have unsaved changes. Are you sure you want to leave?",
+    "settings_about": MessageLookupByLibrary.simpleMessage("About"),
+    "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("Check for updates"),
+    "settings_content": MessageLookupByLibrary.simpleMessage("Content"),
+    "settings_content_version": MessageLookupByLibrary.simpleMessage("Version"),
+    "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
+    "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
+    "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
+    "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
+    "settings_refresh_failed": m33,
+    "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
+    "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
+      "Newer content needs a newer version of the app. Update the app to get it.",
     ),
-    "user_delete_failed": MessageLookupByLibrary.simpleMessage("Could not delete the user"),
-    "user_editor_access": MessageLookupByLibrary.simpleMessage("Access"),
-    "user_editor_access_description": MessageLookupByLibrary.simpleMessage("Account status and role permissions."),
-    "user_editor_contact": MessageLookupByLibrary.simpleMessage("Contact"),
-    "user_editor_contact_description": MessageLookupByLibrary.simpleMessage("Primary contact information."),
-    "user_editor_create_subtitle": MessageLookupByLibrary.simpleMessage("Fill in the details to create a new user."),
-    "user_editor_edit_subtitle": MessageLookupByLibrary.simpleMessage("Update user information below."),
-    "user_editor_identity": MessageLookupByLibrary.simpleMessage("Identity"),
-    "user_editor_identity_description": MessageLookupByLibrary.simpleMessage("Basic account identity details."),
-    "user_editor_info_description": MessageLookupByLibrary.simpleMessage(
-      "Manage identity, contact, and access settings.",
+    "settings_refresh_reason_checksum": MessageLookupByLibrary.simpleMessage(
+      "a downloaded file did not match its checksum",
     ),
-    "user_editor_info_title": MessageLookupByLibrary.simpleMessage("User Information"),
-    "user_editor_view_subtitle": MessageLookupByLibrary.simpleMessage("View user details."),
-    "user_extended_info_button": MessageLookupByLibrary.simpleMessage("Extended Info"),
-    "user_extended_info_save_failed": m16,
-    "user_extended_info_saved": MessageLookupByLibrary.simpleMessage("Saved"),
-    "user_extended_info_title": MessageLookupByLibrary.simpleMessage("Extended Information"),
-    "user_list_actions": MessageLookupByLibrary.simpleMessage("Actions"),
-    "user_list_empty": MessageLookupByLibrary.simpleMessage("No users to show"),
-    "user_list_load_failed": MessageLookupByLibrary.simpleMessage("Could not load the users"),
-    "user_list_role_filter": MessageLookupByLibrary.simpleMessage("Role filter"),
-    "user_list_search_hint": MessageLookupByLibrary.simpleMessage("Filter users..."),
-    "user_list_subtitle": MessageLookupByLibrary.simpleMessage("Browse and manage users in a table view."),
-    "user_load_failed": MessageLookupByLibrary.simpleMessage("Could not load the user"),
-    "users": MessageLookupByLibrary.simpleMessage("Users"),
-    "verify_otp_code": MessageLookupByLibrary.simpleMessage("Verify OTP Code"),
-    "view_user": MessageLookupByLibrary.simpleMessage("View User"),
-    "warning": MessageLookupByLibrary.simpleMessage("Warning"),
-    "website": MessageLookupByLibrary.simpleMessage("Website"),
-    "yes": MessageLookupByLibrary.simpleMessage("Yes"),
+    "settings_refresh_reason_format": MessageLookupByLibrary.simpleMessage(
+      "the website sent content this version of the app cannot read",
+    ),
+    "settings_refresh_reason_http_status": MessageLookupByLibrary.simpleMessage("the website answered with an error"),
+    "settings_refresh_reason_network": MessageLookupByLibrary.simpleMessage("no connection to the website"),
+    "settings_refresh_reason_storage": MessageLookupByLibrary.simpleMessage("the app could not write to its storage"),
+    "settings_refresh_reason_stored": MessageLookupByLibrary.simpleMessage("the stored content could not be read"),
+    "settings_refresh_up_to_date": MessageLookupByLibrary.simpleMessage("Up to date"),
+    "settings_refresh_updated": MessageLookupByLibrary.simpleMessage("Updated to the latest content"),
+    "settings_source": MessageLookupByLibrary.simpleMessage("Source"),
+    "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
+    "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
+    "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
   };
 }

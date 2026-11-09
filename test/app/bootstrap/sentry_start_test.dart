@@ -1,20 +1,19 @@
-import 'package:flutter_bloc_advance/app/bootstrap/sentry_start.dart';
-import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
-import 'package:flutter_bloc_advance/core/analytics/log_analytics_service.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_analytics_service.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/app/bootstrap/sentry_start.dart';
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/platform/platform.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../support/content_fixture.dart';
+
 const _dsn = 'https://public@example.invalid/1';
 
 const _prodWithDsn = AppConfig(
   environment: Environment.prod,
-  apiBaseUrl: 'https://api.example.invalid',
-  certificatePins: [],
-  idleTimeout: null,
+  contentBaseUrl: testContentBaseUrl,
   sentryDsnDefine: _dsn,
 );
 
@@ -24,6 +23,14 @@ class _AndroidPlatform extends Platform {
 
   @override
   OperatingSystem get operatingSystem => OperatingSystem.android;
+}
+
+/// The platform sentry_flutter reports on an iOS device, where it passes the Dart options to sentry-cocoa.
+class _IosPlatform extends Platform {
+  const _IosPlatform();
+
+  @override
+  OperatingSystem get operatingSystem => OperatingSystem.ios;
 }
 
 /// Records each SentryFlutter.init call instead of starting the SDK.
@@ -41,13 +48,13 @@ class _InitCalls {
 
 void main() {
   group('SentryStart.gate', () {
-    test('keeps the config when the host app started the native SDK', () async {
+    test('keeps the config when the host app started the native SDK, and logs analytics on the device', () async {
       final start = SentryStart(isNativeSdkReady: () async => true);
 
       final config = await start.gate(_prodWithDsn);
 
       expect(config.sentryDsn, _dsn);
-      expect(const AppDependencies(appConfig: _prodWithDsn).createAnalyticsService(), isA<SentryAnalyticsService>());
+      expect(const AppDependencies(appConfig: _prodWithDsn).createAnalyticsService(), isA<LogAnalyticsService>());
     });
 
     // A release build whose host did not start the native SDK runs as without a DSN: no Dart SDK, and the log
@@ -59,7 +66,6 @@ void main() {
 
       expect(config.sentryDsn, isNull);
       expect(config.environment, Environment.prod);
-      expect(config.apiBaseUrl, _prodWithDsn.apiBaseUrl);
       expect(AppDependencies(appConfig: config).createAnalyticsService(), isA<LogAnalyticsService>());
     });
 
@@ -117,8 +123,19 @@ void main() {
       expect(options.enablePrintBreadcrumbs, isFalse);
       expect(options.dsn, _dsn);
       expect(options.release, '1.0.0+1');
-      expect(options.tracesSampleRate, 0.2);
+      expect(options.tracesSampleRate, 0);
     });
+
+    // O2 and A5: crash reports only. A release-health session envelope never passes beforeSend.
+    for (final platform in const <Platform>[_AndroidPlatform(), _IosPlatform()]) {
+      test('turns automatic session tracking off on ${platform.operatingSystem.name}', () {
+        final options = SentryFlutterOptions(platform: platform);
+
+        configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+        expect(options.enableAutoSessionTracking, isFalse);
+      });
+    }
 
     test('installs a beforeSend that masks an email and a beforeBreadcrumb that masks one', () async {
       final options = SentryFlutterOptions(platform: const _AndroidPlatform());

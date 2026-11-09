@@ -1,7 +1,7 @@
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/native_sentry_start.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_start.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The shape of [SentryFlutter.init] that [SentryStart] calls.
@@ -50,7 +50,9 @@ final _log = AppLogger.getLogger('SentryStart');
 
 /// The options `AppBootstrap.run` starts the Dart SDK with: the DSN, the
 /// scrubbing hooks of [installSentryScrubbers], the native start of
-/// [configureNativeSdkStart], the trace sample rate and the release.
+/// [configureNativeSdkStart], a zero trace sample rate, so no navigation transaction is sent, automatic session
+/// tracking off, so no release-health session is sent (a session envelope never passes the scrubbers), and the
+/// release. The only events that leave the device are crash reports.
 ///
 /// On Android the host app starts the native SDK, so a native option set
 /// here must also be set in `NativeSentry.kt` of the Android host app (under
@@ -59,6 +61,8 @@ void configureSentryOptions(SentryFlutterOptions options, {required String dsn, 
   options.dsn = dsn;
   installSentryScrubbers(options);
   configureNativeSdkStart(options);
-  options.tracesSampleRate = 0.2;
+  options.tracesSampleRate = 0;
+  // Also set in NativeSentry.kt, since on Android this option does not reach the native SDK.
+  options.enableAutoSessionTracking = false;
   options.release = release;
 }

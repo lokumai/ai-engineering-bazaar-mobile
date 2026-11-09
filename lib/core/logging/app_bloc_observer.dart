@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 
 /// Central [BlocObserver] that routes BLoC lifecycle events through
 /// [AppLogger].

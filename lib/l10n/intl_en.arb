@@ -1,139 +1,6 @@
 {
   "@@locale": "en",
-  "admin": "Admin",
-  "guest": "Guest",
-  "role": "Role",
-  "login": "Login",
-  "first_name": "First Name",
-  "last_name": "Last Name",
-  "email": "Email",
-  "active": "Active",
-  "authorities": "Authorities",
-  "name": "Name",
-  "success": "Success",
-  "failed": "Failed",
-  "required_field": "Required Field",
-  "min_length_2": "Field must be at least 2 characters long",
-  "min_length_4": "Field must be at least 4 characters long",
-  "max_length_20": "Field cannot be more than 20 characters long",
-  "max_length_100": "Field cannot be more than 100 characters long",
-  "required_range": "Range is required",
-  "list": "List",
-  "list_user": "List User",
-  "new_user": "New User",
-  "edit_user": "Edit User",
-  "view_user": "View User",
-  "delete_user": "Delete User",
-  "email_pattern": "Email must be a valid email address",
-  "turkish": "Turkish",
-  "english": "English",
-  "create_user": "Create User",
-  "save": "Save",
-  "back": "Back",
-  "delete_confirmation": "Are you sure you want to delete?",
   "settings": "Settings",
-  "account": "Account",
-  "change_password": "Change Password",
-  "change_password_description": "Ensure your account is using a long, random password to stay secure.",
-  "language_select": "Select Language",
-  "logout": "Logout",
-  "logout_sure": "Are you sure you want to logout?",
-  "yes": "Yes",
-  "no": "No",
-  "warning": "Warning",
-  "unsaved_changes": "You have unsaved changes. Are you sure you want to leave?",
-  "no_changes_made": "No changes made",
-  "no_data": "No Data",
-  "login_user_name": "Username",
-  "login_password": "Password",
-  "current_password": "Current Password",
-  "new_password": "New Password",
-  "password_forgot": "Forgot Password",
-  "register": "Register",
-  "password_max_length": "Password cannot be more than {max} characters long",
-  "@password_max_length": {
-    "placeholders": {
-      "max": {
-        "type": "int"
-      }
-    }
-  },
-  "password_min_length": "Password must be at least {min} characters long",
-  "@password_min_length": {
-    "placeholders": {
-      "min": {
-        "type": "int"
-      }
-    }
-  },
-  "login_button": "Login",
-  "loading": "Loading...",
-  "email_send": "Send Email",
-  "translate_menu_title": "{translate, select, account{Account} userManagement{User Management} settings{Settings}  logout{Logout}  info{Info} language{Language}  theme{Theme}  new_user{New}  list_user{List} other{Other}}",
-  "@translate_menu_title": {
-    "placeholders": {
-      "translate": {
-        "type": "String"
-      }
-    }
-  },
-  "login_with_email": "Login with Email",
-  "send_otp_code": "Send OTP Code",
-  "invalid_email": "Invalid email address",
-  "resend_otp_code": "Resend OTP Code",
-  "verify_otp_code": "Verify OTP Code",
-  "only_numbers": "Only numbers are allowed",
-  "otp_length": "OTP must be 6 characters long",
-  "otp_code": "OTP Code",
-  "theme": "Theme",
-  "language": "Language",
-  "dashboard": "Dashboard",
-  "refresh": "Refresh",
-  "quick_actions": "Quick Actions",
-  "community_title": "Join the Community",
-  "community_subtitle": "This project is open source. Your contributions make it better!",
-  "community_star": "Star & Fork",
-  "community_issue": "Open an Issue",
-  "community_discussions": "Discussions",
-  "community_contribute": "Contribute",
-  "community_translate": "Translate",
-  "community_sponsor": "Sponsor",
-  "community_docs": "Documentation",
-  "help_resources": "Help & Resources",
-  "help_resources_subtitle": "Visit our website for documentation and guides",
-  "website": "Website",
-  "error_auth_invalid_access_token": "Invalid access token",
-  "error_auth_login_failed": "Login failed",
-  "error_auth_send_otp_failed": "Could not send the OTP code",
-  "error_auth_otp_validation": "OTP validation failed",
-  "error_auth_session_persist_failed": "Could not save the session",
-  "error_user_cannot_delete_admin": "Admin user cannot be deleted",
-  "error_user_no_authorities": "No authorities found",
-  "error_account_password_required": "Both current and new password are required",
-  "error_account_passwords_same": "New password must be different from current password",
-  "error_settings_change_language_failed": "Could not change the language",
-  "error_generic": "Something went wrong",
-  "user_extended_info_title": "Extended Information",
-  "user_extended_info_button": "Extended Info",
-  "user_extended_info_saved": "Saved",
-  "user_extended_info_save_failed": "Save failed: {error}",
-  "@user_extended_info_save_failed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "forbidden_title": "Access denied",
-  "@forbidden_title": {},
-  "forbidden_message": "You do not have permission to view this page.",
-  "@forbidden_message": {},
-  "forbidden_back_home": "Back to home",
-  "@forbidden_back_home": {},
-  "error_network_cert_invalid": "The connection could not be verified as secure, so it was blocked. Try again later or on another network.",
-  "@error_network_cert_invalid": {},
-  "idle_timeout_signed_out": "You were signed out due to inactivity.",
-  "@idle_timeout_signed_out": {},
   "error_link_open_failed": "Could not open {url}",
   "@error_link_open_failed": {
     "placeholders": {
@@ -142,197 +9,50 @@
       }
     }
   },
-  "force_update_title": "Update Required",
-  "@force_update_title": {},
-  "force_update_message": "A new version is available. Please update to continue using the app.",
-  "@force_update_message": {},
-  "force_update_versions": "Current: {currentVersion}  •  Required: {minimumVersion}",
-  "@force_update_versions": {
-    "placeholders": {
-      "currentVersion": {
-        "type": "String"
-      },
-      "minimumVersion": {
-        "type": "String"
-      }
-    }
-  },
-  "force_update_button": "Update Now",
-  "@force_update_button": {},
-  "force_update_no_store_link": "Open your app store to install the latest version.",
-  "@force_update_no_store_link": {},
-  "force_update_store_link_invalid": "The update link is not valid. Open your app store to install the latest version.",
-  "@force_update_store_link_invalid": {},
-  "maintenance_title": "Under Maintenance",
-  "@maintenance_title": {},
-  "maintenance_message": "We are performing scheduled maintenance. Please check back soon.",
-  "@maintenance_message": {},
-  "maintenance_estimated_end": "Estimated end: {time}",
-  "@maintenance_estimated_end": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "maintenance_retry": "Try Again",
-  "@maintenance_retry": {},
-  "user_list_load_failed": "Could not load the users",
-  "@user_list_load_failed": {},
-  "user_delete_failed": "Could not delete the user",
-  "@user_delete_failed": {},
-  "user_load_failed": "Could not load the user",
-  "@user_load_failed": {},
-  "authorities_load_failed": "Roles unavailable",
-  "@authorities_load_failed": {},
-  "logout_stored_data_left": "You were signed out, but some stored data could not be removed from this device.",
-  "@logout_stored_data_left": {},
-  "home": "Home",
-  "@home": {},
-  "users": "Users",
-  "@users": {},
-  "new_item": "New",
-  "@new_item": {},
-  "edit": "Edit",
-  "@edit": {},
-  "connectivity_offline": "No internet connection",
-  "@connectivity_offline": {},
-  "not_found_title": "Page Not Found",
+  "not_found_title": "No such module",
   "@not_found_title": {},
-  "not_found_message": "The page you requested could not be found.",
+  "not_found_message": "This address is not a module in the curriculum. The catalog lists every one that is.",
   "@not_found_message": {},
-  "dynamic_forms": "Dynamic Forms",
-  "@dynamic_forms": {},
-  "theme_mode_dark": "Dark",
-  "@theme_mode_dark": {},
-  "theme_mode_light": "Light",
-  "@theme_mode_light": {},
-  "sidebar_expand": "Expand",
-  "@sidebar_expand": {},
-  "sidebar_collapse": "Collapse",
-  "@sidebar_collapse": {},
-  "command_palette_hint": "Type a command or search...",
-  "@command_palette_hint": {},
-  "command_palette_no_results": "No results found",
-  "@command_palette_no_results": {},
-  "command_palette_home_description": "Go to home",
-  "@command_palette_home_description": {},
-  "command_palette_users_description": "Manage users",
-  "@command_palette_users_description": {},
-  "command_palette_new_user_description": "Create a new user",
-  "@command_palette_new_user_description": {},
-  "command_palette_account_description": "Your profile",
-  "@command_palette_account_description": {},
-  "command_palette_settings_description": "App preferences",
-  "@command_palette_settings_description": {},
-  "command_palette_change_password_description": "Update password",
-  "@command_palette_change_password_description": {},
-  "login_brand_headline": "Scale from prototype\nto production.",
-  "@login_brand_headline": {},
-  "login_brand_description": "Authentication, role-based access, user management,\ntheming, and multi-environment support in one robust starter.",
-  "@login_brand_description": {},
-  "login_brand_stat_platforms": "Platforms",
-  "@login_brand_stat_platforms": {},
-  "login_brand_stat_layers": "Core Layers",
-  "@login_brand_stat_layers": {},
-  "login_brand_stat_bloc_ready": "BLoC Ready",
-  "@login_brand_stat_bloc_ready": {},
-  "login_feature_auth_title": "Authentication & Access Control",
-  "@login_feature_auth_title": {},
-  "login_feature_auth_description": "Password and OTP login flows with role-based routing guards.",
-  "@login_feature_auth_description": {},
-  "login_feature_architecture_title": "Clean Architecture",
-  "@login_feature_architecture_title": {},
-  "login_feature_architecture_description": "BLoC + Repository pattern with clear separation of concerns.",
-  "@login_feature_architecture_description": {},
-  "login_feature_mock_api_title": "Mock to Real API",
-  "@login_feature_mock_api_title": {},
-  "login_feature_mock_api_description": "Develop locally with mock data and switch to production endpoints.",
-  "@login_feature_mock_api_description": {},
-  "login_welcome_title": "Welcome back",
-  "@login_welcome_title": {},
-  "login_welcome_subtitle": "Enter your credentials to access your account",
-  "@login_welcome_subtitle": {},
-  "login_or": "or",
-  "@login_or": {},
-  "login_no_account": "Don't have an account? ",
-  "@login_no_account": {},
-  "login_switch_to_light_mode": "Switch to light mode",
-  "@login_switch_to_light_mode": {},
-  "login_switch_to_dark_mode": "Switch to dark mode",
-  "@login_switch_to_dark_mode": {},
-  "login_otp_email_instructions": "Enter your email to receive OTP code",
-  "@login_otp_email_instructions": {},
-  "otp_sent_to_email": "OTP sent to {email}",
-  "@otp_sent_to_email": {
+  "app_title": "AI Engineering Bazaar",
+  "@app_title": {},
+  "nav_catalog": "Catalog",
+  "@nav_catalog": {},
+  "nav_progress": "Progress",
+  "@nav_progress": {},
+  "nav_settings": "Settings",
+  "@nav_settings": {},
+  "track_switch_label": "Track",
+  "@track_switch_label": {},
+  "open_on_the_web": "Open on the web",
+  "@open_on_the_web": {},
+  "content_broken_title": "The course cannot be opened",
+  "@content_broken_title": {},
+  "content_broken_message": "The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.",
+  "@content_broken_message": {},
+  "content_broken_storage_message": "The app could not use its storage for the course content. Your progress on this device is kept.",
+  "@content_broken_storage_message": {},
+  "loading": "Loading",
+  "@loading": {},
+  "catalog_title": "Catalog",
+  "@catalog_title": {},
+  "catalog_level_label": "Level:",
+  "@catalog_level_label": {},
+  "catalog_status_label": "Status:",
+  "@catalog_status_label": {},
+  "catalog_filter_all": "All",
+  "@catalog_filter_all": {},
+  "catalog_filter_ready": "Ready",
+  "@catalog_filter_ready": {},
+  "catalog_filter_planned": "Planned",
+  "@catalog_filter_planned": {},
+  "catalog_filter_completed": "Completed",
+  "@catalog_filter_completed": {},
+  "catalog_filter_not_completed": "Not completed",
+  "@catalog_filter_not_completed": {},
+  "catalog_showing": "Showing {visible} of {total}",
+  "@catalog_showing": {
     "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "community_open_source": "Open Source",
-  "@community_open_source": {},
-  "register_subtitle": "Create your account",
-  "@register_subtitle": {},
-  "forgot_password_description": "Enter your email address and we'll send you a link to reset your password.",
-  "@forgot_password_description": {},
-  "settings_subtitle": "Manage your account preferences",
-  "@settings_subtitle": {},
-  "settings_account_subtitle": "View or edit your profile information",
-  "@settings_account_subtitle": {},
-  "settings_change_password_subtitle": "Update your password securely",
-  "@settings_change_password_subtitle": {},
-  "settings_appearance": "Appearance",
-  "@settings_appearance": {},
-  "settings_theme_subtitle": "Choose your preferred theme style",
-  "@settings_theme_subtitle": {},
-  "retry": "Retry",
-  "@retry": {},
-  "dashboard_error_title": "Dashboard Error",
-  "@dashboard_error_title": {},
-  "dashboard_title": "System Dashboard",
-  "@dashboard_title": {},
-  "dashboard_connectivity": "Connectivity",
-  "@dashboard_connectivity": {},
-  "dashboard_online": "Online",
-  "@dashboard_online": {},
-  "dashboard_offline": "Offline",
-  "@dashboard_offline": {},
-  "dashboard_circuit_breaker": "Circuit Breaker",
-  "@dashboard_circuit_breaker": {},
-  "dashboard_endpoint_count": "{count, plural, =1{1 endpoint} other{{count} endpoints}}",
-  "@dashboard_endpoint_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_open_count": "{count} open",
-  "@dashboard_open_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_cache": "Cache",
-  "@dashboard_cache": {},
-  "dashboard_cached_item_count": "{count, plural, =1{1 item cached} other{{count} items cached}}",
-  "@dashboard_cached_item_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dashboard_feature_flags": "Feature Flags",
-  "@dashboard_feature_flags": {},
-  "dashboard_feature_flags_enabled": "{enabled}/{total} enabled",
-  "@dashboard_feature_flags_enabled": {
-    "placeholders": {
-      "enabled": {
+      "visible": {
         "type": "int"
       },
       "total": {
@@ -340,190 +60,510 @@
       }
     }
   },
-  "dashboard_circuit_breaker_health": "Circuit Breaker Health",
-  "@dashboard_circuit_breaker_health": {},
-  "dashboard_no_endpoints": "No endpoints tracked yet",
-  "@dashboard_no_endpoints": {},
-  "dashboard_failure_count": "Failures: {count}",
-  "@dashboard_failure_count": {
+  "catalog_no_match": "No module matches both filters · 0 of {total}",
+  "@catalog_no_match": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_no_match_cue": "The two filters select different modules. Widen either one, or clear both to see the whole catalog again.",
+  "@catalog_no_match_cue": {},
+  "catalog_show_all": "Show the whole catalog",
+  "@catalog_show_all": {},
+  "catalog_written": "{ready} of {total} written",
+  "@catalog_written": {
+    "placeholders": {
+      "ready": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "module_planned": "Planned",
+  "@module_planned": {},
+  "level_module_count": "{count, plural, =1{1 module} other{{count} modules}}",
+  "@level_module_count": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "dashboard_no_feature_flags": "No feature flags configured",
-  "@dashboard_no_feature_flags": {},
-  "dashboard_app_configuration": "App Configuration",
-  "@dashboard_app_configuration": {},
-  "dashboard_current_version": "Current Version",
-  "@dashboard_current_version": {},
-  "dashboard_minimum_version": "Minimum Version",
-  "@dashboard_minimum_version": {},
-  "dashboard_maintenance_mode": "Maintenance Mode",
-  "@dashboard_maintenance_mode": {},
-  "dashboard_on": "ON",
-  "@dashboard_on": {},
-  "dashboard_off": "OFF",
-  "@dashboard_off": {},
-  "dashboard_environment": "Environment",
-  "@dashboard_environment": {},
-  "dashboard_interceptor_chain": "Interceptor Chain",
-  "@dashboard_interceptor_chain": {},
-  "dashboard_clear_cache": "Clear Cache",
-  "@dashboard_clear_cache": {},
-  "dashboard_reset_circuit_breakers": "Reset Circuit Breakers",
-  "@dashboard_reset_circuit_breakers": {},
-  "dashboard_open_dynamic_forms": "Open Dynamic Forms",
-  "@dashboard_open_dynamic_forms": {},
-  "cancel": "Cancel",
-  "@cancel": {},
-  "inactive": "Inactive",
-  "@inactive": {},
-  "user_list_subtitle": "Browse and manage users in a table view.",
-  "@user_list_subtitle": {},
-  "user_list_actions": "Actions",
-  "@user_list_actions": {},
-  "user_list_role_filter": "Role filter",
-  "@user_list_role_filter": {},
-  "user_list_search_hint": "Filter users...",
-  "@user_list_search_hint": {},
-  "user_editor_info_title": "User Information",
-  "@user_editor_info_title": {},
-  "user_editor_info_description": "Manage identity, contact, and access settings.",
-  "@user_editor_info_description": {},
-  "user_editor_identity": "Identity",
-  "@user_editor_identity": {},
-  "user_editor_identity_description": "Basic account identity details.",
-  "@user_editor_identity_description": {},
-  "user_editor_contact": "Contact",
-  "@user_editor_contact": {},
-  "user_editor_contact_description": "Primary contact information.",
-  "@user_editor_contact_description": {},
-  "user_editor_access": "Access",
-  "@user_editor_access": {},
-  "user_editor_access_description": "Account status and role permissions.",
-  "@user_editor_access_description": {},
-  "user_editor_create_subtitle": "Fill in the details to create a new user.",
-  "@user_editor_create_subtitle": {},
-  "user_editor_edit_subtitle": "Update user information below.",
-  "@user_editor_edit_subtitle": {},
-  "user_editor_view_subtitle": "View user details.",
-  "@user_editor_view_subtitle": {},
-  "submit": "Submit",
-  "@submit": {},
-  "error_title": "Error",
-  "@error_title": {},
-  "dynamic_form_submitted": "Form submitted successfully",
-  "@dynamic_form_submitted": {},
-  "dynamic_form_field_required": "{field} is required",
-  "@dynamic_form_field_required": {
+  "duration_minutes": "~{minutes} min",
+  "@duration_minutes": {
     "placeholders": {
-      "field": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_hours": "~{hours} h",
+  "@duration_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_hours_minutes": "~{hours} h {minutes} min",
+  "@duration_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "level_completed": "{approved}/{total} completed",
+  "@level_completed": {
+    "placeholders": {
+      "approved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "level_completed_pending": "--/{total} completed",
+  "@level_completed_pending": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "level_general_notes": "General notes",
+  "@level_general_notes": {},
+  "card_description": "Description",
+  "@card_description": {},
+  "card_length": "Length",
+  "@card_length": {},
+  "card_length_minutes": "{minutes} min",
+  "@card_length_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "card_requires": "Requires",
+  "@card_requires": {},
+  "card_requires_nothing": "Nothing",
+  "@card_requires_nothing": {},
+  "content_unreadable": "This part of the course could not be read on this device. Restart the app to reload it.",
+  "@content_unreadable": {},
+  "block_figure_caption": "FIG. {number}",
+  "@block_figure_caption": {
+    "placeholders": {
+      "number": {
         "type": "String"
       }
     }
   },
-  "dynamic_form_field_min_length": "{field} must be at least {count, plural, =1{1 character} other{{count} characters}}",
-  "@dynamic_form_field_min_length": {
+  "block_table_caption": "TBL. {number}",
+  "@block_table_caption": {
     "placeholders": {
-      "field": {
+      "number": {
         "type": "String"
+      }
+    }
+  },
+  "block_unknown": "This part needs a newer version of the app.",
+  "@block_unknown": {},
+  "block_code_label": "{language} code",
+  "@block_code_label": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "block_program_output": "Program output",
+  "@block_program_output": {},
+  "block_table_region": "Table {number}",
+  "@block_table_region": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_contents": "Contents",
+  "@reader_contents": {},
+  "reader_close": "Close",
+  "@reader_close": {},
+  "reader_on_this_page": "On this page",
+  "@reader_on_this_page": {},
+  "reader_sections": "Sections",
+  "@reader_sections": {},
+  "reader_band_parts_only": "Schedule of parts only",
+  "@reader_band_parts_only": {},
+  "reader_band_partly_written": "Partly written",
+  "@reader_band_partly_written": {},
+  "reader_minutes": "{minutes} min",
+  "@reader_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "reader_before_you_start": "Before you start",
+  "@reader_before_you_start": {},
+  "reader_objectives": "What you will be able to do",
+  "@reader_objectives": {},
+  "reader_schedule_of_parts": "Schedule of parts",
+  "@reader_schedule_of_parts": {},
+  "reader_schedule_item": "Item",
+  "@reader_schedule_item": {},
+  "reader_schedule_description": "Description",
+  "@reader_schedule_description": {},
+  "reader_completion_region": "Module completion",
+  "@reader_completion_region": {},
+  "reader_mark_complete": "Mark this module as complete",
+  "@reader_mark_complete": {},
+  "reader_completed_on": "Completed {date}",
+  "@reader_completed_on": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_previous": "Previous",
+  "@reader_previous": {},
+  "reader_next": "Next",
+  "@reader_next": {},
+  "reader_pager_planned": "{label} · Planned",
+  "@reader_pager_planned": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_start_of_course": "Start of the course",
+  "@reader_start_of_course": {},
+  "reader_end_of_course": "End of the course",
+  "@reader_end_of_course": {},
+  "reader_module_of": "MODULE {number} OF {count}",
+  "@reader_module_of": {
+    "placeholders": {
+      "number": {
+        "type": "int"
       },
       "count": {
         "type": "int"
       }
     }
   },
-  "dynamic_form_field_max_length": "{field} must be at most {count, plural, =1{1 character} other{{count} characters}}",
-  "@dynamic_form_field_max_length": {
+  "reader_revision": "Rev {hash} · {date}",
+  "@reader_revision": {
     "placeholders": {
-      "field": {
+      "hash": {
         "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_not_written": "The For Everyone version of this module is planned.",
+  "@reader_not_written": {},
+  "reader_read_for_engineers": "Read it For Engineers",
+  "@reader_read_for_engineers": {},
+  "reader_see_everyone": "See what is written For Everyone",
+  "@reader_see_everyone": {},
+  "record_not_saved": "Not saved: {reason}. Back up to a file to keep it.",
+  "@record_not_saved": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "record_not_saved_quota": "this device has no space left",
+  "@record_not_saved_quota": {},
+  "record_not_saved_blocked": "the app could not write its file",
+  "@record_not_saved_blocked": {},
+  "record_not_saved_too_large": "the record is larger than the app will write",
+  "@record_not_saved_too_large": {},
+  "quiz_title": "Questions on this module",
+  "@quiz_title": {},
+  "quiz_subtitle": "{count} questions on the main points of this module",
+  "@quiz_subtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_progress": "Question {index} of {count}",
+  "@quiz_progress": {
+    "placeholders": {
+      "index": {
+        "type": "int"
       },
       "count": {
         "type": "int"
       }
     }
   },
-  "dynamic_form_field_numeric": "Must be a number",
-  "@dynamic_form_field_numeric": {},
-  "apply": "Apply",
-  "@apply": {},
-  "previous": "Previous",
-  "@previous": {},
-  "next": "Next",
-  "@next": {},
-  "table_rows_listed": "{count, plural, =1{1 row listed.} other{{count} rows listed.}}",
-  "@table_rows_listed": {
+  "quiz_start_over": "Start over",
+  "@quiz_start_over": {},
+  "quiz_correct": "Correct.",
+  "@quiz_correct": {},
+  "quiz_wrong": "Not this one. The answer is {letter}.",
+  "@quiz_wrong": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "quiz_previous": "Previous",
+  "@quiz_previous": {},
+  "quiz_next": "Next",
+  "@quiz_next": {},
+  "quiz_see_results": "See results",
+  "@quiz_see_results": {},
+  "quiz_score_count": "{score} of {total}",
+  "@quiz_score_count": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_score_rest": "answered correctly",
+  "@quiz_score_rest": {},
+  "quiz_recap_correct": ", correct",
+  "@quiz_recap_correct": {},
+  "quiz_recap_wrong": ", not correct",
+  "@quiz_recap_wrong": {},
+  "quiz_back_to_questions": "Back to the questions",
+  "@quiz_back_to_questions": {},
+  "progress_title": "Your progress",
+  "@progress_title": {},
+  "progress_tabs_label": "Progress by track",
+  "@progress_tabs_label": {},
+  "progress_tab_count": "{signed} of {total}",
+  "@progress_tab_count": {
+    "placeholders": {
+      "signed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progress_level_dial": "{approved}/{total}",
+  "@progress_level_dial": {
+    "placeholders": {
+      "approved": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progress_module_link": "{number} {title}",
+  "@progress_module_link": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_complete_module": "Complete {title}",
+  "@progress_complete_module": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_every_module": "Every module, {track}",
+  "@progress_every_module": {
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "progress_state_complete": "Complete",
+  "@progress_state_complete": {},
+  "progress_state_not_yet": "Not yet",
+  "@progress_state_not_yet": {},
+  "data_line_text": "Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.",
+  "@data_line_text": {},
+  "data_back_up": "Back up to a file",
+  "@data_back_up": {},
+  "data_restore": "Restore from a file",
+  "@data_restore": {},
+  "data_reset": "Reset",
+  "@data_reset": {},
+  "data_undo": "Undo",
+  "@data_undo": {},
+  "data_backed_up": "Backed up {day}",
+  "@data_backed_up": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "data_backup_not_written": "The backup file could not be written. Nothing was marked as backed up.",
+  "@data_backup_not_written": {},
+  "data_restored": "Restored from the file.",
+  "@data_restored": {},
+  "data_restore_empty": "Nothing was changed. That file holds no progress; only a backup file does.",
+  "@data_restore_empty": {},
+  "data_restore_newer": "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
+  "@data_restore_newer": {},
+  "data_restore_malformed": "That file is not a backup the app or the website wrote. Nothing was changed.",
+  "@data_restore_malformed": {},
+  "data_restore_unreadable": "That file could not be opened.",
+  "@data_restore_unreadable": {},
+  "data_reset_counting": "{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}",
+  "@data_reset_counting": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "data_reset_closed": "Reset. The time to undo it has passed.",
+  "@data_reset_closed": {},
+  "data_reset_not_finished": "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
+  "@data_reset_not_finished": {},
+  "data_tally_states": "{count, plural, =1{1 module state} other{{count} module states}}",
+  "@data_tally_states": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "theme_dialog_title": "Choose Theme",
-  "@theme_dialog_title": {},
-  "theme_dialog_subtitle": "Select your preferred theme style",
-  "@theme_dialog_subtitle": {},
-  "theme_palette_classic": "Classic",
-  "@theme_palette_classic": {},
-  "theme_palette_classic_description": "Neutral zinc, clean and minimal",
-  "@theme_palette_classic_description": {},
-  "theme_palette_nature": "Nature",
-  "@theme_palette_nature": {},
-  "theme_palette_nature_description": "Sage green, calm and organic",
-  "@theme_palette_nature_description": {},
-  "theme_palette_sunset": "Sunset",
-  "@theme_palette_sunset": {},
-  "theme_palette_sunset_description": "Warm stone, rich and inviting",
-  "@theme_palette_sunset_description": {},
-  "password_show": "Show password",
-  "@password_show": {},
-  "password_hide": "Hide password",
-  "@password_hide": {},
-  "user_list_empty": "No users to show",
-  "@user_list_empty": {},
-  "app_title": "Flutter BLoC Advance Template",
-  "@app_title": {},
-  "dashboard_circuit_state_closed": "Closed",
-  "@dashboard_circuit_state_closed": {},
-  "dashboard_circuit_state_half_open": "Half-open",
-  "@dashboard_circuit_state_half_open": {},
-  "dashboard_circuit_state_open": "Open",
-  "@dashboard_circuit_state_open": {},
-  "dashboard_interceptor_connectivity": "Rejects requests when offline",
-  "@dashboard_interceptor_connectivity": {},
-  "dashboard_interceptor_auth": "Attaches JWT token to requests",
-  "@dashboard_interceptor_auth": {},
-  "dashboard_interceptor_token_refresh": "Refreshes expired access tokens",
-  "@dashboard_interceptor_token_refresh": {},
-  "dashboard_interceptor_idempotency": "Opt-in Idempotency-Key for POST/PUT/PATCH",
-  "@dashboard_interceptor_idempotency": {},
-  "dashboard_interceptor_resilience": "Retry + circuit breaker",
-  "@dashboard_interceptor_resilience": {},
-  "dashboard_interceptor_cache": "GET response caching with TTL",
-  "@dashboard_interceptor_cache": {},
-  "dashboard_interceptor_dev_console": "Records requests in dev console",
-  "@dashboard_interceptor_dev_console": {},
-  "dashboard_interceptor_logging": "Structured request/response logging",
-  "@dashboard_interceptor_logging": {},
-  "dashboard_interceptor_mock": "Serves mock data in dev/test",
-  "@dashboard_interceptor_mock": {},
-  "error_auth_oidc_config": "Single sign-on is not configured correctly in this app. Contact your administrator.",
-  "@error_auth_oidc_config": {},
-  "error_auth_oidc_discovery": "The identity provider could not be reached. Try again later, or contact your administrator if this continues.",
-  "@error_auth_oidc_discovery": {},
-  "error_auth_oidc_no_role": "Your account has no role that allows access to this app. Ask your administrator.",
-  "@error_auth_oidc_no_role": {},
-  "error_auth_oidc_failed": "Sign-in failed. Please try again.",
-  "@error_auth_oidc_failed": {},
-  "error_auth_oidc_logout_incomplete": "You are signed out of this app, but your session at the identity provider may still be active.",
-  "@error_auth_oidc_logout_incomplete": {},
-  "login_sso_button": "Sign in with SSO",
-  "@login_sso_button": {},
-  "login_sso_subtitle": "Sign in with your organization account.",
-  "@login_sso_subtitle": {},
-  "login_sso_browser_done": "Sign-in is complete. You can close this tab and return to the app.",
-  "@login_sso_browser_done": {}
+  "data_tally_nothing": "NOTHING RECORDED ON THIS DEVICE",
+  "@data_tally_nothing": {},
+  "erase_mark": "Erase",
+  "@erase_mark": {},
+  "erase_title": "Erase all progress on this device?",
+  "@erase_title": {},
+  "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
+  "@erase_scope": {},
+  "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
+  "@erase_backup_statement": {},
+  "erase_field_label": "Type ERASE to confirm",
+  "@erase_field_label": {},
+  "erase_confirm": "Erase all data",
+  "@erase_confirm": {},
+  "erase_keep": "Keep my data",
+  "@erase_keep": {},
+  "restore_confirm_title": "Replace the progress on this device?",
+  "@restore_confirm_title": {},
+  "restore_confirm_holds": "On this device now:",
+  "@restore_confirm_holds": {},
+  "restore_confirm_effect": "Restoring replaces it with the progress in the file.",
+  "@restore_confirm_effect": {},
+  "restore_confirm_replace": "Replace",
+  "@restore_confirm_replace": {},
+  "quarantine_label": "Record status",
+  "@quarantine_label": {},
+  "quarantine_newer_readout": "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
+  "@quarantine_newer_readout": {},
+  "quarantine_newer_note": "Update the app to read it. The stored record is kept on this device unchanged.",
+  "@quarantine_newer_note": {},
+  "quarantine_malformed_readout": "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
+  "@quarantine_malformed_readout": {},
+  "quarantine_malformed_note": "The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.",
+  "@quarantine_malformed_note": {},
+  "quarantine_kept_readout": "A STORED RECORD IS SET ASIDE",
+  "@quarantine_kept_readout": {},
+  "quarantine_kept_note": "An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.",
+  "@quarantine_kept_note": {},
+  "quarantine_save_copy": "Save a copy",
+  "@quarantine_save_copy": {},
+  "quarantine_copy_saved": "Saved a copy of the set-aside record.",
+  "@quarantine_copy_saved": {},
+  "quarantine_copy_not_written": "The copy could not be written. The set-aside record is unchanged.",
+  "@quarantine_copy_not_written": {},
+  "quarantine_delete": "Delete it",
+  "@quarantine_delete": {},
+  "quarantine_delete_title": "Delete the set-aside record?",
+  "@quarantine_delete_title": {},
+  "quarantine_delete_body": "This version of the app cannot read it. Deleting it cannot be undone.",
+  "@quarantine_delete_body": {},
+  "quarantine_delete_confirm": "Delete",
+  "@quarantine_delete_confirm": {},
+  "quarantine_keep": "Keep it",
+  "@quarantine_keep": {},
+  "content_notice_cache_discarded": "The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.",
+  "@content_notice_cache_discarded": {},
+  "settings_content": "Content",
+  "@settings_content": {},
+  "settings_content_version": "Version",
+  "@settings_content_version": {},
+  "settings_published": "Published",
+  "@settings_published": {},
+  "settings_source": "Source",
+  "@settings_source": {},
+  "settings_source_bundled": "Bundled with the app",
+  "@settings_source_bundled": {},
+  "settings_source_downloaded": "Downloaded from the website",
+  "@settings_source_downloaded": {},
+  "settings_refresh_idle": "Not checked since the app started",
+  "@settings_refresh_idle": {},
+  "settings_refresh_checking": "Checking for updates",
+  "@settings_refresh_checking": {},
+  "settings_refresh_up_to_date": "Up to date",
+  "@settings_refresh_up_to_date": {},
+  "settings_refresh_updated": "Updated to the latest content",
+  "@settings_refresh_updated": {},
+  "settings_refresh_needs_app_update": "Newer content needs a newer version of the app. Update the app to get it.",
+  "@settings_refresh_needs_app_update": {},
+  "settings_refresh_failed": "The check for updates did not finish: {reason}.",
+  "@settings_refresh_failed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_refresh_reason_network": "no connection to the website",
+  "@settings_refresh_reason_network": {},
+  "settings_refresh_reason_http_status": "the website answered with an error",
+  "@settings_refresh_reason_http_status": {},
+  "settings_refresh_reason_format": "the website sent content this version of the app cannot read",
+  "@settings_refresh_reason_format": {},
+  "settings_refresh_reason_checksum": "a downloaded file did not match its checksum",
+  "@settings_refresh_reason_checksum": {},
+  "settings_refresh_reason_storage": "the app could not write to its storage",
+  "@settings_refresh_reason_storage": {},
+  "settings_refresh_reason_stored": "the stored content could not be read",
+  "@settings_refresh_reason_stored": {},
+  "settings_check_for_updates": "Check for updates",
+  "@settings_check_for_updates": {},
+  "settings_about": "About",
+  "@settings_about": {},
+  "settings_licences": "Licences",
+  "@settings_licences": {},
+  "settings_dev_console": "Developer console",
+  "@settings_dev_console": {}
 }

@@ -1,192 +1,170 @@
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/core/testing/app_key_constants.dart';
-import 'package:flutter_bloc_advance/shared/design_system/components/app_card.dart';
-import 'package:flutter_bloc_advance/shared/design_system/tokens/app_spacing.dart';
-import 'package:flutter_bloc_advance/shared/l10n/locale_l10n.dart';
-import 'package:flutter_bloc_advance/shared/utils/external_link.dart';
-import 'package:flutter_bloc_advance/shared/widgets/language_selection_dialog.dart';
-import 'package:flutter_bloc_advance/shared/widgets/theme_selection_dialog.dart';
-import 'package:flutter_bloc_advance/app/router/app_routes_constants.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../generated/l10n.dart';
-import '../../../../infrastructure/config/auth_config.dart';
-import '../../../../infrastructure/config/project_links.dart';
-
+/// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the content status with Check for
+/// updates (spec 3.4.2 to 3.4.4), the licences, and the developer console when [openDevConsole] is set.
+///
+/// The data flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
+/// since the app gate mounts the router only once the content is ready.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.openDevConsole});
+
+  /// Opens the developer console (Decision A6); the router passes it in debug builds only, since a feature imports
+  /// nothing from `app/`. Null hides the entry.
+  final void Function(BuildContext context)? openDevConsole;
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: switch (context.watch<ContentBloc>().state) {
+        ContentReady ready => _SettingsView(ready: ready, openDevConsole: openDevConsole),
+        ContentLoading() || ContentBroken() => const SizedBox.shrink(),
+      },
+    );
+  }
+}
+
+class _SettingsView extends StatelessWidget {
+  const _SettingsView({required this.ready, required this.openDevConsole});
+
+  final ContentReady ready;
+  final void Function(BuildContext context)? openDevConsole;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final theme = Theme.of(context);
+    final index = ready.index;
+    final openDevConsole = this.openDevConsole;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                S.of(context).settings,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                S.of(context).settings_subtitle,
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // Account section
-              _SettingsSection(
-                title: S.of(context).account,
-                children: [
-                  _SettingsTile(
-                    icon: Icons.person_outline,
-                    title: S.of(context).account,
-                    subtitle: S.of(context).settings_account_subtitle,
-                    onTap: () => context.push(ApplicationRoutesConstants.account),
-                  ),
-                ],
-              ),
-              // Change password, unless the identity provider of an oidc build owns the password
-              if (context.read<AuthMode>() is JwtAuthMode) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _SettingsSection(
-                  title: S.of(context).change_password,
-                  children: [
-                    _SettingsTile(
-                      key: settingsChangePasswordButtonKey,
-                      icon: Icons.lock_outline,
-                      title: S.of(context).change_password,
-                      subtitle: S.of(context).settings_change_password_subtitle,
-                      onTap: () => context.push(ApplicationRoutesConstants.changePassword),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: AppSpacing.lg),
-
-              // Appearance section
-              _SettingsSection(
-                title: S.of(context).settings_appearance,
-                children: [
-                  _SettingsTile(
-                    icon: Icons.palette_outlined,
-                    title: S.of(context).theme,
-                    subtitle: S.of(context).settings_theme_subtitle,
-                    onTap: () => ThemeSelectionDialog.show(context),
-                  ),
-                  _SettingsTile(
-                    key: settingsChangeLanguageButtonKey,
-                    icon: Icons.translate,
-                    title: S.of(context).language,
-                    subtitle: Localizations.localeOf(context).displayName(context),
-                    onTap: () => LanguageSelectionDialog.show(context),
-                  ),
-                ],
-              ),
-
-              // Help & Resources section, when the project has a documentation website
-              if (context.read<ProjectLinks>().docsUrl case final docsUrl?) ...[
-                const SizedBox(height: AppSpacing.lg),
-                _SettingsSection(
-                  title: S.of(context).help_resources,
-                  children: [
-                    _SettingsTile(
-                      key: settingsWebsiteButtonKey,
-                      icon: Icons.language,
-                      title: S.of(context).website,
-                      subtitle: S.of(context).help_resources_subtitle,
-                      onTap: () => openExternalLink(context, Uri.parse(docsUrl)),
-                    ),
-                  ],
-                ),
-              ],
-              // Logout intentionally lives only in the sidebar / topbar
-              // shell, not here. Settings is feature-scoped and an
-              // auth-session lifecycle action would cross feature
-              // boundaries (architecture guard rejects features/settings
-              // → features/auth imports). Sidebar's MenuBloc.Logout
-              // flow handles it correctly.
-            ],
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(header: true, child: Text(s.settings, style: theme.textTheme.headlineSmall)),
+          const SizedBox(height: AppSpacing.lg),
+          if (ready.notice != null) ...[
+            ContentNoticeBanner(notice: ready.notice),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+          _SectionTitle(s.settings_content),
+          _Fact(label: s.settings_content_version, value: index.contentVersion.substring(0, 12)),
+          _Fact(label: s.settings_published, value: _utcDay(index.publishedAtInstant)),
+          _Fact(
+            label: s.settings_source,
+            value: switch (ready.origin) {
+              ContentOrigin.bundled => s.settings_source_bundled,
+              ContentOrigin.downloaded => s.settings_source_downloaded,
+            },
           ),
-        ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
+          _Action(
+            label: s.settings_check_for_updates,
+            onPressed: switch (ready.refresh) {
+              RefreshChecking() => null,
+              RefreshIdle() ||
+              RefreshUpToDate() ||
+              RefreshUpdated() ||
+              RefreshFailed() ||
+              RefreshNeedsAppUpdate() => () => context.read<ContentBloc>().add(const ContentRefreshRequested()),
+            },
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          _SectionTitle(s.settings_about),
+          _Action(
+            label: s.settings_licences,
+            onPressed: () => showLicensePage(context: context, applicationName: s.app_title),
+          ),
+          if (openDevConsole != null) _Action(label: s.settings_dev_console, onPressed: () => openDevConsole(context)),
+        ],
       ),
+    );
+  }
+
+  /// The UTC day of [instant] as `YYYY-MM-DD`, whatever the device's zone.
+  static String _utcDay(DateTime instant) => instant.toUtc().toIso8601String().substring(0, 10);
+
+  static String _refreshLine(S s, RefreshStatus refresh) => switch (refresh) {
+    RefreshIdle() => s.settings_refresh_idle,
+    RefreshChecking() => s.settings_refresh_checking,
+    RefreshUpToDate() => s.settings_refresh_up_to_date,
+    RefreshUpdated() => s.settings_refresh_updated,
+    RefreshNeedsAppUpdate() => s.settings_refresh_needs_app_update,
+    RefreshFailed(:final code) => s.settings_refresh_failed(_reason(s, code)),
+  };
+
+  static String _reason(S s, ContentErrorCode code) => switch (code) {
+    ContentErrorCode.network => s.settings_refresh_reason_network,
+    ContentErrorCode.httpStatus => s.settings_refresh_reason_http_status,
+    ContentErrorCode.format => s.settings_refresh_reason_format,
+    ContentErrorCode.checksum => s.settings_refresh_reason_checksum,
+    ContentErrorCode.storage => s.settings_refresh_reason_storage,
+    ContentErrorCode.bundledIndexUnreadable ||
+    ContentErrorCode.missing ||
+    ContentErrorCode.corrupt => s.settings_refresh_reason_stored,
+  };
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Semantics(header: true, child: Text(text, style: Theme.of(context).textTheme.titleMedium)),
     );
   }
 }
 
-/// A grouped settings section with a title and list of tiles.
-class _SettingsSection extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
+/// One labelled value of the content status, read as one node.
+class _Fact extends StatelessWidget {
+  const _Fact({required this.label, required this.value});
 
-  const _SettingsSection({required this.title, required this.children});
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.sm),
-          child: Text(
-            title,
-            style: textTheme.labelLarge?.copyWith(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: MergeSemantics(
+        child: Wrap(
+          spacing: AppSpacing.md,
+          children: [
+            Text(label, style: textTheme.bodyMedium?.copyWith(color: context.bazaarColors.onSurfaceMuted)),
+            Text(value, style: textTheme.bodyMedium),
+          ],
         ),
-        AppCard(
-          variant: AppCardVariant.outlined,
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              for (int i = 0; i < children.length; i++) ...[
-                children[i],
-                if (i < children.length - 1)
-                  Divider(
-                    height: 1,
-                    indent: AppSpacing.lg,
-                    endIndent: AppSpacing.lg,
-                    color: colorScheme.outlineVariant,
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-/// Individual settings tile with icon, title, subtitle, and navigation.
-class _SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
+/// A start-aligned text button; the theme sizes it to the platform's tap target.
+class _Action extends StatelessWidget {
+  const _Action({required this.label, required this.onPressed});
 
-  const _SettingsTile({super.key, required this.icon, required this.title, required this.subtitle, this.onTap});
+  final String label;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
-      leading: Icon(icon, color: colorScheme.onSurfaceVariant),
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-      ),
-      trailing: Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
-      onTap: onTap,
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton(onPressed: onPressed, child: Text(label)),
     );
   }
 }

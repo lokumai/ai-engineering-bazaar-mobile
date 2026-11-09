@@ -6,18 +6,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template to report code quality, architectural, or technical debt issues — typically discovered during internal code reviews, audits, or refactoring planning.
+        Use this template to report code quality, architectural, or technical debt issues, typically discovered during internal code reviews, audits, or refactoring planning.
 
         - For runtime bugs reported by users, please use the **Bug Report** template.
         - For new feature proposals, please use the **Feature Request** template.
-        - For open-ended questions or discussions, please use [GitHub Discussions](https://github.com/cevheri/flutter-bloc-advanced/discussions).
+        - For open-ended questions or discussions, please use [GitHub Discussions](https://github.com/lokumai/ai-engineering-bazaar-mobile/discussions).
 
   - type: textarea
     id: summary
     attributes:
       label: Summary
       description: A single sentence stating the problem. The issue title should mirror this.
-      placeholder: e.g., LoginBloc mixes subclass-based states and copyWith, causing field loss across emits.
+      placeholder: e.g., RecordBloc writes the record twice when two completions arrive in the same frame.
     validations:
       required: true
 
@@ -27,8 +27,8 @@ body:
       label: Location
       description: One or more `file:line` references where the issue lives.
       placeholder: |
-        lib/features/auth/application/login_bloc.dart:48
-        lib/features/auth/application/login_bloc.dart:90
+        lib/shared/record/application/record_bloc.dart:48
+        lib/shared/record/application/record_bloc.dart:90
     validations:
       required: true
 
@@ -54,7 +54,7 @@ body:
     id: why
     attributes:
       label: Why It Matters
-      description: The impact of leaving this unresolved — e.g., bug risk, maintainability, performance, security, testability, onboarding cost.
+      description: The impact of leaving this unresolved: e.g., bug risk, maintainability, performance, security, testability, onboarding cost.
     validations:
       required: true
 
@@ -64,10 +64,10 @@ body:
       label: Severity
       description: |
         How urgent is this?
-          - **Critical** — Latent bug, data corruption risk, security exposure, or layering violation.
-          - **High** — Significant maintainability or quality gap; blocks future enterprise-grade work.
-          - **Medium** — Design hygiene issue; should be fixed but not blocking.
-          - **Low** — Minor cleanup; can be done opportunistically.
+          - **Critical**: Latent bug, data corruption risk, security exposure, or layering violation.
+          - **High**: Significant maintainability or quality gap; blocks future enterprise-grade work.
+          - **Medium**: Design hygiene issue; should be fixed but not blocking.
+          - **Low**: Minor cleanup; can be done opportunistically.
       options:
         - Critical
         - High
@@ -99,17 +99,16 @@ body:
       description: Which feature modules or shared layers does this touch?
       multiple: true
       options:
-        - account
-        - auth
-        - dashboard
-        - dynamic_forms
-        - lifecycle
+        - app
+        - catalog
+        - reader
+        - quiz
+        - progress
         - settings
-        - users
-        - shared
+        - shared/content
+        - shared/record
         - core
         - infrastructure
-        - app
         - other
 
   - type: textarea

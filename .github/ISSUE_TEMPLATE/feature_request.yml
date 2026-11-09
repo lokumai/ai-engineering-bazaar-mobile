@@ -42,10 +42,6 @@ body:
         - All Platforms
         - Android
         - iOS
-        - Web
-        - macOS
-        - Linux
-        - Windows
 
   - type: dropdown
     id: area

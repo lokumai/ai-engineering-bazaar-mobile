@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "1111111111111111111111111111111111111111111111111111111111111111",
+  "publishedAt": "2026-01-02T03:04:05.000Z",
+  "sourceLanguage": "en",
+  "translations": [],
+  "tracks": [
+    {
+      "id": "engineers",
+      "label": "For Engineers"
+    },
+    {
+      "id": "everyone",
+      "label": "For Everyone"
+    }
+  ],
+  "diagramFont": {
+    "family": "Vazirmatn",
+    "sha256": "b69fd4c680b8f3f225feabcc655a2c585d97627b8f5f5c0f9985e894069f3a56"
+  },
+  "diagramThemes": {
+    "light": {
+      "theme": "default",
+      "background": "white"
+    },
+    "dark": {
+      "theme": "dark",
+      "background": "#333"
+    }
+  },
+  "levels": [
+    {
+      "slug": "alpha",
+      "title": "Alpha",
+      "status": "ready",
+      "blurb": "The first synthetic level.",
+      "total": 2,
+      "readme": "api/v1/levels/alpha.json"
+    },
+    {
+      "slug": "beta",
+      "title": "Beta",
+      "status": "draft",
+      "blurb": "",
+      "total": 1,
+      "readme": null
+    }
+  ],
+  "modules": [
+    {
+      "key": "alpha/first",
+      "level": "alpha",
+      "number": 1,
+      "minutes": 12,
+      "prerequisites": [],
+      "tracks": {
+        "engineers": {
+          "title": "First Module",
+          "drawn": true,
+          "summary": null,
+          "hasQuiz": true,
+          "revision": {
+            "hash": "abc1234",
+            "date": "2026-01-01"
+          },
+          "docs": {
+            "en": "api/v1/modules/alpha/first/en.json"
+          },
+          "webPath": "courses/alpha/first/"
+        },
+        "everyone": {
+          "title": "First Story",
+          "drawn": true,
+          "summary": null,
+          "hasQuiz": false,
+          "revision": {
+            "hash": "def5678",
+            "date": "2026-01-01"
+          },
+          "docs": {
+            "en": "api/v1/modules/alpha/first/everyone/en.json"
+          },
+          "webPath": "everyone/courses/alpha/first/"
+        }
+      }
+    },
+    {
+      "key": "alpha/second",
+      "level": "alpha",
+      "number": 2,
+      "minutes": 8,
+      "prerequisites": [
+        "alpha/first"
+      ],
+      "tracks": {
+        "engineers": {
+          "title": "Second Module",
+          "drawn": true,
+          "summary": null,
+          "hasQuiz": false,
+          "revision": {
+            "hash": "0a1b2c3",
+            "date": "2026-01-01"
+          },
+          "docs": {
+            "en": "api/v1/modules/alpha/second/en.json"
+          },
+          "webPath": "courses/alpha/second/"
+        },
+        "everyone": {
+          "title": "Second Module",
+          "drawn": false,
+          "summary": null,
+          "hasQuiz": false,
+          "revision": null,
+          "docs": {},
+          "webPath": "everyone/courses/alpha/second/"
+        }
+      }
+    },
+    {
+      "key": "beta/third",
+      "level": "beta",
+      "number": 3,
+      "minutes": 5,
+      "prerequisites": [
+        "alpha/second"
+      ],
+      "tracks": {
+        "engineers": {
+          "title": "Third Module",
+          "drawn": false,
+          "summary": "A planned synthetic module.",
+          "hasQuiz": false,
+          "revision": {
+            "hash": "4d5e6f7",
+            "date": "2026-01-01"
+          },
+          "docs": {
+            "en": "api/v1/modules/beta/third/en.json"
+          },
+          "webPath": "courses/beta/third/"
+        },
+        "everyone": {
+          "title": "Third Module",
+          "drawn": false,
+          "summary": null,
+          "hasQuiz": false,
+          "revision": null,
+          "docs": {},
+          "webPath": "everyone/courses/beta/third/"
+        }
+      }
+    }
+  ],
+  "moved": {
+    "levels": {
+      "gamma": "beta"
+    },
+    "modules": {
+      "alpha/zeroth": "alpha/first"
+    }
+  },
+  "files": {},
+  "images": {}
+}

@@ -27,7 +27,7 @@ val isProdTarget = File(project.findProperty("target") as String? ?: "").name ==
 fun buildConfigString(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
-    namespace = "com.cevheri.flutter.flutter_bloc_advance"
+    namespace = "dev.lokumai.bazaar"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -37,14 +37,12 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cevheri.flutter.flutter_bloc_advance"
+        applicationId = "dev.lokumai.bazaar"
         // sentry_flutter 10 requires Android API 26 or higher.
         minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // The oidc_android redirect activity listens on this scheme; it must match OidcSettings.defaultRedirectScheme.
-        manifestPlaceholders["oidcRedirectScheme"] = "com.example.flutterblocadvance"
         // The DSN is the public key that --dart-define already compiles into the Dart snapshot.
         val nativeSentryDsn = if (isProdTarget) dartDefines["SENTRY_DSN"].orEmpty() else ""
         buildConfigField("String", "SENTRY_DSN", buildConfigString(nativeSentryDsn))

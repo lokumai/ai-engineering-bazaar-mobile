@@ -1,0 +1,548 @@
+{
+  "schemaVersion": 1,
+  "key": "alpha/first",
+  "track": "engineers",
+  "lang": "en",
+  "dir": "ltr",
+  "title": "First Module",
+  "objectives": {
+    "lang": "en",
+    "items": [
+      "Read a synthetic module."
+    ]
+  },
+  "prerequisites": [],
+  "previous": null,
+  "next": {
+    "key": "alpha/second",
+    "number": 2,
+    "title": "Second Module",
+    "drawn": true,
+    "track": "engineers",
+    "lang": "en"
+  },
+  "toc": [
+    {
+      "id": "setup",
+      "text": "Setup",
+      "depth": 2,
+      "mark": "I"
+    },
+    {
+      "id": "details",
+      "text": "Details",
+      "depth": 3
+    }
+  ],
+  "body": [
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "A synthetic module that holds one block of every type."
+        }
+      ],
+      "lead": true
+    },
+    {
+      "type": "heading",
+      "depth": 2,
+      "id": "setup",
+      "mark": "I",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Setup"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Plain text, "
+        },
+        {
+          "type": "strong",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "strong"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "emphasis",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "emphasis"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "delete",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "deleted"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "code",
+          "text": "inline_code()"
+        },
+        {
+          "type": "break"
+        },
+        {
+          "type": "link",
+          "target": {
+            "kind": "module",
+            "key": "alpha/second",
+            "track": "engineers",
+            "lang": "en",
+            "fragment": "notes"
+          },
+          "inlines": [
+            {
+              "type": "text",
+              "text": "the next module"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "link",
+          "target": {
+            "kind": "external",
+            "url": "https://example.org/"
+          },
+          "inlines": [
+            {
+              "type": "text",
+              "text": "an external page"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "link",
+          "target": {
+            "kind": "anchor",
+            "id": "details"
+          },
+          "inlines": [
+            {
+              "type": "text",
+              "text": "the details"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "link",
+          "target": {
+            "kind": "catalog"
+          },
+          "inlines": [
+            {
+              "type": "text",
+              "text": "the catalog"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "logo",
+          "src": "course-images/alpha/logos/mark.svg",
+          "alt": "",
+          "mono": false
+        },
+        {
+          "type": "text",
+          "text": "Mark"
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "logo",
+          "src": "course-images/alpha/logos/mark-mono.svg",
+          "alt": "",
+          "mono": true
+        },
+        {
+          "type": "text",
+          "text": "Mono mark"
+        },
+        {
+          "type": "text",
+          "text": ", "
+        },
+        {
+          "type": "sparkle",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "kept"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "depth": 3,
+      "id": "details",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Details"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "task": {
+            "checked": false
+          },
+          "blocks": [
+            {
+              "type": "paragraph",
+              "inlines": [
+                {
+                  "type": "text",
+                  "text": "A task item."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "inlines": [
+                {
+                  "type": "text",
+                  "text": "A plain item."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 3,
+      "items": [
+        {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "inlines": [
+                {
+                  "type": "text",
+                  "text": "Third step."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "inlines": [
+                {
+                  "type": "text",
+                  "text": "Fourth step."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "quote",
+      "label": "NOTE",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "A quoted note."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "callout",
+      "kind": "important",
+      "title": [
+        {
+          "type": "text",
+          "text": "Heads up"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "inlines": [
+            {
+              "type": "text",
+              "text": "A callout paragraph."
+            }
+          ]
+        }
+      ],
+      "action": {
+        "target": {
+          "kind": "external",
+          "url": "https://example.org/docs"
+        },
+        "inlines": [
+          {
+            "type": "text",
+            "text": "Open the docs"
+          }
+        ]
+      }
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "lines": [
+        [
+          {
+            "text": "def",
+            "role": "keyword",
+            "bold": true
+          },
+          {
+            "text": " "
+          },
+          {
+            "text": "run",
+            "role": "function"
+          },
+          {
+            "text": "():"
+          }
+        ],
+        [],
+        [
+          {
+            "text": "    return "
+          },
+          {
+            "text": "\"ok\"",
+            "role": "string"
+          },
+          {
+            "text": "  "
+          },
+          {
+            "text": "# done",
+            "role": "comment"
+          }
+        ],
+        [
+          {
+            "text": "    x = "
+          },
+          {
+            "text": "1",
+            "role": "number"
+          },
+          {
+            "text": " "
+          },
+          {
+            "text": "y",
+            "role": "future-role"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "number": "1",
+      "title": "Synthetic table",
+      "rowHeaders": true,
+      "align": [
+        "left",
+        null,
+        "right"
+      ],
+      "head": [
+        {
+          "inlines": [
+            {
+              "type": "text",
+              "text": "Name"
+            }
+          ]
+        },
+        {
+          "inlines": [
+            {
+              "type": "text",
+              "text": "Kind"
+            }
+          ]
+        },
+        {
+          "inlines": [
+            {
+              "type": "text",
+              "text": "Count"
+            }
+          ]
+        }
+      ],
+      "rows": [
+        [
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "One"
+              }
+            ]
+          },
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "Small"
+              }
+            ]
+          },
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "1"
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "Two"
+              }
+            ]
+          },
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "Large"
+              }
+            ]
+          },
+          {
+            "inlines": [
+              {
+                "type": "text",
+                "text": "2"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "number": "1",
+      "title": "Synthetic figure",
+      "note": "A note under the figure.",
+      "src": "course-images/alpha/figure.png",
+      "alt": "A blue rectangle",
+      "width": 4,
+      "height": 3
+    },
+    {
+      "type": "diagram",
+      "number": "2",
+      "title": "Synthetic flowchart",
+      "svg": {
+        "light": "api/v1/diagrams/77235fba878b47f1d72f180d8babf2c4.svg",
+        "dark": "api/v1/diagrams/9bb8502b0371cba0d2e5b7e98362455e.svg"
+      }
+    },
+    {
+      "type": "rule"
+    },
+    {
+      "type": "carousel",
+      "items": []
+    }
+  ],
+  "draft": null,
+  "quiz": [
+    {
+      "question": "What does the first question ask?",
+      "options": [
+        "Option one",
+        "Option two",
+        "Option three",
+        "Option four"
+      ],
+      "answer": 1,
+      "explain": "The second option is the answer."
+    },
+    {
+      "question": "What does the second question ask?",
+      "options": [
+        "Choice one",
+        "Choice two",
+        "Choice three",
+        "Choice four"
+      ],
+      "answer": 3,
+      "explain": "The fourth choice is the answer."
+    }
+  ]
+}

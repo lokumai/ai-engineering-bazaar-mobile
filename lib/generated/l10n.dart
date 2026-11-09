@@ -53,576 +53,9 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Admin`
-  String get admin {
-    return Intl.message('Admin', name: 'admin', desc: '', args: []);
-  }
-
-  /// `Guest`
-  String get guest {
-    return Intl.message('Guest', name: 'guest', desc: '', args: []);
-  }
-
-  /// `Role`
-  String get role {
-    return Intl.message('Role', name: 'role', desc: '', args: []);
-  }
-
-  /// `Login`
-  String get login {
-    return Intl.message('Login', name: 'login', desc: '', args: []);
-  }
-
-  /// `First Name`
-  String get first_name {
-    return Intl.message('First Name', name: 'first_name', desc: '', args: []);
-  }
-
-  /// `Last Name`
-  String get last_name {
-    return Intl.message('Last Name', name: 'last_name', desc: '', args: []);
-  }
-
-  /// `Email`
-  String get email {
-    return Intl.message('Email', name: 'email', desc: '', args: []);
-  }
-
-  /// `Active`
-  String get active {
-    return Intl.message('Active', name: 'active', desc: '', args: []);
-  }
-
-  /// `Authorities`
-  String get authorities {
-    return Intl.message('Authorities', name: 'authorities', desc: '', args: []);
-  }
-
-  /// `Name`
-  String get name {
-    return Intl.message('Name', name: 'name', desc: '', args: []);
-  }
-
-  /// `Success`
-  String get success {
-    return Intl.message('Success', name: 'success', desc: '', args: []);
-  }
-
-  /// `Failed`
-  String get failed {
-    return Intl.message('Failed', name: 'failed', desc: '', args: []);
-  }
-
-  /// `Required Field`
-  String get required_field {
-    return Intl.message('Required Field', name: 'required_field', desc: '', args: []);
-  }
-
-  /// `Field must be at least 2 characters long`
-  String get min_length_2 {
-    return Intl.message('Field must be at least 2 characters long', name: 'min_length_2', desc: '', args: []);
-  }
-
-  /// `Field must be at least 4 characters long`
-  String get min_length_4 {
-    return Intl.message('Field must be at least 4 characters long', name: 'min_length_4', desc: '', args: []);
-  }
-
-  /// `Field cannot be more than 20 characters long`
-  String get max_length_20 {
-    return Intl.message('Field cannot be more than 20 characters long', name: 'max_length_20', desc: '', args: []);
-  }
-
-  /// `Field cannot be more than 100 characters long`
-  String get max_length_100 {
-    return Intl.message('Field cannot be more than 100 characters long', name: 'max_length_100', desc: '', args: []);
-  }
-
-  /// `Range is required`
-  String get required_range {
-    return Intl.message('Range is required', name: 'required_range', desc: '', args: []);
-  }
-
-  /// `List`
-  String get list {
-    return Intl.message('List', name: 'list', desc: '', args: []);
-  }
-
-  /// `List User`
-  String get list_user {
-    return Intl.message('List User', name: 'list_user', desc: '', args: []);
-  }
-
-  /// `New User`
-  String get new_user {
-    return Intl.message('New User', name: 'new_user', desc: '', args: []);
-  }
-
-  /// `Edit User`
-  String get edit_user {
-    return Intl.message('Edit User', name: 'edit_user', desc: '', args: []);
-  }
-
-  /// `View User`
-  String get view_user {
-    return Intl.message('View User', name: 'view_user', desc: '', args: []);
-  }
-
-  /// `Delete User`
-  String get delete_user {
-    return Intl.message('Delete User', name: 'delete_user', desc: '', args: []);
-  }
-
-  /// `Email must be a valid email address`
-  String get email_pattern {
-    return Intl.message('Email must be a valid email address', name: 'email_pattern', desc: '', args: []);
-  }
-
-  /// `Turkish`
-  String get turkish {
-    return Intl.message('Turkish', name: 'turkish', desc: '', args: []);
-  }
-
-  /// `English`
-  String get english {
-    return Intl.message('English', name: 'english', desc: '', args: []);
-  }
-
-  /// `Create User`
-  String get create_user {
-    return Intl.message('Create User', name: 'create_user', desc: '', args: []);
-  }
-
-  /// `Save`
-  String get save {
-    return Intl.message('Save', name: 'save', desc: '', args: []);
-  }
-
-  /// `Back`
-  String get back {
-    return Intl.message('Back', name: 'back', desc: '', args: []);
-  }
-
-  /// `Are you sure you want to delete?`
-  String get delete_confirmation {
-    return Intl.message('Are you sure you want to delete?', name: 'delete_confirmation', desc: '', args: []);
-  }
-
   /// `Settings`
   String get settings {
     return Intl.message('Settings', name: 'settings', desc: '', args: []);
-  }
-
-  /// `Account`
-  String get account {
-    return Intl.message('Account', name: 'account', desc: '', args: []);
-  }
-
-  /// `Change Password`
-  String get change_password {
-    return Intl.message('Change Password', name: 'change_password', desc: '', args: []);
-  }
-
-  /// `Ensure your account is using a long, random password to stay secure.`
-  String get change_password_description {
-    return Intl.message(
-      'Ensure your account is using a long, random password to stay secure.',
-      name: 'change_password_description',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Select Language`
-  String get language_select {
-    return Intl.message('Select Language', name: 'language_select', desc: '', args: []);
-  }
-
-  /// `Logout`
-  String get logout {
-    return Intl.message('Logout', name: 'logout', desc: '', args: []);
-  }
-
-  /// `Are you sure you want to logout?`
-  String get logout_sure {
-    return Intl.message('Are you sure you want to logout?', name: 'logout_sure', desc: '', args: []);
-  }
-
-  /// `Yes`
-  String get yes {
-    return Intl.message('Yes', name: 'yes', desc: '', args: []);
-  }
-
-  /// `No`
-  String get no {
-    return Intl.message('No', name: 'no', desc: '', args: []);
-  }
-
-  /// `Warning`
-  String get warning {
-    return Intl.message('Warning', name: 'warning', desc: '', args: []);
-  }
-
-  /// `You have unsaved changes. Are you sure you want to leave?`
-  String get unsaved_changes {
-    return Intl.message(
-      'You have unsaved changes. Are you sure you want to leave?',
-      name: 'unsaved_changes',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No changes made`
-  String get no_changes_made {
-    return Intl.message('No changes made', name: 'no_changes_made', desc: '', args: []);
-  }
-
-  /// `No Data`
-  String get no_data {
-    return Intl.message('No Data', name: 'no_data', desc: '', args: []);
-  }
-
-  /// `Username`
-  String get login_user_name {
-    return Intl.message('Username', name: 'login_user_name', desc: '', args: []);
-  }
-
-  /// `Password`
-  String get login_password {
-    return Intl.message('Password', name: 'login_password', desc: '', args: []);
-  }
-
-  /// `Current Password`
-  String get current_password {
-    return Intl.message('Current Password', name: 'current_password', desc: '', args: []);
-  }
-
-  /// `New Password`
-  String get new_password {
-    return Intl.message('New Password', name: 'new_password', desc: '', args: []);
-  }
-
-  /// `Forgot Password`
-  String get password_forgot {
-    return Intl.message('Forgot Password', name: 'password_forgot', desc: '', args: []);
-  }
-
-  /// `Register`
-  String get register {
-    return Intl.message('Register', name: 'register', desc: '', args: []);
-  }
-
-  /// `Password cannot be more than {max} characters long`
-  String password_max_length(int max) {
-    return Intl.message(
-      'Password cannot be more than $max characters long',
-      name: 'password_max_length',
-      desc: '',
-      args: [max],
-    );
-  }
-
-  /// `Password must be at least {min} characters long`
-  String password_min_length(int min) {
-    return Intl.message(
-      'Password must be at least $min characters long',
-      name: 'password_min_length',
-      desc: '',
-      args: [min],
-    );
-  }
-
-  /// `Login`
-  String get login_button {
-    return Intl.message('Login', name: 'login_button', desc: '', args: []);
-  }
-
-  /// `Loading...`
-  String get loading {
-    return Intl.message('Loading...', name: 'loading', desc: '', args: []);
-  }
-
-  /// `Send Email`
-  String get email_send {
-    return Intl.message('Send Email', name: 'email_send', desc: '', args: []);
-  }
-
-  /// `{translate, select, account{Account} userManagement{User Management} settings{Settings}  logout{Logout}  info{Info} language{Language}  theme{Theme}  new_user{New}  list_user{List} other{Other}}`
-  String translate_menu_title(String translate) {
-    return Intl.select(
-      translate,
-      {
-        'account': 'Account',
-        'userManagement': 'User Management',
-        'settings': 'Settings',
-        'logout': 'Logout',
-        'info': 'Info',
-        'language': 'Language',
-        'theme': 'Theme',
-        'new_user': 'New',
-        'list_user': 'List',
-        'other': 'Other',
-      },
-      name: 'translate_menu_title',
-      desc: '',
-      args: [translate],
-    );
-  }
-
-  /// `Login with Email`
-  String get login_with_email {
-    return Intl.message('Login with Email', name: 'login_with_email', desc: '', args: []);
-  }
-
-  /// `Send OTP Code`
-  String get send_otp_code {
-    return Intl.message('Send OTP Code', name: 'send_otp_code', desc: '', args: []);
-  }
-
-  /// `Invalid email address`
-  String get invalid_email {
-    return Intl.message('Invalid email address', name: 'invalid_email', desc: '', args: []);
-  }
-
-  /// `Resend OTP Code`
-  String get resend_otp_code {
-    return Intl.message('Resend OTP Code', name: 'resend_otp_code', desc: '', args: []);
-  }
-
-  /// `Verify OTP Code`
-  String get verify_otp_code {
-    return Intl.message('Verify OTP Code', name: 'verify_otp_code', desc: '', args: []);
-  }
-
-  /// `Only numbers are allowed`
-  String get only_numbers {
-    return Intl.message('Only numbers are allowed', name: 'only_numbers', desc: '', args: []);
-  }
-
-  /// `OTP must be 6 characters long`
-  String get otp_length {
-    return Intl.message('OTP must be 6 characters long', name: 'otp_length', desc: '', args: []);
-  }
-
-  /// `OTP Code`
-  String get otp_code {
-    return Intl.message('OTP Code', name: 'otp_code', desc: '', args: []);
-  }
-
-  /// `Theme`
-  String get theme {
-    return Intl.message('Theme', name: 'theme', desc: '', args: []);
-  }
-
-  /// `Language`
-  String get language {
-    return Intl.message('Language', name: 'language', desc: '', args: []);
-  }
-
-  /// `Dashboard`
-  String get dashboard {
-    return Intl.message('Dashboard', name: 'dashboard', desc: '', args: []);
-  }
-
-  /// `Refresh`
-  String get refresh {
-    return Intl.message('Refresh', name: 'refresh', desc: '', args: []);
-  }
-
-  /// `Quick Actions`
-  String get quick_actions {
-    return Intl.message('Quick Actions', name: 'quick_actions', desc: '', args: []);
-  }
-
-  /// `Join the Community`
-  String get community_title {
-    return Intl.message('Join the Community', name: 'community_title', desc: '', args: []);
-  }
-
-  /// `This project is open source. Your contributions make it better!`
-  String get community_subtitle {
-    return Intl.message(
-      'This project is open source. Your contributions make it better!',
-      name: 'community_subtitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Star & Fork`
-  String get community_star {
-    return Intl.message('Star & Fork', name: 'community_star', desc: '', args: []);
-  }
-
-  /// `Open an Issue`
-  String get community_issue {
-    return Intl.message('Open an Issue', name: 'community_issue', desc: '', args: []);
-  }
-
-  /// `Discussions`
-  String get community_discussions {
-    return Intl.message('Discussions', name: 'community_discussions', desc: '', args: []);
-  }
-
-  /// `Contribute`
-  String get community_contribute {
-    return Intl.message('Contribute', name: 'community_contribute', desc: '', args: []);
-  }
-
-  /// `Translate`
-  String get community_translate {
-    return Intl.message('Translate', name: 'community_translate', desc: '', args: []);
-  }
-
-  /// `Sponsor`
-  String get community_sponsor {
-    return Intl.message('Sponsor', name: 'community_sponsor', desc: '', args: []);
-  }
-
-  /// `Documentation`
-  String get community_docs {
-    return Intl.message('Documentation', name: 'community_docs', desc: '', args: []);
-  }
-
-  /// `Help & Resources`
-  String get help_resources {
-    return Intl.message('Help & Resources', name: 'help_resources', desc: '', args: []);
-  }
-
-  /// `Visit our website for documentation and guides`
-  String get help_resources_subtitle {
-    return Intl.message(
-      'Visit our website for documentation and guides',
-      name: 'help_resources_subtitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Website`
-  String get website {
-    return Intl.message('Website', name: 'website', desc: '', args: []);
-  }
-
-  /// `Invalid access token`
-  String get error_auth_invalid_access_token {
-    return Intl.message('Invalid access token', name: 'error_auth_invalid_access_token', desc: '', args: []);
-  }
-
-  /// `Login failed`
-  String get error_auth_login_failed {
-    return Intl.message('Login failed', name: 'error_auth_login_failed', desc: '', args: []);
-  }
-
-  /// `Could not send the OTP code`
-  String get error_auth_send_otp_failed {
-    return Intl.message('Could not send the OTP code', name: 'error_auth_send_otp_failed', desc: '', args: []);
-  }
-
-  /// `OTP validation failed`
-  String get error_auth_otp_validation {
-    return Intl.message('OTP validation failed', name: 'error_auth_otp_validation', desc: '', args: []);
-  }
-
-  /// `Could not save the session`
-  String get error_auth_session_persist_failed {
-    return Intl.message('Could not save the session', name: 'error_auth_session_persist_failed', desc: '', args: []);
-  }
-
-  /// `Admin user cannot be deleted`
-  String get error_user_cannot_delete_admin {
-    return Intl.message('Admin user cannot be deleted', name: 'error_user_cannot_delete_admin', desc: '', args: []);
-  }
-
-  /// `No authorities found`
-  String get error_user_no_authorities {
-    return Intl.message('No authorities found', name: 'error_user_no_authorities', desc: '', args: []);
-  }
-
-  /// `Both current and new password are required`
-  String get error_account_password_required {
-    return Intl.message(
-      'Both current and new password are required',
-      name: 'error_account_password_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `New password must be different from current password`
-  String get error_account_passwords_same {
-    return Intl.message(
-      'New password must be different from current password',
-      name: 'error_account_passwords_same',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Could not change the language`
-  String get error_settings_change_language_failed {
-    return Intl.message(
-      'Could not change the language',
-      name: 'error_settings_change_language_failed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Something went wrong`
-  String get error_generic {
-    return Intl.message('Something went wrong', name: 'error_generic', desc: '', args: []);
-  }
-
-  /// `Extended Information`
-  String get user_extended_info_title {
-    return Intl.message('Extended Information', name: 'user_extended_info_title', desc: '', args: []);
-  }
-
-  /// `Extended Info`
-  String get user_extended_info_button {
-    return Intl.message('Extended Info', name: 'user_extended_info_button', desc: '', args: []);
-  }
-
-  /// `Saved`
-  String get user_extended_info_saved {
-    return Intl.message('Saved', name: 'user_extended_info_saved', desc: '', args: []);
-  }
-
-  /// `Save failed: {error}`
-  String user_extended_info_save_failed(String error) {
-    return Intl.message('Save failed: $error', name: 'user_extended_info_save_failed', desc: '', args: [error]);
-  }
-
-  /// `Access denied`
-  String get forbidden_title {
-    return Intl.message('Access denied', name: 'forbidden_title', desc: '', args: []);
-  }
-
-  /// `You do not have permission to view this page.`
-  String get forbidden_message {
-    return Intl.message('You do not have permission to view this page.', name: 'forbidden_message', desc: '', args: []);
-  }
-
-  /// `Back to home`
-  String get forbidden_back_home {
-    return Intl.message('Back to home', name: 'forbidden_back_home', desc: '', args: []);
-  }
-
-  /// `The connection could not be verified as secure, so it was blocked. Try again later or on another network.`
-  String get error_network_cert_invalid {
-    return Intl.message(
-      'The connection could not be verified as secure, so it was blocked. Try again later or on another network.',
-      name: 'error_network_cert_invalid',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `You were signed out due to inactivity.`
-  String get idle_timeout_signed_out {
-    return Intl.message('You were signed out due to inactivity.', name: 'idle_timeout_signed_out', desc: '', args: []);
   }
 
   /// `Could not open {url}`
@@ -630,930 +63,1010 @@ class S {
     return Intl.message('Could not open $url', name: 'error_link_open_failed', desc: '', args: [url]);
   }
 
-  /// `Update Required`
-  String get force_update_title {
-    return Intl.message('Update Required', name: 'force_update_title', desc: '', args: []);
-  }
-
-  /// `A new version is available. Please update to continue using the app.`
-  String get force_update_message {
-    return Intl.message(
-      'A new version is available. Please update to continue using the app.',
-      name: 'force_update_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Current: {currentVersion}  •  Required: {minimumVersion}`
-  String force_update_versions(String currentVersion, String minimumVersion) {
-    return Intl.message(
-      'Current: $currentVersion  •  Required: $minimumVersion',
-      name: 'force_update_versions',
-      desc: '',
-      args: [currentVersion, minimumVersion],
-    );
-  }
-
-  /// `Update Now`
-  String get force_update_button {
-    return Intl.message('Update Now', name: 'force_update_button', desc: '', args: []);
-  }
-
-  /// `Open your app store to install the latest version.`
-  String get force_update_no_store_link {
-    return Intl.message(
-      'Open your app store to install the latest version.',
-      name: 'force_update_no_store_link',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The update link is not valid. Open your app store to install the latest version.`
-  String get force_update_store_link_invalid {
-    return Intl.message(
-      'The update link is not valid. Open your app store to install the latest version.',
-      name: 'force_update_store_link_invalid',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Under Maintenance`
-  String get maintenance_title {
-    return Intl.message('Under Maintenance', name: 'maintenance_title', desc: '', args: []);
-  }
-
-  /// `We are performing scheduled maintenance. Please check back soon.`
-  String get maintenance_message {
-    return Intl.message(
-      'We are performing scheduled maintenance. Please check back soon.',
-      name: 'maintenance_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Estimated end: {time}`
-  String maintenance_estimated_end(String time) {
-    return Intl.message('Estimated end: $time', name: 'maintenance_estimated_end', desc: '', args: [time]);
-  }
-
-  /// `Try Again`
-  String get maintenance_retry {
-    return Intl.message('Try Again', name: 'maintenance_retry', desc: '', args: []);
-  }
-
-  /// `Could not load the users`
-  String get user_list_load_failed {
-    return Intl.message('Could not load the users', name: 'user_list_load_failed', desc: '', args: []);
-  }
-
-  /// `Could not delete the user`
-  String get user_delete_failed {
-    return Intl.message('Could not delete the user', name: 'user_delete_failed', desc: '', args: []);
-  }
-
-  /// `Could not load the user`
-  String get user_load_failed {
-    return Intl.message('Could not load the user', name: 'user_load_failed', desc: '', args: []);
-  }
-
-  /// `Roles unavailable`
-  String get authorities_load_failed {
-    return Intl.message('Roles unavailable', name: 'authorities_load_failed', desc: '', args: []);
-  }
-
-  /// `You were signed out, but some stored data could not be removed from this device.`
-  String get logout_stored_data_left {
-    return Intl.message(
-      'You were signed out, but some stored data could not be removed from this device.',
-      name: 'logout_stored_data_left',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Home`
-  String get home {
-    return Intl.message('Home', name: 'home', desc: '', args: []);
-  }
-
-  /// `Users`
-  String get users {
-    return Intl.message('Users', name: 'users', desc: '', args: []);
-  }
-
-  /// `New`
-  String get new_item {
-    return Intl.message('New', name: 'new_item', desc: '', args: []);
-  }
-
-  /// `Edit`
-  String get edit {
-    return Intl.message('Edit', name: 'edit', desc: '', args: []);
-  }
-
-  /// `No internet connection`
-  String get connectivity_offline {
-    return Intl.message('No internet connection', name: 'connectivity_offline', desc: '', args: []);
-  }
-
-  /// `Page Not Found`
+  /// `No such module`
   String get not_found_title {
-    return Intl.message('Page Not Found', name: 'not_found_title', desc: '', args: []);
+    return Intl.message('No such module', name: 'not_found_title', desc: '', args: []);
   }
 
-  /// `The page you requested could not be found.`
+  /// `This address is not a module in the curriculum. The catalog lists every one that is.`
   String get not_found_message {
-    return Intl.message('The page you requested could not be found.', name: 'not_found_message', desc: '', args: []);
-  }
-
-  /// `Dynamic Forms`
-  String get dynamic_forms {
-    return Intl.message('Dynamic Forms', name: 'dynamic_forms', desc: '', args: []);
-  }
-
-  /// `Dark`
-  String get theme_mode_dark {
-    return Intl.message('Dark', name: 'theme_mode_dark', desc: '', args: []);
-  }
-
-  /// `Light`
-  String get theme_mode_light {
-    return Intl.message('Light', name: 'theme_mode_light', desc: '', args: []);
-  }
-
-  /// `Expand`
-  String get sidebar_expand {
-    return Intl.message('Expand', name: 'sidebar_expand', desc: '', args: []);
-  }
-
-  /// `Collapse`
-  String get sidebar_collapse {
-    return Intl.message('Collapse', name: 'sidebar_collapse', desc: '', args: []);
-  }
-
-  /// `Type a command or search...`
-  String get command_palette_hint {
-    return Intl.message('Type a command or search...', name: 'command_palette_hint', desc: '', args: []);
-  }
-
-  /// `No results found`
-  String get command_palette_no_results {
-    return Intl.message('No results found', name: 'command_palette_no_results', desc: '', args: []);
-  }
-
-  /// `Go to home`
-  String get command_palette_home_description {
-    return Intl.message('Go to home', name: 'command_palette_home_description', desc: '', args: []);
-  }
-
-  /// `Manage users`
-  String get command_palette_users_description {
-    return Intl.message('Manage users', name: 'command_palette_users_description', desc: '', args: []);
-  }
-
-  /// `Create a new user`
-  String get command_palette_new_user_description {
-    return Intl.message('Create a new user', name: 'command_palette_new_user_description', desc: '', args: []);
-  }
-
-  /// `Your profile`
-  String get command_palette_account_description {
-    return Intl.message('Your profile', name: 'command_palette_account_description', desc: '', args: []);
-  }
-
-  /// `App preferences`
-  String get command_palette_settings_description {
-    return Intl.message('App preferences', name: 'command_palette_settings_description', desc: '', args: []);
-  }
-
-  /// `Update password`
-  String get command_palette_change_password_description {
-    return Intl.message('Update password', name: 'command_palette_change_password_description', desc: '', args: []);
-  }
-
-  /// `Scale from prototype\nto production.`
-  String get login_brand_headline {
-    return Intl.message('Scale from prototype\nto production.', name: 'login_brand_headline', desc: '', args: []);
-  }
-
-  /// `Authentication, role-based access, user management,\ntheming, and multi-environment support in one robust starter.`
-  String get login_brand_description {
     return Intl.message(
-      'Authentication, role-based access, user management,\ntheming, and multi-environment support in one robust starter.',
-      name: 'login_brand_description',
+      'This address is not a module in the curriculum. The catalog lists every one that is.',
+      name: 'not_found_message',
       desc: '',
       args: [],
     );
   }
 
-  /// `Platforms`
-  String get login_brand_stat_platforms {
-    return Intl.message('Platforms', name: 'login_brand_stat_platforms', desc: '', args: []);
+  /// `AI Engineering Bazaar`
+  String get app_title {
+    return Intl.message('AI Engineering Bazaar', name: 'app_title', desc: '', args: []);
   }
 
-  /// `Core Layers`
-  String get login_brand_stat_layers {
-    return Intl.message('Core Layers', name: 'login_brand_stat_layers', desc: '', args: []);
+  /// `Catalog`
+  String get nav_catalog {
+    return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
   }
 
-  /// `BLoC Ready`
-  String get login_brand_stat_bloc_ready {
-    return Intl.message('BLoC Ready', name: 'login_brand_stat_bloc_ready', desc: '', args: []);
+  /// `Progress`
+  String get nav_progress {
+    return Intl.message('Progress', name: 'nav_progress', desc: '', args: []);
   }
 
-  /// `Authentication & Access Control`
-  String get login_feature_auth_title {
-    return Intl.message('Authentication & Access Control', name: 'login_feature_auth_title', desc: '', args: []);
+  /// `Settings`
+  String get nav_settings {
+    return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
-  /// `Password and OTP login flows with role-based routing guards.`
-  String get login_feature_auth_description {
+  /// `Track`
+  String get track_switch_label {
+    return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
+  }
+
+  /// `Open on the web`
+  String get open_on_the_web {
+    return Intl.message('Open on the web', name: 'open_on_the_web', desc: '', args: []);
+  }
+
+  /// `The course cannot be opened`
+  String get content_broken_title {
+    return Intl.message('The course cannot be opened', name: 'content_broken_title', desc: '', args: []);
+  }
+
+  /// `The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.`
+  String get content_broken_message {
     return Intl.message(
-      'Password and OTP login flows with role-based routing guards.',
-      name: 'login_feature_auth_description',
+      'The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.',
+      name: 'content_broken_message',
       desc: '',
       args: [],
     );
   }
 
-  /// `Clean Architecture`
-  String get login_feature_architecture_title {
-    return Intl.message('Clean Architecture', name: 'login_feature_architecture_title', desc: '', args: []);
-  }
-
-  /// `BLoC + Repository pattern with clear separation of concerns.`
-  String get login_feature_architecture_description {
+  /// `The app could not use its storage for the course content. Your progress on this device is kept.`
+  String get content_broken_storage_message {
     return Intl.message(
-      'BLoC + Repository pattern with clear separation of concerns.',
-      name: 'login_feature_architecture_description',
+      'The app could not use its storage for the course content. Your progress on this device is kept.',
+      name: 'content_broken_storage_message',
       desc: '',
       args: [],
     );
   }
 
-  /// `Mock to Real API`
-  String get login_feature_mock_api_title {
-    return Intl.message('Mock to Real API', name: 'login_feature_mock_api_title', desc: '', args: []);
+  /// `Loading`
+  String get loading {
+    return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
 
-  /// `Develop locally with mock data and switch to production endpoints.`
-  String get login_feature_mock_api_description {
+  /// `Catalog`
+  String get catalog_title {
+    return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
+  }
+
+  /// `Level:`
+  String get catalog_level_label {
+    return Intl.message('Level:', name: 'catalog_level_label', desc: '', args: []);
+  }
+
+  /// `Status:`
+  String get catalog_status_label {
+    return Intl.message('Status:', name: 'catalog_status_label', desc: '', args: []);
+  }
+
+  /// `All`
+  String get catalog_filter_all {
+    return Intl.message('All', name: 'catalog_filter_all', desc: '', args: []);
+  }
+
+  /// `Ready`
+  String get catalog_filter_ready {
+    return Intl.message('Ready', name: 'catalog_filter_ready', desc: '', args: []);
+  }
+
+  /// `Planned`
+  String get catalog_filter_planned {
+    return Intl.message('Planned', name: 'catalog_filter_planned', desc: '', args: []);
+  }
+
+  /// `Completed`
+  String get catalog_filter_completed {
+    return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
+  }
+
+  /// `Not completed`
+  String get catalog_filter_not_completed {
+    return Intl.message('Not completed', name: 'catalog_filter_not_completed', desc: '', args: []);
+  }
+
+  /// `Showing {visible} of {total}`
+  String catalog_showing(int visible, int total) {
+    return Intl.message('Showing $visible of $total', name: 'catalog_showing', desc: '', args: [visible, total]);
+  }
+
+  /// `No module matches both filters · 0 of {total}`
+  String catalog_no_match(int total) {
     return Intl.message(
-      'Develop locally with mock data and switch to production endpoints.',
-      name: 'login_feature_mock_api_description',
+      'No module matches both filters · 0 of $total',
+      name: 'catalog_no_match',
+      desc: '',
+      args: [total],
+    );
+  }
+
+  /// `The two filters select different modules. Widen either one, or clear both to see the whole catalog again.`
+  String get catalog_no_match_cue {
+    return Intl.message(
+      'The two filters select different modules. Widen either one, or clear both to see the whole catalog again.',
+      name: 'catalog_no_match_cue',
       desc: '',
       args: [],
     );
   }
 
-  /// `Welcome back`
-  String get login_welcome_title {
-    return Intl.message('Welcome back', name: 'login_welcome_title', desc: '', args: []);
+  /// `Show the whole catalog`
+  String get catalog_show_all {
+    return Intl.message('Show the whole catalog', name: 'catalog_show_all', desc: '', args: []);
   }
 
-  /// `Enter your credentials to access your account`
-  String get login_welcome_subtitle {
-    return Intl.message(
-      'Enter your credentials to access your account',
-      name: 'login_welcome_subtitle',
-      desc: '',
-      args: [],
-    );
+  /// `{ready} of {total} written`
+  String catalog_written(int ready, int total) {
+    return Intl.message('$ready of $total written', name: 'catalog_written', desc: '', args: [ready, total]);
   }
 
-  /// `or`
-  String get login_or {
-    return Intl.message('or', name: 'login_or', desc: '', args: []);
+  /// `Planned`
+  String get module_planned {
+    return Intl.message('Planned', name: 'module_planned', desc: '', args: []);
   }
 
-  /// `Don't have an account? `
-  String get login_no_account {
-    return Intl.message('Don\'t have an account? ', name: 'login_no_account', desc: '', args: []);
-  }
-
-  /// `Switch to light mode`
-  String get login_switch_to_light_mode {
-    return Intl.message('Switch to light mode', name: 'login_switch_to_light_mode', desc: '', args: []);
-  }
-
-  /// `Switch to dark mode`
-  String get login_switch_to_dark_mode {
-    return Intl.message('Switch to dark mode', name: 'login_switch_to_dark_mode', desc: '', args: []);
-  }
-
-  /// `Enter your email to receive OTP code`
-  String get login_otp_email_instructions {
-    return Intl.message(
-      'Enter your email to receive OTP code',
-      name: 'login_otp_email_instructions',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `OTP sent to {email}`
-  String otp_sent_to_email(String email) {
-    return Intl.message('OTP sent to $email', name: 'otp_sent_to_email', desc: '', args: [email]);
-  }
-
-  /// `Open Source`
-  String get community_open_source {
-    return Intl.message('Open Source', name: 'community_open_source', desc: '', args: []);
-  }
-
-  /// `Create your account`
-  String get register_subtitle {
-    return Intl.message('Create your account', name: 'register_subtitle', desc: '', args: []);
-  }
-
-  /// `Enter your email address and we'll send you a link to reset your password.`
-  String get forgot_password_description {
-    return Intl.message(
-      'Enter your email address and we\'ll send you a link to reset your password.',
-      name: 'forgot_password_description',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Manage your account preferences`
-  String get settings_subtitle {
-    return Intl.message('Manage your account preferences', name: 'settings_subtitle', desc: '', args: []);
-  }
-
-  /// `View or edit your profile information`
-  String get settings_account_subtitle {
-    return Intl.message('View or edit your profile information', name: 'settings_account_subtitle', desc: '', args: []);
-  }
-
-  /// `Update your password securely`
-  String get settings_change_password_subtitle {
-    return Intl.message('Update your password securely', name: 'settings_change_password_subtitle', desc: '', args: []);
-  }
-
-  /// `Appearance`
-  String get settings_appearance {
-    return Intl.message('Appearance', name: 'settings_appearance', desc: '', args: []);
-  }
-
-  /// `Choose your preferred theme style`
-  String get settings_theme_subtitle {
-    return Intl.message('Choose your preferred theme style', name: 'settings_theme_subtitle', desc: '', args: []);
-  }
-
-  /// `Retry`
-  String get retry {
-    return Intl.message('Retry', name: 'retry', desc: '', args: []);
-  }
-
-  /// `Dashboard Error`
-  String get dashboard_error_title {
-    return Intl.message('Dashboard Error', name: 'dashboard_error_title', desc: '', args: []);
-  }
-
-  /// `System Dashboard`
-  String get dashboard_title {
-    return Intl.message('System Dashboard', name: 'dashboard_title', desc: '', args: []);
-  }
-
-  /// `Connectivity`
-  String get dashboard_connectivity {
-    return Intl.message('Connectivity', name: 'dashboard_connectivity', desc: '', args: []);
-  }
-
-  /// `Online`
-  String get dashboard_online {
-    return Intl.message('Online', name: 'dashboard_online', desc: '', args: []);
-  }
-
-  /// `Offline`
-  String get dashboard_offline {
-    return Intl.message('Offline', name: 'dashboard_offline', desc: '', args: []);
-  }
-
-  /// `Circuit Breaker`
-  String get dashboard_circuit_breaker {
-    return Intl.message('Circuit Breaker', name: 'dashboard_circuit_breaker', desc: '', args: []);
-  }
-
-  /// `{count, plural, =1{1 endpoint} other{{count} endpoints}}`
-  String dashboard_endpoint_count(int count) {
+  /// `{count, plural, =1{1 module} other{{count} modules}}`
+  String level_module_count(int count) {
     return Intl.plural(
       count,
-      one: '1 endpoint',
-      other: '$count endpoints',
-      name: 'dashboard_endpoint_count',
+      one: '1 module',
+      other: '$count modules',
+      name: 'level_module_count',
       desc: '',
       args: [count],
     );
   }
 
-  /// `{count} open`
-  String dashboard_open_count(int count) {
-    return Intl.message('$count open', name: 'dashboard_open_count', desc: '', args: [count]);
+  /// `~{minutes} min`
+  String duration_minutes(int minutes) {
+    return Intl.message('~$minutes min', name: 'duration_minutes', desc: '', args: [minutes]);
   }
 
-  /// `Cache`
-  String get dashboard_cache {
-    return Intl.message('Cache', name: 'dashboard_cache', desc: '', args: []);
+  /// `~{hours} h`
+  String duration_hours(int hours) {
+    return Intl.message('~$hours h', name: 'duration_hours', desc: '', args: [hours]);
   }
 
-  /// `{count, plural, =1{1 item cached} other{{count} items cached}}`
-  String dashboard_cached_item_count(int count) {
-    return Intl.plural(
-      count,
-      one: '1 item cached',
-      other: '$count items cached',
-      name: 'dashboard_cached_item_count',
-      desc: '',
-      args: [count],
-    );
+  /// `~{hours} h {minutes} min`
+  String duration_hours_minutes(int hours, int minutes) {
+    return Intl.message('~$hours h $minutes min', name: 'duration_hours_minutes', desc: '', args: [hours, minutes]);
   }
 
-  /// `Feature Flags`
-  String get dashboard_feature_flags {
-    return Intl.message('Feature Flags', name: 'dashboard_feature_flags', desc: '', args: []);
+  /// `{approved}/{total} completed`
+  String level_completed(int approved, int total) {
+    return Intl.message('$approved/$total completed', name: 'level_completed', desc: '', args: [approved, total]);
   }
 
-  /// `{enabled}/{total} enabled`
-  String dashboard_feature_flags_enabled(int enabled, int total) {
+  /// `--/{total} completed`
+  String level_completed_pending(int total) {
+    return Intl.message('--/$total completed', name: 'level_completed_pending', desc: '', args: [total]);
+  }
+
+  /// `General notes`
+  String get level_general_notes {
+    return Intl.message('General notes', name: 'level_general_notes', desc: '', args: []);
+  }
+
+  /// `Description`
+  String get card_description {
+    return Intl.message('Description', name: 'card_description', desc: '', args: []);
+  }
+
+  /// `Length`
+  String get card_length {
+    return Intl.message('Length', name: 'card_length', desc: '', args: []);
+  }
+
+  /// `{minutes} min`
+  String card_length_minutes(int minutes) {
+    return Intl.message('$minutes min', name: 'card_length_minutes', desc: '', args: [minutes]);
+  }
+
+  /// `Requires`
+  String get card_requires {
+    return Intl.message('Requires', name: 'card_requires', desc: '', args: []);
+  }
+
+  /// `Nothing`
+  String get card_requires_nothing {
+    return Intl.message('Nothing', name: 'card_requires_nothing', desc: '', args: []);
+  }
+
+  /// `This part of the course could not be read on this device. Restart the app to reload it.`
+  String get content_unreadable {
     return Intl.message(
-      '$enabled/$total enabled',
-      name: 'dashboard_feature_flags_enabled',
-      desc: '',
-      args: [enabled, total],
-    );
-  }
-
-  /// `Circuit Breaker Health`
-  String get dashboard_circuit_breaker_health {
-    return Intl.message('Circuit Breaker Health', name: 'dashboard_circuit_breaker_health', desc: '', args: []);
-  }
-
-  /// `No endpoints tracked yet`
-  String get dashboard_no_endpoints {
-    return Intl.message('No endpoints tracked yet', name: 'dashboard_no_endpoints', desc: '', args: []);
-  }
-
-  /// `Failures: {count}`
-  String dashboard_failure_count(int count) {
-    return Intl.message('Failures: $count', name: 'dashboard_failure_count', desc: '', args: [count]);
-  }
-
-  /// `No feature flags configured`
-  String get dashboard_no_feature_flags {
-    return Intl.message('No feature flags configured', name: 'dashboard_no_feature_flags', desc: '', args: []);
-  }
-
-  /// `App Configuration`
-  String get dashboard_app_configuration {
-    return Intl.message('App Configuration', name: 'dashboard_app_configuration', desc: '', args: []);
-  }
-
-  /// `Current Version`
-  String get dashboard_current_version {
-    return Intl.message('Current Version', name: 'dashboard_current_version', desc: '', args: []);
-  }
-
-  /// `Minimum Version`
-  String get dashboard_minimum_version {
-    return Intl.message('Minimum Version', name: 'dashboard_minimum_version', desc: '', args: []);
-  }
-
-  /// `Maintenance Mode`
-  String get dashboard_maintenance_mode {
-    return Intl.message('Maintenance Mode', name: 'dashboard_maintenance_mode', desc: '', args: []);
-  }
-
-  /// `ON`
-  String get dashboard_on {
-    return Intl.message('ON', name: 'dashboard_on', desc: '', args: []);
-  }
-
-  /// `OFF`
-  String get dashboard_off {
-    return Intl.message('OFF', name: 'dashboard_off', desc: '', args: []);
-  }
-
-  /// `Environment`
-  String get dashboard_environment {
-    return Intl.message('Environment', name: 'dashboard_environment', desc: '', args: []);
-  }
-
-  /// `Interceptor Chain`
-  String get dashboard_interceptor_chain {
-    return Intl.message('Interceptor Chain', name: 'dashboard_interceptor_chain', desc: '', args: []);
-  }
-
-  /// `Clear Cache`
-  String get dashboard_clear_cache {
-    return Intl.message('Clear Cache', name: 'dashboard_clear_cache', desc: '', args: []);
-  }
-
-  /// `Reset Circuit Breakers`
-  String get dashboard_reset_circuit_breakers {
-    return Intl.message('Reset Circuit Breakers', name: 'dashboard_reset_circuit_breakers', desc: '', args: []);
-  }
-
-  /// `Open Dynamic Forms`
-  String get dashboard_open_dynamic_forms {
-    return Intl.message('Open Dynamic Forms', name: 'dashboard_open_dynamic_forms', desc: '', args: []);
-  }
-
-  /// `Cancel`
-  String get cancel {
-    return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
-  }
-
-  /// `Inactive`
-  String get inactive {
-    return Intl.message('Inactive', name: 'inactive', desc: '', args: []);
-  }
-
-  /// `Browse and manage users in a table view.`
-  String get user_list_subtitle {
-    return Intl.message('Browse and manage users in a table view.', name: 'user_list_subtitle', desc: '', args: []);
-  }
-
-  /// `Actions`
-  String get user_list_actions {
-    return Intl.message('Actions', name: 'user_list_actions', desc: '', args: []);
-  }
-
-  /// `Role filter`
-  String get user_list_role_filter {
-    return Intl.message('Role filter', name: 'user_list_role_filter', desc: '', args: []);
-  }
-
-  /// `Filter users...`
-  String get user_list_search_hint {
-    return Intl.message('Filter users...', name: 'user_list_search_hint', desc: '', args: []);
-  }
-
-  /// `User Information`
-  String get user_editor_info_title {
-    return Intl.message('User Information', name: 'user_editor_info_title', desc: '', args: []);
-  }
-
-  /// `Manage identity, contact, and access settings.`
-  String get user_editor_info_description {
-    return Intl.message(
-      'Manage identity, contact, and access settings.',
-      name: 'user_editor_info_description',
+      'This part of the course could not be read on this device. Restart the app to reload it.',
+      name: 'content_unreadable',
       desc: '',
       args: [],
     );
   }
 
-  /// `Identity`
-  String get user_editor_identity {
-    return Intl.message('Identity', name: 'user_editor_identity', desc: '', args: []);
+  /// `FIG. {number}`
+  String block_figure_caption(String number) {
+    return Intl.message('FIG. $number', name: 'block_figure_caption', desc: '', args: [number]);
   }
 
-  /// `Basic account identity details.`
-  String get user_editor_identity_description {
-    return Intl.message(
-      'Basic account identity details.',
-      name: 'user_editor_identity_description',
-      desc: '',
-      args: [],
-    );
+  /// `TBL. {number}`
+  String block_table_caption(String number) {
+    return Intl.message('TBL. $number', name: 'block_table_caption', desc: '', args: [number]);
   }
 
-  /// `Contact`
-  String get user_editor_contact {
-    return Intl.message('Contact', name: 'user_editor_contact', desc: '', args: []);
+  /// `This part needs a newer version of the app.`
+  String get block_unknown {
+    return Intl.message('This part needs a newer version of the app.', name: 'block_unknown', desc: '', args: []);
   }
 
-  /// `Primary contact information.`
-  String get user_editor_contact_description {
-    return Intl.message('Primary contact information.', name: 'user_editor_contact_description', desc: '', args: []);
+  /// `{language} code`
+  String block_code_label(String language) {
+    return Intl.message('$language code', name: 'block_code_label', desc: '', args: [language]);
   }
 
-  /// `Access`
-  String get user_editor_access {
-    return Intl.message('Access', name: 'user_editor_access', desc: '', args: []);
+  /// `Program output`
+  String get block_program_output {
+    return Intl.message('Program output', name: 'block_program_output', desc: '', args: []);
   }
 
-  /// `Account status and role permissions.`
-  String get user_editor_access_description {
-    return Intl.message(
-      'Account status and role permissions.',
-      name: 'user_editor_access_description',
-      desc: '',
-      args: [],
-    );
+  /// `Table {number}`
+  String block_table_region(String number) {
+    return Intl.message('Table $number', name: 'block_table_region', desc: '', args: [number]);
   }
 
-  /// `Fill in the details to create a new user.`
-  String get user_editor_create_subtitle {
-    return Intl.message(
-      'Fill in the details to create a new user.',
-      name: 'user_editor_create_subtitle',
-      desc: '',
-      args: [],
-    );
+  /// `Contents`
+  String get reader_contents {
+    return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
   }
 
-  /// `Update user information below.`
-  String get user_editor_edit_subtitle {
-    return Intl.message('Update user information below.', name: 'user_editor_edit_subtitle', desc: '', args: []);
+  /// `Close`
+  String get reader_close {
+    return Intl.message('Close', name: 'reader_close', desc: '', args: []);
   }
 
-  /// `View user details.`
-  String get user_editor_view_subtitle {
-    return Intl.message('View user details.', name: 'user_editor_view_subtitle', desc: '', args: []);
+  /// `On this page`
+  String get reader_on_this_page {
+    return Intl.message('On this page', name: 'reader_on_this_page', desc: '', args: []);
   }
 
-  /// `Submit`
-  String get submit {
-    return Intl.message('Submit', name: 'submit', desc: '', args: []);
+  /// `Sections`
+  String get reader_sections {
+    return Intl.message('Sections', name: 'reader_sections', desc: '', args: []);
   }
 
-  /// `Error`
-  String get error_title {
-    return Intl.message('Error', name: 'error_title', desc: '', args: []);
+  /// `Schedule of parts only`
+  String get reader_band_parts_only {
+    return Intl.message('Schedule of parts only', name: 'reader_band_parts_only', desc: '', args: []);
   }
 
-  /// `Form submitted successfully`
-  String get dynamic_form_submitted {
-    return Intl.message('Form submitted successfully', name: 'dynamic_form_submitted', desc: '', args: []);
+  /// `Partly written`
+  String get reader_band_partly_written {
+    return Intl.message('Partly written', name: 'reader_band_partly_written', desc: '', args: []);
   }
 
-  /// `{field} is required`
-  String dynamic_form_field_required(String field) {
-    return Intl.message('$field is required', name: 'dynamic_form_field_required', desc: '', args: [field]);
+  /// `{minutes} min`
+  String reader_minutes(int minutes) {
+    return Intl.message('$minutes min', name: 'reader_minutes', desc: '', args: [minutes]);
   }
 
-  /// `{field} must be at least {count, plural, =1{1 character} other{{count} characters}}`
-  String dynamic_form_field_min_length(String field, int count) {
-    return Intl.message(
-      '$field must be at least ${Intl.plural(count, one: '1 character', other: '$count characters')}',
-      name: 'dynamic_form_field_min_length',
-      desc: '',
-      args: [field, count],
-    );
+  /// `Before you start`
+  String get reader_before_you_start {
+    return Intl.message('Before you start', name: 'reader_before_you_start', desc: '', args: []);
   }
 
-  /// `{field} must be at most {count, plural, =1{1 character} other{{count} characters}}`
-  String dynamic_form_field_max_length(String field, int count) {
-    return Intl.message(
-      '$field must be at most ${Intl.plural(count, one: '1 character', other: '$count characters')}',
-      name: 'dynamic_form_field_max_length',
-      desc: '',
-      args: [field, count],
-    );
+  /// `What you will be able to do`
+  String get reader_objectives {
+    return Intl.message('What you will be able to do', name: 'reader_objectives', desc: '', args: []);
   }
 
-  /// `Must be a number`
-  String get dynamic_form_field_numeric {
-    return Intl.message('Must be a number', name: 'dynamic_form_field_numeric', desc: '', args: []);
+  /// `Schedule of parts`
+  String get reader_schedule_of_parts {
+    return Intl.message('Schedule of parts', name: 'reader_schedule_of_parts', desc: '', args: []);
   }
 
-  /// `Apply`
-  String get apply {
-    return Intl.message('Apply', name: 'apply', desc: '', args: []);
+  /// `Item`
+  String get reader_schedule_item {
+    return Intl.message('Item', name: 'reader_schedule_item', desc: '', args: []);
+  }
+
+  /// `Description`
+  String get reader_schedule_description {
+    return Intl.message('Description', name: 'reader_schedule_description', desc: '', args: []);
+  }
+
+  /// `Module completion`
+  String get reader_completion_region {
+    return Intl.message('Module completion', name: 'reader_completion_region', desc: '', args: []);
+  }
+
+  /// `Mark this module as complete`
+  String get reader_mark_complete {
+    return Intl.message('Mark this module as complete', name: 'reader_mark_complete', desc: '', args: []);
+  }
+
+  /// `Completed {date}`
+  String reader_completed_on(String date) {
+    return Intl.message('Completed $date', name: 'reader_completed_on', desc: '', args: [date]);
   }
 
   /// `Previous`
-  String get previous {
-    return Intl.message('Previous', name: 'previous', desc: '', args: []);
+  String get reader_previous {
+    return Intl.message('Previous', name: 'reader_previous', desc: '', args: []);
   }
 
   /// `Next`
-  String get next {
-    return Intl.message('Next', name: 'next', desc: '', args: []);
+  String get reader_next {
+    return Intl.message('Next', name: 'reader_next', desc: '', args: []);
   }
 
-  /// `{count, plural, =1{1 row listed.} other{{count} rows listed.}}`
-  String table_rows_listed(int count) {
-    return Intl.plural(
-      count,
-      one: '1 row listed.',
-      other: '$count rows listed.',
-      name: 'table_rows_listed',
+  /// `{label} · Planned`
+  String reader_pager_planned(String label) {
+    return Intl.message('$label · Planned', name: 'reader_pager_planned', desc: '', args: [label]);
+  }
+
+  /// `Start of the course`
+  String get reader_start_of_course {
+    return Intl.message('Start of the course', name: 'reader_start_of_course', desc: '', args: []);
+  }
+
+  /// `End of the course`
+  String get reader_end_of_course {
+    return Intl.message('End of the course', name: 'reader_end_of_course', desc: '', args: []);
+  }
+
+  /// `MODULE {number} OF {count}`
+  String reader_module_of(int number, int count) {
+    return Intl.message('MODULE $number OF $count', name: 'reader_module_of', desc: '', args: [number, count]);
+  }
+
+  /// `Rev {hash} · {date}`
+  String reader_revision(String hash, String date) {
+    return Intl.message('Rev $hash · $date', name: 'reader_revision', desc: '', args: [hash, date]);
+  }
+
+  /// `The For Everyone version of this module is planned.`
+  String get reader_not_written {
+    return Intl.message(
+      'The For Everyone version of this module is planned.',
+      name: 'reader_not_written',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read it For Engineers`
+  String get reader_read_for_engineers {
+    return Intl.message('Read it For Engineers', name: 'reader_read_for_engineers', desc: '', args: []);
+  }
+
+  /// `See what is written For Everyone`
+  String get reader_see_everyone {
+    return Intl.message('See what is written For Everyone', name: 'reader_see_everyone', desc: '', args: []);
+  }
+
+  /// `Not saved: {reason}. Back up to a file to keep it.`
+  String record_not_saved(String reason) {
+    return Intl.message(
+      'Not saved: $reason. Back up to a file to keep it.',
+      name: 'record_not_saved',
+      desc: '',
+      args: [reason],
+    );
+  }
+
+  /// `this device has no space left`
+  String get record_not_saved_quota {
+    return Intl.message('this device has no space left', name: 'record_not_saved_quota', desc: '', args: []);
+  }
+
+  /// `the app could not write its file`
+  String get record_not_saved_blocked {
+    return Intl.message('the app could not write its file', name: 'record_not_saved_blocked', desc: '', args: []);
+  }
+
+  /// `the record is larger than the app will write`
+  String get record_not_saved_too_large {
+    return Intl.message(
+      'the record is larger than the app will write',
+      name: 'record_not_saved_too_large',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Questions on this module`
+  String get quiz_title {
+    return Intl.message('Questions on this module', name: 'quiz_title', desc: '', args: []);
+  }
+
+  /// `{count} questions on the main points of this module`
+  String quiz_subtitle(int count) {
+    return Intl.message(
+      '$count questions on the main points of this module',
+      name: 'quiz_subtitle',
       desc: '',
       args: [count],
     );
   }
 
-  /// `Choose Theme`
-  String get theme_dialog_title {
-    return Intl.message('Choose Theme', name: 'theme_dialog_title', desc: '', args: []);
+  /// `Question {index} of {count}`
+  String quiz_progress(int index, int count) {
+    return Intl.message('Question $index of $count', name: 'quiz_progress', desc: '', args: [index, count]);
   }
 
-  /// `Select your preferred theme style`
-  String get theme_dialog_subtitle {
-    return Intl.message('Select your preferred theme style', name: 'theme_dialog_subtitle', desc: '', args: []);
+  /// `Start over`
+  String get quiz_start_over {
+    return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);
   }
 
-  /// `Classic`
-  String get theme_palette_classic {
-    return Intl.message('Classic', name: 'theme_palette_classic', desc: '', args: []);
+  /// `Correct.`
+  String get quiz_correct {
+    return Intl.message('Correct.', name: 'quiz_correct', desc: '', args: []);
   }
 
-  /// `Neutral zinc, clean and minimal`
-  String get theme_palette_classic_description {
+  /// `Not this one. The answer is {letter}.`
+  String quiz_wrong(String letter) {
+    return Intl.message('Not this one. The answer is $letter.', name: 'quiz_wrong', desc: '', args: [letter]);
+  }
+
+  /// `Previous`
+  String get quiz_previous {
+    return Intl.message('Previous', name: 'quiz_previous', desc: '', args: []);
+  }
+
+  /// `Next`
+  String get quiz_next {
+    return Intl.message('Next', name: 'quiz_next', desc: '', args: []);
+  }
+
+  /// `See results`
+  String get quiz_see_results {
+    return Intl.message('See results', name: 'quiz_see_results', desc: '', args: []);
+  }
+
+  /// `{score} of {total}`
+  String quiz_score_count(int score, int total) {
+    return Intl.message('$score of $total', name: 'quiz_score_count', desc: '', args: [score, total]);
+  }
+
+  /// `answered correctly`
+  String get quiz_score_rest {
+    return Intl.message('answered correctly', name: 'quiz_score_rest', desc: '', args: []);
+  }
+
+  /// `, correct`
+  String get quiz_recap_correct {
+    return Intl.message(', correct', name: 'quiz_recap_correct', desc: '', args: []);
+  }
+
+  /// `, not correct`
+  String get quiz_recap_wrong {
+    return Intl.message(', not correct', name: 'quiz_recap_wrong', desc: '', args: []);
+  }
+
+  /// `Back to the questions`
+  String get quiz_back_to_questions {
+    return Intl.message('Back to the questions', name: 'quiz_back_to_questions', desc: '', args: []);
+  }
+
+  /// `Your progress`
+  String get progress_title {
+    return Intl.message('Your progress', name: 'progress_title', desc: '', args: []);
+  }
+
+  /// `Progress by track`
+  String get progress_tabs_label {
+    return Intl.message('Progress by track', name: 'progress_tabs_label', desc: '', args: []);
+  }
+
+  /// `{signed} of {total}`
+  String progress_tab_count(String signed, int total) {
+    return Intl.message('$signed of $total', name: 'progress_tab_count', desc: '', args: [signed, total]);
+  }
+
+  /// `{approved}/{total}`
+  String progress_level_dial(String approved, int total) {
+    return Intl.message('$approved/$total', name: 'progress_level_dial', desc: '', args: [approved, total]);
+  }
+
+  /// `{number} {title}`
+  String progress_module_link(String number, String title) {
+    return Intl.message('$number $title', name: 'progress_module_link', desc: '', args: [number, title]);
+  }
+
+  /// `Complete {title}`
+  String progress_complete_module(String title) {
+    return Intl.message('Complete $title', name: 'progress_complete_module', desc: '', args: [title]);
+  }
+
+  /// `Every module, {track}`
+  String progress_every_module(String track) {
+    return Intl.message('Every module, $track', name: 'progress_every_module', desc: '', args: [track]);
+  }
+
+  /// `Complete`
+  String get progress_state_complete {
+    return Intl.message('Complete', name: 'progress_state_complete', desc: '', args: []);
+  }
+
+  /// `Not yet`
+  String get progress_state_not_yet {
+    return Intl.message('Not yet', name: 'progress_state_not_yet', desc: '', args: []);
+  }
+
+  /// `Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.`
+  String get data_line_text {
     return Intl.message(
-      'Neutral zinc, clean and minimal',
-      name: 'theme_palette_classic_description',
+      'Your progress is saved on this device only. A backup file keeps it safe if the app\'s data is cleared, and moves it to another device or to the website.',
+      name: 'data_line_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Nature`
-  String get theme_palette_nature {
-    return Intl.message('Nature', name: 'theme_palette_nature', desc: '', args: []);
+  /// `Back up to a file`
+  String get data_back_up {
+    return Intl.message('Back up to a file', name: 'data_back_up', desc: '', args: []);
   }
 
-  /// `Sage green, calm and organic`
-  String get theme_palette_nature_description {
-    return Intl.message('Sage green, calm and organic', name: 'theme_palette_nature_description', desc: '', args: []);
+  /// `Restore from a file`
+  String get data_restore {
+    return Intl.message('Restore from a file', name: 'data_restore', desc: '', args: []);
   }
 
-  /// `Sunset`
-  String get theme_palette_sunset {
-    return Intl.message('Sunset', name: 'theme_palette_sunset', desc: '', args: []);
+  /// `Reset`
+  String get data_reset {
+    return Intl.message('Reset', name: 'data_reset', desc: '', args: []);
   }
 
-  /// `Warm stone, rich and inviting`
-  String get theme_palette_sunset_description {
-    return Intl.message('Warm stone, rich and inviting', name: 'theme_palette_sunset_description', desc: '', args: []);
+  /// `Undo`
+  String get data_undo {
+    return Intl.message('Undo', name: 'data_undo', desc: '', args: []);
   }
 
-  /// `Show password`
-  String get password_show {
-    return Intl.message('Show password', name: 'password_show', desc: '', args: []);
+  /// `Backed up {day}`
+  String data_backed_up(String day) {
+    return Intl.message('Backed up $day', name: 'data_backed_up', desc: '', args: [day]);
   }
 
-  /// `Hide password`
-  String get password_hide {
-    return Intl.message('Hide password', name: 'password_hide', desc: '', args: []);
-  }
-
-  /// `No users to show`
-  String get user_list_empty {
-    return Intl.message('No users to show', name: 'user_list_empty', desc: '', args: []);
-  }
-
-  /// `Flutter BLoC Advance Template`
-  String get app_title {
-    return Intl.message('Flutter BLoC Advance Template', name: 'app_title', desc: '', args: []);
-  }
-
-  /// `Closed`
-  String get dashboard_circuit_state_closed {
-    return Intl.message('Closed', name: 'dashboard_circuit_state_closed', desc: '', args: []);
-  }
-
-  /// `Half-open`
-  String get dashboard_circuit_state_half_open {
-    return Intl.message('Half-open', name: 'dashboard_circuit_state_half_open', desc: '', args: []);
-  }
-
-  /// `Open`
-  String get dashboard_circuit_state_open {
-    return Intl.message('Open', name: 'dashboard_circuit_state_open', desc: '', args: []);
-  }
-
-  /// `Rejects requests when offline`
-  String get dashboard_interceptor_connectivity {
+  /// `The backup file could not be written. Nothing was marked as backed up.`
+  String get data_backup_not_written {
     return Intl.message(
-      'Rejects requests when offline',
-      name: 'dashboard_interceptor_connectivity',
+      'The backup file could not be written. Nothing was marked as backed up.',
+      name: 'data_backup_not_written',
       desc: '',
       args: [],
     );
   }
 
-  /// `Attaches JWT token to requests`
-  String get dashboard_interceptor_auth {
-    return Intl.message('Attaches JWT token to requests', name: 'dashboard_interceptor_auth', desc: '', args: []);
+  /// `Restored from the file.`
+  String get data_restored {
+    return Intl.message('Restored from the file.', name: 'data_restored', desc: '', args: []);
   }
 
-  /// `Refreshes expired access tokens`
-  String get dashboard_interceptor_token_refresh {
+  /// `Nothing was changed. That file holds no progress; only a backup file does.`
+  String get data_restore_empty {
     return Intl.message(
-      'Refreshes expired access tokens',
-      name: 'dashboard_interceptor_token_refresh',
+      'Nothing was changed. That file holds no progress; only a backup file does.',
+      name: 'data_restore_empty',
       desc: '',
       args: [],
     );
   }
 
-  /// `Opt-in Idempotency-Key for POST/PUT/PATCH`
-  String get dashboard_interceptor_idempotency {
+  /// `That file was written by a newer version of the app or the website. Update the app, then restore it again.`
+  String get data_restore_newer {
     return Intl.message(
-      'Opt-in Idempotency-Key for POST/PUT/PATCH',
-      name: 'dashboard_interceptor_idempotency',
+      'That file was written by a newer version of the app or the website. Update the app, then restore it again.',
+      name: 'data_restore_newer',
       desc: '',
       args: [],
     );
   }
 
-  /// `Retry + circuit breaker`
-  String get dashboard_interceptor_resilience {
-    return Intl.message('Retry + circuit breaker', name: 'dashboard_interceptor_resilience', desc: '', args: []);
-  }
-
-  /// `GET response caching with TTL`
-  String get dashboard_interceptor_cache {
-    return Intl.message('GET response caching with TTL', name: 'dashboard_interceptor_cache', desc: '', args: []);
-  }
-
-  /// `Records requests in dev console`
-  String get dashboard_interceptor_dev_console {
+  /// `That file is not a backup the app or the website wrote. Nothing was changed.`
+  String get data_restore_malformed {
     return Intl.message(
-      'Records requests in dev console',
-      name: 'dashboard_interceptor_dev_console',
+      'That file is not a backup the app or the website wrote. Nothing was changed.',
+      name: 'data_restore_malformed',
       desc: '',
       args: [],
     );
   }
 
-  /// `Structured request/response logging`
-  String get dashboard_interceptor_logging {
+  /// `That file could not be opened.`
+  String get data_restore_unreadable {
+    return Intl.message('That file could not be opened.', name: 'data_restore_unreadable', desc: '', args: []);
+  }
+
+  /// `{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}`
+  String data_reset_counting(int seconds) {
+    return Intl.plural(
+      seconds,
+      one: 'Reset. You can undo it for 1 second.',
+      other: 'Reset. You can undo it for $seconds seconds.',
+      name: 'data_reset_counting',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Reset. The time to undo it has passed.`
+  String get data_reset_closed {
+    return Intl.message('Reset. The time to undo it has passed.', name: 'data_reset_closed', desc: '', args: []);
+  }
+
+  /// `The reset did not finish: the app could not delete its files. The progress on this device is unchanged.`
+  String get data_reset_not_finished {
     return Intl.message(
-      'Structured request/response logging',
-      name: 'dashboard_interceptor_logging',
+      'The reset did not finish: the app could not delete its files. The progress on this device is unchanged.',
+      name: 'data_reset_not_finished',
       desc: '',
       args: [],
     );
   }
 
-  /// `Serves mock data in dev/test`
-  String get dashboard_interceptor_mock {
-    return Intl.message('Serves mock data in dev/test', name: 'dashboard_interceptor_mock', desc: '', args: []);
+  /// `{count, plural, =1{1 module state} other{{count} module states}}`
+  String data_tally_states(int count) {
+    return Intl.plural(
+      count,
+      one: '1 module state',
+      other: '$count module states',
+      name: 'data_tally_states',
+      desc: '',
+      args: [count],
+    );
   }
 
-  /// `Single sign-on is not configured correctly in this app. Contact your administrator.`
-  String get error_auth_oidc_config {
+  /// `NOTHING RECORDED ON THIS DEVICE`
+  String get data_tally_nothing {
+    return Intl.message('NOTHING RECORDED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
+  }
+
+  /// `Erase`
+  String get erase_mark {
+    return Intl.message('Erase', name: 'erase_mark', desc: '', args: []);
+  }
+
+  /// `Erase all progress on this device?`
+  String get erase_title {
+    return Intl.message('Erase all progress on this device?', name: 'erase_title', desc: '', args: []);
+  }
+
+  /// `This removes the record from this device, including the copy set aside from a version of the app this one could not read.`
+  String get erase_scope {
     return Intl.message(
-      'Single sign-on is not configured correctly in this app. Contact your administrator.',
-      name: 'error_auth_oidc_config',
+      'This removes the record from this device, including the copy set aside from a version of the app this one could not read.',
+      name: 'erase_scope',
       desc: '',
       args: [],
     );
   }
 
-  /// `The identity provider could not be reached. Try again later, or contact your administrator if this continues.`
-  String get error_auth_oidc_discovery {
+  /// `A device backup may still hold an earlier copy of your progress.`
+  String get erase_backup_statement {
     return Intl.message(
-      'The identity provider could not be reached. Try again later, or contact your administrator if this continues.',
-      name: 'error_auth_oidc_discovery',
+      'A device backup may still hold an earlier copy of your progress.',
+      name: 'erase_backup_statement',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your account has no role that allows access to this app. Ask your administrator.`
-  String get error_auth_oidc_no_role {
+  /// `Type ERASE to confirm`
+  String get erase_field_label {
+    return Intl.message('Type ERASE to confirm', name: 'erase_field_label', desc: '', args: []);
+  }
+
+  /// `Erase all data`
+  String get erase_confirm {
+    return Intl.message('Erase all data', name: 'erase_confirm', desc: '', args: []);
+  }
+
+  /// `Keep my data`
+  String get erase_keep {
+    return Intl.message('Keep my data', name: 'erase_keep', desc: '', args: []);
+  }
+
+  /// `Replace the progress on this device?`
+  String get restore_confirm_title {
+    return Intl.message('Replace the progress on this device?', name: 'restore_confirm_title', desc: '', args: []);
+  }
+
+  /// `On this device now:`
+  String get restore_confirm_holds {
+    return Intl.message('On this device now:', name: 'restore_confirm_holds', desc: '', args: []);
+  }
+
+  /// `Restoring replaces it with the progress in the file.`
+  String get restore_confirm_effect {
     return Intl.message(
-      'Your account has no role that allows access to this app. Ask your administrator.',
-      name: 'error_auth_oidc_no_role',
+      'Restoring replaces it with the progress in the file.',
+      name: 'restore_confirm_effect',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign-in failed. Please try again.`
-  String get error_auth_oidc_failed {
-    return Intl.message('Sign-in failed. Please try again.', name: 'error_auth_oidc_failed', desc: '', args: []);
+  /// `Replace`
+  String get restore_confirm_replace {
+    return Intl.message('Replace', name: 'restore_confirm_replace', desc: '', args: []);
   }
 
-  /// `You are signed out of this app, but your session at the identity provider may still be active.`
-  String get error_auth_oidc_logout_incomplete {
+  /// `Record status`
+  String get quarantine_label {
+    return Intl.message('Record status', name: 'quarantine_label', desc: '', args: []);
+  }
+
+  /// `PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.`
+  String get quarantine_newer_readout {
     return Intl.message(
-      'You are signed out of this app, but your session at the identity provider may still be active.',
-      name: 'error_auth_oidc_logout_incomplete',
+      'PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.',
+      name: 'quarantine_newer_readout',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign in with SSO`
-  String get login_sso_button {
-    return Intl.message('Sign in with SSO', name: 'login_sso_button', desc: '', args: []);
-  }
-
-  /// `Sign in with your organization account.`
-  String get login_sso_subtitle {
-    return Intl.message('Sign in with your organization account.', name: 'login_sso_subtitle', desc: '', args: []);
-  }
-
-  /// `Sign-in is complete. You can close this tab and return to the app.`
-  String get login_sso_browser_done {
+  /// `Update the app to read it. The stored record is kept on this device unchanged.`
+  String get quarantine_newer_note {
     return Intl.message(
-      'Sign-in is complete. You can close this tab and return to the app.',
-      name: 'login_sso_browser_done',
+      'Update the app to read it. The stored record is kept on this device unchanged.',
+      name: 'quarantine_newer_note',
       desc: '',
       args: [],
     );
+  }
+
+  /// `PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.`
+  String get quarantine_malformed_readout {
+    return Intl.message(
+      'PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.',
+      name: 'quarantine_malformed_readout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.`
+  String get quarantine_malformed_note {
+    return Intl.message(
+      'The stored record is not a shape this version of the app can read. It has been copied aside on this device unchanged rather than discarded, and nothing has been written over it.',
+      name: 'quarantine_malformed_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A STORED RECORD IS SET ASIDE`
+  String get quarantine_kept_readout {
+    return Intl.message('A STORED RECORD IS SET ASIDE', name: 'quarantine_kept_readout', desc: '', args: []);
+  }
+
+  /// `An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.`
+  String get quarantine_kept_note {
+    return Intl.message(
+      'An earlier launch could not read the stored progress. Its bytes are kept on this device unchanged.',
+      name: 'quarantine_kept_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save a copy`
+  String get quarantine_save_copy {
+    return Intl.message('Save a copy', name: 'quarantine_save_copy', desc: '', args: []);
+  }
+
+  /// `Saved a copy of the set-aside record.`
+  String get quarantine_copy_saved {
+    return Intl.message('Saved a copy of the set-aside record.', name: 'quarantine_copy_saved', desc: '', args: []);
+  }
+
+  /// `The copy could not be written. The set-aside record is unchanged.`
+  String get quarantine_copy_not_written {
+    return Intl.message(
+      'The copy could not be written. The set-aside record is unchanged.',
+      name: 'quarantine_copy_not_written',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete it`
+  String get quarantine_delete {
+    return Intl.message('Delete it', name: 'quarantine_delete', desc: '', args: []);
+  }
+
+  /// `Delete the set-aside record?`
+  String get quarantine_delete_title {
+    return Intl.message('Delete the set-aside record?', name: 'quarantine_delete_title', desc: '', args: []);
+  }
+
+  /// `This version of the app cannot read it. Deleting it cannot be undone.`
+  String get quarantine_delete_body {
+    return Intl.message(
+      'This version of the app cannot read it. Deleting it cannot be undone.',
+      name: 'quarantine_delete_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get quarantine_delete_confirm {
+    return Intl.message('Delete', name: 'quarantine_delete_confirm', desc: '', args: []);
+  }
+
+  /// `Keep it`
+  String get quarantine_keep {
+    return Intl.message('Keep it', name: 'quarantine_keep', desc: '', args: []);
+  }
+
+  /// `The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.`
+  String get content_notice_cache_discarded {
+    return Intl.message(
+      'The downloaded content could not be read, so the app removed it and shows the content that came with this version. Check for updates in Settings to download it again.',
+      name: 'content_notice_cache_discarded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Content`
+  String get settings_content {
+    return Intl.message('Content', name: 'settings_content', desc: '', args: []);
+  }
+
+  /// `Version`
+  String get settings_content_version {
+    return Intl.message('Version', name: 'settings_content_version', desc: '', args: []);
+  }
+
+  /// `Published`
+  String get settings_published {
+    return Intl.message('Published', name: 'settings_published', desc: '', args: []);
+  }
+
+  /// `Source`
+  String get settings_source {
+    return Intl.message('Source', name: 'settings_source', desc: '', args: []);
+  }
+
+  /// `Bundled with the app`
+  String get settings_source_bundled {
+    return Intl.message('Bundled with the app', name: 'settings_source_bundled', desc: '', args: []);
+  }
+
+  /// `Downloaded from the website`
+  String get settings_source_downloaded {
+    return Intl.message('Downloaded from the website', name: 'settings_source_downloaded', desc: '', args: []);
+  }
+
+  /// `Not checked since the app started`
+  String get settings_refresh_idle {
+    return Intl.message('Not checked since the app started', name: 'settings_refresh_idle', desc: '', args: []);
+  }
+
+  /// `Checking for updates`
+  String get settings_refresh_checking {
+    return Intl.message('Checking for updates', name: 'settings_refresh_checking', desc: '', args: []);
+  }
+
+  /// `Up to date`
+  String get settings_refresh_up_to_date {
+    return Intl.message('Up to date', name: 'settings_refresh_up_to_date', desc: '', args: []);
+  }
+
+  /// `Updated to the latest content`
+  String get settings_refresh_updated {
+    return Intl.message('Updated to the latest content', name: 'settings_refresh_updated', desc: '', args: []);
+  }
+
+  /// `Newer content needs a newer version of the app. Update the app to get it.`
+  String get settings_refresh_needs_app_update {
+    return Intl.message(
+      'Newer content needs a newer version of the app. Update the app to get it.',
+      name: 'settings_refresh_needs_app_update',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The check for updates did not finish: {reason}.`
+  String settings_refresh_failed(String reason) {
+    return Intl.message(
+      'The check for updates did not finish: $reason.',
+      name: 'settings_refresh_failed',
+      desc: '',
+      args: [reason],
+    );
+  }
+
+  /// `no connection to the website`
+  String get settings_refresh_reason_network {
+    return Intl.message('no connection to the website', name: 'settings_refresh_reason_network', desc: '', args: []);
+  }
+
+  /// `the website answered with an error`
+  String get settings_refresh_reason_http_status {
+    return Intl.message(
+      'the website answered with an error',
+      name: 'settings_refresh_reason_http_status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the website sent content this version of the app cannot read`
+  String get settings_refresh_reason_format {
+    return Intl.message(
+      'the website sent content this version of the app cannot read',
+      name: 'settings_refresh_reason_format',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `a downloaded file did not match its checksum`
+  String get settings_refresh_reason_checksum {
+    return Intl.message(
+      'a downloaded file did not match its checksum',
+      name: 'settings_refresh_reason_checksum',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the app could not write to its storage`
+  String get settings_refresh_reason_storage {
+    return Intl.message(
+      'the app could not write to its storage',
+      name: 'settings_refresh_reason_storage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the stored content could not be read`
+  String get settings_refresh_reason_stored {
+    return Intl.message(
+      'the stored content could not be read',
+      name: 'settings_refresh_reason_stored',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check for updates`
+  String get settings_check_for_updates {
+    return Intl.message('Check for updates', name: 'settings_check_for_updates', desc: '', args: []);
+  }
+
+  /// `About`
+  String get settings_about {
+    return Intl.message('About', name: 'settings_about', desc: '', args: []);
+  }
+
+  /// `Licences`
+  String get settings_licences {
+    return Intl.message('Licences', name: 'settings_licences', desc: '', args: []);
+  }
+
+  /// `Developer console`
+  String get settings_dev_console {
+    return Intl.message('Developer console', name: 'settings_dev_console', desc: '', args: []);
   }
 }
 
@@ -1561,7 +1074,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[Locale.fromSubtags(languageCode: 'en'), Locale.fromSubtags(languageCode: 'tr')];
+    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
   }
 
   @override
