@@ -9,7 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 ///   exception below)
 /// - `shared/` -> core only (NO features, app or infrastructure imports)
 /// - `core/` -> nothing (NO shared, features, infrastructure or app imports)
-/// - `infrastructure/` -> NO features or app imports
+/// - `infrastructure/` -> NO features or app imports, and nothing from shared/ apart from `shared/content/domain/` and
+///   `shared/record/domain/`
+/// - `shared/content/domain/` and `shared/record/domain/` -> no Flutter and no I/O (`package:flutter/`, `dart:ui`,
+///   `dart:io`)
 ///
 /// The rules read every single-quoted `import` and `export` line of `lib/` (outside `lib/generated/`) that names this
 /// package, whose name comes from `pubspec.yaml`. Two self-checks keep them from passing vacuously: at least one
@@ -22,6 +25,9 @@ import 'package:flutter_test/flutter_test.dart';
 const _knownFeatureAppExceptions = {
   'app/router/app_routes_constants', // settings_routes.dart navigates by these constants
 };
+
+/// The parts of shared/ that infrastructure/ may import: the domain folders of the content and record kernels.
+const _sharedKernelForInfrastructure = ['shared/content/domain/', 'shared/record/domain/'];
 
 void main() {
   group('Architecture Guard Tests', () {
@@ -132,6 +138,35 @@ void main() {
         isEmpty,
         reason: 'infrastructure/ must not import from features/ or app/:\n${violations.join('\n')}',
       );
+    });
+
+    test('infrastructure/ must not import shared/ except shared/content/domain and shared/record/domain', () {
+      final allowed = <String>[];
+      final violations = <String>[];
+      for (final file in dartFiles.where((f) => f.path.contains('/infrastructure/'))) {
+        for (final import in _getImports(file, packageName).where((i) => i.path.contains('/shared/'))) {
+          (_sharedKernelForInfrastructure.any(_importFragment(import.path, packageName).startsWith)
+                  ? allowed
+                  : violations)
+              .add('${_relative(file.path)}: imports ${import.path}');
+        }
+      }
+      expect(allowed, isNotEmpty, reason: 'the rule must see lib/infrastructure/content import the content domain');
+      expect(violations, isEmpty, reason: violations.join('\n'));
+    });
+
+    test('shared/content/domain and shared/record/domain import no Flutter and no I/O', () {
+      final forbidden = RegExp(r'''^import\s+'(package:flutter/|dart:ui|dart:io)''');
+      final domainFiles = dartFiles
+          .where((f) => _sharedKernelForInfrastructure.any((kernel) => _relative(f.path).startsWith('lib/$kernel')))
+          .toList();
+      final violations = [
+        for (final file in domainFiles)
+          for (final (index, line) in file.readAsLinesSync().indexed)
+            if (forbidden.hasMatch(line)) '${_relative(file.path)}:${index + 1}',
+      ];
+      expect(domainFiles, isNotEmpty, reason: 'no file under the two domain folders was read');
+      expect(violations, isEmpty, reason: 'the domain folders import no Flutter and no I/O:\n${violations.join('\n')}');
     });
 
     test('only shared/utils/external_link.dart imports url_launcher', () {

@@ -16,7 +16,7 @@ lib/
   app/               # Composition root, app shell, router, bootstrap
   core/              # Cross-cutting primitives, errors, logging abstractions
   infrastructure/    # Storage, HTTP, environment, external adapters
-  shared/            # Business-free reusable UI and helpers
+  shared/            # Reusable UI and helpers, plus the content and record kernels (shared/content, shared/record)
   features/          # Business capabilities
   generated/         # Generated localization files
   l10n/              # ARB files
@@ -38,6 +38,8 @@ features -> core
 
 shared -> core
 infrastructure -> core
+infrastructure -> shared/content/domain
+infrastructure -> shared/record/domain
 ```
 
 Forbidden imports:
@@ -49,6 +51,7 @@ shared -> features
 core -> shared
 core -> features
 infrastructure -> features/presentation
+infrastructure -> shared (except shared/content/domain and shared/record/domain)
 ```
 
 ## Feature Structure
@@ -88,12 +91,13 @@ Examples:
 
 ## Shared vs Core
 
-Use `shared/` for business-free reusable UI:
+Use `shared/` for reusable UI and for the two kernels every feature reads:
 
 - design system components
 - dialogs
 - generic widgets
 - generic UI helpers
+- the content and record kernels: entities, parsers, codecs, reducers, selectors, repository interfaces and their blocs; their domain/ folders import no Flutter and no I/O
 
 Use `core/` only for primitives that should not depend on Flutter UI concerns:
 
