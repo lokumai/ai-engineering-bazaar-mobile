@@ -23,7 +23,8 @@ final class ContentHttp {
   ///
   /// Throws [ContentFetchException] with [ContentErrorCode.network] when the request fails with an I/O error (TLS and
   /// handshake failures included) or goes silent for longer than the timeout, which aborts it, and with
-  /// [ContentErrorCode.httpStatus] for any status other than 200. Errors that are not I/O propagate.
+  /// [ContentErrorCode.httpStatus] for any status other than 200, once its body is read. Errors that are not I/O
+  /// propagate.
   Future<Uint8List> get(String sitePath, {String? version}) async {
     final url = Uri.parse(joinContentUrl(_contentBaseUrl, sitePath, version: version));
     final abort = Completer<void>();
@@ -32,7 +33,9 @@ final class ContentHttp {
           .send(http.AbortableRequest('GET', url, abortTrigger: abort.future))
           .timeout(_timeout);
       if (response.statusCode != 200) {
-        abort.complete();
+        // Reading the short error body returns the connection to the client's pool; an abort after the head would
+        // leave it open and unread for the rest of the session.
+        await response.stream.timeout(_timeout).drain<void>();
         throw const ContentFetchException(ContentErrorCode.httpStatus);
       }
       return await http.ByteStream(response.stream.timeout(_timeout)).toBytes();

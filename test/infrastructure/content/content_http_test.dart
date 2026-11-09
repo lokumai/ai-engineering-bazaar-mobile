@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:http/testing.dart';
 
 import '../../support/content_fixture.dart';
@@ -76,6 +77,59 @@ void main() {
     );
 
     await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.httpStatus));
+  });
+
+  test('a refused request whose body goes silent is a network failure, and the request is aborted', () async {
+    final requests = <http.BaseRequest>[];
+    final contentHttp = ContentHttp(
+      client: MockClient.streaming((request, _) async {
+        requests.add(request);
+        final body = StreamController<List<int>>()..add([1]);
+        return http.StreamedResponse(body.stream, 503);
+      }),
+      contentBaseUrl: testContentBaseUrl,
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
+    await expectLater((requests.single as http.Abortable).abortTrigger, completes);
+  });
+
+  group('with the real client', () {
+    HttpOverrides? overrides;
+    HttpServer? server;
+    IOClient? client;
+
+    setUp(() {
+      // flutter_test answers 400 to every real request through its overrides; this group talks to a loopback server.
+      overrides = HttpOverrides.current;
+      HttpOverrides.global = null;
+    });
+
+    tearDown(() async {
+      client?.close();
+      await server?.close(force: true);
+      HttpOverrides.global = overrides;
+    });
+
+    test('a refused request returns its connection, so the next one reuses it', () async {
+      final connections = <HttpConnectionInfo>{};
+      server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      server!.listen((request) {
+        connections.add(request.connectionInfo!);
+        request.response
+          ..statusCode = 503
+          ..write('unavailable')
+          ..close();
+      });
+      client = IOClient(HttpClient());
+      final contentHttp = ContentHttp(client: client!, contentBaseUrl: 'http://127.0.0.1:${server!.port}/');
+
+      await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.httpStatus));
+      await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.httpStatus));
+
+      expect(connections.map((info) => info.remotePort).toSet(), hasLength(1));
+    });
   });
 
   test('a client error is a network failure', () async {
