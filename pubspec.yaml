@@ -41,6 +41,8 @@ dev_dependencies:
   alchemist: 0.14.1
   intl_utils: 2.8.17 # discontinued upstream; still works on Dart 3.13 (see docs/upgrade_flutter_3.47.7.md)
   sentry: 10.1.0 # the version sentry_flutter pins; tests build options with an Android platform from its src
+  dart_style: 3.1.14
+  pub_semver: 2.2.1
 
 flutter_intl:
   enabled: true

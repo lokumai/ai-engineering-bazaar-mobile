@@ -40,6 +40,7 @@ fvm dart format lib/generated --line-length=120   # intl_utils writes 80 columns
 
 # Content snapshot (generated: never edit assets/content/ or test/fixtures/record_conformance/v1.json)
 fvm dart run tool/refresh_content_snapshot.dart --base-url https://ai-bazaar.lokum.dev/ --content-version <contentVersion>
+fvm dart run tool/generate_tokens.dart   # after every snapshot refresh; never edit bazaar_tokens.g.dart
 
 # Build
 fvm flutter build apk --release --target lib/main/main_prod.dart
