@@ -86,11 +86,10 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - Only the bottom navigation, and the recovery links of a page that was not found, start the history again.
   - `test/app/router/back_history_test.dart` holds the paths.
 - [x] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Done: the status row and the count are gone, the level chips stay. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
-- [ ] **1O "Not responding" on the emulator.** Android sometimes shows the "app isn't responding" dialog (Wait or Close app). The cause is not known yet.
-  - Reproduce it, and read the ANR trace (`adb bugreport`, `/data/anr/`).
-  - Compare a profile build with the debug build: a debug build on an emulator is much slower, and two `flutter run` sessions were attached to the same emulator.
-  - Look for work on the main thread at start: reading and parsing the content snapshot, decoding the Welcome images, the record file.
-  - Fix what blocks the main thread; if it happens only in debug builds, say so here and close the step.
+- [x] **1O "Not responding" on the emulator.** Android sometimes showed the "isn't responding" dialog (Wait or Close app).
+  - Found: the emulator's records (`adb shell dumpsys dropbox`) hold two ANRs since the morning, both of the emulator's own Phone app (`com.android.phone`), at 17:18, as the emulator booted ("failed to complete startup"). The reader has no ANR and no crash on record.
+  - The reader skips about 0.7 s of frames twice at a cold start of a debug build, as a debug build does while it compiles; an ANR needs a 5 s stall.
+  - Closed with no code change. If the dialog comes back, note the app name it shows; if it is Bazaar, read `adb shell dumpsys dropbox --print data_app_anr` and reopen this step.
 - [ ] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs show nearly the same thing: the levels with a count and a dial. Each tab gets one job before any code:
   - **Home:** what to read now. Up next, and the module last opened; no level list.
   - **Catalog:** everything there is to read. Levels and modules, with the filters.
