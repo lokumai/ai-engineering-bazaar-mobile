@@ -26,6 +26,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,7 +62,16 @@ class ModuleReaderPage extends StatelessWidget {
         index: index,
         recordBloc: context.read<RecordBloc>(),
       )..add(ReaderOpened(key: moduleKey, track: track)),
-      child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder),
+      // The track switch stays on every state of a module page, as it did in the bar (plan Phase 1B).
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: TrackSwitch()),
+          Expanded(
+            child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder),
+          ),
+        ],
+      ),
     );
   }
 }

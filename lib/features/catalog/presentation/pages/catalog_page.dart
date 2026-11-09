@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -45,6 +46,8 @@ class _CatalogPageState extends State<CatalogPage> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        const TrackSwitch(),
+        const SizedBox(height: AppSpacing.lg),
         Semantics(header: true, child: Text(l10n.catalog_title, style: Theme.of(context).textTheme.headlineSmall)),
         const SizedBox(height: AppSpacing.lg),
         CatalogFilterBar(

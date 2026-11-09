@@ -17,8 +17,8 @@ final class BazaarSegment<T> {
 /// A row of choices in one framed track, the chosen one filled (the mockup's track and status controls).
 ///
 /// Each segment is a selectable button named by its label, at least the platform's tap target tall (spec 3.10, A28).
-/// The segments share the width when they fit at their natural size; otherwise the row scrolls sideways, so a large
-/// text scale never cuts a label.
+/// The segments share the width when every label fits its share on one line; otherwise they wrap onto more lines,
+/// each label wrapping in turn, so a large text scale never cuts a label or hides a segment.
 class BazaarSegmentedControl<T> extends StatelessWidget {
   const BazaarSegmentedControl({
     super.key,
@@ -72,10 +72,7 @@ class BazaarSegmentedControl<T> extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, constraints) => _fits(context, constraints.maxWidth)
                 ? Row(spacing: 6, children: [for (final button in buttons) Expanded(child: button)])
-                : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(spacing: 6, children: buttons),
-                  ),
+                : Wrap(spacing: 6, runSpacing: 6, children: buttons),
           ),
         ),
       ),
@@ -144,13 +141,14 @@ class _SegmentButton<T> extends StatelessWidget {
             constraints: BoxConstraints(minHeight: minHeight),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: inset),
-              // heightFactor 1: the segment is as tall as its label and the tap target, not as its parent.
+              // The factors size the segment to its label and the tap target, not to its parent; a segment the row
+              // stretches is still as wide as its share.
               child: Center(
                 heightFactor: 1,
+                widthFactor: 1,
                 child: Text(
                   segment.label,
-                  maxLines: 1,
-                  softWrap: false,
+                  textAlign: TextAlign.center,
                   style: styleOf(context, chosen: chosen)?.copyWith(color: ink),
                 ),
               ),

@@ -63,6 +63,7 @@ flutter:
     - assets/content/
     - assets/content/objects/
     - assets/fonts/OFL.txt
+    - assets/brand/lokum_logo.webp
   fonts:
     - family: Vazirmatn
       fonts:

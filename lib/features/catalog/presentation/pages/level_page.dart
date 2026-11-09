@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -50,7 +51,16 @@ class _LevelPageState extends State<LevelPage> {
       final state => throw StateError('The level page needs ready content, not $state'),
     };
     final entry = index.level(widget.level);
-    if (entry == null) return const NotFoundView();
+    // The track switch stays on an unknown level's page, as it did in the bar (plan Phase 1B).
+    if (entry == null) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0), child: TrackSwitch()),
+          Expanded(child: NotFoundView()),
+        ],
+      );
+    }
 
     final recordState = context.watch<RecordBloc>().state;
     final view = switch (recordState) {
@@ -75,6 +85,8 @@ class _LevelPageState extends State<LevelPage> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        const TrackSwitch(),
+        const SizedBox(height: AppSpacing.lg),
         Semantics(header: true, child: Text(entry.title, style: textTheme.headlineSmall)),
         const SizedBox(height: AppSpacing.sm),
         Text(

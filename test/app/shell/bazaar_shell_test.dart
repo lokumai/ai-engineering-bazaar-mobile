@@ -2,10 +2,11 @@
 library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/app/shell/track_switch.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_switch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +35,10 @@ Future<GoRouter> _pumpAt(WidgetTester tester, String location, TrackCubit track)
 String _path(GoRouter router) => router.state.uri.path;
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
+  // The page's list builds lazily, so a widget scrolled far up is no longer built: scroll back to it first.
+  if (finder.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(finder, -200, scrollable: find.byType(Scrollable).last);
+  }
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
@@ -70,16 +75,35 @@ void _expectSelected(WidgetTester tester, Track track) {
 }
 
 void main() {
-  testWidgets('the bar shows the app title and both track segments', (tester) async {
+  testWidgets('the bar shows the logo and the app title over the lattice band; the switch is on the page', (
+    tester,
+  ) async {
     await _pumpAt(tester, '/', TrackCubit());
 
-    // The placeholder at `/` shows the title as well, so the title is looked up in the bar's row.
-    final bar = find.ancestor(of: find.byType(TrackSwitch), matching: find.byType(Row)).first;
+    final bar = find.ancestor(of: find.byType(Image), matching: find.byType(Row)).first;
+    final barSurface = find.ancestor(of: bar, matching: find.byType(Material)).first;
     expect(find.descendant(of: bar, matching: find.text('AI Engineering Bazaar')), findsOneWidget);
-    expect(_engineers, findsOneWidget);
-    expect(_everyone, findsOneWidget);
+    expect(find.descendant(of: bar, matching: find.byType(TrackSwitch)), findsNothing);
+    expect(find.byType(LatticeBand), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byType(LatticeBand)).dy,
+      tester.getBottomLeft(barSurface).dy,
+      reason: 'under the bar',
+    );
     expect(tester.getSemantics(_engineers), isSemantics(label: 'For Engineers', isSelected: true, isButton: true));
     expect(tester.getSemantics(_everyone), isSemantics(label: 'For Everyone', isSelected: false, isButton: true));
+  });
+
+  testWidgets('the bar offers back only over a pushed page, and back returns to the page below', (tester) async {
+    final router = await _pumpAt(tester, '/', TrackCubit());
+    expect(find.byType(BackButton), findsNothing);
+
+    await _pushFromCatalog(tester, 'First Module');
+    expect(find.byType(BackButton), findsOneWidget);
+
+    await _tap(tester, find.byType(BackButton));
+    expect(_path(router), '/');
+    expect(find.byType(BackButton), findsNothing);
   });
 
   testWidgets('the switch keeps the page in the other track', (tester) async {
@@ -150,18 +174,6 @@ void main() {
     _expectSelected(tester, Track.engineers);
   });
 
-  testWidgets('on a page of neither track the switch changes the remembered track only', (tester) async {
-    final track = TrackCubit();
-    final router = await _pumpAt(tester, '/profile', track);
-
-    await tester.tap(_everyone);
-    await tester.pumpAndSettle();
-
-    expect(_path(router), '/profile');
-    expect(track.state, Track.everyone);
-    _expectSelected(tester, Track.everyone);
-  });
-
   testWidgets('opening a track page remembers its track', (tester) async {
     final track = TrackCubit();
     final router = await _pumpAt(tester, '/everyone/sheets', track);
@@ -170,7 +182,7 @@ void main() {
 
     router.go('/profile');
     await tester.pumpAndSettle();
-    _expectSelected(tester, Track.everyone);
+    expect(track.state, Track.everyone, reason: 'a page of neither track keeps the remembered track');
   });
 
   testWidgets('the bottom navigation', (tester) async {

@@ -69,15 +69,18 @@ void main() {
   testWidgets('shares the width when the labels fit', (tester) async {
     await tester.pumpWidget(themedApp(control(selected: 'All', onSelected: (_) {})));
 
-    expect(find.byType(SingleChildScrollView), findsNothing);
+    expect(find.byType(Wrap), findsNothing);
   });
 
-  testWidgets('scrolls sideways when the labels do not fit, at text scale 2', (tester) async {
+  testWidgets('wraps when the labels do not fit, at text scale 2, and every segment stays in reach', (tester) async {
     const labels = ['All', 'Ready', 'Planned', 'Completed', 'Not completed'];
     await pumpAtTextScale(tester, themedApp(control(selected: 'All', onSelected: (_) {}, labels: labels)), scale: 2);
 
-    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(find.byType(Wrap), findsOneWidget);
     expect(tester.takeException(), isNull);
+    for (final label in labels) {
+      expectHittable(tester, find.text(label));
+    }
   });
 
   testWidgets('meets the platform guidelines', (tester) async {
