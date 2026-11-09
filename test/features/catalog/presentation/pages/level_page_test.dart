@@ -310,7 +310,7 @@ void main() {
   });
 
   testWidgets('the selected level chip keeps a pushed level page and its Status filter', (tester) async {
-    final router = await _pumpLevel(tester, '/');
+    final router = await _pumpLevel(tester, '/sheets');
     await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text('Beta Level')));
     expect(_path(router), '/sheets/beta');
     await _tap(tester, _chip('Planned'));
@@ -359,7 +359,7 @@ void main() {
     testWidgets('the level chip All opens the catalog root', (tester) async {
       final router = await _pumpLevel(tester, '/sheets/alpha');
       await _tap(tester, _levelAll);
-      expect(_path(router), '/');
+      expect(_path(router), '/sheets');
     });
   });
 

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
@@ -58,14 +59,14 @@ Future<void> _drain(WidgetTester tester, bool Function() done, {required String 
 }
 
 /// End-to-end smoke: boots the whole app over the fixture dependencies (the fixture content, no network), and lands on
-/// the catalog inside the shell once the content and the record are ready. There is no sign-in. The second test
-/// completes a module over real files and reads it back after a restart.
+/// Home inside the shell once the content and the record are ready. There is no sign-in. The second test opens a
+/// module from the catalog, completes it over real files and reads it back after a restart.
 void main() {
-  testWidgets('cold start shows the catalog with no sign-in', (tester) async {
+  testWidgets('cold start shows Home with no sign-in', (tester) async {
     await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
-    await pumpUntilFound(tester, find.byType(CatalogPage));
+    await pumpUntilFound(tester, find.byType(HomePage));
 
-    expect(find.byType(CatalogPage), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
     expect(find.byType(BazaarShell), findsOneWidget);
   });
 
@@ -82,8 +83,11 @@ void main() {
       final completion = find.byKey(const Key('reader-completion'));
 
       Future<void> openFirst() async {
+        await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
+        await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
-        await tester.tap(find.text(title));
+        await tester.tap(find.descendant(of: find.byType(CatalogPage), matching: find.text(title)));
         await tester.pump();
         await _drain(tester, () => completion.evaluate().isNotEmpty, what: 'the reader of $title');
         await settleContent(tester);

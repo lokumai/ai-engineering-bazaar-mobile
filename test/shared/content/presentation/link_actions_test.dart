@@ -31,7 +31,7 @@ void main() {
     return GoRouter(
       initialLocation: '/start',
       routes: [
-        GoRoute(path: '/', builder: (_, _) => const Text('catalog')),
+        GoRoute(path: '/sheets', builder: (_, _) => const Text('catalog')),
         GoRoute(
           path: '/start',
           builder: (context, _) => TextButton(
@@ -92,7 +92,7 @@ void main() {
   testWidgets('a catalog target goes to the For Engineers catalog root', (tester) async {
     final router = await follow(tester, const CatalogTarget());
 
-    expect(router.state.uri.path, '/');
+    expect(router.state.uri.path, '/sheets');
     expect(find.text('catalog'), findsOneWidget);
     expect(router.canPop(), isFalse);
   });

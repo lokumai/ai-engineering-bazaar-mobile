@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
@@ -19,7 +20,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {
-  const AppRouterFactory({this.initialLocation = BazaarPaths.catalogEngineers});
+  const AppRouterFactory({this.initialLocation = BazaarPaths.home});
 
   /// Where the router starts.
   final String initialLocation;
@@ -48,7 +49,7 @@ class AppRouterFactory {
           child: const NotFoundPage(),
         );
       },
-      // The web's routes (Decision A9): the For Engineers catalog is `/` (the web's `/sheets/`), the For Everyone one
+      // The web's routes (Decision A9): Home is `/`, the For Engineers catalog `/sheets` and the For Everyone one
       // `/everyone/sheets`; `/dashboard`, `/path` and `/report` are gone on the web and have no route, and there are
       // no moved-address forwards. go_router 18.1.1 strips a trailing slash from every location before matching
       // (`configuration.dart:243-256`, `parser.dart:102-106`), so no slash redirect is needed.
@@ -61,6 +62,7 @@ class AppRouterFactory {
             ),
           ),
           routes: [
+            _page('home', BazaarPaths.home, const HomePage()),
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
             _pageOf('level', '/sheets/:level', (state) => _level(state, Track.engineers)),
@@ -75,7 +77,6 @@ class AppRouterFactory {
           ],
         ),
         // The web's catalog paths that are not pages of their own here.
-        GoRoute(path: '/sheets', redirect: (_, _) => BazaarPaths.catalogEngineers),
         GoRoute(path: '/courses', redirect: (_, _) => BazaarPaths.catalogEngineers),
         GoRoute(
           path: '/courses/:level',

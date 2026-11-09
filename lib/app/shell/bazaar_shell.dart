@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 
 /// The frame of every page inside the router's ShellRoute: the cobalt bar with a back button when there is a page to
 /// go back to, the Lokum logo and the app title (spec 3.8: a custom widget, never on the page ground), the lattice band
-/// under it, the page, and the bottom navigation (web nav labels `Catalog` and `Progress`,
+/// under it, the page, and the bottom navigation (web nav labels `Home`, `Catalog` and `Progress`,
 /// `src/components/shell/MainNav.tsx`; `Settings` is app copy). The track switch is on the pages of a track (the
 /// redesign, plan Phase 1B).
 ///
@@ -45,16 +45,19 @@ class _BazaarShellState extends State<BazaarShell> {
     if (track != null) context.read<TrackCubit>().select(track);
   }
 
+  /// Home, Catalog (every page of a track), Progress and Settings, as the web's bar orders Home, Catalog and Progress.
   int get _selectedIndex => switch (widget.location) {
-    BazaarPaths.progress => 1,
-    BazaarPaths.settings => 2,
+    BazaarPaths.progress => 2,
+    BazaarPaths.settings => 3,
+    final location when BazaarPaths.trackOf(location) != null => 1,
     _ => 0,
   };
 
   void _onDestinationSelected(int index) {
     final target = switch (index) {
-      1 => BazaarPaths.progress,
-      2 => BazaarPaths.settings,
+      0 => BazaarPaths.home,
+      2 => BazaarPaths.progress,
+      3 => BazaarPaths.settings,
       _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? context.read<TrackCubit>().state),
     };
     context.go(target);
@@ -87,7 +90,8 @@ class _BazaarShellState extends State<BazaarShell> {
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,
         destinations: [
-          NavigationDestination(icon: const Icon(Icons.view_list_outlined), label: l10n.nav_catalog),
+          NavigationDestination(icon: const Icon(Icons.home_outlined), label: l10n.nav_home),
+          NavigationDestination(icon: const Icon(Icons.menu_book_outlined), label: l10n.nav_catalog),
           NavigationDestination(icon: const Icon(Icons.check_circle_outline), label: l10n.nav_progress),
           NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.nav_settings),
         ],

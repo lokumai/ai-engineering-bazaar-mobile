@@ -175,6 +175,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "error_link_open_failed": m14,
+    "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module of this track is complete."),
+    "home_levels": MessageLookupByLibrary.simpleMessage("Levels"),
+    "home_offline_body": MessageLookupByLibrary.simpleMessage(
+      "It reads without a connection. At every start the app asks the site for a newer version.",
+    ),
+    "home_offline_title": MessageLookupByLibrary.simpleMessage("The course is on this device"),
+    "home_open_module": MessageLookupByLibrary.simpleMessage("Open the module"),
+    "home_see_progress": MessageLookupByLibrary.simpleMessage("See the progress"),
+    "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "level_completed": m15,
     "level_completed_pending": m16,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
@@ -182,6 +191,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
+    "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
     "nav_progress": MessageLookupByLibrary.simpleMessage("Progress"),
     "nav_settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "not_found_message": MessageLookupByLibrary.simpleMessage(

@@ -132,7 +132,7 @@ void main() {
             return MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: view);
           },
         ),
-        GoRoute(path: '/', builder: (_, state) => location(state)),
+        GoRoute(path: '/sheets', builder: (_, state) => location(state)),
         GoRoute(path: '/courses/:level/:module', builder: (_, state) => location(state)),
         GoRoute(path: '/everyone/courses/:level/:module', builder: (_, state) => location(state)),
         GoRoute(path: '/everyone/sheets/:level', builder: (_, state) => location(state)),
@@ -660,7 +660,7 @@ void main() {
     );
     await tester.tap(find.text('Catalog'));
     await tester.pumpAndSettle();
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('a failed read shows the unreadable line', (tester) async {

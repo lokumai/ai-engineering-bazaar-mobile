@@ -78,7 +78,7 @@ void main() {
   testWidgets('the bar shows the logo and the app title over the lattice band; the switch is on the page', (
     tester,
   ) async {
-    await _pumpAt(tester, '/', TrackCubit());
+    await _pumpAt(tester, '/sheets', TrackCubit());
 
     final bar = find.ancestor(of: find.byType(Image), matching: find.byType(Row)).first;
     final barSurface = find.ancestor(of: bar, matching: find.byType(Material)).first;
@@ -95,14 +95,14 @@ void main() {
   });
 
   testWidgets('the bar offers back only over a pushed page, and back returns to the page below', (tester) async {
-    final router = await _pumpAt(tester, '/', TrackCubit());
+    final router = await _pumpAt(tester, '/sheets', TrackCubit());
     expect(find.byType(BackButton), findsNothing);
 
     await _pushFromCatalog(tester, 'First Module');
     expect(find.byType(BackButton), findsOneWidget);
 
     await _tap(tester, find.byType(BackButton));
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
     expect(find.byType(BackButton), findsNothing);
   });
 
@@ -123,12 +123,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(_engineers);
     await tester.pumpAndSettle();
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('the switch on a pushed page opens the other track on top, and back returns to it', (tester) async {
     final track = TrackCubit();
-    final router = await _pumpAt(tester, '/', track);
+    final router = await _pumpAt(tester, '/sheets', track);
     await _pushFromCatalog(tester, 'Beta Level');
     await _tap(tester, find.widgetWithText(ChoiceChip, 'Planned'));
     expect(find.text('Showing 1 of 6'), findsOneWidget);
@@ -153,12 +153,12 @@ void main() {
 
     await _back(tester);
     expect(calls, isNot(contains('SystemNavigator.pop')));
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('back after a switch on a pushed module returns to the module of the first track', (tester) async {
     final track = TrackCubit();
-    final router = await _pumpAt(tester, '/', track);
+    final router = await _pumpAt(tester, '/sheets', track);
     await _pushFromCatalog(tester, 'First Module');
     expect(_path(router), '/courses/alpha/first');
 
@@ -188,21 +188,28 @@ void main() {
   testWidgets('the bottom navigation', (tester) async {
     final track = TrackCubit();
     final router = await _pumpAt(tester, '/sheets/alpha', track);
+    int selected() => tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
 
+    expect(_destination('Home'), findsOneWidget);
     expect(_destination('Catalog'), findsOneWidget);
     expect(_destination('Progress'), findsOneWidget);
     expect(_destination('Settings'), findsOneWidget);
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 0);
+    expect(selected(), 1, reason: 'a level page is under Catalog');
 
     await tester.tap(_destination('Progress'));
     await tester.pumpAndSettle();
     expect(_path(router), '/profile');
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 1);
+    expect(selected(), 2);
 
     await tester.tap(_destination('Settings'));
     await tester.pumpAndSettle();
     expect(_path(router), '/settings');
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
+    expect(selected(), 3);
+
+    await tester.tap(_destination('Home'));
+    await tester.pumpAndSettle();
+    expect(_path(router), '/');
+    expect(selected(), 0);
 
     router.go('/profile');
     await tester.pumpAndSettle();
@@ -211,17 +218,29 @@ void main() {
     await tester.tap(_destination('Catalog'));
     await tester.pumpAndSettle();
     expect(_path(router), '/everyone/sheets');
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 0);
+    expect(selected(), 1);
+  });
+
+  testWidgets('on Home, a page of neither track, the switch changes the remembered track only', (tester) async {
+    final track = TrackCubit();
+    final router = await _pumpAt(tester, '/', track);
+
+    await _tap(tester, _everyone);
+
+    expect(_path(router), '/');
+    expect(track.state, Track.everyone);
+    _expectSelected(tester, Track.everyone);
   });
 
   testWidgets('text scale 2.0', (tester) async {
-    final router = AppRouterFactory(initialLocation: '/').create();
+    final router = AppRouterFactory(initialLocation: '/sheets').create();
     addTearDown(router.dispose);
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
     expectHittable(tester, _engineers);
     expectHittable(tester, _everyone);
+    expectHittable(tester, _destination('Home'));
     expectHittable(tester, _destination('Catalog'));
     expectHittable(tester, _destination('Progress'));
     expectHittable(tester, _destination('Settings'));

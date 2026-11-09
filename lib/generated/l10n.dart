@@ -83,6 +83,11 @@ class S {
     return Intl.message('AI Engineering Bazaar', name: 'app_title', desc: '', args: []);
   }
 
+  /// `Home`
+  String get nav_home {
+    return Intl.message('Home', name: 'nav_home', desc: '', args: []);
+  }
+
   /// `Catalog`
   String get nav_catalog {
     return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
@@ -101,6 +106,51 @@ class S {
   /// `Track`
   String get track_switch_label {
     return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
+  }
+
+  /// `Up next`
+  String get home_up_next {
+    return Intl.message('Up next', name: 'home_up_next', desc: '', args: []);
+  }
+
+  /// `Open the module`
+  String get home_open_module {
+    return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
+  }
+
+  /// `Every written module of this track is complete.`
+  String get home_all_complete {
+    return Intl.message(
+      'Every written module of this track is complete.',
+      name: 'home_all_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `See the progress`
+  String get home_see_progress {
+    return Intl.message('See the progress', name: 'home_see_progress', desc: '', args: []);
+  }
+
+  /// `Levels`
+  String get home_levels {
+    return Intl.message('Levels', name: 'home_levels', desc: '', args: []);
+  }
+
+  /// `The course is on this device`
+  String get home_offline_title {
+    return Intl.message('The course is on this device', name: 'home_offline_title', desc: '', args: []);
+  }
+
+  /// `It reads without a connection. At every start the app asks the site for a newer version.`
+  String get home_offline_body {
+    return Intl.message(
+      'It reads without a connection. At every start the app asks the site for a newer version.',
+      name: 'home_offline_body',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Open on the web`

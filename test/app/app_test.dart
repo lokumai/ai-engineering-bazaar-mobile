@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,10 +15,10 @@ void main() {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.byType(CatalogPage), findsNothing);
+      expect(find.byType(HomePage), findsNothing);
 
-      await pumpUntilFound(tester, find.byType(CatalogPage));
-      expect(find.byType(CatalogPage), findsOneWidget);
+      await pumpUntilFound(tester, find.byType(HomePage));
+      expect(find.byType(HomePage), findsOneWidget);
     });
 
     testWidgets('follows the system theme with the light and dark app themes', (tester) async {
@@ -42,9 +42,9 @@ void main() {
 
     testWidgets('provides the AppConfig of its dependencies', (tester) async {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
-      await pumpUntilFound(tester, find.byType(CatalogPage));
+      await pumpUntilFound(tester, find.byType(HomePage));
 
-      expect(tester.element(find.byType(CatalogPage)).read<AppConfig>().environment, Environment.test);
+      expect(tester.element(find.byType(HomePage)).read<AppConfig>().environment, Environment.test);
     });
   });
 }

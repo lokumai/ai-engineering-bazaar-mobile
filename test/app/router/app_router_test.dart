@@ -47,18 +47,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.routeInformationProvider.value.uri.path, '/');
-    expect(router.routerDelegate.currentConfiguration.last.route.name, 'catalog');
+    expect(router.routerDelegate.currentConfiguration.last.route.name, 'home');
     expect(find.byType(SettingsScreen), findsNothing);
   });
 
   // (location, path after redirects, route name, path parameters)
   const rows = <(String, String, String, Map<String, String>)>[
-    ('/', '/', 'catalog', {}),
+    ('/', '/', 'home', {}),
     ('/everyone/sheets', '/everyone/sheets', 'catalogEveryone', {}),
-    ('/sheets', '/', 'catalog', {}),
+    ('/sheets', '/sheets', 'catalog', {}),
     ('/sheets/alpha', '/sheets/alpha', 'level', {'level': 'alpha'}),
     ('/everyone/sheets/alpha', '/everyone/sheets/alpha', 'levelEveryone', {'level': 'alpha'}),
-    ('/courses', '/', 'catalog', {}),
+    ('/courses', '/sheets', 'catalog', {}),
     ('/courses/alpha', '/sheets/alpha', 'level', {'level': 'alpha'}),
     ('/courses/alpha/first', '/courses/alpha/first', 'module', {'level': 'alpha', 'module': 'first'}),
     (

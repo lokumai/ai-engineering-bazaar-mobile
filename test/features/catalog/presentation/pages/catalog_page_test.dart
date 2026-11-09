@@ -18,13 +18,13 @@ import '../../../../support/bazaar_app_harness.dart';
 RecordBloc _firstCompleted() =>
     readyRecordBloc(signOff(RecordData.empty, 'alpha/first', 'abc1234', '2026-11-09T10:00:00.000Z'));
 
-GoRouter _router([String location = '/']) {
+GoRouter _router([String location = '/sheets']) {
   final router = AppRouterFactory(initialLocation: location).create();
   addTearDown(router.dispose);
   return router;
 }
 
-Future<GoRouter> _pumpCatalog(WidgetTester tester, [String location = '/']) async {
+Future<GoRouter> _pumpCatalog(WidgetTester tester, [String location = '/sheets']) async {
   final router = _router(location);
   await tester.pumpWidget(bazaarTestApp(router: router, record: _firstCompleted()));
   await tester.pumpAndSettle();

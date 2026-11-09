@@ -59,13 +59,13 @@ void main() {
     return (entry, state as ReaderWritten);
   }
 
-  testWidgets('boots offline from the bundled snapshot to the catalog', (tester) async {
+  testWidgets('boots offline from the bundled snapshot to Home', (tester) async {
     await pumpDeviceApp(tester, directory: await dataDirectory(tester));
     final content = await settledContent(tester);
 
     expect(content.origin, ContentOrigin.bundled);
     expect(content.refresh, isA<RefreshFailed>().having((f) => f.code, 'code', ContentErrorCode.network));
-    expect(currentPath(tester), BazaarPaths.catalogEngineers);
+    expect(currentPath(tester), BazaarPaths.home);
     expect(content.index.levels, isNotEmpty);
     expect(findProse(content.index.levels.first.title), findsWidgets);
     expect(tester.takeException(), isNull);
