@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/features/welcome/application/welcome_bloc.
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// While the store is asked, the page ground is shown, so neither screen flashes before the other.
 class WelcomeGate extends StatelessWidget {
-  const WelcomeGate({super.key, required this.child});
+  const WelcomeGate({super.key, required this.child, this.onFinished});
 
   final Widget child;
+
+  /// Called with the chosen track once a reader who saw Welcome chose one; the app opens that track's catalog, since
+  /// Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch that skips Welcome.
+  final ValueChanged<Track>? onFinished;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +35,7 @@ class WelcomeGate extends StatelessWidget {
             onChosen: (track) {
               unawaited(context.read<TrackCubit>().choose(track));
               context.read<WelcomeBloc>().add(const WelcomeTrackChosen());
+              onFinished?.call(track);
             },
           ),
           WelcomeDone() => child,

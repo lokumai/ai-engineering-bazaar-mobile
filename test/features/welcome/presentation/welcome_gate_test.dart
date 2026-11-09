@@ -58,6 +58,7 @@ Widget _gate(
   TargetPlatform platform = TargetPlatform.android,
   bool reducedMotion = false,
   TrackCubit? track,
+  ValueChanged<Track>? onFinished,
 }) => RepositoryProvider<IWelcomeStore>.value(
   value: store,
   child: MultiBlocProvider(
@@ -80,7 +81,7 @@ Widget _gate(
       builder: (context, child) => reducedMotion
           ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
           : child!,
-      home: const WelcomeGate(child: _app),
+      home: WelcomeGate(onFinished: onFinished, child: _app),
     ),
   ),
 );
@@ -95,7 +96,8 @@ void main() {
     final store = _MemoryWelcomeStore();
     final track = TrackCubit();
     addTearDown(track.close);
-    await tester.pumpWidget(_gate(store, track: track));
+    final finished = <Track>[];
+    await tester.pumpWidget(_gate(store, track: track, onFinished: finished.add));
     await tester.pumpAndSettle();
 
     expect(find.byType(WelcomeView), findsOneWidget);
@@ -126,12 +128,15 @@ void main() {
     expect(find.byType(WelcomeView), findsNothing);
     expect(store.wasSeen, isTrue);
     expect(track.state, Track.everyone);
+    expect(finished, [Track.everyone], reason: 'the app lands on that catalog (plan 1T)');
   });
 
   testWidgets('a later launch opens the app directly', (tester) async {
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true)));
+    final finished = <Track>[];
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true), onFinished: finished.add));
     await tester.pumpAndSettle();
 
+    expect(finished, isEmpty, reason: 'it stays where the app opens, Home (plan 1T)');
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeView), findsNothing);
   });

@@ -93,47 +93,49 @@ void main() {
     expect(find.byType(BazaarShell), findsOneWidget);
   });
 
-  testWidgets('the first launch shows Welcome and asks the track; the next launch opens Home in that track', (
-    tester,
-  ) async {
-    final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
-    addTearDown(() => dir.deleteSync(recursive: true));
-    final enter = find.byKey(const Key('welcome-enter'));
+  testWidgets(
+    'the first launch shows Welcome, asks the track and lands on its catalog; the next launch opens Home in that track',
+    (tester) async {
+      final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final enter = find.byKey(const Key('welcome-enter'));
 
-    await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
-    await _drain(tester, () => enter.evaluate().isNotEmpty, what: 'Welcome');
-    expect(find.byType(WelcomeView), findsOneWidget);
-    expect(find.byType(HomePage), findsNothing);
+      await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+      await _drain(tester, () => enter.evaluate().isNotEmpty, what: 'Welcome');
+      expect(find.byType(WelcomeView), findsOneWidget);
+      expect(find.byType(HomePage), findsNothing);
 
-    await tester.ensureVisible(enter);
-    await tester.pump();
-    await tester.tap(enter);
-    final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
-    await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
-    await tester.tap(everyone);
-    await tester.pump();
-    final start = find.byKey(const Key('welcome-start'));
-    await tester.ensureVisible(start);
-    await tester.pump();
-    await tester.tap(start);
-    await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
-    await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
-    await _drain(tester, () => File('${dir.path}/flags/track-chosen').existsSync(), what: 'the chosen track');
-    expect(File('${dir.path}/flags/track-everyone').existsSync(), isTrue);
+      await tester.ensureVisible(enter);
+      await tester.pump();
+      await tester.tap(enter);
+      final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+      await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
+      await tester.tap(everyone);
+      await tester.pump();
+      final start = find.byKey(const Key('welcome-start'));
+      await tester.ensureVisible(start);
+      await tester.pump();
+      await tester.tap(start);
+      await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
+      expect(find.byType(HomePage), findsNothing);
+      await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
+      await _drain(tester, () => File('${dir.path}/flags/track-chosen').existsSync(), what: 'the chosen track');
+      expect(File('${dir.path}/flags/track-everyone').existsSync(), isTrue);
 
-    await tester.pumpWidget(const SizedBox());
-    await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
-    await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
-    expect(find.byType(WelcomeView), findsNothing);
-    await _drain(
-      tester,
-      () => find
-          .descendant(of: find.byType(ReadingBadge), matching: find.textContaining('For Everyone'))
-          .evaluate()
-          .isNotEmpty,
-      what: 'the chosen track after a restart',
-    );
-  });
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+      await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
+      expect(find.byType(WelcomeView), findsNothing);
+      await _drain(
+        tester,
+        () => find
+            .descendant(of: find.byType(ReadingBadge), matching: find.textContaining('For Everyone'))
+            .evaluate()
+            .isNotEmpty,
+        what: 'the chosen track after a restart',
+      );
+    },
+  );
 
   testWidgets(
     'completing a module survives a restart',

@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
@@ -54,7 +55,13 @@ class _AppState extends State<App> {
           routerConfig: _router,
           // The router shows only once the content and the record are ready (spec 3.7), behind Welcome on the first
           // launch (plan Phase 1I).
-          builder: (context, child) => AppGate(child: WelcomeGate(child: child!)),
+          builder: (context, child) => AppGate(
+            child: WelcomeGate(
+              // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
+              onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
+              child: child!,
+            ),
+          ),
         ),
       ),
     );
