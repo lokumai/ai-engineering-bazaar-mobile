@@ -20,17 +20,39 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(url) => "Could not open ${url}";
+  static String m0(total) => "No module matches both filters · 0 of ${total}";
+
+  static String m1(visible, total) => "Showing ${visible} of ${total}";
+
+  static String m2(ready, total) => "${ready} of ${total} written";
+
+  static String m3(url) => "Could not open ${url}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "catalog_filter_all": MessageLookupByLibrary.simpleMessage("All"),
+    "catalog_filter_completed": MessageLookupByLibrary.simpleMessage("Completed"),
+    "catalog_filter_not_completed": MessageLookupByLibrary.simpleMessage("Not completed"),
+    "catalog_filter_planned": MessageLookupByLibrary.simpleMessage("Planned"),
+    "catalog_filter_ready": MessageLookupByLibrary.simpleMessage("Ready"),
+    "catalog_level_label": MessageLookupByLibrary.simpleMessage("Level:"),
+    "catalog_no_match": m0,
+    "catalog_no_match_cue": MessageLookupByLibrary.simpleMessage(
+      "The two filters select different modules. Widen either one, or clear both to see the whole catalog again.",
+    ),
+    "catalog_show_all": MessageLookupByLibrary.simpleMessage("Show the whole catalog"),
+    "catalog_showing": m1,
+    "catalog_status_label": MessageLookupByLibrary.simpleMessage("Status:"),
+    "catalog_title": MessageLookupByLibrary.simpleMessage("Catalog"),
+    "catalog_written": m2,
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
       "The course content in this app could not be read. Reinstalling the app restores it.",
     ),
     "content_broken_title": MessageLookupByLibrary.simpleMessage("The course cannot be opened"),
-    "error_link_open_failed": m0,
+    "error_link_open_failed": m3,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
+    "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
     "nav_progress": MessageLookupByLibrary.simpleMessage("Progress"),
     "nav_settings": MessageLookupByLibrary.simpleMessage("Settings"),

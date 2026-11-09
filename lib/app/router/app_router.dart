@@ -1,11 +1,11 @@
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
-import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
 import 'package:ai_engineering_bazaar/app/router/route_placeholder.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
@@ -48,8 +48,8 @@ class AppRouterFactory {
             ),
           ),
           routes: [
-            _page('catalog', BazaarPaths.catalogEngineers, const HomePlaceholderPage()),
-            _page('catalogEveryone', BazaarPaths.catalogEveryone, const HomePlaceholderPage()),
+            _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
+            _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
             _page('level', '/sheets/:level', const RoutePlaceholder()),
             _page('levelEveryone', '/everyone/sheets/:level', const RoutePlaceholder()),
             _page('module', '/courses/:level/:module', const RoutePlaceholder()),

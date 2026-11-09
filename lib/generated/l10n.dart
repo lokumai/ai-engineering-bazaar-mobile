@@ -127,6 +127,86 @@ class S {
   String get loading {
     return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
+
+  /// `Catalog`
+  String get catalog_title {
+    return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
+  }
+
+  /// `Level:`
+  String get catalog_level_label {
+    return Intl.message('Level:', name: 'catalog_level_label', desc: '', args: []);
+  }
+
+  /// `Status:`
+  String get catalog_status_label {
+    return Intl.message('Status:', name: 'catalog_status_label', desc: '', args: []);
+  }
+
+  /// `All`
+  String get catalog_filter_all {
+    return Intl.message('All', name: 'catalog_filter_all', desc: '', args: []);
+  }
+
+  /// `Ready`
+  String get catalog_filter_ready {
+    return Intl.message('Ready', name: 'catalog_filter_ready', desc: '', args: []);
+  }
+
+  /// `Planned`
+  String get catalog_filter_planned {
+    return Intl.message('Planned', name: 'catalog_filter_planned', desc: '', args: []);
+  }
+
+  /// `Completed`
+  String get catalog_filter_completed {
+    return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
+  }
+
+  /// `Not completed`
+  String get catalog_filter_not_completed {
+    return Intl.message('Not completed', name: 'catalog_filter_not_completed', desc: '', args: []);
+  }
+
+  /// `Showing {visible} of {total}`
+  String catalog_showing(int visible, int total) {
+    return Intl.message('Showing $visible of $total', name: 'catalog_showing', desc: '', args: [visible, total]);
+  }
+
+  /// `No module matches both filters · 0 of {total}`
+  String catalog_no_match(int total) {
+    return Intl.message(
+      'No module matches both filters · 0 of $total',
+      name: 'catalog_no_match',
+      desc: '',
+      args: [total],
+    );
+  }
+
+  /// `The two filters select different modules. Widen either one, or clear both to see the whole catalog again.`
+  String get catalog_no_match_cue {
+    return Intl.message(
+      'The two filters select different modules. Widen either one, or clear both to see the whole catalog again.',
+      name: 'catalog_no_match_cue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show the whole catalog`
+  String get catalog_show_all {
+    return Intl.message('Show the whole catalog', name: 'catalog_show_all', desc: '', args: []);
+  }
+
+  /// `{ready} of {total} written`
+  String catalog_written(int ready, int total) {
+    return Intl.message('$ready of $total written', name: 'catalog_written', desc: '', args: [ready, total]);
+  }
+
+  /// `Planned`
+  String get module_planned {
+    return Intl.message('Planned', name: 'module_planned', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
