@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The web's record conformance fixture (Task 6.1, generated, never edited), replayed the way the web's
@@ -82,5 +85,48 @@ void main() {
         [111, 4, 10],
       ),
     );
+  });
+
+  // conformance.test.ts:303-328; the no-op steps are the ones whose result is the same instance.
+  group('reduce', () {
+    for (final item in _section('reduce')) {
+      test(item['name']! as String, () {
+        var data = normaliseRecord(item['before']! as Map<String, Object?>);
+        final steps = (item['steps']! as List).cast<Map<String, Object?>>();
+        final unchanged = <int>[];
+        for (final (index, step) in steps.indexed) {
+          final track = step['track'] == null ? Track.engineers : Track.fromId(step['track']! as String)!;
+          final now = step['now']! as String;
+          final next = switch (step['op']) {
+            'signOff' => signOff(data, step['slug']! as String, step['revision'] as String?, now, track: track),
+            'unsign' => unsign(data, step['slug']! as String, track: track), // now is only the savedAt
+            'markActivity' => markActivity(data, now),
+            'markExported' => markExported(data, now),
+            'erase' => erasedRecord(data),
+            final op => throw StateError('unknown op $op'),
+          };
+          if (identical(next, data)) unchanged.add(index);
+          data = next;
+        }
+        final expected = item['expect']! as Map<String, Object?>;
+        expect(serialise(data, steps.last['now']! as String, pretty: false), expected['bytes']);
+        expect(unchanged, expected['unchanged']);
+      });
+    }
+  });
+
+  // conformance.test.ts:421-426; the export path stamps the day, then writes the two-space form.
+  group('export', () {
+    for (final item in _section('export')) {
+      test(item['name']! as String, () {
+        final at = item['at']! as String;
+        final result = parseEnvelope(envelopeTextFrom(item['input']! as String));
+        expect(result, isA<EnvelopeOk>());
+        final data = markActivity((result as EnvelopeOk).data, at);
+        final expected = item['expect']! as Map<String, Object?>;
+        expect(serialise(data, at, pretty: true), expected['bytes']);
+        expect(exportFilename(at), expected['filename']);
+      });
+    }
   });
 }
