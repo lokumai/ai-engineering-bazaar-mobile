@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The web's record conformance fixture (Task 6.1, generated, never edited), replayed the way the web's
@@ -45,5 +48,39 @@ void main() {
     // jsonEncode keeps insertion order, so these also pin the key order.
     test('EMPTY_SHEET', () => expect(jsonEncode(RecordConstants.emptySheet), jsonEncode(constants['EMPTY_SHEET'])));
     test('EMPTY_RECORD', () => expect(jsonEncode(RecordConstants.emptyRecord), jsonEncode(constants['EMPTY_RECORD'])));
+  });
+
+  // conformance.test.ts:154-174; the import chain, so envelopeTextFrom runs first (correction row 3.3.14).
+  group('parse', () {
+    for (final item in _section('parse')) {
+      test(item['name']! as String, () {
+        final text = item.containsKey('input')
+            ? item['input']! as String
+            : decodeRecordBytes(base64Decode(item['inputBase64']! as String));
+        final answer = switch (parseEnvelope(envelopeTextFrom(text))) {
+          EnvelopeEmpty() => {'kind': 'empty'},
+          EnvelopeQuarantine(:final reason) => {'kind': 'quarantine', 'reason': reason.name},
+          EnvelopeOk(:final data) => {
+            'kind': 'ok',
+            'reads': {
+              'signed': data.signedMap(Track.engineers),
+              'everyoneSigned': data.signedMap(Track.everyone),
+              'days': data.days,
+            },
+          },
+        };
+        expect(answer, item['expect']); // maps compare unordered (the fixture writes JS key order); days is ordered
+      });
+    }
+    test(
+      'outcome counts',
+      () => expect(
+        [
+          for (final kind in ['ok', 'empty', 'quarantine'])
+            _section('parse').where((i) => (i['expect']! as Map)['kind'] == kind).length,
+        ],
+        [111, 4, 10],
+      ),
+    );
   });
 }
