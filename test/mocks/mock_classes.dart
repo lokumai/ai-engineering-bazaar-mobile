@@ -1,12 +1,8 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_bloc_advance/infrastructure/storage/secure_storage.dart';
-
 // Infrastructure mocks
 class MockSharedPreferences extends Mock implements SharedPreferences {}
-
-class MockISecureStorage extends Mock implements ISecureStorage {}
 
 // Fake classes for fallback values
 class FakeUri extends Fake implements Uri {}

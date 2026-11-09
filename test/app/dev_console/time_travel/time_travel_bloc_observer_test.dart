@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_bloc_observer.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
-import 'package:flutter_bloc_advance/infrastructure/http/dev_console_store.dart';
+import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _Increment {}

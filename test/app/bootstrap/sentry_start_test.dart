@@ -9,13 +9,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 const _dsn = 'https://public@example.invalid/1';
 
-const _prodWithDsn = AppConfig(
-  environment: Environment.prod,
-  apiBaseUrl: 'https://api.example.invalid',
-  certificatePins: [],
-  idleTimeout: null,
-  sentryDsnDefine: _dsn,
-);
+const _prodWithDsn = AppConfig(environment: Environment.prod, sentryDsnDefine: _dsn);
 
 /// The platform sentry_flutter reports on an Android device, where it picks its Java binding.
 class _AndroidPlatform extends Platform {
@@ -58,7 +52,6 @@ void main() {
 
       expect(config.sentryDsn, isNull);
       expect(config.environment, Environment.prod);
-      expect(config.apiBaseUrl, _prodWithDsn.apiBaseUrl);
       expect(AppDependencies(appConfig: config).createAnalyticsService(), isA<LogAnalyticsService>());
     });
 

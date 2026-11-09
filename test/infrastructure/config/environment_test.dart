@@ -1,32 +1,22 @@
 import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/template_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AppConfig', () {
-    test('dev config sets development environment', () {
-      const config = AppConfig.dev();
-      expect(config.isDevelopment, true);
-      expect(config.apiBaseUrl, isNull);
+    test('each named config sets its environment', () {
+      expect(const AppConfig.dev().environment, Environment.dev);
+      expect(const AppConfig.test().environment, Environment.test);
+      expect(const AppConfig.prod().environment, Environment.prod);
+      expect(AppConfig.fromEnvironment(Environment.prod).isProduction, isTrue);
     });
-    test('test config sets test environment', () {
-      const config = AppConfig.test();
-      expect(config.isDevelopment, false);
-      expect(config.isProduction, false);
-      expect(config.isTest, true);
-      expect(config.apiBaseUrl, isNull);
-    });
-    test('prod config sets production environment', () {
-      const config = AppConfig.prod();
-      expect(config.isProduction, true);
-      expect(config.apiBaseUrl, TemplateConfig.prodApiUrl);
-      expect(config.idleTimeout, const Duration(minutes: 15));
-      expect(config.certificatePins, isEmpty);
-    });
-    test('fromEnvironment maps each enum value', () {
-      expect(AppConfig.fromEnvironment(Environment.dev).isDevelopment, true);
-      expect(AppConfig.fromEnvironment(Environment.test).isTest, true);
-      expect(AppConfig.fromEnvironment(Environment.prod).isProduction, true);
+
+    test('reads the Sentry DSN in prod only, and withoutSentry drops it and keeps the environment', () {
+      const dsn = 'https://public@example.invalid/1';
+      expect(const AppConfig(environment: Environment.dev, sentryDsnDefine: dsn).sentryDsn, isNull);
+      const prod = AppConfig(environment: Environment.prod, sentryDsnDefine: dsn);
+      expect(prod.sentryDsn, dsn);
+      expect(prod.withoutSentry().sentryDsn, isNull);
+      expect(prod.withoutSentry().environment, Environment.prod);
     });
   });
 }

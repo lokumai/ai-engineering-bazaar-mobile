@@ -20,8 +20,8 @@ import 'package:flutter_test/flutter_test.dart';
 // Each entry: 'relative_file_path → imported_path_fragment'
 // ---------------------------------------------------------------------------
 
-/// core/ importing infrastructure/ (security_utils needs storage for JWT)
-const _knownCoreExceptions = {'lib/core/security/security_utils.dart → infrastructure/storage/local_storage'};
+/// core/ importing infrastructure/
+const _knownCoreExceptions = <String>{};
 
 /// shared/ importing app/
 const _knownSharedExceptions = <String>{};

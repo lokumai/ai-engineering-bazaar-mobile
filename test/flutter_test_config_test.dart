@@ -15,10 +15,19 @@ void main() {
   // its FakeAsync zone. The result is checked after pumping instead of awaited, so a regression fails at once.
   setUpAll(() => TestEnv.autoReset = false);
 
+  // Each test stubs the flutter/assets channel, and its tear-down removes the binding's own handler (mockFlutterAssets)
+  // for the rest of this file as well. That is harmless: no later test here loads a real asset, and the file runs in
+  // its own isolate.
   for (final run in const ['first', 'second']) {
-    testWidgets('loads a mock asset in the $run testWidgets of a file that opts out of the reset', (tester) async {
+    testWidgets('loads an asset in the $run testWidgets of a file that opts out of the reset', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (message) async {
+        final key = utf8.decode(message!.buffer.asUint8List(message.offsetInBytes, message.lengthInBytes));
+        return key == 'stub/asset.json' ? ByteData.sublistView(utf8.encode('{"login":"admin"}')) : null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', null));
+
       String? json;
-      unawaited(rootBundle.loadString('assets/mock/GET_account.json').then((value) => json = value));
+      unawaited(rootBundle.loadString('stub/asset.json').then((value) => json = value));
       await tester.pump();
 
       expect(json, isNotNull, reason: 'the asset load never completed');

@@ -1,11 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc_advance/infrastructure/http/dev_console_store.dart';
-import 'package:flutter_bloc_advance/app/dev_console/tabs/network_tab.dart';
+import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
 import 'package:flutter_bloc_advance/app/dev_console/tabs/bloc_tab.dart';
 import 'package:flutter_bloc_advance/app/dev_console/tabs/storage_tab.dart';
-import 'package:flutter_bloc_advance/app/dev_console/tabs/environment_tab.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_tab.dart';
 import 'package:flutter_bloc_advance/shared/design_system/tokens/app_spacing.dart';
@@ -48,7 +46,7 @@ class _OpenDevConsoleIntent extends Intent {
 
 /// The in-app developer console overlay.
 ///
-/// Shows a bottom sheet with 4 tabs: Network, BLoC, Storage, Environment.
+/// Shows a bottom sheet with three tabs: BLoC, Time Travel and Storage.
 class DevConsoleOverlay {
   static void show(BuildContext context) {
     showModalBottomSheet(
@@ -73,11 +71,9 @@ class _DevConsolePanelState extends State<_DevConsolePanel> with SingleTickerPro
   late final TabController _tabController;
 
   static const _tabs = [
-    Tab(icon: Icon(Icons.http, size: 18), text: 'Network'),
     Tab(icon: Icon(Icons.sync_alt, size: 18), text: 'BLoC'),
     Tab(icon: Icon(Icons.history, size: 18), text: 'Time Travel'),
     Tab(icon: Icon(Icons.storage, size: 18), text: 'Storage'),
-    Tab(icon: Icon(Icons.info_outline, size: 18), text: 'Env'),
   ];
 
   @override
@@ -160,10 +156,7 @@ class _DevConsolePanelState extends State<_DevConsolePanel> with SingleTickerPro
 
         // Tab content
         Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: const [NetworkTab(), BlocTab(), TimeTravelTab(), StorageTab(), EnvironmentTab()],
-          ),
+          child: TabBarView(controller: _tabController, children: const [BlocTab(), TimeTravelTab(), StorageTab()]),
         ),
       ],
     );

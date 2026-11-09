@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:flutter_bloc_advance/core/logging/app_bloc_observer.dart';
-import 'package:flutter_bloc_advance/infrastructure/http/dev_console_store.dart';
+import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
 
 /// Combined BlocObserver that feeds both [DevConsoleStore] and [TimeTravelStore].
 ///

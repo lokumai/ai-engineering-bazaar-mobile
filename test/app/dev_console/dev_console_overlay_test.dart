@@ -2,11 +2,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc_advance/app/dev_console/dev_console_overlay.dart';
-import 'package:flutter_bloc_advance/app/dev_console/tabs/environment_tab.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
-import 'package:flutter_bloc_advance/infrastructure/http/dev_console_store.dart';
+import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
 import 'package:flutter_bloc_advance/shared/design_system/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -15,14 +12,8 @@ void main() {
   setUp(DevConsoleStore.instance.clearAll);
   tearDown(DevConsoleStore.instance.clearAll);
 
-  // A host page that opens the developer console on its network tab, with [extraEntries] captured. The console's
-  // colours come from the app theme, and its Env tab reads the AppConfig and the router.
-  Future<void> openConsole(
-    WidgetTester tester, {
-    required Size size,
-    required double textScale,
-    List<NetworkEntry> extraEntries = const [],
-  }) async {
+  // A host page that opens the developer console on its first tab. The console's colours come from the app theme.
+  Future<void> openConsole(WidgetTester tester, {required Size size, required double textScale}) async {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     tester.view.physicalSize = size;
@@ -45,65 +36,29 @@ void main() {
       ],
     );
     addTearDown(router.dispose);
-    await tester.pumpWidget(
-      RepositoryProvider<AppConfig>.value(
-        value: const AppConfig.test(),
-        child: MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
-      ),
-    );
-    extraEntries.forEach(DevConsoleStore.instance.addNetworkEntry);
+    await tester.pumpWidget(MaterialApp.router(theme: AppTheme.light(), routerConfig: router));
     await tester.tap(find.byType(TextButton));
-    // The pending request's spinner never settles, so the sheet's animation is pumped through instead.
+    // The sheet's animation is pumped through rather than settled.
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
   }
-
-  final start = DateTime(2026, 10, 20, 12, 34, 56);
-  // A request that failed after a long wait, which shows every part of the row under the URL.
-  final failed = NetworkEntry(
-    id: 'failed',
-    method: 'DELETE',
-    url: 'https://api.example.com/api/admin/users/a-very-long-user-login-name?cacheBuster=1234567890',
-    startTime: start,
-    statusCode: 503,
-    endTime: start.add(const Duration(milliseconds: 123456)),
-    error: 'Service unavailable',
-    responseHeaders: const {'content-type': 'application/json'},
-  );
-  final pending = NetworkEntry(
-    id: 'pending',
-    method: 'OPTIONS',
-    url: 'https://api.example.com/api/x',
-    startTime: start,
-  );
 
   for (final textScale in const [1.0, 1.3]) {
     for (final size in const [Size(320, 568), Size(360, 640), Size(375, 667)]) {
       final phone = '${size.width.toInt()}x${size.height.toInt()}';
       testWidgets('the console fits a $phone phone at text scale $textScale', (tester) async {
-        await openConsole(tester, size: size, textScale: textScale, extraEntries: [failed, pending]);
-        expect(tester.takeException(), isNull, reason: 'title bar, tab bar, network toolbar and request rows');
+        await openConsole(tester, size: size, textScale: textScale);
+        expect(tester.takeException(), isNull, reason: 'title bar, tab bar and the BLoC tab');
+        expect(find.text('Network'), findsNothing);
+        expect(find.text('Env'), findsNothing);
 
-        await tester.tap(find.textContaining('a-very-long-user-login-name'));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-        expect(tester.takeException(), isNull, reason: 'the details of an expanded request');
-
-        for (final (index, tab) in const ['BLoC', 'Time Travel', 'Storage', 'Env'].indexed) {
+        for (final (index, tab) in const ['Time Travel', 'Storage'].indexed) {
           await tester.tap(find.text(tab));
           await tester.pump();
           await tester.pump(const Duration(seconds: 1));
           expect(tester.widget<TabBar>(find.byType(TabBar)).controller!.index, index + 1, reason: '$tab is open');
           expect(tester.takeException(), isNull, reason: 'the $tab tab');
         }
-
-        // The route tree sits below the fold when the text is large, and is only laid out once it is scrolled to.
-        await tester.scrollUntilVisible(
-          find.text('Current Route'),
-          200,
-          scrollable: find.descendant(of: find.byType(EnvironmentTab), matching: find.byType(Scrollable)),
-        );
-        expect(tester.takeException(), isNull, reason: 'the route tree');
       });
     }
   }

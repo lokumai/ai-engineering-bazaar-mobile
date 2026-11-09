@@ -10,13 +10,7 @@ void main() {
 
   test('logs analytics on the device even with a Sentry DSN', () {
     const dependencies = AppDependencies(
-      appConfig: AppConfig(
-        environment: Environment.prod,
-        apiBaseUrl: null,
-        certificatePins: [],
-        idleTimeout: null,
-        sentryDsnDefine: 'https://public@example.invalid/1',
-      ),
+      appConfig: AppConfig(environment: Environment.prod, sentryDsnDefine: 'https://public@example.invalid/1'),
     );
 
     expect(dependencies.createAnalyticsService(), isA<LogAnalyticsService>());

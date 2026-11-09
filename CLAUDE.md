@@ -15,10 +15,10 @@ Flutter BLoC Advance Template - a production-ready Flutter application using BLo
 # Dependencies
 fvm flutter pub get
 
-# Run locally (mock API)
+# Run locally
 fvm flutter run --target lib/main/main_local.dart
 
-# Run production (real API)
+# Run production
 fvm flutter run --target lib/main/main_prod.dart
 
 # Analysis & formatting
@@ -150,10 +150,7 @@ When in doubt, prefer sealed and split the BLoC instead of growing the single st
 
 ## Environments
 
-- **dev/test** → mock data from `assets/mock/*.json`
-- **prod** → real API (configured in `lib/infrastructure/config/environment.dart`)
-- **Sign-in mode** is a separate build-time switch, `AUTH_PROVIDER`: unset or `jwt` is the password and OTP sign-in against the backend, and `oidc` signs in through an OpenID Connect provider configured by the `OIDC_*` defines (`lib/infrastructure/config/auth_config.dart`, [`docs/oidc.md`](docs/oidc.md)).
-  Both entry points accept both modes, and `jwt` mode must never construct or call anything from the OIDC path.
+- `main_local` and `main_prod` differ only in their `Environment` (`lib/infrastructure/config/environment.dart`); Sentry starts only in prod with a `SENTRY_DSN` define.
 
 ## Adding a New Feature
 
@@ -165,19 +162,15 @@ When in doubt, prefer sealed and split the BLoC instead of growing the single st
 6. Register the feature routes in `lib/app/router/app_router.dart`.
 7. Add translations to `lib/l10n/`, run `fvm dart run intl_utils:generate`, then `fvm dart format lib/generated --line-length=120`.
 8. Write tests mirroring the feature structure under `test/features/<feature_name>/`.
-9. Add each new repository method that sends requests through `ApiClient` to the table in `test/architecture/mock_asset_coverage_test.dart`, with the mock files it needs under `assets/mock/`.
 
 ## Testing
 
 - `test/flutter_test_config.dart` is the global bootstrap (auto-discovered by `flutter test`). It runs once per isolate — binding init, `AppLogger.configure`, `EquatableConfig.stringify`, mocktail `registerAllFallbackValues()` — and registers a global per-test `setUp`/`tearDown` that calls `TestEnv.reset()`.
-- The bootstrap also clears `rootBundle` before and after every test, including in files that opt out of `TestEnv.reset()`: an asset `Future` cached by one `testWidgets` resumes its awaiters only in that test's finished `FakeAsync` zone, so without the reset the later tests of a file never got their `assets/mock/*.json` responses (see "The asset cache" in `docs/testing-architecture.md`).
-- Tests need **no** manual setup for storage/router/secure-storage. Use `TestEnv` (`test/support/test_env.dart`):
-  - `TestEnv.authenticate()` for auth-dependent tests — call it in `setUp` or the test body, **never** in `setUpAll` (the global reset clears the secure store before each test).
-  - `TestEnv.apiClient()` for the mock-backed `ApiClient`.
+- The bootstrap also clears `rootBundle` before and after every test, including in files that opt out of `TestEnv.reset()`: an asset `Future` cached by one `testWidgets` resumes its awaiters only in that test's finished `FakeAsync` zone, so without the reset the later tests of a file never got their asset responses (see "The asset cache" in `docs/testing-architecture.md`).
+- The global reset is `TestEnv.reset()` (`test/support/test_env.dart`).
 - A test file that installs its own `MethodChannel` / `SharedPreferences` mock opts out of the global reset with `setUpAll(() => TestEnv.autoReset = false);` (isolated per file). Example: `test/infrastructure/storage/local_storage_test.dart`.
-- **Test doubles** — reach for a `mocktail` mock first; drop to a hand-fake only for genuine stateful behavior; Dio handlers are always handwritten:
+- **Test doubles** — reach for a `mocktail` mock first; drop to a hand-fake only for genuine stateful behavior:
   - **mocktail mock (default):** the `Mock*` classes in `test/mocks/mock_classes.dart`, for interface doubles configured with `when(...)` / `verify(...)` (repository / use-case / BLoC).
   - **handwritten fake:** a private `_Fake*` / `_Memory*` class next to the test when it needs real stateful behavior (in-memory store, throw-on-Nth-call, selective/sequenced failures, return-driven branching). These are **purpose-built per test** — same-named fakes in different files are not duplication; do not force them into shared "god" fakes.
-  - **Dio handler stub:** a private `_Test*Handler` / `_StubInterceptor` extending Dio's `Interceptor` / `RequestInterceptorHandler` / `ResponseInterceptorHandler` / `ErrorInterceptorHandler`, to test interceptors at the Dio layer (can't be mocked cleanly).
 - **Pumping:** `pumpAndSettle()` only when animations finish; its `Duration` arg is the per-pump interval (not a timeout) — prefer the bare form. For continuous animations (spinner/shimmer) use `pump(Duration)`, never `pumpAndSettle`.
 - Full test structure, per-layer patterns, and guard tests: see `docs/testing-architecture.md`.

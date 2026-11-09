@@ -53,13 +53,7 @@ void main() {
       tester,
     ) async {
       final sentry = _RecordingSentryStart(
-        const AppConfig(
-          environment: Environment.prod,
-          apiBaseUrl: null,
-          certificatePins: [],
-          idleTimeout: null,
-          sentryDsnDefine: 'https://public@example.invalid/1',
-        ),
+        const AppConfig(environment: Environment.prod, sentryDsnDefine: 'https://public@example.invalid/1'),
       );
       final flutterErrorHandler = FlutterError.onError;
       final platformErrorHandler = PlatformDispatcher.instance.onError;

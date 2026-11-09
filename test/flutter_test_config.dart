@@ -12,8 +12,8 @@ import 'support/test_env.dart';
 
 /// Global test bootstrap, auto-discovered by `flutter test` for everything
 /// under `test/`. Runs one-time config per isolate and an automatic per-test
-/// environment reset. Files that manage the secure-storage MethodChannel
-/// themselves opt out via `setUpAll(() => TestEnv.autoReset = false);`.
+/// environment reset. Files that install their own channel mocks opt out
+/// via `setUpAll(() => TestEnv.autoReset = false);`.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // One-time per isolate.
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,10 +26,10 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   registerAllFallbackValues();
 
   // Per-test in every file, opted out or not. rootBundle caches the Future of
-  // each string asset, such as the assets/mock/*.json that MockInterceptor
-  // serves, and code awaiting that Future is resumed by a microtask of the
-  // zone that created it. When a testWidgets body loaded the asset, that is
-  // the test's FakeAsync zone, whose microtasks nothing runs after the test,
+  // each string asset, such as a bundled content file, and code awaiting
+  // that Future is resumed by a microtask of the zone that created it. When
+  // a testWidgets body loaded the asset, that is the test's FakeAsync zone,
+  // whose microtasks nothing runs after the test,
   // so a later testWidgets in the same file waited for that asset forever.
   // Clearing after each test too keeps such a Future from reaching a later
   // group's setUpAll or a tearDownAll.
