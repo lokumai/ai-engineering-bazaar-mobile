@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -113,31 +114,35 @@ class _Bar extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.titleMedium?.copyWith(color: BazaarFixedColors.onBar);
     final logo = MediaQuery.textScalerOf(context).scale(_logo);
-    return Material(
-      color: BazaarFixedColors.bar,
-      child: SafeArea(
-        bottom: false,
-        child: ConstrainedBox(
-          // A minimum, never a fixed height, so a large text scale grows the bar (spec 3.10).
-          constraints: const BoxConstraints(minHeight: BazaarLayout.bar),
-          child: Padding(
-            padding: EdgeInsetsDirectional.only(
-              start: canPop ? AppSpacing.xs : AppSpacing.lg,
-              end: AppSpacing.lg,
-              top: AppSpacing.xs,
-              bottom: AppSpacing.xs,
-            ),
-            child: Row(
-              spacing: AppSpacing.md,
-              children: [
-                // The bar sits above the shell's navigator, so the router pops the page it pushed.
-                if (canPop) BackButton(color: BazaarFixedColors.onBar, onPressed: () => GoRouter.of(context).pop()),
-                // Decoration: the title beside it names the app.
-                ExcludeSemantics(
-                  child: Image.asset(_logoAsset, width: logo, height: logo, filterQuality: FilterQuality.medium),
-                ),
-                Expanded(child: Text(S.of(context).app_title, style: style)),
-              ],
+    // The status bar is drawn over the bar, navy in both themes, so its icons are light (plan 1J).
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Material(
+        color: BazaarFixedColors.bar,
+        child: SafeArea(
+          bottom: false,
+          child: ConstrainedBox(
+            // A minimum, never a fixed height, so a large text scale grows the bar (spec 3.10).
+            constraints: const BoxConstraints(minHeight: BazaarLayout.bar),
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: canPop ? AppSpacing.xs : AppSpacing.lg,
+                end: AppSpacing.lg,
+                top: AppSpacing.xs,
+                bottom: AppSpacing.xs,
+              ),
+              child: Row(
+                spacing: AppSpacing.md,
+                children: [
+                  // The bar sits above the shell's navigator, so the router pops the page it pushed.
+                  if (canPop) BackButton(color: BazaarFixedColors.onBar, onPressed: () => GoRouter.of(context).pop()),
+                  // Decoration: the title beside it names the app.
+                  ExcludeSemantics(
+                    child: Image.asset(_logoAsset, width: logo, height: logo, filterQuality: FilterQuality.medium),
+                  ),
+                  Expanded(child: Text(S.of(context).app_title, style: style)),
+                ],
+              ),
             ),
           ),
         ),

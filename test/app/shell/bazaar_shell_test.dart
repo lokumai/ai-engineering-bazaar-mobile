@@ -94,6 +94,17 @@ void main() {
     expect(tester.getSemantics(_everyone), isSemantics(label: 'For Everyone', isSelected: false, isButton: true));
   });
 
+  testWidgets('the bar asks for light status bar icons, since it is navy in both themes', (tester) async {
+    await _pumpAt(tester, '/sheets', TrackCubit());
+
+    final bar = find.ancestor(of: find.byType(Image), matching: find.byType(Row)).first;
+    final region = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+      find.ancestor(of: bar, matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>)).first,
+    );
+    expect(region.value.statusBarIconBrightness, Brightness.light, reason: 'Android');
+    expect(region.value.statusBarBrightness, Brightness.dark, reason: 'iOS: the bar behind the status bar is dark');
+  });
+
   testWidgets('the bar offers back only over a pushed page, and back returns to the page below', (tester) async {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     expect(find.byType(BackButton), findsNothing);
