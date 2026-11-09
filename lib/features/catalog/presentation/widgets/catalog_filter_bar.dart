@@ -51,13 +51,19 @@ class CatalogFilterBar extends StatelessWidget {
             ChoiceChip(
               label: Text(l10n.catalog_filter_all),
               selected: level == null,
-              onSelected: (_) => context.go(BazaarPaths.catalog(track)),
+              // A selected level chip does nothing: a go to the page shown would replace a pushed page with a fresh
+              // one and drop the pages below it.
+              onSelected: (_) {
+                if (level != null) context.go(BazaarPaths.catalog(track));
+              },
             ),
             for (final entry in levels)
               ChoiceChip(
                 label: Text(entry.title),
                 selected: level == entry.slug,
-                onSelected: (_) => context.go(BazaarPaths.level(track, entry.slug)),
+                onSelected: (_) {
+                  if (level != entry.slug) context.go(BazaarPaths.level(track, entry.slug));
+                },
               ),
           ],
         ),

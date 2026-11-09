@@ -113,11 +113,21 @@ class S {
     return Intl.message('The course cannot be opened', name: 'content_broken_title', desc: '', args: []);
   }
 
-  /// `The course content in this app could not be read. Reinstalling the app restores it.`
+  /// `The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.`
   String get content_broken_message {
     return Intl.message(
-      'The course content in this app could not be read. Reinstalling the app restores it.',
+      'The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.',
       name: 'content_broken_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The app could not use its storage for the course content. Your progress on this device is kept.`
+  String get content_broken_storage_message {
+    return Intl.message(
+      'The app could not use its storage for the course content. Your progress on this device is kept.',
+      name: 'content_broken_storage_message',
       desc: '',
       args: [],
     );

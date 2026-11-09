@@ -21,7 +21,11 @@ import '../support/bazaar_app_harness.dart';
 import '../support/catalog_fixture_index.dart';
 
 const _brokenTitle = 'The course cannot be opened';
-const _brokenMessage = 'The course content in this app could not be read. Reinstalling the app restores it.';
+const _brokenMessage =
+    'The course content in this app could not be opened. An update of the app restores it. '
+    'Your progress on this device is kept.';
+const _storageMessage =
+    'The app could not use its storage for the course content. Your progress on this device is kept.';
 
 final _router = find.text('router');
 final _spinner = find.byType(CircularProgressIndicator);
@@ -96,6 +100,19 @@ void main() {
     expect(find.text(_brokenTitle), findsOneWidget);
     expect(find.text(_brokenMessage), findsOneWidget);
   });
+
+  // A reinstall deletes the progress on iOS, and on Android unless a backup has run; the broken view never advises it.
+  for (final code in ContentErrorCode.values) {
+    final message = code == ContentErrorCode.storage ? _storageMessage : _brokenMessage;
+    testWidgets('broken content ($code) says its own line and keeps the progress', (tester) async {
+      await tester.pumpWidget(_gate(ContentBroken(code: code), _recordReady));
+      await tester.pump();
+
+      expect(find.text(message), findsOneWidget);
+      expect(find.textContaining('Your progress on this device is kept.'), findsOneWidget);
+      expect(find.textContaining(RegExp('reinstall', caseSensitive: false)), findsNothing);
+    });
+  }
 
   testWidgets('the broken view at text scale 2.0', (tester) async {
     await pumpAtTextScale(

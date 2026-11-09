@@ -44,7 +44,7 @@ class _BrokenView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The code is for the log only; the reader sees what happened and what restores it.
+    // The code goes to the log; the reader sees what happened, what restores it, and that the progress is kept.
     _log.warn('Content broken: {}', [code]);
     final l10n = S.of(context);
     final textTheme = Theme.of(context).textTheme;
@@ -58,7 +58,11 @@ class _BrokenView extends StatelessWidget {
             children: [
               Semantics(header: true, child: Text(l10n.content_broken_title, style: textTheme.headlineSmall)),
               const SizedBox(height: AppSpacing.md),
-              Text(l10n.content_broken_message, style: textTheme.bodyLarge),
+              Text(switch (code) {
+                // The bundled content is intact; the store beside it could not be used.
+                ContentErrorCode.storage => l10n.content_broken_storage_message,
+                _ => l10n.content_broken_message,
+              }, style: textTheme.bodyLarge),
             ],
           ),
         ),

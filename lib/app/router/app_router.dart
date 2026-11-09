@@ -59,16 +59,8 @@ class AppRouterFactory {
           routes: [
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
-            _pageOf(
-              'level',
-              '/sheets/:level',
-              (state) => LevelPage(track: Track.engineers, level: state.pathParameters['level']!),
-            ),
-            _pageOf(
-              'levelEveryone',
-              '/everyone/sheets/:level',
-              (state) => LevelPage(track: Track.everyone, level: state.pathParameters['level']!),
-            ),
+            _pageOf('level', '/sheets/:level', (state) => _level(state, Track.engineers)),
+            _pageOf('levelEveryone', '/everyone/sheets/:level', (state) => _level(state, Track.everyone)),
             _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             _page('progress', BazaarPaths.progress, const ProgressPage()),
@@ -87,6 +79,13 @@ class AppRouterFactory {
         ),
       ],
     );
+  }
+
+  /// The level page the path names. go_router keys the page by its pattern, so the page is keyed by its level: a level
+  /// chip opens the other level with its own Status filter and closed descriptions, as the web remounts it.
+  static Widget _level(GoRouterState state, Track track) {
+    final level = state.pathParameters['level']!;
+    return LevelPage(key: ValueKey(level), track: track, level: level);
   }
 
   /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`, with the quiz

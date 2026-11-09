@@ -4,6 +4,7 @@ library;
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -306,6 +307,40 @@ void main() {
     expect(find.text('Showing 2 of 6'), findsOneWidget);
     expect(find.byType(Card), findsNWidgets(2));
     expect(_card('Third Module'), findsNothing);
+  });
+
+  testWidgets('the selected level chip keeps a pushed level page and its Status filter', (tester) async {
+    final router = await _pumpLevel(tester, '/');
+    await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text('Beta Level')));
+    expect(_path(router), '/sheets/beta');
+    await _tap(tester, _chip('Planned'));
+    expect(find.text('Showing 1 of 6'), findsOneWidget);
+
+    await _tap(tester, _chip('Beta Level'));
+    expect(_path(router), '/sheets/beta');
+    expect(_selected(tester, _chip('Beta Level')), isTrue);
+    expect(_selected(tester, _chip('Planned')), isTrue);
+    expect(find.text('Showing 1 of 6'), findsOneWidget);
+    expect(router.canPop(), isTrue, reason: 'the catalog stays below');
+  });
+
+  group('a level chip opens the other level with its own filters', () {
+    for (final (track, prefix, status) in [
+      ('For Engineers', '/sheets', 'Completed'),
+      ('For Everyone', '/everyone/sheets', 'Planned'),
+    ]) {
+      testWidgets(track, (tester) async {
+        final router = await _pumpLevel(tester, '$prefix/alpha');
+        await _tap(tester, _chip(status));
+        expect(_selected(tester, _chip(status)), isTrue);
+
+        await _tap(tester, _chip('Beta Level'));
+        expect(_path(router), '$prefix/beta');
+        expect(_selected(tester, _chip('All').last), isTrue, reason: 'the Status row starts at All');
+        expect(_selected(tester, _chip(status)), isFalse);
+        expect(find.text('Showing 2 of 6'), findsOneWidget);
+      });
+    }
   });
 
   group('links', () {

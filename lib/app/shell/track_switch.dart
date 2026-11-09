@@ -17,8 +17,8 @@ import 'package:go_router/go_router.dart';
 /// (`TrackSwitch.tsx:30-34`). The current segment is filled with the `bar-chip` pair, which the web's contrast test
 /// checks, instead of the web's untested `--color-ornament` fill (spec 3.8).
 ///
-/// On a page of a track, a tap opens the same page in the other track (`targetsFor`); on a page of neither track it
-/// only changes the remembered track.
+/// On a page of a track, a tap opens the same page in the other track (`targetsFor`) on top of the page shown; on a
+/// page of neither track it only changes the remembered track.
 class TrackSwitch extends StatelessWidget {
   const TrackSwitch({super.key, required this.location});
 
@@ -49,12 +49,14 @@ class TrackSwitch extends StatelessWidget {
     );
   }
 
+  /// The web's segments are links, a history entry that back returns from, so the other track's page is pushed; the
+  /// segment of the page shown does nothing, since a push of the same location would open a second copy of it.
   void _select(BuildContext context, Track track) {
     final target = BazaarPaths.trackSwitchTarget(location, track);
-    if (target != null) {
-      context.go(target);
-    } else {
+    if (target == null) {
       context.read<TrackCubit>().select(track);
+    } else if (target != location) {
+      context.push(target);
     }
   }
 }

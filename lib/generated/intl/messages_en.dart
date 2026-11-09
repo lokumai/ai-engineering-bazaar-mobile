@@ -119,7 +119,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_title": MessageLookupByLibrary.simpleMessage("Catalog"),
     "catalog_written": m7,
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
-      "The course content in this app could not be read. Reinstalling the app restores it.",
+      "The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.",
+    ),
+    "content_broken_storage_message": MessageLookupByLibrary.simpleMessage(
+      "The app could not use its storage for the course content. Your progress on this device is kept.",
     ),
     "content_broken_title": MessageLookupByLibrary.simpleMessage("The course cannot be opened"),
     "content_notice_cache_discarded": MessageLookupByLibrary.simpleMessage(

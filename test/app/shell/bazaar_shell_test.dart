@@ -3,10 +3,12 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/track_switch.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,7 +30,36 @@ Future<GoRouter> _pumpAt(WidgetTester tester, String location, TrackCubit track)
   return router;
 }
 
-String _path(GoRouter router) => router.routerDelegate.currentConfiguration.uri.path;
+/// The path of the page on top, a pushed one included.
+String _path(GoRouter router) => router.state.uri.path;
+
+Future<void> _tap(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Opens [title] from the catalog root by its row or section title, which pushes it.
+Future<void> _pushFromCatalog(WidgetTester tester, String title) =>
+    _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text(title)));
+
+/// The platform calls the framework makes; Android back with nothing to pop asks for `SystemNavigator.pop`.
+List<String> _watchPlatformCalls(WidgetTester tester) {
+  final calls = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+    calls.add(call.method);
+    return null;
+  });
+  addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+  return calls;
+}
+
+/// Android back, settled.
+Future<void> _back(WidgetTester tester) async {
+  await tester.binding.handlePopRoute();
+  await tester.pumpAndSettle();
+}
 
 void _expectSelected(WidgetTester tester, Track track) {
   expect(tester.getSemantics(find.byKey(TrackSwitch.segmentKey(track))), isSemantics(isSelected: true, isButton: true));
@@ -69,6 +100,54 @@ void main() {
     await tester.tap(_engineers);
     await tester.pumpAndSettle();
     expect(_path(router), '/');
+  });
+
+  testWidgets('the switch on a pushed page opens the other track on top, and back returns to it', (tester) async {
+    final track = TrackCubit();
+    final router = await _pumpAt(tester, '/', track);
+    await _pushFromCatalog(tester, 'Beta Level');
+    await _tap(tester, find.widgetWithText(ChoiceChip, 'Planned'));
+    expect(find.text('Showing 1 of 6'), findsOneWidget);
+
+    // The segment of the page shown does nothing: the page and the catalog below it stay.
+    await _tap(tester, _engineers);
+    expect(_path(router), '/sheets/beta');
+    expect(find.text('Showing 1 of 6'), findsOneWidget);
+    expect(router.canPop(), isTrue);
+
+    await _tap(tester, _everyone);
+    expect(_path(router), '/everyone/sheets/beta');
+    expect(track.state, Track.everyone);
+
+    final calls = _watchPlatformCalls(tester);
+    await _back(tester);
+    expect(calls, isNot(contains('SystemNavigator.pop')));
+    expect(_path(router), '/sheets/beta');
+    expect(find.text('Showing 1 of 6'), findsOneWidget, reason: 'the page below keeps its Status filter');
+    expect(track.state, Track.engineers);
+    _expectSelected(tester, Track.engineers);
+
+    await _back(tester);
+    expect(calls, isNot(contains('SystemNavigator.pop')));
+    expect(_path(router), '/');
+  });
+
+  testWidgets('back after a switch on a pushed module returns to the module of the first track', (tester) async {
+    final track = TrackCubit();
+    final router = await _pumpAt(tester, '/', track);
+    await _pushFromCatalog(tester, 'First Module');
+    expect(_path(router), '/courses/alpha/first');
+
+    await _tap(tester, _everyone);
+    expect(_path(router), '/everyone/courses/alpha/first');
+    _expectSelected(tester, Track.everyone);
+
+    final calls = _watchPlatformCalls(tester);
+    await _back(tester);
+    expect(calls, isNot(contains('SystemNavigator.pop')));
+    expect(_path(router), '/courses/alpha/first');
+    expect(track.state, Track.engineers);
+    _expectSelected(tester, Track.engineers);
   });
 
   testWidgets('on a page of neither track the switch changes the remembered track only', (tester) async {
