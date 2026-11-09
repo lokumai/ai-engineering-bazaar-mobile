@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc_advance/core/errors/app_api_exception.dart';
 import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
 import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -487,8 +486,8 @@ void main() {
       );
       await Sentry.addBreadcrumb(Breadcrumb.console(message: 'Authorization: Bearer $jwt'));
 
-      // What ApiClient throws for a 404 whose body names the request path.
-      await Sentry.captureException(FetchDataException('Not found: {"path":"/api/admin/users/jane.doe@example.com"}'));
+      // An exception whose text names the request path.
+      await Sentry.captureException(const _RequestFailed());
 
       final sent = sentEvents.single;
       expect(sent, isNot(contains('jane.doe')));
@@ -562,4 +561,10 @@ class _CapturingTransport implements Transport {
     }
     return SentryId.newId();
   }
+}
+
+final class _RequestFailed implements Exception {
+  const _RequestFailed();
+  @override
+  String toString() => 'Error During Communication: Not found: {"path":"/api/admin/users/jane.doe@example.com"}';
 }

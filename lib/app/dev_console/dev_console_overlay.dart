@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
 import 'package:flutter_bloc_advance/app/dev_console/tabs/bloc_tab.dart';
-import 'package:flutter_bloc_advance/app/dev_console/tabs/storage_tab.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_tab.dart';
 import 'package:flutter_bloc_advance/shared/design_system/tokens/app_spacing.dart';
@@ -46,7 +45,7 @@ class _OpenDevConsoleIntent extends Intent {
 
 /// The in-app developer console overlay.
 ///
-/// Shows a bottom sheet with three tabs: BLoC, Time Travel and Storage.
+/// Shows a bottom sheet with two tabs: BLoC and Time Travel.
 class DevConsoleOverlay {
   static void show(BuildContext context) {
     showModalBottomSheet(
@@ -73,7 +72,6 @@ class _DevConsolePanelState extends State<_DevConsolePanel> with SingleTickerPro
   static const _tabs = [
     Tab(icon: Icon(Icons.sync_alt, size: 18), text: 'BLoC'),
     Tab(icon: Icon(Icons.history, size: 18), text: 'Time Travel'),
-    Tab(icon: Icon(Icons.storage, size: 18), text: 'Storage'),
   ];
 
   @override
@@ -156,7 +154,7 @@ class _DevConsolePanelState extends State<_DevConsolePanel> with SingleTickerPro
 
         // Tab content
         Expanded(
-          child: TabBarView(controller: _tabController, children: const [BlocTab(), TimeTravelTab(), StorageTab()]),
+          child: TabBarView(controller: _tabController, children: const [BlocTab(), TimeTravelTab()]),
         ),
       ],
     );

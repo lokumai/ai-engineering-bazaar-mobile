@@ -1,8 +1,5 @@
-import 'package:flutter_bloc_advance/core/feature_flags/feature_flag_service.dart';
-import 'package:flutter_bloc_advance/infrastructure/storage/local_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
-import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
+import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
 
 /// Static test-support harness. Replaces the old instance-based `TestUtils`.
 ///
@@ -19,14 +16,11 @@ class TestEnv {
   /// to true at isolate start.
   static bool autoReset = true;
 
-  /// Resets the per-test environment: clears all storage and the
-  /// process-wide [FeatureFlagService.instance]. No language is stored, so
-  /// an `App` starts in the language passed to it, as on a first launch.
+  /// Resets the per-test environment: clears the process-wide
+  /// [DevConsoleStore.instance] and [TimeTravelStore.instance].
   /// Idempotent and cheap (in-memory).
   static Future<void> reset() async {
-    SharedPreferences.setMockInitialValues({});
-    SharedPreferencesAsyncPlatform.instance = InMemorySharedPreferencesAsync.empty();
-    await AppLocalStorage().clear();
-    FeatureFlagService.instance.clear();
+    DevConsoleStore.instance.clearAll();
+    TimeTravelStore.instance.clear();
   }
 }

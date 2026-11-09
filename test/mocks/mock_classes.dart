@@ -1,8 +1,4 @@
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-// Infrastructure mocks
-class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 // Fake classes for fallback values
 class FakeUri extends Fake implements Uri {}

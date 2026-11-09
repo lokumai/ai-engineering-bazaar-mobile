@@ -51,8 +51,9 @@ void main() {
         expect(tester.takeException(), isNull, reason: 'title bar, tab bar and the BLoC tab');
         expect(find.text('Network'), findsNothing);
         expect(find.text('Env'), findsNothing);
+        expect(find.text('Storage'), findsNothing);
 
-        for (final (index, tab) in const ['Time Travel', 'Storage'].indexed) {
+        for (final (index, tab) in const ['Time Travel'].indexed) {
           await tester.tap(find.text(tab));
           await tester.pump();
           await tester.pump(const Duration(seconds: 1));

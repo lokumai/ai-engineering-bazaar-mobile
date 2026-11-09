@@ -61,7 +61,7 @@ lib/
 │       └── presentation/   # Pages & Widgets (UI Layer)
 ├── shared/                 # Shared foundation across features
 │   ├── design_system/      # Theme, typography, color tokens, atoms
-│   ├── models/             # Cross-feature models/entities (e.g., UserEntity)
+│   ├── models/             # Cross-feature models/entities
 │   ├── utils/              # Generic utility functions
 │   └── widgets/            # Reusable components (buttons, forms, etc.)
 ├── generated/              # Auto-generated localization (do not edit)
@@ -168,7 +168,7 @@ When in doubt, prefer sealed and split the BLoC instead of growing the single st
 - `test/flutter_test_config.dart` is the global bootstrap (auto-discovered by `flutter test`). It runs once per isolate — binding init, `AppLogger.configure`, `EquatableConfig.stringify`, mocktail `registerAllFallbackValues()` — and registers a global per-test `setUp`/`tearDown` that calls `TestEnv.reset()`.
 - The bootstrap also clears `rootBundle` before and after every test, including in files that opt out of `TestEnv.reset()`: an asset `Future` cached by one `testWidgets` resumes its awaiters only in that test's finished `FakeAsync` zone, so without the reset the later tests of a file never got their asset responses (see "The asset cache" in `docs/testing-architecture.md`).
 - The global reset is `TestEnv.reset()` (`test/support/test_env.dart`).
-- A test file that installs its own `MethodChannel` / `SharedPreferences` mock opts out of the global reset with `setUpAll(() => TestEnv.autoReset = false);` (isolated per file). Example: `test/infrastructure/storage/local_storage_test.dart`.
+- A test file that installs its own `MethodChannel` / `SharedPreferences` mock opts out of the global reset with `setUpAll(() => TestEnv.autoReset = false);` (isolated per file).
 - **Test doubles** — reach for a `mocktail` mock first; drop to a hand-fake only for genuine stateful behavior:
   - **mocktail mock (default):** the `Mock*` classes in `test/mocks/mock_classes.dart`, for interface doubles configured with `when(...)` / `verify(...)` (repository / use-case / BLoC).
   - **handwritten fake:** a private `_Fake*` / `_Memory*` class next to the test when it needs real stateful behavior (in-memory store, throw-on-Nth-call, selective/sequenced failures, return-driven branching). These are **purpose-built per test** — same-named fakes in different files are not duplication; do not force them into shared "god" fakes.

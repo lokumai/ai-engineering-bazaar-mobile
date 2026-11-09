@@ -37,7 +37,7 @@ void main() {
   });
 }
 
-const _roots = ['lib/app/', 'lib/features/', 'lib/shared/widgets/', 'lib/shared/design_system/components/'];
+const _roots = ['lib/app/', 'lib/features/', 'lib/shared/design_system/components/'];
 
 const _skippedRoots = ['lib/app/dev_console/'];
 
