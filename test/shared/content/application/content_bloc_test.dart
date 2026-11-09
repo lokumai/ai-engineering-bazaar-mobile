@@ -191,8 +191,14 @@ void main() {
             ),
           );
         },
-        act: (bloc) => bloc.add(const ContentStarted()),
-        wait: const Duration(milliseconds: 100),
+        // The refresh runs over real files, so the test waits for its last state rather than for a fixed time a
+        // slow runner can miss; the timeout still fails a refresh that never ends.
+        act: (bloc) async {
+          bloc.add(const ContentStarted());
+          await bloc.stream
+              .firstWhere((state) => state is ContentReady && state.refresh is RefreshFailed)
+              .timeout(const Duration(seconds: 30));
+        },
         expect: () => [ready(const RefreshIdle()), ready(const RefreshChecking()), ready(RefreshFailed(failure.code))],
       );
     }
