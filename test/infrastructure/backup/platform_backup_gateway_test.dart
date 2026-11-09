@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 
 /// A picked file whose name and bytes the test sets; [readAsBytes] throws [error] when it is given.
@@ -109,7 +110,16 @@ void main() {
       expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
     });
 
-    test('lets a failing picker reach the caller', () async {
+    // Android answers unknown_path and iOS load_failed when the picked document cannot be copied for the app.
+    for (final code in ['unknown_path', 'load_failed']) {
+      test('reports a file the picker could not load as unreadable ($code)', () async {
+        final gateway = PlatformBackupGateway(pickFile: () async => throw PlatformException(code: code));
+
+        expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+      });
+    }
+
+    test('lets an error of the picker other than a platform failure reach the caller', () async {
       final gateway = PlatformBackupGateway(pickFile: () async => throw StateError('picker'));
 
       await expectLater(gateway.pickJson(), throwsStateError);

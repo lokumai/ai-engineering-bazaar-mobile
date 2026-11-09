@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -431,6 +432,32 @@ void main() {
       });
     });
 
+    test('an erase that answers after the bloc closed starts no countdown', () {
+      onFakeClock((async) {
+        final reply = Completer<bool>();
+        when(() => recordBloc.add(any())).thenAnswer((invocation) {
+          if (invocation.positionalArguments.first case RecordErased(:final at, reply: final done?)) {
+            recordState = _ready(
+              undo: EraseUndo(at: at, bytes: _noBytes, data: RecordData.empty),
+            );
+            reply.future.then(done.complete);
+          }
+        });
+        final errors = <Object>[];
+        runZonedGuarded(() {
+          final bloc = build();
+          bloc.add(const ResetConfirmed());
+          async.flushMicrotasks();
+          bloc.close();
+          async.flushMicrotasks();
+          reply.complete(true);
+          async.elapse(const Duration(seconds: 2));
+        }, (error, _) => errors.add(error));
+        expect(async.periodicTimerCount, 0);
+        expect(errors, isEmpty);
+      });
+    });
+
     test('closing the bloc stops the countdown', () {
       onFakeClock((async) {
         final bloc = build();
@@ -483,6 +510,23 @@ void main() {
         expect(dismissed.state, const DataState());
         await dismissed.close();
         verifyNever(() => recordBloc.add(any()));
+      });
+    });
+
+    test('set-aside bytes that cannot be read say the copy was not written', () async {
+      await onClock(() async {
+        final bloc = build();
+        when(() => repository.readStored()).thenAnswer((_) async => throw const FileSystemException('read failed'));
+        bloc.add(const QuarantineExportRequested());
+        await expectLater(
+          bloc.stream,
+          emitsInOrder([
+            const DataState(busy: DataBusy.savingQuarantine),
+            const DataState(quarantineCopy: QuarantineCopy.notWritten),
+          ]),
+        );
+        verifyNever(() => gateway.save(any(), any()));
+        await bloc.close();
       });
     });
 

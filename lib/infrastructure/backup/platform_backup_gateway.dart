@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart' show PlatformException;
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
@@ -39,7 +40,15 @@ final class PlatformBackupGateway implements IBackupGateway {
 
   @override
   Future<PickedBackup> pickJson() async {
-    final file = await _pickFile();
+    final PlatformFile? file;
+    try {
+      file = await _pickFile();
+    } on PlatformException catch (error) {
+      // Both plugins copy the picked document during the pick, so a file they cannot load fails here (Android
+      // `unknown_path`, iOS `load_failed`); only the code is logged, never a path.
+      _log.warn('Backup file not loaded: {}', [error.code]);
+      return const PickedBackupUnreadable();
+    }
     if (file == null) return const PickedBackupCancelled();
     try {
       return PickedBackupBytes(bytes: await file.readAsBytes());

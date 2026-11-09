@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show FileSystemException;
 
 import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
@@ -149,7 +150,10 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final at = clock.now();
       final done = Completer<bool>();
       _recordBloc.add(RecordErased(at: at, reply: done));
-      if (!await done.future) {
+      final erased = await done.future;
+      // The page closed while the erase waited in the record's queue: a ticker started now is never cancelled.
+      if (isClosed) return;
+      if (!erased) {
         emit(state._with(busy: DataBusy.idle, reset: const ResetNotFinished()));
         return;
       }
@@ -192,11 +196,18 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
 
   /// Saves the set-aside bytes unchanged; nothing is marked in the record.
   Future<void> _onQuarantineExportRequested(QuarantineExportRequested event, Emitter<DataState> emit) async {
-    final stored = await _repository.readStored();
-    final bytes = stored.quarantine;
-    if (bytes == null) throw StateError('no set-aside record to save');
     emit(state._with(busy: DataBusy.savingQuarantine));
     try {
+      final StoredBytes stored;
+      try {
+        stored = await _repository.readStored();
+      } on FileSystemException catch (error) {
+        _log.warn('Set-aside record not read: {}', [error.runtimeType]);
+        emit(state._with(busy: DataBusy.idle, quarantineCopy: QuarantineCopy.notWritten));
+        return;
+      }
+      final bytes = stored.quarantine;
+      if (bytes == null) throw StateError('no set-aside record to save');
       final BackupSaveResult result;
       try {
         result = await _gateway.save(bytes, 'hl-record-quarantine-${nowIso().substring(0, 10)}.json');
