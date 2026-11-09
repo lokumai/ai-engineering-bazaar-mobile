@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/completion_row.dart';
-import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_drawer.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/not_written_view.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/objectives_card.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/pager.dart';
@@ -91,16 +91,29 @@ class ModuleReaderView extends StatefulWidget {
 }
 
 class _ModuleReaderViewState extends State<ModuleReaderView> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   /// The key of each heading of [_keyedDoc], by heading id.
   final _headingKeys = <String, GlobalKey>{};
   ModuleDoc? _keyedDoc;
 
   bool _fragmentScheduled = false;
 
-  /// The heading chosen in the contents drawer, scrolled to once the drawer has closed.
-  String? _drawerTarget;
+  /// How far the module is read, from 0 to 1, by the scroll position on screen; drawn as the reading bar and never
+  /// saved (the record keeps no reading position, R61).
+  final _readProgress = ValueNotifier<double>(0);
+
+  @override
+  void dispose() {
+    _readProgress.dispose();
+    super.dispose();
+  }
+
+  /// Follows the page's own scroll, not a nested one such as a wide table's.
+  bool _onScroll(ScrollMetricsNotification notification) {
+    if (notification.depth != 0) return false;
+    final metrics = notification.metrics;
+    _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
+    return false;
+  }
 
   GlobalKey _headingKey(String id) => _headingKeys.putIfAbsent(id, GlobalKey.new);
 
@@ -111,16 +124,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
   }
 
-  void _selectFromDrawer(String id) {
-    _drawerTarget = id;
-    _scaffoldKey.currentState!.closeEndDrawer();
-  }
-
-  void _onEndDrawerChanged(bool open) {
-    final id = _drawerTarget;
-    if (open || id == null) return;
-    _drawerTarget = null;
-    _scrollTo(id);
+  /// Opens the contents sheet and scrolls to the heading chosen once the sheet is gone.
+  Future<void> _openContents(List<TocEntry> sections) async {
+    final id = await showContentsSheet(context, sections);
+    if (id != null && mounted) _scrollTo(id);
   }
 
   @override
@@ -171,73 +178,105 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         : const <TocEntry>[];
     final quiz = doc.quiz;
     final quizBuilder = widget.quizBuilder;
+    final level = switch (context.read<ContentBloc>().state) {
+      ContentReady(:final index) => index.level(entry.level),
+      _ => null,
+    };
 
     return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: sections.isEmpty ? null : ContentsDrawer(entries: sections, onSelect: _selectFromDrawer),
-      onEndDrawerChanged: _onEndDrawerChanged,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (sections.isNotEmpty)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextButton.icon(
-                  onPressed: () => _scaffoldKey.currentState!.openEndDrawer(),
-                  icon: const Icon(Icons.toc),
-                  label: Text(s.reader_contents),
-                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // The reading bar: decoration, as the scroll position it shows is on screen already.
+          ExcludeSemantics(
+            child: ValueListenableBuilder<double>(
+              valueListenable: _readProgress,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 4,
+                color: BazaarFixedColors.success,
+                backgroundColor: colors.surfaceSunken,
               ),
-            if (draft != null && !written) ...[
-              StatusBand(partlyWritten: draft.written != null),
-              const SizedBox(height: 20),
-            ],
-            Semantics(header: true, child: Text(doc.title, style: readerTitleStyle(context))),
-            if (written) ...[
-              const SizedBox(height: 8),
-              Text(
-                s.reader_minutes(entry.minutes),
-                style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
-              ),
-            ],
-            const SizedBox(height: 24),
-            if (doc.prerequisites.isNotEmpty) ...[
-              PrerequisitesBox(refs: doc.prerequisites),
-              const SizedBox(height: 24),
-            ],
-            if (doc.objectives.isNotEmpty) ...[ObjectivesCard(objectives: doc.objectives), const SizedBox(height: 26)],
-            if (body != null)
-              BlockList(blocks: body, render: render)
-            else if (draft != null) ...[
-              if (draft.summary case final summary?)
-                BlockList(
-                  blocks: [
-                    ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+            ),
+          ),
+          Expanded(
+            child: NotificationListener<ScrollMetricsNotification>(
+              onNotification: _onScroll,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (sections.isNotEmpty)
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton.icon(
+                          onPressed: () => unawaited(_openContents(sections)),
+                          icon: const Icon(Icons.toc),
+                          label: Text(s.reader_contents),
+                        ),
+                      ),
+                    if (draft != null && !written) ...[
+                      StatusBand(partlyWritten: draft.written != null),
+                      const SizedBox(height: 20),
+                    ],
+                    // The level and the module's number over the title (the mockup's line; both are the index's).
+                    if (level != null)
+                      Text(
+                        '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
+                        style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+                      ),
+                    Semantics(header: true, child: Text(doc.title, style: readerTitleStyle(context))),
+                    if (written) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        s.reader_minutes(entry.minutes),
+                        style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    if (doc.prerequisites.isNotEmpty) ...[
+                      PrerequisitesBox(refs: doc.prerequisites),
+                      const SizedBox(height: 24),
+                    ],
+                    if (doc.objectives.isNotEmpty) ...[
+                      ObjectivesCard(objectives: doc.objectives),
+                      const SizedBox(height: 26),
+                    ],
+                    if (body != null)
+                      BlockList(blocks: body, render: render)
+                    else if (draft != null) ...[
+                      if (draft.summary case final summary?)
+                        BlockList(
+                          blocks: [
+                            ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                          ],
+                          render: render,
+                        ),
+                      if (draft.parts.isNotEmpty) ...[ScheduleOfParts(parts: draft.parts), const SizedBox(height: 26)],
+                      if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
+                    ],
+                    if (written) ...[
+                      const SizedBox(height: 16),
+                      CompletionRow(
+                        doc: doc,
+                        onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    Pager(previous: doc.previous, next: doc.next),
+                    if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
+                      const SizedBox(height: 32),
+                      quizBuilder(context, quiz),
+                    ],
+                    const SizedBox(height: 40),
+                    ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
                   ],
-                  render: render,
                 ),
-              if (draft.parts.isNotEmpty) ...[ScheduleOfParts(parts: draft.parts), const SizedBox(height: 26)],
-              if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
-            ],
-            if (written) ...[
-              const SizedBox(height: 16),
-              CompletionRow(
-                doc: doc,
-                onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
               ),
-            ],
-            const SizedBox(height: 32),
-            Pager(previous: doc.previous, next: doc.next),
-            if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
-              const SizedBox(height: 32),
-              quizBuilder(context, quiz),
-            ],
-            const SizedBox(height: 40),
-            ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

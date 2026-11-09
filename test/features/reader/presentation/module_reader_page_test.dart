@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -355,7 +356,7 @@ void main() {
     expect(find.byKey(const Key('write-failure')), findsNothing);
   });
 
-  testWidgets('the contents drawer lists depth-2 entries and jumps to them', (tester) async {
+  testWidgets('the contents sheet lists depth-2 entries and jumps to them', (tester) async {
     stateIs(
       ReaderWritten(
         doc: testDoc(toc: _toc, body: [..._filler, _sectionOne]),
@@ -368,18 +369,18 @@ void main() {
 
     await tester.tap(find.text('Contents'));
     await tester.pumpAndSettle();
-    final drawer = find.byType(Drawer);
-    expect(find.descendant(of: drawer, matching: find.text('On this page')), findsOneWidget);
-    expect(find.descendant(of: drawer, matching: find.text('Sub')), findsNothing);
+    final sheet = find.byType(ContentsSheet);
+    expect(find.descendant(of: sheet, matching: find.text('ON THIS PAGE')), findsOneWidget);
+    expect(find.descendant(of: sheet, matching: find.text('Sub')), findsNothing);
     expect(find.byTooltip('Close'), findsOneWidget);
 
-    await tester.tap(find.descendant(of: drawer, matching: find.text('Section one')));
+    await tester.tap(find.descendant(of: sheet, matching: find.text('Section one')));
     await tester.pumpAndSettle();
-    expect(drawer, findsNothing);
+    expect(sheet, findsNothing);
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
   });
 
-  testWidgets('the contents drawer closes on its close button', (tester) async {
+  testWidgets('the contents sheet closes on its close button', (tester) async {
     stateIs(
       ReaderWritten(
         doc: testDoc(toc: _toc, body: [_sectionOne]),
@@ -394,10 +395,10 @@ void main() {
     await tester.tap(find.byTooltip('Close'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(Drawer), findsNothing);
+    expect(find.byType(ContentsSheet), findsNothing);
   });
 
-  testWidgets('the contents drawer shows the marks when the entries carry them', (tester) async {
+  testWidgets('the contents sheet shows the marks when the entries carry them', (tester) async {
     stateIs(
       ReaderWritten(
         doc: testDoc(
@@ -413,7 +414,7 @@ void main() {
     await tester.tap(find.text('Contents'));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(Drawer), matching: find.text('I')), findsOneWidget);
+    expect(find.descendant(of: find.byType(ContentsSheet), matching: find.text('I')), findsOneWidget);
   });
 
   testWidgets('no contents button without depth-2 entries', (tester) async {
