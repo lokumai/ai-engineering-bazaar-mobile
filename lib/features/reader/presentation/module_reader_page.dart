@@ -53,6 +53,9 @@ class ModuleReaderPage extends StatelessWidget {
       final state => throw StateError('The reader needs ready content, not $state'),
     };
     return BlocProvider(
+      // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
+      // the key makes that a new reader rather than the old module's.
+      key: ValueKey((moduleKey, track)),
       create: (context) => ModuleReaderBloc(
         repository: context.read<IContentRepository>(),
         index: index,

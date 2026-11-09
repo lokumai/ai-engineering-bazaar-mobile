@@ -795,6 +795,44 @@ void main() {
       expect(find.text('First for everyone'), findsOneWidget);
     });
 
+    testWidgets('a go to another module of the same route opens that module', (tester) async {
+      // go_router keys a page by its route pattern, so this go rebuilds the same page with another module key.
+      final other = testModule(key: 'alpha/second', number: 2);
+      final repository = MockContentRepository();
+      when(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json'))
+          .thenAnswer((_) async => testDoc(title: 'First doc', body: [_paragraph('One.')]));
+      when(() => repository.readModuleDoc('api/v1/modules/alpha/second/en.json'))
+          .thenAnswer((_) async => testDoc(key: 'alpha/second', title: 'Second doc', body: [_paragraph('Two.')]));
+      final router = GoRouter(
+        initialLocation: '/courses/alpha/first',
+        routes: [
+          GoRoute(
+            path: '/courses/:level/:module',
+            builder: (_, state) => ModuleReaderPage(
+              moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
+              track: Track.engineers,
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        bazaarTestApp(
+          router: router,
+          content: readyContentBloc(testIndex(modules: [testModule(), other])),
+          repository: repository,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('First doc'), findsOneWidget);
+
+      router.go('/courses/alpha/second');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Second doc'), findsOneWidget);
+      expect(find.text('First doc'), findsNothing);
+    });
+
     testWidgets('throws unless the content is ready', (tester) async {
       final content = MockContentBloc();
       whenListen(content, const Stream<ContentState>.empty(), initialState: const ContentLoading());

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/dart_code.dart';
 
-/// Guards spec 3.11: no string literal in `lib/` or `test/` restates a fact about the course.
+/// Guards spec 3.11: no string literal in `lib/`, `test/` or `integration_test/` restates a fact about the course.
 ///
 /// The facts come from the bundled snapshot: every module key, every key and value of `moved.modules`, and every
 /// module title (both tracks) and level title of two or more words. Tests read the synthetic fixture under
@@ -52,7 +52,7 @@ void main() {
   };
 
   final files = [
-    for (final root in const ['lib', 'test'])
+    for (final root in const ['lib', 'test', 'integration_test'])
       ...Directory(root).listSync(recursive: true).whereType<File>().where((file) {
         final path = file.path.replaceAll(r'\', '/');
         return path.endsWith('.dart') && !path.startsWith('lib/generated/');
@@ -86,10 +86,15 @@ void main() {
     expect(keys, isNotEmpty);
     expect(titles, isNotEmpty);
     expect(files, isNotEmpty);
+    expect(
+      files.any((file) => file.path.replaceAll(r'\', '/').startsWith('integration_test/')),
+      isTrue,
+      reason: 'the guard read no device test',
+    );
   });
 
   test(
-    'no literal in lib/ or test/ restates a course fact',
+    'no literal in lib/, test/ or integration_test/ restates a course fact',
     () => expect(violations, isEmpty, reason: violations.join('\n')),
   );
 
