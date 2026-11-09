@@ -26,10 +26,10 @@ void main() {
   });
 
   blocTest<WelcomeBloc, WelcomeState>(
-    'the first launch shows Welcome',
+    'the first launch asks for the language and the track at once (plan 1Y)',
     build: () => WelcomeBloc(store: _MemoryWelcomeStore()),
     act: (bloc) => bloc.add(const WelcomeStarted()),
-    expect: () => [const WelcomeShowing()],
+    expect: () => [const WelcomeChoosingTrack()],
   );
 
   blocTest<WelcomeBloc, WelcomeState>(
@@ -41,22 +41,15 @@ void main() {
 
   final store = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
-    'entering asks for the track, then the guide; reading it opens the app and records it once (plan 1L, 1X)',
+    'choosing a track shows the guide; reading it opens the app and records it once (plan 1L, 1X)',
     build: () => WelcomeBloc(store: store),
     act: (bloc) => bloc
       ..add(const WelcomeStarted())
-      ..add(const WelcomeEntered())
-      ..add(const WelcomeEntered())
       ..add(const WelcomeTrackChosen())
       ..add(const WelcomeTrackChosen())
       ..add(const WelcomeIntroRead())
       ..add(const WelcomeIntroRead()),
-    expect: () => [
-      const WelcomeShowing(),
-      const WelcomeChoosingTrack(),
-      const WelcomeIntroducing(),
-      const WelcomeDone(),
-    ],
+    expect: () => [const WelcomeChoosingTrack(), const WelcomeIntroducing(), const WelcomeDone()],
     verify: (_) {
       expect(store.writes, 1);
       expect(store.wasSeen, isTrue);
@@ -68,19 +61,11 @@ void main() {
     'Welcome is not recorded before the guide is read',
     build: () => WelcomeBloc(store: notYet),
     act: (bloc) => bloc
-      ..add(const WelcomeStarted())
       ..add(const WelcomeIntroRead())
       ..add(const WelcomeTrackChosen())
-      ..add(const WelcomeEntered())
+      ..add(const WelcomeStarted())
       ..add(const WelcomeTrackChosen()),
-    expect: () => [const WelcomeShowing(), const WelcomeChoosingTrack(), const WelcomeIntroducing()],
+    expect: () => [const WelcomeChoosingTrack(), const WelcomeIntroducing()],
     verify: (_) => expect(notYet.writes, 0),
-  );
-
-  blocTest<WelcomeBloc, WelcomeState>(
-    'entering before Welcome shows does nothing',
-    build: () => WelcomeBloc(store: _MemoryWelcomeStore()),
-    act: (bloc) => bloc.add(const WelcomeEntered()),
-    expect: () => <WelcomeState>[],
   );
 }

@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -55,11 +56,14 @@ class _AppState extends State<App> {
           routerConfig: _router,
           // The router shows only once the content and the record are ready (spec 3.7), behind Welcome on the first
           // launch (plan Phase 1I).
-          builder: (context, child) => AppGate(
-            child: WelcomeGate(
-              // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
-              onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
-              child: child!,
+          // The bazaar's gate plays over the app as it opens (plan 1Y).
+          builder: (context, child) => WelcomeSplash(
+            child: AppGate(
+              child: WelcomeGate(
+                // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
+                onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
+                child: child!,
+              ),
             ),
           ),
         ),

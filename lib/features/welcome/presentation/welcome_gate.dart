@@ -4,13 +4,12 @@ import 'package:ai_engineering_bazaar/features/welcome/application/welcome_bloc.
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Shows [WelcomeView] in front of [child], the app, on the first launch only (plan Phase 1I); the app composes it
+/// Shows Welcome's steps in front of [child], the app, on the first launch only (plan Phase 1I, 1Y); the app composes it
 /// over the router, so Welcome has no route of its own and the web's routes stay the app's (A9).
 ///
 /// While the store is asked, the page ground is shown, so neither screen flashes before the other.
@@ -19,8 +18,9 @@ class WelcomeGate extends StatelessWidget {
 
   final Widget child;
 
-  /// Called with the chosen track once a reader who saw Welcome chose one and read the guide; the app opens that track's catalog, since
-  /// Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch that skips Welcome.
+  /// Called with the chosen track once a reader on a first launch chose one and read the guide; the app opens that
+  /// track's catalog, since Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch
+  /// that skips Welcome.
   final ValueChanged<Track>? onFinished;
 
   @override
@@ -30,7 +30,6 @@ class WelcomeGate extends StatelessWidget {
       child: BlocBuilder<WelcomeBloc, WelcomeState>(
         builder: (context, state) => switch (state) {
           WelcomeChecking() => ColoredBox(color: Theme.of(context).colorScheme.surface),
-          WelcomeShowing() => WelcomeView(onEnter: () => context.read<WelcomeBloc>().add(const WelcomeEntered())),
           WelcomeChoosingTrack() => WelcomeTrackView(
             initial: context.read<TrackCubit>().state,
             onChosen: (track) {

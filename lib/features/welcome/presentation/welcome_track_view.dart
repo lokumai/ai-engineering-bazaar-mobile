@@ -1,4 +1,4 @@
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_art.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';

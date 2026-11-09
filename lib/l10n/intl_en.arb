@@ -27,10 +27,6 @@
   "@welcome_headline": {
     "description": "The mockup's Welcome headline, in English."
   },
-  "welcome_lede": "The AI engineering course, on this device. No account: the progress stays here.",
-  "@welcome_lede": {},
-  "welcome_enter": "Enter the bazaar",
-  "@welcome_enter": {},
   "welcome_maker": "Lokum AI",
   "@welcome_maker": {},
   "welcome_track_title": "How would you like to read?",

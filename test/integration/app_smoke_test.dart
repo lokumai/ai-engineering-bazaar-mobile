@@ -20,7 +20,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_view.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +76,8 @@ Future<void> _drain(WidgetTester tester, bool Function() done, {required String 
   for (var round = 0; round < rounds; round++) {
     if (done()) return;
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-    await tester.pump();
+    // Frames move on in time too, so the gate that plays as the app opens plays out (plan 1Y).
+    await tester.pump(const Duration(milliseconds: 50));
   }
   if (done()) return;
   throw TestFailure('$what did not happen after $rounds rounds');
@@ -95,20 +96,14 @@ void main() {
   });
 
   testWidgets(
-    'the first launch shows Welcome, asks the track and lands on its catalog; the next launch opens Home in that track',
+    'the first launch plays the gate, asks the track, shows the guide and lands on its catalog; the next launch opens Home in that track',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
-      final enter = find.byKey(const Key('welcome-enter'));
-
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
-      await _drain(tester, () => enter.evaluate().isNotEmpty, what: 'Welcome');
-      expect(find.byType(WelcomeView), findsOneWidget);
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
       expect(find.byType(HomePage), findsNothing);
-
-      await tester.ensureVisible(enter);
-      await tester.pump();
-      await tester.tap(enter);
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
       await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
       await tester.tap(everyone);
@@ -131,7 +126,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
       await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
-      expect(find.byType(WelcomeView), findsNothing);
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      expect(find.byType(WelcomeTrackView), findsNothing);
       await _drain(
         tester,
         () => tester.element(find.byType(HomePage)).read<TrackCubit>().state == Track.everyone,
@@ -154,6 +150,7 @@ void main() {
 
       Future<void> openFirst() async {
         await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+        await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
         await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');

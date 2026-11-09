@@ -70,7 +70,7 @@ lib/
   main/main_local.dart, main_prod.dart        entry points
   app/
     app.dart                                    MaterialApp.router; mounts the router when ContentBloc and RecordBloc are ready,
-                                                behind Welcome on the first launch
+                                                under the opening gate, behind Welcome's steps on the first launch
     bootstrap/                                  boot order, Sentry gate, CONTENT_BASE_URL check (main_local)
     di/app_dependencies.dart, app_scope.dart    the only place infrastructure is constructed; providers
     dev_console/                                dev console; debug only
@@ -106,7 +106,8 @@ lib/
     quiz/                                       QuizCubit, the quiz card and the full-screen quiz
     progress/                                   progress page, DataBloc, data line, quarantine notice, dialogs
     settings/                                   content status, Check for updates, licences, debug dev-console button
-    welcome/                                    WelcomeBloc, its store port and the first-launch screen
+    welcome/                                    the opening gate (WelcomeSplash), WelcomeBloc, its store port and the
+                                                first-launch steps (language and track, the guide)
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)

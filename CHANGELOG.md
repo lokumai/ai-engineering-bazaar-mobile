@@ -12,7 +12,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
-- Welcome reaches the top of the screen, enters in steps and stays alive for a few seconds; it asks for the language and the track, shows How the bazaar works once, and the first launch lands on the catalog.
+- The bazaar's gate plays as the app opens and fades into it. The first launch then asks for the language and the track, shows How the bazaar works once, and lands on the catalog.
 - Home at `/`: the next module to read, the levels with their completion, and the offline note.
 - The catalog root at `/sheets`, with the levels as buttons that open their modules, and the level page. The web's filters are left out: each card says whether it is planned or completed.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a

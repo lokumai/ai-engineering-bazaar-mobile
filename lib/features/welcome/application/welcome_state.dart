@@ -12,12 +12,7 @@ final class WelcomeChecking extends WelcomeState {
   const WelcomeChecking();
 }
 
-/// The first launch: Welcome is shown.
-final class WelcomeShowing extends WelcomeState {
-  const WelcomeShowing();
-}
-
-/// Enter the bazaar was tapped: the reader chooses a track (plan 1L).
+/// The first launch: the reader chooses the language and a track (plan 1L, 1Y).
 final class WelcomeChoosingTrack extends WelcomeState {
   const WelcomeChoosingTrack();
 }

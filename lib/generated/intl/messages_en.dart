@@ -314,7 +314,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
-    "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
     "welcome_headline": MessageLookupByLibrary.simpleMessage("AI engineering, written by the people who build it."),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
       "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
@@ -332,9 +331,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
     "welcome_intro_start": MessageLookupByLibrary.simpleMessage("Open the catalog"),
     "welcome_intro_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
-    "welcome_lede": MessageLookupByLibrary.simpleMessage(
-      "The AI engineering course, on this device. No account: the progress stays here.",
-    ),
     "welcome_maker": MessageLookupByLibrary.simpleMessage("Lokum AI"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
