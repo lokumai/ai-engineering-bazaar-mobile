@@ -18,10 +18,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
   reading bar.
 - The module quiz, opened full screen from a card in the reader.
-- The progress page with one tab per track, and the data line: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record.
+- The progress page for the chosen track, and the data line: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
-- Welcome on the first launch, with the gate and the people of the web's home page.
 - The redesign after the team's mobile mockup: the logo bar, the lattice band, level hues, dials and meters, and a
   four-item bottom navigation.
 - Device tests under `integration_test/` and a workflow that runs them on demand.
@@ -37,6 +36,5 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The web, macOS, Linux and Windows platforms.
 - Sonar.
 - Login, users, accounts, OIDC and the mock API.
-- Local storage, the lifecycle check, locale switching and theme switching.
+- Local storage, the lifecycle check and theme switching.
 - The analytics route observer.
-- The Turkish strings.
