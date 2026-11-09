@@ -4,7 +4,8 @@ import '../bazaar_theme.dart';
 import '../bazaar_tokens.g.dart';
 
 /// A section heading followed by a dashed ornament rule that fills the rest of the line (the mockup's `h2` with its
-/// dashed `#c8a078` line). The heading is a header for assistive technology; the rule is decoration.
+/// dashed `#c8a078` line), on the page ground. The heading is a header for assistive technology; the rule is
+/// decoration.
 class SectionRule extends StatelessWidget {
   const SectionRule({super.key, required this.title, this.style});
 
@@ -17,14 +18,23 @@ class SectionRule extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle =
         style ?? Theme.of(context).textTheme.titleLarge?.copyWith(color: context.bazaarColors.onSurfaceTitle);
-    return Row(
-      spacing: 12,
-      children: [
-        Flexible(
-          child: Semantics(header: true, child: Text(title, style: textStyle)),
-        ),
-        const Expanded(child: DashedRule()),
-      ],
+    // The rule runs the whole width behind the title, and the title sits on the page ground over it, so the rule fills
+    // the rest of the line however long the title is, and a long title still wraps.
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        alignment: AlignmentDirectional.centerStart,
+        children: [
+          const Positioned.fill(child: Center(child: DashedRule())),
+          ColoredBox(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(end: 12),
+              child: Semantics(header: true, child: Text(title, style: textStyle)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

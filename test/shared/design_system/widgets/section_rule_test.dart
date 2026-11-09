@@ -4,13 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../support/themed_app.dart';
 
 void main() {
-  testWidgets('the title is a header and the rule fills the rest of the line', (tester) async {
+  testWidgets('the title is a header and the rule runs to the end of the line', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(themedApp(const SectionRule(title: 'Levels')));
 
     expect(tester.getSemantics(find.text('Levels')), matchesSemantics(label: 'Levels', isHeader: true));
-    final rule = tester.getSize(find.byType(DashedRule));
-    expect(rule.width, greaterThan(tester.getSize(find.text('Levels')).width));
+    expect(tester.getTopRight(find.byType(DashedRule)).dx, tester.getTopRight(find.byType(SectionRule)).dx);
+    expect(tester.getTopLeft(find.byType(DashedRule)).dx, tester.getTopLeft(find.byType(SectionRule)).dx);
     handle.dispose();
   });
 
