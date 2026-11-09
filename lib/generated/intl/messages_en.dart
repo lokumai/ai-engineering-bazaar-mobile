@@ -20,40 +20,48 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(number) => "FIG. ${number}";
+  static String m0(language) => "${language} code";
 
-  static String m1(number) => "TBL. ${number}";
+  static String m1(number) => "FIG. ${number}";
 
-  static String m2(minutes) => "${minutes} min";
+  static String m2(number) => "TBL. ${number}";
 
-  static String m3(total) => "No module matches both filters · 0 of ${total}";
+  static String m3(number) => "Table ${number}";
 
-  static String m4(visible, total) => "Showing ${visible} of ${total}";
+  static String m4(minutes) => "${minutes} min";
 
-  static String m5(ready, total) => "${ready} of ${total} written";
+  static String m5(total) => "No module matches both filters · 0 of ${total}";
 
-  static String m6(hours) => "~${hours} h";
+  static String m6(visible, total) => "Showing ${visible} of ${total}";
 
-  static String m7(hours, minutes) => "~${hours} h ${minutes} min";
+  static String m7(ready, total) => "${ready} of ${total} written";
 
-  static String m8(minutes) => "~${minutes} min";
+  static String m8(hours) => "~${hours} h";
 
-  static String m9(url) => "Could not open ${url}";
+  static String m9(hours, minutes) => "~${hours} h ${minutes} min";
 
-  static String m10(approved, total) => "${approved}/${total} completed";
+  static String m10(minutes) => "~${minutes} min";
 
-  static String m11(total) => "--/${total} completed";
+  static String m11(url) => "Could not open ${url}";
 
-  static String m12(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+  static String m12(approved, total) => "${approved}/${total} completed";
+
+  static String m13(total) => "--/${total} completed";
+
+  static String m14(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
-    "block_figure_caption": m0,
-    "block_table_caption": m1,
+    "block_code_label": m0,
+    "block_figure_caption": m1,
+    "block_program_output": MessageLookupByLibrary.simpleMessage("Program output"),
+    "block_table_caption": m2,
+    "block_table_region": m3,
+    "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
     "card_description": MessageLookupByLibrary.simpleMessage("Description"),
     "card_length": MessageLookupByLibrary.simpleMessage("Length"),
-    "card_length_minutes": m2,
+    "card_length_minutes": m4,
     "card_requires": MessageLookupByLibrary.simpleMessage("Requires"),
     "card_requires_nothing": MessageLookupByLibrary.simpleMessage("Nothing"),
     "catalog_filter_all": MessageLookupByLibrary.simpleMessage("All"),
@@ -62,15 +70,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_filter_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "catalog_filter_ready": MessageLookupByLibrary.simpleMessage("Ready"),
     "catalog_level_label": MessageLookupByLibrary.simpleMessage("Level:"),
-    "catalog_no_match": m3,
+    "catalog_no_match": m5,
     "catalog_no_match_cue": MessageLookupByLibrary.simpleMessage(
       "The two filters select different modules. Widen either one, or clear both to see the whole catalog again.",
     ),
     "catalog_show_all": MessageLookupByLibrary.simpleMessage("Show the whole catalog"),
-    "catalog_showing": m4,
+    "catalog_showing": m6,
     "catalog_status_label": MessageLookupByLibrary.simpleMessage("Status:"),
     "catalog_title": MessageLookupByLibrary.simpleMessage("Catalog"),
-    "catalog_written": m5,
+    "catalog_written": m7,
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
       "The course content in this app could not be read. Reinstalling the app restores it.",
     ),
@@ -78,13 +86,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_unreadable": MessageLookupByLibrary.simpleMessage(
       "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
-    "duration_hours": m6,
-    "duration_hours_minutes": m7,
-    "duration_minutes": m8,
-    "error_link_open_failed": m9,
-    "level_completed": m10,
-    "level_completed_pending": m11,
-    "level_module_count": m12,
+    "duration_hours": m8,
+    "duration_hours_minutes": m9,
+    "duration_minutes": m10,
+    "error_link_open_failed": m11,
+    "level_completed": m12,
+    "level_completed_pending": m13,
+    "level_module_count": m14,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),

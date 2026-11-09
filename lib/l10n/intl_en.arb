@@ -170,5 +170,25 @@
         "type": "String"
       }
     }
+  },
+  "block_unknown": "This part needs a newer version of the app.",
+  "@block_unknown": {},
+  "block_code_label": "{language} code",
+  "@block_code_label": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "block_program_output": "Program output",
+  "@block_program_output": {},
+  "block_table_region": "Table {number}",
+  "@block_table_region": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
   }
 }

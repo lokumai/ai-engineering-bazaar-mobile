@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'bazaar_app_harness.dart';
+import 'content_fixture.dart';
 
 /// A [ModuleTrack] with defaults; [docs] defaults to the English document of `alpha/first`.
 ModuleTrack testModuleTrack({
@@ -176,4 +178,43 @@ Future<void> settleContent(WidgetTester tester) async {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pump();
   }
+}
+
+/// What a [BlockList] pumped by [pumpBlocks] hands back: the link targets it reported and the heading keys it asked
+/// for, by heading id.
+class BlockHarness {
+  final links = <LinkTarget>[];
+  final keys = <String, GlobalKey>{};
+}
+
+/// The web page of the harness document: `https://content.test/courses/alpha/first/`.
+final testWebPage = Uri.parse('${testContentBaseUrl}courses/alpha/first/');
+
+/// Pumps [blocks] as a [BlockList] in a scrolling 390 px column ([pumpInTheme]), with [testWebPage] as the document's
+/// web page, or none for a [levelDocument], and the light `diagramThemes` of [testIndex].
+Future<BlockHarness> pumpBlocks(
+  WidgetTester tester,
+  List<Block> blocks, {
+  bool levelDocument = false,
+  Brightness brightness = Brightness.light,
+  TargetPlatform platform = TargetPlatform.android,
+  IContentRepository? repository,
+}) async {
+  final harness = BlockHarness();
+  final render = BlockRenderContext(
+    onLink: harness.links.add,
+    webPage: levelDocument ? null : testWebPage,
+    headingKey: (id) => harness.keys.putIfAbsent(id, GlobalKey.new),
+    diagramThemes: testIndex().diagramThemes,
+  );
+  await pumpInTheme(
+    tester,
+    SingleChildScrollView(
+      child: BlockList(blocks: blocks, render: render),
+    ),
+    brightness,
+    platform: platform,
+    repository: repository,
+  );
+  return harness;
 }

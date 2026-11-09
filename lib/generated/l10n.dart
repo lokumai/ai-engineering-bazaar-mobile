@@ -289,6 +289,26 @@ class S {
   String block_table_caption(String number) {
     return Intl.message('TBL. $number', name: 'block_table_caption', desc: '', args: [number]);
   }
+
+  /// `This part needs a newer version of the app.`
+  String get block_unknown {
+    return Intl.message('This part needs a newer version of the app.', name: 'block_unknown', desc: '', args: []);
+  }
+
+  /// `{language} code`
+  String block_code_label(String language) {
+    return Intl.message('$language code', name: 'block_code_label', desc: '', args: [language]);
+  }
+
+  /// `Program output`
+  String get block_program_output {
+    return Intl.message('Program output', name: 'block_program_output', desc: '', args: []);
+  }
+
+  /// `Table {number}`
+  String block_table_region(String number) {
+    return Intl.message('Table $number', name: 'block_table_region', desc: '', args: [number]);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
