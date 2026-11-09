@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
@@ -67,8 +68,8 @@ class AppRouterFactory {
               '/everyone/sheets/:level',
               (state) => LevelPage(track: Track.everyone, level: state.pathParameters['level']!),
             ),
-            _page('module', '/courses/:level/:module', const RoutePlaceholder()),
-            _page('moduleEveryone', '/everyone/courses/:level/:module', const RoutePlaceholder()),
+            _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
+            _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             _page('progress', BazaarPaths.progress, const RoutePlaceholder()),
             ...SettingsFeatureRoutes.routes,
             // The device spike's gallery (spec 3.6.4), in debug builds only.
@@ -85,6 +86,13 @@ class AppRouterFactory {
       ],
     );
   }
+
+  /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`.
+  static Widget _reader(GoRouterState state, Track track) => ModuleReaderPage(
+    moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
+    track: track,
+    fragment: state.extra as String?,
+  );
 
   static GoRoute _page(String name, String path, Widget child) => _pageOf(name, path, (_) => child);
 

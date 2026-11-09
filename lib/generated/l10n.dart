@@ -309,6 +309,166 @@ class S {
   String block_table_region(String number) {
     return Intl.message('Table $number', name: 'block_table_region', desc: '', args: [number]);
   }
+
+  /// `Contents`
+  String get reader_contents {
+    return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
+  }
+
+  /// `Close`
+  String get reader_close {
+    return Intl.message('Close', name: 'reader_close', desc: '', args: []);
+  }
+
+  /// `On this page`
+  String get reader_on_this_page {
+    return Intl.message('On this page', name: 'reader_on_this_page', desc: '', args: []);
+  }
+
+  /// `Sections`
+  String get reader_sections {
+    return Intl.message('Sections', name: 'reader_sections', desc: '', args: []);
+  }
+
+  /// `Schedule of parts only`
+  String get reader_band_parts_only {
+    return Intl.message('Schedule of parts only', name: 'reader_band_parts_only', desc: '', args: []);
+  }
+
+  /// `Partly written`
+  String get reader_band_partly_written {
+    return Intl.message('Partly written', name: 'reader_band_partly_written', desc: '', args: []);
+  }
+
+  /// `{minutes} min`
+  String reader_minutes(int minutes) {
+    return Intl.message('$minutes min', name: 'reader_minutes', desc: '', args: [minutes]);
+  }
+
+  /// `Before you start`
+  String get reader_before_you_start {
+    return Intl.message('Before you start', name: 'reader_before_you_start', desc: '', args: []);
+  }
+
+  /// `What you will be able to do`
+  String get reader_objectives {
+    return Intl.message('What you will be able to do', name: 'reader_objectives', desc: '', args: []);
+  }
+
+  /// `Schedule of parts`
+  String get reader_schedule_of_parts {
+    return Intl.message('Schedule of parts', name: 'reader_schedule_of_parts', desc: '', args: []);
+  }
+
+  /// `Item`
+  String get reader_schedule_item {
+    return Intl.message('Item', name: 'reader_schedule_item', desc: '', args: []);
+  }
+
+  /// `Description`
+  String get reader_schedule_description {
+    return Intl.message('Description', name: 'reader_schedule_description', desc: '', args: []);
+  }
+
+  /// `Module completion`
+  String get reader_completion_region {
+    return Intl.message('Module completion', name: 'reader_completion_region', desc: '', args: []);
+  }
+
+  /// `Mark this module as complete`
+  String get reader_mark_complete {
+    return Intl.message('Mark this module as complete', name: 'reader_mark_complete', desc: '', args: []);
+  }
+
+  /// `Completed {date}`
+  String reader_completed_on(String date) {
+    return Intl.message('Completed $date', name: 'reader_completed_on', desc: '', args: [date]);
+  }
+
+  /// `Previous`
+  String get reader_previous {
+    return Intl.message('Previous', name: 'reader_previous', desc: '', args: []);
+  }
+
+  /// `Next`
+  String get reader_next {
+    return Intl.message('Next', name: 'reader_next', desc: '', args: []);
+  }
+
+  /// `{label} · Planned`
+  String reader_pager_planned(String label) {
+    return Intl.message('$label · Planned', name: 'reader_pager_planned', desc: '', args: [label]);
+  }
+
+  /// `Start of the course`
+  String get reader_start_of_course {
+    return Intl.message('Start of the course', name: 'reader_start_of_course', desc: '', args: []);
+  }
+
+  /// `End of the course`
+  String get reader_end_of_course {
+    return Intl.message('End of the course', name: 'reader_end_of_course', desc: '', args: []);
+  }
+
+  /// `MODULE {number} OF {count}`
+  String reader_module_of(int number, int count) {
+    return Intl.message('MODULE $number OF $count', name: 'reader_module_of', desc: '', args: [number, count]);
+  }
+
+  /// `Rev {hash} · {date}`
+  String reader_revision(String hash, String date) {
+    return Intl.message('Rev $hash · $date', name: 'reader_revision', desc: '', args: [hash, date]);
+  }
+
+  /// `The For Everyone version of this module is planned.`
+  String get reader_not_written {
+    return Intl.message(
+      'The For Everyone version of this module is planned.',
+      name: 'reader_not_written',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read it For Engineers`
+  String get reader_read_for_engineers {
+    return Intl.message('Read it For Engineers', name: 'reader_read_for_engineers', desc: '', args: []);
+  }
+
+  /// `See what is written For Everyone`
+  String get reader_see_everyone {
+    return Intl.message('See what is written For Everyone', name: 'reader_see_everyone', desc: '', args: []);
+  }
+
+  /// `Not saved: {reason}. Back up to a file to keep it.`
+  String record_not_saved(String reason) {
+    return Intl.message(
+      'Not saved: $reason. Back up to a file to keep it.',
+      name: 'record_not_saved',
+      desc: '',
+      args: [reason],
+    );
+  }
+
+  /// `this device has no space left`
+  String get record_not_saved_quota {
+    return Intl.message('this device has no space left', name: 'record_not_saved_quota', desc: '', args: []);
+  }
+
+  /// `the app could not write its file`
+  String get record_not_saved_blocked {
+    return Intl.message('the app could not write its file', name: 'record_not_saved_blocked', desc: '', args: []);
+  }
+
+  /// `the record is larger than the app will write`
+  String get record_not_saved_too_large {
+    return Intl.message(
+      'the record is larger than the app will write',
+      name: 'record_not_saved_too_large',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

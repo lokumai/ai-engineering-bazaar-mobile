@@ -190,5 +190,105 @@
         "type": "String"
       }
     }
-  }
+  },
+  "reader_contents": "Contents",
+  "@reader_contents": {},
+  "reader_close": "Close",
+  "@reader_close": {},
+  "reader_on_this_page": "On this page",
+  "@reader_on_this_page": {},
+  "reader_sections": "Sections",
+  "@reader_sections": {},
+  "reader_band_parts_only": "Schedule of parts only",
+  "@reader_band_parts_only": {},
+  "reader_band_partly_written": "Partly written",
+  "@reader_band_partly_written": {},
+  "reader_minutes": "{minutes} min",
+  "@reader_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "reader_before_you_start": "Before you start",
+  "@reader_before_you_start": {},
+  "reader_objectives": "What you will be able to do",
+  "@reader_objectives": {},
+  "reader_schedule_of_parts": "Schedule of parts",
+  "@reader_schedule_of_parts": {},
+  "reader_schedule_item": "Item",
+  "@reader_schedule_item": {},
+  "reader_schedule_description": "Description",
+  "@reader_schedule_description": {},
+  "reader_completion_region": "Module completion",
+  "@reader_completion_region": {},
+  "reader_mark_complete": "Mark this module as complete",
+  "@reader_mark_complete": {},
+  "reader_completed_on": "Completed {date}",
+  "@reader_completed_on": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_previous": "Previous",
+  "@reader_previous": {},
+  "reader_next": "Next",
+  "@reader_next": {},
+  "reader_pager_planned": "{label} · Planned",
+  "@reader_pager_planned": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_start_of_course": "Start of the course",
+  "@reader_start_of_course": {},
+  "reader_end_of_course": "End of the course",
+  "@reader_end_of_course": {},
+  "reader_module_of": "MODULE {number} OF {count}",
+  "@reader_module_of": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reader_revision": "Rev {hash} · {date}",
+  "@reader_revision": {
+    "placeholders": {
+      "hash": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_not_written": "The For Everyone version of this module is planned.",
+  "@reader_not_written": {},
+  "reader_read_for_engineers": "Read it For Engineers",
+  "@reader_read_for_engineers": {},
+  "reader_see_everyone": "See what is written For Everyone",
+  "@reader_see_everyone": {},
+  "record_not_saved": "Not saved: {reason}. Back up to a file to keep it.",
+  "@record_not_saved": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "record_not_saved_quota": "this device has no space left",
+  "@record_not_saved_quota": {},
+  "record_not_saved_blocked": "the app could not write its file",
+  "@record_not_saved_blocked": {},
+  "record_not_saved_too_large": "the record is larger than the app will write",
+  "@record_not_saved_too_large": {}
 }

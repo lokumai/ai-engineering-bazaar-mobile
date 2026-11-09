@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart'
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,6 +63,8 @@ void main() {
         expect(match.last.route.name, name);
         expect(match.pathParameters, params);
         expect(find.byType(BazaarShell), findsOneWidget);
+        // The default missingContentRepository() settles the reader on its unreadable state.
+        if (name.startsWith('module')) expect(find.byType(ModuleReaderPage), findsOneWidget);
       });
     }
   }

@@ -41,6 +41,7 @@ const _roots = [
   'lib/features/',
   'lib/shared/content/presentation/',
   'lib/shared/design_system/components/',
+  'lib/shared/record/presentation/',
   'lib/shared/widgets/',
 ];
 
