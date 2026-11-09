@@ -4,10 +4,13 @@ library;
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/figure_image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -202,6 +205,22 @@ void main() {
         for (final kind in CalloutKind.values) find.text(_actionLabel(kind), findRichText: true),
         find.text('Open on the web'),
       ]);
+    });
+
+    testWidgets('a written module whose figure is gone from the device keeps the unreadable line whole', (
+      tester,
+    ) async {
+      when(() => repository.readObject(_figure)).thenThrow(const ContentMissingException(_figure));
+      await pumpAtTextScale(tester, app(_written, platform: TargetPlatform.android), scale: 3.0);
+      await settleContent(tester);
+
+      expect(tester.takeException(), isNull);
+      final unreadable = find.text(S.current.content_unreadable);
+      await tester.ensureVisible(unreadable);
+      await tester.pump();
+      final frame = tester.getRect(find.byType(FigureImage));
+      final line = tester.getRect(unreadable);
+      expect(frame.contains(line.topLeft) && frame.contains(line.bottomRight - const Offset(0.01, 0.01)), isTrue);
     });
 
     testWidgets('a planned module keeps its pager reachable', (tester) async {

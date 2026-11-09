@@ -240,6 +240,25 @@ class _DashedRule extends CustomPainter {
   bool shouldRepaint(_DashedRule oldDelegate) => false;
 }
 
+/// The marker column of a list at text scale 1.0 (web prose.css: a 22 px padding), and the gap between a marker and
+/// its item text.
+const _markerWidth = 22.0;
+const _markerGap = 6.0;
+
+/// The marker column of an ordered list whose widest number is [widest]: wide enough for that number at the current
+/// text scale and the gap, never narrower than [_markerWidth], so a number never paints over its item's text.
+double _orderedMarkerWidth(BuildContext context, String widest, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(text: widest, style: DefaultTextStyle.of(context).style.merge(style)),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return math.max(_markerWidth, (width + _markerGap).ceilToDouble());
+}
+
 class _ListView extends StatelessWidget {
   const _ListView({required this.block, required this.render});
 
@@ -251,6 +270,9 @@ class _ListView extends StatelessWidget {
     final colors = context.bazaarColors;
     final markerStyle = _bodyStyle(ProseScope.maybeOf(context)?.ink ?? colors.onSurface);
     final start = block.start ?? 1;
+    final markerWidth = block.ordered
+        ? _orderedMarkerWidth(context, '${start + block.items.length - 1}.', markerStyle)
+        : _markerWidth;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -274,9 +296,9 @@ class _ListView extends StatelessWidget {
                   )
                 else
                   SizedBox(
-                    width: 22,
+                    width: markerWidth,
                     child: Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 6),
+                      padding: const EdgeInsetsDirectional.only(end: _markerGap),
                       child: Text(
                         block.ordered ? '${start + index}.' : '•',
                         style: markerStyle,

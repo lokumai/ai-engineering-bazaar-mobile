@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -263,6 +264,35 @@ void main() {
       expectHittable(tester, find.text(target));
     }
     expect(tester.takeException(), isNull);
+  });
+
+  group('at text scale 3.0', () {
+    /// Expects the text [text] laid out whole in its box: on one line and not cut at the bottom.
+    void expectWhole(WidgetTester tester, String text) {
+      final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+      expect(paragraph.getMaxIntrinsicWidth(double.infinity), lessThanOrEqualTo(paragraph.size.width), reason: text);
+      expect(paragraph.getMaxIntrinsicHeight(double.infinity), lessThanOrEqualTo(paragraph.size.height), reason: text);
+    }
+
+    testWidgets('every option letter is drawn whole', (tester) async {
+      await pumpAtTextScale(tester, panelApp(items), scale: 3.0);
+      await toggle(tester);
+
+      expect(tester.takeException(), isNull);
+      for (final letter in ['A', 'B', 'C', 'D']) {
+        expectWhole(tester, letter);
+      }
+    });
+
+    testWidgets('the recap number stays on one line', (tester) async {
+      await pumpAtTextScale(tester, panelApp(items.sublist(0, 1)), scale: 3.0);
+      await toggle(tester);
+      await tapText(tester, 'One');
+      await tapText(tester, 'See results');
+
+      expect(tester.takeException(), isNull);
+      expectWhole(tester, '1.');
+    });
   });
 
   testWidgets('the open panel meets the platform guidelines before an answer', (tester) async {

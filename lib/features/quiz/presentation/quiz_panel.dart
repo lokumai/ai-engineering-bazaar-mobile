@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -11,6 +13,19 @@ Widget buildQuizPanel(BuildContext context, List<QuizItem> items) => QuizPanel(i
 
 /// The letter of option [index]: A, B, C, D (web `QuickQuiz.tsx:35`).
 String _letter(int index) => String.fromCharCode(0x41 + index);
+
+/// The size [text] takes in [style] at the current text scale, so a box sized from it grows with the text (spec 3.10).
+Size _textSize(BuildContext context, String text, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  final size = painter.size;
+  painter.dispose();
+  return size;
+}
 
 /// The quiz at the end of a For Engineers module, as the web's `QuickQuiz.tsx` in its disclosure
 /// (`ModuleSheet.tsx:493-509`): collapsed at start, one question at a time, then the score and a recap.
@@ -251,6 +266,10 @@ class _OptionButton extends StatelessWidget {
       _Outcome.open || _Outcome.other => null,
     };
     final target = minTapTarget(Theme.of(context).platform);
+    final letterStyle = TextStyle(fontSize: BazaarType.mark.size, fontWeight: FontWeight.w600, color: ink);
+    // 26 at text scale 1.0; larger text grows the circle around its letter instead of cutting the letter off.
+    final letterSize = _textSize(context, letter, letterStyle);
+    final diameter = math.max(26.0, (math.max(letterSize.width, letterSize.height) + 8).ceilToDouble());
     return Semantics(
       container: true,
       button: true,
@@ -272,17 +291,14 @@ class _OptionButton extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 26,
-                    height: 26,
+                    width: diameter,
+                    height: diameter,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: colors.lineStrong),
                     ),
-                    child: Text(
-                      letter,
-                      style: TextStyle(fontSize: BazaarType.mark.size, fontWeight: FontWeight.w600, color: ink),
-                    ),
+                    child: Text(letter, style: letterStyle),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -413,6 +429,7 @@ class _ResultsView extends StatelessWidget {
         for (var i = 0; i < items.length; i++)
           _RecapRow(
             number: i + 1,
+            count: items.length,
             question: items[i].question,
             right: picks[i] == items[i].answer,
             onPressed: () => cubit.go(i),
@@ -434,9 +451,18 @@ class _ResultsView extends StatelessWidget {
 
 /// One row of the recap: the question's number, its text and a check or cross; a button back to that question.
 class _RecapRow extends StatelessWidget {
-  const _RecapRow({required this.number, required this.question, required this.right, required this.onPressed});
+  const _RecapRow({
+    required this.number,
+    required this.count,
+    required this.question,
+    required this.right,
+    required this.onPressed,
+  });
 
   final int number;
+
+  /// The number of questions: the recap's widest number sets the width of every row's number column.
+  final int count;
   final String question;
   final bool right;
   final VoidCallback onPressed;
@@ -461,7 +487,11 @@ class _RecapRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Row(
               children: [
-                SizedBox(width: 24, child: Text('$number.', style: style)),
+                // 24 at text scale 1.0, wider when larger text needs it, the same in every row.
+                SizedBox(
+                  width: math.max(24.0, (_textSize(context, '$count.', style).width + 4).ceilToDouble()),
+                  child: Text('$number.', style: style),
+                ),
                 ExcludeSemantics(
                   child: Icon(
                     right ? Icons.check : Icons.close,

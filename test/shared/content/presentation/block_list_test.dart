@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:math' as math;
+
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
@@ -9,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/accessibility.dart';
@@ -125,6 +128,34 @@ void main() {
     expect(find.text('4.'), findsOneWidget);
     expect(find.text('1.'), findsOneWidget);
     expect(tester.getTopLeft(find.text('c')).dx, greaterThanOrEqualTo(22));
+  });
+
+  group('an ordered list number ends left of its item text', () {
+    /// The global right edge of the painted text of the marker [marker].
+    double markerRight(WidgetTester tester, String marker) {
+      final paragraph = tester.renderObject<RenderParagraph>(find.text(marker));
+      final boxes = paragraph.getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: marker.length));
+      return boxes.map((box) => paragraph.localToGlobal(Offset(box.right, 0)).dx).reduce(math.max);
+    }
+
+    for (final scale in [1.0, 2.0, 3.0]) {
+      testWidgets('at text scale $scale', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await pumpBlocks(tester, [
+          ListBlock(ordered: true, start: null, items: [item('first')]),
+          ListBlock(ordered: true, start: 9, items: [item('ninth'), item('tenth')]),
+        ]);
+
+        expect(tester.takeException(), isNull);
+        expect(markerRight(tester, '1.'), lessThan(tester.getTopLeft(find.text('first')).dx));
+        final text = tester.getTopLeft(find.text('ninth')).dx;
+        expect(tester.getTopLeft(find.text('tenth')).dx, text);
+        expect(markerRight(tester, '9.'), lessThan(text));
+        expect(markerRight(tester, '10.'), lessThan(text));
+        expect(tester.getTopLeft(find.text('first')).dx, greaterThanOrEqualTo(22));
+      });
+    }
   });
 
   testWidgets('an unordered list shows bullets', (tester) async {

@@ -71,6 +71,43 @@ void main() {
     expect(tester.getSize(find.byType(FigureImage)), const Size(390, 195));
   });
 
+  group('at text scale 2.0 the unreadable state grows past the reserved space', () {
+    const wide = ImageBlock(
+      number: '10.5',
+      title: 'A wide figure',
+      note: null,
+      src: 'course-images/alpha/wide.png',
+      alt: 'A wide figure whose picture is three times as wide as it is tall',
+      width: 1612,
+      height: 524,
+    );
+
+    Future<void> expectWhole(WidgetTester tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpInTheme(tester, const FigureImage(block: wide), Brightness.light, repository: repository);
+      await settleContent(tester);
+
+      expect(tester.takeException(), isNull);
+      final frame = tester.getRect(find.byType(FigureImage));
+      expect(frame.height, greaterThan(390 * 524 / 1612));
+      for (final text in [wide.alt, S.current.content_unreadable]) {
+        final rect = tester.getRect(find.text(text));
+        expect(frame.contains(rect.topLeft) && frame.contains(rect.bottomRight - const Offset(0.01, 0.01)), isTrue);
+      }
+    }
+
+    testWidgets('for a missing object', (tester) async {
+      when(() => repository.readObject(any())).thenThrow(const ContentMissingException('course-images/alpha/wide.png'));
+      await expectWhole(tester);
+    });
+
+    testWidgets('for bytes that do not decode', (tester) async {
+      when(() => repository.readObject(any())).thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
+      await expectWhole(tester);
+    });
+  });
+
   testWidgets('an error other than missing or corrupt is not swallowed', (tester) async {
     when(() => repository.readObject(any())).thenAnswer((_) async => throw StateError('x'));
     await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
