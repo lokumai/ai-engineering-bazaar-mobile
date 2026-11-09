@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/pages/setti
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +171,32 @@ void main() {
 
     await _pump(tester, content: _contentBloc(notice: ContentNotice.cacheDiscarded));
     expect(find.text(notice), findsOneWidget);
+  });
+
+  testWidgets('a download after a discarded cache clears the notice', (tester) async {
+    final repository = MockContentRepository();
+    when(() => repository.open()).thenAnswer(
+      (_) async => ContentOpening(
+        index: catalogFixtureIndex(),
+        origin: ContentOrigin.bundled,
+        notice: ContentNotice.cacheDiscarded,
+      ),
+    );
+    when(() => repository.refresh()).thenAnswer((_) async => ContentUpdated(index: catalogFixtureIndex()));
+    // The real bloc runs outside the fake clock; the screen then shows the state it ended in.
+    final updated = await tester.runAsync(() async {
+      final bloc = ContentBloc(repository: repository)..add(const ContentStarted());
+      final state = await bloc.stream.firstWhere((state) => state is ContentReady && state.refresh is RefreshUpdated);
+      await bloc.close();
+      return state;
+    });
+    final content = MockContentBloc();
+    whenListen(content, const Stream<ContentState>.empty(), initialState: updated!);
+    await _pump(tester, content: content);
+
+    expect(find.text('Downloaded from the website'), findsOneWidget);
+    expect(find.text('Updated to the latest content'), findsOneWidget);
+    expect(find.byType(ContentNoticeBanner), findsNothing);
   });
 
   testWidgets('the content states other than ready draw nothing', (tester) async {

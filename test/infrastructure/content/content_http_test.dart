@@ -23,6 +23,50 @@ void main() {
     await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
   });
 
+  test('a download that keeps receiving bytes is not cut by the timeout', () async {
+    final contentHttp = ContentHttp(
+      client: MockClient.streaming(
+        (_, _) async =>
+            http.StreamedResponse(Stream.periodic(const Duration(milliseconds: 30), (_) => [7]).take(10), 200),
+      ),
+      contentBaseUrl: testContentBaseUrl,
+      timeout: const Duration(milliseconds: 100),
+    );
+
+    expect(await contentHttp.get('api/v1/large.jpeg'), List.filled(10, 7));
+  });
+
+  test('a body that goes silent is a network failure, and the request is aborted', () async {
+    final requests = <http.BaseRequest>[];
+    final contentHttp = ContentHttp(
+      client: MockClient.streaming((request, _) async {
+        requests.add(request);
+        final body = StreamController<List<int>>()..add([1]);
+        return http.StreamedResponse(body.stream, 200);
+      }),
+      contentBaseUrl: testContentBaseUrl,
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
+    await expectLater((requests.single as http.Abortable).abortTrigger, completes);
+  });
+
+  test('a request whose head does not arrive in time is aborted', () async {
+    final requests = <http.BaseRequest>[];
+    final contentHttp = ContentHttp(
+      client: MockClient.streaming((request, _) {
+        requests.add(request);
+        return Completer<http.StreamedResponse>().future;
+      }),
+      contentBaseUrl: testContentBaseUrl,
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
+    await expectLater((requests.single as http.Abortable).abortTrigger, completes);
+  });
+
   test('the default timeout is 30 seconds', () => expect(ContentHttp.defaultTimeout, const Duration(seconds: 30)));
 
   test('a status other than 200 is httpStatus', () async {
@@ -50,6 +94,24 @@ void main() {
     );
 
     await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
+  });
+
+  test('a TLS failure is a network failure', () async {
+    final contentHttp = ContentHttp(
+      client: MockClient((_) async => throw const HandshakeException('CERTIFICATE_VERIFY_FAILED')),
+      contentBaseUrl: testContentBaseUrl,
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.network));
+  });
+
+  test('an error that is not I/O still propagates', () async {
+    final contentHttp = ContentHttp(
+      client: MockClient((_) async => throw StateError('bug')),
+      contentBaseUrl: testContentBaseUrl,
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), throwsStateError);
   });
 
   test('the request URL joins the base, the path and the version', () async {

@@ -76,7 +76,7 @@ void main() {
   );
 
   blocTest<ContentBloc, ContentState>(
-    'an update replaces the index and keeps the notice',
+    'an update replaces the index and clears the cache-discarded notice',
     setUp: () {
       opens(notice: ContentNotice.cacheDiscarded);
       when(() => repository.refresh()).thenAnswer((_) async => ContentUpdated(index: newer));
@@ -86,7 +86,7 @@ void main() {
     expect: () => [
       ready(const RefreshIdle(), notice: ContentNotice.cacheDiscarded),
       ready(const RefreshChecking(), notice: ContentNotice.cacheDiscarded),
-      ready(const RefreshUpdated(), at: newer, origin: ContentOrigin.downloaded, notice: ContentNotice.cacheDiscarded),
+      ready(const RefreshUpdated(), at: newer, origin: ContentOrigin.downloaded),
     ],
   );
 

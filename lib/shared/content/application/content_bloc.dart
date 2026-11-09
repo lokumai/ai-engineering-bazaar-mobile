@@ -62,7 +62,8 @@ interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
       ContentUpdated(:final index) => ContentReady(
         index: index,
         origin: ContentOrigin.downloaded,
-        notice: current.notice,
+        // The cache-discarded notice describes the content this update replaces (decision E7).
+        notice: null,
         refresh: const RefreshUpdated(),
       ),
       ContentNeedsAppUpdate() => current.withRefresh(const RefreshNeedsAppUpdate()),

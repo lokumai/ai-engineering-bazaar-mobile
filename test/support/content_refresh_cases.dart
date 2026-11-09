@@ -64,6 +64,9 @@ typedef RefreshFailureCase = ({
   void Function(Directory cacheRoot)? arrange,
 });
 
+/// The step of [refreshFailureCases] at which the new index is written but `current` cannot be replaced.
+const currentPointerStep = 'storage: the current pointer cannot be replaced';
+
 const _html = '<!doctype html><title>Sign in</title>';
 
 final refreshFailureCases = <RefreshFailureCase>[
@@ -71,6 +74,13 @@ final refreshFailureCases = <RefreshFailureCase>[
     step: 'majors: network error',
     code: ContentErrorCode.network,
     handler: (published) => answering(published, 'api/index.json', () async => throw http.ClientException('offline')),
+    arrange: null,
+  ),
+  (
+    step: 'majors: TLS handshake fails',
+    code: ContentErrorCode.network,
+    handler: (published) =>
+        answering(published, 'api/index.json', () async => throw const HandshakeException('CERTIFICATE_VERIFY_FAILED')),
     arrange: null,
   ),
   (
@@ -130,5 +140,19 @@ final refreshFailureCases = <RefreshFailureCase>[
       Directory('${cacheRoot.path}/content').createSync(recursive: true);
       File('${cacheRoot.path}/content/indexes').writeAsStringSync('');
     },
+  ),
+  (
+    step: 'storage: an object cannot be written',
+    code: ContentErrorCode.storage,
+    handler: serving,
+    arrange: (cacheRoot) =>
+        Directory('${cacheRoot.path}/content/objects/${refreshedSha(publishedSite())}.tmp/x')
+            .createSync(recursive: true),
+  ),
+  (
+    step: currentPointerStep,
+    code: ContentErrorCode.storage,
+    handler: serving,
+    arrange: (cacheRoot) => Directory('${cacheRoot.path}/content/current.tmp/x').createSync(recursive: true),
   ),
 ];

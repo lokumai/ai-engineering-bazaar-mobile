@@ -98,6 +98,9 @@ void main() {
 
       expect(await repository.refresh(), ContentRefreshFailed(code: failure.code));
 
+      if (failure.step == currentPointerStep) {
+        expect(File('$content/indexes/$publishedContentVersion.json').existsSync(), isTrue);
+      }
       expect(File('$content/current').existsSync(), isFalse);
       expect(await moduleTitle(repository), 'First Module');
       expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.bundled);
