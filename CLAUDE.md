@@ -83,8 +83,8 @@ Every feature follows: **Event → BLoC → State → UI**
 
 ### `Bloc` vs `Cubit`
 
-- Use **`Cubit`** when every interaction is an atomic, fire-and-forget call and the event stream adds no value (no debouncing, no concurrency policy, no historical event payload needed). Example: `LocaleCubit` (`restore`, `changeLocale`).
-- Use **`Bloc`** when events carry meaningful payload, when an `EventTransformer` (debounce, restartable, droppable) is needed, or when the event log itself is valuable for replay/observability. Examples: `UserListBloc` (search debounce + delete drop-concurrent), `UserEditorBloc` (fetch/save lifecycle), `LoginBloc` (multistep auth flow).
+- Use **`Cubit`** when every interaction is an atomic, fire-and-forget call and the event stream adds no value (no debouncing, no concurrency policy, no historical event payload needed).
+- Use **`Bloc`** when events carry meaningful payload, when an `EventTransformer` (debounce, restartable, droppable) is needed, or when the event log itself is valuable for replay/observability.
 - Default to `Bloc` for any new feature touching network requests or user input streams; reach for `Cubit` only after confirming none of the above apply.
 
 ### State Modeling — MAIN RULE
@@ -92,7 +92,7 @@ Every feature follows: **Event → BLoC → State → UI**
 **Default to sealed state hierarchies** that leverage Dart 3's `sealed` modifier and exhaustive `switch` expressions. The compiler enforces handling of every state variant; UIs render via pattern matching.
 
 ```dart
-// State (real example: lib/features/users/application/user_list_state.dart)
+// State (a sketch; the template's UserListBloc it came from is removed)
 sealed class UserListState extends Equatable {
   const UserListState();
 }
@@ -145,7 +145,7 @@ When in doubt, prefer sealed and split the BLoC instead of growing the single st
 - Use SLF4J-style parameterized substitution: `_log.debug('msg: {}', [arg])` — **not** string interpolation (`_log.debug('msg: ${arg}')`).
   - Parameterized form skips `toString()` when the log level is disabled — faster, and avoids accidentally stringifying secrets carried on events with `stringify = true`.
 - `AppLogger` masks email addresses as `[REDACTED_EMAIL]` and credentials (passwords, OTP codes, tokens, `Bearer` values) as `[REDACTED]` in every line it prints, and masks the credential keys of a `Map` or `List` argument (`maskEmails`, `maskSecrets` and `scrubBodyKeys` in `lib/core/security/sensitive_data_scrubber.dart`, the one policy every exit uses).
-- Never put a secret into a log message, a log argument or an exception message; a class that holds one prints `[REDACTED]` in its `toString` (`test/architecture/credential_to_string_test.dart` and `log_secrets_test.dart` guard both rules).
+- Never put a secret into a log message, a log argument or an exception message; a class that holds one prints `[REDACTED]` in its `toString` (`test/architecture/log_secrets_test.dart` guards the first rule).
 - BLoC lifecycle transitions are logged centrally by `AppBlocObserver` (`lib/core/logging/app_bloc_observer.dart`). Do **not** override `onTransition` inside BLoCs.
 
 ## Environments
