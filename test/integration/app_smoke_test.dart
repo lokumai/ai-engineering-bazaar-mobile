@@ -25,6 +25,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_label.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
@@ -63,6 +64,9 @@ class _FirstLaunchDependencies extends _SmokeDependencies {
 
   @override
   ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: () async => dir));
 }
 
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated

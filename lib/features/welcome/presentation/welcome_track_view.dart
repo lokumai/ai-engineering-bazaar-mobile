@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -76,7 +77,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                     for (final info in index.tracks)
                       _TrackOption(
                         key: WelcomeTrackView.optionKey(info.track),
-                        title: info.label,
+                        title: trackName(s, info.track),
                         body: switch (info.track) {
                           Track.engineers => s.welcome_track_engineers,
                           Track.everyone => s.welcome_track_everyone,

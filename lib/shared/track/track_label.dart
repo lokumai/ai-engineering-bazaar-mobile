@@ -1,7 +1,8 @@
-import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,13 +15,8 @@ class TrackLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final index = switch (context.watch<ContentBloc>().state) {
-      ContentReady(:final index) => index,
-      // The app gate shows the router only once the content is ready.
-      final state => throw StateError('TrackLabel needs ready content, not $state'),
-    };
     final track = BazaarPaths.trackOf(GoRouterState.of(context).uri.path) ?? context.watch<TrackCubit>().state;
-    final label = index.tracks.firstWhere((info) => info.track == track).label;
+    final label = trackName(S.of(context), track);
     return Text(
       label,
       textAlign: TextAlign.end,

@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_trac
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
@@ -63,6 +64,7 @@ Widget _gate(
     providers: [
       BlocProvider<ContentBloc>.value(value: _content()),
       if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
+      BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
     ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,

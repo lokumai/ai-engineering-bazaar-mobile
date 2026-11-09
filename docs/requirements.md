@@ -28,7 +28,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R2 The web is the only producer of content (D89).** The app reads the JSON bundle the web build publishes under `api/v1/` and maps each node to a widget.
 - **R3 Derive nothing (D111, `CLAUDE.md`).** The app may count and sum values the bundle publishes (a module count, a sum of `minutes`, `MODULE n OF N`). It never computes a fact the bundle does not carry. A missing fact becomes a proposed web change, not app code.
 - **R4 No account.** Progress stays on the device. There is no sign-in, no server state and no sync.
-- **R5 Only content is multilingual (D113).** Menus, labels and navigation stay English. The bundle carries English, Turkish and Persian documents; v1 shows English only (D89).
+- **R5 Three languages (plan 1Q, changes D113).** The bundle carries English, Turkish and Persian documents. The reader chooses the language in Settings; the interface and the module documents follow it, Persian right to left. A module with no document in the language opens in English. The index's titles and summaries stay English until the web publishes them per language.
 - **R6 Android and iOS only.** No web, macOS, Linux or Windows platform folders (`platform_folders_test`).
 
 ## 3. Functional requirements

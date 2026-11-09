@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,7 @@ Widget _screen({required bool dark}) {
     providers: [
       BlocProvider<ContentBloc>.value(value: content),
       BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
+      BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
     ],
     child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
   );

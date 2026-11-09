@@ -583,5 +583,21 @@
   "settings_licences": "Licences",
   "@settings_licences": {},
   "settings_dev_console": "Developer console",
-  "@settings_dev_console": {}
+  "@settings_dev_console": {},
+  "settings_language": "Language",
+  "@settings_language": {
+    "description": "Settings' language setting (plan 1Q)."
+  },
+  "settings_language_note": "The interface and the modules follow this language. A module not yet translated opens in English.",
+  "@settings_language_note": {
+    "description": "Under Settings' language setting."
+  },
+  "track_engineers": "For Engineers",
+  "@track_engineers": {
+    "description": "The For Engineers track's name; the bundle names tracks in English only."
+  },
+  "track_everyone": "For Everyone",
+  "@track_everyone": {
+    "description": "The For Everyone track's name; the bundle names tracks in English only."
+  }
 }

@@ -23,6 +23,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
@@ -52,15 +53,16 @@ class ModuleReaderPage extends StatelessWidget {
       ContentReady(:final index) => index,
       final state => throw StateError('The reader needs ready content, not $state'),
     };
+    final language = context.watch<LanguageCubit>().state;
     return BlocProvider(
       // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
-      // the key makes that a new reader rather than the old module's.
-      key: ValueKey((moduleKey, track)),
+      // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
+      key: ValueKey((moduleKey, track, language)),
       create: (context) => ModuleReaderBloc(
         repository: context.read<IContentRepository>(),
         index: index,
         recordBloc: context.read<RecordBloc>(),
-      )..add(ReaderOpened(key: moduleKey, track: track)),
+      )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
       child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder),
     );
   }

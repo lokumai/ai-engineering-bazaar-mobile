@@ -1172,13 +1172,57 @@ class S {
   String get settings_dev_console {
     return Intl.message('Developer console', name: 'settings_dev_console', desc: '', args: []);
   }
+
+  /// `Language`
+  String get settings_language {
+    return Intl.message(
+      'Language',
+      name: 'settings_language',
+      desc: 'Settings\' language setting (plan 1Q).',
+      args: [],
+    );
+  }
+
+  /// `The interface and the modules follow this language. A module not yet translated opens in English.`
+  String get settings_language_note {
+    return Intl.message(
+      'The interface and the modules follow this language. A module not yet translated opens in English.',
+      name: 'settings_language_note',
+      desc: 'Under Settings\' language setting.',
+      args: [],
+    );
+  }
+
+  /// `For Engineers`
+  String get track_engineers {
+    return Intl.message(
+      'For Engineers',
+      name: 'track_engineers',
+      desc: 'The For Engineers track\'s name; the bundle names tracks in English only.',
+      args: [],
+    );
+  }
+
+  /// `For Everyone`
+  String get track_everyone {
+    return Intl.message(
+      'For Everyone',
+      name: 'track_everyone',
+      desc: 'The For Everyone track\'s name; the bundle names tracks in English only.',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
+    return const <Locale>[
+      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'fa'),
+      Locale.fromSubtags(languageCode: 'tr'),
+    ];
   }
 
   @override

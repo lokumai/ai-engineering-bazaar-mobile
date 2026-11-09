@@ -281,6 +281,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_content": MessageLookupByLibrary.simpleMessage("Content"),
     "settings_content_version": MessageLookupByLibrary.simpleMessage("Version"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
+    "settings_language": MessageLookupByLibrary.simpleMessage("Language"),
+    "settings_language_note": MessageLookupByLibrary.simpleMessage(
+      "The interface and the modules follow this language. A module not yet translated opens in English.",
+    ),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
@@ -309,6 +313,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track_note": MessageLookupByLibrary.simpleMessage(
       "Home, the catalog and the reader open this track. A link into the other track still opens it.",
     ),
+    "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
+    "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "welcome_enter": MessageLookupByLibrary.simpleMessage("Enter the bazaar"),
     "welcome_headline": MessageLookupByLibrary.simpleMessage("AI engineering, written by the people who build it."),
     "welcome_lede": MessageLookupByLibrary.simpleMessage(

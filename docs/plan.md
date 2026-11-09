@@ -94,11 +94,12 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - [x] **Home:** what to read now. Up next, the two written modules not completed after it, and a link to the catalog; no level list.
   - [x] **Catalog:** everything there is to read. The levels as buttons that open their modules (1N).
   - [x] **Progress:** what has been done. It keeps its stats, its levels with their dials and modules, and the data line; with the dials gone from Home and the catalog, it is the one tab that shows them.
-- [ ] **1Q The interface follows the content's language.** *Changes D113 ("only content is multilingual").* When the language is Turkish, the interface is in Turkish too.
-  - Every string goes into `intl_tr.arb`, written in the same register as the English copy.
-  - Settings' language choice changes both.
-  - D113 is updated in the requirements.
-  - The owner's manager is asked on Wednesday, 2026-11-11; until then the work waits for the answer.
+- [x] **1Q Three languages.** *Changes D113 ("only content is multilingual") and R5.* The web publishes every written module in English, Turkish and Persian; the app showed English only, and its interface stayed English whatever the content.
+  - Settings' Reading section chooses the language: English, Türkçe or فارسی, each named in its own language. Before a choice the app takes the device's language when it has it, English otherwise. The choice is kept as a file flag under Application Support (`language-<code>`), never in the record.
+  - The interface follows the language: every string is in `intl_tr.arb` and `intl_fa.arb`; Persian lays the app out right to left, code blocks stay left to right.
+  - The reader opens a module's document in the language; a module with no such document opens in English, and a change of language reopens the module in the new one.
+  - The track names come from the app's strings, since the bundle names the tracks in English only.
+  - Known gap: the bundle's index gives module and level titles, summaries and blurbs in English only, so the catalog, Home and Progress list them in English. The web would have to publish them per language (Phase 5).
 
 ## Phase 2: small fixes in the reader
 
@@ -144,6 +145,7 @@ The ones that unlock app features:
 - [ ] **5.5** Rewrite the six logos that a renderer without CSS draws wrong.
 - [ ] **5.6** If the redesign's dropped parts are wanted later: saved quiz results in the record, and search data in the bundle. Each is a web decision first.
 - [ ] **5.7** The bar's pages in the bundle: path, title and state (`live` or `maintenance`) of each destination, so a new page reaches the app with no app release (3.1).
+- [ ] **5.8** Module and level titles, summaries and blurbs per language in the index, so the catalog, Home and Progress list them in the reader's language (1Q).
 
 The rest (register fixes, contrast fixes, conformance cases) are listed in the PR #1 description.
 

@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -99,7 +100,7 @@ class _ProgressViewState extends State<ProgressView> with TickerProviderStateMix
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(info.label, textAlign: TextAlign.center),
+                        Text(trackName(s, info.track), textAlign: TextAlign.center),
                         Text(s.progress_tab_count(_signedText(record, info.track), _total(info.track))),
                       ],
                     ),
@@ -213,7 +214,7 @@ class _Panel extends StatelessWidget {
         // The web's screen-reader-only `h2` (`page.tsx:71-73`).
         Semantics(
           header: true,
-          label: S.of(context).progress_every_module(info.label),
+          label: S.of(context).progress_every_module(trackName(S.of(context), info.track)),
           child: const SizedBox(height: 1, width: double.infinity),
         ),
         for (final (position, level) in index.levels.indexed)

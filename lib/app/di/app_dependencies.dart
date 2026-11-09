@@ -1,3 +1,6 @@
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -59,6 +62,9 @@ class AppDependencies {
 
   /// The chosen track, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 1L).
   ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The chosen language, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 1Q).
+  ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: supportDirectory));
 }
 
 /// The welcome feature's port over the app's file flags: the flag `welcome-2-seen`. Welcome 2 asks for the track
@@ -101,5 +107,31 @@ final class FlagTrackStore implements ITrackStore {
       await _flags.clear(_everyone);
     }
     await _flags.set(_chosen);
+  }
+}
+
+/// The language cubit's port over the app's file flags: `language-<code>` for the chosen language, at most one set.
+/// No flag set means no language was chosen yet.
+final class FlagLanguageStore implements ILanguageStore {
+  const FlagLanguageStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static String _flag(String language) => 'language-$language';
+
+  @override
+  Future<String?> chosen() async {
+    for (final language in LanguageCubit.supported) {
+      if (await _flags.isSet(_flag(language))) return language;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> choose(String language) async {
+    for (final other in LanguageCubit.supported) {
+      if (other != language) await _flags.clear(_flag(other));
+    }
+    await _flags.set(_flag(language));
   }
 }

@@ -101,6 +101,27 @@ void main() {
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
+  test('createLanguageStore keeps the choice as one flag under the support directory (plan 1Q)', () async {
+    final root = Directory.systemTemp.createTempSync('language_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createLanguageStore();
+    expect(store, isA<FlagLanguageStore>());
+    expect(await store.chosen(), isNull);
+
+    await store.choose('fa');
+    expect(await dependencies.createLanguageStore().chosen(), 'fa', reason: 'kept for the next start');
+
+    await store.choose('tr');
+    expect(await store.chosen(), 'tr');
+    expect(File('${root.path}/flags/language-fa').existsSync(), isFalse, reason: 'one language at a time');
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
   test('the backup goes through the platform gateway', () {
     const dependencies = AppDependencies(appConfig: AppConfig.test(contentBaseUrl: testContentBaseUrl));
 

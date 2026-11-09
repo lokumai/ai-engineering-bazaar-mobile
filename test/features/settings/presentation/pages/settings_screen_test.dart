@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -111,6 +112,23 @@ void main() {
       tester.getSemantics(find.byKey(settingsTrackKey(Track.everyone))),
       isSemantics(isSelected: true, isButton: true),
     );
+  });
+
+  testWidgets('the language is chosen here, each named in its own language (plan 1Q)', (tester) async {
+    final language = LanguageCubit();
+    addTearDown(language.close);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), language: language));
+    await tester.pump();
+
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('Türkçe'), findsOneWidget);
+    expect(find.text('فارسی'), findsOneWidget);
+    expect(tester.getSemantics(find.byKey(settingsLanguageKey('en'))), isSemantics(isSelected: true, isButton: true));
+
+    await tester.tap(find.byKey(settingsLanguageKey('tr')));
+    await tester.pump();
+
+    expect(language.state, 'tr');
   });
 
   testWidgets('shows the title and the content status', (tester) async {

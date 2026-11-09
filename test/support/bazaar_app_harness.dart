@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +89,7 @@ Widget bazaarTestApp({
   ContentBloc? content,
   RecordBloc? record,
   TrackCubit? track,
+  LanguageCubit? language,
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
@@ -106,6 +108,10 @@ Widget bazaarTestApp({
         BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),
         BlocProvider<RecordBloc>.value(value: record ?? readyRecordBloc()),
         if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
+        if (language != null)
+          BlocProvider<LanguageCubit>.value(value: language)
+        else
+          BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

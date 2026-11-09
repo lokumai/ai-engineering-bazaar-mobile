@@ -38,7 +38,9 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
       emit(const ReaderNotFound());
       return;
     }
-    final path = entry.tracks[event.track]?.docs['en'];
+    final docs = entry.tracks[event.track]?.docs;
+    // A module not translated into the language opens in English, as the web does (plan 1Q).
+    final path = docs?[event.language] ?? docs?['en'];
     if (path == null) {
       // Only For Everyone may lack a version; For Engineers always has one, so its absence is no module here.
       emit(event.track == Track.everyone ? ReaderNotWritten(entry: entry) : const ReaderNotFound());

@@ -9,7 +9,9 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.d
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,6 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). The data
 /// flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
 /// since the app gate mounts the router only once the content is ready.
+/// The key of [language]'s segment in the language setting.
+Key settingsLanguageKey(String language) => ValueKey('settings-language-$language');
+
 /// The key of [track]'s segment in the track setting.
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
 
@@ -79,11 +84,34 @@ class _SettingsView extends StatelessWidget {
                   onSelected: (track) => context.read<TrackCubit>().choose(track),
                   segments: [
                     for (final info in index.tracks)
-                      BazaarSegment(value: info.track, label: info.label, key: settingsTrackKey(info.track)),
+                      BazaarSegment(
+                        value: info.track,
+                        label: trackName(s, info.track),
+                        key: settingsTrackKey(info.track),
+                      ),
                   ],
                 ),
                 Text(
                   s.settings_track_note,
+                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(s.settings_language, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<String>(
+                  semanticLabel: s.settings_language,
+                  selected: context.watch<LanguageCubit>().state,
+                  onSelected: (language) => context.read<LanguageCubit>().choose(language),
+                  segments: [
+                    for (final language in LanguageCubit.supported)
+                      BazaarSegment(
+                        value: language,
+                        label: LanguageCubit.names[language]!,
+                        key: settingsLanguageKey(language),
+                      ),
+                  ],
+                ),
+                Text(
+                  s.settings_language_note,
                   style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
                 ),
               ],

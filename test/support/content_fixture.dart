@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -99,4 +100,7 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   ITrackStore createTrackStore() => const MemoryTrackStore();
+
+  @override
+  ILanguageStore createLanguageStore() => const MemoryLanguageStore();
 }

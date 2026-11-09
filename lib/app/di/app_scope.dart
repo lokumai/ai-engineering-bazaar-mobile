@@ -1,3 +1,7 @@
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -31,6 +35,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<WebLinks>(create: (_) => WebLinks(dependencies.appConfig.contentBaseUrl)),
         RepositoryProvider<IWelcomeStore>(create: (_) => dependencies.createWelcomeStore()),
         RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
+        RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -46,6 +51,13 @@ class AppScope extends StatelessWidget {
           BlocProvider<TrackCubit>(
             lazy: false,
             create: (context) => TrackCubit(store: context.read<ITrackStore>())..load(),
+          ),
+          BlocProvider<LanguageCubit>(
+            lazy: false,
+            create: (context) => LanguageCubit(
+              store: context.read<ILanguageStore>(),
+              initial: PlatformDispatcher.instance.locale.languageCode,
+            )..load(),
           ),
         ],
         child: child,
