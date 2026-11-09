@@ -474,6 +474,81 @@ class S {
       args: [],
     );
   }
+
+  /// `Questions on this module`
+  String get quiz_title {
+    return Intl.message('Questions on this module', name: 'quiz_title', desc: '', args: []);
+  }
+
+  /// `{count} questions on the main points of this module`
+  String quiz_subtitle(int count) {
+    return Intl.message(
+      '$count questions on the main points of this module',
+      name: 'quiz_subtitle',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Question {index} of {count}`
+  String quiz_progress(int index, int count) {
+    return Intl.message('Question $index of $count', name: 'quiz_progress', desc: '', args: [index, count]);
+  }
+
+  /// `Start over`
+  String get quiz_start_over {
+    return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);
+  }
+
+  /// `Correct.`
+  String get quiz_correct {
+    return Intl.message('Correct.', name: 'quiz_correct', desc: '', args: []);
+  }
+
+  /// `Not this one. The answer is {letter}.`
+  String quiz_wrong(String letter) {
+    return Intl.message('Not this one. The answer is $letter.', name: 'quiz_wrong', desc: '', args: [letter]);
+  }
+
+  /// `Previous`
+  String get quiz_previous {
+    return Intl.message('Previous', name: 'quiz_previous', desc: '', args: []);
+  }
+
+  /// `Next`
+  String get quiz_next {
+    return Intl.message('Next', name: 'quiz_next', desc: '', args: []);
+  }
+
+  /// `See results`
+  String get quiz_see_results {
+    return Intl.message('See results', name: 'quiz_see_results', desc: '', args: []);
+  }
+
+  /// `{score} of {total}`
+  String quiz_score_count(int score, int total) {
+    return Intl.message('$score of $total', name: 'quiz_score_count', desc: '', args: [score, total]);
+  }
+
+  /// `answered correctly`
+  String get quiz_score_rest {
+    return Intl.message('answered correctly', name: 'quiz_score_rest', desc: '', args: []);
+  }
+
+  /// `, correct`
+  String get quiz_recap_correct {
+    return Intl.message(', correct', name: 'quiz_recap_correct', desc: '', args: []);
+  }
+
+  /// `, not correct`
+  String get quiz_recap_wrong {
+    return Intl.message(', not correct', name: 'quiz_recap_wrong', desc: '', args: []);
+  }
+
+  /// `Back to the questions`
+  String get quiz_back_to_questions {
+    return Intl.message('Back to the questions', name: 'quiz_back_to_questions', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

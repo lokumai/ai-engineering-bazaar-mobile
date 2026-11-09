@@ -50,17 +50,25 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m14(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
-  static String m15(date) => "Completed ${date}";
+  static String m15(index, count) => "Question ${index} of ${count}";
 
-  static String m16(minutes) => "${minutes} min";
+  static String m16(score, total) => "${score} of ${total}";
 
-  static String m17(number, count) => "MODULE ${number} OF ${count}";
+  static String m17(count) => "${count} questions on the main points of this module";
 
-  static String m18(label) => "${label} · Planned";
+  static String m18(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m19(hash, date) => "Rev ${hash} · ${date}";
+  static String m19(date) => "Completed ${date}";
 
-  static String m20(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m20(minutes) => "${minutes} min";
+
+  static String m21(number, count) => "MODULE ${number} OF ${count}";
+
+  static String m22(label) => "${label} · Planned";
+
+  static String m23(hash, date) => "Rev ${hash} · ${date}";
+
+  static String m24(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -116,32 +124,46 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("No such module"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
+    "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
+    "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
+    "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
+    "quiz_progress": m15,
+    "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
+    "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
+    "quiz_score_count": m16,
+    "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
+    "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
+    "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
+    "quiz_subtitle": m17,
+    "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
+    "quiz_wrong": m18,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m15,
+    "reader_completed_on": m19,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m16,
-    "reader_module_of": m17,
+    "reader_minutes": m20,
+    "reader_module_of": m21,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m18,
+    "reader_pager_planned": m22,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m19,
+    "reader_revision": m23,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m20,
+    "record_not_saved": m24,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),

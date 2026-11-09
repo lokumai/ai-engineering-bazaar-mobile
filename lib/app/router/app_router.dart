@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -87,11 +88,13 @@ class AppRouterFactory {
     );
   }
 
-  /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`.
+  /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`, with the quiz
+  /// feature's panel in its quiz slot (Decision A38). For Everyone documents carry no quiz, so their slot stays empty.
   static Widget _reader(GoRouterState state, Track track) => ModuleReaderPage(
     moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
     track: track,
     fragment: state.extra as String?,
+    quizBuilder: buildQuizPanel,
   );
 
   static GoRoute _page(String name, String path, Widget child) => _pageOf(name, path, (_) => child);

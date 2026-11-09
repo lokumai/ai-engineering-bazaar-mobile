@@ -292,5 +292,63 @@
   "record_not_saved_blocked": "the app could not write its file",
   "@record_not_saved_blocked": {},
   "record_not_saved_too_large": "the record is larger than the app will write",
-  "@record_not_saved_too_large": {}
+  "@record_not_saved_too_large": {},
+  "quiz_title": "Questions on this module",
+  "@quiz_title": {},
+  "quiz_subtitle": "{count} questions on the main points of this module",
+  "@quiz_subtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_progress": "Question {index} of {count}",
+  "@quiz_progress": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_start_over": "Start over",
+  "@quiz_start_over": {},
+  "quiz_correct": "Correct.",
+  "@quiz_correct": {},
+  "quiz_wrong": "Not this one. The answer is {letter}.",
+  "@quiz_wrong": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "quiz_previous": "Previous",
+  "@quiz_previous": {},
+  "quiz_next": "Next",
+  "@quiz_next": {},
+  "quiz_see_results": "See results",
+  "@quiz_see_results": {},
+  "quiz_score_count": "{score} of {total}",
+  "@quiz_score_count": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_score_rest": "answered correctly",
+  "@quiz_score_rest": {},
+  "quiz_recap_correct": ", correct",
+  "@quiz_recap_correct": {},
+  "quiz_recap_wrong": ", not correct",
+  "@quiz_recap_wrong": {},
+  "quiz_back_to_questions": "Back to the questions",
+  "@quiz_back_to_questions": {}
 }
