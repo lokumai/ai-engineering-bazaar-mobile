@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The web's record conformance fixture (Task 6.1, generated, never edited), replayed the way the web's
@@ -16,6 +19,60 @@ final Map<String, Object?> _fixture =
     jsonDecode(File('test/fixtures/record_conformance/v1.json').readAsStringSync()) as Map<String, Object?>;
 
 List<Map<String, Object?>> _section(String name) => (_fixture[name]! as List).cast<Map<String, Object?>>();
+
+/// A [BundleIndex] carrying a derive case's synthetic index (`conformance.test.ts:430-434`): each level's `{slug,
+/// total}` and each module's `{key, level, number}` with a track entry per track whose `drawn` is the case's; every
+/// field the curriculum mapping does not read is a fixed placeholder.
+BundleIndex _indexOf(Map<String, Object?> index) {
+  ModuleTrack moduleTrack(Object? entry) => ModuleTrack(
+    title: 'Title',
+    drawn: (entry! as Map)['drawn']! as bool,
+    summary: null,
+    hasQuiz: false,
+    revision: null,
+    docs: const {},
+    webPath: 'courses/placeholder/',
+  );
+  return BundleIndex(
+    contentVersion: 'a' * 64,
+    publishedAt: '2026-01-02T03:04:05.000Z',
+    publishedAtInstant: DateTime.utc(2026, 1, 2, 3, 4, 5),
+    tracks: const [
+      TrackInfo(track: Track.engineers, label: 'For Engineers'),
+      TrackInfo(track: Track.everyone, label: 'For Everyone'),
+    ],
+    diagramFont: DiagramFont(family: 'Vazirmatn', sha256: 'b' * 64),
+    diagramThemes: const DiagramThemes(
+      light: DiagramTheme(theme: 'default', backgroundArgb: 0xFFFFFFFF),
+      dark: DiagramTheme(theme: 'dark', backgroundArgb: 0xFF000000),
+    ),
+    levels: [
+      for (final level in (index['levels']! as List).cast<Map<String, Object?>>())
+        LevelEntry(
+          slug: level['slug']! as String,
+          title: 'Title',
+          status: LevelStatus.ready,
+          blurb: 'Blurb',
+          total: level['total']! as int,
+          readme: null,
+        ),
+    ],
+    modules: [
+      for (final module in (index['modules']! as List).cast<Map<String, Object?>>())
+        ModuleEntry(
+          key: module['key']! as String,
+          level: module['level']! as String,
+          number: module['number']! as int,
+          minutes: 10,
+          prerequisites: const [],
+          tracks: {for (final track in Track.values) track: moduleTrack((module['tracks']! as Map)[track.id])},
+        ),
+    ],
+    moved: const Moved(levels: {}, modules: {}),
+    files: const {},
+    images: const {},
+  );
+}
 
 void main() {
   // A fixture refresh that changes a count updates this line in the same commit, after reading what the web added.
@@ -126,6 +183,32 @@ void main() {
         final expected = item['expect']! as Map<String, Object?>;
         expect(serialise(data, at, pretty: true), expected['bytes']);
         expect(exportFilename(at), expected['filename']);
+      });
+    }
+  });
+  // conformance.test.ts:464-497; every selector answers for each track through trackView.
+  group('derive', () {
+    for (final item in _section('derive')) {
+      test(item['name']! as String, () {
+        final record = normaliseRecord(item['record']! as Map<String, Object?>);
+        final expected = item['expect']! as Map<String, Object?>;
+        for (final track in Track.values) {
+          final curriculum = curriculumFor(_indexOf(item['index']! as Map<String, Object?>), track);
+          final view = trackView(record, track);
+          final want = (expected['tracks']! as Map)[track.id] as Map<String, Object?>;
+          expect({for (final fact in curriculum.modules) fact.slug: isSigned(fact, view)}, want['isSigned']);
+          final progress = categoryProgress(view, curriculum);
+          // Insertion order, as the web.
+          expect(progress.keys.toList(), (want['categoryProgress']! as Map).keys.toList());
+          expect({
+            for (final e in progress.entries) e.key: {'approved': e.value.approved, 'total': e.value.total},
+          }, want['categoryProgress']);
+          expect(nextUnsigned(view, curriculum), want['nextUnsigned']);
+          final count = signedCount(view, curriculum);
+          expect({'signed': count.signed, 'toGo': count.toGo, 'of': count.of}, want['signedCount']);
+        }
+        expect(carriesNothing(record), expected['carriesNothing']);
+        expect({'sheets': tally(record).sheets}, expected['tally']);
       });
     }
   });
