@@ -49,6 +49,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R21** Routes follow the web's paths: `/`, `/everyone/sheets`, `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
 - **R22** No outside link or intent chooses the first page; deep linking is off (A5, final review).
 - **R23** The bottom navigation holds Catalog, Progress and Settings; the redesign adds Home in front of them (plan Phase 1).
+- **R24** A page the web adds to its bar (Caravan first) appears in the app after Progress without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
 
 ### Catalog
 

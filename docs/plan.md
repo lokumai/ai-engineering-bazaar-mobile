@@ -49,7 +49,16 @@ The mockup decides the look; the requirements decide what the app shows and does
 
 ### Steps
 
-Each step is its own branch and pull request, in several commits; each passes the gate with the goldens regenerated and the accessibility checks (text scale 2.0, the reader 3.0).
+The steps land in three pull requests, each on its own branch, so that a review sees a whole part of the app at once:
+
+| Pull request | Steps | What a reviewer sees |
+| --- | --- | --- |
+| Redesign 1: foundation, shell and Home | 1A, 1B, 1C | The new look, the new bar and the first new page |
+| Redesign 2: catalog, reader and quiz | 1D, 1E, 1F | The reading path from a level to a module and its quiz |
+| Redesign 3: progress, settings and welcome | 1G, 1H, 1I | The record pages and the first launch |
+
+Inside a pull request each step is one or more commits, each with its code and its tests together.
+Every commit passes the gate with the goldens regenerated and the accessibility checks (text scale 2.0, the reader 3.0).
 
 - [ ] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
 - [ ] **1B Shell** (`lib/app/shell/`): the bar with the logo and the title, the band under it, a four-item bottom navigation (Home, Catalog, Progress, Settings). The track switch leaves the bar and becomes the shared segmented control (`lib/shared/`).
@@ -63,16 +72,22 @@ Each step is its own branch and pull request, in several commits; each passes th
 
 ## Phase 2: small fixes in the reader
 
-Each fix lands test first, through the gate, in its own commit.
+The fixes land together in one pull request; each fix is its own commit, test first, through the gate.
 
 - [ ] **2.1 Table rows.** The parser checks `align` against `head` but not each row's length (`lib/shared/content/domain/content_parser.dart`), and Flutter's `Table` asserts on rows of unequal length. Reject such a table as a format error, or pad the row, as the web does.
 - [ ] **2.2 Logo errors.** `LogoView` has no `errorBuilder`, unlike `DiagramView`, so a logo SVG that does not parse is not caught. Show nothing or the unreadable line.
+- [ ] **2.3 A test that fails on a slow runner.** `test/shared/content/application/content_bloc_test.dart` waits 100 ms for a refresh over the real file repository; on CI the last state came later once and the job failed (PR #2, first run). Wait for the state itself, or give the wait room, so the test does not depend on the runner's speed.
 
 ## Phase 3: parity with the website (D111)
 
 The website keeps moving; content reaches the app through the bundle, but a new page or menu needs app code.
 
-- [ ] **3.1 Caravan (web M62).** The web added `/caravan/` as a bar destination after Progress; it says only "Under maintenance." with a link to the catalog. Decide with the owner whether the app shows it. If yes: `lib/features/caravan/`, a route, a navigation entry, its strings, tests with the accessibility checks.
+- [ ] **3.1 New pages reach the app on their own (web M62, Caravan).** The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
+  - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
+  - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
+  - The bottom navigation shows the bundle's extra pages after Progress, as the web's bar does; Settings stays the last item.
+  - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
+  - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
 - [ ] **3.2 Refresh the bundled snapshot.** The bundled snapshot is contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes.
 - [ ] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan.
 
@@ -98,6 +113,7 @@ The ones that unlock app features:
 - [ ] **5.4** Drop the empty Mermaid `<rect>` elements that draw a dot above every node label.
 - [ ] **5.5** Rewrite the six logos that a renderer without CSS draws wrong.
 - [ ] **5.6** If the redesign's dropped parts are wanted later: saved quiz results in the record, and search data in the bundle. Each is a web decision first.
+- [ ] **5.7** The bar's pages in the bundle: path, title and state (`live` or `maintenance`) of each destination, so a new page reaches the app with no app release (3.1).
 
 The rest (register fixes, contrast fixes, conformance cases) are listed in the PR #1 description.
 
@@ -109,8 +125,8 @@ The rest (register fixes, contrast fixes, conformance cases) are listed in the P
 
 ## How each step is done
 
-1. A branch per step, from `main`.
+1. A branch per pull request, from `main`; a pull request holds a whole part of the app, not a single step.
 2. New features go in their own folder under `lib/features/`, apart from every other feature (R80).
 3. Tests first, mirroring the feature under `test/features/`.
 4. The gate through `heavy` before every commit.
-5. Small commits, then a pull request with the checks green.
+5. Small commits inside the branch, then a pull request with the checks green.
