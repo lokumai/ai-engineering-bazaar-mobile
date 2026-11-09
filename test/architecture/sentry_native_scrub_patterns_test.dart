@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter_bloc_advance/core/security/sensitive_data_scrubber.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/native_sentry_start.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
+import 'package:ai_engineering_bazaar/core/security/sensitive_data_scrubber.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_start.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the Kotlin copy of the scrub policy that the Android host masks native Sentry events and breadcrumbs with.

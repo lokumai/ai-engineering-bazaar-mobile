@@ -1,11 +1,11 @@
-import 'package:flutter_bloc_advance/app/router/app_root_page.dart';
-import 'package:flutter_bloc_advance/app/router/app_routes_constants.dart';
-import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
-import 'package:flutter_bloc_advance/app/router/not_found_page.dart';
-import 'package:flutter_bloc_advance/app/shell/app_shell.dart';
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
-import 'package:flutter_bloc_advance/features/settings/navigation/settings_routes.dart';
-import 'package:flutter_bloc_advance/shared/design_system/components/app_page_transition.dart';
+import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
+import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
+import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
+import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
+import 'package:ai_engineering_bazaar/app/shell/app_shell.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {

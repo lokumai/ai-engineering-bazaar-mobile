@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/app/router/app_router.dart';
-import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
-import 'package:flutter_bloc_advance/app/router/not_found_page.dart';
-import 'package:flutter_bloc_advance/app/shell/app_shell.dart';
-import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
-import 'package:flutter_bloc_advance/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
+import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
+import 'package:ai_engineering_bazaar/app/shell/app_shell.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/app/router/app_routes_constants.dart';
-import 'package:flutter_bloc_advance/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:go_router/go_router.dart';
 
 /// Shown for locations that match no route. Mirrors the layout of go_router 17's default Material error screen, which

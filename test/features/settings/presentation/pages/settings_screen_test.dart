@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/golden_app.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 
 /// Provides what [dependencies] holds to the widget tree below it.
 class AppScope extends StatelessWidget {

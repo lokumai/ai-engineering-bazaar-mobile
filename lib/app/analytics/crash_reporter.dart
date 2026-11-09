@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc_advance/core/analytics/analytics_service.dart';
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 
 /// Sets up global error handlers for crash reporting.
 ///

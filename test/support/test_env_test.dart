@@ -1,8 +1,8 @@
 @Tags(['widget'])
 library;
 
-import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
-import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

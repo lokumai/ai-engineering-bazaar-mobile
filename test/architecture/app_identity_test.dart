@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter_bloc_advance/infrastructure/analytics/native_sentry_start.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_start.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the identity of owner decision 4 and spec 3.13: application id `dev.lokumai.bazaar`, launcher label

@@ -1,4 +1,4 @@
-import 'package:flutter_bloc_advance/core/security/sensitive_data_scrubber.dart';
+import 'package:ai_engineering_bazaar/core/security/sensitive_data_scrubber.dart';
 import 'package:logger/logger.dart';
 
 enum LogFormat { simple, extended }

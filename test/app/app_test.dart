@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/app/app.dart';
-import 'package:flutter_bloc_advance/app/di/app_dependencies.dart';
-import 'package:flutter_bloc_advance/app/router/home_placeholder_page.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/app/app.dart';
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/app/router/home_placeholder_page.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Setup Git hooks for flutter_bloc_advance
+# Setup Git hooks for ai_engineering_bazaar
 # Usage: bash scripts/setup_hooks.sh
 
 HOOKS_DIR="$(git rev-parse --show-toplevel)/.git/hooks"

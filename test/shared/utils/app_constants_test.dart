@@ -1,4 +1,4 @@
-import 'package:flutter_bloc_advance/shared/utils/app_constants.dart';
+import 'package:ai_engineering_bazaar/shared/utils/app_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

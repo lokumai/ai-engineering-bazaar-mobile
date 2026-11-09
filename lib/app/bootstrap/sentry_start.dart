@@ -1,7 +1,7 @@
-import 'package:flutter_bloc_advance/core/logging/app_logger.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/native_sentry_start.dart';
-import 'package:flutter_bloc_advance/infrastructure/analytics/sentry_scrub.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_start.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The shape of [SentryFlutter.init] that [SentryStart] calls.

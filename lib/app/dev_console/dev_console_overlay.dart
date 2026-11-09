@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
-import 'package:flutter_bloc_advance/app/dev_console/tabs/bloc_tab.dart';
-import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_store.dart';
-import 'package:flutter_bloc_advance/app/dev_console/time_travel/time_travel_tab.dart';
-import 'package:flutter_bloc_advance/shared/design_system/tokens/app_spacing.dart';
-import 'package:flutter_bloc_advance/shared/design_system/tokens/app_radius.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/tabs/bloc_tab.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_store.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/time_travel/time_travel_tab.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_radius.dart';
 
 /// Keyboard shortcut wrapper that listens for Ctrl+Shift+D to open the developer console.
 ///

@@ -2,10 +2,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/generated/intl/messages_all.dart';
-import 'package:flutter_bloc_advance/generated/intl/messages_en.dart' as message_en;
+import 'package:ai_engineering_bazaar/generated/intl/messages_all.dart';
+import 'package:ai_engineering_bazaar/generated/intl/messages_en.dart' as message_en;
 
-import 'package:flutter_bloc_advance/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 

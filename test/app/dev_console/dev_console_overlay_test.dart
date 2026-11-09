@@ -2,9 +2,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_advance/app/dev_console/dev_console_overlay.dart';
-import 'package:flutter_bloc_advance/app/dev_console/dev_console_store.dart';
-import 'package:flutter_bloc_advance/shared/design_system/theme/app_theme.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
+import 'package:ai_engineering_bazaar/app/dev_console/dev_console_store.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 

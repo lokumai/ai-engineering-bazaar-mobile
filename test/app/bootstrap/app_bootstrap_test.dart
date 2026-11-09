@@ -3,10 +3,10 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc_advance/app/bootstrap/app_bootstrap.dart';
-import 'package:flutter_bloc_advance/app/bootstrap/app_bootstrap_config.dart';
-import 'package:flutter_bloc_advance/app/bootstrap/sentry_start.dart';
-import 'package:flutter_bloc_advance/infrastructure/config/environment.dart';
+import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap.dart';
+import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap_config.dart';
+import 'package:ai_engineering_bazaar/app/bootstrap/sentry_start.dart';
+import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
