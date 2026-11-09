@@ -44,7 +44,13 @@ class HomePage extends StatelessWidget {
         if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
         const TrackSwitch(),
         const SizedBox(height: 22),
-        Semantics(header: true, child: Text(s.home_up_next.toUpperCase(), style: labelStyle)),
+        // Shown in capitals as the mockup's label; read as written.
+        Semantics(
+          header: true,
+          label: s.home_up_next,
+          excludeSemantics: true,
+          child: Text(s.home_up_next.toUpperCase(), style: labelStyle),
+        ),
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),
         const SizedBox(height: 26),
