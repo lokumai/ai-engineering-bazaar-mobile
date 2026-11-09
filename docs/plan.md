@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | In review (one pull request, `feature/redesign`) |
+| 1. The redesign | In review: 1A to 1I built, review round 1 (1J to 1Q) planned, on `feature/redesign` |
 | 2. Small fixes in the reader | Planned |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -67,6 +67,39 @@ Every commit passes the gate with the goldens regenerated and the accessibility 
 
 - **Home is `/` and the For Engineers catalog `/sheets`**, the web's own paths. Decision A9 had put the catalog at `/` while the app had no Home; `/courses` now redirects to `/sheets`.
 - **The segmented control wraps** its segments onto more lines when the labels do not fit, so a large text scale never hides one.
+
+### Review round 1: the first run on the emulator (2026-11-09)
+
+The owner ran 1A to 1I on the Android emulator. These steps land on the same branch and in the same pull request, each as its own commit through the gate.
+Three of them change a decision taken above or a requirement; those are marked, and the requirement is updated in the same commit.
+
+- [ ] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
+- [ ] **1K Welcome, redrawn.** The Welcome screen looks poor on the phone: the gate is cropped, and the five WebP figures are small and blurred. The screen is designed again before it is built again: a sketch first, agreed with the owner, then the code. It stays shown on the first launch only.
+- [ ] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch takes room on Home, the catalog and the reader, though most readers choose once.
+  - Welcome asks for the track as its last step, and the answer is kept with the Welcome flag.
+  - The switch leaves Home, the catalog, the level page and the reader, and moves to Settings.
+  - A link into the other track (a deep link, or a link in a module's text) still opens that track, and the page says which track it is in.
+  - Open: what happens for a reader who already went through Welcome before this change. Proposed: ask once on the next launch.
+- [ ] **1M Back follows the pages the reader opened.** The back button in the bar goes to the previous step of the path, not to the previous page: someone reading a module expects back to return to that module.
+  - First, reproduce it with the owner's exact path on the emulator, and write it as a test.
+  - Likely causes: the places that call `context.go` instead of `push` replace the history. These are the level chips in the filter bar, the catalog link in `link_actions.dart`, the Progress button on Home, `not_found_view.dart` and `not_written_view.dart`.
+  - The fix keeps one rule: anything that opens a page pushes it, and only the bottom navigation replaces the history.
+- [ ] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Proposed: drop the status row and keep the level chips. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
+- [ ] **1O "Not responding" on the emulator.** Android sometimes shows the "app isn't responding" dialog (Wait or Close app). The cause is not known yet.
+  - Reproduce it, and read the ANR trace (`adb bugreport`, `/data/anr/`).
+  - Compare a profile build with the debug build: a debug build on an emulator is much slower, and two `flutter run` sessions were attached to the same emulator.
+  - Look for work on the main thread at start: reading and parsing the content snapshot, decoding the Welcome images, the record file.
+  - Fix what blocks the main thread; if it happens only in debug builds, say so here and close the step.
+- [ ] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs show nearly the same thing: the levels with a count and a dial. Each tab gets one job before any code:
+  - **Home:** what to read now. Up next, and the module last opened; no level list.
+  - **Catalog:** everything there is to read. Levels and modules, with the filters.
+  - **Progress:** what has been done. The stats, the completed modules, and the data line.
+  - The split is sketched and agreed with the owner first; if two tabs still overlap, one of them goes.
+- [ ] **1Q The interface follows the content's language.** *Changes D113 ("only content is multilingual").* When the language is Turkish, the interface is in Turkish too.
+  - Every string goes into `intl_tr.arb`, written in the same register as the English copy.
+  - Settings' language choice changes both.
+  - D113 is updated in the requirements.
+  - The owner's manager is asked on Wednesday, 2026-11-11; until then the work waits for the answer.
 
 ## Phase 2: small fixes in the reader
 
