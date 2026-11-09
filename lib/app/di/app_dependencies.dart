@@ -7,12 +7,14 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 
 /// Builds the infrastructure the app runs on; a test subclass overrides the factories with doubles.
@@ -44,4 +46,7 @@ class AppDependencies {
 
   /// The record repository over files under [supportDirectory]`/record/`; it touches no file until first use.
   IRecordRepository createRecordRepository() => FileRecordRepository(baseDirectory: supportDirectory);
+
+  /// The backup gateway over the platform's save dialog and file picker; it opens nothing until called.
+  IBackupGateway createBackupGateway() => PlatformBackupGateway();
 }

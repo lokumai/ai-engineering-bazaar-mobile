@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 
@@ -24,6 +25,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<AppConfig>.value(value: dependencies.appConfig),
         RepositoryProvider<IContentRepository>(create: (_) => dependencies.createContentRepository()),
         RepositoryProvider<IRecordRepository>(create: (_) => dependencies.createRecordRepository()),
+        RepositoryProvider<IBackupGateway>(create: (_) => dependencies.createBackupGateway()),
         RepositoryProvider<WebLinks>(create: (_) => WebLinks(dependencies.appConfig.contentBaseUrl)),
       ],
       child: MultiBlocProvider(

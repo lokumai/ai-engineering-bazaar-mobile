@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
@@ -54,5 +55,11 @@ void main() {
 
     expect(dependencies.createRecordRepository(), isA<FileRecordRepository>());
     expect(calls, 0);
+  });
+
+  test('the backup goes through the platform gateway', () {
+    const dependencies = AppDependencies(appConfig: AppConfig.test(contentBaseUrl: testContentBaseUrl));
+
+    expect(dependencies.createBackupGateway(), isA<PlatformBackupGateway>());
   });
 }
