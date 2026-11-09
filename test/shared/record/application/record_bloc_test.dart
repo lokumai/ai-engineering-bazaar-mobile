@@ -44,6 +44,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
   Uint8List? record;
   Uint8List? quarantine;
   WriteResult nextResult = WriteResult.saved;
+  WriteResult restoreResult = WriteResult.saved;
   Completer<void>? gate;
   FileSystemException? readStoredError;
   FileSystemException? deleteAllError;
@@ -82,10 +83,13 @@ final class _MemoryRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<void> restore(StoredBytes bytes) async {
+  Future<RestoreResult> restore(StoredBytes bytes) async {
     calls.add('restore');
-    if (bytes.record case final bytes?) record = bytes;
-    if (bytes.quarantine case final bytes?) quarantine = bytes;
+    if (restoreResult == WriteResult.saved) {
+      if (bytes.record case final bytes?) record = bytes;
+      if (bytes.quarantine case final bytes?) quarantine = bytes;
+    }
+    return RestoreResult(write: restoreResult, quarantineKept: quarantine != null);
   }
 
   @override
@@ -577,13 +581,71 @@ void main() {
       async.elapse(const Duration(seconds: 5));
       bloc.add(const EraseUndone());
       async.flushMicrotasks();
-      expect(repository.calls.last, 'restore');
-      expect(repository.record, isNull);
-      expect(repository.writes, isEmpty);
+      // Decision E7: the undo writes the record from memory, so the disk holds what the page shows.
+      expect(repository.calls.sublist(repository.calls.length - 2), ['restore', 'write']);
+      expect(repository.writes, hasLength(1));
+      expect(repository.record, utf8.encode(serialise(_signed, _now, pretty: false)));
       expect(bloc.state, ready(record: _signed));
       bloc.close();
       async.flushMicrotasks();
     });
+  });
+
+  test('A41: an undo of a record that carries nothing writes nothing', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository()..readStoredError = _injected();
+      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+      async.flushMicrotasks();
+      bloc.add(const EraseUndone());
+      async.flushMicrotasks();
+      expect(repository.calls.last, 'restore');
+      expect(repository.writes, isEmpty);
+      expect(bloc.state, ready());
+      bloc.close();
+      async.flushMicrotasks();
+    });
+  });
+
+  test('an undo whose restore fails keeps the record in memory and says it is not saved', () {
+    for (final (result, writeState) in [
+      (WriteResult.quota, const WriteQuota()),
+      (WriteResult.blocked, const WriteBlocked()),
+    ]) {
+      final errors = <Object>[];
+      runZonedGuarded(
+        () => _fake((async) {
+          final repository = _MemoryRecordRepository()
+            ..loadResult = RecordLoadOk(data: _signed, quarantineKept: false)
+            ..record = Uint8List.fromList([1])
+            ..restoreResult = result;
+          final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+          async.flushMicrotasks();
+          async.elapse(const Duration(seconds: 3));
+
+          bloc.add(const EraseUndone());
+          async.flushMicrotasks();
+          expect(repository.calls.last, 'restore');
+          expect(repository.record, isNull);
+          expect(
+            bloc.state,
+            ready(record: _signed, writeState: writeState),
+            reason: '$result',
+          );
+
+          async.elapse(const Duration(seconds: 20));
+          expect(
+            bloc.state,
+            ready(record: _signed, writeState: writeState),
+            reason: '$result',
+          );
+          expect(async.pendingTimers, isEmpty, reason: '$result');
+          bloc.close();
+          async.flushMicrotasks();
+        }),
+        (error, _) => errors.add(error),
+      );
+      expect(errors, isEmpty, reason: '$result');
+    }
   });
 
   test('A41: an erase whose files cannot be deleted does not happen', () {

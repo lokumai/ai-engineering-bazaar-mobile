@@ -15,6 +15,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
 
 part 'record_event.dart';
@@ -242,23 +243,44 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     reply?.complete(true);
   }
 
+  /// Puts the record from before the erase back in memory whatever the disk does (spec 3.3.9, Decision E7): a restore
+  /// that cannot write answers quota or blocked, and the write notice says so. After an erase that kept no record
+  /// bytes (A41), the record is written from memory, so the disk holds what the page shows.
   Future<void> _onUndone(RecordReady current, Emitter<RecordState> emit) async {
     final undo = current.undo;
     final before = _beforeErase;
     if (undo == null || before == null) return;
-    _undoTimer?.cancel();
-    await _repository.restore(undo.bytes);
     _closeUndo();
-    emit(
-      RecordReady(
-        record: undo.data,
-        writeState: before.writeState,
-        quarantine: before.quarantine,
-        quarantineKept: undo.bytes.quarantine != null,
-        launchReadFailed: before.launchReadFailed,
-        undo: null,
-      ),
+    final restored = await _repository.restore(undo.bytes);
+    if (restored.write != WriteResult.saved) _log.warn('record undo write failed: {}', [restored.write]);
+    final back = RecordReady(
+      record: undo.data,
+      writeState: switch (restored.write) {
+        WriteResult.saved => before.writeState,
+        WriteResult.quota => const WriteQuota(),
+        WriteResult.blocked => const WriteBlocked(),
+      },
+      quarantine: before.quarantine,
+      quarantineKept: restored.quarantineKept,
+      launchReadFailed: before.launchReadFailed,
+      undo: null,
     );
+    if (undo.bytes.record == null && !before.launchReadFailed && !carriesNothing(undo.data)) {
+      await _commit(
+        RecordReady(
+          record: current.record,
+          writeState: back.writeState,
+          quarantine: back.quarantine,
+          quarantineKept: back.quarantineKept,
+          launchReadFailed: back.launchReadFailed,
+          undo: null,
+        ),
+        undo.data,
+        emit,
+      );
+      return;
+    }
+    emit(back);
   }
 
   /// Cancels the undo timer and drops the state the undo would restore.

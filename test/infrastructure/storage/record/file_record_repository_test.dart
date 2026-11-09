@@ -18,6 +18,7 @@ void main() {
   late File recordFile;
   late File tmpFile;
   late File quarantineFile;
+  late File quarantineTmpFile;
 
   setUpAll(() => registerFallbackValue(<int>[]));
 
@@ -27,6 +28,7 @@ void main() {
     recordFile = File('${base.path}/record/record.json');
     tmpFile = File('${base.path}/record/record.json.tmp');
     quarantineFile = File('${base.path}/record/record-quarantine.json');
+    quarantineTmpFile = File('${base.path}/record/record-quarantine.json.tmp');
   });
 
   tearDown(() => base.deleteSync(recursive: true));
@@ -131,6 +133,19 @@ void main() {
     });
   });
 
+  test('a base directory that cannot be resolved fails the launch read and is asked again next time', () async {
+    var calls = 0;
+    final failing = FileRecordRepository(
+      baseDirectory: () async {
+        calls++;
+        throw const FileSystemException('Creation failed', 'support', OSError('No space left on device', 28));
+      },
+    );
+    expect(await failing.load(), const RecordLoadFailed(quarantineKept: false));
+    expect(await failing.load(), const RecordLoadFailed(quarantineKept: false));
+    expect(calls, 2);
+  });
+
   test('the base directory is resolved once', () async {
     var calls = 0;
     final counted = FileRecordRepository(
@@ -210,6 +225,7 @@ void main() {
         ..writeAsBytesSync([1]);
       quarantineFile.writeAsBytesSync([2]);
       tmpFile.writeAsBytesSync([3]);
+      quarantineTmpFile.writeAsBytesSync([4]);
 
       expect(
         await repo.readStored(),
@@ -220,13 +236,18 @@ void main() {
       expect(recordFile.existsSync(), isFalse);
       expect(quarantineFile.existsSync(), isFalse);
       expect(tmpFile.existsSync(), isFalse);
+      expect(quarantineTmpFile.existsSync(), isFalse);
       await repo.deleteAll(); // not-found is fine
       expect(await repo.readStored(), const StoredBytes(record: null, quarantine: null));
 
-      await repo.restore(StoredBytes(record: Uint8List.fromList([1]), quarantine: Uint8List.fromList([2])));
+      expect(
+        await repo.restore(StoredBytes(record: Uint8List.fromList([1]), quarantine: Uint8List.fromList([2]))),
+        const RestoreResult(write: WriteResult.saved, quarantineKept: true),
+      );
       expect(recordFile.readAsBytesSync(), [1]);
       expect(quarantineFile.readAsBytesSync(), [2]);
       expect(tmpFile.existsSync(), isFalse);
+      expect(quarantineTmpFile.existsSync(), isFalse);
 
       await repo.deleteQuarantine();
       expect(quarantineFile.existsSync(), isFalse);
@@ -251,11 +272,60 @@ void main() {
       await expectLater(repo.deleteAll(), ioError); // RecordBloc turns this into a reset that did not happen (A41)
     });
 
-    test('restore and deleteQuarantine throw on an I/O error other than not-found', () async {
+    test('deleteQuarantine throws on an I/O error other than not-found, restore answers blocked', () async {
       Directory('${base.path}/record/record-quarantine.json/inner').createSync(recursive: true);
       final ioError = throwsA(allOf(isA<FileSystemException>(), isNot(isA<PathNotFoundException>())));
-      await expectLater(repo.restore(StoredBytes(record: null, quarantine: Uint8List.fromList([2]))), ioError);
+      expect(
+        await repo.restore(StoredBytes(record: null, quarantine: Uint8List.fromList([2]))),
+        const RestoreResult(write: WriteResult.blocked, quarantineKept: false), // a directory is not a kept file
+      );
       await expectLater(repo.deleteQuarantine(), ioError);
+    });
+
+    test('restore answers quota for ENOSPC and blocked for any other file system error', () async {
+      for (final (errno, result) in [(28, WriteResult.quota), (13, WriteResult.blocked)]) {
+        final outcome = await IOOverrides.runZoned(
+          () => repo.restore(StoredBytes(record: Uint8List.fromList([1]), quarantine: null)),
+          createFile: (path) {
+            final file = _MockFile();
+            when(() => file.path).thenReturn(path);
+            when(() => file.writeAsBytes(any(), flush: true))
+                .thenThrow(FileSystemException('write', path, OSError('injected', errno)));
+            when(file.exists).thenAnswer((_) async => false);
+            return file;
+          },
+        );
+        expect(outcome, RestoreResult(write: result, quarantineKept: false), reason: 'errno $errno');
+      }
+      expect(recordFile.existsSync(), isFalse);
+    });
+
+    test('a quarantine write that fails part way leaves no partial record-quarantine.json', () async {
+      Directory('${base.path}/record').createSync(recursive: true);
+      // Files made outside the override, so the stand-ins can reach the disk without calling the override again.
+      final real = {
+        for (final file in [recordFile, tmpFile, quarantineFile, quarantineTmpFile]) file.path: file,
+      };
+      final outcome = await IOOverrides.runZoned(
+        () => repo.restore(StoredBytes(record: Uint8List.fromList([1]), quarantine: Uint8List.fromList([2, 2, 2]))),
+        createFile: (path) {
+          final file = real[path]!;
+          if (!path.contains('record-quarantine.json')) return file;
+          // The device fills up after the first byte of the set-aside record.
+          final partial = _MockFile();
+          when(() => partial.path).thenReturn(path);
+          when(() => partial.writeAsBytes(any(), flush: true)).thenAnswer((_) async {
+            file.writeAsBytesSync([2]);
+            throw FileSystemException('write', path, const OSError('No space left on device', 28));
+          });
+          when(partial.exists).thenAnswer((_) => file.exists());
+          when(() => partial.rename(any())).thenAnswer((call) => file.rename(call.positionalArguments.first as String));
+          return partial;
+        },
+      );
+      expect(outcome, const RestoreResult(write: WriteResult.quota, quarantineKept: false));
+      expect(recordFile.readAsBytesSync(), [1]);
+      expect(quarantineFile.existsSync(), isFalse);
     });
   });
 

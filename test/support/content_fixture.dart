@@ -63,7 +63,8 @@ MockRecordRepository readyRecordRepository() {
   when(() => repository.write(any())).thenAnswer((_) async => WriteResult.saved);
   when(() => repository.readStored()).thenAnswer((_) async => const StoredBytes(record: null, quarantine: null));
   when(() => repository.deleteAll()).thenAnswer((_) async {});
-  when(() => repository.restore(any())).thenAnswer((_) async {});
+  when(() => repository.restore(any()))
+      .thenAnswer((_) async => const RestoreResult(write: WriteResult.saved, quarantineKept: false));
   when(() => repository.deleteQuarantine()).thenAnswer((_) async {});
   return repository;
 }

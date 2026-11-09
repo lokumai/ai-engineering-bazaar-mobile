@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io' show FileSystemException, OSError;
 
 import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
 import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/progress_view.dart';
@@ -65,6 +66,7 @@ Future<void> _pump(
   TrackCubit? track,
   ContentBloc? content,
   IBackupGateway? gateway,
+  IRecordRepository? recordRepository,
 }) async {
   await tester.pumpWidget(
     bazaarTestApp(
@@ -73,6 +75,7 @@ Future<void> _pump(
       record: record,
       track: track ?? _trackCubit(),
       backupGateway: gateway,
+      recordRepository: recordRepository,
     ),
   );
   await tester.pump();
@@ -108,27 +111,46 @@ const _restorable =
 Finder _plannedIn(String key) =>
     find.descendant(of: find.byKey(Key('progress_row_$key')), matching: find.bySemanticsLabel('Planned'));
 
-/// A record store in memory: the launch read finds nothing and every write is kept as [lastWritten].
+/// A record store in memory: the launch read finds [loaded] (nothing by default), every write is kept as
+/// [lastWritten], [readFails] makes the files unreadable and [restoreResult] is how an undo's write back goes.
 class _MemoryRecordRepository implements IRecordRepository {
+  _MemoryRecordRepository({this.loaded, this.readFails = false, this.restoreResult = WriteResult.saved});
+
+  final RecordData? loaded;
+  final bool readFails;
+  final WriteResult restoreResult;
   String? lastWritten;
+  var writes = 0;
+  late Uint8List? stored = loaded == null ? null : Uint8List.fromList([1]);
 
   @override
-  Future<RecordLoad> load() async => const RecordLoadEmpty(quarantineKept: false);
+  Future<RecordLoad> load() async => switch (loaded) {
+    final data? => RecordLoadOk(data: data, quarantineKept: false),
+    null => const RecordLoadEmpty(quarantineKept: false),
+  };
 
   @override
   Future<WriteResult> write(String compactJson) async {
+    writes++;
     lastWritten = compactJson;
+    stored = Uint8List.fromList(utf8.encode(compactJson));
     return WriteResult.saved;
   }
 
   @override
-  Future<StoredBytes> readStored() => throw UnimplementedError();
+  Future<StoredBytes> readStored() async {
+    if (readFails) throw const FileSystemException('read', 'record/record.json', OSError('injected', 5));
+    return StoredBytes(record: stored, quarantine: null);
+  }
 
   @override
-  Future<void> deleteAll() => throw UnimplementedError();
+  Future<void> deleteAll() async => stored = null;
 
   @override
-  Future<void> restore(StoredBytes bytes) => throw UnimplementedError();
+  Future<RestoreResult> restore(StoredBytes bytes) async {
+    if (restoreResult == WriteResult.saved && bytes.record != null) stored = bytes.record;
+    return RestoreResult(write: restoreResult, quarantineKept: false);
+  }
 
   @override
   Future<void> deleteQuarantine() => throw UnimplementedError();
@@ -327,6 +349,48 @@ void main() {
 
     await _tap(tester, find.text('For Engineers'));
     expect(find.text('1/3'), findsOneWidget); // the For Engineers dial is unchanged by the For Everyone toggle
+  });
+
+  /// Resets the record through the data line, then taps Undo.
+  Future<void> resetThenUndo(WidgetTester tester) async {
+    await _tap(tester, find.text('Reset'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'ERASE');
+    await tester.pump();
+    await tester.tap(find.text('Erase all data'));
+    await tester.pumpAndSettle();
+    expect(find.text('0 of 6'), findsNWidgets(2));
+    await tester.pump(const Duration(seconds: 3));
+    await _tap(tester, find.text('Undo'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('an undo whose files cannot be written back shows the record and the write notice', (tester) async {
+    final repository = _MemoryRecordRepository(loaded: _firstCompleted(), restoreResult: WriteResult.quota);
+    final record = RecordBloc(repository: repository)..add(const RecordStarted());
+    addTearDown(record.close);
+    await _pump(tester, router: _router(), record: record, recordRepository: repository);
+    await tester.pumpAndSettle();
+    expect(find.text('1 of 6'), findsOneWidget);
+
+    await resetThenUndo(tester);
+    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.byType(RecordWriteNotice), findsOneWidget);
+    expect(repository.stored, isNull);
+  });
+
+  testWidgets('an undo after a reset whose files could not be read writes the record back', (tester) async {
+    final repository = _MemoryRecordRepository(loaded: _firstCompleted(), readFails: true);
+    final record = RecordBloc(repository: repository)..add(const RecordStarted());
+    addTearDown(record.close);
+    await _pump(tester, router: _router(), record: record, recordRepository: repository);
+    await tester.pumpAndSettle();
+
+    await resetThenUndo(tester);
+    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.byType(RecordWriteNotice), findsNothing);
+    expect(repository.writes, 1);
+    expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
   });
 
   testWidgets('ProgressView shows its slots above the tabs and below the panel', (tester) async {

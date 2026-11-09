@@ -8,11 +8,12 @@ import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
 
-/// The record in files under `<baseDirectory>/record/` (spec 3.3.9): `record.json`, `record.json.tmp` and
-/// `record-quarantine.json`.
+/// The record in files under `<baseDirectory>/record/` (spec 3.3.9): `record.json`, `record-quarantine.json` and
+/// their `.tmp` files.
 ///
 /// The app passes `getApplicationSupportDirectory()`, which on Android is `filesDir`, the Auto Backup domain `file`
-/// (Task 8.7). `baseDirectory` is called on first use and its result kept, so every method works in one directory.
+/// (Task 8.7). `baseDirectory` is called on first use and its result kept, so every method works in one directory; a
+/// call that fails is not kept, so the next method asks again.
 final class FileRecordRepository implements IRecordRepository {
   FileRecordRepository({required this._baseDirectory});
 
@@ -23,7 +24,9 @@ final class FileRecordRepository implements IRecordRepository {
 
   final Future<Directory> Function() _baseDirectory;
 
-  late final Future<Directory> _directory = _baseDirectory().then((base) => Directory('${base.path}/record'));
+  Directory? _resolved;
+
+  Future<Directory> get _directory async => _resolved ??= Directory('${(await _baseDirectory()).path}/record');
 
   Future<File> _file(String name) async => File('${(await _directory).path}/$name');
 
@@ -33,9 +36,18 @@ final class FileRecordRepository implements IRecordRepository {
 
   Future<File> get _quarantine => _file('record-quarantine.json');
 
+  Future<File> get _quarantineTmp => _file('record-quarantine.json.tmp');
+
   @override
   Future<RecordLoad> load() async {
-    final quarantine = await _quarantine;
+    final File quarantine;
+    try {
+      quarantine = await _quarantine;
+    } on FileSystemException catch (error) {
+      // A support directory that cannot be made (a full device on a fresh iOS install) is a failed launch read.
+      _log.error('record directory unavailable: {}', [error]);
+      return const RecordLoadFailed(quarantineKept: false);
+    }
     final Uint8List bytes;
     try {
       bytes = await (await _record).readAsBytes();
@@ -77,16 +89,22 @@ final class FileRecordRepository implements IRecordRepository {
       return WriteResult.saved;
     } on FileSystemException catch (error) {
       _log.error('record write failed: {}', [error]);
-      return error.osError?.errorCode == _noSpace ? WriteResult.quota : WriteResult.blocked;
+      return _resultOf(error);
     }
   }
 
+  static WriteResult _resultOf(FileSystemException error) =>
+      error.osError?.errorCode == _noSpace ? WriteResult.quota : WriteResult.blocked;
+
   /// Writes [bytes] to `record.json.tmp` with a flush and renames it over `record.json`.
-  Future<void> _replaceRecord(List<int> bytes) async {
+  Future<void> _replaceRecord(List<int> bytes) => _replace(_tmp, _record, bytes);
+
+  /// Writes [bytes] to [tmp] with a flush and renames it over [target], so [target] is never left half written.
+  Future<void> _replace(Future<File> tmp, Future<File> target, List<int> bytes) async {
     await (await _directory).create(recursive: true);
-    final tmp = await _tmp;
-    await tmp.writeAsBytes(bytes, flush: true);
-    await tmp.rename((await _record).path);
+    final written = await tmp;
+    await written.writeAsBytes(bytes, flush: true);
+    await written.rename((await target).path);
   }
 
   @override
@@ -106,17 +124,24 @@ final class FileRecordRepository implements IRecordRepository {
     await _deleteIfPresent(await _record);
     await _deleteIfPresent(await _quarantine);
     await _deleteIfPresent(await _tmp);
+    await _deleteIfPresent(await _quarantineTmp);
   }
 
   @override
-  Future<void> restore(StoredBytes bytes) async {
-    final record = bytes.record;
-    final quarantine = bytes.quarantine;
-    if (record != null) await _replaceRecord(record);
-    if (quarantine != null) {
-      await (await _directory).create(recursive: true);
-      await (await _quarantine).writeAsBytes(quarantine, flush: true);
+  Future<RestoreResult> restore(StoredBytes bytes) async {
+    var write = WriteResult.saved;
+    Future<void> attempt(Future<void> Function() replace) async {
+      try {
+        await replace();
+      } on FileSystemException catch (error) {
+        _log.error('record restore failed: {}', [error]);
+        if (write == WriteResult.saved) write = _resultOf(error);
+      }
     }
+
+    if (bytes.record case final record?) await attempt(() => _replaceRecord(record));
+    if (bytes.quarantine case final quarantine?) await attempt(() => _replace(_quarantineTmp, _quarantine, quarantine));
+    return RestoreResult(write: write, quarantineKept: await (await _quarantine).exists());
   }
 
   @override

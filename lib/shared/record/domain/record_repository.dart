@@ -74,14 +74,29 @@ enum WriteResult {
   blocked,
 }
 
+/// How an undo's write back of the stored bytes went (spec 3.3.9).
+final class RestoreResult extends Equatable {
+  const RestoreResult({required this.write, required this.quarantineKept});
+
+  /// [WriteResult.saved] when every non-null field reached its file, otherwise the result of the first write that
+  /// failed.
+  final WriteResult write;
+
+  /// Whether `record-quarantine.json` exists when the restore returns.
+  final bool quarantineKept;
+
+  @override
+  List<Object?> get props => [write, quarantineKept];
+}
+
 /// The record's storage on the device (spec 3.3.9).
 ///
 /// [load], [write], [deleteAll], [restore] and [deleteQuarantine] are called only from `RecordBloc`'s one serial
 /// queue, so no two of them overlap. [readStored] changes nothing, so `DataBloc` may also call it to export the
 /// quarantined bytes.
 ///
-/// [readStored], [deleteAll], [restore] and [deleteQuarantine] throw a `FileSystemException` on an I/O error other
-/// than not-found; `RecordBloc` handles that for an erase (Decision A41).
+/// [readStored], [deleteAll] and [deleteQuarantine] throw a `FileSystemException` on an I/O error other than not-found;
+/// `RecordBloc` handles that for an erase (Decision A41). [write] and [restore] answer how their writes went instead.
 abstract interface class IRecordRepository {
   /// The launch read: reads `record.json` with `parseEnvelope` and copies quarantined bytes to
   /// `record-quarantine.json` unless it already holds the same bytes.
@@ -92,11 +107,12 @@ abstract interface class IRecordRepository {
 
   Future<StoredBytes> readStored();
 
-  /// Deletes `record.json`, `record-quarantine.json` and `record.json.tmp`; a missing file is not an error.
+  /// Deletes `record.json`, `record-quarantine.json` and their `.tmp` files; a missing file is not an error.
   Future<void> deleteAll();
 
-  /// Writes each non-null field of [bytes] back to its file.
-  Future<void> restore(StoredBytes bytes);
+  /// Writes each non-null field of [bytes] back to its file, each through a `.tmp` file and a rename, and answers how
+  /// that went: ENOSPC is [WriteResult.quota], any other file system error [WriteResult.blocked].
+  Future<RestoreResult> restore(StoredBytes bytes);
 
   /// Deletes `record-quarantine.json`; a missing file is not an error.
   Future<void> deleteQuarantine();
