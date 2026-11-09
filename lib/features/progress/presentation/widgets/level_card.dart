@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -101,6 +102,7 @@ class LevelCard extends StatelessWidget {
               // The For Engineers title in both tracks, as the web's (A34).
               title: index.module(fact.slug)!.tracks[Track.engineers]!.title,
               track: track,
+              index: index,
               signed: record?.signedOff(fact.slug, track) != null,
             ),
         ],
@@ -177,9 +179,19 @@ class _DialPainter extends CustomPainter {
 /// One module of a level card (web `CourseCompletion.tsx:187-276`): a completion toggle when [fact] is written in
 /// [track], a dashed ring that says `Planned` when it is not, then the link to the module in [track].
 class ModuleRow extends StatelessWidget {
-  const ModuleRow({super.key, required this.fact, required this.title, required this.track, required this.signed});
+  const ModuleRow({
+    super.key,
+    required this.fact,
+    required this.title,
+    required this.track,
+    required this.index,
+    required this.signed,
+  });
 
   final CurriculumFact fact;
+
+  /// The index the toggle reads the module's For Everyone version from (plan 1V).
+  final BundleIndex index;
 
   /// The For Engineers title (A34).
   final String title;
@@ -196,7 +208,7 @@ class ModuleRow extends StatelessWidget {
     final minHeight = minTapTarget(theme.platform);
     final Widget leading;
     if (fact.drawn) {
-      void toggle() => context.read<RecordBloc>().add(CompletionToggled(key: fact.slug, revision: null, track: track));
+      void toggle() => context.read<RecordBloc>().add(completionToggled(index, fact.slug, track, revision: null));
       // The name says which module and what a tap does; the checked state says whether it is complete.
       leading = Semantics(
         container: true,

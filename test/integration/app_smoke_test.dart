@@ -192,8 +192,9 @@ void main() {
       final state = tester.element(find.byType(ModuleReaderView)).read<RecordBloc>().state;
       expect(state, isA<RecordReady>());
       final record = (state as RecordReady).record;
-      expect(record.signedMap(Track.everyone), isEmpty);
       expect(record.signedOff('alpha/first', Track.engineers), '2026-11-09T10:00:00.000Z');
+      // The fixture's For Everyone version is written, so it is completed along with For Engineers (plan 1V).
+      expect(record.signedMap(Track.everyone), {'alpha/first': '2026-11-09T10:00:00.000Z'});
     }),
   );
 }

@@ -73,7 +73,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 ### Progress and the record
 
 - **R60** The record is the web's, byte for byte. `lib/shared/record` ports the web's code, and `test/shared/record/conformance_test.dart` with `test/fixtures/record_conformance/v1.json` is the authority.
-- **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
+- **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). A For Engineers completion also writes the For Everyone completion of the same module when that version is written and not yet completed; removing a completion touches only its own track (plan 1V, the web does not do this). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
 - **R62** Days are the UTC day of the instant. `asInstant` is a strict grammar (A20).
 - **R63** Writes are atomic: `record.json.tmp` with a flush, then a rename.
 - **R64** A malformed or newer record is set aside in `record-quarantine.json` and reads as empty; the progress page shows a notice with Save a copy and Delete it.

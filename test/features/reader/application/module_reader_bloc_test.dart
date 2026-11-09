@@ -188,6 +188,7 @@ void main() {
     verify: (_) {
       final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
       expect((event.key, event.revision, event.track), ('alpha/first', 'abc1234', Track.everyone));
+      expect(event.everyone, isNull, reason: 'For Everyone never completes For Engineers (plan 1V)');
     },
   );
 
@@ -199,6 +200,7 @@ void main() {
     verify: (_) {
       final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
       expect((event.key, event.revision, event.track), ('alpha/first', 'def5678', Track.engineers));
+      expect(event.everyone?.revision, 'abc1234', reason: 'the written For Everyone version goes with it (plan 1V)');
     },
   );
 

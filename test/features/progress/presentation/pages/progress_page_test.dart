@@ -333,7 +333,7 @@ void main() {
     expect(find.bySemanticsLabel('Complete Second Module'), findsNothing);
   });
 
-  testWidgets('a toggle in one track leaves the other track unchanged', (tester) async {
+  testWidgets('a For Engineers completion completes For Everyone too, never the reverse (plan 1V)', (tester) async {
     final repository = _MemoryRecordRepository();
     final record = RecordBloc(repository: repository)..add(const RecordStarted());
     addTearDown(record.close);
@@ -345,17 +345,33 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
-    expect(repository.lastWritten, contains('"everyoneSheets":{}'));
-
-    await _showTrack(tester, Track.everyone);
-    expect(find.text('0/3'), findsOneWidget);
-    await _tap(tester, find.bySemanticsLabel('Complete First Module'));
-    await tester.pumpAndSettle();
-    expect(find.text('1/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"everyoneSheets":{"alpha/first":{"signedOff":"'));
 
+    await _showTrack(tester, Track.everyone);
+    expect(find.text('1/3'), findsOneWidget, reason: 'carried over from For Engineers');
+    await _tap(tester, find.bySemanticsLabel('Complete First Module'));
+    await tester.pumpAndSettle();
+    expect(find.text('0/3'), findsOneWidget);
+    expect(repository.lastWritten, isNot(contains('"everyoneSheets":{"alpha/first":{"signedOff":"')));
+
     await _showTrack(tester, Track.engineers);
-    expect(find.text('1/3'), findsOneWidget); // the For Engineers dial is unchanged by the For Everyone toggle
+    expect(find.text('1/3'), findsOneWidget, reason: 'a For Everyone toggle leaves For Engineers as it is');
+  });
+
+  testWidgets('a For Everyone completion leaves For Engineers as it is (plan 1V)', (tester) async {
+    final repository = _MemoryRecordRepository();
+    final record = RecordBloc(repository: repository)..add(const RecordStarted());
+    addTearDown(record.close);
+    await _pump(tester, router: _router(), record: record);
+    await tester.pumpAndSettle();
+
+    await _showTrack(tester, Track.everyone);
+    await _tap(tester, find.bySemanticsLabel('Complete First Module'));
+    await tester.pumpAndSettle();
+    expect(repository.lastWritten, contains('"sheets":{}'));
+
+    await _showTrack(tester, Track.engineers);
+    expect(find.text('0/3'), findsOneWidget);
   });
 
   /// Resets the record through the data line, then taps Undo.
