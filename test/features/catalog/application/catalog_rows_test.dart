@@ -50,14 +50,6 @@ void main() {
   group('filters', () {
     final engineers = catalogRows(index, Track.engineers, view(Track.engineers));
 
-    test('applyStatus', () {
-      expect(applyStatus(engineers, StatusFilter.all).length, 6);
-      expect(applyStatus(engineers, StatusFilter.ready).map((r) => r.number), [1, 2, 4, 6]);
-      expect(applyStatus(engineers, StatusFilter.planned).map((r) => r.number), [3, 5]);
-      expect(applyStatus(engineers, StatusFilter.completed).map((r) => r.number), [1]);
-      expect(applyStatus(engineers, StatusFilter.notCompleted).map((r) => r.number), [2, 3, 4, 5, 6]);
-    });
-
     test('applyLevel', () {
       expect(applyLevel(engineers, 'beta').map((r) => r.number), [4, 5]);
       expect(applyLevel(engineers, null).length, 6);

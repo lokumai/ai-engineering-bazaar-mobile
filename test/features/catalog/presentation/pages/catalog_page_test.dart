@@ -36,9 +36,7 @@ String _path(GoRouter router) => router.state.uri.path;
 
 Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
 
-/// The level row's `All` chip comes first in the tree, the status row's second.
-Finder get _levelAll => _chip('All').first;
-Finder get _statusAll => _chip('All').last;
+Finder get _levelAll => _chip('All');
 
 bool _selected(WidgetTester tester, Finder chip) => tester.widget<ChoiceChip>(chip).selected;
 
@@ -64,16 +62,17 @@ void main() {
       reason: 'the header, outside the NavigationBar',
     );
     expect(find.text('Level:'), findsOneWidget);
-    expect(find.text('Status:'), findsOneWidget);
-    expect(_chip('All'), findsNWidgets(2));
-    for (final label in ['Alpha Level', 'Beta Level', 'Gamma Level', 'Ready', 'Planned', 'Completed']) {
+    expect(_chip('All'), findsOneWidget);
+    for (final label in ['Alpha Level', 'Beta Level', 'Gamma Level']) {
       expect(_chip(label), findsOneWidget, reason: label);
     }
-    expect(_chip('Not completed'), findsOneWidget);
-    expect(find.text('Showing 6 of 6'), findsOneWidget);
     expect(_selected(tester, _levelAll), isTrue);
-    expect(_selected(tester, _statusAll), isTrue);
-    expect(_selected(tester, _chip('Ready')), isFalse);
+    // Plan 1N: no Status chips and no count; each row says whether it is planned.
+    expect(find.text('Status:'), findsNothing);
+    for (final label in ['Ready', 'Planned', 'Completed', 'Not completed']) {
+      expect(_chip(label), findsNothing, reason: label);
+    }
+    expect(find.textContaining('Showing'), findsNothing);
   });
 
   testWidgets('the overview has one section per level with its written bar', (tester) async {
@@ -98,42 +97,6 @@ void main() {
         reason: title,
       );
     }
-  });
-
-  testWidgets('a status filter narrows the rows', (tester) async {
-    await _pumpCatalog(tester);
-
-    await _tap(tester, _chip('Ready'));
-    expect(find.text('Showing 4 of 6'), findsOneWidget);
-    expect(_selected(tester, _chip('Ready')), isTrue);
-    expect(find.text('Third Module'), findsNothing);
-
-    await _tap(tester, _chip('Completed'));
-    expect(find.text('Showing 1 of 6'), findsOneWidget);
-    expect(_inOverview('First Module'), findsOneWidget);
-    for (final title in ['Second Module', 'Third Module', 'Fourth Module', 'Fifth Module', 'Sixth Module']) {
-      expect(find.text(title), findsNothing, reason: title);
-    }
-  });
-
-  testWidgets('the empty state', (tester) async {
-    await _pumpCatalog(tester, '/everyone/sheets');
-
-    await _tap(tester, _chip('Completed'));
-    expect(find.text('Showing 0 of 6'), findsOneWidget);
-    expect(find.text('No module matches both filters · 0 of 6'), findsOneWidget);
-    expect(
-      find.text(
-        'The two filters select different modules. Widen either one, or clear both to see the whole catalog again.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.byType(CatalogOverview), findsNothing);
-
-    await _tap(tester, find.text('Show the whole catalog'));
-    expect(_selected(tester, _statusAll), isTrue);
-    expect(find.text('Showing 6 of 6'), findsOneWidget);
-    expect(find.text('Show the whole catalog'), findsNothing);
   });
 
   testWidgets('the For Everyone catalog', (tester) async {
@@ -174,7 +137,7 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: _router(), record: _firstCompleted()), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    for (final chip in [_levelAll, _chip('Completed')]) {
+    for (final chip in [_levelAll, _chip('Gamma Level')]) {
       await tester.ensureVisible(chip);
       await tester.pump();
       expectHittable(tester, chip);

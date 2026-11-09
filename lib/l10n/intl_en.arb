@@ -59,41 +59,10 @@
   "@catalog_title": {},
   "catalog_level_label": "Level:",
   "@catalog_level_label": {},
-  "catalog_status_label": "Status:",
-  "@catalog_status_label": {},
   "catalog_filter_all": "All",
   "@catalog_filter_all": {},
-  "catalog_filter_ready": "Ready",
-  "@catalog_filter_ready": {},
-  "catalog_filter_planned": "Planned",
-  "@catalog_filter_planned": {},
   "catalog_filter_completed": "Completed",
   "@catalog_filter_completed": {},
-  "catalog_filter_not_completed": "Not completed",
-  "@catalog_filter_not_completed": {},
-  "catalog_showing": "Showing {visible} of {total}",
-  "@catalog_showing": {
-    "placeholders": {
-      "visible": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "catalog_no_match": "No module matches both filters · 0 of {total}",
-  "@catalog_no_match": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "catalog_no_match_cue": "The two filters select different modules. Widen either one, or clear both to see the whole catalog again.",
-  "@catalog_no_match_cue": {},
-  "catalog_show_all": "Show the whole catalog",
-  "@catalog_show_all": {},
   "catalog_written": "{ready} of {total} written",
   "@catalog_written": {
     "placeholders": {

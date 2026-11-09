@@ -2,13 +2,11 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_no_match.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/level_notes.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -18,14 +16,13 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dar
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// The level page of [track] (web `LevelCatalog`, `src/components/catalog/LevelCatalog.tsx:20-97`) in the web's default
 /// Cards view (A10): the level title, the lead line, the meter text, then the catalog with this level chosen (the
-/// filter bar, A45, and the cards, or the empty state), then the level's `General notes` when it has a document.
+/// level chips, A45, and the cards), then the level's `General notes` when it has a document.
 ///
 /// The meter's segment gauge is drawn in the level's hue under its text, which carries it for assistive technology
-/// (the gauge is `aria-hidden` on the web). The Status filter and the open Description are local UI state. An unknown level shows [NotFoundView].
+/// (the gauge is `aria-hidden` on the web). The open Description is local UI state. An unknown level shows [NotFoundView].
 class LevelPage extends StatefulWidget {
   const LevelPage({super.key, required this.track, required this.level});
 
@@ -39,7 +36,6 @@ class LevelPage extends StatefulWidget {
 }
 
 class _LevelPageState extends State<LevelPage> {
-  StatusFilter _status = StatusFilter.all;
   String? _openDescription;
 
   @override
@@ -79,8 +75,7 @@ class _LevelPageState extends State<LevelPage> {
         .fold(0, (sum, module) => sum + module.minutes);
 
     final rows = catalogRows(index, track, view);
-    // The web's `applyLevel(applyFilter(rows))`: the count is this level's rows of every row.
-    final visible = applyLevel(applyStatus(rows, _status), entry.slug);
+    final visible = applyLevel(rows, entry.slug);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -106,27 +101,15 @@ class _LevelPageState extends State<LevelPage> {
           ),
         ],
         const SizedBox(height: AppSpacing.lg),
-        CatalogFilterBar(
-          index: index,
-          track: track,
-          levels: levelsOf(index, rows),
-          level: entry.slug,
-          status: _status,
-          onStatus: (status) => setState(() => _status = status),
-          visible: visible.length,
-          total: rows.length,
-        ),
+        CatalogFilterBar(index: index, track: track, levels: levelsOf(index, rows), level: entry.slug),
         const SizedBox(height: AppSpacing.xl),
-        if (visible.isEmpty)
-          CatalogNoMatch(total: rows.length, onShowAll: () => context.go(BazaarPaths.catalog(track)))
-        else
-          CatalogCards(
-            track: track,
-            index: index,
-            rows: visible,
-            openDescription: _openDescription,
-            onDescription: (key) => setState(() => _openDescription = key),
-          ),
+        CatalogCards(
+          track: track,
+          index: index,
+          rows: visible,
+          openDescription: _openDescription,
+          onDescription: (key) => setState(() => _openDescription = key),
+        ),
         if (entry.readme case final readme?) LevelNotes(readme: readme, diagramThemes: index.diagramThemes),
       ],
     );

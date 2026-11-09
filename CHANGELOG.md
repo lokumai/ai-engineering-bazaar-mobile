@@ -12,7 +12,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Home at `/`: the next module to read, the levels with their completion, and the offline note.
-- The catalog root at `/sheets` and the level page, with the Level and Status filters.
+- The catalog root at `/sheets` and the level page, with the level chips. The web's Status filters are left out: each card says whether it is planned or completed.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
   reading bar.
 - The module quiz, opened full screen from a card in the reader.

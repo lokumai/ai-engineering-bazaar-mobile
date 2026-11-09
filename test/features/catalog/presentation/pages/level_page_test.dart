@@ -56,8 +56,7 @@ String _path(GoRouter router) => router.state.uri.path;
 
 Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
 
-/// The level row's `All` chip comes first in the tree, the status row's second.
-Finder get _levelAll => _chip('All').first;
+Finder get _levelAll => _chip('All');
 
 bool _selected(WidgetTester tester, Finder chip) => tester.widget<ChoiceChip>(chip).selected;
 
@@ -182,7 +181,6 @@ void main() {
       expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(find.text('Level:')).dy));
       expect(find.text('3 modules · ~1 h 15 min'), findsOneWidget);
       expect(find.text('1/3 completed'), findsOneWidget);
-      expect(find.text('Showing 3 of 6'), findsOneWidget);
       expect(_selected(tester, _chip('Alpha Level')), isTrue);
       expect(_selected(tester, _levelAll), isFalse);
     });
@@ -192,7 +190,6 @@ void main() {
 
       expect(find.text('2 modules · ~1 h'), findsOneWidget);
       expect(find.text('0/2 completed'), findsOneWidget);
-      expect(find.text('Showing 2 of 6'), findsOneWidget);
       expect(_selected(tester, _chip('Beta Level')), isTrue);
     });
 
@@ -299,58 +296,38 @@ void main() {
     expect(_inCard('Second Module', 'Description'), findsNothing);
   });
 
-  testWidgets('filters and the empty state', (tester) async {
-    final router = await _pumpLevel(tester, '/everyone/sheets/alpha');
-
-    await _tap(tester, _chip('Completed'));
-    expect(find.text('No module matches both filters · 0 of 6'), findsOneWidget);
-    expect(find.text('Showing 0 of 6'), findsOneWidget);
-    expect(find.byType(CatalogCards), findsNothing);
-
-    await _tap(tester, find.text('Show the whole catalog'));
-    expect(_path(router), '/everyone/sheets');
-  });
-
-  testWidgets('a status filter narrows the cards to this level', (tester) async {
+  testWidgets('no Status chips and no count (plan 1N); the planned card says so itself', (tester) async {
     await _pumpLevel(tester, '/sheets/alpha');
 
-    await _tap(tester, _chip('Ready'));
-    expect(find.text('Showing 2 of 6'), findsOneWidget);
+    expect(find.text('Status:'), findsNothing);
+    for (final label in ['Ready', 'Planned', 'Completed', 'Not completed']) {
+      expect(_chip(label), findsNothing, reason: label);
+    }
+    expect(find.textContaining('Showing'), findsNothing);
     await _build(tester, find.byType(CatalogCards));
-    expect(find.byType(BazaarCard), findsNWidgets(2));
-    expect(_card('Third Module'), findsNothing);
+    expect(find.byType(BazaarCard), findsNWidgets(3));
+    expect(_inCard('Third Module', 'Planned'), findsOneWidget);
   });
 
-  testWidgets('the selected level chip keeps a pushed level page and its Status filter', (tester) async {
+  testWidgets('the selected level chip keeps a pushed level page', (tester) async {
     final router = await _pumpLevel(tester, '/sheets');
     await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text('Beta Level')));
     expect(_path(router), '/sheets/beta');
-    await _tap(tester, _chip('Planned'));
-    expect(find.text('Showing 1 of 6'), findsOneWidget);
 
     await _tap(tester, _chip('Beta Level'));
     expect(_path(router), '/sheets/beta');
     expect(_selected(tester, _chip('Beta Level')), isTrue);
-    expect(_selected(tester, _chip('Planned')), isTrue);
-    expect(find.text('Showing 1 of 6'), findsOneWidget);
     expect(router.canPop(), isTrue, reason: 'the catalog stays below');
   });
 
-  group('a level chip opens the other level with its own filters', () {
-    for (final (track, prefix, status) in [
-      ('For Engineers', '/sheets', 'Completed'),
-      ('For Everyone', '/everyone/sheets', 'Planned'),
-    ]) {
+  group('a level chip opens the other level', () {
+    for (final (track, prefix) in [('For Engineers', '/sheets'), ('For Everyone', '/everyone/sheets')]) {
       testWidgets(track, (tester) async {
         final router = await _pumpLevel(tester, '$prefix/alpha');
-        await _tap(tester, _chip(status));
-        expect(_selected(tester, _chip(status)), isTrue);
 
         await _tap(tester, _chip('Beta Level'));
         expect(_path(router), '$prefix/beta');
-        expect(_selected(tester, _chip('All').last), isTrue, reason: 'the Status row starts at All');
-        expect(_selected(tester, _chip(status)), isFalse);
-        expect(find.text('Showing 2 of 6'), findsOneWidget);
+        expect(_selected(tester, _chip('Beta Level')), isTrue);
       });
     }
   });
@@ -391,7 +368,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     for (final target in [
-      _chip('Completed'),
+      _chip('Gamma Level'),
       _inCards(find.text('First Module')),
       _inCard('First Module', 'Description'),
     ]) {

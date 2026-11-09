@@ -1,4 +1,3 @@
-import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -13,8 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// The catalog's filter bar (web `Catalog.tsx:296-413`, without the View row, A10): the Level chips, which open the
-/// catalog root or a level page of [track], each level keyed by its hue, the Status chips, and the live count
-/// `Showing {visible} of {total}`. The chips take the mockup's look: framed, the chosen one filled.
+/// catalog root or a level page of [track], each level keyed by its hue. The chips take the mockup's look: framed, the
+/// chosen one filled.
+///
+/// The web's Status chips and its `Showing {visible} of {total}` count are left out (plan 1N): each card already says
+/// whether it is planned or completed.
 class CatalogFilterBar extends StatelessWidget {
   const CatalogFilterBar({
     super.key,
@@ -22,10 +24,6 @@ class CatalogFilterBar extends StatelessWidget {
     required this.track,
     required this.levels,
     required this.level,
-    required this.status,
-    required this.onStatus,
-    required this.visible,
-    required this.total,
   });
 
   /// The index the levels come from, for each level's place and so its hue.
@@ -37,14 +35,6 @@ class CatalogFilterBar extends StatelessWidget {
 
   /// The level shown; null on the catalog root.
   final String? level;
-  final StatusFilter status;
-  final ValueChanged<StatusFilter> onStatus;
-
-  /// The number of rows the filters keep.
-  final int visible;
-
-  /// The number of rows before filtering.
-  final int total;
 
   @override
   Widget build(BuildContext context) {
@@ -64,49 +54,30 @@ class CatalogFilterBar extends StatelessWidget {
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(BazaarRadii.pill)),
         labelStyle: textTheme.labelLarge,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.sm,
-        children: [
-          _ChipRow(
-            label: l10n.catalog_level_label,
-            chips: [
-              ChoiceChip(
-                label: _label(context, l10n.catalog_filter_all, chosen: level == null),
-                selected: level == null,
-                // A selected level chip does nothing: a go to the page shown would replace a pushed page with a fresh
-                // one and drop the pages below it.
-                onSelected: (_) {
-                  if (level != null) context.go(BazaarPaths.catalog(track));
-                },
+      child: _ChipRow(
+        label: l10n.catalog_level_label,
+        chips: [
+          ChoiceChip(
+            label: _label(context, l10n.catalog_filter_all, chosen: level == null),
+            selected: level == null,
+            // A selected level chip does nothing: a go to the page shown would replace a pushed page with a fresh
+            // one and drop the pages below it.
+            onSelected: (_) {
+              if (level != null) context.go(BazaarPaths.catalog(track));
+            },
+          ),
+          for (final entry in levels)
+            ChoiceChip(
+              avatar: LevelKey(
+                color: level == entry.slug ? colors.onPrimary : levelHue(context, levelPosition(index, entry.slug)),
+                size: 8,
               ),
-              for (final entry in levels)
-                ChoiceChip(
-                  avatar: LevelKey(
-                    color: level == entry.slug ? colors.onPrimary : levelHue(context, levelPosition(index, entry.slug)),
-                    size: 8,
-                  ),
-                  label: _label(context, entry.title, chosen: level == entry.slug),
-                  selected: level == entry.slug,
-                  onSelected: (_) {
-                    if (level != entry.slug) context.go(BazaarPaths.level(track, entry.slug));
-                  },
-                ),
-            ],
-          ),
-          _ChipRow(
-            label: l10n.catalog_status_label,
-            chips: [
-              for (final filter in StatusFilter.values)
-                ChoiceChip(
-                  label: _label(context, _statusLabel(l10n, filter), chosen: status == filter),
-                  selected: status == filter,
-                  onSelected: (_) => onStatus(filter),
-                ),
-            ],
-          ),
-          // The web's `role="status"`.
-          Semantics(liveRegion: true, child: Text(l10n.catalog_showing(visible, total), style: textTheme.bodyMedium)),
+              label: _label(context, entry.title, chosen: level == entry.slug),
+              selected: level == entry.slug,
+              onSelected: (_) {
+                if (level != entry.slug) context.go(BazaarPaths.level(track, entry.slug));
+              },
+            ),
         ],
       ),
     );
@@ -117,14 +88,6 @@ class CatalogFilterBar extends StatelessWidget {
     final colors = context.bazaarColors;
     return Text(text, style: TextStyle(color: chosen ? colors.onPrimary : colors.onSurface));
   }
-
-  static String _statusLabel(S l10n, StatusFilter filter) => switch (filter) {
-    StatusFilter.all => l10n.catalog_filter_all,
-    StatusFilter.ready => l10n.catalog_filter_ready,
-    StatusFilter.planned => l10n.catalog_filter_planned,
-    StatusFilter.completed => l10n.catalog_filter_completed,
-    StatusFilter.notCompleted => l10n.catalog_filter_not_completed,
-  };
 }
 
 class _ChipRow extends StatelessWidget {

@@ -141,13 +141,14 @@ void main() {
     final track = TrackCubit();
     final router = await _pumpAt(tester, '/sheets', track);
     await _pushFromCatalog(tester, 'Beta Level');
-    await _tap(tester, find.widgetWithText(ChoiceChip, 'Planned'));
-    expect(find.text('Showing 1 of 6'), findsOneWidget);
+    // Open a card's Description: state of this page, kept while it stays below.
+    await _tap(tester, find.text('Description'));
+    expect(find.text('Summary of the fourth module.'), findsOneWidget);
 
     // The segment of the page shown does nothing: the page and the catalog below it stay.
     await _tap(tester, _engineers);
     expect(_path(router), '/sheets/beta');
-    expect(find.text('Showing 1 of 6'), findsOneWidget);
+    expect(find.text('Summary of the fourth module.'), findsOneWidget);
     expect(router.canPop(), isTrue);
 
     await _tap(tester, _everyone);
@@ -158,7 +159,7 @@ void main() {
     await _back(tester);
     expect(calls, isNot(contains('SystemNavigator.pop')));
     expect(_path(router), '/sheets/beta');
-    expect(find.text('Showing 1 of 6'), findsOneWidget, reason: 'the page below keeps its Status filter');
+    expect(find.text('Summary of the fourth module.'), findsOneWidget, reason: 'the page below keeps its state');
     expect(track.state, Track.engineers);
     _expectSelected(tester, Track.engineers);
 

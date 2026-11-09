@@ -84,7 +84,7 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - First, reproduce it with the owner's exact path on the emulator, and write it as a test.
   - Likely causes: the places that call `context.go` instead of `push` replace the history. These are the level chips in the filter bar, the catalog link in `link_actions.dart`, the Progress button on Home, `not_found_view.dart` and `not_written_view.dart`.
   - The fix keeps one rule: anything that opens a page pushes it, and only the bottom navigation replaces the history.
-- [ ] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Proposed: drop the status row and keep the level chips. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
+- [x] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Done: the status row and the count are gone, the level chips stay. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
 - [ ] **1O "Not responding" on the emulator.** Android sometimes shows the "app isn't responding" dialog (Wait or Close app). The cause is not known yet.
   - Reproduce it, and read the ANR trace (`adb bugreport`, `/data/anr/`).
   - Compare a profile build with the debug build: a debug build on an emulator is much slower, and two `flutter run` sessions were attached to the same emulator.

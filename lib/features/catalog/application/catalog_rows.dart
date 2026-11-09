@@ -5,9 +5,6 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:equatable/equatable.dart';
 
-/// The catalog's Status filter (web `FILTERS`, `src/lib/content/rows.ts:143-167`).
-enum StatusFilter { all, ready, planned, completed, notCompleted }
-
 /// One module of the catalog in a track (web `SheetRow`, `src/lib/content/rows.ts:26-91`).
 final class CatalogRow extends Equatable {
   const CatalogRow({
@@ -68,20 +65,6 @@ List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view) {
       ),
   ];
 }
-
-/// The rows [filter] keeps, in their order (web `FILTERS`): `ready` the written ones, `planned` the others,
-/// `completed` the signed ones (signed implies written), `notCompleted` the rest.
-List<CatalogRow> applyStatus(List<CatalogRow> rows, StatusFilter filter) => [
-  for (final row in rows)
-    if (switch (filter) {
-      StatusFilter.all => true,
-      StatusFilter.ready => row.drawn,
-      StatusFilter.planned => !row.drawn,
-      StatusFilter.completed => row.signed,
-      StatusFilter.notCompleted => !row.signed,
-    })
-      row,
-];
 
 /// The rows of [level], in their order; a null [level] keeps every row (web `applyLevel`).
 List<CatalogRow> applyLevel(List<CatalogRow> rows, String? level) => level == null
