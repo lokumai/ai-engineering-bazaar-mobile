@@ -191,8 +191,7 @@ class _AppViewState extends State<_AppView> {
 }
 
 /// Shown while [SessionCubit.restore] reads the stored session and [LocaleCubit.restore] the stored language.
-/// Continues the web startup screen (`#loading` in web/index.html): a 56 px ring spinner with a 4 px stroke, centered
-/// on the theme background.
+/// A 56 px ring spinner with a 4 px stroke, centered on the theme background.
 class _RestoreView extends StatelessWidget {
   const _RestoreView();
 

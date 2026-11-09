@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Flutter BLoC Advance Template - a production-ready Flutter application using BLoC pattern for state management. Supports Android, iOS, Web, macOS, Linux, and Windows.
+Flutter BLoC Advance Template - a production-ready Flutter application using BLoC pattern for state management. Supports Android and iOS.
 
 - **Flutter:** 3.47.7 | **Dart SDK:** ^3.13.5 | **FVM** is used for Flutter version management
 - **Line width:** 120 characters (configured in `analysis_options.yaml`)
@@ -21,11 +21,6 @@ fvm flutter run --target lib/main/main_local.dart
 # Run production (real API)
 fvm flutter run --target lib/main/main_prod.dart
 
-# Single sign-on against the local Keycloak demo (docs/oidc.md); web must run on localhost:8081
-docker compose -f tool/oidc-demo/docker-compose.yml up -d --wait
-fvm flutter run -d chrome --web-port 8081 --target lib/main/main_local.dart --dart-define-from-file=tool/oidc-demo/oidc-demo.env
-docker compose -f tool/oidc-demo/docker-compose.yml down -v
-
 # Analysis & formatting
 fvm dart analyze
 fvm dart fix --apply
@@ -35,7 +30,6 @@ fvm dart format . --line-length=120
 fvm flutter test
 fvm flutter test test/path/to/specific_test.dart          # single test file
 fvm flutter test --coverage                                # with coverage
-fvm flutter test --platform chrome test/browser_only/      # web interop tests in Chrome (CHROME_EXECUTABLE picks one)
 # Android JVM tests of the native Sentry scrubber (JDK 17; a Flutter Android build, such as
 # fvm flutter build apk --config-only --target lib/main/main_prod.dart, writes the Gradle wrapper)
 cd android && ./gradlew :app:testDebugUnitTest -Ptarget=lib/main/main_prod.dart
@@ -46,7 +40,6 @@ fvm dart format lib/generated --line-length=120   # intl_utils writes 80 columns
 
 # Build
 fvm flutter build apk --release --target lib/main/main_prod.dart
-fvm flutter build web --target lib/main/main_prod.dart
 ```
 
 ## Architecture
@@ -177,7 +170,6 @@ When in doubt, prefer sealed and split the BLoC instead of growing the single st
 ## Testing
 
 - `test/flutter_test_config.dart` is the global bootstrap (auto-discovered by `flutter test`). It runs once per isolate — binding init, `AppLogger.configure`, `EquatableConfig.stringify`, mocktail `registerAllFallbackValues()` — and registers a global per-test `setUp`/`tearDown` that calls `TestEnv.reset()`.
-- `test/browser_only/` has a bootstrap of its own, which only configures `AppLogger`: its tests get neither `TestEnv`, the mocktail fallbacks nor the global reset (see `docs/testing-architecture.md`).
 - The bootstrap also clears `rootBundle` before and after every test, including in files that opt out of `TestEnv.reset()`: an asset `Future` cached by one `testWidgets` resumes its awaiters only in that test's finished `FakeAsync` zone, so without the reset the later tests of a file never got their `assets/mock/*.json` responses (see "The asset cache" in `docs/testing-architecture.md`).
 - Tests need **no** manual setup for storage/router/secure-storage. Use `TestEnv` (`test/support/test_env.dart`):
   - `TestEnv.authenticate()` for auth-dependent tests — call it in `setUp` or the test body, **never** in `setUpAll` (the global reset clears the secure store before each test).

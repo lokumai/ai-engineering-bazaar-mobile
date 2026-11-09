@@ -268,8 +268,7 @@ void main() {
   });
 
   // On the web each navigation adds an entry to the browser's history, and the back and forward buttons bring one back.
-  // These guard what the router and its redirect do with such an entry. They cannot see a script in web/index.html
-  // that blocks the buttons, because flutter test never loads that file: test/architecture/web_history_test.dart does.
+  // These guard what the router and its redirect do with such an entry.
   group('AppRouterFactory - browser back and forward', () {
     testWidgets('back after going from / to /settings shows the dashboard, and forward shows settings again', (
       tester,
