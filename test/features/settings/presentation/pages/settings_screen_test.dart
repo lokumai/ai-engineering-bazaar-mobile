@@ -1,13 +1,237 @@
-import 'package:flutter/material.dart';
-import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
-import 'package:flutter_test/flutter_test.dart';
+@Tags(['widget'])
+library;
 
-import '../../../../support/golden_app.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../../../mocks/mock_classes.dart';
+import '../../../../support/accessibility.dart';
+import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
+
+/// A [MockContentBloc] that stays at [ContentReady] over [catalogFixtureIndex] with [origin], [notice] and [refresh].
+MockContentBloc _contentBloc({
+  ContentOrigin origin = ContentOrigin.bundled,
+  ContentNotice? notice,
+  RefreshStatus refresh = const RefreshUpToDate(),
+}) {
+  final bloc = MockContentBloc();
+  whenListen(
+    bloc,
+    const Stream<ContentState>.empty(),
+    initialState: ContentReady(index: catalogFixtureIndex(), origin: origin, notice: notice, refresh: refresh),
+  );
+  return bloc;
+}
+
+/// A router whose `/settings` builds [SettingsScreen] with [openDevConsole].
+GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
+  final router = GoRouter(
+    initialLocation: '/settings',
+    routes: [
+      GoRoute(
+        path: '/settings',
+        builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+  return router;
+}
+
+Future<void> _pump(
+  WidgetTester tester, {
+  ContentBloc? content,
+  void Function(BuildContext context)? openDevConsole,
+}) async {
+  await tester.pumpWidget(
+    bazaarTestApp(
+      router: _router(openDevConsole: openDevConsole),
+      content: content ?? _contentBloc(),
+    ),
+  );
+  await tester.pump();
+}
 
 void main() {
-  testWidgets('shows the Settings title', (tester) async {
-    await tester.pumpWidget(goldenScreen(const SettingsScreen()));
+  setUpAll(registerAllFallbackValues);
 
-    expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+  testWidgets('shows the title and the content status', (tester) async {
+    await _pump(tester);
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Content'), findsOneWidget);
+    expect(find.text('ffffffffffff'), findsOneWidget); // the first 12 characters, not all 64
+    expect(find.text('f' * 64), findsNothing);
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('Bundled with the app'), findsOneWidget);
+    expect(find.text('Up to date'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+    expect(find.text('Licences'), findsOneWidget);
+  });
+
+  testWidgets('the published day is the UTC day of the instant', (tester) async {
+    // 2026-11-01T00:00:00.000Z is 2026-10-31 in every zone west of UTC; the UTC day is printed whatever the zone.
+    await _pump(tester);
+
+    expect(find.text('2026-11-01'), findsOneWidget);
+    expect(find.text('2026-10-31'), findsNothing);
+  });
+
+  testWidgets('a downloaded snapshot says so', (tester) async {
+    await _pump(tester, content: _contentBloc(origin: ContentOrigin.downloaded));
+
+    expect(find.text('Downloaded from the website'), findsOneWidget);
+    expect(find.text('Bundled with the app'), findsNothing);
+  });
+
+  const refreshLines = <(RefreshStatus, String)>[
+    (RefreshIdle(), 'Not checked since the app started'),
+    (RefreshChecking(), 'Checking for updates'),
+    (RefreshUpToDate(), 'Up to date'),
+    (RefreshUpdated(), 'Updated to the latest content'),
+    (RefreshNeedsAppUpdate(), 'Newer content needs a newer version of the app. Update the app to get it.'),
+    (RefreshFailed(ContentErrorCode.network), 'The check for updates did not finish: no connection to the website.'),
+    (
+      RefreshFailed(ContentErrorCode.httpStatus),
+      'The check for updates did not finish: the website answered with an error.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.format),
+      'The check for updates did not finish: the website sent content this version of the app cannot read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.checksum),
+      'The check for updates did not finish: a downloaded file did not match its checksum.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.storage),
+      'The check for updates did not finish: the app could not write to its storage.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.bundledIndexUnreadable),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.missing),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+    (
+      RefreshFailed(ContentErrorCode.corrupt),
+      'The check for updates did not finish: the stored content could not be read.',
+    ),
+  ];
+  for (final (refresh, line) in refreshLines) {
+    testWidgets('the refresh status $refresh prints its line', (tester) async {
+      await _pump(tester, content: _contentBloc(refresh: refresh));
+
+      expect(find.text(line), findsOneWidget);
+    });
+  }
+
+  testWidgets('Check for updates asks the content bloc', (tester) async {
+    final content = _contentBloc();
+    await _pump(tester, content: content);
+
+    await tester.tap(find.text('Check for updates'));
+    await tester.pump();
+
+    verify(() => content.add(any(that: isA<ContentRefreshRequested>()))).called(1);
+  });
+
+  testWidgets('Check for updates is off while checking', (tester) async {
+    await _pump(tester, content: _contentBloc(refresh: const RefreshChecking()));
+
+    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    expect(button.onPressed, isNull);
+  });
+
+  testWidgets('Check for updates is on otherwise', (tester) async {
+    await _pump(tester, content: _contentBloc(refresh: const RefreshFailed(ContentErrorCode.network)));
+
+    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('the cacheDiscarded notice shows only when set', (tester) async {
+    const notice =
+        'The downloaded content could not be read, so the app removed it and shows the content that came with this '
+        'version. Check for updates in Settings to download it again.';
+    await _pump(tester);
+    expect(find.text(notice), findsNothing);
+
+    await _pump(tester, content: _contentBloc(notice: ContentNotice.cacheDiscarded));
+    expect(find.text(notice), findsOneWidget);
+  });
+
+  testWidgets('the content states other than ready draw nothing', (tester) async {
+    final content = MockContentBloc();
+    whenListen(content, const Stream<ContentState>.empty(), initialState: const ContentLoading());
+    await _pump(tester, content: content);
+
+    expect(find.text('Content'), findsNothing);
+    expect(find.text('Check for updates'), findsNothing);
+  });
+
+  testWidgets('Licences opens the licence page under the app name', (tester) async {
+    await _pump(tester);
+
+    await tester.tap(find.text('Licences'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // the page spins while licences load
+
+    expect(find.byType(LicensePage), findsOneWidget);
+    expect(find.text('AI Engineering Bazaar'), findsWidgets);
+  });
+
+  testWidgets('the developer console button is there only with a callback', (tester) async {
+    await _pump(tester);
+    expect(find.text('Developer console'), findsNothing);
+
+    final contexts = <BuildContext>[];
+    await _pump(tester, openDevConsole: contexts.add);
+    await tester.tap(find.text('Developer console'));
+    await tester.pump();
+
+    expect(contexts, hasLength(1));
+  });
+
+  testWidgets('text scale 2.0', (tester) async {
+    await pumpAtTextScale(
+      tester,
+      bazaarTestApp(
+        router: _router(openDevConsole: (_) {}),
+        content: _contentBloc(notice: ContentNotice.cacheDiscarded),
+      ),
+      scale: 2.0,
+    );
+
+    expect(tester.takeException(), isNull);
+    for (final target in [find.text('Check for updates'), find.text('Licences'), find.text('Developer console')]) {
+      await tester.ensureVisible(target);
+      await tester.pump();
+      expectHittable(tester, target);
+    }
+  });
+
+  testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {
+    await tester.pumpWidget(
+      bazaarTestApp(
+        platform: defaultTargetPlatform,
+        router: _router(openDevConsole: (_) {}),
+        content: _contentBloc(notice: ContentNotice.cacheDiscarded),
+      ),
+    );
+    await tester.pump();
+
+    await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 }

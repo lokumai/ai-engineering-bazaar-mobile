@@ -913,6 +913,151 @@ class S {
       args: [],
     );
   }
+
+  /// `Content`
+  String get settings_content {
+    return Intl.message('Content', name: 'settings_content', desc: '', args: []);
+  }
+
+  /// `Version`
+  String get settings_content_version {
+    return Intl.message('Version', name: 'settings_content_version', desc: '', args: []);
+  }
+
+  /// `Published`
+  String get settings_published {
+    return Intl.message('Published', name: 'settings_published', desc: '', args: []);
+  }
+
+  /// `Source`
+  String get settings_source {
+    return Intl.message('Source', name: 'settings_source', desc: '', args: []);
+  }
+
+  /// `Bundled with the app`
+  String get settings_source_bundled {
+    return Intl.message('Bundled with the app', name: 'settings_source_bundled', desc: '', args: []);
+  }
+
+  /// `Downloaded from the website`
+  String get settings_source_downloaded {
+    return Intl.message('Downloaded from the website', name: 'settings_source_downloaded', desc: '', args: []);
+  }
+
+  /// `Not checked since the app started`
+  String get settings_refresh_idle {
+    return Intl.message('Not checked since the app started', name: 'settings_refresh_idle', desc: '', args: []);
+  }
+
+  /// `Checking for updates`
+  String get settings_refresh_checking {
+    return Intl.message('Checking for updates', name: 'settings_refresh_checking', desc: '', args: []);
+  }
+
+  /// `Up to date`
+  String get settings_refresh_up_to_date {
+    return Intl.message('Up to date', name: 'settings_refresh_up_to_date', desc: '', args: []);
+  }
+
+  /// `Updated to the latest content`
+  String get settings_refresh_updated {
+    return Intl.message('Updated to the latest content', name: 'settings_refresh_updated', desc: '', args: []);
+  }
+
+  /// `Newer content needs a newer version of the app. Update the app to get it.`
+  String get settings_refresh_needs_app_update {
+    return Intl.message(
+      'Newer content needs a newer version of the app. Update the app to get it.',
+      name: 'settings_refresh_needs_app_update',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The check for updates did not finish: {reason}.`
+  String settings_refresh_failed(String reason) {
+    return Intl.message(
+      'The check for updates did not finish: $reason.',
+      name: 'settings_refresh_failed',
+      desc: '',
+      args: [reason],
+    );
+  }
+
+  /// `no connection to the website`
+  String get settings_refresh_reason_network {
+    return Intl.message('no connection to the website', name: 'settings_refresh_reason_network', desc: '', args: []);
+  }
+
+  /// `the website answered with an error`
+  String get settings_refresh_reason_http_status {
+    return Intl.message(
+      'the website answered with an error',
+      name: 'settings_refresh_reason_http_status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the website sent content this version of the app cannot read`
+  String get settings_refresh_reason_format {
+    return Intl.message(
+      'the website sent content this version of the app cannot read',
+      name: 'settings_refresh_reason_format',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `a downloaded file did not match its checksum`
+  String get settings_refresh_reason_checksum {
+    return Intl.message(
+      'a downloaded file did not match its checksum',
+      name: 'settings_refresh_reason_checksum',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the app could not write to its storage`
+  String get settings_refresh_reason_storage {
+    return Intl.message(
+      'the app could not write to its storage',
+      name: 'settings_refresh_reason_storage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `the stored content could not be read`
+  String get settings_refresh_reason_stored {
+    return Intl.message(
+      'the stored content could not be read',
+      name: 'settings_refresh_reason_stored',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check for updates`
+  String get settings_check_for_updates {
+    return Intl.message('Check for updates', name: 'settings_check_for_updates', desc: '', args: []);
+  }
+
+  /// `About`
+  String get settings_about {
+    return Intl.message('About', name: 'settings_about', desc: '', args: []);
+  }
+
+  /// `Licences`
+  String get settings_licences {
+    return Intl.message('Licences', name: 'settings_licences', desc: '', args: []);
+  }
+
+  /// `Developer console`
+  String get settings_dev_console {
+    return Intl.message('Developer console', name: 'settings_dev_console', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

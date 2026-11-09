@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -33,4 +34,5 @@ void registerAllFallbackValues() {
   registerFallbackValue(const RecordStarted());
   registerFallbackValue(Uint8List(0));
   registerFallbackValue(const BackupRequested());
+  registerFallbackValue(const ContentStarted());
 }

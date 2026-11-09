@@ -111,6 +111,20 @@ void main() {
     expect(find.byType(ContentGalleryPage), findsOneWidget);
   });
 
+  // Decision A6: a phone cannot send Ctrl+Shift+D, so a debug build opens the console from Settings.
+  testWidgets('/settings offers the developer console in a debug build', (tester) async {
+    final router = const AppRouterFactory(initialLocation: '/settings').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Developer console'), findsOneWidget);
+    await tester.tap(find.text('Developer console'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Time Travel'), findsOneWidget);
+  });
+
   testWidgets('route transitions take no time under reduced motion', (tester) async {
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);

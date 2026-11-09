@@ -87,6 +87,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m32(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
+  static String m33(reason) => "The check for updates did not finish: ${reason}.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
@@ -272,6 +274,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("Replace"),
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Replace the progress on this device?"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "settings_about": MessageLookupByLibrary.simpleMessage("About"),
+    "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("Check for updates"),
+    "settings_content": MessageLookupByLibrary.simpleMessage("Content"),
+    "settings_content_version": MessageLookupByLibrary.simpleMessage("Version"),
+    "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
+    "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
+    "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
+    "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
+    "settings_refresh_failed": m33,
+    "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
+    "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
+      "Newer content needs a newer version of the app. Update the app to get it.",
+    ),
+    "settings_refresh_reason_checksum": MessageLookupByLibrary.simpleMessage(
+      "a downloaded file did not match its checksum",
+    ),
+    "settings_refresh_reason_format": MessageLookupByLibrary.simpleMessage(
+      "the website sent content this version of the app cannot read",
+    ),
+    "settings_refresh_reason_http_status": MessageLookupByLibrary.simpleMessage("the website answered with an error"),
+    "settings_refresh_reason_network": MessageLookupByLibrary.simpleMessage("no connection to the website"),
+    "settings_refresh_reason_storage": MessageLookupByLibrary.simpleMessage("the app could not write to its storage"),
+    "settings_refresh_reason_stored": MessageLookupByLibrary.simpleMessage("the stored content could not be read"),
+    "settings_refresh_up_to_date": MessageLookupByLibrary.simpleMessage("Up to date"),
+    "settings_refresh_updated": MessageLookupByLibrary.simpleMessage("Updated to the latest content"),
+    "settings_source": MessageLookupByLibrary.simpleMessage("Source"),
+    "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
+    "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "track_switch_label": MessageLookupByLibrary.simpleMessage("Track"),
   };
 }

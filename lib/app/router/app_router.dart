@@ -72,7 +72,8 @@ class AppRouterFactory {
             _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             _page('progress', BazaarPaths.progress, const ProgressPage()),
-            ...SettingsFeatureRoutes.routes,
+            // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
+            ...SettingsFeatureRoutes.routes(openDevConsole: kDebugMode ? DevConsoleOverlay.show : null),
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
           ],
