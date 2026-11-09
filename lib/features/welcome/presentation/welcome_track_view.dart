@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 
@@ -45,11 +46,14 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
       // The app gate shows Welcome only once the content is ready.
       final state => throw StateError('Welcome needs ready content, not $state'),
     };
+    // The bar of every page, so the steps look like the app they lead into (plan 1Z).
     return Scaffold(
       body: SafeArea(
+        top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const BazaarBar(),
             const LatticeBand(),
             Expanded(
               child: SingleChildScrollView(

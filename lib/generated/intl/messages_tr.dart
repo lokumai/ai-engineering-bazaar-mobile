@@ -316,7 +316,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
-    "welcome_headline": MessageLookupByLibrary.simpleMessage("Yapay zekâ mühendisliği, onu inşa edenlerin kaleminden."),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
       "Bir modülü bitirince tamamlandı olarak işaretle. İlerleme ne okuduğunu, Ana sayfa sırada ne olduğunu gösterir.",
     ),
@@ -333,7 +332,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
     "welcome_intro_start": MessageLookupByLibrary.simpleMessage("Kataloğu aç"),
     "welcome_intro_title": MessageLookupByLibrary.simpleMessage("Bazaar nasıl işler"),
-    "welcome_maker": MessageLookupByLibrary.simpleMessage("Lokum AI"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Okumaya başla"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "Teknik modüller: her parçanın nasıl çalıştığı, arkasındaki kod ve sayılarla.",

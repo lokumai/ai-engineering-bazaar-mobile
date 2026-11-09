@@ -2,22 +2,20 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_art.dart';
-import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The bazaar's gate while the app opens (plan 1Y), on every launch, in front of [child]: the gate cropped to its
-/// centre with a light in its arch, reaching the top of the screen, the two lamps, the people of the web's home page,
-/// the line that says what the course is, and the maker's mark. There is no button: once the entrance has played and
-/// the content and the record have settled, the scene fades into [child].
+/// The bazaar's gate while the app opens (plan 1Y, 1Z), on every launch, in front of [child]: an animation only, with no
+/// words and no button. The gate opens in the middle of the screen, the two lamps drop and swing, the people step in
+/// one after the other and the light in the arch comes up. Once that has played and the content and the record have
+/// settled, the reader walks in: the gate grows towards the light in its arch and fades into [child].
 ///
-/// Under reduced motion it is drawn in place and gives way as soon as the app is ready (spec 3.10). The pictures are
-/// decoration, hidden from assistive technology; the line is read.
+/// Under reduced motion it is drawn in place and gives way as soon as the app is ready (spec 3.10). It is decoration,
+/// hidden from assistive technology.
 class WelcomeSplash extends StatefulWidget {
   const WelcomeSplash({super.key, required this.child});
 
@@ -29,15 +27,16 @@ class WelcomeSplash extends StatefulWidget {
   /// The key of the scene while it stands over the app.
   static const sceneKey = Key('welcome-splash');
 
-  /// How long the scene takes to fade into the app.
-  static const fade = Duration(milliseconds: 300);
+  /// How long the walk through the gate takes.
+  static const fade = Duration(milliseconds: 700);
 
   @override
   State<WelcomeSplash> createState() => _WelcomeSplashState();
 }
 
-class _WelcomeSplashState extends State<WelcomeSplash> with SingleTickerProviderStateMixin {
+class _WelcomeSplashState extends State<WelcomeSplash> with TickerProviderStateMixin {
   late final AnimationController _motion;
+  late final AnimationController _walk;
   bool _played = false;
   bool _gone = false;
 
@@ -47,6 +46,10 @@ class _WelcomeSplashState extends State<WelcomeSplash> with SingleTickerProvider
     _motion = AnimationController(vsync: this, duration: WelcomeSplash.entrance)
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed && mounted) setState(() => _played = true);
+      });
+    _walk = AnimationController(vsync: this, duration: WelcomeSplash.fade)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) setState(() => _gone = true);
       });
   }
 
@@ -64,6 +67,7 @@ class _WelcomeSplashState extends State<WelcomeSplash> with SingleTickerProvider
   @override
   void dispose() {
     _motion.dispose();
+    _walk.dispose();
     super.dispose();
   }
 
@@ -82,115 +86,80 @@ class _WelcomeSplashState extends State<WelcomeSplash> with SingleTickerProvider
       _ => false,
     };
     final leaving = _played && ready;
-    final fade = MediaQuery.disableAnimationsOf(context) ? Duration.zero : WelcomeSplash.fade;
+    final still = MediaQuery.disableAnimationsOf(context);
+    if (leaving && !still && _walk.status == AnimationStatus.dismissed) {
+      // Started after this frame, so the walk begins from the scene as drawn.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _walk.status == AnimationStatus.dismissed) unawaited(_walk.forward());
+      });
+    }
     return Stack(
       fit: StackFit.expand,
       children: [
         // The app builds behind the scene, so it is in place when the scene fades.
         widget.child,
-        // Under reduced motion there is no fade to wait for: the scene is gone once the app is ready.
-        if (!_gone && !(leaving && fade == Duration.zero))
+        // Under reduced motion there is no walk to wait for: the scene is gone once the app is ready.
+        if (!_gone && !(leaving && still))
           IgnorePointer(
             ignoring: leaving,
-            // It leaves as if walking in: the gate grows towards the reader as it fades.
-            child: AnimatedScale(
-              scale: leaving ? 1.12 : 1,
-              alignment: const Alignment(0, -0.3),
-              curve: Curves.easeIn,
-              duration: fade,
-              child: AnimatedOpacity(
-                opacity: leaving ? 0 : 1,
-                curve: Curves.easeIn,
-                duration: fade,
-                onEnd: () {
-                  if (leaving) setState(() => _gone = true);
-                },
-                child: _SplashPage(key: WelcomeSplash.sceneKey, part: _part),
-              ),
-            ),
+            child: _SplashPage(key: WelcomeSplash.sceneKey, part: _part, walk: _walk),
           ),
       ],
     );
   }
 }
 
+/// The scene in the middle of the screen, on the page ground, and the walk through the gate on [walk].
 class _SplashPage extends StatelessWidget {
-  const _SplashPage({super.key, required this.part});
+  const _SplashPage({super.key, required this.part, required this.walk});
 
   final Animation<double> Function(double begin, double end, {Curve curve}) part;
+  final Animation<double> walk;
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     final theme = Theme.of(context);
-    final colors = context.bazaarColors;
-    // The scene runs under the status bar, light at the top, so the status bar draws dark icons on it.
+    final into = CurvedAnimation(parent: walk, curve: Curves.easeInCubic);
+    final away = CurvedAnimation(
+      parent: walk,
+      curve: const Interval(0.45, 1, curve: Curves.easeIn),
+    );
+    // The status bar lies over the light page ground, so its icons are dark.
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
-      child: Material(
-        color: theme.colorScheme.surface,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ExcludeSemantics(
-              child: _Scene(part: part, top: MediaQuery.paddingOf(context).top),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-              child: _Rise(
-                animation: part(0.6, 0.95),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    s.welcome_headline,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: colors.onSurfaceTitle,
-                      fontWeight: FontWeight.w700,
-                      height: 1.15,
-                    ),
-                  ),
-                ),
+      child: ExcludeSemantics(
+        child: FadeTransition(
+          opacity: ReverseAnimation(away),
+          child: Material(
+            color: theme.colorScheme.surface,
+            child: Center(
+              child: AnimatedBuilder(
+                animation: into,
+                // The walk heads for the light in the arch.
+                builder: (context, child) =>
+                    Transform.scale(scale: 1 + 2.4 * into.value, alignment: _Scene.archLight, child: child),
+                child: _Scene(part: part),
               ),
             ),
-            const Spacer(),
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: _Rise(
-                  animation: part(0.7, 1),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      const ExcludeSemantics(
-                        child: Image(image: AssetImage('assets/brand/lokum_logo.webp'), width: 22, height: 22),
-                      ),
-                      Text(s.welcome_maker, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// The picture over the words: the gate in a 400 high frame grown by [top], the status bar's height, so it reaches the
-/// top of the screen; the light in its arch; the two lamps; and the people standing in a row across its foot and just
-/// below it, as the mockup places them on a 390 wide phone.
+/// The scene: the gate in a 400 high frame, the light in its arch, the two lamps, and the people standing in a row
+/// across its foot and just below it, as the mockup places them on a 390 wide phone.
 class _Scene extends StatelessWidget {
-  const _Scene({required this.part, required this.top});
+  const _Scene({required this.part});
 
   final Animation<double> Function(double begin, double end, {Curve curve}) part;
-  final double top;
 
   static const double _frame = 400;
   static const double _below = 66;
+
+  /// Where the light in the arch stands in the scene, the point the walk heads for.
+  static const archLight = Alignment(0, (214 + 60) / (_frame + _below) * 2 - 1);
   static const double _gateWidth = 680;
 
   /// Each person's height, from the left, and the order they step in, one after the other from the left.
@@ -200,11 +169,9 @@ class _Scene extends StatelessWidget {
   Widget build(BuildContext context) {
     final gate = part(0, 0.62);
     final glow = part(0.35, 0.8);
-    final frame = _frame + top;
-    // The gate grows with the frame, so it fills it on a phone with a tall status bar as on one with none.
-    final scale = frame / _frame;
-    final gateWidth = _gateWidth * scale;
-    final glowTop = 214 * scale;
+    const frame = _frame;
+    const gateWidth = _gateWidth;
+    const glowTop = 214.0;
     return SizedBox(
       height: frame + _below,
       child: Stack(
@@ -214,23 +181,33 @@ class _Scene extends StatelessWidget {
             left: 0,
             right: 0,
             height: frame,
-            child: ClipRect(
-              child: AnimatedBuilder(
-                animation: gate,
-                builder: (context, child) => Opacity(
-                  opacity: gate.value,
-                  child: Transform.scale(
-                    scale: 1.14 - 0.14 * gate.value,
-                    alignment: const Alignment(0, 0.4),
-                    child: child,
+            // The gate's top and foot melt into the page ground, so it stands in the screen, not as a picture on it.
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (bounds) => const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x00000000), Color(0xFF000000), Color(0xFF000000), Color(0x00000000)],
+                stops: [0, 0.16, 0.86, 1],
+              ).createShader(bounds),
+              child: ClipRect(
+                child: AnimatedBuilder(
+                  animation: gate,
+                  builder: (context, child) => Opacity(
+                    opacity: gate.value,
+                    child: Transform.scale(
+                      scale: 1.14 - 0.14 * gate.value,
+                      alignment: const Alignment(0, 0.4),
+                      child: child,
+                    ),
                   ),
-                ),
-                // The gate keeps its width on any screen: a phone shows its centre, a wider screen more of it.
-                child: OverflowBox(
-                  minWidth: gateWidth,
-                  maxWidth: gateWidth,
-                  alignment: Alignment.topCenter,
-                  child: Image(image: const AssetImage(WelcomeArt.gate), width: gateWidth, fit: BoxFit.fitWidth),
+                  // The gate keeps its width on any screen: a phone shows its centre, a wider screen more of it.
+                  child: OverflowBox(
+                    minWidth: gateWidth,
+                    maxWidth: gateWidth,
+                    alignment: Alignment.topCenter,
+                    child: Image(image: const AssetImage(WelcomeArt.gate), width: gateWidth, fit: BoxFit.fitWidth),
+                  ),
                 ),
               ),
             ),
@@ -258,29 +235,13 @@ class _Scene extends StatelessWidget {
               ),
             ),
           ),
-          // A light veil under the status bar, so its icons read on the pattern.
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: top + 12,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xD9FDFBF7), Color(0x00FDFBF7)],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: top - 4,
+            top: -4,
             left: 18,
             child: _Lamp(art: WelcomeArt.lampLeft, height: 128, drop: part(0.18, 0.55), swing: part(0.5, 1)),
           ),
           Positioned(
-            top: top - 4,
+            top: -4,
             right: 18,
             child: _Lamp(art: WelcomeArt.lampRight, height: 96, drop: part(0.25, 0.6), swing: part(0.55, 1), phase: -1),
           ),

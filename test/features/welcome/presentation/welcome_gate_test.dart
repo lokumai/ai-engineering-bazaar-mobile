@@ -102,6 +102,8 @@ void main() {
     expect(store.wasSeen, isFalse, reason: 'not before a track is chosen');
     final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
     expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: false));
+    await tester.ensureVisible(everyone);
+    await tester.pumpAndSettle();
     await tester.tap(everyone);
     await tester.pumpAndSettle();
     expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));

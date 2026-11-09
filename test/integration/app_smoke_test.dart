@@ -106,6 +106,8 @@ void main() {
       expect(find.byType(HomePage), findsNothing);
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
       await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
+      await tester.ensureVisible(everyone);
+      await tester.pump();
       await tester.tap(everyone);
       await tester.pump();
       final start = find.byKey(const Key('welcome-start'));

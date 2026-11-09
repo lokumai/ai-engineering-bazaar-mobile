@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,11 +36,14 @@ class WelcomeIntroView extends StatelessWidget {
       (Icons.check_circle_outline, s.welcome_intro_complete_title, s.welcome_intro_complete),
       (Icons.cloud_off_outlined, s.welcome_intro_offline_title, s.welcome_intro_offline),
     ];
+    // The bar of every page, so the steps look like the app they lead into (plan 1Z).
     return Scaffold(
       body: SafeArea(
+        top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const BazaarBar(),
             const LatticeBand(),
             Expanded(
               child: SingleChildScrollView(

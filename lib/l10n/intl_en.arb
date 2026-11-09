@@ -23,12 +23,6 @@
   "@nav_progress": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
-  "welcome_headline": "AI engineering, written by the people who build it.",
-  "@welcome_headline": {
-    "description": "The mockup's Welcome headline, in English."
-  },
-  "welcome_maker": "Lokum AI",
-  "@welcome_maker": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",

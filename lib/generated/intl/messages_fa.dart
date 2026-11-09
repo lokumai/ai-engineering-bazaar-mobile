@@ -316,7 +316,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
-    "welcome_headline": MessageLookupByLibrary.simpleMessage("مهندسی هوش مصنوعی، به قلم کسانی که آن را می‌سازند."),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
       "وقتی درسی را تمام کردید، آن را تکمیل‌شده علامت بزنید. صفحهٔ پیشرفت نشان می‌دهد چه خوانده‌اید و صفحهٔ خانه درس بعدی را نشان می‌دهد.",
     ),
@@ -333,7 +332,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("روی همین دستگاه، بدون اینترنت"),
     "welcome_intro_start": MessageLookupByLibrary.simpleMessage("باز کردن کاتالوگ"),
     "welcome_intro_title": MessageLookupByLibrary.simpleMessage("بازار چطور کار می‌کند"),
-    "welcome_maker": MessageLookupByLibrary.simpleMessage("Lokum AI"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع خواندن"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "درس‌های فنی: هر بخش چطور کار می‌کند، همراه با کد و عددهای پشت آن.",

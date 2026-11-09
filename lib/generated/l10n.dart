@@ -103,21 +103,6 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
-  /// `AI engineering, written by the people who build it.`
-  String get welcome_headline {
-    return Intl.message(
-      'AI engineering, written by the people who build it.',
-      name: 'welcome_headline',
-      desc: 'The mockup\'s Welcome headline, in English.',
-      args: [],
-    );
-  }
-
-  /// `Lokum AI`
-  String get welcome_maker {
-    return Intl.message('Lokum AI', name: 'welcome_maker', desc: '', args: []);
-  }
-
   /// `How would you like to read?`
   String get welcome_track_title {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);

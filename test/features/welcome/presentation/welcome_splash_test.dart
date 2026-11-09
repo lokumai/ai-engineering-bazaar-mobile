@@ -22,7 +22,7 @@ Future<void> _frames(WidgetTester tester, Duration duration) async {
   }
 }
 
-const _headline = 'AI engineering, written by the people who build it.';
+final _scene = find.byKey(WelcomeSplash.sceneKey);
 
 Widget _splash({ContentBloc? content, RecordBloc? record, bool reducedMotion = false}) => MultiBlocProvider(
   providers: [
@@ -61,14 +61,14 @@ void main() {
     await tester.pumpWidget(_splash());
     await tester.pump();
 
-    expect(find.text(_headline), findsOneWidget);
-    expect(find.text('Lokum AI'), findsOneWidget);
+    expect(_scene, findsOneWidget);
+    expect(find.byType(Text), findsOneWidget, reason: 'no words of its own: only the app below has a text');
     expect(find.byType(FilledButton), findsNothing);
     expect(find.text('the app'), findsOneWidget, reason: 'built behind the scene, ready when it fades');
 
     await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.fade + const Duration(milliseconds: 100));
 
-    expect(find.text(_headline), findsNothing);
+    expect(_scene, findsNothing);
     expect(find.text('the app'), findsOneWidget);
   });
 
@@ -81,11 +81,11 @@ void main() {
     await tester.pump();
     await tester.pump(WelcomeSplash.entrance * 2);
 
-    expect(find.text(_headline), findsOneWidget);
+    expect(_scene, findsOneWidget);
 
     states.add(_ready);
     await _frames(tester, WelcomeSplash.fade + const Duration(milliseconds: 100));
-    expect(find.text(_headline), findsNothing);
+    expect(_scene, findsNothing);
   });
 
   testWidgets('gives way to the notice when the content cannot be opened', (tester) async {
@@ -98,7 +98,7 @@ void main() {
     await tester.pumpWidget(_splash(content: content, record: loadingRecordBloc()));
     await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.fade + const Duration(milliseconds: 100));
 
-    expect(find.text(_headline), findsNothing);
+    expect(_scene, findsNothing);
   });
 
   testWidgets('a tap during the entrance does not reach the app', (tester) async {
@@ -137,14 +137,21 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('the headline is a header and the pictures say nothing', (tester) async {
+  testWidgets('it says nothing to assistive technology: the app below is read as soon as it is there', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(_splash(record: loadingRecordBloc()));
     await tester.pump();
     await tester.pump(WelcomeSplash.entrance);
 
-    expect(tester.getSemantics(find.text(_headline)), isSemantics(label: _headline, isHeader: true));
     expect(find.bySemanticsLabel(RegExp('gate|cast|lamp', caseSensitive: false)), findsNothing);
+    expect(
+      find.descendant(
+        of: _scene,
+        matching: find.byWidgetPredicate((widget) => widget is ExcludeSemantics && widget.excluding),
+      ),
+      findsWidgets,
+    );
+    expect(tester.semantics.find(find.text('the app')), isNotNull, reason: 'the app below is read');
     handle.dispose();
   });
 
@@ -154,6 +161,6 @@ void main() {
 
     expect(tester.hasRunningAnimations, isFalse);
     await tester.pump();
-    expect(find.text(_headline), findsNothing);
+    expect(_scene, findsNothing);
   });
 }
