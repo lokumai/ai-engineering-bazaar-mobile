@@ -69,18 +69,21 @@ Every development MUST follow this modular approach.
 lib/
   main/main_local.dart, main_prod.dart        entry points
   app/
-    app.dart                                    MaterialApp.router; mounts the router when ContentBloc and RecordBloc are ready
+    app.dart                                    MaterialApp.router; mounts the router when ContentBloc and RecordBloc are ready,
+                                                behind Welcome on the first launch
     bootstrap/                                  boot order, Sentry gate, CONTENT_BASE_URL check (main_local)
     di/app_dependencies.dart, app_scope.dart    the only place infrastructure is constructed; providers
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
-    shell/bazaar_shell.dart                     ShellRoute scaffold: bar with track switch, bottom navigation
+    shell/bazaar_shell.dart                     ShellRoute scaffold: logo bar with back, lattice band, bottom navigation (Home,
+                                                Catalog, Progress, Settings)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
     analytics/                                  Sentry start, native channel, scrubbers
     content/                                    FileContentRepository, BundledContent, ContentHttp, object store
     storage/record/file_record_repository.dart  record files under Application Support/record/
+    storage/flags/file_flag_store.dart          the app's own flags under Application Support/flags/ (Welcome seen)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository
@@ -89,21 +92,26 @@ lib/
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and the progress page
-    track/                                      TrackCubit
+    track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
+    design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
+                                                rule, segmented control
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
   features/
-    catalog/                                    catalog root (Overview) and level page (Cards)
-    reader/                                     ModuleReaderBloc, reader page, contents drawer, planned and not-written views
-    quiz/                                       QuizCubit and the quiz panel
+    home/                                       Home at `/`: continue card, levels, offline note
+    catalog/                                    catalog root (Overview) at `/sheets` and level page (Cards)
+    reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
+    quiz/                                       QuizCubit, the quiz card and the full-screen quiz
     progress/                                   progress page, DataBloc, data line, quarantine notice, dialogs
     settings/                                   content status, Check for updates, licences, debug dev-console button
+    welcome/                                    WelcomeBloc, its store port and the first-launch screen
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
 assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt
+assets/brand/, assets/welcome/                  the Lokum logo and the Welcome art, each with its SOURCE.md
 integration_test/                               device tests
 ```
 
@@ -147,7 +155,7 @@ Every feature follows: **Event -> BLoC -> State -> UI**
 ### `Bloc` vs `Cubit`
 
 - Use **`Cubit`** when every interaction is an atomic, fire-and-forget call and the event stream adds no value (no debouncing, no concurrency policy, no historical event payload needed): `TrackCubit` (the current track, in memory for the session, For Engineers at start) and `QuizCubit`.
-- Use **`Bloc`** when events carry meaningful payload, when an `EventTransformer` is needed, or when the event log itself is valuable: `ContentBloc` (a refresh is `droppable`), `RecordBloc` (every event runs in one queue, so writes, erases and undos never overlap; it owns the 10 s undo window, A42) and `ModuleReaderBloc`.
+- Use **`Bloc`** when events carry meaningful payload, when an `EventTransformer` is needed, or when the event log itself is valuable: `ContentBloc` (a refresh is `droppable`), `WelcomeBloc` (it asks storage), `RecordBloc` (every event runs in one queue, so writes, erases and undos never overlap; it owns the 10 s undo window, A42) and `ModuleReaderBloc`.
 - Default to `Bloc` for any new feature touching storage, network requests or user input streams; reach for `Cubit` only after confirming none of the above apply.
 
 ### State Modeling: MAIN RULE

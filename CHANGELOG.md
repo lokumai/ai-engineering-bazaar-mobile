@@ -10,13 +10,18 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
 - A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
-- Both tracks, For Engineers and For Everyone, with a track switch in the bar.
-- The catalog root and the level page, with the Level and Status filters.
-- The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts and the contents drawer.
-- The module quiz.
+- Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
+- Home at `/`: the next module to read, the levels with their completion, and the offline note.
+- The catalog root at `/sheets` and the level page, with the Level and Status filters.
+- The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
+  reading bar.
+- The module quiz, opened full screen from a card in the reader.
 - The progress page with one tab per track, and the data line: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
+- Welcome on the first launch, with the gate and the people of the web's home page.
+- The redesign after the team's mobile mockup: the logo bar, the lattice band, level hues, dials and meters, and a
+  four-item bottom navigation.
 - Device tests under `integration_test/` and a workflow that runs them on demand.
 
 ### Changed

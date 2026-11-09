@@ -45,10 +45,10 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 ### Tracks and navigation
 
-- **R20** Both tracks, For Engineers and For Everyone, with a track switch in the bar. The current track lives in memory for the session and starts at For Engineers (A11).
-- **R21** Routes follow the web's paths: `/`, `/everyone/sheets`, `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
+- **R20** Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track (Home, catalog, level page, reader). The current track lives in memory for the session and starts at For Engineers (A11).
+- **R21** Routes follow the web's paths: `/` (Home), `/sheets` and `/everyone/sheets` (the catalogs), `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
 - **R22** No outside link or intent chooses the first page; deep linking is off (A5, final review).
-- **R23** The bottom navigation holds Catalog, Progress and Settings; the redesign adds Home in front of them (plan Phase 1).
+- **R23** The bottom navigation holds Home, Catalog, Progress and Settings (plan Phase 1).
 - **R24** A page the web adds to its bar (Caravan first) appears in the app after Progress without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
 
 ### Catalog
@@ -61,7 +61,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 - **R40** A module renders in the web's order: title, minutes, prerequisites, objectives, body, completion, pager, quiz, footer.
 - **R41** Diagrams, figures, logos, tables, code, callouts and quotes render; diagrams follow the device's light or dark mode, with labels in the bundled Vazirmatn face (D89).
-- **R42** A contents drawer lists the depth-2 sections of a written module.
+- **R42** A contents sheet lists the depth-2 sections of a written module.
 - **R43** A planned module shows its schedule of parts; a For Everyone module with no document shows the not-written view.
 - **R44** Captions read `FIG. n · Title` and `TBL. n · Title` (A14); task-list boxes are read-only (A16).
 
@@ -116,7 +116,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - A theme or language menu; the app follows the device's light or dark mode.
 - Reading position, word counts, saved quiz results and search: the bundle and the record carry none of them (plan Phase 1, Phase 5).
 
-Level hues and the level meter's segment gauge, left out by PR #1, come back with the redesign (plan Phase 1).
+Level hues and the level meter's segment gauge, left out by PR #1, came back with the redesign (plan Phase 1).
 
 ## 6. Acceptance
 

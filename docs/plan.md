@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Next |
+| 1. The redesign | In review (one pull request, `feature/redesign`) |
 | 2. Small fixes in the reader | Planned |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -53,15 +53,20 @@ The whole phase lands in one pull request on one branch, so that a review sees t
 Inside it each step is one or more commits, each with its code and its tests together, in the order below.
 Every commit passes the gate with the goldens regenerated and the accessibility checks (text scale 2.0, the reader 3.0).
 
-- [ ] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
-- [ ] **1B Shell** (`lib/app/shell/`): the bar with the logo and the title, the band under it, a four-item bottom navigation (Home, Catalog, Progress, Settings). The track switch leaves the bar and becomes the shared segmented control (`lib/shared/`).
-- [ ] **1C Home** (`lib/features/home/`, new): a route at the app's start; the continue card (the next module not completed in the current track, with its level and minutes); the level list with a dial and a count per level; the offline line. Its own bloc or pure mapping, its own tests.
-- [ ] **1D Catalog** (`lib/features/catalog/`): level chips in a row with their hue; a three-way status control (All, Not completed, Completed); module cards with number, title, summary, minutes and the completion disc; the level header with its segment meter.
-- [ ] **1E Reader** (`lib/features/reader/`): the bar with back, the module title and the contents button; the contents as a bottom sheet instead of the end drawer; the reading progress bar; the track segment; the completion row; a "Test yourself" card that opens the quiz; the next module card.
-- [ ] **1F Quiz** (`lib/features/quiz/`): full-screen over the reader; question count and step bar; options with letter discs; the verdict and the explanation; the results with a score dial, Try again and Back to the module.
-- [ ] **1G Progress** (`lib/features/progress/`): track tabs; stats that the record carries (modules completed, days read); level cards with hue and dial, their modules listed; the data line kept whole (Back up, Restore, Reset with its undo, the set-aside notice).
-- [ ] **1H Settings** (`lib/features/settings/`): not in the mockup; restyled in the same language with the same content.
-- [ ] **1I Welcome** (`lib/features/welcome/`, new): the gate, the lamps and the cast with their motion, stopped under reduced motion; "Enter the bazaar"; shown once. The illustrations come from the web repo's assets as app assets, with their source and licence noted.
+- [x] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
+- [x] **1B Shell** (`lib/app/shell/`): the bar with the logo and the title, the band under it, a four-item bottom navigation (Home, Catalog, Progress, Settings). The track switch leaves the bar and becomes the shared segmented control (`lib/shared/`).
+- [x] **1C Home** (`lib/features/home/`, new): a route at the app's start; the continue card (the next module not completed in the current track, with its level and minutes); the level list with a dial and a count per level; the offline line. Its own bloc or pure mapping, its own tests.
+- [x] **1D Catalog** (`lib/features/catalog/`): level chips with their hue; the status chips keep the web's five filters (All, Ready, Planned, Completed, Not completed), not the mockup's three, since the filters are behaviour (R31); module cards with number, title, Description, Length and Requires, and the completion disc; the level header with its segment meter.
+- [x] **1E Reader** (`lib/features/reader/`): back in the shell's bar over every pushed page; the level and number over the title; the contents as a bottom sheet instead of the end drawer; the reading progress bar; the track switch, kept on every reader state as the bar kept it; the completion row; the quiz card; the pager stacked with the next module first.
+- [x] **1F Quiz** (`lib/features/quiz/`): a card in the reader with the web's title ("Questions on this module") opens the quiz full screen over the reader; every behaviour of the web's quiz is kept (Previous, Next, the verdict, the recap that returns to a question, Back to the questions, Start over); the results add a score dial and Back to the module.
+- [x] **1G Progress** (`lib/features/progress/`): track tabs; stats that the record carries (modules completed in the shown track, and the active days: the record's `days`, the days on which anything was written); level cards with hue and dial, their modules listed; the data line kept whole (Back up, Restore, Reset with its undo, the set-aside notice).
+- [x] **1H Settings** (`lib/features/settings/`): not in the mockup; restyled in the same language with the same content.
+- [x] **1I Welcome** (`lib/features/welcome/`, new): the gate with its lamps and five of the cast, with their motion, stopped under reduced motion; "Enter the bazaar"; shown once, by a file flag under Application Support (`lib/infrastructure/storage/flags/`). The web draws the gate and the cast as inline SVG its renderer cannot draw here, so they are drawn to WebP once (`assets/welcome/SOURCE.md`, MIT).
+
+### Changed along the way
+
+- **Home is `/` and the For Engineers catalog `/sheets`**, the web's own paths. Decision A9 had put the catalog at `/` while the app had no Home; `/courses` now redirects to `/sheets`.
+- **The segmented control wraps** its segments onto more lines when the labels do not fit, so a large text scale never hides one.
 
 ## Phase 2: small fixes in the reader
 
