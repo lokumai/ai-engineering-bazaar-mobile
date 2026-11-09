@@ -36,6 +36,21 @@ void main() {
     expect(router.routeInformationProvider.value.uri.path, '/');
   });
 
+  // An Android intent's `route` extra reaches the engine as the platform's default route even with deep linking off;
+  // the router starts at its own initial location whatever that route names.
+  testWidgets('starts on / whatever route the platform asks for', (tester) async {
+    tester.platformDispatcher.defaultRouteNameTestValue = '/settings';
+    addTearDown(tester.platformDispatcher.clearDefaultRouteNameTestValue);
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router));
+    await tester.pumpAndSettle();
+
+    expect(router.routeInformationProvider.value.uri.path, '/');
+    expect(router.routerDelegate.currentConfiguration.last.route.name, 'catalog');
+    expect(find.byType(SettingsScreen), findsNothing);
+  });
+
   // (location, path after redirects, route name, path parameters)
   const rows = <(String, String, String, Map<String, String>)>[
     ('/', '/', 'catalog', {}),

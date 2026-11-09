@@ -33,6 +33,10 @@ class AppRouterFactory {
   GoRouter create() {
     return GoRouter(
       initialLocation: !kReleaseMode && _debugStartRoute.isNotEmpty ? _debugStartRoute : initialLocation,
+      // No outside location picks the first page (owner decision 15, Decision A9): an Android intent's `route` extra
+      // reaches the engine as the platform's default route even with deep linking off, and go_router 18.1.1 would
+      // prefer it to initialLocation (`router.dart:621-639`).
+      overridePlatformDefaultLocation: true,
       debugLogDiagnostics: true,
       errorPageBuilder: (context, state) {
         // The page tells the user in the app language; the router's own error, in English, goes to the log.
