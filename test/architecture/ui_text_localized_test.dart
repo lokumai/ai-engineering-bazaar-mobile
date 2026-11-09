@@ -13,8 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// It guards these common shapes and is not a proof: a literal handed to a helper by position, such as
 /// `_statItem('5', 'Core Layers')`, an enum argument, or a literal in a file that builds no widget is not read. The
-/// widget tests that show each screen in Turkish cover those. The developer console in `lib/app/dev_console/` opens
-/// only in debug builds and is not read.
+/// developer console in `lib/app/dev_console/` opens only in debug builds and is not read.
 void main() {
   test('the widgets in lib show text from S, not string literals', () {
     final widgetFiles = <String, String>{};
@@ -31,7 +30,7 @@ void main() {
       literals,
       isEmpty,
       reason:
-          'These texts do not follow the app language. Add them to lib/l10n/intl_en.arb and intl_tr.arb and show '
+          'These texts do not follow the app language. Add them to lib/l10n/intl_en.arb and show '
           'them with S.of(context):\n${literals.join('\n')}',
     );
   });

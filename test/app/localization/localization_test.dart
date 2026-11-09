@@ -4,7 +4,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc_advance/generated/intl/messages_all.dart';
 import 'package:flutter_bloc_advance/generated/intl/messages_en.dart' as message_en;
-import 'package:flutter_bloc_advance/generated/intl/messages_tr.dart' as message_tr;
 
 import 'package:flutter_bloc_advance/generated/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,15 +36,15 @@ void main() {
 
   group('Localization language code tests', () {
     test('should use languageCode when countryCode is empty', () async {
-      const locale = Locale('tr', '');
+      const locale = Locale('en', '');
       await S.load(locale);
-      expect(Intl.defaultLocale, 'tr');
+      expect(Intl.defaultLocale, 'en');
     });
 
     test('should use full locale string when countryCode exists', () async {
-      const locale = Locale('tr', 'TR');
+      const locale = Locale('en', 'US');
       await S.load(locale);
-      expect(Intl.defaultLocale, 'tr_TR');
+      expect(Intl.defaultLocale, 'en_US');
     });
 
     test('should handle null countryCode', () async {
@@ -69,7 +68,7 @@ void main() {
     });
 
     test('should return true for supported locale', () async {
-      // Test for a supported locale (en or tr)
+      // Test for a supported locale (en)
       final result = await initializeMessages('en');
       expect(result, true);
     });
@@ -79,12 +78,6 @@ void main() {
     test("should return 'en' as localeName", () {
       final messages = message_en.MessageLookup();
       expect(messages.localeName, 'en');
-    });
-  });
-  group("messages_tr.dart localeName test", () {
-    test("should return 'tr' as localeName", () {
-      final messages = message_tr.MessageLookup();
-      expect(messages.localeName, 'tr');
     });
   });
 }
