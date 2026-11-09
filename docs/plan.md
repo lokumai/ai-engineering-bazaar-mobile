@@ -73,17 +73,18 @@ Every commit passes the gate with the goldens regenerated and the accessibility 
 The owner ran 1A to 1I on the Android emulator. These steps land on the same branch and in the same pull request, each as its own commit through the gate.
 Three of them change a decision taken above or a requirement; those are marked, and the requirement is updated in the same commit.
 
-- [ ] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
+- [x] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
 - [ ] **1K Welcome, redrawn.** The Welcome screen looks poor on the phone: the gate is cropped, and the five WebP figures are small and blurred. The screen is designed again before it is built again: a sketch first, agreed with the owner, then the code. It stays shown on the first launch only.
 - [ ] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch takes room on Home, the catalog and the reader, though most readers choose once.
   - Welcome asks for the track as its last step, and the answer is kept with the Welcome flag.
   - The switch leaves Home, the catalog, the level page and the reader, and moves to Settings.
   - A link into the other track (a deep link, or a link in a module's text) still opens that track, and the page says which track it is in.
   - Open: what happens for a reader who already went through Welcome before this change. Proposed: ask once on the next launch.
-- [ ] **1M Back follows the pages the reader opened.** The back button in the bar goes to the previous step of the path, not to the previous page: someone reading a module expects back to return to that module.
-  - First, reproduce it with the owner's exact path on the emulator, and write it as a test.
-  - Likely causes: the places that call `context.go` instead of `push` replace the history. These are the level chips in the filter bar, the catalog link in `link_actions.dart`, the Progress button on Home, `not_found_view.dart` and `not_written_view.dart`.
-  - The fix keeps one rule: anything that opens a page pushes it, and only the bottom navigation replaces the history.
+- [x] **1M Back follows the pages the reader opened.** The back button in the bar went to the previous step of the path, not to the previous page: someone reading a module expects back to return to that module.
+  - The places that called `context.go` replaced the history: the level chips, the catalog link in a module's text (`link_actions.dart`), and See what is written For Everyone (`not_written_view.dart`). They now push, so back returns to the page they were on.
+  - The level chips are a filter: from the catalog root a level is pushed; on a level page the chosen level takes the page's place, so back skips the levels tried; All returns to the root below when there is one.
+  - Only the bottom navigation, and the recovery links of a page that was not found, start the history again.
+  - `test/app/router/back_history_test.dart` holds the paths.
 - [x] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Done: the status row and the count are gone, the level chips stay. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
 - [ ] **1O "Not responding" on the emulator.** Android sometimes shows the "app isn't responding" dialog (Wait or Close app). The cause is not known yet.
   - Reproduce it, and read the ANR trace (`adb bugreport`, `/data/anr/`).

@@ -10,7 +10,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// A module link pushes the module in its track, with its fragment (a heading id or null) as the route's `extra`; the
 /// link's language is not used in v1 (spec 3.6.2). An anchor scrolls within the page through [scrollTo]. A catalog link
-/// goes to the For Engineers catalog root, as the web's `/sheets/` does from both tracks (Decision A39). An external
+/// pushes the For Engineers catalog root, as the web's `/sheets/` does from both tracks (Decision A39), so back returns
+/// to the page the link was on (plan 1M). An external
 /// link opens outside the app. An unknown target is never tappable (the renderer draws it as plain text), so following
 /// one throws.
 void followLink(BuildContext context, LinkTarget target, {required void Function(String id) scrollTo}) {
@@ -20,7 +21,7 @@ void followLink(BuildContext context, LinkTarget target, {required void Function
     case AnchorTarget(:final id):
       scrollTo(id);
     case CatalogTarget():
-      context.go(BazaarPaths.catalogEngineers);
+      unawaited(context.push<void>(BazaarPaths.catalogEngineers));
     case ExternalTarget(:final url):
       unawaited(openExternalLink(context, Uri.parse(url)));
     case UnknownTarget(:final kind):

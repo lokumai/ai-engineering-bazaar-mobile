@@ -89,12 +89,12 @@ void main() {
     expect(router.state.uri.path, '/start');
   });
 
-  testWidgets('a catalog target goes to the For Engineers catalog root', (tester) async {
+  testWidgets('a catalog target pushes the For Engineers catalog root, so back returns to the page', (tester) async {
     final router = await follow(tester, const CatalogTarget());
 
     expect(router.state.uri.path, '/sheets');
     expect(find.text('catalog'), findsOneWidget);
-    expect(router.canPop(), isFalse);
+    expect(router.canPop(), isTrue, reason: 'plan 1M');
   });
 
   testWidgets('an external target opens the url outside the app', (tester) async {

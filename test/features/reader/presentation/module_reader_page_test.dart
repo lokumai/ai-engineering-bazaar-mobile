@@ -608,6 +608,7 @@ void main() {
     await tester.tap(find.text('See what is written For Everyone'));
     await tester.pumpAndSettle();
     expect(_path(router), '/everyone/sheets/alpha');
+    expect(router.canPop(), isTrue, reason: 'back returns to this module (plan 1M)');
   });
 
   testWidgets('the quiz slot is filled only when the document has a quiz', (tester) async {

@@ -45,7 +45,7 @@ class NotWrittenView extends StatelessWidget {
                 child: Text(s.reader_read_for_engineers),
               ),
               OutlinedButton(
-                onPressed: () => context.go(BazaarPaths.level(Track.everyone, entry.level)),
+                onPressed: () => unawaited(context.push<void>(BazaarPaths.level(Track.everyone, entry.level))),
                 child: Text(s.reader_see_everyone),
               ),
             ],
