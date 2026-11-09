@@ -90,11 +90,10 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - Found: the emulator's records (`adb shell dumpsys dropbox`) hold two ANRs since the morning, both of the emulator's own Phone app (`com.android.phone`), at 17:18, as the emulator booted ("failed to complete startup"). The reader has no ANR and no crash on record.
   - The reader skips about 0.7 s of frames twice at a cold start of a debug build, as a debug build does while it compiles; an ANR needs a 5 s stall.
   - Closed with no code change. If the dialog comes back, note the app name it shows; if it is Bazaar, read `adb shell dumpsys dropbox --print data_app_anr` and reopen this step.
-- [ ] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs show nearly the same thing: the levels with a count and a dial. Each tab gets one job before any code:
-  - **Home:** what to read now. Up next, and the module last opened; no level list.
-  - **Catalog:** everything there is to read. Levels and modules, with the filters.
-  - **Progress:** what has been done. The stats, the completed modules, and the data line.
-  - The split is sketched and agreed with the owner first; if two tabs still overlap, one of them goes.
+- [ ] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs showed nearly the same thing: the levels with a count and a dial. Each tab gets one job:
+  - [x] **Home:** what to read now. Up next, the two written modules not completed after it, and a link to the catalog; no level list.
+  - [x] **Catalog:** everything there is to read. The levels as buttons that open their modules (1N).
+  - [ ] **Progress:** what has been done. The stats, the levels with their dials, the completed modules, and the data line.
 - [ ] **1Q The interface follows the content's language.** *Changes D113 ("only content is multilingual").* When the language is Turkish, the interface is in Turkish too.
   - Every string goes into `intl_tr.arb`, written in the same register as the English copy.
   - Settings' language choice changes both.

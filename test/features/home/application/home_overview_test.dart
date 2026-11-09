@@ -46,12 +46,24 @@ void main() {
     expect(homeOverview(index, Track.everyone, record).next, isNotNull, reason: 'the other track is not completed');
   });
 
-  test('every level in index order with its completed count, its total and the sum of its minutes', () {
-    final levels = homeOverview(index, Track.engineers, completed(['alpha/first', 'alpha/second'])).levels;
-
-    expect([for (final level in levels) level.level.slug], ['alpha', 'beta', 'gamma']);
-    expect([for (final level in levels) level.position], [0, 1, 2]);
-    expect([for (final level in levels) (level.completed, level.total)], [(2, 3), (0, 2), (0, 1)]);
-    expect([for (final level in levels) level.minutes], [75, 60, 45]);
+  test('after the next module come up to two more, written and not completed, in number order (plan 1P)', () {
+    expect(
+      [for (final entry in homeOverview(index, Track.engineers, RecordData.empty).after) entry.module.key],
+      ['alpha/second', 'beta/fourth'],
+      reason: 'alpha/third is not written For Engineers',
+    );
+    expect(
+      [
+        for (final entry in homeOverview(index, Track.engineers, completed(['alpha/second'])).after) entry.module.key,
+      ],
+      ['beta/fourth', 'gamma/sixth'],
+      reason: 'a completed module is skipped',
+    );
+    expect(
+      homeOverview(index, Track.engineers, completed(['alpha/first', 'alpha/second', 'beta/fourth'])).after,
+      isEmpty,
+      reason: 'gamma/sixth is the next one, and nothing comes after it',
+    );
+    expect(homeOverview(index, Track.everyone, RecordData.empty).after.first.title, 'Fourth Story');
   });
 }

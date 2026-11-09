@@ -1,6 +1,6 @@
 import 'package:ai_engineering_bazaar/features/home/application/home_overview.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_level_row.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -16,7 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
-/// card, the levels with their completion, and the offline note.
+/// card, the modules after it, and the offline note. Home says what to read now (plan 1P): the levels and their
+/// completion live on the catalog and the progress page.
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
@@ -54,16 +55,22 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),
         const SizedBox(height: 26),
-        SectionRule(title: s.home_levels),
-        const SizedBox(height: 12),
-        for (final level in overview.levels) ...[
-          HomeLevelRow(
-            level: level,
-            // Over Home, as a catalog section opens a level page.
-            onTap: () => context.push(BazaarPaths.level(track, level.level.slug)),
-          ),
-          const SizedBox(height: 10),
+        if (overview.after.isNotEmpty) ...[
+          SectionRule(title: s.home_after),
+          const SizedBox(height: 12),
+          for (final entry in overview.after) ...[
+            HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
+            const SizedBox(height: 10),
+          ],
         ],
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            // The Catalog tab's page, as the tab opens it.
+            onPressed: () => context.go(BazaarPaths.catalog(track)),
+            child: Text(s.home_see_catalog),
+          ),
+        ),
         const SizedBox(height: 16),
         const HomeOfflineNote(),
       ],

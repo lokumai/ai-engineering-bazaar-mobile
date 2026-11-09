@@ -188,9 +188,14 @@ class S {
     return Intl.message('See the progress', name: 'home_see_progress', desc: '', args: []);
   }
 
-  /// `Levels`
-  String get home_levels {
-    return Intl.message('Levels', name: 'home_levels', desc: '', args: []);
+  /// `After that`
+  String get home_after {
+    return Intl.message('After that', name: 'home_after', desc: '', args: []);
+  }
+
+  /// `See the whole catalog`
+  String get home_see_catalog {
+    return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
   }
 
   /// `The course is on this device`

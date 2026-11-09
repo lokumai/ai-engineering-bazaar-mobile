@@ -10,17 +10,21 @@ import 'package:equatable/equatable.dart';
 ///
 /// Home has no bloc of its own: this is a pure mapping of the two kernels' ready states, as the catalog's rows are.
 final class HomeOverview extends Equatable {
-  const HomeOverview({required this.next, required this.levels});
+  const HomeOverview({required this.next, required this.after});
 
   /// The first module by number that is written in the track and not completed (the web's `nextUnsigned`); null when
   /// every written module of the track is completed.
   final HomeNext? next;
 
-  /// Every level of the index, in its order.
-  final List<HomeLevel> levels;
+  /// Up to [afterCount] more modules after [next], by number, written in the track and not completed (plan 1P: Home
+  /// says what to read now, and what comes after it).
+  final List<HomeNext> after;
+
+  /// How many modules [after] holds at most.
+  static const afterCount = 2;
 
   @override
-  List<Object?> get props => [next, levels];
+  List<Object?> get props => [next, after];
 }
 
 /// The module the continue card opens.
@@ -40,41 +44,15 @@ final class HomeNext extends Equatable {
   List<Object?> get props => [module, level, position, title];
 }
 
-/// One level row: its completed modules of its total in the track, and the reading time of its modules.
-final class HomeLevel extends Equatable {
-  const HomeLevel({
-    required this.level,
-    required this.position,
-    required this.completed,
-    required this.total,
-    required this.minutes,
-  });
-
-  final LevelEntry level;
-
-  /// The level's 0-based place in the index, which picks its hue.
-  final int position;
-  final int completed;
-  final int total;
-
-  /// The sum of the level's modules' `minutes`.
-  final int minutes;
-
-  @override
-  List<Object?> get props => [level, position, completed, total, minutes];
-}
-
 /// The overview of [track] from [index] and [record].
 HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
   final view = trackView(record, track);
   final curriculum = curriculumFor(index, track);
-  final counts = categoryProgress(view, curriculum);
   final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
 
-  HomeNext? next;
-  if (nextUnsigned(view, curriculum) case final key?) {
+  HomeNext entryOf(String key) {
     final module = index.module(key)!;
-    next = HomeNext(
+    return HomeNext(
       module: module,
       level: index.level(module.level)!,
       position: positions[module.level]!,
@@ -82,19 +60,15 @@ HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
     );
   }
 
+  final first = nextUnsigned(view, curriculum);
+  // The written modules not completed, by number as `nextUnsigned` orders them, after the first.
+  final open = [
+    for (final fact in [...curriculum.modules]..sort((a, b) => a.number.compareTo(b.number)))
+      if (fact.drawn && !isSigned(fact, view)) fact.slug,
+  ];
+
   return HomeOverview(
-    next: next,
-    levels: [
-      for (final (position, level) in index.levels.indexed)
-        HomeLevel(
-          level: level,
-          position: position,
-          completed: counts[level.slug]?.approved ?? 0,
-          total: counts[level.slug]?.total ?? level.total,
-          minutes: index.modules
-              .where((module) => module.level == level.slug)
-              .fold(0, (sum, module) => sum + module.minutes),
-        ),
-    ],
+    next: first == null ? null : entryOf(first),
+    after: [for (final key in open.skip(1).take(HomeOverview.afterCount)) entryOf(key)],
   );
 }

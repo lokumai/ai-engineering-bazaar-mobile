@@ -15,7 +15,3 @@ String? homeDurationLabel(S s, int minutes) {
   if (rest == 0) return s.duration_hours(hours);
   return s.duration_hours_minutes(hours, rest);
 }
-
-/// A level row's line (web `categoryCoverage`): the module count, then the reading time when there is one.
-String homeLevelLine(S s, {required int modules, required int minutes}) =>
-    [s.level_module_count(modules), ?homeDurationLabel(s, minutes)].join(' · ');

@@ -2,7 +2,6 @@
 library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_level_row.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,14 +54,20 @@ void main() {
     expect(find.text('Fourth Module'), findsOneWidget);
   });
 
-  testWidgets('a module opened from a level page returns to it, and the level page to Home', (tester) async {
-    final router = await pumpAt(tester, '/');
-    await tap(tester, find.descendant(of: find.byType(HomeLevelRow), matching: find.text('Alpha Level')));
+  testWidgets('a module opened from a level page returns to it', (tester) async {
+    final router = await pumpAt(tester, '/sheets/alpha');
     await tap(tester, find.text('First Module').first);
     expect(path(router), '/courses/alpha/first');
 
     await back(tester);
     expect(path(router), '/sheets/alpha');
+  });
+
+  testWidgets('a module after the next one on Home opens it, and back returns to Home', (tester) async {
+    final router = await pumpAt(tester, '/');
+    await tap(tester, find.text('Second Module'));
+    expect(path(router), '/courses/alpha/second');
+
     await back(tester);
     expect(path(router), '/');
   });
