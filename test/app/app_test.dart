@@ -293,8 +293,8 @@ void main() {
       expect(find.text('Forgot Password'), findsNothing);
     });
 
-    // The task switcher and the browser tab show this title.
-    for (final (language, title) in [('en', 'Flutter BLoC Advance Template'), ('tr', 'Flutter BLoC Advance Şablonu')]) {
+    // The task switcher shows this title; the brand name is the same in every language.
+    for (final (language, title) in [('en', 'AI Engineering Bazaar'), ('tr', 'AI Engineering Bazaar')]) {
       testWidgets('names the app in the task switcher in the app language ($language)', (tester) async {
         await tester.pumpWidget(App(language: language));
         await tester.pumpAndSettle();
