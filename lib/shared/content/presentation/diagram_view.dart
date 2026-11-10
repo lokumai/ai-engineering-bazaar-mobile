@@ -12,8 +12,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// the frame edge of that variant (A26), zoomable inside an [InteractiveViewer] and labelled with its caption. A
 /// diagram that is missing, corrupt or does not parse shows [ContentUnreadable].
 ///
-/// [variant] defaults to the theme's brightness, which in the app follows the system setting. The caption text under
-/// the frame is the block renderer's.
+/// [variant] defaults to light in both themes, as photos stay as they are in a dark theme (owner, 2026-11-10); the dev
+/// console passes it to show both. The caption text under the frame is the block renderer's.
 class DiagramView extends StatelessWidget {
   const DiagramView({super.key, required this.block, required this.themes, this.variant});
 
@@ -23,8 +23,7 @@ class DiagramView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final variant =
-        this.variant ?? (Theme.of(context).brightness == Brightness.dark ? DiagramVariant.dark : DiagramVariant.light);
+    final variant = this.variant ?? DiagramVariant.light;
     final (path, ground) = switch (variant) {
       DiagramVariant.light => (block.svgLight, themes.light),
       DiagramVariant.dark => (block.svgDark, themes.dark),

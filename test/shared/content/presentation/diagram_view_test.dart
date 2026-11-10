@@ -67,7 +67,7 @@ void main() {
     expect(find.bySemanticsLabel('FIG. 1.1 · Flow'), findsOneWidget);
   });
 
-  testWidgets('a dark theme draws svgDark on #333', (tester) async {
+  testWidgets('a dark theme still draws svgLight on the white ground, as photos stay as they are', (tester) async {
     await pumpInTheme(
       tester,
       const DiagramView(block: block, themes: themes),
@@ -76,11 +76,11 @@ void main() {
     );
     await settleContent(tester);
 
-    verify(() => repository.readObject('api/v1/diagrams/d.svg')).called(1);
-    verifyNever(() => repository.readObject('api/v1/diagrams/l.svg'));
+    verify(() => repository.readObject('api/v1/diagrams/l.svg')).called(1);
+    verifyNever(() => repository.readObject('api/v1/diagrams/d.svg'));
     final decoration = frameDecoration(tester);
-    expect(decoration.color, const Color(0xFF333333));
-    expect((decoration.border! as Border).top.color, DiagramFrameInk.of(DiagramVariant.dark).edge);
+    expect(decoration.color, const Color(0xFFFFFFFF));
+    expect((decoration.border! as Border).top.color, DiagramFrameInk.of(DiagramVariant.light).edge);
     expect(find.byType(InteractiveViewer), findsOneWidget);
   });
 
@@ -149,7 +149,7 @@ void main() {
     expect(find.text(S.current.content_unreadable), findsOneWidget);
   });
 
-  testWidgets('a theme change while the light read is pending draws the dark variant and drops the light bytes', (
+  testWidgets('a variant change while the light read is pending draws the dark variant and drops the light bytes', (
     tester,
   ) async {
     final lightRead = Completer<Uint8List>();
@@ -164,8 +164,8 @@ void main() {
     );
     await pumpInTheme(
       tester,
-      const DiagramView(block: block, themes: themes),
-      Brightness.dark,
+      const DiagramView(block: block, themes: themes, variant: DiagramVariant.dark),
+      Brightness.light,
       repository: repository,
     );
     await tester.pump(const Duration(milliseconds: 400));

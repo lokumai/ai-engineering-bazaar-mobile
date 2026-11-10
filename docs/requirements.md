@@ -60,7 +60,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 ### Reader
 
 - **R40** A module renders in the web's order: title, minutes, prerequisites, objectives, body, completion, pager, quiz, footer.
-- **R41** Diagrams, figures, logos, tables, code, callouts and quotes render; diagrams follow the device's light or dark mode, with labels in the bundled Vazirmatn face (D89).
+- **R41** Diagrams, figures, logos, tables, code, callouts and quotes render; diagrams are drawn in their light version in both modes, as photos are (owner, 2026-11-10), with labels in the bundled Vazirmatn face (D89).
 - **R42** A contents sheet lists the depth-2 sections of a written module.
 - **R43** A planned module shows its schedule of parts; a For Everyone module with no document shows the not-written view.
 - **R44** Captions read `FIG. n · Title` and `TBL. n · Title` (A14); task-list boxes are read-only (A16).
