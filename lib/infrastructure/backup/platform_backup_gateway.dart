@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart' show PlatformException;
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
@@ -29,8 +30,14 @@ final class PlatformBackupGateway implements IBackupGateway {
   static Future<Uri?> _pluginSaveFile(String filename, Uint8List bytes) =>
       FilePicker.saveFile(fileName: filename, bytes: bytes, mimeType: 'application/json');
 
-  static Future<PlatformFile?> _pluginPickFile() =>
-      FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['json']);
+  static Future<PlatformFile?> _pluginPickFile() {
+    final (type, extensions) = backupPickFilter(defaultTargetPlatform);
+    return FilePicker.pickFile(type: type, allowedExtensions: extensions);
+  }
+
+  /// The largest file read as a backup. A record is a few kilobytes; a file past this is not one, and reading it
+  /// whole could run the app out of memory, so it is refused before it is read.
+  static const maxBackupBytes = 16 * 1024 * 1024;
 
   @override
   Future<BackupSaveResult> save(Uint8List bytes, String filename) async {
@@ -51,6 +58,11 @@ final class PlatformBackupGateway implements IBackupGateway {
     }
     if (file == null) return const PickedBackupCancelled();
     try {
+      final length = await file.length();
+      if (length != null && length > maxBackupBytes) {
+        _log.warn('Backup file too large: {} bytes', [length]);
+        return const PickedBackupUnreadable();
+      }
       return PickedBackupBytes(bytes: await file.readAsBytes());
     } on Exception catch (error) {
       _log.warn('Backup file unreadable: {}', [error.runtimeType]);
@@ -58,3 +70,12 @@ final class PlatformBackupGateway implements IBackupGateway {
     }
   }
 }
+
+/// What the restore picker offers on [platform] (plan 4.6). Android shows every file: a `.json` filter becomes the
+/// `application/json` type, and a provider that labels a backup otherwise (`application/octet-stream`, `text/plain`)
+/// greys it out, so the reader could not pick their own backup. A file that is not a backup is refused when read, as
+/// on the web. iOS keeps the `.json` filter, which it matches by the file's name.
+(FileType, List<String>?) backupPickFilter(TargetPlatform platform) => switch (platform) {
+  TargetPlatform.android => (FileType.any, null),
+  _ => (FileType.custom, const ['json']),
+};

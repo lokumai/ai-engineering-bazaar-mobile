@@ -188,7 +188,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 - [ ] **4.3** iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
 - [ ] **4.4** Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
 - [x] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught. Done: `Pacific/Kiritimati` (UTC+14), which puts most instants on the next day; the suite passed in it and in UTC-11 before the change.
-- [ ] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise).
+- [x] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise). Done: Android's restore picker shows every file, since a provider may label a backup other than `application/json`; a file that is not a backup says nothing changed, as before, and a file over 16 MB is refused before it is read. iOS keeps the `.json` filter.
 - [ ] **4.7** Decide whether the licences page also carries the course content's licence.
 - [ ] **4.8** Reader performance on a real low-end Android device.
 
