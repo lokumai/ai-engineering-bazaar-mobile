@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_bloc.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +13,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// over the router, so Welcome has no route of its own and the web's routes stay the app's (A9).
 ///
 /// While the store is asked, the page ground is shown, so neither screen flashes before the other.
+///
+/// Its second step is the story of the Bazaar (plan 3.5), which the app passes as [story], since the story is a feature
+/// of its own; content that names no story (a copy from before the site published it, web D125) skips the step.
 class WelcomeGate extends StatelessWidget {
-  const WelcomeGate({super.key, required this.child, this.onFinished});
+  const WelcomeGate({super.key, required this.child, required this.story, this.onFinished});
 
   final Widget child;
+
+  /// Welcome's second step, which calls its argument once the reader goes on.
+  final Widget Function(VoidCallback onDone) story;
 
   /// Called with the chosen track once a reader on a first launch chose one and read the guide; the app opens that
   /// track's catalog, since Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch
@@ -35,17 +41,23 @@ class WelcomeGate extends StatelessWidget {
             onChosen: (track) {
               unawaited(context.read<TrackCubit>().choose(track));
               context.read<WelcomeBloc>().add(const WelcomeTrackChosen());
+              if (!_hasStory(context)) _finish(context);
             },
           ),
-          WelcomeIntroducing() => WelcomeIntroView(
-            onDone: () {
-              context.read<WelcomeBloc>().add(const WelcomeIntroRead());
-              onFinished?.call(context.read<TrackCubit>().state);
-            },
-          ),
+          WelcomeIntroducing() => story(() => _finish(context)),
           WelcomeDone() => child,
         },
       ),
     );
+  }
+
+  static bool _hasStory(BuildContext context) => switch (context.read<ContentBloc>().state) {
+    ContentReady(:final index) => index.story.isNotEmpty,
+    _ => false,
+  };
+
+  void _finish(BuildContext context) {
+    context.read<WelcomeBloc>().add(const WelcomeIntroRead());
+    onFinished?.call(context.read<TrackCubit>().state);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
+import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
@@ -76,6 +78,8 @@ class AppRouterFactory {
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
+            ...AboutFeatureRoutes.routes(),
+            ...GuideFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
               crashReports: crashReports,

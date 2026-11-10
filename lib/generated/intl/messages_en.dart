@@ -49,49 +49,53 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m13(url) => "Could not open ${url}";
 
-  static String m14(approved, total) => "${approved}/${total} completed";
-
-  static String m15(total) => "--/${total} completed";
-
-  static String m16(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
-
-  static String m17(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
-
-  static String m18(track) => "The questions come with the ${track} modules.";
-
-  static String m19(taken, total) => "${taken} of ${total} taken";
-
-  static String m20(index, count) => "Question ${index} of ${count}";
-
-  static String m21(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
-
-  static String m22(score, total) => "${score} of ${total}";
-
-  static String m23(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
-
-  static String m24(count) => "${count} questions on the main points of this module";
-
-  static String m25(letter) => "Not this one. The answer is ${letter}.";
-
-  static String m26(date) => "Completed ${date}";
-
-  static String m27(minutes) => "${minutes} min";
-
-  static String m28(number, count) => "MODULE ${number} OF ${count}";
-
-  static String m29(label) => "${label} · Planned";
-
-  static String m30(hash, date) => "Rev ${hash} · ${date}";
-
-  static String m31(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
-
-  static String m32(reason) => "The check for updates did not finish: ${reason}.";
-
-  static String m33(count, first) =>
+  static String m14(count, first) =>
       "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
+
+  static String m15(approved, total) => "${approved}/${total} completed";
+
+  static String m16(total) => "--/${total} completed";
+
+  static String m17(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+
+  static String m18(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+
+  static String m19(track) => "The questions come with the ${track} modules.";
+
+  static String m20(taken, total) => "${taken} of ${total} taken";
+
+  static String m21(index, count) => "Question ${index} of ${count}";
+
+  static String m22(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+
+  static String m23(score, total) => "${score} of ${total}";
+
+  static String m24(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
+
+  static String m25(count) => "${count} questions on the main points of this module";
+
+  static String m26(letter) => "Not this one. The answer is ${letter}.";
+
+  static String m27(date) => "Completed ${date}";
+
+  static String m28(minutes) => "${minutes} min";
+
+  static String m29(number, count) => "MODULE ${number} OF ${count}";
+
+  static String m30(label) => "${label} · Planned";
+
+  static String m31(hash, date) => "Rev ${hash} · ${date}";
+
+  static String m32(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+
+  static String m33(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "about_english": MessageLookupByLibrary.simpleMessage("The story is written in English."),
+    "about_failed": MessageLookupByLibrary.simpleMessage(
+      "The story could not be opened. Check for updates, then open it again.",
+    ),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "block_code_label": m0,
     "block_figure_caption": m1,
@@ -167,6 +171,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "error_link_open_failed": m13,
+    "guide_complete": MessageLookupByLibrary.simpleMessage(
+      "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
+    ),
+    "guide_complete_title": MessageLookupByLibrary.simpleMessage("Mark what you finish"),
+    "guide_levels": m14,
+    "guide_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
+    "guide_modules": MessageLookupByLibrary.simpleMessage(
+      "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+    ),
+    "guide_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
+    "guide_offline": MessageLookupByLibrary.simpleMessage(
+      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+    ),
+    "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
+    "guide_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
     "home_after": MessageLookupByLibrary.simpleMessage("After that"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
@@ -197,10 +216,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_owner": MessageLookupByLibrary.simpleMessage("Owner"),
     "legal_phone": MessageLookupByLibrary.simpleMessage("Phone"),
     "legal_title": MessageLookupByLibrary.simpleMessage("Legal"),
-    "level_completed": m14,
-    "level_completed_pending": m15,
+    "level_completed": m15,
+    "level_completed_pending": m16,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
-    "level_module_count": m16,
+    "level_module_count": m17,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
@@ -262,52 +281,52 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m17,
-    "quiz_list_engineers_only": m18,
-    "quiz_list_taken": m19,
+    "quiz_list_count": m18,
+    "quiz_list_engineers_only": m19,
+    "quiz_list_taken": m20,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m20,
+    "quiz_progress": m21,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m21,
-    "quiz_score_count": m22,
-    "quiz_score_line": m23,
+    "quiz_score_before": m22,
+    "quiz_score_count": m23,
+    "quiz_score_line": m24,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m24,
+    "quiz_subtitle": m25,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "This quiz could not be opened. Close it and try again later.",
     ),
-    "quiz_wrong": m25,
+    "quiz_wrong": m26,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m26,
+    "reader_completed_on": m27,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m27,
-    "reader_module_of": m28,
+    "reader_minutes": m28,
+    "reader_module_of": m29,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m29,
+    "reader_pager_planned": m30,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m30,
+    "reader_revision": m31,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m31,
+    "record_not_saved": m32,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -330,7 +349,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m32,
+    "settings_refresh_failed": m33,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",
@@ -350,25 +369,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source": MessageLookupByLibrary.simpleMessage("Source"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
+    "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
-    "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(
-      "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
-    ),
-    "welcome_intro_complete_title": MessageLookupByLibrary.simpleMessage("Mark what you finish"),
-    "welcome_intro_levels": m33,
-    "welcome_intro_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
-    "welcome_intro_modules": MessageLookupByLibrary.simpleMessage(
-      "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
-    ),
-    "welcome_intro_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
-    "welcome_intro_offline": MessageLookupByLibrary.simpleMessage(
-      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
-    ),
-    "welcome_intro_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
-    "welcome_intro_start": MessageLookupByLibrary.simpleMessage("Open the catalog"),
-    "welcome_intro_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
+    "welcome_about_start": MessageLookupByLibrary.simpleMessage("Open the catalog"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "The technical modules: how each part works, with the code and the numbers behind it.",

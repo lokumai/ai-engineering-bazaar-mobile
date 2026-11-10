@@ -6,8 +6,8 @@ part 'welcome_event.dart';
 part 'welcome_state.dart';
 
 /// Steps through Welcome on the first launch only (plan Phase 1I): it asks the [IWelcomeStore] at start; a first
-/// launch asks for the language and the track (plan 1L, 1S), then a short guide says how the bazaar works (plan 1X);
-/// reading it records Welcome as seen, so the next launch opens Home directly. The gate that plays as the app opens
+/// launch asks for the language and the track (plan 1L, 1S), then tells the story of the Bazaar (plan 3.5, in place of
+/// plan 1X's guide, which Settings keeps); going on from it records Welcome as seen, so the next launch opens Home directly. The gate that plays as the app opens
 /// is not a step (plan 1Y).
 /// The chosen track itself is kept by the track cubit; this bloc only steps through the screens.
 ///

@@ -1185,100 +1185,100 @@ class S {
   }
 
   /// `How the bazaar works`
-  String get welcome_intro_title {
+  String get guide_title {
     return Intl.message(
       'How the bazaar works',
-      name: 'welcome_intro_title',
+      name: 'guide_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Level by level`
-  String get welcome_intro_levels_title {
+  String get guide_levels_title {
     return Intl.message(
       'Level by level',
-      name: 'welcome_intro_levels_title',
+      name: 'guide_levels_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.`
-  String welcome_intro_levels(int count, String first) {
+  String guide_levels(int count, String first) {
     return Intl.message(
       'The course is set out in $count levels, starting with $first. Begin with the first and move on when you are ready.',
-      name: 'welcome_intro_levels',
+      name: 'guide_levels',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [count, first],
     );
   }
 
   /// `Short modules`
-  String get welcome_intro_modules_title {
+  String get guide_modules_title {
     return Intl.message(
       'Short modules',
-      name: 'welcome_intro_modules_title',
+      name: 'guide_modules_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
-  String get welcome_intro_modules {
+  String get guide_modules {
     return Intl.message(
       'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
-      name: 'welcome_intro_modules',
+      name: 'guide_modules',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Mark what you finish`
-  String get welcome_intro_complete_title {
+  String get guide_complete_title {
     return Intl.message(
       'Mark what you finish',
-      name: 'welcome_intro_complete_title',
+      name: 'guide_complete_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
-  /// `At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.`
-  String get welcome_intro_complete {
+  /// `At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.`
+  String get guide_complete {
     return Intl.message(
-      'At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.',
-      name: 'welcome_intro_complete',
+      'At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.',
+      name: 'guide_complete',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `On this device, offline`
-  String get welcome_intro_offline_title {
+  String get guide_offline_title {
     return Intl.message(
       'On this device, offline',
-      name: 'welcome_intro_offline_title',
+      name: 'guide_offline_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
-  String get welcome_intro_offline {
+  String get guide_offline {
     return Intl.message(
       'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
-      name: 'welcome_intro_offline',
+      name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Open the catalog`
-  String get welcome_intro_start {
+  String get welcome_about_start {
     return Intl.message(
       'Open the catalog',
-      name: 'welcome_intro_start',
+      name: 'welcome_about_start',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
@@ -1427,6 +1427,37 @@ class S {
   /// `GitHub General Privacy Statement`
   String get privacy_github_statement {
     return Intl.message('GitHub General Privacy Statement', name: 'privacy_github_statement', desc: '', args: []);
+  }
+
+  /// `The story of the Bazaar`
+  String get settings_story {
+    return Intl.message(
+      'The story of the Bazaar',
+      name: 'settings_story',
+      desc: 'Settings, About: the row that opens the story of the Bazaar (web D115, D125).',
+      args: [],
+    );
+  }
+
+  /// `The story could not be opened. Check for updates, then open it again.`
+  String get about_failed {
+    return Intl.message(
+      'The story could not be opened. Check for updates, then open it again.',
+      name: 'about_failed',
+      desc: 'The About page, when the story document cannot be read.',
+      args: [],
+    );
+  }
+
+  /// `The story is written in English.`
+  String get about_english {
+    return Intl.message(
+      'The story is written in English.',
+      name: 'about_english',
+      desc:
+          'The About page, above the story, when the app\'s language is not English: the story has no translation yet.',
+      args: [],
+    );
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/about/presentation/pages/about_welcome_step.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -61,6 +62,8 @@ class _AppState extends State<App> {
           builder: (context, child) => WelcomeSplash(
             child: AppGate(
               child: WelcomeGate(
+                // The second step is the story of the Bazaar, a feature of its own (plan 3.5).
+                story: (onDone) => AboutWelcomeStep(onDone: onDone),
                 // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
                 onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
                 child: child!,

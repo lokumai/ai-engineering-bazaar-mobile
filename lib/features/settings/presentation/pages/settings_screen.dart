@@ -62,6 +62,7 @@ class _SettingsView extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final index = ready.index;
+    final hasStory = index.story.isNotEmpty;
     final openDevConsole = this.openDevConsole;
 
     return SingleChildScrollView(
@@ -157,6 +158,10 @@ class _SettingsView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // The story only where the content names one (web D125).
+                if (hasStory)
+                  _Action(label: s.settings_story, onPressed: () => context.push(ApplicationRoutesConstants.about)),
+                _Action(label: s.guide_title, onPressed: () => context.push(ApplicationRoutesConstants.guide)),
                 _Action(
                   label: s.settings_privacy_legal,
                   onPressed: () => context.push(ApplicationRoutesConstants.privacyLegal),

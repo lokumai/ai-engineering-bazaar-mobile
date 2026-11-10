@@ -598,16 +598,16 @@
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
   },
-  "welcome_intro_title": "How the bazaar works",
-  "@welcome_intro_title": {
+  "guide_title": "How the bazaar works",
+  "@guide_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_levels_title": "Level by level",
-  "@welcome_intro_levels_title": {
+  "guide_levels_title": "Level by level",
+  "@guide_levels_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_levels": "The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.",
-  "@welcome_intro_levels": {
+  "guide_levels": "The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.",
+  "@guide_levels": {
     "description": "Welcome's first-launch guide (plan 1X).",
     "placeholders": {
       "count": {
@@ -619,32 +619,32 @@
       }
     }
   },
-  "welcome_intro_modules_title": "Short modules",
-  "@welcome_intro_modules_title": {
+  "guide_modules_title": "Short modules",
+  "@guide_modules_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
-  "@welcome_intro_modules": {
+  "guide_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+  "@guide_modules": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_complete_title": "Mark what you finish",
-  "@welcome_intro_complete_title": {
+  "guide_complete_title": "Mark what you finish",
+  "@guide_complete_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_complete": "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
-  "@welcome_intro_complete": {
+  "guide_complete": "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
+  "@guide_complete": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_offline_title": "On this device, offline",
-  "@welcome_intro_offline_title": {
+  "guide_offline_title": "On this device, offline",
+  "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
-  "@welcome_intro_offline": {
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+  "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_start": "Open the catalog",
-  "@welcome_intro_start": {
+  "welcome_about_start": "Open the catalog",
+  "@welcome_about_start": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
   "settings_privacy_legal": "Privacy and legal",
@@ -688,5 +688,17 @@
   "privacy_github_pages": "What is GitHub Pages?",
   "@privacy_github_pages": {},
   "privacy_github_statement": "GitHub General Privacy Statement",
-  "@privacy_github_statement": {}
+  "@privacy_github_statement": {},
+  "settings_story": "The story of the Bazaar",
+  "@settings_story": {
+    "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
+  },
+  "about_failed": "The story could not be opened. Check for updates, then open it again.",
+  "@about_failed": {
+    "description": "The About page, when the story document cannot be read."
+  },
+  "about_english": "The story is written in English.",
+  "@about_english": {
+    "description": "The About page, above the story, when the app's language is not English: the story has no translation yet."
+  }
 }
