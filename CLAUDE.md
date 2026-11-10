@@ -75,7 +75,8 @@ lib/
     di/app_dependencies.dart, app_scope.dart    the only place infrastructure is constructed; providers
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
-    shell/bazaar_shell.dart                     ShellRoute scaffold: logo bar with back, lattice band, bottom navigation (Home,
+    shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
+                                                module pages; empty on the four tabs), thin lattice band, bottom navigation (Home,
                                                 Catalog, Quiz, Settings)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/

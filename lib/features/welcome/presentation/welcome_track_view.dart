@@ -54,7 +54,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const BazaarBar(),
-            const LatticeBand(),
+            const LatticeBand(thin: true),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
