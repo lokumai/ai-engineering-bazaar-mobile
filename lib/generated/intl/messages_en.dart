@@ -373,8 +373,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
-    "welcome_about_start": MessageLookupByLibrary.simpleMessage("Open the catalog"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
+    "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Continue"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "The technical modules: how each part works, with the code and the numbers behind it.",
     ),

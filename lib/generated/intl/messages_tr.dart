@@ -371,8 +371,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
-    "welcome_about_start": MessageLookupByLibrary.simpleMessage("Kataloğu aç"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Okumaya başla"),
+    "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Devam et"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "Teknik modüller: her parçanın nasıl çalıştığı, arkasındaki kod ve sayılarla.",
     ),

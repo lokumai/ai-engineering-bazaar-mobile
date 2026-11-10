@@ -375,8 +375,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
-    "welcome_about_start": MessageLookupByLibrary.simpleMessage("باز کردن کاتالوگ"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع خواندن"),
+    "welcome_story_continue": MessageLookupByLibrary.simpleMessage("ادامه"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "درس‌های فنی: هر بخش چطور کار می‌کند، همراه با کد و عددهای پشت آن.",
     ),

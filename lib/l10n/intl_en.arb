@@ -643,9 +643,9 @@
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_about_start": "Open the catalog",
-  "@welcome_about_start": {
-    "description": "Welcome's first-launch guide (plan 1X)."
+  "welcome_story_continue": "Continue",
+  "@welcome_story_continue": {
+    "description": "Welcome's first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5)."
   },
   "settings_privacy_legal": "Privacy and legal",
   "@settings_privacy_legal": {

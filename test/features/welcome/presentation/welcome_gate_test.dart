@@ -95,48 +95,42 @@ Widget _gate(
 );
 
 void main() {
-  testWidgets(
-    'the first launch asks the language and the track, then tells the story, then opens the app (plan 1Y, 3.5)',
-    (tester) async {
-      final store = _MemoryWelcomeStore();
-      final track = TrackCubit();
-      addTearDown(track.close);
-      final finished = <Track>[];
-      await tester.pumpWidget(_gate(store, track: track, onFinished: finished.add));
-      await tester.pumpAndSettle();
+  testWidgets('the first launch tells the story, then asks the language and the track, then opens the app (plan 3.5)', (
+    tester,
+  ) async {
+    final store = _MemoryWelcomeStore();
+    final track = TrackCubit();
+    addTearDown(track.close);
+    final finished = <Track>[];
+    await tester.pumpWidget(_gate(store, track: track, onFinished: finished.add));
+    await tester.pumpAndSettle();
 
-      expect(find.text('the app'), findsNothing);
-      expect(find.byType(WelcomeTrackView), findsOneWidget, reason: 'no page with a button before it (plan 1Y)');
-      expect(find.text('How would you like to read?'), findsOneWidget);
-      expect(store.wasSeen, isFalse, reason: 'not before a track is chosen');
-      final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
-      expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: false));
-      await tester.ensureVisible(everyone);
-      await tester.pumpAndSettle();
-      await tester.tap(everyone);
-      await tester.pumpAndSettle();
-      expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
-      await tester.ensureVisible(find.byKey(const Key('welcome-start')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('welcome-start')));
-      await tester.pumpAndSettle();
+    expect(find.text('the app'), findsNothing);
+    expect(find.text('the story'), findsOneWidget, reason: 'the story of the Bazaar comes first (plan 3.5)');
+    expect(find.byType(WelcomeTrackView), findsNothing);
+    await tester.tap(find.byKey(_storyDoneKey));
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('the story'),
-        findsOneWidget,
-        reason: 'the story of the Bazaar, on the first launch only (plan 3.5)',
-      );
-      expect(store.wasSeen, isFalse, reason: 'not before the reader goes on from the story');
-      expect(finished, isEmpty);
-      await tester.tap(find.byKey(_storyDoneKey));
-      await tester.pumpAndSettle();
+    expect(find.byType(WelcomeTrackView), findsOneWidget);
+    expect(find.text('How would you like to read?'), findsOneWidget);
+    expect(store.wasSeen, isFalse, reason: 'not before a track is chosen');
+    final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+    expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: false));
+    await tester.ensureVisible(everyone);
+    await tester.pumpAndSettle();
+    await tester.tap(everyone);
+    await tester.pumpAndSettle();
+    expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
+    await tester.ensureVisible(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
 
-      expect(find.text('the app'), findsOneWidget);
-      expect(store.wasSeen, isTrue);
-      expect(track.state, Track.everyone);
-      expect(finished, [Track.everyone], reason: 'the app lands on that catalog (plan 1T)');
-    },
-  );
+    expect(find.text('the app'), findsOneWidget);
+    expect(store.wasSeen, isTrue);
+    expect(track.state, Track.everyone);
+    expect(finished, [Track.everyone], reason: 'the app lands on that catalog (plan 1T)');
+  });
 
   testWidgets('a later launch opens the app directly', (tester) async {
     final finished = <Track>[];
@@ -149,7 +143,7 @@ void main() {
   });
 
   testWidgets('the track step chooses the language too, at once (plan 1S)', (tester) async {
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore()));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
     await tester.pumpAndSettle();
 
     final language = tester.element(find.byType(WelcomeTrackView)).read<LanguageCubit>();
@@ -162,7 +156,7 @@ void main() {
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {
-    await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore()), scale: 2.0);
+    await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore(), story: false), scale: 2.0);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -177,13 +171,15 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform, story: false));
     await tester.pumpAndSettle();
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets('content that names no story goes from the track straight into the app (web D125)', (tester) async {
+  testWidgets('content that names no story starts at the track and goes from it into the app (web D125)', (
+    tester,
+  ) async {
     final store = _MemoryWelcomeStore();
     final finished = <Track>[];
     await tester.pumpWidget(_gate(store, onFinished: finished.add, story: false));

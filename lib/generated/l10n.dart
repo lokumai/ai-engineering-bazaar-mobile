@@ -1274,12 +1274,12 @@ class S {
     );
   }
 
-  /// `Open the catalog`
-  String get welcome_about_start {
+  /// `Continue`
+  String get welcome_story_continue {
     return Intl.message(
-      'Open the catalog',
-      name: 'welcome_about_start',
-      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      'Continue',
+      name: 'welcome_story_continue',
+      desc: 'Welcome\'s first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5).',
       args: [],
     );
   }

@@ -113,9 +113,9 @@ lib/
     settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
-                                                first-launch steps (language and track, then the story the app passes in)
+                                                first-launch steps (the story the app passes in, then language and track)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), at `/settings/about`,
-                                                and Welcome's story step
+                                                and Welcome's first step
     guide/                                      How the bazaar works, at `/settings/guide`
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart

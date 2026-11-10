@@ -6,32 +6,36 @@ part 'welcome_event.dart';
 part 'welcome_state.dart';
 
 /// Steps through Welcome on the first launch only (plan Phase 1I): it asks the [IWelcomeStore] at start; a first
-/// launch asks for the language and the track (plan 1L, 1S), then tells the story of the Bazaar (plan 3.5, in place of
-/// plan 1X's guide, which Settings keeps); going on from it records Welcome as seen, so the next launch opens Home directly. The gate that plays as the app opens
-/// is not a step (plan 1Y).
-/// The chosen track itself is kept by the track cubit; this bloc only steps through the screens.
+/// launch tells the story of the Bazaar when the content has one (plan 3.5), then asks for the language and the track
+/// (plan 1L, 1S); choosing them records Welcome as seen, so the next launch opens Home directly. How the bazaar works,
+/// Welcome's guide before the story (plan 1X), lives in Settings. The gate that plays as the app opens is not a step
+/// (plan 1Y). The chosen track itself is kept by the track cubit; this bloc only steps through the screens.
 ///
 /// A Bloc rather than a Cubit, since it touches storage (`CLAUDE.md`, Bloc vs Cubit).
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   WelcomeBloc({required this._store}) : super(const WelcomeChecking()) {
     on<WelcomeStarted>(_onStarted);
+    on<WelcomeStoryRead>(_onStoryRead);
     on<WelcomeTrackChosen>(_onTrackChosen);
-    on<WelcomeIntroRead>(_onIntroRead);
   }
 
   final IWelcomeStore _store;
 
   Future<void> _onStarted(WelcomeStarted event, Emitter<WelcomeState> emit) async {
-    emit(await _store.seen() ? const WelcomeDone() : const WelcomeChoosingTrack());
+    if (await _store.seen()) {
+      emit(const WelcomeDone());
+    } else {
+      emit(event.story ? const WelcomeTellingStory() : const WelcomeChoosingTrack());
+    }
   }
 
-  void _onTrackChosen(WelcomeTrackChosen event, Emitter<WelcomeState> emit) {
-    if (state is WelcomeChoosingTrack) emit(const WelcomeIntroducing());
+  void _onStoryRead(WelcomeStoryRead event, Emitter<WelcomeState> emit) {
+    if (state is WelcomeTellingStory) emit(const WelcomeChoosingTrack());
   }
 
   /// The app opens at once; the flag is written behind it.
-  Future<void> _onIntroRead(WelcomeIntroRead event, Emitter<WelcomeState> emit) async {
-    if (state is! WelcomeIntroducing) return;
+  Future<void> _onTrackChosen(WelcomeTrackChosen event, Emitter<WelcomeState> emit) async {
+    if (state is! WelcomeChoosingTrack) return;
     emit(const WelcomeDone());
     await _store.markSeen();
   }

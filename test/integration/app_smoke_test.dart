@@ -95,7 +95,7 @@ void main() {
   });
 
   testWidgets(
-    'the first launch plays the gate, asks the track, tells the story and lands on its catalog; the next launch opens Home in that track',
+    'the first launch plays the gate, tells the story, asks the track and lands on its catalog; the next launch opens Home in that track',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
@@ -103,6 +103,11 @@ void main() {
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
       expect(find.byType(HomePage), findsNothing);
+      final intro = find.byKey(AboutWelcomeStep.doneKey);
+      await _drain(tester, () => find.text('Fixture Story').evaluate().isNotEmpty, what: 'the story first (plan 3.5)');
+      await tester.scrollUntilVisible(intro, 300);
+      await tester.pump();
+      await tester.tap(intro);
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
       await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
       await tester.ensureVisible(everyone);
@@ -113,16 +118,6 @@ void main() {
       await tester.ensureVisible(start);
       await tester.pump();
       await tester.tap(start);
-      final intro = find.byKey(AboutWelcomeStep.doneKey);
-      await _drain(tester, () => intro.evaluate().isNotEmpty, what: 'the story (plan 3.5)');
-      await _drain(
-        tester,
-        () => find.text('Fixture Story').evaluate().isNotEmpty,
-        what: 'the story read from the bundle',
-      );
-      await tester.ensureVisible(intro);
-      await tester.pump();
-      await tester.tap(intro);
       await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
       expect(find.byType(HomePage), findsNothing);
       await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
