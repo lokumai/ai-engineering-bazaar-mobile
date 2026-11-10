@@ -10,6 +10,8 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../mocks/mock_classes.dart';
@@ -43,6 +45,7 @@ Widget _screen({required bool dark}) {
         BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
         BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
         BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+        BlocProvider<QuizScoresBloc>(create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())),
       ],
       child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
     ),

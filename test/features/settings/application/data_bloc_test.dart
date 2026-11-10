@@ -4,6 +4,9 @@ import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
@@ -279,6 +282,32 @@ void main() {
   });
 
   group('reset', () {
+    test('the reset erases the quiz scores with the record, and its undo brings them back (plan 1W)', () {
+      onFakeClock((async) {
+        const kept = {'alpha/first': QuizScore(last: 2, best: 3, total: 3)};
+        final scores = QuizScoresBloc(store: MemoryQuizScoreStore(kept))..add(const QuizScoresStarted());
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, scores: scores);
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady(kept));
+
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady({}));
+
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady(kept));
+
+        eraseSucceeds = false;
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady(kept), reason: 'a reset that did not erase keeps the scores');
+        bloc.close();
+        scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
     test('reset counts down from the record undo and closes at ten seconds', () {
       onFakeClock((async) {
         final bloc = build();

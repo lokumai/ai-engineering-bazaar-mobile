@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/qua
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -25,6 +26,7 @@ class DataSection extends StatelessWidget {
         recordBloc: context.read<RecordBloc>(),
         gateway: context.read<IBackupGateway>(),
         repository: context.read<IRecordRepository>(),
+        scores: context.read<QuizScoresBloc>(),
       ),
       child: const _DataWithBloc(),
     );

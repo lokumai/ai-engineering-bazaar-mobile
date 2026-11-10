@@ -5,6 +5,10 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -19,8 +23,15 @@ const items = [
   QuizItem(question: 'Q3', options: ['One', 'Two', 'Three', 'Four'], answer: 2, explain: 'E3'),
 ];
 
-/// The panel over [quiz] in a scrolling page of the Bazaar theme for [platform].
-Widget panelApp(List<QuizItem> quiz, {TargetPlatform platform = TargetPlatform.android}) => MaterialApp(
+/// The panel over [quiz] of the module `alpha/first` in a scrolling page of the Bazaar theme for [platform], over
+/// [scores] or fresh ones in memory.
+Widget panelApp(List<QuizItem> quiz, {TargetPlatform platform = TargetPlatform.android, QuizScoresBloc? scores}) =>
+    BlocProvider<QuizScoresBloc>.value(
+      value: scores ?? (QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted())),
+      child: _panelApp(quiz, platform),
+    );
+
+Widget _panelApp(List<QuizItem> quiz, TargetPlatform platform) => MaterialApp(
   debugShowCheckedModeBanner: false,
   theme: bazaarTheme(brightness: Brightness.light, platform: platform),
   localizationsDelegates: const [
@@ -34,7 +45,7 @@ Widget panelApp(List<QuizItem> quiz, {TargetPlatform platform = TargetPlatform.a
   home: Scaffold(
     body: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: QuizPanel(items: quiz),
+      child: QuizPanel(moduleKey: 'alpha/first', items: quiz),
     ),
   ),
 );
@@ -80,7 +91,41 @@ Future<void> tapText(WidgetTester tester, String text) async {
 VoidCallback? pressed<T extends ButtonStyleButton>(WidgetTester tester, String label) =>
     tester.widget<T>(find.widgetWithText(T, label)).onPressed;
 
+/// Answers the three questions with [picks], then shows the results.
+Future<void> answer(WidgetTester tester, List<String> picks) async {
+  for (final (i, pick) in picks.indexed) {
+    await tapText(tester, pick);
+    await tapText(tester, i == picks.length - 1 ? 'See results' : 'Next');
+  }
+}
+
 void main() {
+  testWidgets('a finished attempt is kept once, and the next one shows the one before and the best (plan 1W)', (
+    tester,
+  ) async {
+    final scores = QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(panelApp(items, scores: scores));
+    await toggle(tester);
+
+    await answer(tester, ['One', 'Two', 'Three']);
+    expect(scores.state.of('alpha/first'), const QuizScore(last: 3, best: 3, total: 3));
+    expect(find.byKey(const Key('quiz-score-before')), findsNothing, reason: 'the first attempt');
+
+    await tapText(tester, 'Back to the questions');
+    await tapText(tester, 'See results');
+    expect(scores.state.of('alpha/first'), const QuizScore(last: 3, best: 3, total: 3), reason: 'the same attempt');
+
+    await tapText(tester, 'Start over');
+    await answer(tester, ['One', 'One', 'One']);
+    expect(scores.state.of('alpha/first'), const QuizScore(last: 1, best: 3, total: 3, previous: 3));
+    expect(find.text('The time before: 3 of 3. Best: 3 of 3.'), findsOneWidget);
+  });
+
   testWidgets('the card names the quiz and its count, and opens nothing by itself', (tester) async {
     await pumpPanel(tester, items);
 
@@ -296,13 +341,18 @@ void main() {
     await tester.pumpWidget(
       Builder(
         builder: (context) {
-          built = buildQuizPanel(context, items);
+          built = buildQuizPanel(context, 'alpha/first', items);
           return const SizedBox.shrink();
         },
       ),
     );
 
-    expect(built, isA<QuizPanel>().having((panel) => panel.items, 'items', items));
+    expect(
+      built,
+      isA<QuizPanel>()
+          .having((panel) => panel.items, 'items', items)
+          .having((panel) => panel.moduleKey, 'moduleKey', 'alpha/first'),
+    );
   });
 
   testWidgets('the open panel works at text scale 2.0', (tester) async {

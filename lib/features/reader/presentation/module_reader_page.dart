@@ -264,7 +264,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                     Pager(previous: doc.previous, next: doc.next),
                     if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
                       const SizedBox(height: 32),
-                      quizBuilder(context, quiz),
+                      quizBuilder(context, entry.key, quiz),
                     ],
                     const SizedBox(height: 40),
                     ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),

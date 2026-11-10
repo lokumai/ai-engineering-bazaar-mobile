@@ -10,6 +10,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -51,6 +53,7 @@ class QuizListPage extends StatelessWidget {
       RecordLoading() => null,
     };
     final upNext = next == null ? null : index.module(next)?.level;
+    final scores = context.watch<QuizScoresBloc>().state;
     final fold = context.watch<QuizFoldCubit>();
     final open = fold.openWith(upNext);
     final muted = theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted);
@@ -69,6 +72,7 @@ class QuizListPage extends StatelessWidget {
           _LevelCard(
             key: QuizListPage.levelKey(level.level.slug),
             level: level,
+            scores: scores,
             open: open.contains(level.level.slug),
             onToggle: () => fold.toggle(level.level.slug, upNext),
           ),
@@ -81,9 +85,10 @@ class QuizListPage extends StatelessWidget {
 
 /// One level: its number, title and count of quizzes on an arch card in its hue, and its quizzes under it when open.
 class _LevelCard extends StatelessWidget {
-  const _LevelCard({super.key, required this.level, required this.open, required this.onToggle});
+  const _LevelCard({super.key, required this.level, required this.scores, required this.open, required this.onToggle});
 
   final QuizLevel level;
+  final QuizScoresState scores;
   final bool open;
   final VoidCallback onToggle;
 
@@ -92,7 +97,8 @@ class _LevelCard extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final count = s.quiz_list_count(level.modules.length);
+    final taken = level.modules.where((module) => scores.of(module.key) != null).length;
+    final count = [s.quiz_list_count(level.modules.length), if (taken > 0) s.quiz_list_taken(taken)].join(' · ');
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
     return BazaarCard(
       shape: BazaarCardShape.arch,
@@ -156,7 +162,7 @@ class _LevelCard extends StatelessWidget {
                       Divider(height: 1, color: colors.line),
                       const SizedBox(height: AppSpacing.xs),
                       for (final module in level.modules)
-                        _QuizRow(key: QuizListPage.rowKey(module.key), module: module),
+                        _QuizRow(key: QuizListPage.rowKey(module.key), module: module, score: scores.of(module.key)),
                       const SizedBox(height: AppSpacing.xs),
                     ],
                   )
@@ -168,11 +174,15 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc, the number and title, and an arrow; one button as a whole.
+/// One module's quiz in an open level: the question disc, the number and title with the last and best score once
+/// taken, and an arrow; one button as a whole.
 class _QuizRow extends StatelessWidget {
-  const _QuizRow({super.key, required this.module});
+  const _QuizRow({super.key, required this.module, required this.score});
 
   final ModuleEntry module;
+
+  /// The score kept on this device; null for a quiz never finished.
+  final QuizScore? score;
 
   @override
   Widget build(BuildContext context) {
@@ -180,9 +190,11 @@ class _QuizRow extends StatelessWidget {
     final colors = context.bazaarColors;
     final number = _number(module.number);
     final title = module.tracks[Track.engineers]!.title;
+    final score = this.score;
+    final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
     return Semantics(
       button: true,
-      label: '$number $title',
+      label: [('$number $title'), ?line].join(', '),
       excludeSemantics: true,
       child: InkWell(
         onTap: () => context.push(BazaarPaths.quiz(module.key)),
@@ -205,7 +217,15 @@ class _QuizRow extends StatelessWidget {
                 ),
                 Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
-                  child: Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+                      if (line != null)
+                        Text(line, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                    ],
+                  ),
                 ),
                 Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
               ],

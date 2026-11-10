@@ -173,10 +173,10 @@ class S {
     return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
   }
 
-  /// `The questions of the modules you completed last, to keep what you read.`
+  /// `The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.`
   String get home_practice_lede {
     return Intl.message(
-      'The questions of the modules you completed last, to keep what you read.',
+      'The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.',
       name: 'home_practice_lede',
       desc: '',
       args: [],
@@ -630,6 +630,31 @@ class S {
     return Intl.plural(count, one: '1 quiz', other: '$count quizzes', name: 'quiz_list_count', desc: '', args: [count]);
   }
 
+  /// `The time before: {previous} of {total}. Best: {best} of {total}.`
+  String quiz_score_before(int previous, int best, int total) {
+    return Intl.message(
+      'The time before: $previous of $total. Best: $best of $total.',
+      name: 'quiz_score_before',
+      desc: '',
+      args: [previous, best, total],
+    );
+  }
+
+  /// `Last {last} of {total} · best {best} of {total}`
+  String quiz_score_line(int last, int best, int total) {
+    return Intl.message(
+      'Last $last of $total · best $best of $total',
+      name: 'quiz_score_line',
+      desc: '',
+      args: [last, best, total],
+    );
+  }
+
+  /// `{count} taken`
+  String quiz_list_taken(int count) {
+    return Intl.message('$count taken', name: 'quiz_list_taken', desc: '', args: [count]);
+  }
+
   /// `The questions come with the {track} modules.`
   String quiz_list_engineers_only(String track) {
     return Intl.message(
@@ -831,6 +856,11 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `The quiz scores on this device are erased too.`
+  String get erase_scores {
+    return Intl.message('The quiz scores on this device are erased too.', name: 'erase_scores', desc: '', args: []);
   }
 
   /// `A device backup may still hold an earlier copy of your progress.`

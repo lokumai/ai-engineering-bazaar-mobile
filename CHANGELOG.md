@@ -20,6 +20,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The module quiz, opened full screen from a card in the reader, and the Quiz tab, which lists every module's quiz in a card per level that opens and closes, as the catalog does, and opens a quiz without the reader.
 - The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. The app has no progress page of its own: the catalog shows the progress.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
+- Quiz scores kept on the device apart from the record: the last and the best on the Quiz tab, the one before on the results, practice on Home led by the quizzes not taken or with the lowest score. Reset erases them with the record.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
 - The redesign after the team's mobile mockup: a bar on the page's ground over a thin lattice band, naming a level's page
   and a module's with the level's hue, level hues, dials and meters, and a four-item bottom navigation.

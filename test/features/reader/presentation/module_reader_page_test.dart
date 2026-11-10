@@ -641,8 +641,10 @@ void main() {
       QuizItem(question: 'Why?', options: ['A', 'B'], answer: 0, explain: 'Because.'),
     ];
     List<QuizItem>? built;
-    Widget quizBuilder(BuildContext context, List<QuizItem> items) {
+    String? builtKey;
+    Widget quizBuilder(BuildContext context, String moduleKey, List<QuizItem> items) {
       built = items;
+      builtKey = moduleKey;
       return const SizedBox(key: Key('quiz-slot'), height: 10);
     }
 
@@ -658,6 +660,7 @@ void main() {
     final slot = find.byKey(const Key('quiz-slot'));
     expect(slot, findsOneWidget);
     expect(built, quiz);
+    expect(builtKey, first.key, reason: 'the quiz keeps its score under the module');
     expect(top(tester, slot), greaterThan(top(tester, find.text('Start of the course'))));
     expect(top(tester, slot), lessThan(top(tester, find.text('MODULE 1 OF 2'))));
   });
@@ -670,7 +673,7 @@ void main() {
         moduleCount: 2,
       ),
     );
-    await pumpReader(tester, quizBuilder: (_, _) => const SizedBox(key: Key('quiz-slot'), height: 10));
+    await pumpReader(tester, quizBuilder: (_, _, _) => const SizedBox(key: Key('quiz-slot'), height: 10));
 
     expect(find.byKey(const Key('quiz-slot')), findsNothing);
   });

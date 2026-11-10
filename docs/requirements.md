@@ -68,7 +68,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 ### Quiz
 
 - **R50** For Engineers modules with a quiz show it one question at a time; the first pick is final; results list every question.
-- **R51** The quiz writes nothing to the record.
+- **R51** The quiz writes nothing to the record. Its score is the app's own: kept on the device in `quiz/scores.json` under Application Support, never in the record or the backup file, and erased with the record by Reset (plan 1W). The site keeps no quiz score, by its zero data retention policy (web author, 2026-11-10).
 - **R52** The Quiz tab lists every module quiz by level and opens it full screen without the reader; Home offers the quizzes of the three modules completed last to practise again (plan 1AC, 1AD).
 
 ### Progress and the record

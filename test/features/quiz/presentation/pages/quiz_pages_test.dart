@@ -7,6 +7,9 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +35,11 @@ Future<GoRouter> _pump(
   String location = '/quiz',
   TrackCubit? track,
   MockContentRepository? repository,
+  QuizScoresBloc? scores,
 }) async {
   final router = AppRouterFactory(initialLocation: location).create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, track: track, repository: repository));
+  await tester.pumpWidget(bazaarTestApp(router: router, track: track, repository: repository, scores: scores));
   await tester.pumpAndSettle();
   return router;
 }
@@ -101,6 +105,22 @@ void main() {
     await _pump(tester);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'a new launch');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing);
+  });
+
+  testWidgets('a quiz finished on this device shows its last and best score, and its level how many (plan 1W)', (
+    tester,
+  ) async {
+    final scores = QuizScoresBloc(
+      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 2, total: 2, previous: 2)}),
+    )..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    await _pump(tester, scores: scores);
+
+    expect(find.text('Last 1 of 2 · best 2 of 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('01 First Module, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
+    expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes · 1 taken$')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz$')), findsOneWidget);
   });
 
   testWidgets('a For Everyone reader is told where the questions come from', (tester) async {
