@@ -218,6 +218,8 @@ The website keeps moving; content reaches the app through the bundle, but a new 
   - `lib/features/about/` (the story's bloc, page and Welcome step, at `/settings/about`) and `lib/features/guide/` (How the bazaar works, at `/settings/guide`) are features of their own; the app passes the story step to Welcome, which imports neither.
   - Content that names no story (the bundled snapshot until the web publishes it) starts Welcome at the language and the track and shows no story row. The web published it with PR #108, and the snapshot carries it since 2026-11-11 (3.2), so a first launch tells the story offline too.
 
+- [x] **3.6 Translated objectives (web D123, D124).** A Turkish or Persian module showed its "What you will learn" card in English. The web keeps `objectives` English in v1 and adds `translatedObjectives` (`{ lang, items }`, null in English and where a translation declares none), asked for by the app in web PR #108. The reader shows the translated list when its language is the document's, else the English, as the site's fallback (M19); a list with an item that is not a string is a format error. The snapshot of 2026-11-11 carries 84 such lists, 42 Turkish and 42 Persian, each in its document's language.
+
 ## Phase 4: owner follow-ups from PR #1
 
 - [ ] **4.1** Decide on the twelve unused template components under `lib/shared/design_system/components/`: delete them, or build the redesign on them (Phase 1A).

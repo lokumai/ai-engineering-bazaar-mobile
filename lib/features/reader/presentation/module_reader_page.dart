@@ -323,8 +323,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                       PrerequisitesBox(refs: doc.prerequisites),
                       const SizedBox(height: 24),
                     ],
-                    if (doc.objectives.isNotEmpty) ...[
-                      ObjectivesCard(objectives: doc.objectives),
+                    if (doc.shownObjectives.isNotEmpty) ...[
+                      ObjectivesCard(objectives: doc.shownObjectives),
                       const SizedBox(height: 26),
                     ],
                     if (body != null)

@@ -71,6 +71,7 @@ final class ModuleDoc extends Equatable {
     required this.dir,
     required this.title,
     required this.objectives,
+    this.translatedObjectives,
     required this.prerequisites,
     required this.previous,
     required this.next,
@@ -91,6 +92,13 @@ final class ModuleDoc extends Equatable {
 
   /// The objectives, always in English; empty on a draft.
   final List<String> objectives;
+
+  /// The objectives in the document's own language, as its translation declares them (web D124); null in English and
+  /// where the translation declares none.
+  final List<String>? translatedObjectives;
+
+  /// The objectives the reader shows: the translated ones when the document has them, else the English (web M19).
+  List<String> get shownObjectives => translatedObjectives ?? objectives;
   final List<Ref> prerequisites;
   final Ref? previous;
   final Ref? next;
@@ -107,6 +115,7 @@ final class ModuleDoc extends Equatable {
     dir,
     title,
     objectives,
+    translatedObjectives,
     prerequisites,
     previous,
     next,

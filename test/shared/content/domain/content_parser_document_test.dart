@@ -322,6 +322,52 @@ final List<_Rejection> _rejections = [
 ];
 
 void main() {
+  group('translated objectives (web D124)', () {
+    Map<String, dynamic> turkish(Object? translated) => validModuleDocJson()
+      ..['lang'] = 'tr'
+      ..['translatedObjectives'] = translated;
+
+    test("a translation's own objectives are shown in place of the English", () {
+      final doc = _parse(
+        turkish({
+          'lang': 'tr',
+          'items': ['Yapay bir modül oku.'],
+        }),
+      );
+      expect(doc.objectives, ['Read a synthetic module.']);
+      expect(doc.translatedObjectives, ['Yapay bir modül oku.']);
+      expect(doc.shownObjectives, ['Yapay bir modül oku.']);
+    });
+
+    test('none, null, a list in another language or an empty one shows the English', () {
+      for (final json in [
+        validModuleDocJson()..['lang'] = 'tr',
+        turkish(null),
+        turkish({
+          'lang': 'fa',
+          'items': ['x'],
+        }),
+        turkish({'lang': 'tr', 'items': <String>[]}),
+      ]) {
+        final doc = _parse(json);
+        expect(doc.translatedObjectives, isNull, reason: '${json['translatedObjectives']}');
+        expect(doc.shownObjectives, ['Read a synthetic module.']);
+      }
+    });
+
+    test('a translated objective that is not a string is refused', () {
+      expect(
+        () => _parse(
+          turkish({
+            'lang': 'tr',
+            'items': [1],
+          }),
+        ),
+        throwsA(formatError(_modulePath, 'translatedObjectives.items[0]')),
+      );
+    });
+  });
+
   test('parses the valid module document', () {
     final doc = _parse(validModuleDocJson());
     expect(

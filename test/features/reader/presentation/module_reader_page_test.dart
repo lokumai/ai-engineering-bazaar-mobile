@@ -492,6 +492,24 @@ void main() {
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
   });
 
+  testWidgets("a translation's objectives are shown in place of the English (web D124)", (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(
+          objectives: ['Read a synthetic module.'],
+          translatedObjectives: ['Yapay bir modül oku.'],
+          body: [_paragraph('Gövde.')],
+        ),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester);
+
+    expect(find.text('Yapay bir modül oku.'), findsOneWidget);
+    expect(find.text('Read a synthetic module.'), findsNothing);
+  });
+
   group('the reading place (plan 1BA)', () {
     final at = DateTime.utc(2026, 11, 11, 9);
 

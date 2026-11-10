@@ -107,6 +107,7 @@ ModuleDoc testDoc({
   Ref? next,
   List<TocEntry> toc = const [],
   List<String> objectives = const [],
+  List<String>? translatedObjectives,
 }) {
   return ModuleDoc(
     key: key,
@@ -115,6 +116,7 @@ ModuleDoc testDoc({
     dir: TextDir.ltr,
     title: title,
     objectives: objectives,
+    translatedObjectives: translatedObjectives,
     prerequisites: prerequisites,
     previous: previous,
     next: next,

@@ -35,6 +35,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
 - A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
 - The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.
 - Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Reset on its own line; the level's title follows the back arrow in the bar.

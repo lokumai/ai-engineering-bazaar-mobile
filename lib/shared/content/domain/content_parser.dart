@@ -113,6 +113,13 @@ abstract final class ContentParser {
     final objectivesNode = root['objectives'];
     objectivesNode['lang'].string();
     final objectives = List<String>.unmodifiable(objectivesNode['items'].list().map((item) => item.string()));
+    // Added by the web in D124: the objectives the document's own translation declares, null in English and where it
+    // declares none. A document from before it has no key; a list in another language than the document's is not its.
+    final translatedObjectives = root.optional('translatedObjectives')?.nullable((node) {
+      final language = node['lang'].string();
+      final items = List<String>.unmodifiable(node['items'].list().map((item) => item.string()));
+      return language == lang && items.isNotEmpty ? items : null;
+    });
     final prerequisites = List<Ref>.unmodifiable(root['prerequisites'].list().map(_ref));
     final previous = root['previous'].nullable(_ref);
     final next = root['next'].nullable(_ref);
@@ -132,6 +139,7 @@ abstract final class ContentParser {
       dir: dir,
       title: title,
       objectives: objectives,
+      translatedObjectives: translatedObjectives,
       prerequisites: prerequisites,
       previous: previous,
       next: next,
