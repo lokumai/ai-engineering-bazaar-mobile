@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AK) in review on `feature/review-round-4` |
+| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AL) in review on `feature/review-round-4` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -144,7 +144,8 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
   - The bar is 40 high with or without the back button. A version with no bar row, only the band and a floating back button, was built for comparison and dropped on the owner's look.
 - [x] **1AI Room to read.** On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down and come back on a scroll up, at the top and at the end. They stay while a screen reader runs and move at once under reduced motion. The reading bar now follows every scroll step, not only changes of the page's size, so it moves smoothly.
 - [x] **1AJ The app icon.** The striped gate: the bazaar arch with the lattice band's stripes inside, on white like other apps. Android has an adaptive icon with a monochrome layer for themed icons (Android 13+). iOS has light, dark and tinted versions in one 1024 icon (iOS 18); not yet checked on a Mac. The sources are in `assets/brand/app_icon/`.
-- [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The levels start closed.
+- [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The level of the next module to read starts open (1AL).
+- [x] **1AL The level of the next module starts open.** On the catalog and the Quiz tab the level of the next module to read starts open, and the others closed. What the reader opens or closes stays while the app runs, through a tab change and back, and a new launch starts again from the next module (`CatalogFoldCubit`, `QuizFoldCubit`, in memory only). A level the reader has not touched follows the next module as modules are completed.
 
 ## Phase 2: small fixes in the reader
 

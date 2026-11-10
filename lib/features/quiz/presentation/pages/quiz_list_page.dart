@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_list.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -9,6 +10,9 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +24,9 @@ import 'package:go_router/go_router.dart';
 /// is told where the questions come from.
 ///
 /// Each level is an arch card in its hue, as in the catalog (owner, 2026-11-10): a tap opens its quizzes under it and a
-/// second tap closes them; several levels may be open at once.
-class QuizListPage extends StatefulWidget {
+/// second tap closes them; several levels may be open at once. The level of the next module to read in the current
+/// track starts open, and what the reader opens or closes stays while the app runs ([QuizFoldCubit]).
+class QuizListPage extends StatelessWidget {
   const QuizListPage({super.key});
 
   /// The key of [slug]'s level button.
@@ -29,13 +34,6 @@ class QuizListPage extends StatefulWidget {
 
   /// The key of the row that opens the quiz of the module [key].
   static Key rowKey(String key) => ValueKey('quiz-row-$key');
-
-  @override
-  State<QuizListPage> createState() => _QuizListPageState();
-}
-
-class _QuizListPageState extends State<QuizListPage> {
-  final _open = <String>{};
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +46,13 @@ class _QuizListPageState extends State<QuizListPage> {
       final state => throw StateError('The quiz list needs ready content, not $state'),
     };
     final track = context.watch<TrackCubit>().state;
+    final next = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final record) => nextUnsigned(trackView(record, track), curriculumFor(index, track)),
+      RecordLoading() => null,
+    };
+    final upNext = next == null ? null : index.module(next)?.level;
+    final fold = context.watch<QuizFoldCubit>();
+    final open = fold.openWith(upNext);
     final muted = theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -64,10 +69,8 @@ class _QuizListPageState extends State<QuizListPage> {
           _LevelCard(
             key: QuizListPage.levelKey(level.level.slug),
             level: level,
-            open: _open.contains(level.level.slug),
-            onToggle: () => setState(
-              () => _open.contains(level.level.slug) ? _open.remove(level.level.slug) : _open.add(level.level.slug),
-            ),
+            open: open.contains(level.level.slug),
+            onToggle: () => fold.toggle(level.level.slug, upNext),
           ),
           const SizedBox(height: AppSpacing.md),
         ],

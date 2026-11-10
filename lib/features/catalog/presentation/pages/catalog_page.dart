@@ -16,8 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// the reader's progress in it (plan 1AB: the progress page is gone): the title, the stats of the track, the levels with
 /// their dials, each opening its modules with their completion marks, then the legend of the marks.
 ///
-/// The catalog has no bloc of its own: the rows are a pure function, and which levels are open is the overview's own
-/// state.
+/// The catalog has no bloc of its own: the rows are a pure function, and which levels are open is [CatalogFoldCubit]'s,
+/// starting with the level of the next module to read.
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.track});
 
@@ -38,6 +38,7 @@ class CatalogPage extends StatelessWidget {
     final view = record == null ? null : trackView(record, track);
     final curriculum = curriculumFor(index, track);
     final rows = catalogRows(index, track, view);
+    final next = view == null ? null : nextUnsigned(view, curriculum);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -52,6 +53,7 @@ class CatalogPage extends StatelessWidget {
           index: index,
           rows: rows,
           counts: view == null ? null : categoryProgress(view, curriculum),
+          upNext: next == null ? null : index.module(next)?.level,
         ),
         const SizedBox(height: AppSpacing.xl),
         const CatalogLegend(),

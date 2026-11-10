@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/fold.dart';
 
 /// The record with `alpha/first` completed For Engineers.
 RecordBloc _firstCompleted() =>
@@ -51,7 +52,9 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('shows the title and one closed button per level, with no filters (owner review)', (tester) async {
+  testWidgets('shows the title and one button per level, with no filters, the next level open (owner review)', (
+    tester,
+  ) async {
     await _pumpCatalog(tester);
 
     expect(
@@ -67,13 +70,19 @@ void main() {
       tester.getSemantics(_level('Alpha Level')),
       isSemantics(label: 'Alpha Level, 3 modules · ~1 h 15 min, 1/3 completed', isButton: true, hasExpandedState: true),
     );
-    expect(_inOverview('First Module'), findsNothing, reason: 'closed at first');
+    expect(
+      tester.getSemantics(_level('Alpha Level')),
+      isSemantics(isExpanded: true, hasExpandedState: true),
+      reason: 'alpha/second is the next module to read',
+    );
+    expect(tester.getSemantics(_level('Beta Level')), isSemantics(isExpanded: false, hasExpandedState: true));
+    expect(_inOverview('Fourth Module'), findsNothing, reason: 'beta starts closed');
   });
 
   testWidgets('a level opens its modules under it, and a second tap closes them', (tester) async {
     await _pumpCatalog(tester);
 
-    await _tap(tester, _level('Alpha Level'));
+    await openFold(tester, _level('Alpha Level'));
     expect(tester.getSemantics(_level('Alpha Level')), isSemantics(isExpanded: true, hasExpandedState: true));
     for (final title in ['First Module', 'Second Module', 'Third Module']) {
       expect(_inOverview(title), findsOneWidget, reason: title);
@@ -95,9 +104,29 @@ void main() {
     expect(tester.getSemantics(_level('Alpha Level')), isSemantics(isExpanded: false, hasExpandedState: true));
   });
 
+  testWidgets('what the reader opens or closes stays while the app runs; a new launch opens the next level', (
+    tester,
+  ) async {
+    final router = await _pumpCatalog(tester);
+    await _tap(tester, _level('Alpha Level'));
+    await _tap(tester, _level('Beta Level'));
+
+    router.go('/quiz');
+    await tester.pumpAndSettle();
+    router.go('/sheets');
+    await tester.pumpAndSettle();
+    expect(_inOverview('First Module'), findsNothing, reason: 'alpha stays closed');
+    expect(_inOverview('Fourth Module'), findsOneWidget, reason: 'beta stays open');
+
+    await tester.pumpWidget(const SizedBox());
+    await _pumpCatalog(tester);
+    expect(_inOverview('First Module'), findsOneWidget, reason: 'a new launch');
+    expect(_inOverview('Fourth Module'), findsNothing);
+  });
+
   testWidgets('the For Everyone catalog lists the same modules, planned where not written', (tester) async {
     await _pumpCatalog(tester, '/everyone/sheets');
-    await _tap(tester, _level('Alpha Level'));
+    await openFold(tester, _level('Alpha Level'));
 
     expect(_inOverview('First Module'), findsOneWidget);
     expect(find.text('First Story'), findsNothing);
@@ -108,7 +137,7 @@ void main() {
 
   testWidgets('a module opens the module of the track, and back finds its level still open', (tester) async {
     var router = await _pumpCatalog(tester);
-    await _tap(tester, _level('Alpha Level'));
+    await openFold(tester, _level('Alpha Level'));
     await _tap(tester, _inOverview('First Module'));
     expect(_path(router), '/courses/alpha/first');
     router.pop();
@@ -117,7 +146,7 @@ void main() {
     expect(_inOverview('First Module'), findsOneWidget);
 
     router = await _pumpCatalog(tester, '/everyone/sheets');
-    await _tap(tester, _level('Alpha Level'));
+    await openFold(tester, _level('Alpha Level'));
     await _tap(tester, _inOverview('First Module'));
     expect(_path(router), '/everyone/courses/alpha/first');
   });
@@ -126,7 +155,7 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: _router(), record: _firstCompleted()), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    await _tap(tester, _level('Alpha Level'));
+    await openFold(tester, _level('Alpha Level'));
     expect(tester.takeException(), isNull);
     for (final target in [_level('Gamma Level'), _inOverview('Third Module')]) {
       await tester.ensureVisible(target);

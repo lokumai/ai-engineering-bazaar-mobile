@@ -18,6 +18,7 @@ import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
 import '../../../../support/content_builders.dart';
+import '../../../../support/fold.dart';
 
 /// The Quiz tab and a module's quiz full screen (plan 1AC).
 
@@ -52,10 +53,12 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-/// Opens the levels [slugs] on the Quiz tab.
+const _titles = {'alpha': 'Alpha Level', 'beta': 'Beta Level', 'gamma': 'Gamma Level'};
+
+/// Opens the levels [slugs] on the Quiz tab, unless open already.
 Future<void> _openLevels(WidgetTester tester, List<String> slugs) async {
   for (final slug in slugs) {
-    await _tap(tester, find.byKey(QuizListPage.levelKey(slug)));
+    await openFold(tester, find.bySemanticsLabel(RegExp('^${_titles[slug]},')));
   }
 }
 
@@ -67,7 +70,8 @@ void main() {
 
     expect(find.text('Quizzes'), findsOneWidget);
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'the levels start closed');
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
+    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
     expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes$')), findsOneWidget);
     await _openLevels(tester, ['alpha', 'beta', 'gamma']);
     for (final key in ['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']) {
@@ -76,6 +80,27 @@ void main() {
     expect(find.byKey(QuizListPage.rowKey('alpha/third')), findsNothing, reason: 'planned, no quiz');
     expect(find.bySemanticsLabel('01 First Module'), findsOneWidget);
     expect(find.textContaining('come with the'), findsNothing);
+  });
+
+  testWidgets('what the reader opens or closes stays while the app runs; a new launch opens the next level', (
+    tester,
+  ) async {
+    final router = await _pump(tester);
+    await _tap(tester, find.bySemanticsLabel(RegExp('^Alpha Level,')));
+    await _openLevels(tester, ['beta']);
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing);
+
+    router.go('/settings');
+    await tester.pumpAndSettle();
+    router.go('/quiz');
+    await tester.pumpAndSettle();
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'alpha stays closed');
+    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsOneWidget, reason: 'beta stays open');
+
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester);
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'a new launch');
+    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing);
   });
 
   testWidgets('a For Everyone reader is told where the questions come from', (tester) async {
@@ -107,7 +132,7 @@ void main() {
     expect(router.state.uri.path, '/quiz');
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'the level stays open');
 
-    await _tap(tester, find.byKey(QuizListPage.levelKey('alpha')));
+    await _tap(tester, find.bySemanticsLabel(RegExp('^Alpha Level,')));
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'a second tap closes it');
   });
 

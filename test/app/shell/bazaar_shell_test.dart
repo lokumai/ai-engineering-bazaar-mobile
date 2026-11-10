@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
+import '../../support/fold.dart';
 
 Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
@@ -46,7 +47,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 /// Opens the module [title] from the catalog root: its level [level] opens first, then the module is pushed.
 Future<void> _pushFromCatalog(WidgetTester tester, String level, String title) async {
-  await _tap(tester, find.bySemanticsLabel(RegExp('^$level,')));
+  await openFold(tester, find.bySemanticsLabel(RegExp('^$level,')));
   await _tap(tester, find.descendant(of: find.byType(CatalogOverview), matching: find.text(title)));
 }
 

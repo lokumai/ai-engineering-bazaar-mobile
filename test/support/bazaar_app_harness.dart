@@ -1,3 +1,5 @@
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -108,6 +110,8 @@ Widget bazaarTestApp({
         BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),
         BlocProvider<RecordBloc>.value(value: record ?? readyRecordBloc()),
         if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
+        BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
+        BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
         else
