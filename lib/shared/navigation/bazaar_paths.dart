@@ -14,7 +14,7 @@ abstract final class BazaarPaths {
   static const home = '/';
   static const catalogEngineers = '/sheets';
   static const catalogEveryone = '/everyone/sheets';
-  static const progress = '/profile';
+  static const quizzes = '/quiz';
   static const settings = '/settings';
 
   static const _everyone = 'everyone';
@@ -32,6 +32,9 @@ abstract final class BazaarPaths {
 
   /// The reader page of the module [key] in [track]: `/courses/<key>` or `/everyone/courses/<key>`.
   static String module(Track track, String key) => '${_prefix(track)}/$_courses/$key';
+
+  /// The quiz of the module [key] full screen, `/quiz/<key>` (plan 1AC; the web has no quiz page, A9).
+  static String quiz(String key) => '$quizzes/$key';
 
   /// The track a catalog or module page belongs to; null for every other location, Home included.
   static Track? trackOf(String location) => _parse(location)?.track;

@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// The continue card: the next module of the track not yet completed, with its level, number, title and minutes, and
-/// the button that opens it; or, when every written module is completed, a line saying so and the way to Progress.
+/// the button that opens it; or, when every written module is completed, a line saying so and the way to the catalog,
+/// which shows the completion (plan 1AB).
 ///
 /// The mockup showed a reading position ("section 3 of 8, 37 %"); the record keeps none (R61), so the card names the
 /// next module instead (plan Phase 1, decisions taken).
@@ -35,7 +36,7 @@ class HomeContinueCard extends StatelessWidget {
           spacing: 12,
           children: [
             Text(s.home_all_complete, style: theme.textTheme.bodyLarge),
-            OutlinedButton(onPressed: () => context.go(BazaarPaths.progress), child: Text(s.home_see_progress)),
+            OutlinedButton(onPressed: () => context.go(BazaarPaths.catalog(track)), child: Text(s.home_see_catalog)),
           ],
         ),
       );

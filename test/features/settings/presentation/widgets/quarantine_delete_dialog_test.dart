@@ -1,18 +1,18 @@
 @Tags(['widget'])
 library;
 
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/quarantine_delete_dialog.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_delete_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/accessibility.dart';
-import '../progress_host.dart';
+import '../data_host.dart';
 
 void main() {
   Future<Future<bool>> open(WidgetTester tester, {TargetPlatform platform = TargetPlatform.android}) async {
     final (bloc, _) = dataBlocAt();
-    await pumpProgressHost(tester, const SizedBox.shrink(), data: bloc, platform: platform);
+    await pumpDataHost(tester, const SizedBox.shrink(), data: bloc, platform: platform);
     final answer = showQuarantineDeleteDialog(hostContext(tester));
     await tester.pumpAndSettle();
     return answer;
@@ -51,7 +51,7 @@ void main() {
 
   testWidgets('text scale 2.0', (tester) async {
     final (bloc, _) = dataBlocAt();
-    await pumpAtTextScale(tester, progressHost(const SizedBox.shrink(), data: bloc), scale: 2.0);
+    await pumpAtTextScale(tester, dataHost(const SizedBox.shrink(), data: bloc), scale: 2.0);
     showQuarantineDeleteDialog(hostContext(tester));
     await tester.pumpAndSettle();
 

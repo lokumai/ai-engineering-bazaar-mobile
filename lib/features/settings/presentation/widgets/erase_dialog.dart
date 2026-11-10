@@ -1,5 +1,5 @@
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/data_texts.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_texts.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';

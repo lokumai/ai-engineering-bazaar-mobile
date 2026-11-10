@@ -4,11 +4,15 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/pages/setti
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../mocks/mock_classes.dart';
 import '../../../../support/bazaar_app_harness.dart';
 import '../../../../support/catalog_fixture_index.dart';
 import '../../../../support/test_env.dart';
@@ -27,13 +31,21 @@ Widget _screen({required bool dark}) {
       refresh: const RefreshUpToDate(),
     ),
   );
-  return MultiBlocProvider(
+  // The data section's flows read the record and the two ports (plan 1AB).
+  return MultiRepositoryProvider(
     providers: [
-      BlocProvider<ContentBloc>.value(value: content),
-      BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
-      BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+      RepositoryProvider<IBackupGateway>.value(value: MockBackupGateway()),
+      RepositoryProvider<IRecordRepository>.value(value: MockRecordRepository()),
     ],
-    child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider<ContentBloc>.value(value: content),
+        BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
+        BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
+        BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+      ],
+      child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
+    ),
   );
 }
 

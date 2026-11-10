@@ -48,8 +48,8 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R20** Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track (Home, catalog, level page, reader). The current track lives in memory for the session and starts at For Engineers (A11).
 - **R21** Routes follow the web's paths: `/` (Home), `/sheets` and `/everyone/sheets` (the catalogs), `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
 - **R22** No outside link or intent chooses the first page; deep linking is off (A5, final review).
-- **R23** The bottom navigation holds Home, Catalog, Progress and Settings (plan Phase 1).
-- **R24** A page the web adds to its bar (Caravan first) appears in the app after Progress without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
+- **R23** The bottom navigation holds Home, Catalog, Quiz and Settings (plan Phase 1, 1AC). The catalog shows the progress; there is no progress page (plan 1AB).
+- **R24** A page the web adds to its bar (Caravan first) appears in the app after Quiz without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
 
 ### Catalog
 
@@ -69,6 +69,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 - **R50** For Engineers modules with a quiz show it one question at a time; the first pick is final; results list every question.
 - **R51** The quiz writes nothing to the record.
+- **R52** The Quiz tab lists every module quiz by level and opens it full screen without the reader; Home offers the quizzes of the three modules completed last to practise again (plan 1AC, 1AD).
 
 ### Progress and the record
 
@@ -76,16 +77,17 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). A For Engineers completion also writes the For Everyone completion of the same module when that version is written and not yet completed; removing a completion touches only its own track (plan 1V, the web does not do this). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
 - **R62** Days are the UTC day of the instant. `asInstant` is a strict grammar (A20).
 - **R63** Writes are atomic: `record.json.tmp` with a flush, then a rename.
-- **R64** A malformed or newer record is set aside in `record-quarantine.json` and reads as empty; the progress page shows a notice with Save a copy and Delete it.
+- **R64** A malformed or newer record is set aside in `record-quarantine.json` and reads as empty; Settings shows a notice with Save a copy and Delete it.
 - **R65** Back up writes the web's export file; restore reads the web's export, refuses a newer schema, and asks before replacing a non-empty record.
 - **R66** Reset needs the word ERASE, shows the counts and the backup line, deletes the record files, and can be undone for 10 s (A42).
 - **R67** The record is included in the device backup, and the erase screen says so (D89).
-- **R68** The progress page shows the current track only; the web's tab per track is left out, since the track is chosen once and changed in Settings (plan 1U). This is a known difference from the web.
+- **R68** The progress shows the current track only, in that track's catalog (plan 1U, 1AB); the web's progress page with a tab per track is left out, since the track is chosen once and changed in Settings. This is a known difference from the web.
 
 ### Settings
 
 - **R70** Settings shows the content version, the published day, the source (bundled or downloaded), the refresh status, Check for updates and the licences.
 - **R71** Debug builds also show the developer console button (A6).
+- **R72** Settings holds the reader's data under Your progress: Back up, Restore, Reset and the set-aside record notice (R64 to R66), moved from the progress page (plan 1AB).
 
 ## 4. Engineering requirements
 

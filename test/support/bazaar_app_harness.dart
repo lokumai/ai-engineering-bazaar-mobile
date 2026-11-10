@@ -82,7 +82,7 @@ MockContentRepository missingContentRepository() {
 
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
 /// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], [backupGateway] and
-/// [recordRepository] (which the progress page's data line reads) to fresh mocks, and the web links use
+/// [recordRepository] (which the Settings page's data line reads) to fresh mocks, and the web links use
 /// [testContentBaseUrl].
 Widget bazaarTestApp({
   required GoRouter router,

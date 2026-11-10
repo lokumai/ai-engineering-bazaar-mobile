@@ -137,7 +137,7 @@ void main() {
         GoRoute(path: '/courses/:level/:module', builder: (_, state) => location(state)),
         GoRoute(path: '/everyone/courses/:level/:module', builder: (_, state) => location(state)),
         GoRoute(path: '/everyone/sheets/:level', builder: (_, state) => location(state)),
-        GoRoute(path: '/profile', builder: (_, state) => location(state)),
+        GoRoute(path: '/settings', builder: (_, state) => location(state)),
       ],
     );
     addTearDown(router.dispose);
@@ -339,7 +339,7 @@ void main() {
     await tester.ensureVisible(find.textContaining('Back up to a file'));
     await tester.tap(find.textContaining('Back up to a file'));
     await tester.pumpAndSettle();
-    expect(_path(router), '/profile');
+    expect(_path(router), '/settings');
     expect(router.canPop(), isTrue);
   });
 

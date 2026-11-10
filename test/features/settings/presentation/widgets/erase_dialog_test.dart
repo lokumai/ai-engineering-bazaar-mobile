@@ -1,8 +1,8 @@
 @Tags(['widget'])
 library;
 
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/erase_dialog.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/erase_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../support/accessibility.dart';
-import '../progress_host.dart';
+import '../data_host.dart';
 
 const _at = '2026-03-15T10:00:00.000Z';
 
@@ -41,7 +41,7 @@ void main() {
     RecordData record = RecordData.empty,
     TargetPlatform platform = TargetPlatform.android,
   }) async {
-    await pumpProgressHost(
+    await pumpDataHost(
       tester,
       const SizedBox.shrink(),
       data: data,
@@ -156,11 +156,7 @@ void main() {
 
   testWidgets('text scale 2.0', (tester) async {
     final (bloc, _) = dataBlocAt();
-    await pumpAtTextScale(
-      tester,
-      progressHost(const SizedBox.shrink(), data: bloc, record: recordBlocAt()),
-      scale: 2.0,
-    );
+    await pumpAtTextScale(tester, dataHost(const SizedBox.shrink(), data: bloc, record: recordBlocAt()), scale: 2.0);
     showEraseDialog(hostContext(tester));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'ERASE');

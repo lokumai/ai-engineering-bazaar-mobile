@@ -1,15 +1,15 @@
 @Tags(['widget'])
 library;
 
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/data_line.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_line.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../support/accessibility.dart';
-import '../progress_host.dart';
+import '../data_host.dart';
 
 const _actions = ['Back up to a file', 'Restore from a file', 'Reset'];
 
@@ -18,7 +18,7 @@ Finder _button(String label) => find.widgetWithText(TextButton, label);
 void main() {
   Future<DataBloc> pumpLine(WidgetTester tester, [DataState state = const DataState()]) async {
     final (bloc, _) = dataBlocAt(state);
-    await pumpProgressHost(tester, const DataLine(), data: bloc);
+    await pumpDataHost(tester, const DataLine(), data: bloc);
     return bloc;
   }
 
@@ -168,7 +168,7 @@ void main() {
 
   testWidgets('text scale 2.0', (tester) async {
     final (bloc, _) = dataBlocAt(const DataState(reset: ResetCounting(5), backup: BackedUp('2026-03-15')));
-    await pumpAtTextScale(tester, progressHost(const DataLine(), data: bloc), scale: 2.0);
+    await pumpAtTextScale(tester, dataHost(const DataLine(), data: bloc), scale: 2.0);
 
     expect(tester.takeException(), isNull);
     for (final label in [..._actions, 'Undo']) {
@@ -180,7 +180,7 @@ void main() {
 
   testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {
     final (bloc, _) = dataBlocAt(const DataState(reset: ResetCounting(5), restore: RestoreOutcome.restored));
-    await pumpProgressHost(tester, const DataLine(), data: bloc, platform: defaultTargetPlatform);
+    await pumpDataHost(tester, const DataLine(), data: bloc, platform: defaultTargetPlatform);
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });

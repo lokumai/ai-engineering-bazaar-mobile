@@ -10,7 +10,7 @@ import 'package:equatable/equatable.dart';
 ///
 /// Home has no bloc of its own: this is a pure mapping of the two kernels' ready states, as the catalog's rows are.
 final class HomeOverview extends Equatable {
-  const HomeOverview({required this.next, required this.after});
+  const HomeOverview({required this.next, required this.after, this.practice = const []});
 
   /// The first module by number that is written in the track and not completed (the web's `nextUnsigned`); null when
   /// every written module of the track is completed.
@@ -23,8 +23,15 @@ final class HomeOverview extends Equatable {
   /// How many modules [after] holds at most.
   static const afterCount = 2;
 
+  /// Up to [practiceCount] completed modules whose quiz the reader can take again (plan 1AD), the most recently
+  /// completed first. Only For Engineers documents carry a quiz, so each entry is titled as For Engineers.
+  final List<HomeNext> practice;
+
+  /// How many modules [practice] holds at most.
+  static const practiceCount = 3;
+
   @override
-  List<Object?> get props => [next, after];
+  List<Object?> get props => [next, after, practice];
 }
 
 /// The module the continue card opens.
@@ -50,13 +57,13 @@ HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
   final curriculum = curriculumFor(index, track);
   final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
 
-  HomeNext entryOf(String key) {
+  HomeNext entryOf(String key, [Track titled = Track.engineers]) {
     final module = index.module(key)!;
     return HomeNext(
       module: module,
       level: index.level(module.level)!,
       position: positions[module.level]!,
-      title: module.tracks[track]!.title,
+      title: module.tracks[titled]!.title,
     );
   }
 
@@ -68,7 +75,29 @@ HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
   ];
 
   return HomeOverview(
-    next: first == null ? null : entryOf(first),
-    after: [for (final key in open.skip(1).take(HomeOverview.afterCount)) entryOf(key)],
+    next: first == null ? null : entryOf(first, track),
+    after: [for (final key in open.skip(1).take(HomeOverview.afterCount)) entryOf(key, track)],
+    practice: [
+      for (final key in _recentlyCompletedWithQuiz(index, curriculum, view).take(HomeOverview.practiceCount))
+        entryOf(key),
+    ],
   );
+}
+
+/// The completed modules of [curriculum] in [view] whose For Engineers version carries a quiz, the most recently
+/// completed first; two completed at the same instant keep their number order. The record keeps when each module was
+/// completed (`signedOff`), so this is the record's own order, nothing derived (D111).
+List<String> _recentlyCompletedWithQuiz(BundleIndex index, Curriculum curriculum, RecordData view) {
+  final done = [
+    for (final fact in [...curriculum.modules]..sort((a, b) => a.number.compareTo(b.number)))
+      if (isSigned(fact, view) && (index.module(fact.slug)?.tracks[Track.engineers]?.hasQuiz ?? false))
+        (key: fact.slug, at: DateTime.parse(view.signedOff(fact.slug, Track.engineers)!)),
+  ];
+  // A stable sort: List.sort is not, so the number order breaks ties explicitly.
+  final order = {for (final (position, entry) in done.indexed) entry.key: position};
+  done.sort((a, b) {
+    final byTime = b.at.compareTo(a.at);
+    return byTime != 0 ? byTime : order[a.key]!.compareTo(order[b.key]!);
+  });
+  return [for (final entry in done) entry.key];
 }

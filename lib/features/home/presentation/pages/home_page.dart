@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/features/home/application/home_overview.da
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
@@ -15,8 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
-/// card, the modules after it, and the offline note. Home says what to read now (plan 1P): the levels and their
-/// completion live on the catalog and the progress page.
+/// card, the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), and the offline
+/// note. Home says what to read now (plan 1P): the levels and their completion live on the catalog (plan 1AB).
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
@@ -57,6 +58,24 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 12),
           for (final entry in overview.after) ...[
             HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
+            const SizedBox(height: 10),
+          ],
+        ],
+        if (overview.practice.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SectionRule(title: s.home_practice),
+          const SizedBox(height: 8),
+          Text(
+            s.home_practice_lede,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+          ),
+          const SizedBox(height: 12),
+          for (final entry in overview.practice) ...[
+            HomePracticeRow(
+              key: ValueKey('home-practice-${entry.module.key}'),
+              entry: entry,
+              onTap: () => context.push(BazaarPaths.quiz(entry.module.key)),
+            ),
             const SizedBox(height: 10),
           ],
         ],

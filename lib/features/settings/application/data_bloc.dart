@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
-import 'package:ai_engineering_bazaar/features/progress/application/undo_countdown.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/undo_countdown.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';

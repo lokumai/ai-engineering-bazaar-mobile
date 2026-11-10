@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';

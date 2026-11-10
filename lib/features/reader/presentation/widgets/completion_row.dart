@@ -73,7 +73,7 @@ class CompletionRow extends StatelessWidget {
                 : null,
           ),
         ),
-        RecordWriteNotice(writeState: writeState, onBackUp: () => unawaited(context.push<void>(BazaarPaths.progress))),
+        RecordWriteNotice(writeState: writeState, onBackUp: () => unawaited(context.push<void>(BazaarPaths.settings))),
       ],
     );
   }

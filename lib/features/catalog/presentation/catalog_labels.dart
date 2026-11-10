@@ -26,3 +26,6 @@ String requiresLabel(S s, List<int> numbers) =>
 
 /// The 0-based place of the level [slug] in [index], which picks its hue (`levelHue`).
 int levelPosition(BundleIndex index, String slug) => index.levels.indexWhere((level) => level.slug == slug);
+
+/// The no-reading form the web prints before the record is read (`ProgressTabs.tsx:10`).
+const catalogNoReading = '--';

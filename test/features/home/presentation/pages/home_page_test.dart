@@ -65,9 +65,10 @@ void main() {
     expect(find.text('After that'), findsOneWidget);
     expect(find.text('Second Module'), findsOneWidget);
     expect(find.text('Fourth Module', skipOffstage: false), findsOneWidget);
-    expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog and progress');
+    expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
     expect(find.byType(CompletionDial), findsNothing);
     expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
+    expect(find.text('Practise again', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
   });
 
   testWidgets('the continue card opens the next module', (tester) async {
@@ -99,9 +100,9 @@ void main() {
 
     expect(find.text('Every written module of this track is complete.'), findsOneWidget);
     expect(find.text('Open the module'), findsNothing);
-    await _tap(tester, find.text('See the progress'));
+    await _tap(tester, find.text('See the whole catalog').first);
 
-    expect(_path(router), '/profile');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('Home follows the current track', (tester) async {
@@ -135,5 +136,19 @@ void main() {
     await _pumpHome(tester, platform: defaultTargetPlatform);
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  testWidgets('practice offers the quizzes of the modules completed last, and opens one full screen (plan 1AD)', (
+    tester,
+  ) async {
+    final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']));
+
+    final practice = find.byKey(const ValueKey('home-practice-alpha/first'), skipOffstage: false);
+    expect(find.text('Practise again', skipOffstage: false), findsOneWidget);
+    expect(practice, findsOneWidget);
+    expect(find.byKey(const ValueKey('home-practice-beta/fourth'), skipOffstage: false), findsOneWidget);
+
+    await _tap(tester, practice);
+    expect(_path(router), '/quiz/alpha/first');
   });
 }

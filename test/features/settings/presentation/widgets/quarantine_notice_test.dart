@@ -1,8 +1,8 @@
 @Tags(['widget'])
 library;
 
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/quarantine_notice.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_notice.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../support/accessibility.dart';
-import '../progress_host.dart';
+import '../data_host.dart';
 
 const _newer = (
   'PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.',
@@ -40,7 +40,7 @@ void main() {
     TargetPlatform platform = TargetPlatform.android,
   }) async {
     final (bloc, _) = dataBlocAt(state);
-    await pumpProgressHost(
+    await pumpDataHost(
       tester,
       const QuarantineNotice(),
       data: bloc,
@@ -146,7 +146,7 @@ void main() {
     final (bloc, _) = dataBlocAt(const DataState(quarantineCopy: QuarantineCopy.saved));
     await pumpAtTextScale(
       tester,
-      progressHost(
+      dataHost(
         const QuarantineNotice(),
         data: bloc,
         record: recordBlocAt(quarantine: QuarantineReason.malformed, quarantineKept: true),

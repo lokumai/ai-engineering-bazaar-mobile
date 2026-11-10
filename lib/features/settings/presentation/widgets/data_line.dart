@@ -1,12 +1,12 @@
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/data_texts.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/erase_dialog.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_texts.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/erase_dialog.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The data line of the progress page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the actions Back up,
+/// The data line of the Settings page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the actions Back up,
 /// Restore, Reset and, while the reset can be undone, Undo, then the status lines in a live region.
 ///
 /// Reset is drawn in on-surface (Decision A18) and asks through [showEraseDialog] first. Every action is off while a

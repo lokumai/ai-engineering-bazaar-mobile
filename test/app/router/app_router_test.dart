@@ -5,7 +5,8 @@ import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart'
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
@@ -67,7 +68,7 @@ void main() {
       'moduleEveryone',
       {'level': 'alpha', 'module': 'first'},
     ),
-    ('/profile', '/profile', 'progress', {}),
+    ('/quiz', '/quiz', 'quizzes', {}),
     ('/settings', '/settings', 'settings', {}),
   ];
   for (final (location, path, name, params) in rows) {
@@ -86,7 +87,7 @@ void main() {
           // Decision A38: the router is the one place that hands the quiz feature's panel to the reader.
           expect(tester.widget<ModuleReaderPage>(find.byType(ModuleReaderPage)).quizBuilder, buildQuizPanel);
         }
-        if (name == 'progress') expect(find.byType(ProgressPage), findsOneWidget);
+        if (name == 'quizzes') expect(find.byType(QuizListPage), findsOneWidget);
       });
     }
   }
@@ -100,6 +101,7 @@ void main() {
     '/everyone/courses/alpha',
     '/sheets/alpha/first',
     '/legend',
+    '/profile',
     '/nope',
   ];
   for (final location in notFound) {
@@ -125,6 +127,19 @@ void main() {
     expect(router.routerDelegate.currentConfiguration.last.route.name, 'debugGallery');
     expect(find.byType(ContentGalleryPage), findsOneWidget);
   });
+
+  // Plan 1AC: a module's quiz opens full screen, over the shell, from the Quiz tab or Home's practice.
+  for (final form in _forms('/quiz/alpha/first')) {
+    testWidgets('$form opens the quiz of alpha/first outside the shell', (tester) async {
+      final match = await _matchAt(tester, form);
+
+      expect(match.isError, isFalse);
+      expect(match.last.route.name, 'quiz');
+      expect(match.pathParameters, {'level': 'alpha', 'module': 'first'});
+      expect(tester.widget<QuizPage>(find.byType(QuizPage)).moduleKey, 'alpha/first');
+      expect(find.byType(BazaarShell), findsNothing);
+    });
+  }
 
   // Decision A6: a phone cannot send Ctrl+Shift+D, so a debug build opens the console from Settings.
   testWidgets('/settings offers the developer console in a debug build', (tester) async {

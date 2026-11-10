@@ -125,7 +125,7 @@ void main() {
 
     expect(track.state, Track.everyone);
 
-    router.go('/profile');
+    router.go('/quiz');
     await tester.pumpAndSettle();
     expect(track.state, Track.everyone, reason: 'a page of neither track keeps the remembered track');
   });
@@ -137,13 +137,13 @@ void main() {
 
     expect(_destination('Home'), findsOneWidget);
     expect(_destination('Catalog'), findsOneWidget);
-    expect(_destination('Progress'), findsOneWidget);
+    expect(_destination('Quiz'), findsOneWidget);
     expect(_destination('Settings'), findsOneWidget);
     expect(selected(), 1, reason: 'a level page is under Catalog');
 
-    await tester.tap(_destination('Progress'));
+    await tester.tap(_destination('Quiz'));
     await tester.pumpAndSettle();
-    expect(_path(router), '/profile');
+    expect(_path(router), '/quiz');
     expect(selected(), 2);
 
     await tester.tap(_destination('Settings'));
@@ -156,7 +156,7 @@ void main() {
     expect(_path(router), '/');
     expect(selected(), 0);
 
-    router.go('/profile');
+    router.go('/quiz');
     await tester.pumpAndSettle();
     track.select(Track.everyone);
     await tester.pumpAndSettle();
@@ -174,12 +174,12 @@ void main() {
     expect(tester.takeException(), isNull);
     expectHittable(tester, _destination('Home'));
     expectHittable(tester, _destination('Catalog'));
-    expectHittable(tester, _destination('Progress'));
+    expectHittable(tester, _destination('Quiz'));
     expectHittable(tester, _destination('Settings'));
   });
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {
-    final router = AppRouterFactory(initialLocation: '/profile').create();
+    final router = AppRouterFactory(initialLocation: '/quiz').create();
     addTearDown(router.dispose);
     await tester.pumpWidget(bazaarTestApp(platform: defaultTargetPlatform, router: router));
     await tester.pumpAndSettle();

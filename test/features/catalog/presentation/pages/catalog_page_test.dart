@@ -36,6 +36,10 @@ String _path(GoRouter router) => router.state.uri.path;
 
 Finder _inOverview(String text) => find.descendant(of: find.byType(CatalogOverview), matching: find.text(text));
 
+/// The Planned mark in the row of the module [key].
+Finder _plannedIn(String key) =>
+    find.descendant(of: find.byKey(CatalogOverview.rowKey(key)), matching: find.bySemanticsLabel('Planned'));
+
 /// The button of the level titled [title], found by the start of its spoken label.
 Finder _level(String title) => find.bySemanticsLabel(RegExp('^$title,'));
 
@@ -61,7 +65,7 @@ void main() {
     }
     expect(
       tester.getSemantics(_level('Alpha Level')),
-      isSemantics(label: 'Alpha Level, 3 modules · ~1 h 15 min', isButton: true, hasExpandedState: true),
+      isSemantics(label: 'Alpha Level, 3 modules · ~1 h 15 min, 1/3 completed', isButton: true, hasExpandedState: true),
     );
     expect(_inOverview('First Module'), findsNothing, reason: 'closed at first');
   });
@@ -76,11 +80,11 @@ void main() {
     }
     expect(_inOverview('Fourth Module'), findsNothing, reason: 'beta stays closed');
     expect(
-      find.descendant(of: find.byType(CatalogOverview), matching: find.byIcon(Icons.check_circle_outline)),
-      findsOneWidget,
+      tester.getSemantics(find.bySemanticsLabel('Complete First Module')),
+      isSemantics(hasCheckedState: true, isChecked: true),
       reason: 'alpha/first is completed',
     );
-    expect(_inOverview('Planned'), findsOneWidget, reason: 'alpha/third is planned For Engineers');
+    expect(_plannedIn('alpha/third'), findsOneWidget, reason: 'alpha/third is planned For Engineers');
 
     await _tap(tester, _level('Beta Level'));
     expect(_inOverview('First Module'), findsOneWidget, reason: 'several levels open at once');
@@ -97,7 +101,9 @@ void main() {
 
     expect(_inOverview('First Module'), findsOneWidget);
     expect(find.text('First Story'), findsNothing);
-    expect(_inOverview('Planned'), findsNWidgets(2), reason: 'alpha/second and alpha/third');
+    expect(_plannedIn('alpha/second'), findsOneWidget);
+    expect(_plannedIn('alpha/third'), findsOneWidget);
+    expect(_plannedIn('alpha/first'), findsNothing);
   });
 
   testWidgets('a module opens the module of the track, and back finds its level still open', (tester) async {

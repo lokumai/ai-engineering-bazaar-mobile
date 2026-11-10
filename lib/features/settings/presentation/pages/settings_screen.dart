@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -16,12 +17,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the track the reader chose (plan 1L,
-/// the one place it changes after Welcome), the content status with Check for
-/// updates (spec 3.4.2 to 3.4.4), the licences, and the developer console when [openDevConsole] is set.
+/// the one place it changes after Welcome), the reader's data with Back up, Restore and Reset (plan 1AB: the progress
+/// page that held them is gone), the content status with Check for updates (spec 3.4.2 to 3.4.4), the licences, and
+/// the developer console when [openDevConsole] is set.
 ///
-/// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). The data
-/// flows live on the progress page (A8). Only [ContentReady] draws; the other content states never mount,
-/// since the app gate mounts the router only once the content is ready.
+/// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). Only
+/// [ContentReady] draws; the other content states never mount, since the app gate mounts the router only once the
+/// content is ready.
 /// The key of [language]'s segment in the language setting.
 Key settingsLanguageKey(String language) => ValueKey('settings-language-$language');
 
@@ -117,6 +119,10 @@ class _SettingsView extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: AppSpacing.xl),
+          SectionRule(title: s.settings_data),
+          const SizedBox(height: AppSpacing.md),
+          const DataSection(),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_content),
           const SizedBox(height: AppSpacing.md),

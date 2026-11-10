@@ -99,7 +99,7 @@ Three of them change a decision taken above or a requirement; those are marked, 
   - The interface follows the language: every string is in `intl_tr.arb` and `intl_fa.arb`; Persian lays the app out right to left, code blocks stay left to right.
   - The reader opens a module's document in the language; a module with no such document opens in English, and a change of language reopens the module in the new one.
   - The track names come from the app's strings, since the bundle names the tracks in English only.
-  - Known gap: the bundle's index gives module and level titles, summaries and blurbs in English only, so the catalog, Home and Progress list them in English. The web would have to publish them per language (Phase 5).
+  - Known gap: the bundle's index gives module and level titles, summaries and blurbs in English only, so the catalog, Home and the Quiz tab list them in English. The web would have to publish them per language (Phase 5).
 
 
 ### Review round 2: the first launch, again (2026-11-09)
@@ -114,19 +114,22 @@ The owner ran the app from a clean install. Each step lands on the same branch a
 - [x] **1X A guide on the first launch.** Someone new to the app does not know what it holds. After the language and the track, Welcome shows How the bazaar works once: the levels, the short modules, marking what is finished, and the course kept on the device offline. Open the catalog ends Welcome; only then is it recorded as seen.
 - [x] **1Y The gate plays as the app opens.** *Changes 1I and 1S.* Three Welcome screens were too many, and the first was a page with a button only to go on. The gate, the lamps and the people now play on every launch while the content and the record load (1.8 s), then the scene grows and fades into the app; there is no button. A first launch goes from it straight to the language and the track, then the guide (1X). The scene's lingering life of 1S is gone with the page.
 - [x] **1Z The gate is an animation only, and the bar is on every screen.** The opening gate still looked like a page. It now has no words, no mark and no button: the gate stands in the middle of the screen with its top and foot melting into the page ground, the lamps drop, the people step in, the light comes up, and then the reader walks in, the gate growing towards the light in its arch as it fades (0.7 s). The steps of the first launch (the language and the track, the guide) wear the cobalt bar like every page after them; the bar moved to `lib/shared/design_system/widgets/bazaar_bar.dart`.
-- [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn; it stays until the owner settles the opening.
-- [ ] **1W Quiz scores (on hold).** The owner would like Progress to show how each quiz went. The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
+- [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn (removed in 1AE).
+- [ ] **1W Quiz scores (on hold).** The owner would like the app to show how each quiz went (on the Quiz tab since 1AC). The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
 
-### Review round 3: Progress inside the catalog, and quizzes to practise (proposed 2026-11-10, to discuss)
+### Review round 3: Progress inside the catalog, and quizzes to practise (2026-11-10)
 
-- [ ] **1AB Progress inside the catalog.** The owner proposes showing each module's completion in the catalog itself, using Progress's tick boxes and level dials, so that a separate Progress tab may not be needed. Before Progress is removed, these questions must be settled:
-  - Where do Back up, Restore and Reset go? Settings is the likely place. They are R-requirements and cannot be dropped.
-  - Do the counts go with it? These are the modules completed and the active days. Home or the catalog's header could carry them.
-  - Does a For Everyone reader lose anything? Progress shows only the current track since 1U, so the catalog of that track carries the same information.
-- [ ] **1AC A Quiz tab in place of Progress.** If 1AB removes Progress, the fourth bottom item becomes Quiz. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) without going through the reader.
-- [ ] **1AD Practice on Home.** Home offers practice that refreshes what the reader has already read: quizzes of the modules they completed, reached directly from Home. Open questions:
-  - How are the quizzes picked? Possible ways are the most recently completed modules, a random pick, or the oldest completed modules.
-  - Does it depend on 1W (quiz scores)? Without scores, practice cannot favour the quizzes that went badly.
+The owner proposed these on 2026-11-10 and settled them the same day: the opening stays (1AA), Progress goes into the catalog, and the fourth tab becomes Quiz. They land on the same branch and pull request.
+
+- [x] **1AB Progress inside the catalog.** The catalog shows each module's completion with the progress page's marks and dials, and the progress page is gone.
+  - Each level is an arch card in its hue with its number, title, length and the dial of its completed modules. A tap opens its modules; each written module has the mark that completes it, and a planned one has the dashed Planned mark. The rest of the row opens the reader.
+  - The modules completed in the track and the active days stand at the top of the catalog, and the legend of the marks at its foot.
+  - Back up, Restore and Reset, the set-aside record notice and the write notice moved to Settings, under Your progress (`lib/features/settings/`). They are R-requirements and stay as they were. The reader's write notice now opens Settings.
+  - A For Everyone reader loses nothing: the catalog of the current track carries what Progress showed since 1U.
+  - Home's line for a reader who has completed every module now leads to the catalog.
+- [x] **1AC A Quiz tab in place of Progress.** The fourth bottom item is Quiz, at `/quiz`. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) at `/quiz/<level>/<module>` without going through the reader; Done closes it. Only For Engineers documents carry a quiz, so the tab lists those, and tells a For Everyone reader where the questions come from. The web has no quiz page (A9); these routes are the app's own.
+- [x] **1AD Practice on Home.** Under the modules after the next one, Home offers Practise again: the quizzes of the three modules completed last in the current track, the most recent first, each opening the quiz full screen. The record keeps when each module was completed, so the order is the record's own. Without quiz scores (1W) practice cannot favour the quizzes that went badly; once scores exist, it can.
+- [x] **1AE The unused gate picture is gone.** With the opening settled, `assets/welcome/gate.webp` is removed. The lamps and the people stay: the opening draws them.
 
 ## Phase 2: small fixes in the reader
 
@@ -143,7 +146,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 - [ ] **3.1 New pages reach the app on their own (web M62, Caravan).** The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
-  - The bottom navigation shows the bundle's extra pages after Progress, as the web's bar does; Settings stays the last item.
+  - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
 - [ ] **3.2 Refresh the bundled snapshot.** The bundled snapshot is contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes.
@@ -172,7 +175,7 @@ The ones that unlock app features:
 - [ ] **5.5** Rewrite the six logos that a renderer without CSS draws wrong.
 - [ ] **5.6** If the redesign's dropped parts are wanted later: saved quiz results in the record, and search data in the bundle. Each is a web decision first.
 - [ ] **5.7** The bar's pages in the bundle: path, title and state (`live` or `maintenance`) of each destination, so a new page reaches the app with no app release (3.1).
-- [ ] **5.8** Module and level titles, summaries and blurbs per language in the index, so the catalog, Home and Progress list them in the reader's language (1Q).
+- [ ] **5.8** Module and level titles, summaries and blurbs per language in the index, so the catalog, Home and the Quiz tab list them in the reader's language (1Q).
 
 The rest (register fixes, contrast fixes, conformance cases) are listed in the PR #1 description.
 

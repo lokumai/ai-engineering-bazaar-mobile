@@ -89,7 +89,7 @@ final class PendingRestore extends Equatable {
   List<Object?> get props => [data, local];
 }
 
-/// The data line of the progress page.
+/// The data line of the Settings page.
 ///
 /// A single state with a status: CLAUDE.md exception 1 (concurrent state access). The data line shows
 /// its last outcome while its four actions stay available, and a backup line, a restore line and a

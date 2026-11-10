@@ -93,9 +93,9 @@ class S {
     return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
   }
 
-  /// `Progress`
-  String get nav_progress {
-    return Intl.message('Progress', name: 'nav_progress', desc: '', args: []);
+  /// `Quiz`
+  String get nav_quiz {
+    return Intl.message('Quiz', name: 'nav_quiz', desc: '', args: []);
   }
 
   /// `Settings`
@@ -163,11 +163,6 @@ class S {
     );
   }
 
-  /// `See the progress`
-  String get home_see_progress {
-    return Intl.message('See the progress', name: 'home_see_progress', desc: '', args: []);
-  }
-
   /// `After that`
   String get home_after {
     return Intl.message('After that', name: 'home_after', desc: '', args: []);
@@ -176,6 +171,21 @@ class S {
   /// `See the whole catalog`
   String get home_see_catalog {
     return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
+  }
+
+  /// `Practise again`
+  String get home_practice {
+    return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
+  }
+
+  /// `The questions of the modules you completed last, to keep what you read.`
+  String get home_practice_lede {
+    return Intl.message(
+      'The questions of the modules you completed last, to keep what you read.',
+      name: 'home_practice_lede',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `The course is on this device`
@@ -590,63 +600,88 @@ class S {
     return Intl.message('Back to the questions', name: 'quiz_back_to_questions', desc: '', args: []);
   }
 
-  /// `Your progress`
-  String get progress_title {
-    return Intl.message('Your progress', name: 'progress_title', desc: '', args: []);
+  /// `Done`
+  String get quiz_done {
+    return Intl.message('Done', name: 'quiz_done', desc: '', args: []);
+  }
+
+  /// `This quiz could not be opened. Close it and try again later.`
+  String get quiz_unavailable {
+    return Intl.message(
+      'This quiz could not be opened. Close it and try again later.',
+      name: 'quiz_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quizzes`
+  String get quiz_list_title {
+    return Intl.message('Quizzes', name: 'quiz_list_title', desc: '', args: []);
+  }
+
+  /// `The questions at the end of each module, to check what you have read. Open one at any time.`
+  String get quiz_list_lede {
+    return Intl.message(
+      'The questions at the end of each module, to check what you have read. Open one at any time.',
+      name: 'quiz_list_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The questions come with the {track} modules.`
+  String quiz_list_engineers_only(String track) {
+    return Intl.message(
+      'The questions come with the $track modules.',
+      name: 'quiz_list_engineers_only',
+      desc: '',
+      args: [track],
+    );
   }
 
   /// `{count, plural, =1{module completed} other{modules completed}}`
-  String progress_stat_completed(int count) {
+  String catalog_stat_completed(int count) {
     return Intl.plural(
       count,
       one: 'module completed',
       other: 'modules completed',
-      name: 'progress_stat_completed',
+      name: 'catalog_stat_completed',
       desc: '',
       args: [count],
     );
   }
 
   /// `{count, plural, =1{active day} other{active days}}`
-  String progress_stat_days(int count) {
+  String catalog_stat_days(int count) {
     return Intl.plural(
       count,
       one: 'active day',
       other: 'active days',
-      name: 'progress_stat_days',
+      name: 'catalog_stat_days',
       desc: '',
       args: [count],
     );
   }
 
   /// `{approved}/{total}`
-  String progress_level_dial(String approved, int total) {
-    return Intl.message('$approved/$total', name: 'progress_level_dial', desc: '', args: [approved, total]);
-  }
-
-  /// `{number} {title}`
-  String progress_module_link(String number, String title) {
-    return Intl.message('$number $title', name: 'progress_module_link', desc: '', args: [number, title]);
+  String catalog_level_dial(String approved, int total) {
+    return Intl.message('$approved/$total', name: 'catalog_level_dial', desc: '', args: [approved, total]);
   }
 
   /// `Complete {title}`
-  String progress_complete_module(String title) {
-    return Intl.message('Complete $title', name: 'progress_complete_module', desc: '', args: [title]);
-  }
-
-  /// `Every module, {track}`
-  String progress_every_module(String track) {
-    return Intl.message('Every module, $track', name: 'progress_every_module', desc: '', args: [track]);
+  String catalog_complete_module(String title) {
+    return Intl.message('Complete $title', name: 'catalog_complete_module', desc: '', args: [title]);
   }
 
   /// `Complete`
-  String get progress_state_complete {
-    return Intl.message('Complete', name: 'progress_state_complete', desc: '', args: []);
+  String get catalog_state_complete {
+    return Intl.message('Complete', name: 'catalog_state_complete', desc: '', args: []);
   }
 
   /// `Not yet`
-  String get progress_state_not_yet {
-    return Intl.message('Not yet', name: 'progress_state_not_yet', desc: '', args: []);
+  String get catalog_state_not_yet {
+    return Intl.message('Not yet', name: 'catalog_state_not_yet', desc: '', args: []);
   }
 
   /// `Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.`
@@ -986,6 +1021,11 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Your progress`
+  String get settings_data {
+    return Intl.message('Your progress', name: 'settings_data', desc: '', args: []);
   }
 
   /// `Content`

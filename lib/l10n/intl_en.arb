@@ -19,8 +19,8 @@
   "@nav_home": {},
   "nav_catalog": "Catalog",
   "@nav_catalog": {},
-  "nav_progress": "Progress",
-  "@nav_progress": {},
+  "nav_quiz": "Quiz",
+  "@nav_quiz": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
   "welcome_track_title": "How would you like to read?",
@@ -43,12 +43,14 @@
   "@home_open_module": {},
   "home_all_complete": "Every written module of this track is complete.",
   "@home_all_complete": {},
-  "home_see_progress": "See the progress",
-  "@home_see_progress": {},
   "home_after": "After that",
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",
   "@home_see_catalog": {},
+  "home_practice": "Practise again",
+  "@home_practice": {},
+  "home_practice_lede": "The questions of the modules you completed last, to keep what you read.",
+  "@home_practice_lede": {},
   "home_offline_title": "The course is on this device",
   "@home_offline_title": {},
   "home_offline_body": "It reads without a connection. At every start the app asks the site for a newer version.",
@@ -339,26 +341,40 @@
   "@quiz_recap_wrong": {},
   "quiz_back_to_questions": "Back to the questions",
   "@quiz_back_to_questions": {},
-  "progress_title": "Your progress",
-  "@progress_title": {},
-  "progress_stat_completed": "{count, plural, =1{module completed} other{modules completed}}",
-  "@progress_stat_completed": {
+  "quiz_done": "Done",
+  "@quiz_done": {},
+  "quiz_unavailable": "This quiz could not be opened. Close it and try again later.",
+  "@quiz_unavailable": {},
+  "quiz_list_title": "Quizzes",
+  "@quiz_list_title": {},
+  "quiz_list_lede": "The questions at the end of each module, to check what you have read. Open one at any time.",
+  "@quiz_list_lede": {},
+  "quiz_list_engineers_only": "The questions come with the {track} modules.",
+  "@quiz_list_engineers_only": {
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "catalog_stat_completed": "{count, plural, =1{module completed} other{modules completed}}",
+  "@catalog_stat_completed": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "progress_stat_days": "{count, plural, =1{active day} other{active days}}",
-  "@progress_stat_days": {
+  "catalog_stat_days": "{count, plural, =1{active day} other{active days}}",
+  "@catalog_stat_days": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "progress_level_dial": "{approved}/{total}",
-  "@progress_level_dial": {
+  "catalog_level_dial": "{approved}/{total}",
+  "@catalog_level_dial": {
     "placeholders": {
       "approved": {
         "type": "String"
@@ -368,37 +384,18 @@
       }
     }
   },
-  "progress_module_link": "{number} {title}",
-  "@progress_module_link": {
-    "placeholders": {
-      "number": {
-        "type": "String"
-      },
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "progress_complete_module": "Complete {title}",
-  "@progress_complete_module": {
+  "catalog_complete_module": "Complete {title}",
+  "@catalog_complete_module": {
     "placeholders": {
       "title": {
         "type": "String"
       }
     }
   },
-  "progress_every_module": "Every module, {track}",
-  "@progress_every_module": {
-    "placeholders": {
-      "track": {
-        "type": "String"
-      }
-    }
-  },
-  "progress_state_complete": "Complete",
-  "@progress_state_complete": {},
-  "progress_state_not_yet": "Not yet",
-  "@progress_state_not_yet": {},
+  "catalog_state_complete": "Complete",
+  "@catalog_state_complete": {},
+  "catalog_state_not_yet": "Not yet",
+  "@catalog_state_not_yet": {},
   "data_line_text": "Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.",
   "@data_line_text": {},
   "data_back_up": "Back up to a file",
@@ -511,6 +508,8 @@
   "@settings_track": {},
   "settings_track_note": "Home, the catalog and the reader open this track. A link into the other track still opens it.",
   "@settings_track_note": {},
+  "settings_data": "Your progress",
+  "@settings_data": {},
   "settings_content": "Content",
   "@settings_content": {},
   "settings_content_version": "Version",

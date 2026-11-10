@@ -76,7 +76,7 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: logo bar with back, lattice band, bottom navigation (Home,
-                                                Catalog, Progress, Settings)
+                                                Catalog, Quiz, Settings)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -91,7 +91,7 @@ lib/
     content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
-    record/presentation/record_write_notice.dart  the write-failure line shared by the reader and the progress page
+    record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
@@ -100,12 +100,14 @@ lib/
                                                 rule, segmented control
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
   features/
-    home/                                       Home at `/`: continue card, levels, offline note
-    catalog/                                    catalog root (Overview) at `/sheets` and level page (Cards)
+    home/                                       Home at `/`: continue card, the modules after it, practice, offline note
+    catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
+                                                legend) and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
-    quiz/                                       QuizCubit, the quiz card and the full-screen quiz
-    progress/                                   progress page, DataBloc, data line, quarantine notice, dialogs
-    settings/                                   content status, Check for updates, licences, debug dev-console button
+    quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
+                                                module's quiz at `/quiz/<level>/<module>`
+    settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
+                                                content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, the guide)
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)

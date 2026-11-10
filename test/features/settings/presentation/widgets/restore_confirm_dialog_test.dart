@@ -1,14 +1,14 @@
 @Tags(['widget'])
 library;
 
-import 'package:ai_engineering_bazaar/features/progress/presentation/widgets/restore_confirm_dialog.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/accessibility.dart';
-import '../progress_host.dart';
+import '../data_host.dart';
 
 void main() {
   Future<Future<bool>> open(
@@ -17,7 +17,7 @@ void main() {
     TargetPlatform platform = TargetPlatform.android,
   }) async {
     final (bloc, _) = dataBlocAt();
-    await pumpProgressHost(tester, const SizedBox.shrink(), data: bloc, platform: platform);
+    await pumpDataHost(tester, const SizedBox.shrink(), data: bloc, platform: platform);
     final answer = showRestoreConfirmDialog(hostContext(tester), local);
     await tester.pumpAndSettle();
     return answer;
@@ -68,7 +68,7 @@ void main() {
 
   testWidgets('text scale 2.0', (tester) async {
     final (bloc, _) = dataBlocAt();
-    await pumpAtTextScale(tester, progressHost(const SizedBox.shrink(), data: bloc), scale: 2.0);
+    await pumpAtTextScale(tester, dataHost(const SizedBox.shrink(), data: bloc), scale: 2.0);
     showRestoreConfirmDialog(hostContext(tester), const Tally(sheets: 2));
     await tester.pumpAndSettle();
 

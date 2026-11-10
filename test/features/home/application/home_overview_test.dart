@@ -66,4 +66,45 @@ void main() {
     );
     expect(homeOverview(index, Track.everyone, RecordData.empty).after.first.title, 'Fourth Story');
   });
+
+  group('practice (plan 1AD)', () {
+    RecordData at(List<(String, String)> done, {Track track = Track.engineers}) =>
+        done.fold(RecordData.empty, (record, entry) => signOff(record, entry.$1, 'abc1234', entry.$2, track: track));
+
+    test('nothing to practise before a module is completed', () {
+      expect(homeOverview(index, Track.engineers, RecordData.empty).practice, isEmpty);
+    });
+
+    test('the completed modules with a quiz, the most recently completed first, three at most', () {
+      final record = at([
+        ('alpha/first', '2026-11-01T10:00:00.000Z'),
+        ('gamma/sixth', '2026-11-04T10:00:00.000Z'),
+        ('alpha/second', '2026-11-03T10:00:00.000Z'),
+        ('beta/fourth', '2026-11-02T10:00:00.000Z'),
+      ]);
+
+      final practice = homeOverview(index, Track.engineers, record).practice;
+      expect([for (final entry in practice) entry.module.key], ['gamma/sixth', 'alpha/second', 'beta/fourth']);
+      expect(practice.first.title, 'Sixth Module');
+      expect(practice.first.position, 2);
+    });
+
+    test('two completed at the same instant keep their number order', () {
+      final record = at([('beta/fourth', now), ('alpha/first', now)]);
+
+      expect(
+        [for (final entry in homeOverview(index, Track.engineers, record).practice) entry.module.key],
+        ['alpha/first', 'beta/fourth'],
+      );
+    });
+
+    test('a For Everyone reader practises the For Engineers quiz of the modules completed in their track', () {
+      final record = at([('alpha/first', now)], track: Track.everyone);
+
+      final practice = homeOverview(index, Track.everyone, record).practice;
+      expect([for (final entry in practice) entry.module.key], ['alpha/first']);
+      expect(practice.single.title, 'First Module', reason: 'the quiz is the For Engineers one');
+      expect(homeOverview(index, Track.engineers, record).practice, isEmpty, reason: 'not completed For Engineers');
+    });
+  });
 }

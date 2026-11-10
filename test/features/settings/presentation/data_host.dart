@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -49,7 +49,7 @@ MockRecordBloc recordBlocAt({
 
 /// Pumps [child] in a scrolling Scaffold under the Bazaar theme, below providers of [data] and [record] (a ready empty
 /// record when null).
-Future<void> pumpProgressHost(
+Future<void> pumpDataHost(
   WidgetTester tester,
   Widget child, {
   required DataBloc data,
@@ -57,19 +57,19 @@ Future<void> pumpProgressHost(
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
 }) async {
-  await tester.pumpWidget(progressHost(child, data: data, record: record, brightness: brightness, platform: platform));
+  await tester.pumpWidget(dataHost(child, data: data, record: record, brightness: brightness, platform: platform));
   await tester.pump();
 }
 
-/// The app [pumpProgressHost] pumps, for `pumpAtTextScale`.
-Widget progressHost(
+/// The app [pumpDataHost] pumps, for `pumpAtTextScale`.
+Widget dataHost(
   Widget child, {
   required DataBloc data,
   RecordBloc? record,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
 }) {
-  // The blocs sit below the Navigator, as on the progress page, so a dialog sees them only if it provides them again.
+  // The blocs sit below the Navigator, as on the Settings page, so a dialog sees them only if it provides them again.
   return MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: bazaarTheme(brightness: brightness, platform: platform),

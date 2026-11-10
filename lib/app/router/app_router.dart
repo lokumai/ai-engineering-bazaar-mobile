@@ -8,7 +8,8 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
-import 'package:ai_engineering_bazaar/features/progress/presentation/pages/progress_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
@@ -69,12 +70,19 @@ class AppRouterFactory {
             _pageOf('levelEveryone', '/everyone/sheets/:level', (state) => _level(state, Track.everyone)),
             _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
-            _page('progress', BazaarPaths.progress, const ProgressPage()),
+            // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
+            _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
             ...SettingsFeatureRoutes.routes(openDevConsole: kDebugMode ? DevConsoleOverlay.show : null),
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
           ],
+        ),
+        // A module's quiz full screen, over the shell, from the Quiz tab or Home's practice (plan 1AC, 1AD).
+        _pageOf(
+          'quiz',
+          '${BazaarPaths.quizzes}/:level/:module',
+          (state) => QuizPage(moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}'),
         ),
         // The web's catalog paths that are not pages of their own here.
         GoRoute(path: '/courses', redirect: (_, _) => BazaarPaths.catalogEngineers),

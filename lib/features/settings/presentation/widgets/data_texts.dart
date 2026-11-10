@@ -1,4 +1,4 @@
-import 'package:ai_engineering_bazaar/features/progress/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 
 /// The backup line of the data line and the erase dialog (web `DataPanel.tsx:236-240`).

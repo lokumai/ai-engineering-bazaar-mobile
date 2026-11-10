@@ -12,7 +12,7 @@ void main() {
     ('/everyone/sheets', Track.everyone, '/sheets', '/everyone/sheets'),
     ('/everyone/sheets/alpha', Track.everyone, '/sheets/alpha', '/everyone/sheets/alpha'),
     ('/everyone/courses/alpha/first', Track.everyone, '/courses/alpha/first', '/everyone/courses/alpha/first'),
-    ('/profile', null, null, null),
+    ('/quiz', null, null, null),
     ('/settings', null, null, null),
     ('/courses', null, null, null),
     ('/courses/alpha', null, null, null),
@@ -38,7 +38,8 @@ void main() {
     expect(BazaarPaths.level(Track.everyone, 'alpha'), '/everyone/sheets/alpha');
     expect(BazaarPaths.module(Track.engineers, 'alpha/first'), '/courses/alpha/first');
     expect(BazaarPaths.module(Track.everyone, 'alpha/first'), '/everyone/courses/alpha/first');
-    expect(BazaarPaths.progress, '/profile');
+    expect(BazaarPaths.quizzes, '/quiz');
+    expect(BazaarPaths.quiz('alpha/first'), '/quiz/alpha/first');
     expect(BazaarPaths.settings, '/settings');
   });
 }

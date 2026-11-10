@@ -123,23 +123,29 @@ class _QuizCard extends StatelessWidget {
 }
 
 /// The quiz full screen: the bar with the quiz's title and a close button over the lattice band, then the current
-/// question or the results. Closing returns to the reader where it was.
+/// question or the results. Closing returns to the reader where it was, or to the page that opened the quiz (plan 1AC).
 class QuizScreen extends StatelessWidget {
-  const QuizScreen({super.key, required this.items});
+  const QuizScreen({super.key, required this.items, this.title, this.doneLabel});
 
   final List<QuizItem> items;
+
+  /// The bar's title; the reader's quiz title when null.
+  final String? title;
+
+  /// The results' closing button; Back to the module when null.
+  final String? doneLabel;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: const CloseButton(),
-        title: Text(S.of(context).quiz_title),
+        title: Text(title ?? S.of(context).quiz_title),
         bottom: const PreferredSize(preferredSize: Size.fromHeight(LatticeBand.height), child: LatticeBand()),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-        child: _QuizBody(items: items),
+        child: _QuizBody(items: items, doneLabel: doneLabel),
       ),
     );
   }
@@ -147,9 +153,10 @@ class QuizScreen extends StatelessWidget {
 
 /// The open panel: the current question or the results, by the [QuizCubit]'s state.
 class _QuizBody extends StatefulWidget {
-  const _QuizBody({required this.items});
+  const _QuizBody({required this.items, required this.doneLabel});
 
   final List<QuizItem> items;
+  final String? doneLabel;
 
   @override
   State<_QuizBody> createState() => _QuizBodyState();
@@ -184,7 +191,7 @@ class _QuizBodyState extends State<_QuizBody> {
           picks: picks,
           focusNode: _questionFocus,
         ),
-        QuizResults(:final picks) => _ResultsView(items: widget.items, picks: picks),
+        QuizResults(:final picks) => _ResultsView(items: widget.items, picks: picks, doneLabel: widget.doneLabel),
       },
     );
   }
@@ -447,10 +454,11 @@ class _StepDot extends StatelessWidget {
 
 /// The score, a recap of every question that returns to it, then Back to the questions and Start over.
 class _ResultsView extends StatelessWidget {
-  const _ResultsView({required this.items, required this.picks});
+  const _ResultsView({required this.items, required this.picks, required this.doneLabel});
 
   final List<QuizItem> items;
   final List<int?> picks;
+  final String? doneLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -513,7 +521,10 @@ class _ResultsView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        FilledButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(s.quiz_back_to_module)),
+        FilledButton(
+          onPressed: () => Navigator.of(context).maybePop(),
+          child: Text(doneLabel ?? s.quiz_back_to_module),
+        ),
       ],
     );
   }
