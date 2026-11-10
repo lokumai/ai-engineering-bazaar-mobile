@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -97,12 +98,15 @@ class _LevelCard extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
+    final total = level.modules.length;
     final taken = level.modules.where((module) => scores.of(module.key) != null).length;
-    final count = [s.quiz_list_count(level.modules.length), if (taken > 0) s.quiz_list_taken(taken)].join(' · ');
+    final count = s.quiz_list_count(total);
+    final meter = s.quiz_list_taken(taken, total);
+    final hue = levelHue(context, level.position);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
     return BazaarCard(
       shape: BazaarCardShape.arch,
-      accent: levelHue(context, level.position),
+      accent: hue,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,7 +114,7 @@ class _LevelCard extends StatelessWidget {
           Semantics(
             button: true,
             expanded: open,
-            label: '${level.level.title}, $count',
+            label: '${level.level.title}, $count, $meter',
             excludeSemantics: true,
             onTap: onToggle,
             child: InkWell(
@@ -140,6 +144,14 @@ class _LevelCard extends StatelessWidget {
                           Text(count, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
                         ],
                       ),
+                    ),
+                    // The catalog's dial: how many of the level's quizzes were taken on this device.
+                    CompletionDial(
+                      done: taken,
+                      total: total,
+                      color: hue,
+                      center: '$taken/$total',
+                      semanticLabel: meter,
                     ),
                     AnimatedRotation(
                       turns: open ? 0.5 : 0,
@@ -174,8 +186,8 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc, the number and title with the last and best score once
-/// taken, and an arrow; one button as a whole.
+/// One module's quiz in an open level: the question disc, or the dial of the last score once taken, the number and
+/// title, and an arrow; one button as a whole. The best score is spoken with the row and shown on the results.
 class _QuizRow extends StatelessWidget {
   const _QuizRow({super.key, required this.module, required this.score});
 
@@ -205,27 +217,34 @@ class _QuizRow extends StatelessWidget {
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-                  child: Text(
-                    '?',
-                    style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
+                SizedBox.square(
+                  dimension: MediaQuery.textScalerOf(context).scale(_dial),
+                  child: Center(
+                    child: score == null
+                        ? Container(
+                            width: 28,
+                            height: 28,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+                            child: Text(
+                              '?',
+                              style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
+                            ),
+                          )
+                        : CompletionDial(
+                            done: score.last,
+                            total: score.total,
+                            color: BazaarFixedColors.success,
+                            center: '${score.last}/${score.total}',
+                            semanticLabel: line!,
+                            size: _dial,
+                            ring: 4,
+                          ),
                   ),
                 ),
                 Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 2,
-                    children: [
-                      Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
-                      if (line != null)
-                        Text(line, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                    ],
-                  ),
+                  child: Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
                 ),
                 Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
               ],
@@ -236,6 +255,9 @@ class _QuizRow extends StatelessWidget {
     );
   }
 }
+
+/// The diameter of a quiz row's dial, and of the space its question disc takes, at text scale 1.
+const double _dial = 38;
 
 /// A level's or a module's number in two digits, as the catalog prints it.
 String _number(int number) => number.toString().padLeft(2, '0');

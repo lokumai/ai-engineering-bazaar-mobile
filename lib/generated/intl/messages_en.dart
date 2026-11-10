@@ -63,7 +63,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m20(track) => "The questions come with the ${track} modules.";
 
-  static String m21(count) => "${count} taken";
+  static String m21(taken, total) => "${taken} of ${total} taken";
 
   static String m22(index, count) => "Question ${index} of ${count}";
 

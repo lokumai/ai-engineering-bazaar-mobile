@@ -650,9 +650,9 @@ class S {
     );
   }
 
-  /// `{count} taken`
-  String quiz_list_taken(int count) {
-    return Intl.message('$count taken', name: 'quiz_list_taken', desc: '', args: [count]);
+  /// `{taken} of {total} taken`
+  String quiz_list_taken(int taken, int total) {
+    return Intl.message('$taken of $total taken', name: 'quiz_list_taken', desc: '', args: [taken, total]);
   }
 
   /// `The questions come with the {track} modules.`

@@ -355,8 +355,8 @@
   "@quiz_score_before": {"placeholders": {"previous": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
   "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
   "@quiz_score_line": {"placeholders": {"last": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
-  "quiz_list_taken": "{count} taken",
-  "@quiz_list_taken": {"placeholders": {"count": {"type": "int"}}},
+  "quiz_list_taken": "{taken} of {total} taken",
+  "@quiz_list_taken": {"placeholders": {"taken": {"type": "int"}, "total": {"type": "int"}}},
   "quiz_list_engineers_only": "The questions come with the {track} modules.",
   "@quiz_list_engineers_only": {
     "placeholders": {

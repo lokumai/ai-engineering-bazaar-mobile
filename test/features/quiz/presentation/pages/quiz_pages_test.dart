@@ -76,7 +76,7 @@ void main() {
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
-    expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes$')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 0 of 2 taken$')), findsOneWidget);
     await _openLevels(tester, ['alpha', 'beta', 'gamma']);
     for (final key in ['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']) {
       expect(find.byKey(QuizListPage.rowKey(key)), findsOneWidget, reason: key);
@@ -107,21 +107,28 @@ void main() {
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing);
   });
 
-  testWidgets('a quiz finished on this device shows its last and best score, and its level how many (plan 1W)', (
-    tester,
-  ) async {
-    final scores = QuizScoresBloc(
-      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 2, total: 2, previous: 2)}),
-    )..add(const QuizScoresStarted());
-    addTearDown(scores.close);
-    await _pump(tester, scores: scores);
+  testWidgets(
+    'a quiz finished on this device shows its last score in a dial, and its level how many in the catalog dial',
+    (tester) async {
+      final scores = QuizScoresBloc(
+        store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 2, total: 2, previous: 2)}),
+      )..add(const QuizScoresStarted());
+      addTearDown(scores.close);
+      await _pump(tester, scores: scores);
 
-    expect(find.text('Last 1 of 2 · best 2 of 2'), findsOneWidget);
-    expect(find.bySemanticsLabel('01 First Module, Last 1 of 2 · best 2 of 2'), findsOneWidget);
-    expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
-    expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes · 1 taken$')), findsOneWidget);
-    expect(find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz$')), findsOneWidget);
-  });
+      expect(find.text('Last 1 of 2 · best 2 of 2'), findsNothing, reason: 'the dial says it, as in the catalog');
+      expect(
+        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.text('1/2')),
+        findsOneWidget,
+        reason: 'the last score in the row dial',
+      );
+      expect(find.text('1/2'), findsNWidgets(2), reason: 'and the level dial: 1 of 2 taken');
+      expect(find.bySemanticsLabel('01 First Module, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
+      expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz, 0 of 1 taken$')), findsOneWidget);
+    },
+  );
 
   testWidgets('a For Everyone reader is told where the questions come from', (tester) async {
     final track = TrackCubit()..select(Track.everyone);

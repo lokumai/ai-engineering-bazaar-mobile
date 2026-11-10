@@ -63,7 +63,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m20(track) => "Sorular ${track} modülleriyle gelir.";
 
-  static String m21(count) => "${count} tanesi çözüldü";
+  static String m21(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
 
   static String m22(index, count) => "Soru ${index} / ${count}";
 

@@ -101,7 +101,7 @@
   "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quiz}}",
   "quiz_score_before": "Bir önceki: {previous} / {total}. En iyi: {best} / {total}.",
   "quiz_score_line": "Son {last} / {total} · en iyi {best} / {total}",
-  "quiz_list_taken": "{count} tanesi çözüldü",
+  "quiz_list_taken": "{total} quizden {taken} tanesi çözüldü",
   "quiz_list_engineers_only": "Sorular {track} modülleriyle gelir.",
   "catalog_stat_completed": "{count, plural, =1{tamamlanan modül} other{tamamlanan modül}}",
   "catalog_stat_days": "{count, plural, =1{aktif gün} other{aktif gün}}",

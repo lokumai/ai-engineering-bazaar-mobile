@@ -63,7 +63,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m20(track) => "پرسش‌ها همراه درس‌های ${track} می‌آیند.";
 
-  static String m21(count) => "${count} حل‌شده";
+  static String m21(taken, total) => "${taken} از ${total} آزمون حل شده";
 
   static String m22(index, count) => "پرسش ${index} از ${count}";
 
