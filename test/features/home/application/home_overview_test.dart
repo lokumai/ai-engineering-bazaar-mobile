@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/features/home/application/home_overview.da
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/catalog_fixture_index.dart';
@@ -87,6 +88,33 @@ void main() {
       expect([for (final entry in practice) entry.module.key], ['gamma/sixth', 'alpha/second', 'beta/fourth']);
       expect(practice.first.title, 'Sixth Module');
       expect(practice.first.position, 2);
+    });
+
+    test('with scores: a quiz never finished first, then the lowest last score, then the most recent (plan 1W)', () {
+      final record = at([
+        ('alpha/first', '2026-11-01T10:00:00.000Z'),
+        ('gamma/sixth', '2026-11-04T10:00:00.000Z'),
+        ('alpha/second', '2026-11-03T10:00:00.000Z'),
+        ('beta/fourth', '2026-11-02T10:00:00.000Z'),
+      ]);
+      const scores = {
+        'gamma/sixth': QuizScore(last: 4, best: 4, total: 4),
+        'alpha/second': QuizScore(last: 1, best: 3, total: 4, previous: 3),
+        'beta/fourth': QuizScore(last: 1, best: 2, total: 8),
+      };
+
+      final practice = homeOverview(index, Track.engineers, record, scores).practice;
+      expect([for (final entry in practice) entry.module.key], ['alpha/first', 'beta/fourth', 'alpha/second']);
+      expect(practice.first.score, isNull);
+      expect(practice[1].score, scores['beta/fourth']);
+    });
+
+    test('a quiz once answered all right is not offered again', () {
+      final record = at([('alpha/first', '2026-11-01T10:00:00.000Z'), ('alpha/second', '2026-11-03T10:00:00.000Z')]);
+      const scores = {'alpha/second': QuizScore(last: 3, best: 4, total: 4, previous: 4)};
+
+      final practice = homeOverview(index, Track.engineers, record, scores).practice;
+      expect([for (final entry in practice) entry.module.key], ['alpha/first']);
     });
 
     test('two completed at the same instant keep their number order', () {

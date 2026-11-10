@@ -356,6 +356,31 @@ void main() {
     expect(find.byKey(const Key('write-failure')), findsNothing);
   });
 
+  testWidgets('the reading bar follows every scroll step', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(
+          body: [for (var i = 0; i < 60; i++) _paragraph('Paragraph $i of a long module.')],
+          next: testRef(),
+        ),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester);
+    double read() => tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value!;
+    expect(read(), 0);
+
+    final page = find.byType(SingleChildScrollView).first;
+    var last = read();
+    for (var step = 0; step < 3; step++) {
+      await tester.drag(page, const Offset(0, -200));
+      await tester.pump();
+      expect(read(), greaterThan(last), reason: 'step $step');
+      last = read();
+    }
+  });
+
   testWidgets('the contents sheet lists depth-2 entries and jumps to them', (tester) async {
     stateIs(
       ReaderWritten(
@@ -616,8 +641,10 @@ void main() {
       QuizItem(question: 'Why?', options: ['A', 'B'], answer: 0, explain: 'Because.'),
     ];
     List<QuizItem>? built;
-    Widget quizBuilder(BuildContext context, List<QuizItem> items) {
+    String? builtKey;
+    Widget quizBuilder(BuildContext context, String moduleKey, List<QuizItem> items) {
       built = items;
+      builtKey = moduleKey;
       return const SizedBox(key: Key('quiz-slot'), height: 10);
     }
 
@@ -633,6 +660,7 @@ void main() {
     final slot = find.byKey(const Key('quiz-slot'));
     expect(slot, findsOneWidget);
     expect(built, quiz);
+    expect(builtKey, first.key, reason: 'the quiz keeps its score under the module');
     expect(top(tester, slot), greaterThan(top(tester, find.text('Start of the course'))));
     expect(top(tester, slot), lessThan(top(tester, find.text('MODULE 1 OF 2'))));
   });
@@ -645,7 +673,7 @@ void main() {
         moduleCount: 2,
       ),
     );
-    await pumpReader(tester, quizBuilder: (_, _) => const SizedBox(key: Key('quiz-slot'), height: 10));
+    await pumpReader(tester, quizBuilder: (_, _, _) => const SizedBox(key: Key('quiz-slot'), height: 10));
 
     expect(find.byKey(const Key('quiz-slot')), findsNothing);
   });

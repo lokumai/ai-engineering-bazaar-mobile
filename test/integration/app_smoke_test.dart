@@ -29,7 +29,6 @@ import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intr
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -156,9 +155,7 @@ void main() {
         await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
-        // The levels are closed buttons: the first one opens its modules.
-        await tester.tap(find.byKey(CatalogOverview.levelKey('alpha')));
-        await tester.pump();
+        // The level of the next module to read starts open: alpha, before and after the completion.
         await _drain(
           tester,
           () => find.descendant(of: find.byType(CatalogPage), matching: find.text(title)).evaluate().isNotEmpty,

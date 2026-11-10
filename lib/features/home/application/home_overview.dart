@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -23,8 +24,9 @@ final class HomeOverview extends Equatable {
   /// How many modules [after] holds at most.
   static const afterCount = 2;
 
-  /// Up to [practiceCount] completed modules whose quiz the reader can take again (plan 1AD), the most recently
-  /// completed first. Only For Engineers documents carry a quiz, so each entry is titled as For Engineers.
+  /// Up to [practiceCount] completed modules whose quiz the reader can take again (plan 1AD): a quiz never finished
+  /// first, then the lowest last score, then the most recently completed (plan 1W). Only For Engineers documents carry
+  /// a quiz, so each entry is titled as For Engineers.
   final List<HomeNext> practice;
 
   /// How many modules [practice] holds at most.
@@ -36,7 +38,7 @@ final class HomeOverview extends Equatable {
 
 /// The module the continue card opens.
 final class HomeNext extends Equatable {
-  const HomeNext({required this.module, required this.level, required this.position, required this.title});
+  const HomeNext({required this.module, required this.level, required this.position, required this.title, this.score});
 
   final ModuleEntry module;
   final LevelEntry level;
@@ -47,23 +49,32 @@ final class HomeNext extends Equatable {
   /// The module's title in the track.
   final String title;
 
+  /// The quiz's score kept on this device, on a practice entry whose quiz was finished; null otherwise.
+  final QuizScore? score;
+
   @override
-  List<Object?> get props => [module, level, position, title];
+  List<Object?> get props => [module, level, position, title, score];
 }
 
-/// The overview of [track] from [index] and [record].
-HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
+/// The overview of [track] from [index], [record] and the quiz [scores] of this device.
+HomeOverview homeOverview(
+  BundleIndex index,
+  Track track,
+  RecordData record, [
+  Map<String, QuizScore> scores = const {},
+]) {
   final view = trackView(record, track);
   final curriculum = curriculumFor(index, track);
   final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
 
-  HomeNext entryOf(String key, [Track titled = Track.engineers]) {
+  HomeNext entryOf(String key, [Track titled = Track.engineers, QuizScore? score]) {
     final module = index.module(key)!;
     return HomeNext(
       module: module,
       level: index.level(module.level)!,
       position: positions[module.level]!,
       title: module.tracks[titled]!.title,
+      score: score,
     );
   }
 
@@ -78,10 +89,28 @@ HomeOverview homeOverview(BundleIndex index, Track track, RecordData record) {
     next: first == null ? null : entryOf(first, track),
     after: [for (final key in open.skip(1).take(HomeOverview.afterCount)) entryOf(key, track)],
     practice: [
-      for (final key in _recentlyCompletedWithQuiz(index, curriculum, view).take(HomeOverview.practiceCount))
-        entryOf(key),
+      for (final key in _toPractise(_recentlyCompletedWithQuiz(index, curriculum, view), scores))
+        entryOf(key, Track.engineers, scores[key]),
     ],
   );
+}
+
+/// The first [HomeOverview.practiceCount] of [recent], the most recently completed first, leaving out a quiz once
+/// answered all right: a quiz never finished comes first, then the lowest share of the last attempt; the order of
+/// [recent] breaks ties.
+List<String> _toPractise(List<String> recent, Map<String, QuizScore> scores) {
+  recent = [
+    for (final key in recent)
+      if (!(scores[key]?.perfect ?? false)) key,
+  ];
+  final order = {for (final (position, key) in recent.indexed) key: position};
+  double share(String key) => scores[key]?.lastShare ?? -1;
+  return ([...recent]..sort((a, b) {
+        final byScore = share(a).compareTo(share(b));
+        return byScore != 0 ? byScore : order[a]!.compareTo(order[b]!);
+      }))
+      .take(HomeOverview.practiceCount)
+      .toList();
 }
 
 /// The completed modules of [curriculum] in [view] whose For Engineers version carries a quiz, the most recently

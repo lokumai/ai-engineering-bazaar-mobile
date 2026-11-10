@@ -9,11 +9,23 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The quiz panel for the reader's quiz slot (Decision A38); the router passes it as the reader's `quizBuilder`.
-Widget buildQuizPanel(BuildContext context, List<QuizItem> items) => QuizPanel(items: items);
+Widget buildQuizPanel(BuildContext context, String moduleKey, List<QuizItem> items) =>
+    QuizPanel(moduleKey: moduleKey, items: items);
+
+/// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W).
+QuizCubit quizCubitFor(BuildContext context, String moduleKey, List<QuizItem> items) {
+  final scores = context.read<QuizScoresBloc>();
+  return QuizCubit(
+    items,
+    onFinished: (right, total) => scores.add(QuizScoreRecorded(key: moduleKey, right: right, total: total)),
+  );
+}
 
 /// The letter of option [index]: A, B, C, D (web `QuickQuiz.tsx:35`).
 String _letter(int index) => String.fromCharCode(0x41 + index);
@@ -36,25 +48,28 @@ Size _textSize(BuildContext context, String text, TextStyle style) {
 /// time, then the score and a recap. The quiz has no route of its own, as the web's has none (A9).
 ///
 /// The [QuizCubit] lives with the card, so closing the quiz and opening it again keeps the answers, as collapsing the
-/// web's disclosure does; nothing is written to the record (R51).
+/// web's disclosure does; nothing is written to the record (R51), and the score is kept on this device (plan 1W).
 class QuizPanel extends StatelessWidget {
-  const QuizPanel({super.key, required this.items});
+  const QuizPanel({super.key, required this.moduleKey, required this.items});
 
+  /// `<level>/<module>`, which the score is kept under.
+  final String moduleKey;
   final List<QuizItem> items;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => QuizCubit(items),
-      child: _QuizCard(items: items),
+      create: (context) => quizCubitFor(context, moduleKey, items),
+      child: _QuizCard(moduleKey: moduleKey, items: items),
     );
   }
 }
 
 /// The card that opens the quiz: the question disc, the title, the count and an arrow, one button as a whole.
 class _QuizCard extends StatelessWidget {
-  const _QuizCard({required this.items});
+  const _QuizCard({required this.moduleKey, required this.items});
 
+  final String moduleKey;
   final List<QuizItem> items;
 
   void _open(BuildContext context) {
@@ -65,7 +80,7 @@ class _QuizCard extends StatelessWidget {
           fullscreenDialog: true,
           builder: (_) => BlocProvider.value(
             value: cubit,
-            child: QuizScreen(items: items),
+            child: QuizScreen(moduleKey: moduleKey, items: items),
           ),
         ),
       ),
@@ -125,8 +140,10 @@ class _QuizCard extends StatelessWidget {
 /// The quiz full screen: the bar with the quiz's title and a close button over the lattice band, then the current
 /// question or the results. Closing returns to the reader where it was, or to the page that opened the quiz (plan 1AC).
 class QuizScreen extends StatelessWidget {
-  const QuizScreen({super.key, required this.items, this.title, this.doneLabel});
+  const QuizScreen({super.key, required this.moduleKey, required this.items, this.title, this.doneLabel});
 
+  /// `<level>/<module>`, whose kept score the results compare with.
+  final String moduleKey;
   final List<QuizItem> items;
 
   /// The bar's title; the reader's quiz title when null.
@@ -145,7 +162,7 @@ class QuizScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-        child: _QuizBody(items: items, doneLabel: doneLabel),
+        child: _QuizBody(moduleKey: moduleKey, items: items, doneLabel: doneLabel),
       ),
     );
   }
@@ -153,8 +170,9 @@ class QuizScreen extends StatelessWidget {
 
 /// The open panel: the current question or the results, by the [QuizCubit]'s state.
 class _QuizBody extends StatefulWidget {
-  const _QuizBody({required this.items, required this.doneLabel});
+  const _QuizBody({required this.moduleKey, required this.items, required this.doneLabel});
 
+  final String moduleKey;
   final List<QuizItem> items;
   final String? doneLabel;
 
@@ -191,7 +209,12 @@ class _QuizBodyState extends State<_QuizBody> {
           picks: picks,
           focusNode: _questionFocus,
         ),
-        QuizResults(:final picks) => _ResultsView(items: widget.items, picks: picks, doneLabel: widget.doneLabel),
+        QuizResults(:final picks) => _ResultsView(
+          moduleKey: widget.moduleKey,
+          items: widget.items,
+          picks: picks,
+          doneLabel: widget.doneLabel,
+        ),
       },
     );
   }
@@ -452,10 +475,12 @@ class _StepDot extends StatelessWidget {
   }
 }
 
-/// The score, a recap of every question that returns to it, then Back to the questions and Start over.
+/// The score, the attempt before it and the best kept on this device, a recap of every question that returns to it,
+/// then Back to the questions and Start over.
 class _ResultsView extends StatelessWidget {
-  const _ResultsView({required this.items, required this.picks, required this.doneLabel});
+  const _ResultsView({required this.moduleKey, required this.items, required this.picks, required this.doneLabel});
 
+  final String moduleKey;
   final List<QuizItem> items;
   final List<int?> picks;
   final String? doneLabel;
@@ -468,6 +493,8 @@ class _ResultsView extends StatelessWidget {
     final score = cubit.score;
     final count = s.quiz_score_count(score, items.length);
     final style = TextStyle(fontSize: BazaarType.body.size, color: colors.onSurface);
+    final kept = context.select<QuizScoresBloc, QuizScore?>((bloc) => bloc.state.of(moduleKey));
+    final previous = kept?.previous;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -501,6 +528,14 @@ class _ResultsView extends StatelessWidget {
             ],
           ),
         ),
+        if (kept != null && previous != null && kept.total == items.length) ...[
+          const SizedBox(height: 4),
+          Text(
+            s.quiz_score_before(previous, kept.best, kept.total),
+            key: const Key('quiz-score-before'),
+            style: style.copyWith(color: colors.onSurfaceMuted),
+          ),
+        ],
         const SizedBox(height: 12),
         for (var i = 0; i < items.length; i++)
           _RecapRow(

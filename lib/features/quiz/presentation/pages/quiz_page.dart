@@ -1,4 +1,3 @@
-import 'package:ai_engineering_bazaar/features/quiz/application/quiz_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_loader.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -12,7 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The quiz of one module full screen at `/quiz/<level>/<module>` (plan 1AC and 1AD): opened from the Quiz tab or from
 /// Home's practice, without the reader. It reads the module's quiz, then shows [QuizScreen] titled with the module;
-/// closing returns to the page that opened it. Nothing is written to the record (R51).
+/// closing returns to the page that opened it. Nothing is written to the record (R51); the score is kept on this device
+/// (plan 1W).
 class QuizPage extends StatelessWidget {
   const QuizPage({super.key, required this.moduleKey});
 
@@ -35,8 +35,8 @@ class QuizPage extends StatelessWidget {
       child: BlocBuilder<QuizLoader, QuizLoad>(
         builder: (context, state) => switch (state) {
           QuizReady(:final title, :final items) => BlocProvider(
-            create: (_) => QuizCubit(items),
-            child: QuizScreen(items: items, title: title, doneLabel: S.of(context).quiz_done),
+            create: (context) => quizCubitFor(context, moduleKey, items),
+            child: QuizScreen(moduleKey: moduleKey, items: items, title: title, doneLabel: S.of(context).quiz_done),
           ),
           QuizLoading() => const _Frame(child: Center(child: CircularProgressIndicator())),
           QuizMissing() || QuizUnreadable() => _Frame(

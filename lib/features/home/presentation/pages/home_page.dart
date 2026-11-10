@@ -9,6 +9,8 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +38,11 @@ class HomePage extends StatelessWidget {
       final state => throw StateError('Home needs a ready record, not $state'),
     };
     final track = context.watch<TrackCubit>().state;
-    final overview = homeOverview(index, track, record);
+    final scores = switch (context.watch<QuizScoresBloc>().state) {
+      QuizScoresReady(:final scores) => scores,
+      QuizScoresLoading() => const <String, QuizScore>{},
+    };
+    final overview = homeOverview(index, track, record, scores);
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 
     return ListView(

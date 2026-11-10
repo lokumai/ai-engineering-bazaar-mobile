@@ -42,4 +42,18 @@ void main() {
     expect(BazaarPaths.quiz('alpha/first'), '/quiz/alpha/first');
     expect(BazaarPaths.settings, '/settings');
   });
+
+  test('levelOf and moduleOf read a level page and a module page in either track, and nothing else', () {
+    for (final (location, level, module) in [
+      ('/sheets/alpha', 'alpha', null),
+      ('/everyone/sheets/alpha/', 'alpha', null),
+      ('/courses/alpha/first', null, 'alpha/first'),
+      ('/everyone/courses/alpha/first', null, 'alpha/first'),
+      ('/sheets', null, null),
+      ('/quiz/alpha/first', null, null),
+      ('/', null, null),
+    ]) {
+      expect((BazaarPaths.levelOf(location), BazaarPaths.moduleOf(location)), (level, module), reason: location);
+    }
+  });
 }

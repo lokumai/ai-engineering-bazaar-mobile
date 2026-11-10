@@ -153,14 +153,9 @@ class S {
     return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
   }
 
-  /// `Every written module of this track is complete.`
+  /// `Every written module is complete.`
   String get home_all_complete {
-    return Intl.message(
-      'Every written module of this track is complete.',
-      name: 'home_all_complete',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
   }
 
   /// `After that`
@@ -178,10 +173,10 @@ class S {
     return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
   }
 
-  /// `The questions of the modules you completed last, to keep what you read.`
+  /// `The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.`
   String get home_practice_lede {
     return Intl.message(
-      'The questions of the modules you completed last, to keep what you read.',
+      'The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.',
       name: 'home_practice_lede',
       desc: '',
       args: [],
@@ -236,11 +231,6 @@ class S {
   /// `Loading`
   String get loading {
     return Intl.message('Loading', name: 'loading', desc: '', args: []);
-  }
-
-  /// `Catalog`
-  String get catalog_title {
-    return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
   }
 
   /// `Completed`
@@ -615,19 +605,39 @@ class S {
     );
   }
 
-  /// `Quizzes`
-  String get quiz_list_title {
-    return Intl.message('Quizzes', name: 'quiz_list_title', desc: '', args: []);
+  /// `{count, plural, =1{1 quiz} other{{count} quizzes}}`
+  String quiz_list_count(int count) {
+    return Intl.plural(count, one: '1 quiz', other: '$count quizzes', name: 'quiz_list_count', desc: '', args: [count]);
   }
 
-  /// `The questions at the end of each module, to check what you have read. Open one at any time.`
-  String get quiz_list_lede {
+  /// `The time before: {previous} of {total}. Best: {best} of {total}.`
+  String quiz_score_before(int previous, int best, int total) {
     return Intl.message(
-      'The questions at the end of each module, to check what you have read. Open one at any time.',
-      name: 'quiz_list_lede',
+      'The time before: $previous of $total. Best: $best of $total.',
+      name: 'quiz_score_before',
       desc: '',
-      args: [],
+      args: [previous, best, total],
     );
+  }
+
+  /// `Last {last} of {total} · best {best} of {total}`
+  String quiz_score_line(int last, int best, int total) {
+    return Intl.message(
+      'Last $last of $total · best $best of $total',
+      name: 'quiz_score_line',
+      desc: '',
+      args: [last, best, total],
+    );
+  }
+
+  /// `{taken} of {total} taken`
+  String quiz_list_taken(int taken, int total) {
+    return Intl.message('$taken of $total taken', name: 'quiz_list_taken', desc: '', args: [taken, total]);
+  }
+
+  /// `All answers right`
+  String get quiz_all_right {
+    return Intl.message('All answers right', name: 'quiz_all_right', desc: '', args: []);
   }
 
   /// `The questions come with the {track} modules.`
@@ -637,30 +647,6 @@ class S {
       name: 'quiz_list_engineers_only',
       desc: '',
       args: [track],
-    );
-  }
-
-  /// `{count, plural, =1{module completed} other{modules completed}}`
-  String catalog_stat_completed(int count) {
-    return Intl.plural(
-      count,
-      one: 'module completed',
-      other: 'modules completed',
-      name: 'catalog_stat_completed',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{active day} other{active days}}`
-  String catalog_stat_days(int count) {
-    return Intl.plural(
-      count,
-      one: 'active day',
-      other: 'active days',
-      name: 'catalog_stat_days',
-      desc: '',
-      args: [count],
     );
   }
 
@@ -831,6 +817,11 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `The quiz scores on this device are erased too.`
+  String get erase_scores {
+    return Intl.message('The quiz scores on this device are erased too.', name: 'erase_scores', desc: '', args: []);
   }
 
   /// `A device backup may still hold an earlier copy of your progress.`
@@ -1008,19 +999,9 @@ class S {
     return Intl.message('Reading', name: 'settings_reading', desc: '', args: []);
   }
 
-  /// `Track`
+  /// `Audience`
   String get settings_track {
-    return Intl.message('Track', name: 'settings_track', desc: '', args: []);
-  }
-
-  /// `Home, the catalog and the reader open this track. A link into the other track still opens it.`
-  String get settings_track_note {
-    return Intl.message(
-      'Home, the catalog and the reader open this track. A link into the other track still opens it.',
-      name: 'settings_track_note',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Audience', name: 'settings_track', desc: '', args: []);
   }
 
   /// `Your progress`
@@ -1179,16 +1160,6 @@ class S {
       'Language',
       name: 'settings_language',
       desc: 'Settings\' language setting (plan 1Q).',
-      args: [],
-    );
-  }
-
-  /// `The interface and the modules follow this language. A module not yet translated opens in English.`
-  String get settings_language_note {
-    return Intl.message(
-      'The interface and the modules follow this language. A module not yet translated opens in English.',
-      name: 'settings_language_note',
-      desc: 'Under Settings\' language setting.',
       args: [],
     );
   }

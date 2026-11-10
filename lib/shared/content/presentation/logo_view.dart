@@ -14,6 +14,9 @@ class LogoView extends StatelessWidget {
   final bool mono;
   final double fontSize;
 
+  /// The key of the empty square drawn for a logo that is missing or does not parse.
+  static const unreadableKey = Key('logo-unreadable');
+
   static const _invert = ColorFilter.matrix(<double>[
     -1, 0, 0, 0, 255, //
     0, -1, 0, 0, 255, //
@@ -29,10 +32,15 @@ class LogoView extends StatelessWidget {
       child: ContentObjectBuilder(
         sitePath: src,
         builder: (context, bytes) {
-          final picture = SvgPicture.memory(bytes, height: height);
+          final picture = SvgPicture.memory(
+            bytes,
+            height: height,
+            // A logo SVG the parser rejects keeps its square of space, as a missing one does (plan 2.2).
+            errorBuilder: (_, _, _) => SizedBox(key: unreadableKey, width: height, height: height),
+          );
           return invert ? ColorFiltered(colorFilter: _invert, child: picture) : picture;
         },
-        unreadable: (context) => SizedBox(width: height, height: height),
+        unreadable: (context) => SizedBox(key: unreadableKey, width: height, height: height),
       ),
     );
   }

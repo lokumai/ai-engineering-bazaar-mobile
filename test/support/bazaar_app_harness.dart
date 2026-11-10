@@ -1,3 +1,7 @@
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -90,6 +94,7 @@ Widget bazaarTestApp({
   RecordBloc? record,
   TrackCubit? track,
   LanguageCubit? language,
+  QuizScoresBloc? scores,
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
@@ -108,6 +113,14 @@ Widget bazaarTestApp({
         BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),
         BlocProvider<RecordBloc>.value(value: record ?? readyRecordBloc()),
         if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
+        if (scores != null)
+          BlocProvider<QuizScoresBloc>.value(value: scores)
+        else
+          BlocProvider<QuizScoresBloc>(
+            create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted()),
+          ),
+        BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
+        BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
         else

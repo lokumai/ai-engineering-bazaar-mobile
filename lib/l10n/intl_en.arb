@@ -41,7 +41,7 @@
   "@home_up_next": {},
   "home_open_module": "Open the module",
   "@home_open_module": {},
-  "home_all_complete": "Every written module of this track is complete.",
+  "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
   "home_after": "After that",
   "@home_after": {},
@@ -49,7 +49,7 @@
   "@home_see_catalog": {},
   "home_practice": "Practise again",
   "@home_practice": {},
-  "home_practice_lede": "The questions of the modules you completed last, to keep what you read.",
+  "home_practice_lede": "The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.",
   "@home_practice_lede": {},
   "home_offline_title": "The course is on this device",
   "@home_offline_title": {},
@@ -65,8 +65,6 @@
   "@content_broken_storage_message": {},
   "loading": "Loading",
   "@loading": {},
-  "catalog_title": "Catalog",
-  "@catalog_title": {},
   "catalog_filter_completed": "Completed",
   "@catalog_filter_completed": {},
   "module_planned": "Planned",
@@ -345,31 +343,20 @@
   "@quiz_done": {},
   "quiz_unavailable": "This quiz could not be opened. Close it and try again later.",
   "@quiz_unavailable": {},
-  "quiz_list_title": "Quizzes",
-  "@quiz_list_title": {},
-  "quiz_list_lede": "The questions at the end of each module, to check what you have read. Open one at any time.",
-  "@quiz_list_lede": {},
+  "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quizzes}}",
+  "@quiz_list_count": {"placeholders": {"count": {"type": "int"}}},
+  "quiz_score_before": "The time before: {previous} of {total}. Best: {best} of {total}.",
+  "@quiz_score_before": {"placeholders": {"previous": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
+  "@quiz_score_line": {"placeholders": {"last": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "quiz_list_taken": "{taken} of {total} taken",
+  "@quiz_list_taken": {"placeholders": {"taken": {"type": "int"}, "total": {"type": "int"}}},
+  "quiz_all_right": "All answers right",
   "quiz_list_engineers_only": "The questions come with the {track} modules.",
   "@quiz_list_engineers_only": {
     "placeholders": {
       "track": {
         "type": "String"
-      }
-    }
-  },
-  "catalog_stat_completed": "{count, plural, =1{module completed} other{modules completed}}",
-  "@catalog_stat_completed": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "catalog_stat_days": "{count, plural, =1{active day} other{active days}}",
-  "@catalog_stat_days": {
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -454,6 +441,8 @@
   "@erase_title": {},
   "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
   "@erase_scope": {},
+  "erase_scores": "The quiz scores on this device are erased too.",
+  "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
   "erase_field_label": "Type ERASE to confirm",
@@ -504,10 +493,8 @@
   "@content_notice_cache_discarded": {},
   "settings_reading": "Reading",
   "@settings_reading": {},
-  "settings_track": "Track",
+  "settings_track": "Audience",
   "@settings_track": {},
-  "settings_track_note": "Home, the catalog and the reader open this track. A link into the other track still opens it.",
-  "@settings_track_note": {},
   "settings_data": "Your progress",
   "@settings_data": {},
   "settings_content": "Content",
@@ -563,10 +550,6 @@
   "settings_language": "Language",
   "@settings_language": {
     "description": "Settings' language setting (plan 1Q)."
-  },
-  "settings_language_note": "The interface and the modules follow this language. A module not yet translated opens in English.",
-  "@settings_language_note": {
-    "description": "Under Settings' language setting."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {

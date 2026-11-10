@@ -9,8 +9,8 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | In review: 1A to 1I built, review round 1 (1J to 1Q) planned, on `feature/redesign` |
-| 2. Small fixes in the reader | Planned |
+| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AM) in review on `feature/review-round-4` |
+| 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
@@ -115,7 +115,12 @@ The owner ran the app from a clean install. Each step lands on the same branch a
 - [x] **1Y The gate plays as the app opens.** *Changes 1I and 1S.* Three Welcome screens were too many, and the first was a page with a button only to go on. The gate, the lamps and the people now play on every launch while the content and the record load (1.8 s), then the scene grows and fades into the app; there is no button. A first launch goes from it straight to the language and the track, then the guide (1X). The scene's lingering life of 1S is gone with the page.
 - [x] **1Z The gate is an animation only, and the bar is on every screen.** The opening gate still looked like a page. It now has no words, no mark and no button: the gate stands in the middle of the screen with its top and foot melting into the page ground, the lamps drop, the people step in, the light comes up, and then the reader walks in, the gate growing towards the light in its arch as it fades (0.7 s). The steps of the first launch (the language and the track, the guide) wear the cobalt bar like every page after them; the bar moved to `lib/shared/design_system/widgets/bazaar_bar.dart`.
 - [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn (removed in 1AE).
-- [ ] **1W Quiz scores (on hold).** The owner would like the app to show how each quiz went (on the Quiz tab since 1AC). The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
+- [x] **1W Quiz scores.** The owner would like the app to show how each quiz went (on the Quiz tab since 1AC). The web keeps no quiz score and the record has no field for one (R51). amirkia answered on 2026-11-10: the site keeps no user data (zero data retention), so the web will not add scores, and keeping them on the device in the app is fine. Built in review round 4:
+  - Each quiz keeps its last score, its best and the one before the last, in `quiz/scores.json` under Application Support (`lib/shared/quiz_scores`, `QuizScoresBloc`). Never in the record (R60) nor the backup file, which are the web's.
+  - No words on the Quiz tab and Home: each level has the catalog's dial of how many of its quizzes were taken, and each taken quiz a meter of its last score, one segment per question, the right ones green and the wrong ones red (the meter, not the dial, so the two read apart). The best is on the results and in what a screen reader says. A quiz once answered all right gets the catalog's check in place of the question mark and leaves Home's practice.
+  - The results show the attempt before and the best.
+  - Home's Practise again puts a quiz never finished first, then the lowest last score, then the most recent.
+  - Settings' Reset erases the scores with the record, and its undo brings them back.
 
 ### Review round 3: Progress inside the catalog, and quizzes to practise (2026-11-10)
 
@@ -128,15 +133,32 @@ The owner proposed these on 2026-11-10 and settled them the same day: the openin
   - A For Everyone reader loses nothing: the catalog of the current track carries what Progress showed since 1U.
   - Home's line for a reader who has completed every module now leads to the catalog.
 - [x] **1AC A Quiz tab in place of Progress.** The fourth bottom item is Quiz, at `/quiz`. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) at `/quiz/<level>/<module>` without going through the reader; Done closes it. Only For Engineers documents carry a quiz, so the tab lists those, and tells a For Everyone reader where the questions come from. The web has no quiz page (A9); these routes are the app's own.
-- [x] **1AD Practice on Home.** Under the modules after the next one, Home offers Practise again: the quizzes of the three modules completed last in the current track, the most recent first, each opening the quiz full screen. The record keeps when each module was completed, so the order is the record's own. Without quiz scores (1W) practice cannot favour the quizzes that went badly; once scores exist, it can.
+- [x] **1AD Practice on Home.** Under the modules after the next one, Home offers Practise again: the quizzes of the three modules completed last in the current track, the most recent first, each opening the quiz full screen. The record keeps when each module was completed, so the order is the record's own. Since 1W the order favours the quizzes not taken and those that went worst.
 - [x] **1AE The unused gate picture is gone.** With the opening settled, `assets/welcome/gate.webp` is removed. The lamps and the people stay: the opening draws them.
+
+### Review round 4: the bar, room to read and the icon (2026-11-10)
+
+The owner looked at the app on the emulator again on 2026-11-10 and asked for these. They land with Phase 2 in one pull request.
+
+- [x] **1AF Settings says less.** The notes under Language and under the track are gone; each heading says enough. The track's heading is Audience (Turkish Anlatım, Persian مخاطب).
+- [x] **1AG Diagrams stay light.** In dark mode the diagrams turned dark while the photos did not. Diagrams are now drawn in their light version in both modes, as photos are (R41).
+- [x] **1AH A quieter top.** The navy bar, its logo and the app's name are gone.
+  - The strip behind the status bar and the bar are on the page's ground, with status icons that read on it, over a thinner lattice band (10; first 8, made 10 on the owner's look).
+  - The four tabs, Home, Catalog, Quiz and Settings, show nothing in the bar.
+  - A level's page and a module's page show the back button, a rounded square in the level's hue and the page's name at the bar's end.
+  - The bar is 40 high with or without the back button. A version with no bar row, only the band and a floating back button, was built for comparison and dropped on the owner's look.
+- [x] **1AI Room to read.** On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down and come back on a scroll up, at the top and at the end. They stay while a screen reader runs and move at once under reduced motion. The reading bar now follows every scroll step, not only changes of the page's size, so it moves smoothly.
+- [x] **1AJ The app icon.** The striped gate: the bazaar arch with the lattice band's stripes inside, on white like other apps. Android has an adaptive icon with a monochrome layer for themed icons (Android 13+). iOS has light, dark and tinted versions in one 1024 icon (iOS 18); not yet checked on a Mac. The sources are in `assets/brand/app_icon/`.
+- [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The level of the next module to read starts open (1AL).
+- [x] **1AL The level of the next module starts open.** On the catalog and the Quiz tab the level of the next module to read starts open, and the others closed. What the reader opens or closes stays while the app runs, through a tab change and back, and a new launch starts again from the next module (`CatalogFoldCubit`, `QuizFoldCubit`, in memory only). A level the reader has not touched follows the next module as modules are completed.
+- [x] **1AM Less text on the tabs.** Catalog, Quiz and Settings lose their heading, which repeated the tab's name, and the Quiz tab its description; a For Everyone reader still sees why the quizzes are For Engineers ones. The catalog loses its stats (modules completed, active days): the level dials say it.
 
 ## Phase 2: small fixes in the reader
 
 The fixes land together in one pull request; each fix is its own commit, test first, through the gate.
 
-- [ ] **2.1 Table rows.** The parser checks `align` against `head` but not each row's length (`lib/shared/content/domain/content_parser.dart`), and Flutter's `Table` asserts on rows of unequal length. Reject such a table as a format error, or pad the row, as the web does.
-- [ ] **2.2 Logo errors.** `LogoView` has no `errorBuilder`, unlike `DiagramView`, so a logo SVG that does not parse is not caught. Show nothing or the unreadable line.
+- [x] **2.1 Table rows.** The parser checks `align` against `head` but not each row's length (`lib/shared/content/domain/content_parser.dart`), and Flutter's `Table` asserts on rows of unequal length. Reject such a table as a format error, or pad the row, as the web does. Done: the row is padded with empty cells or cut to the head, as GFM does. The current snapshot has no such table.
+- [x] **2.2 Logo errors.** `LogoView` has no `errorBuilder`, unlike `DiagramView`, so a logo SVG that does not parse is not caught. Show nothing or the unreadable line. Done: a logo that does not parse keeps its square of space, as a missing one does.
 - [x] **2.3 A test that fails on a slow runner.** `test/shared/content/application/content_bloc_test.dart` waited 100 ms for a refresh over the real file repository, and on CI the last state came later in three runs of PR #2. Done in PR #2: the test waits for the refresh's last state, with a 30 s timeout.
 
 ## Phase 3: parity with the website (D111)

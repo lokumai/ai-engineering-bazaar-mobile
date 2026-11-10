@@ -39,6 +39,18 @@ abstract final class BazaarPaths {
   /// The track a catalog or module page belongs to; null for every other location, Home included.
   static Track? trackOf(String location) => _parse(location)?.track;
 
+  /// The level slug of a level page; null for every other location.
+  static String? levelOf(String location) => switch (_parse(location)) {
+    _LevelPage(:final slug) => slug,
+    _ => null,
+  };
+
+  /// The module key, `<level>/<module>`, of a module page; null for every other location.
+  static String? moduleOf(String location) => switch (_parse(location)) {
+    _ModulePage(:final slug, :final name) => '$slug/$name',
+    _ => null,
+  };
+
   /// Where the track switch goes from [location] when [to] is chosen; null on a page of neither track.
   ///
   /// A module page always maps to the other track's module page, written or not, as on the web.

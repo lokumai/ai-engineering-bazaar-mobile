@@ -4,7 +4,9 @@ library;
 import 'dart:convert';
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
+import 'package:flutter/widgets.dart' show Scrollable;
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
@@ -17,6 +19,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mock_classes.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/fold.dart';
 
 /// The progress inside the catalog (plan 1AB): the stats, the dials, the marks and the legend that the progress page
 /// held, on the catalog root of each track.
@@ -39,7 +42,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _open(WidgetTester tester, String title) => _tap(tester, find.bySemanticsLabel(RegExp('^$title,')));
+Future<void> _open(WidgetTester tester, String title) => openFold(tester, find.bySemanticsLabel(RegExp('^$title,')));
 
 /// A record store in memory that keeps the last write.
 class _MemoryRecordRepository implements IRecordRepository {
@@ -71,23 +74,11 @@ class _MemoryRecordRepository implements IRecordRepository {
 void main() {
   setUpAll(registerAllFallbackValues);
 
-  testWidgets('the stats show the modules completed in the track and the active days', (tester) async {
-    final record = signOff(
-      signOff(RecordData.empty, 'alpha/first', 'abc1234', '2026-11-08T10:00:00.000Z'),
-      'alpha/second',
-      'abc1234',
-      '2026-11-09T10:00:00.000Z',
-    );
-    await _pump(tester, record: readyRecordBloc(record));
+  testWidgets('the catalog shows no stats over the levels (owner, 2026-11-10)', (tester) async {
+    await _pump(tester, record: readyRecordBloc(_firstCompleted()));
 
-    // Each stat is read as one line: the number, then its label.
-    String spoken(String label) => tester.getSemantics(find.text(label)).label;
-    expect(spoken('modules completed'), '2 modules completed');
-    expect(spoken('active days'), '2 active days');
-
-    await _pump(tester, location: '/everyone/sheets', record: readyRecordBloc(record));
-    expect(spoken('modules completed'), '0 modules completed', reason: 'the count follows the track');
-    expect(spoken('active days'), '2 active days', reason: "the days are the record's");
+    expect(find.textContaining('modules completed'), findsNothing);
+    expect(find.textContaining('active day'), findsNothing);
   });
 
   testWidgets('each level shows its dial, numbered in the index order', (tester) async {
@@ -100,25 +91,28 @@ void main() {
     expect(find.textContaining('03  Gamma Level'), findsOneWidget);
   });
 
-  testWidgets('prints -- while the record loads, and no stats', (tester) async {
+  testWidgets('prints -- while the record loads', (tester) async {
     await _pump(tester, record: loadingRecordBloc());
 
     for (final dial in ['--/3', '--/2', '--/1']) {
       expect(find.text(dial), findsOneWidget, reason: dial);
     }
-    expect(find.textContaining('modules completed'), findsNothing);
   });
 
   testWidgets('the levels end with the legend', (tester) async {
     await _pump(tester, record: readyRecordBloc());
 
-    final gamma = tester.getTopLeft(find.byKey(CatalogOverview.levelKey('gamma'))).dy;
+    await tester.scrollUntilVisible(find.byType(CatalogLegend), 200, scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
     for (final word in ['Complete', 'Not yet', 'Planned']) {
-      await tester.ensureVisible(find.text(word).last);
-      await tester.pumpAndSettle();
-      expect(find.text(word), findsWidgets, reason: word);
+      expect(
+        find.descendant(of: find.byType(CatalogLegend), matching: find.text(word)),
+        findsOneWidget,
+        reason: word,
+      );
     }
-    expect(gamma, lessThan(tester.getTopLeft(find.text('Not yet')).dy));
+    final gamma = tester.getTopLeft(find.byKey(CatalogOverview.levelKey('gamma'))).dy;
+    expect(gamma, lessThan(tester.getTopLeft(find.byType(CatalogLegend)).dy));
   });
 
   testWidgets('a written row toggles the track with revision null, and reads as checked once complete', (tester) async {

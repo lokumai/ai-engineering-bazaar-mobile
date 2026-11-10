@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gate
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -120,6 +121,28 @@ void main() {
     expect(await store.chosen(), 'tr');
     expect(File('${root.path}/flags/language-fa').existsSync(), isFalse, reason: 'one language at a time');
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createQuizScoreStore keeps the scores in one file under the support directory (plan 1W)', () async {
+    final root = Directory.systemTemp.createTempSync('quiz_score_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createQuizScoreStore();
+    expect(store, isA<FileQuizScoreStore>());
+    expect(await store.load(), isEmpty);
+
+    const scores = {'alpha/first': QuizScore(last: 2, best: 3, total: 3)};
+    await store.save(scores);
+    expect(await dependencies.createQuizScoreStore().load(), scores, reason: 'kept for the next start');
+    expect(File('${root.path}/quiz/scores.json').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+
+    await store.save(const {});
+    expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
   });
 
   test('the backup goes through the platform gateway', () {

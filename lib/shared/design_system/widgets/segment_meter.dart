@@ -3,8 +3,9 @@ import 'package:flutter/widgets.dart';
 import '../bazaar_theme.dart';
 import '../bazaar_tokens.g.dart';
 
-/// A row of [total] equal segments, the first [done] filled with [color] and the one at [current], when given, with
-/// [currentColor] (the mockup's level meter and the quiz's step bar).
+/// A row of [total] equal segments, the first [done] filled with [color], the rest with [restColor] (the sunken track
+/// when null), and the one at [current], when given, with [currentColor] (the mockup's level meter and the quiz's step
+/// bar).
 ///
 /// The meter is an image named by [semanticLabel], since its segments say nothing one by one.
 class SegmentMeter extends StatelessWidget {
@@ -16,6 +17,7 @@ class SegmentMeter extends StatelessWidget {
     required this.semanticLabel,
     this.current,
     this.currentColor,
+    this.restColor,
     this.height = 6,
     this.gap = 4,
   });
@@ -28,12 +30,15 @@ class SegmentMeter extends StatelessWidget {
   /// The 0-based segment drawn in [currentColor]; null when no segment is current.
   final int? current;
   final Color? currentColor;
+
+  /// The colour of the segments past [done], as a quiz score's wrong answers; null draws the sunken track.
+  final Color? restColor;
   final double height;
   final double gap;
 
   @override
   Widget build(BuildContext context) {
-    final track = context.bazaarColors.surfaceSunken;
+    final track = restColor ?? context.bazaarColors.surfaceSunken;
     return Semantics(
       image: true,
       label: semanticLabel,

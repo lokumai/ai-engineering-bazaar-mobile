@@ -7,10 +7,17 @@ import '../bazaar_tokens.g.dart';
 /// (the web's `--band-*` tokens, the mockup's 16 px band with its 2 px edge). Decoration only, so it is hidden from
 /// assistive technology.
 class LatticeBand extends StatelessWidget {
-  const LatticeBand({super.key});
+  const LatticeBand({super.key, this.thin = false});
 
   /// The height of the stripes and the edge together.
   static const double height = BazaarLayout.band;
+
+  /// The height of the thin band under the page's top: the mark of the bazaar without a bar (owner's review,
+  /// 2026-11-10).
+  static const double thinHeight = 10;
+
+  /// Whether this is the thin band, [thinHeight] high instead of [height].
+  final bool thin;
 
   /// The ornament rule under the stripes.
   static const double edge = 2;
@@ -20,7 +27,7 @@ class LatticeBand extends StatelessWidget {
     final bandC = context.bazaarColors.bandC;
     return ExcludeSemantics(
       child: SizedBox(
-        height: height,
+        height: thin ? thinHeight : height,
         width: double.infinity,
         child: CustomPaint(painter: LatticeBandPainter(bandC: bandC)),
       ),

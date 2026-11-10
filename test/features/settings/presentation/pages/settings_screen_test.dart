@@ -131,10 +131,10 @@ void main() {
     expect(language.state, 'tr');
   });
 
-  testWidgets('shows the title and the content status', (tester) async {
+  testWidgets('shows no heading, only the tab names the page, and the content status', (tester) async {
     await _pump(tester);
 
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Settings'), findsNothing, reason: 'no heading, the tab names the page');
     expect(find.text('Content'), findsOneWidget);
     expect(find.text('ffffffffffff'), findsOneWidget); // the first 12 characters, not all 64
     expect(find.text('f' * 64), findsNothing);

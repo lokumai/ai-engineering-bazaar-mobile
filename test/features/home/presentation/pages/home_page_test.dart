@@ -10,6 +10,12 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Size;
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,6 +32,7 @@ Future<GoRouter> _pumpHome(
   RecordData? record,
   BundleIndex? index,
   TrackCubit? track,
+  QuizScoresBloc? scores,
   TargetPlatform platform = TargetPlatform.android,
 }) async {
   final router = const AppRouterFactory().create();
@@ -36,6 +43,7 @@ Future<GoRouter> _pumpHome(
       content: readyContentBloc(index),
       record: readyRecordBloc(record),
       track: track,
+      scores: scores,
       platform: platform,
     ),
   );
@@ -98,7 +106,7 @@ void main() {
       record: _completed(['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']),
     );
 
-    expect(find.text('Every written module of this track is complete.'), findsOneWidget);
+    expect(find.text('Every written module is complete.'), findsOneWidget);
     expect(find.text('Open the module'), findsNothing);
     await _tap(tester, find.text('See the whole catalog').first);
 
@@ -150,5 +158,29 @@ void main() {
 
     await _tap(tester, practice);
     expect(_path(router), '/quiz/alpha/first');
+  });
+
+  testWidgets('a practised quiz shows its last score as segments, with no words, the one not taken first (plan 1W)', (
+    tester,
+  ) async {
+    final scores = QuizScoresBloc(
+      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 1, total: 2, previous: 0)}),
+    )..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), scores: scores);
+
+    final first = find.byKey(const ValueKey('home-practice-alpha/first'), skipOffstage: false);
+    final fourth = find.byKey(const ValueKey('home-practice-beta/fourth'), skipOffstage: false);
+    expect(tester.getTopLeft(fourth).dy, lessThan(tester.getTopLeft(first).dy), reason: 'not taken comes first');
+    final meter = tester.widget<SegmentMeter>(
+      find.descendant(of: first, matching: find.byType(SegmentMeter), skipOffstage: false),
+    );
+    expect((meter.done, meter.total), (1, 2));
+    expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
+    expect(find.descendant(of: fourth, matching: find.byType(SegmentMeter), skipOffstage: false), findsNothing);
+    expect(find.textContaining('Last 1 of 2', skipOffstage: false), findsNothing);
   });
 }

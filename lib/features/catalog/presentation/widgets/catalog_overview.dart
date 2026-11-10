@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/progress_mark.dart';
@@ -21,17 +22,19 @@ import 'package:go_router/go_router.dart';
 /// The catalog root's levels with the reader's progress in them (plan 1N, and 1AB: the progress page's cards moved
 /// here). One arch card per level, in the index's order, with its hue, number, title, length, whether it is planned and
 /// the dial of its completed modules; a tap opens the level's modules under it, and a second tap closes them. Several
-/// levels may be open at once.
+/// levels may be open at once. The level of the next module to read starts open, and what the reader opens or closes
+/// stays while the app runs ([CatalogFoldCubit]).
 ///
 /// Each module row carries the progress page's mark: a toggle that completes the module when it is written, a dashed
 /// ring that says Planned when it is not. The rest of the row opens the reader.
-class CatalogOverview extends StatefulWidget {
+class CatalogOverview extends StatelessWidget {
   const CatalogOverview({
     super.key,
     required this.track,
     required this.index,
     required this.rows,
     required this.counts,
+    this.upNext,
   });
 
   final Track track;
@@ -43,6 +46,9 @@ class CatalogOverview extends StatefulWidget {
   /// Each level's completed count in [track] by level slug; null while the record loads.
   final Map<String, LevelCount>? counts;
 
+  /// The level of the next module to read in [track]; null while the record loads or when every module is complete.
+  final String? upNext;
+
   /// The key of [slug]'s level button.
   static Key levelKey(String slug) => ValueKey('catalog-level-$slug');
 
@@ -50,34 +56,27 @@ class CatalogOverview extends StatefulWidget {
   static Key rowKey(String key) => ValueKey('catalog-row-$key');
 
   @override
-  State<CatalogOverview> createState() => _CatalogOverviewState();
-}
-
-class _CatalogOverviewState extends State<CatalogOverview> {
-  final _open = <String>{};
-
-  @override
   Widget build(BuildContext context) {
-    final index = widget.index;
+    final fold = context.watch<CatalogFoldCubit>();
+    final open = fold.openIn(track, upNext);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.md,
       children: [
-        for (final level in levelsOf(index, widget.rows))
+        for (final level in levelsOf(index, rows))
           _LevelCard(
             key: CatalogOverview.levelKey(level.slug),
-            track: widget.track,
+            track: track,
             index: index,
             level: level,
             position: levelPosition(index, level.slug),
             minutes: index.modules
                 .where((module) => module.level == level.slug)
                 .fold(0, (sum, module) => sum + module.minutes),
-            rows: applyLevel(widget.rows, level.slug),
-            count: widget.counts?[level.slug],
-            open: _open.contains(level.slug),
-            onToggle: () =>
-                setState(() => _open.contains(level.slug) ? _open.remove(level.slug) : _open.add(level.slug)),
+            rows: applyLevel(rows, level.slug),
+            count: counts?[level.slug],
+            open: open.contains(level.slug),
+            onToggle: () => fold.toggle(track, level.slug, upNext),
           ),
       ],
     );

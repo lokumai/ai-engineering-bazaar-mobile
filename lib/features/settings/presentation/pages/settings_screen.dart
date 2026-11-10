@@ -66,8 +66,6 @@ class _SettingsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(header: true, child: Text(s.settings, style: theme.textTheme.headlineSmall)),
-          const SizedBox(height: AppSpacing.lg),
           if (ready.notice != null) ...[
             ContentNoticeBanner(notice: ready.notice),
             const SizedBox(height: AppSpacing.lg),
@@ -93,10 +91,6 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                Text(
-                  s.settings_track_note,
-                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
-                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(s.settings_language, style: theme.textTheme.titleSmall),
                 BazaarSegmentedControl<String>(
@@ -111,10 +105,6 @@ class _SettingsView extends StatelessWidget {
                         key: settingsLanguageKey(language),
                       ),
                   ],
-                ),
-                Text(
-                  s.settings_language_note,
-                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
                 ),
               ],
             ),

@@ -8,14 +8,22 @@ part 'quiz_state.dart';
 /// The quiz at the end of a For Engineers module, as the web's `QuickQuiz.tsx` behaves.
 ///
 /// The first answer to a question is final; Next and See results wait for it; Start over clears every answer and shows
-/// the first question. Nothing is written to the record (spec 3.3.1), so a new page is a fresh quiz.
+/// the first question. Nothing is written to the record (spec 3.3.1), so a new page is a fresh quiz; the score goes to [onFinished].
 ///
 /// A `Cubit` because every call is atomic and the event stream adds nothing.
 final class QuizCubit extends Cubit<QuizState> {
-  /// Throws an [ArgumentError] when [items] is empty.
-  QuizCubit(List<QuizItem> items) : _items = List.unmodifiable(_nonEmpty(items)), super(_fresh(items.length));
+  /// Throws an [ArgumentError] when [items] is empty. [onFinished] hears each attempt once, when its results first show,
+  /// with the right answers and the questions (plan 1W: the app keeps the score, the record does not).
+  QuizCubit(List<QuizItem> items, {this.onFinished})
+    : _items = List.unmodifiable(_nonEmpty(items)),
+      super(_fresh(items.length));
 
   final List<QuizItem> _items;
+
+  final void Function(int right, int total)? onFinished;
+
+  /// Whether this attempt's results were shown; Start over begins a new attempt.
+  bool _finished = false;
 
   static List<QuizItem> _nonEmpty(List<QuizItem> items) {
     if (items.isEmpty) throw ArgumentError.value(items, 'items', 'A quiz needs at least one question');
@@ -75,6 +83,10 @@ final class QuizCubit extends Cubit<QuizState> {
     if (current is! QuizAsking) return;
     if (current.index != _items.length - 1 || current.picks[current.index] == null) return;
     emit(QuizResults(picks: current.picks));
+    if (!_finished) {
+      _finished = true;
+      onFinished?.call(score, _items.length);
+    }
   }
 
   /// Goes from the results back to the last question.
@@ -84,5 +96,8 @@ final class QuizCubit extends Cubit<QuizState> {
   }
 
   /// Clears every answer and shows the first question.
-  void restart() => emit(_fresh(_items.length));
+  void restart() {
+    _finished = false;
+    emit(_fresh(_items.length));
+  }
 }

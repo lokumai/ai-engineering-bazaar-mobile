@@ -99,10 +99,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     super.dispose();
   }
 
-  /// Follows the page's own scroll, not a nested one such as a wide table's.
-  bool _onScroll(ScrollMetricsNotification notification) {
-    if (notification.depth != 0) return false;
-    final metrics = notification.metrics;
+  /// Follows the page's own scroll, not a nested one such as a wide table's: every scroll step, and every change of the
+  /// page's length, as a picture that loads.
+  bool _onScroll(Notification notification) {
+    final (depth, metrics) = switch (notification) {
+      ScrollUpdateNotification(:final depth, :final metrics) => (depth, metrics),
+      ScrollMetricsNotification(:final depth, :final metrics) => (depth, metrics),
+      _ => (-1, null),
+    };
+    if (depth != 0 || metrics == null) return false;
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
     return false;
   }
@@ -192,7 +197,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             ),
           ),
           Expanded(
-            child: NotificationListener<ScrollMetricsNotification>(
+            child: NotificationListener<Notification>(
               onNotification: _onScroll,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -259,7 +264,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                     Pager(previous: doc.previous, next: doc.next),
                     if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
                       const SizedBox(height: 32),
-                      quizBuilder(context, quiz),
+                      quizBuilder(context, entry.key, quiz),
                     ],
                     const SizedBox(height: 40),
                     ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),

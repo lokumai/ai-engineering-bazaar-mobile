@@ -2,4 +2,5 @@
 <resources>
     <!-- The bar's navy (BazaarFixedColors.bar), the ground of the opening animation. -->
     <color name="bazaar_navy">#282864</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

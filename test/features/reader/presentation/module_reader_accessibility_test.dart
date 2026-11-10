@@ -172,7 +172,7 @@ void main() {
           path: '/reader',
           builder: (_, _) => BlocProvider<ModuleReaderBloc>.value(
             value: bloc,
-            child: ModuleReaderView(quizBuilder: (_, _) => Container(height: 48)),
+            child: ModuleReaderView(quizBuilder: (_, _, _) => Container(height: 48)),
           ),
         ),
       ],

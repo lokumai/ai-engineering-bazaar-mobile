@@ -74,6 +74,7 @@ class _EraseDialogState extends State<_EraseDialog> {
         children: [
           if (sheets != null) Text(tallyText(s, sheets), style: theme.textTheme.labelLarge),
           Text(s.erase_scope),
+          Text(s.erase_scores),
           Text(s.erase_backup_statement),
           TextField(
             controller: _typed,
