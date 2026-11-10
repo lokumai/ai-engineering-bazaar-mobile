@@ -13,6 +13,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
-/// card, the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), the reader's path
+/// card (Continue reading when a module was left half read, plan 1BA), the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), the reader's path
 /// through the levels at a glance, and the offline note. Home says what to read now (plan 1P); the levels, their modules
 /// and their completion in full live on the catalog (plan 1AB).
 ///
@@ -45,7 +47,12 @@ class HomePage extends StatelessWidget {
       QuizScoresReady(:final scores) => scores,
       QuizScoresLoading() => const <String, QuizScore>{},
     };
-    final overview = homeOverview(index, track, record, scores);
+    final places = switch (context.watch<ReadingPlacesBloc>().state) {
+      ReadingPlacesReady(:final places) => places,
+      ReadingPlacesLoading() => const <String, ReadingPlace>{},
+    };
+    final overview = homeOverview(index, track, record, scores: scores, places: places);
+    final label = overview.next?.share != null ? s.home_continue_reading : s.home_up_next;
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 
     return ListView(
@@ -55,9 +62,9 @@ class HomePage extends StatelessWidget {
         // Shown in capitals as the mockup's label; read as written.
         Semantics(
           header: true,
-          label: s.home_up_next,
+          label: label,
           excludeSemantics: true,
-          child: Text(s.home_up_next.toUpperCase(), style: labelStyle),
+          child: Text(label.toUpperCase(), style: labelStyle),
         ),
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),

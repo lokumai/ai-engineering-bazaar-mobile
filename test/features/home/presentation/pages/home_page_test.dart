@@ -16,6 +16,9 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,6 +36,7 @@ Future<GoRouter> _pumpHome(
   BundleIndex? index,
   TrackCubit? track,
   QuizScoresBloc? scores,
+  ReadingPlacesBloc? places,
   TargetPlatform platform = TargetPlatform.android,
 }) async {
   final router = const AppRouterFactory().create();
@@ -44,6 +48,7 @@ Future<GoRouter> _pumpHome(
       record: readyRecordBloc(record),
       track: track,
       scores: scores,
+      places: places,
       platform: platform,
     ),
   );
@@ -86,6 +91,27 @@ void main() {
     await _tap(tester, find.text('Open the module'));
 
     expect(_path(router), '/courses/alpha/second');
+  });
+
+  testWidgets('a module left half read: the card goes on with it, says how far, and opens it (plan 1BA)', (
+    tester,
+  ) async {
+    final places = ReadingPlacesBloc(
+      store: MemoryReadingPlaceStore({
+        'engineers:beta/fourth': ReadingPlace(offset: 400, share: 0.37, at: DateTime.utc(2026, 11, 11)),
+      }),
+    )..add(const ReadingPlacesStarted());
+    addTearDown(places.close);
+    final router = await _pumpHome(tester, places: places);
+
+    expect(find.text('CONTINUE READING'), findsOneWidget);
+    expect(find.text('UP NEXT'), findsNothing);
+    expect(find.text('37 % read'), findsOneWidget);
+    expect(find.text('20 min'), findsNothing, reason: 'how far it was read in place of its length');
+    expect(find.text('First Module'), findsOneWidget, reason: 'the next module is first after it');
+    await _tap(tester, find.text('Continue'));
+
+    expect(_path(router), '/courses/beta/fourth');
   });
 
   testWidgets('a module after the next one opens in the track, and the catalog is one tap away', (tester) async {

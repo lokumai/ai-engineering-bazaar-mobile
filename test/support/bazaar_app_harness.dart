@@ -1,5 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -96,6 +98,7 @@ Widget bazaarTestApp({
   TrackCubit? track,
   LanguageCubit? language,
   QuizScoresBloc? scores,
+  ReadingPlacesBloc? places,
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
@@ -119,6 +122,12 @@ Widget bazaarTestApp({
         else
           BlocProvider<QuizScoresBloc>(
             create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted()),
+          ),
+        if (places != null)
+          BlocProvider<ReadingPlacesBloc>.value(value: places)
+        else
+          BlocProvider<ReadingPlacesBloc>(
+            create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())..add(const ReadingPlacesStarted()),
           ),
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),

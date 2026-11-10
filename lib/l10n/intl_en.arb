@@ -45,6 +45,19 @@
   "@home_up_next": {},
   "home_open_module": "Open the module",
   "@home_open_module": {},
+  "home_continue_reading": "Continue reading",
+  "@home_continue_reading": {},
+  "home_read_percent": "{percent} % read",
+  "@home_read_percent": {
+    "description": "How far down a half-read module the reader left it, on Home's continue card.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "home_continue": "Continue",
+  "@home_continue": {},
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
   "home_after": "After that",

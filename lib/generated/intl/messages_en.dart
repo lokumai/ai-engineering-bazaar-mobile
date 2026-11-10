@@ -52,43 +52,45 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m14(count, first) =>
       "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
 
-  static String m15(approved, total) => "${approved}/${total} completed";
+  static String m15(percent) => "${percent} % read";
 
-  static String m16(total) => "--/${total} completed";
+  static String m16(approved, total) => "${approved}/${total} completed";
 
-  static String m17(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+  static String m17(total) => "--/${total} completed";
 
-  static String m18(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+  static String m18(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
-  static String m19(track) => "The questions come with the ${track} modules.";
+  static String m19(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
 
-  static String m20(taken, total) => "${taken} of ${total} taken";
+  static String m20(track) => "The questions come with the ${track} modules.";
 
-  static String m21(index, count) => "Question ${index} of ${count}";
+  static String m21(taken, total) => "${taken} of ${total} taken";
 
-  static String m22(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+  static String m22(index, count) => "Question ${index} of ${count}";
 
-  static String m23(score, total) => "${score} of ${total}";
+  static String m23(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
 
-  static String m24(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
+  static String m24(score, total) => "${score} of ${total}";
 
-  static String m25(count) => "${count} questions on the main points of this module";
+  static String m25(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
 
-  static String m26(letter) => "Not this one. The answer is ${letter}.";
+  static String m26(count) => "${count} questions on the main points of this module";
 
-  static String m27(date) => "Completed ${date}";
+  static String m27(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m28(minutes) => "${minutes} min";
+  static String m28(date) => "Completed ${date}";
 
-  static String m29(number, count) => "MODULE ${number} OF ${count}";
+  static String m29(minutes) => "${minutes} min";
 
-  static String m30(label) => "${label} · Planned";
+  static String m30(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m31(hash, date) => "Rev ${hash} · ${date}";
+  static String m31(label) => "${label} · Planned";
 
-  static String m32(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m32(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m33(reason) => "The check for updates did not finish: ${reason}.";
+  static String m33(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+
+  static String m34(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -193,6 +195,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "guide_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
     "home_after": MessageLookupByLibrary.simpleMessage("After that"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
+    "home_continue": MessageLookupByLibrary.simpleMessage("Continue"),
+    "home_continue_reading": MessageLookupByLibrary.simpleMessage("Continue reading"),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "It reads without a connection. At every start the app asks the site for a newer version.",
     ),
@@ -201,6 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_practice": MessageLookupByLibrary.simpleMessage("Quizzes to practise"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage("Quizzes from the modules you completed."),
+    "home_read_percent": m15,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "legal_address": MessageLookupByLibrary.simpleMessage("Address"),
@@ -220,10 +225,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_owner": MessageLookupByLibrary.simpleMessage("Owner"),
     "legal_phone": MessageLookupByLibrary.simpleMessage("Phone"),
     "legal_title": MessageLookupByLibrary.simpleMessage("Legal"),
-    "level_completed": m15,
-    "level_completed_pending": m16,
+    "level_completed": m16,
+    "level_completed_pending": m17,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
-    "level_module_count": m17,
+    "level_module_count": m18,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("Caravan"),
@@ -287,52 +292,52 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m18,
-    "quiz_list_engineers_only": m19,
-    "quiz_list_taken": m20,
+    "quiz_list_count": m19,
+    "quiz_list_engineers_only": m20,
+    "quiz_list_taken": m21,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m21,
+    "quiz_progress": m22,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m22,
-    "quiz_score_count": m23,
-    "quiz_score_line": m24,
+    "quiz_score_before": m23,
+    "quiz_score_count": m24,
+    "quiz_score_line": m25,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m25,
+    "quiz_subtitle": m26,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "This quiz could not be opened. Close it and try again later.",
     ),
-    "quiz_wrong": m26,
+    "quiz_wrong": m27,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m27,
+    "reader_completed_on": m28,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m28,
-    "reader_module_of": m29,
+    "reader_minutes": m29,
+    "reader_module_of": m30,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m30,
+    "reader_pager_planned": m31,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m31,
+    "reader_revision": m32,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m32,
+    "record_not_saved": m33,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -355,7 +360,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m33,
+    "settings_refresh_failed": m34,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",

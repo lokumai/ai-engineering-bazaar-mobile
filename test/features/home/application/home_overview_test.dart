@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/catalog_fixture_index.dart';
@@ -55,6 +56,46 @@ void main() {
       [('alpha', 0, 1, 2), ('beta', 1, 1, 1), ('gamma', 2, 0, 1)],
       reason: 'alpha/third is not written For Engineers, so it is not on the path',
     );
+  });
+
+  group('a module left half read (plan 1BA)', () {
+    final at = DateTime.utc(2026, 11, 11, 9);
+    ReadingPlace left(double share, int minutes) => ReadingPlace(
+      offset: 400,
+      share: share,
+      at: at.add(Duration(minutes: minutes)),
+    );
+
+    test('the card goes on with the module left last, with how far it was read', () {
+      final overview = homeOverview(
+        index,
+        Track.engineers,
+        RecordData.empty,
+        places: {'engineers:beta/fourth': left(0.4, 2), 'engineers:alpha/second': left(0.7, 1)},
+      );
+      expect(overview.next!.module.key, 'beta/fourth');
+      expect(overview.next!.share, 0.4);
+      expect(
+        [for (final entry in overview.after) entry.module.key],
+        ['alpha/first', 'alpha/second'],
+        reason: 'the modules after it leave the one the card shows out',
+      );
+    });
+
+    test('a completed module, a place of the other track or a module not written there is not gone on with', () {
+      final overview = homeOverview(
+        index,
+        Track.engineers,
+        completed(['beta/fourth']),
+        places: {
+          'engineers:beta/fourth': left(0.4, 3),
+          'everyone:alpha/second': left(0.5, 2),
+          'engineers:alpha/third': left(0.5, 1),
+        },
+      );
+      expect(overview.next!.module.key, 'alpha/first');
+      expect(overview.next!.share, isNull, reason: 'the next module, not one left half read');
+    });
   });
 
   test('after the next module come up to two more, written and not completed, in number order (plan 1P)', () {
@@ -113,7 +154,7 @@ void main() {
         'beta/fourth': QuizScore(last: 1, best: 2, total: 8),
       };
 
-      final practice = homeOverview(index, Track.engineers, record, scores).practice;
+      final practice = homeOverview(index, Track.engineers, record, scores: scores).practice;
       expect([for (final entry in practice) entry.module.key], ['alpha/first', 'beta/fourth', 'alpha/second']);
       expect(practice.first.score, isNull);
       expect(practice[1].score, scores['beta/fourth']);
@@ -123,7 +164,7 @@ void main() {
       final record = at([('alpha/first', '2026-11-01T10:00:00.000Z'), ('alpha/second', '2026-11-03T10:00:00.000Z')]);
       const scores = {'alpha/second': QuizScore(last: 3, best: 4, total: 4, previous: 4)};
 
-      final practice = homeOverview(index, Track.engineers, record, scores).practice;
+      final practice = homeOverview(index, Track.engineers, record, scores: scores).practice;
       expect([for (final entry in practice) entry.module.key], ['alpha/first']);
     });
 

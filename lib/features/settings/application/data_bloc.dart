@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/undo_countdown.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
@@ -22,14 +23,14 @@ part 'data_event.dart';
 part 'data_state.dart';
 
 /// Runs the data line's flows: back up, restore, reset with its undo, and the set-aside record (spec 3.3.9 to
-/// 3.3.11). The reset erases the quiz scores too, and its undo brings them back (plan 1W).
+/// 3.3.11). The reset erases the quiz scores and the reading places too, and its undo brings them back (plan 1W, 1BA).
 ///
 /// [RecordBloc] owns every write and the undo window (Decision A42); this bloc hands it events, talks to the
 /// platform through [IBackupGateway], and only displays the countdown, which it never ends on the record's behalf.
 ///
 /// An interface class rather than a final one, so widget tests can provide a `MockBloc` that implements it.
 interface class DataBloc extends Bloc<DataEvent, DataState> {
-  DataBloc({required this._recordBloc, required this._gateway, required this._repository, this._scores})
+  DataBloc({required this._recordBloc, required this._gateway, required this._repository, this._scores, this._places})
     : super(const DataState()) {
     on<BackupRequested>(_onBackupRequested, transformer: EventTransformers.dropConcurrent());
     on<RestoreRequested>(_onRestoreRequested, transformer: EventTransformers.dropConcurrent());
@@ -52,6 +53,9 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
 
   /// The quiz scores, which the reset erases with the record and its undo brings back (plan 1W).
   final QuizScoresBloc? _scores;
+
+  /// Where each module was left, which the reset erases with the record and its undo brings back (plan 1BA).
+  final ReadingPlacesBloc? _places;
 
   /// The instant of the erase whose countdown is shown.
   DateTime? _erasedAt;
@@ -164,6 +168,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       }
       _erasedAt = at;
       _scores?.add(const QuizScoresErased());
+      _places?.add(const ReadingPlacesErased());
       emit(
         state._with(
           busy: DataBusy.idle,
@@ -183,6 +188,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     if (state.reset is! ResetCounting) return;
     _recordBloc.add(const EraseUndone());
     _scores?.add(const QuizScoresEraseUndone());
+    _places?.add(const ReadingPlacesEraseUndone());
     _stopTicker();
     emit(state._with(reset: null));
   }

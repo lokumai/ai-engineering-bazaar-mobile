@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -13,12 +14,13 @@ import 'package:equatable/equatable.dart';
 final class HomeOverview extends Equatable {
   const HomeOverview({required this.next, required this.after, this.practice = const [], this.levels = const []});
 
-  /// The first module by number that is written in the track and not completed (the web's `nextUnsigned`); null when
-  /// every written module of the track is completed.
+  /// The module left half read most recently on this device, written in the track and not completed, with how far it
+  /// was read (plan 1BA); else the first module by number that is written in the track and not completed (the web's
+  /// `nextUnsigned`); null when every written module of the track is completed.
   final HomeNext? next;
 
-  /// Up to [afterCount] more modules after [next], by number, written in the track and not completed (plan 1P: Home
-  /// says what to read now, and what comes after it).
+  /// Up to [afterCount] more modules, by number, written in the track and not completed, leaving out [next] (plan 1P:
+  /// Home says what to read now, and what comes after it).
   final List<HomeNext> after;
 
   /// How many modules [after] holds at most.
@@ -57,7 +59,14 @@ final class HomeLevel extends Equatable {
 
 /// The module the continue card opens.
 final class HomeNext extends Equatable {
-  const HomeNext({required this.module, required this.level, required this.position, required this.title, this.score});
+  const HomeNext({
+    required this.module,
+    required this.level,
+    required this.position,
+    required this.title,
+    this.score,
+    this.share,
+  });
 
   final ModuleEntry module;
   final LevelEntry level;
@@ -71,22 +80,27 @@ final class HomeNext extends Equatable {
   /// The quiz's score kept on this device, on a practice entry whose quiz was finished; null otherwise.
   final QuizScore? score;
 
+  /// How far down the module the reader left it, from 0 to 1, when the continue card goes on with a module left half
+  /// read (plan 1BA); null otherwise.
+  final double? share;
+
   @override
-  List<Object?> get props => [module, level, position, title, score];
+  List<Object?> get props => [module, level, position, title, score, share];
 }
 
-/// The overview of [track] from [index], [record] and the quiz [scores] of this device.
+/// The overview of [track] from [index], [record], and the quiz [scores] and reading [places] of this device.
 HomeOverview homeOverview(
   BundleIndex index,
   Track track,
-  RecordData record, [
+  RecordData record, {
   Map<String, QuizScore> scores = const {},
-]) {
+  Map<String, ReadingPlace> places = const {},
+}) {
   final view = trackView(record, track);
   final curriculum = curriculumFor(index, track);
   final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
 
-  HomeNext entryOf(String key, [Track titled = Track.engineers, QuizScore? score]) {
+  HomeNext entryOf(String key, [Track titled = Track.engineers, QuizScore? score, double? share]) {
     final module = index.module(key)!;
     return HomeNext(
       module: module,
@@ -94,6 +108,7 @@ HomeOverview homeOverview(
       position: positions[module.level]!,
       title: module.tracks[titled]!.title,
       score: score,
+      share: share,
     );
   }
 
@@ -104,9 +119,17 @@ HomeOverview homeOverview(
       if (fact.drawn && !isSigned(fact, view)) fact.slug,
   ];
 
+  // The module left half read last, among the open ones: the card goes on with it.
+  final reading = _lastLeft(places, track, open.toSet());
+  final shown = reading?.key ?? first;
+
   return HomeOverview(
-    next: first == null ? null : entryOf(first, track),
-    after: [for (final key in open.skip(1).take(HomeOverview.afterCount)) entryOf(key, track)],
+    next: reading != null
+        ? entryOf(reading.key, track, null, reading.place.share)
+        : first == null
+        ? null
+        : entryOf(first, track),
+    after: [for (final key in open.where((key) => key != shown).take(HomeOverview.afterCount)) entryOf(key, track)],
     practice: [
       for (final key in _toPractise(_recentlyCompletedWithQuiz(index, curriculum, view), scores))
         entryOf(key, Track.engineers, scores[key]),
@@ -122,6 +145,16 @@ HomeOverview homeOverview(
           ),
     ],
   );
+}
+
+/// The module of [open] in [track] that has the most recent place in [places], with that place; null when none has.
+({String key, ReadingPlace place})? _lastLeft(Map<String, ReadingPlace> places, Track track, Set<String> open) {
+  ({String key, ReadingPlace place})? last;
+  for (final key in open) {
+    final place = places[readingPlaceKey(track, key)];
+    if (place != null && (last == null || place.at.isAfter(last.place.at))) last = (key: key, place: place);
+  }
+  return last;
 }
 
 /// The modules of [curriculum] in the level [slug] that are written in its track.

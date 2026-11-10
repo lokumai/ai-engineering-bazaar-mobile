@@ -11,6 +11,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
@@ -112,6 +115,8 @@ void main() {
     QuizBuilder? quizBuilder,
     bool reducedMotion = false,
     TargetPlatform platform = TargetPlatform.android,
+    ReadingPlace? place,
+    ValueChanged<ReadingPlace?>? onPlace,
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -127,7 +132,7 @@ void main() {
           builder: (context, _) {
             final view = BlocProvider<ModuleReaderBloc>.value(
               value: readerBloc,
-              child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder),
+              child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder, place: place, onPlace: onPlace),
             );
             if (!reducedMotion) return view;
             return MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: view);
@@ -485,6 +490,78 @@ void main() {
     await pumpReader(tester, fragment: 'one');
 
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
+  });
+
+  group('the reading place (plan 1BA)', () {
+    final at = DateTime.utc(2026, 11, 11, 9);
+
+    void longModule() => stateIs(
+      ReaderWritten(
+        doc: testDoc(toc: _toc, body: [..._filler, _sectionOne, ..._filler]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+
+    double scrolled(WidgetTester tester) =>
+        tester.state<ScrollableState>(find.byType(Scrollable).first).position.pixels;
+
+    testWidgets('opens the module at the heading it was left under', (tester) async {
+      longModule();
+      await pumpReader(
+        tester,
+        place: ReadingPlace(heading: 'one', offset: 0, share: 0.5, at: at),
+      );
+
+      final heading = top(tester, find.text('Section one', findRichText: true));
+      expect(heading, inInclusiveRange(0, 40));
+    });
+
+    testWidgets('opens at its share of the page when its heading is gone', (tester) async {
+      longModule();
+      await pumpReader(
+        tester,
+        place: ReadingPlace(heading: 'gone', offset: 0, share: 0.5, at: at),
+      );
+
+      final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+      expect(position.pixels, closeTo(position.maxScrollExtent / 2, 1));
+    });
+
+    testWidgets('a fragment wins over the place', (tester) async {
+      longModule();
+      await pumpReader(
+        tester,
+        fragment: 'one',
+        place: ReadingPlace(offset: 0, share: 0, at: at),
+      );
+
+      expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
+      expect(scrolled(tester), greaterThan(0));
+    });
+
+    testWidgets('each scroll that ends tells where the module is left, and the top is no place', (tester) async {
+      longModule();
+      final places = <ReadingPlace?>[];
+      await pumpReader(tester, onPlace: places.add);
+      final page = find.byType(SingleChildScrollView).first;
+
+      await tester.drag(page, const Offset(0, -400));
+      await tester.pumpAndSettle();
+      expect(places.last?.heading, isNull);
+      expect(places.last!.offset, closeTo(scrolled(tester), 0.5));
+      expect(places.last!.share, greaterThan(0));
+
+      final under = top(tester, find.text('Section one', findRichText: true)) + 200;
+      await tester.dragFrom(const Offset(195, 600), Offset(0, -under));
+      await tester.pumpAndSettle();
+      expect(places.last?.heading, 'one');
+      expect(places.last!.offset, greaterThan(0));
+
+      await tester.fling(page, const Offset(0, 6000), 8000);
+      await tester.pumpAndSettle();
+      expect(places.last, isNull);
+    });
   });
 
   testWidgets('an anchor link jumps at once under reduced motion', (tester) async {
@@ -861,6 +938,48 @@ void main() {
 
       expect(find.text('Second doc'), findsOneWidget);
       expect(find.text('First doc'), findsNothing);
+    });
+
+    testWidgets('opens at the place kept on this device and keeps the new one', (tester) async {
+      final repository = MockContentRepository();
+      when(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json'))
+          .thenAnswer((_) async => testDoc(toc: _toc, body: [..._filler, _sectionOne, ..._filler]));
+      final store = MemoryReadingPlaceStore({
+        readingPlaceKey(Track.engineers, 'alpha/first'): ReadingPlace(
+          heading: 'one',
+          offset: 0,
+          share: 0.5,
+          at: DateTime.utc(2026, 11, 11),
+        ),
+      });
+      final places = ReadingPlacesBloc(store: store)..add(const ReadingPlacesStarted());
+      addTearDown(places.close);
+      final router = GoRouter(
+        initialLocation: '/reader',
+        routes: [
+          GoRoute(
+            path: '/reader',
+            builder: (_, _) => const ModuleReaderPage(moduleKey: 'alpha/first', track: Track.engineers),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await places.stream.first;
+      await tester.pumpWidget(
+        bazaarTestApp(router: router, content: readyContentBloc(index), repository: repository, places: places),
+      );
+      await tester.pumpAndSettle();
+      expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
+
+      await tester.fling(find.byType(SingleChildScrollView).first, const Offset(0, 6000), 8000);
+      await tester.pumpAndSettle();
+
+      expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
+      expect(await store.load(), isEmpty);
     });
 
     testWidgets('throws unless the content is ready', (tester) async {

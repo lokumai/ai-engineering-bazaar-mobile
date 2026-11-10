@@ -11,7 +11,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 0. The reader (PR #1, merged as a03bf37) | Done |
 | 1. The redesign | Done (PR #3, PR #4: review round 4, 1AF to 1AM); 1AN on `feature/phase-3` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
-| 3. Parity with the website | 3.2 to 3.5 done on `feature/phase-3`; 3.5 waits for the web to publish the story (web PR #108); 3.1 waits for web change 5.7 |
+| 3. Parity with the website | 3.2 to 3.5 done on `feature/phase-3`, the story in the bundled snapshot; 3.1 waits for web change 5.7 |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
 | 6. Release | Later |
@@ -35,7 +35,7 @@ The mockup decides the look; the requirements decide what the app shows and does
 
 | In the mockup | Rule it breaks | In the app |
 | --- | --- | --- |
-| "Section 3 of 8, 37 %, 15 min left" on Home | R61: the app writes no reading position | The next module not yet completed (`nextUnsigned`) |
+| "Section 3 of 8, 37 %, 15 min left" on Home | R61: the app writes no reading position | The next module not yet completed (`nextUnsigned`); since 1BA, the module left half read, with how far, from a place kept apart from the record |
 | A word count in the reader | R3: the bundle carries no word count | Minutes only, until web change 5.1 |
 | Saved quiz scores ("Quiz 4/5", "quizzes taken") | R51: the quiz writes nothing; the record has no quiz field | The score shows on the quiz's results only |
 | Theme and text-size buttons in the bar | v1 follows the device's mode and text scale | Dropped |
@@ -175,6 +175,13 @@ A walk-through of the running app (light and dark) found these; the user chose t
 - [x] **1AX The data actions are buttons.** Back up, Restore, Reset and Check for updates are outlined buttons; Reset, still in on-surface (A18), sits on a line of its own below the other two.
 - [x] **1AY Two reader points.** Before you start spaces its links near the body's list items, each keeping its 48 px target; on a level's page and a module's, the hue square and the title follow the back arrow at the start of the bar.
 
+### Review round 7: the reading place (2026-11-11)
+
+The user asked for both: a module goes on where it was left, from another tab and from Home.
+
+- [x] **1AZ Tabs keep their place.** Leaving a module for another tab and coming back opens the module again where the reader left it. The shell stays one `ShellRoute`: it keeps the pages each tab showed last and opens them again with the router's `restore`, and the reader opens at the module's place (1BA). A tap on the open tab goes back to its first page; the Catalog tab opens its first page when the track changed since. A module opened from Home is under Catalog, with Home under it, as before. Each tab keeping a navigator of its own (`StatefulShellRoute`) was not taken: Home and the reader push modules that belong to Catalog, and go_router does not push across branches. A scroll the app makes for the reader does not fold the bar and the navigation away.
+- [x] **1BA Continue reading where you stopped.** The reader keeps where each module was left, on this device and apart from the record (R61), which is the web's and goes into the backup file: the last heading above the top and the distance past it, with the share of the page and the time (`lib/shared/reading/`, `reading/places.json` under Application Support, the 50 most recent). A module opens at its place unless a link names a heading; scrolled back to its top it has none. Home's card goes on with the module left last that is written in the track and not completed: Continue reading, how far it was read with a bar in its level's hue, and Continue; the next module comes first after it. Settings' reset erases the places with the record and its undo brings them back. A backup carries no place, so a restore on another device starts each module at its top.
+
 ## Phase 2: small fixes in the reader
 
 The fixes land together in one pull request; each fix is its own commit, test first, through the gate.
@@ -194,7 +201,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
   - Done ahead of the page (the user, 2026-11-10): the bottom navigation is a low row of icons, like X's, each with its name small under it so each is clear: the open tab filled and dark, the others outlined and muted, a hairline above. The Caravan's camel holds the middle, between Catalog and Quiz, named Caravan, said to be coming soon, and doing nothing until its page lands.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
-- [x] **3.2 Refresh the bundled snapshot.** The bundled snapshot was contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes. Done: contentVersion `cac0bf8e...` (published 2026-11-10 12:43 UTC), with Key Terms (D118), A2A and six new images. The snapshot went from 38 MB to 17 MB and the arm64 release APK from 52 MB to 32 MB; the tokens did not change.
+- [x] **3.2 Refresh the bundled snapshot.** The bundled snapshot was contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes. Done: contentVersion `cac0bf8e...` (published 2026-11-10 12:43 UTC), with Key Terms (D118), A2A and six new images. The snapshot went from 38 MB to 17 MB and the arm64 release APK from 52 MB to 32 MB; the tokens did not change. Refreshed again on 2026-11-11 to contentVersion `c03b9e70...` (published 2026-11-10 20:34 UTC), the first with the story (web D125) and the translated objectives (D124), so a first launch offline tells the story; the snapshot is 22 MB.
 - [x] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan. Read on 2026-11-10, D114 to D122:
   - D112 (WebP images), D118 (Key Terms at the end of every written For Engineers module) and new content reach the app with the snapshot (3.2); Key Terms renders as any other section, in the three languages.
   - D115, D116, D117: the web's bar now holds Caravan, a real page on sample data (the shadow play), and About, the story of the Bazaar; neither is in the bundle. Decided with the owner: wait for 5.7, see 3.1.
@@ -209,7 +216,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
   - The story is a film over the whole screen, apart from the rest of the app (the user, 2026-11-10: "like a video", on the web's ground). The web's page told one screen at a time: the opening (the gate draws itself, the title rises in it), one screen per section on its own ground of "Dusk to dawn" with the web's grain and vignette, its scene with no box, then its number, its heading word by word and its paragraph line by line, and the motto at dawn in the gate, underlined by hand, with the way on. Headings are in Fraunces, the web's display face, bundled at the web's axes (SOFT 50, WONK 0) with Latin glyphs only, about 230 KB.
   - Each screen moves on by itself after its words arrive and a reading time by its length, about 6 to 8 seconds a section (the user: shorter than 12 to 20), or once its scene has ended if later, about 14 seconds for the treaty; the opening takes 3.4 seconds; a tap on the far side moves on, on the near side goes back, holding pauses, and Skip (Welcome) or Close (Settings) leaves. Under a screen reader nothing moves on by itself and the two sides are Previous and Next; under reduced motion each screen is drawn in place. From Settings the film opens outside the shell, with no bar and no navigation.
   - `lib/features/about/` (the story's bloc, page and Welcome step, at `/settings/about`) and `lib/features/guide/` (How the bazaar works, at `/settings/guide`) are features of their own; the app passes the story step to Welcome, which imports neither.
-  - Content that names no story (the bundled snapshot until the web publishes it) starts Welcome at the language and the track and shows no story row. Once the web publishes it, refresh the snapshot (3.2) so a first launch offline tells the story too.
+  - Content that names no story (the bundled snapshot until the web publishes it) starts Welcome at the language and the track and shows no story row. The web published it with PR #108, and the snapshot carries it since 2026-11-11 (3.2), so a first launch tells the story offline too.
 
 ## Phase 4: owner follow-ups from PR #1
 

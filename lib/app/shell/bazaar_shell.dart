@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dar
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -27,6 +28,9 @@ import 'package:go_router/go_router.dart';
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
 /// reader runs, and move without animation under reduced motion.
+///
+/// Each tab keeps its pages: leaving a module for another tab and coming back opens the module again, where the reader
+/// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page.
 ///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).
@@ -53,6 +57,10 @@ class _BazaarShellState extends State<BazaarShell> {
   /// The distance scrolled since the direction last changed: positive down, negative up.
   double _run = 0;
 
+  /// Which way the reader is scrolling the page; idle while the page is scrolled for them, as a module that opens at
+  /// the place it was left (plan 1BA), which hides nothing.
+  ScrollDirection _direction = ScrollDirection.idle;
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +74,7 @@ class _BazaarShellState extends State<BazaarShell> {
       _rememberTrack();
       _navHidden = false;
       _run = 0;
+      _direction = ScrollDirection.idle;
     }
   }
 
@@ -76,6 +85,7 @@ class _BazaarShellState extends State<BazaarShell> {
     final metrics = notification.metrics;
     if (!_onModule || notification.depth != 0 || metrics.axis != Axis.vertical) return false;
     var hidden = _navHidden;
+    if (notification is UserScrollNotification) _direction = notification.direction;
     if (notification is OverscrollNotification) {
       hidden = false;
     } else if (notification is ScrollUpdateNotification) {
@@ -83,7 +93,7 @@ class _BazaarShellState extends State<BazaarShell> {
       if (metrics.pixels <= metrics.minScrollExtent || metrics.extentAfter <= 0) {
         hidden = false;
         _run = 0;
-      } else if (delta != 0) {
+      } else if (delta != 0 && _direction != ScrollDirection.idle) {
         _run = (_run > 0) == (delta > 0) ? _run + delta : delta;
         if (_run > _travel) hidden = true;
         if (_run < -_travel) hidden = false;
@@ -123,6 +133,10 @@ class _BazaarShellState extends State<BazaarShell> {
   /// The Caravan's place in the navigation, in the middle.
   static const int _caravan = 2;
 
+  /// The pages each tab showed last, by its place in the navigation, with the path of the page on top: a tab opened
+  /// again opens them again.
+  final _stacks = <int, ({RouteMatchList pages, String top})>{};
+
   /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
   int get _selectedIndex => switch (widget.location) {
     BazaarPaths.quizzes => 3,
@@ -133,13 +147,23 @@ class _BazaarShellState extends State<BazaarShell> {
 
   void _onDestinationSelected(int index) {
     if (index == _caravan) return;
+    final track = context.read<TrackCubit>().state;
     final target = switch (index) {
       0 => BazaarPaths.home,
       3 => BazaarPaths.quizzes,
       4 => BazaarPaths.settings,
-      _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? context.read<TrackCubit>().state),
+      _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? track),
     };
-    context.go(target);
+    final router = GoRouter.of(context);
+    final kept = _stacks[index];
+    // The open tab goes back to its first page; another opens its own pages again, unless they are of the track the
+    // reader left since (Settings changes the track).
+    if (index == _selectedIndex || kept == null || (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
+      _stacks.remove(index);
+      router.go(target);
+    } else {
+      router.restore(kept.pages);
+    }
   }
 
   /// Whether a page was pushed over the shell's first page: the shell's matches hold more than one page.
@@ -163,7 +187,9 @@ class _BazaarShellState extends State<BazaarShell> {
     final media = MediaQuery.of(context);
     final chromeHidden = _navHidden && _onModule && !media.accessibleNavigation;
     final motion = media.disableAnimations ? Duration.zero : BazaarMotion.fold;
-    final pushed = _pushed(GoRouter.of(context).routerDelegate.currentConfiguration.matches);
+    final configuration = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final pushed = _pushed(configuration.matches);
+    _stacks[_selectedIndex] = (pages: configuration, top: widget.location);
     final colors = context.bazaarColors;
     final idle = IconThemeData(size: 24, color: colors.onSurfaceMuted);
     final open = IconThemeData(size: 24, color: colors.onSurface);

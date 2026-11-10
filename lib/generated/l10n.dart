@@ -163,6 +163,26 @@ class S {
     return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
   }
 
+  /// `Continue reading`
+  String get home_continue_reading {
+    return Intl.message('Continue reading', name: 'home_continue_reading', desc: '', args: []);
+  }
+
+  /// `{percent} % read`
+  String home_read_percent(int percent) {
+    return Intl.message(
+      '$percent % read',
+      name: 'home_read_percent',
+      desc: 'How far down a half-read module the reader left it, on Home\'s continue card.',
+      args: [percent],
+    );
+  }
+
+  /// `Continue`
+  String get home_continue {
+    return Intl.message('Continue', name: 'home_continue', desc: '', args: []);
+  }
+
   /// `Every written module is complete.`
   String get home_all_complete {
     return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);

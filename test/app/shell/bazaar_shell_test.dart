@@ -189,6 +189,20 @@ void main() {
     expect(_navHeight(tester), full, reason: 'back at the end');
   });
 
+  testWidgets('a module scrolled for the reader, as to the place it was left, keeps the navigation (plan 1BA)', (
+    tester,
+  ) async {
+    await _pumpLongPage(tester, '/courses/alpha/first');
+    final full = _navHeight(tester);
+
+    tester.state<ScrollableState>(find.byType(Scrollable).first).position.jumpTo(1500);
+    await tester.pumpAndSettle();
+    expect(_navHeight(tester), full);
+
+    await _scroll(tester, -300);
+    expect(_navHeight(tester), 0, reason: 'the reader scrolling down still hides it');
+  });
+
   testWidgets('the navigation stays on a page that is not a module, and while a screen reader runs', (tester) async {
     await _pumpLongPage(tester, '/sheets');
     final full = _navHeight(tester);
@@ -328,6 +342,44 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/everyone/sheets');
     expect(selected(), 1);
+  });
+
+  testWidgets('each tab keeps its pages, and a tap on the open tab goes back to its first page (plan 1AZ)', (
+    tester,
+  ) async {
+    final router = await _pumpAt(tester, '/sheets', TrackCubit());
+    await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
+    expect(_path(router), '/courses/beta/fourth');
+
+    await tester.tap(_destination('Quiz'));
+    await tester.pumpAndSettle();
+    expect(_path(router), '/quiz');
+
+    await tester.tap(_destination('Catalog'));
+    await tester.pumpAndSettle();
+    expect(_path(router), '/courses/beta/fourth', reason: 'the module left for the Quiz tab is open again');
+    expect(find.byType(BackButton), findsOneWidget, reason: 'with the catalog under it');
+
+    await _tap(tester, find.byType(BackButton));
+    expect(_path(router), '/sheets');
+
+    await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
+    await tester.tap(_destination('Catalog'));
+    await tester.pumpAndSettle();
+    expect(_path(router), '/sheets', reason: 'the open tab goes back to its first page');
+    expect(find.byType(BackButton), findsNothing);
+    // A module opened from Home is under Catalog too, with Home under it.
+    await tester.tap(_destination('Home'));
+    await tester.pumpAndSettle();
+    await _tap(tester, find.text('Open the module'));
+    expect(_path(router), '/courses/alpha/first');
+    await tester.tap(_destination('Quiz'));
+    await tester.pumpAndSettle();
+    await tester.tap(_destination('Catalog'));
+    await tester.pumpAndSettle();
+    expect(_path(router), '/courses/alpha/first');
+    await _tap(tester, find.byType(BackButton));
+    expect(_path(router), '/');
   });
 
   testWidgets('text scale 2.0', (tester) async {
