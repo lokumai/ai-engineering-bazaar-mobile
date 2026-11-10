@@ -496,6 +496,48 @@ void main() {
     );
   });
 
+  test('a row shorter than the head is padded with empty cells, and a longer one is cut to it (plan 2.1, GFM)', () {
+    Map<String, Object?> cell(String text) => {
+      'inlines': [_text(text)],
+    };
+    expect(
+      _block({
+        'type': 'table',
+        'number': '5',
+        'title': null,
+        'rowHeaders': false,
+        'align': [null, null],
+        'head': [cell('a'), cell('b')],
+        'rows': [
+          [cell('x')],
+          [cell('x'), cell('y'), cell('z')],
+          [],
+        ],
+      }),
+      const TableBlock(
+        number: '5',
+        title: null,
+        rowHeaders: false,
+        align: [null, null],
+        head: [
+          Cell(inlines: [TextInline(text: 'a')]),
+          Cell(inlines: [TextInline(text: 'b')]),
+        ],
+        rows: [
+          [
+            Cell(inlines: [TextInline(text: 'x')]),
+            Cell(inlines: []),
+          ],
+          [
+            Cell(inlines: [TextInline(text: 'x')]),
+            Cell(inlines: [TextInline(text: 'y')]),
+          ],
+          [Cell(inlines: []), Cell(inlines: [])],
+        ],
+      ),
+    );
+  });
+
   test('table with row headers and align', () {
     expect(
       _block({

@@ -370,8 +370,16 @@ final class _DocumentReader {
     );
     final head = List<Cell>.unmodifiable(node['head'].list().map(_cell));
     if (align.length != head.length) alignNode.fail();
+    // A row as wide as the head (plan 2.1): Flutter's Table asserts on rows of unequal length, and the web's tables come
+    // from GFM, which pads a short row with empty cells and drops the cells past the head.
     final rows = List<List<Cell>>.unmodifiable(
-      node['rows'].list().map((row) => List<Cell>.unmodifiable(row.list().map(_cell))),
+      node['rows'].list().map((row) {
+        final cells = row.list().map(_cell).take(head.length).toList();
+        return List<Cell>.unmodifiable([
+          ...cells,
+          for (var i = cells.length; i < head.length; i++) const Cell(inlines: []),
+        ]);
+      }),
     );
     return TableBlock(number: number, title: title, rowHeaders: rowHeaders, align: align, head: head, rows: rows);
   }
