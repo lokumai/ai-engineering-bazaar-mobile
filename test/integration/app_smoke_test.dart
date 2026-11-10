@@ -158,7 +158,7 @@ void main() {
       Future<void> openFirst() async {
         await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
         await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
-        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
+        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
         // The level of the next module to read starts open: alpha, before and after the completion.

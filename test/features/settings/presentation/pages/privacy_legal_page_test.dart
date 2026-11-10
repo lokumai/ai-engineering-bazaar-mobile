@@ -30,7 +30,7 @@ void main() {
     await _pump(tester);
 
     expect(find.byType(PrivacyLegalPage), findsOneWidget);
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
+    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 4);
     expect(find.byType(BackButton), findsOneWidget, reason: 'a page pushed over Settings');
     expect(find.text('Privacy'), findsOneWidget);
     expect(find.textContaining('collects no personal data'), findsOneWidget);

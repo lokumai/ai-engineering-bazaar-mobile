@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- The bottom navigation is a low row of icons with no words: the open tab filled, the others outlined. A camel in the middle holds the Caravan's place, named as coming soon until its page arrives.
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told first on the first launch, before the language and the track, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.

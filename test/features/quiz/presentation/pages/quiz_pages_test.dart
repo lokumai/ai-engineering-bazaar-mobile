@@ -77,7 +77,7 @@ void main() {
     await _pump(tester);
 
     expect(find.text('Quizzes'), findsNothing, reason: 'no heading, the tab names the page');
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
+    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
     expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 0 of 2 taken$')), findsOneWidget);

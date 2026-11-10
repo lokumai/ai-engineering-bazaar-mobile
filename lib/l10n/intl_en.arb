@@ -23,6 +23,8 @@
   "@nav_quiz": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
+  "nav_caravan_soon": "Caravan, coming soon",
+  "@nav_caravan_soon": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",

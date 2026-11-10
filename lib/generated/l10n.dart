@@ -103,6 +103,11 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
+  /// `Caravan, coming soon`
+  String get nav_caravan_soon {
+    return Intl.message('Caravan, coming soon', name: 'nav_caravan_soon', desc: '', args: []);
+  }
+
   /// `How would you like to read?`
   String get welcome_track_title {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);

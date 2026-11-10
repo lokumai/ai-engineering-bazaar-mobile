@@ -1,6 +1,8 @@
+import 'package:ai_engineering_bazaar/app/shell/caravan_icon.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
@@ -15,8 +17,12 @@ import 'package:go_router/go_router.dart';
 /// a page to go back to and, on a level's page or a module's, its name after the level's hue (the four tabs' pages carry
 /// no name), the thin lattice band under it, the page, and the bottom navigation (web nav labels `Home` and `Catalog`,
 /// `src/components/shell/MainNav.tsx`; `Quiz` and `Settings` are app copy: the catalog carries the progress, plan 1AB,
-/// 1AC). The track is chosen once and changed in Settings (plan
-/// 1L).
+/// 1AC). The track is chosen once and changed in Settings (plan 1L).
+///
+/// The navigation is a low row of icons with no words, on the page's ground under a hairline: the open tab's icon is
+/// filled and dark, the others outlined and muted (the user, 2026-11-10: "like X"). Each icon's name is its tooltip and
+/// what a screen reader says. The Caravan's camel holds the middle, ahead of its page (plan 3.1): it is shown and
+/// named as coming soon, and does nothing yet.
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
@@ -30,6 +36,9 @@ class BazaarShell extends StatefulWidget {
   /// The path of the page [child] shows.
   final String location;
   final Widget child;
+
+  /// The navigation's height: under Material's 80, the icons alone.
+  static const double navHeight = 56;
 
   @override
   State<BazaarShell> createState() => _BazaarShellState();
@@ -111,19 +120,23 @@ class _BazaarShellState extends State<BazaarShell> {
     if (track != null) context.read<TrackCubit>().select(track);
   }
 
-  /// Home, Catalog (every page of a track), Quiz and Settings.
+  /// The Caravan's place in the navigation, in the middle.
+  static const int _caravan = 2;
+
+  /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
   int get _selectedIndex => switch (widget.location) {
-    BazaarPaths.quizzes => 2,
-    final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 3,
+    BazaarPaths.quizzes => 3,
+    final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
     final location when BazaarPaths.trackOf(location) != null => 1,
     _ => 0,
   };
 
   void _onDestinationSelected(int index) {
+    if (index == _caravan) return;
     final target = switch (index) {
       0 => BazaarPaths.home,
-      2 => BazaarPaths.quizzes,
-      3 => BazaarPaths.settings,
+      3 => BazaarPaths.quizzes,
+      4 => BazaarPaths.settings,
       _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? context.read<TrackCubit>().state),
     };
     context.go(target);
@@ -151,6 +164,14 @@ class _BazaarShellState extends State<BazaarShell> {
     final chromeHidden = _navHidden && _onModule && !media.accessibleNavigation;
     final motion = media.disableAnimations ? Duration.zero : BazaarMotion.fold;
     final pushed = _pushed(GoRouter.of(context).routerDelegate.currentConfiguration.matches);
+    final colors = context.bazaarColors;
+    final idle = IconThemeData(size: 26, color: colors.onSurfaceMuted);
+    final open = IconThemeData(size: 26, color: colors.onSurface);
+    NavigationDestination tab(IconData outlined, IconData filled, String label) => NavigationDestination(
+      icon: Icon(outlined, color: idle.color, size: idle.size),
+      selectedIcon: Icon(filled, color: open.color, size: open.size),
+      label: label,
+    );
     return Scaffold(
       body: Column(
         children: [
@@ -198,15 +219,33 @@ class _BazaarShellState extends State<BazaarShell> {
           curve: BazaarMotion.bazaar,
           child: ExcludeSemantics(
             excluding: chromeHidden,
-            child: NavigationBar(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: _onDestinationSelected,
-              destinations: [
-                NavigationDestination(icon: const Icon(Icons.home_outlined), label: l10n.nav_home),
-                NavigationDestination(icon: const Icon(Icons.menu_book_outlined), label: l10n.nav_catalog),
-                NavigationDestination(icon: const Icon(Icons.quiz_outlined), label: l10n.nav_quiz),
-                NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.nav_settings),
-              ],
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.surface,
+                border: Border(top: BorderSide(color: colors.line, width: 0.5)),
+              ),
+              child: NavigationBar(
+                height: BazaarShell.navHeight,
+                backgroundColor: colors.surface,
+                elevation: 0,
+                surfaceTintColor: Colors.transparent,
+                indicatorColor: Colors.transparent,
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: _onDestinationSelected,
+                destinations: [
+                  tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
+                  tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
+                  NavigationDestination(
+                    icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
+                    label: l10n.nav_caravan_soon,
+                    enabled: false,
+                  ),
+                  tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
+                  tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
+                ],
+              ),
             ),
           ),
         ),

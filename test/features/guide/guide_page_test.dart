@@ -26,7 +26,7 @@ void main() {
     await _pump(tester);
 
     expect(find.byType(GuidePage), findsOneWidget);
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
+    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 4);
     expect(find.byType(BackButton), findsOneWidget);
     for (final title in ['Level by level', 'Short modules', 'Mark what you finish', 'On this device, offline']) {
       expect(find.text(title, skipOffstage: false), findsOneWidget, reason: title);

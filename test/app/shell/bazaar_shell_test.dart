@@ -19,7 +19,8 @@ import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
 import '../../support/fold.dart';
 
-Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+/// A destination by its name: the navigation shows icons only, each named by its tooltip.
+Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip(label));
 
 /// Pumps the app's router at [location] with [track], and settles.
 Future<GoRouter> _pumpAt(WidgetTester tester, String location, TrackCubit track) async {
@@ -289,16 +290,28 @@ void main() {
     expect(_destination('Quiz'), findsOneWidget);
     expect(_destination('Settings'), findsOneWidget);
     expect(selected(), 1, reason: 'a level page is under Catalog');
+    // Icons only: the bar is lower than Material's, which leaves room for the words.
+    expect(tester.getSize(find.byType(NavigationBar)).height, BazaarShell.navHeight);
+
+    // The Caravan holds the middle ahead of its page, and goes nowhere yet.
+    final caravan = _destination('Caravan, coming soon');
+    expect(caravan, findsOneWidget);
+    final centre = tester.getCenter(caravan).dx;
+    expect(centre, closeTo(tester.getCenter(find.byType(NavigationBar)).dx, 1));
+    await tester.tap(caravan, warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(_path(router), '/sheets/alpha');
+    expect(selected(), 1);
 
     await tester.tap(_destination('Quiz'));
     await tester.pumpAndSettle();
     expect(_path(router), '/quiz');
-    expect(selected(), 2);
+    expect(selected(), 3);
 
     await tester.tap(_destination('Settings'));
     await tester.pumpAndSettle();
     expect(_path(router), '/settings');
-    expect(selected(), 3);
+    expect(selected(), 4);
 
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
