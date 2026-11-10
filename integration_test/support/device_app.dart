@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -97,6 +98,18 @@ Future<S> pumpUntil<B extends BlocBase<S>, S>(
     if (done(state)) return state;
   }
   fail('timed out after $timeout waiting on $B; last state: $last');
+}
+
+/// Pumps every 100 ms until the router's pages are on screen and the opening has gone from over them: the app gate
+/// mounts the router only once the content and the record are ready and Welcome has been asked (spec 3.7, plan 1I), and
+/// the opening stands over the app until it has played (plan 1AA).
+Future<void> pumpUntilShown(WidgetTester tester, {Duration timeout = const Duration(seconds: 30)}) async {
+  final stopwatch = Stopwatch()..start();
+  while (stopwatch.elapsed < timeout) {
+    await tester.pump(const Duration(milliseconds: 100));
+    if (find.byType(Navigator).evaluate().isNotEmpty && find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty) return;
+  }
+  fail('timed out after $timeout waiting for the pages of the router under the opening');
 }
 
 GoRouter _router(WidgetTester tester) => GoRouter.of(tester.element(find.byType(Navigator).first));
