@@ -7,13 +7,14 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- The story of the Bazaar, read from the content bundle (web D125) with the web's five scenes as stills: told on the first launch after the language and the track, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
 - A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-10 (`cac0bf8e`), with the web's WebP images and Key Terms.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
-- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then asks for the language and the track, shows How the bazaar works once, and lands on the catalog.
+- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then asks for the language and the track, tells the story of the Bazaar once, and lands on the catalog.
 - Home at `/`: the next module to read, the modules after it, the quizzes of the modules completed last to practise again, and the offline note.
 - The catalog root at `/sheets` with the reader's progress in it: a dial per level, and in each level's modules a mark to complete a module or the Planned mark, with a legend. The level page. The web's filters are left out.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a

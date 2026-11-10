@@ -11,7 +11,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 0. The reader (PR #1, merged as a03bf37) | Done |
 | 1. The redesign | Done (PR #3, PR #4: review round 4, 1AF to 1AM); 1AN on `feature/phase-3` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
-| 3. Parity with the website | 3.2, 3.3 and 3.4 done on `feature/phase-3`; 3.1 waits for web change 5.7 |
+| 3. Parity with the website | 3.2 to 3.5 done on `feature/phase-3`; 3.5 waits for the web to publish the story (web PR #108); 3.1 waits for web change 5.7 |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
 | 6. Release | Later |
@@ -166,7 +166,7 @@ The fixes land together in one pull request; each fix is its own commit, test fi
 
 The website keeps moving; content reaches the app through the bundle, but a new page or menu needs app code.
 
-- [ ] **3.1 New pages reach the app on their own (web M62, Caravan; D115 to D117, About).** Waiting for web change 5.7 (owner, 2026-11-10): the bar now holds two pages, Caravan (no longer under maintenance: the shadow play on sample data) and About, and neither page's content is in the bundle, so the plan below is revisited when 5.7 lands. The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
+- [ ] **3.1 New pages reach the app on their own (web M62, Caravan; D115 to D117, About).** Waiting for web change 5.7 (owner, 2026-11-10): the bar now holds two pages, Caravan (no longer under maintenance: the shadow play on sample data) and About, so the plan below is revisited when 5.7 lands. About is done another way, see 3.5. Caravan waits for the author's real trends and for its document in the bundle, which the web has already shaped (D116: `api/v1/caravan/<lang>.json`); its trends were written by an agent as a sample and are not built into the app. The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
   - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
@@ -178,8 +178,14 @@ The website keeps moving; content reaches the app through the bundle, but a new 
   - D115, D116, D117: the web's bar now holds Caravan, a real page on sample data (the shadow play), and About, the story of the Bazaar; neither is in the bundle. Decided with the owner: wait for 5.7, see 3.1.
   - D122: the owner's identity and a privacy note on the site. The app gets its own, see 3.4.
   - D114 (a block's menu), D119 and D120 (search engines) and D121 (assessment in Microsoft Forms, outside the site) change nothing in the app.
-  - Read again before each phase; the next decision after D122 starts the next read.
+  - Read again before each phase; the next decision after D122 starts the next read. D123 (translated objectives on the site) leads to the bundle's D124 and D125, both from the app (3.5, 5.8).
 - [x] **3.4 The owner and a privacy note in Settings (web D122).** Settings, under About, opens Privacy and legal (`/settings/privacy`): the privacy note is the app's own, since the app is not the site (it downloads the course from the site on GitHub Pages, keeps progress, quiz scores and settings on the device, and names crash reports only in a build that sends them); the owner as the web prints it (trade name, MERSİS no., address, email, phone; `lib/features/settings/domain/site_owner.dart`, copied from the web's `SITE_OWNER`, since the bundle does not carry it); and the web's note on third-party marks and images, worded without "we" for the copy register. A change on the web's `SITE_OWNER` is a change in the app.
+
+- [x] **3.5 The story of the Bazaar (web D115; the bundle's story, web D125).** Decided with the user, 2026-11-10: the first launch tells the story in Welcome's second step, in place of How the bazaar works, and Settings, under About, opens both the story and How the bazaar works.
+  - The words come from the bundle: the web added `api/v1/story/en.json` and the index's `story` in the same PR as `translatedObjectives` (web PR #108, M100, D125). STORY.md is in English only, so the story says so when the app is in Turkish or Persian.
+  - The web draws five scenes in code and moves them with the scroll. The app shows them as stills (`assets/about/`, about 180 KB, from the web's own reduced-motion page; `assets/about/SOURCE.md`), as D111 allows a different design.
+  - `lib/features/about/` (the story's bloc, page and Welcome step, at `/settings/about`) and `lib/features/guide/` (How the bazaar works, at `/settings/guide`) are features of their own; the app passes the story step to Welcome, which imports neither.
+  - Content that names no story (the bundled snapshot until the web publishes it) skips the step and shows no story row. Once the web publishes it, refresh the snapshot (3.2) so a first launch offline tells the story too.
 
 ## Phase 4: owner follow-ups from PR #1
 
