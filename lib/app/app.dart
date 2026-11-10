@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
@@ -31,23 +36,37 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return AppScope(
       dependencies: widget.dependencies,
-      child: MaterialApp.router(
-        // The name the task switcher shows.
-        onGenerateTitle: (context) => S.of(context).app_title,
-        theme: bazaarTheme(brightness: Brightness.light, platform: defaultTargetPlatform),
-        darkTheme: bazaarTheme(brightness: Brightness.dark, platform: defaultTargetPlatform),
-        themeMode: ThemeMode.system,
-        themeAnimationDuration: Duration.zero,
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        routerConfig: _router,
-        // The router shows only once the content and the record are ready (spec 3.7).
-        builder: (context, child) => AppGate(child: child!),
+      // The interface follows the chosen language (plan 1Q); Persian lays it out right to left.
+      child: BlocBuilder<LanguageCubit, String>(
+        builder: (context, language) => MaterialApp.router(
+          locale: Locale(language),
+          // The name the task switcher shows.
+          onGenerateTitle: (context) => S.of(context).app_title,
+          theme: bazaarTheme(brightness: Brightness.light, platform: defaultTargetPlatform),
+          darkTheme: bazaarTheme(brightness: Brightness.dark, platform: defaultTargetPlatform),
+          themeMode: ThemeMode.system,
+          themeAnimationDuration: Duration.zero,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          routerConfig: _router,
+          // The router shows only once the content and the record are ready (spec 3.7), behind Welcome on the first
+          // launch (plan Phase 1I).
+          // The bazaar's gate plays over the app as it opens (plan 1Y).
+          builder: (context, child) => WelcomeSplash(
+            child: AppGate(
+              child: WelcomeGate(
+                // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
+                onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
+                child: child!,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

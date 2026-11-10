@@ -1,6 +1,11 @@
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -9,9 +14,10 @@ import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
-/// (spec 3.7). It also provides the current track ([TrackCubit], in memory) and the site's address ([WebLinks]).
+/// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
 class AppScope extends StatelessWidget {
   const AppScope({super.key, required this.dependencies, required this.child});
 
@@ -27,6 +33,9 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IRecordRepository>(create: (_) => dependencies.createRecordRepository()),
         RepositoryProvider<IBackupGateway>(create: (_) => dependencies.createBackupGateway()),
         RepositoryProvider<WebLinks>(create: (_) => WebLinks(dependencies.appConfig.contentBaseUrl)),
+        RepositoryProvider<IWelcomeStore>(create: (_) => dependencies.createWelcomeStore()),
+        RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
+        RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -39,7 +48,17 @@ class AppScope extends StatelessWidget {
             lazy: false,
             create: (context) => RecordBloc(repository: context.read<IRecordRepository>())..add(const RecordStarted()),
           ),
-          BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
+          BlocProvider<TrackCubit>(
+            lazy: false,
+            create: (context) => TrackCubit(store: context.read<ITrackStore>())..load(),
+          ),
+          BlocProvider<LanguageCubit>(
+            lazy: false,
+            create: (context) => LanguageCubit(
+              store: context.read<ILanguageStore>(),
+              initial: PlatformDispatcher.instance.locale.languageCode,
+            )..load(),
+          ),
         ],
         child: child,
       ),

@@ -1,32 +1,27 @@
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_no_match.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_stats.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The catalog root of [track] (web `/sheets/` and `/everyone/sheets/`) in the web's default Overview view (A10): the
-/// title, the filter bar, then the overview, or the empty state when the filters keep no module.
+/// The catalog root of [track] (web `/sheets/` and `/everyone/sheets/`) in the web's default Overview view (A10), with
+/// the reader's progress in it (plan 1AB: the progress page is gone): the title, the stats of the track, the levels with
+/// their dials, each opening its modules with their completion marks, then the legend of the marks.
 ///
-/// The catalog has no bloc of its own: the rows and filters are pure functions, and the Status filter is local UI
-/// state. The Level filter is the route: its chips open a level page.
-class CatalogPage extends StatefulWidget {
+/// The catalog has no bloc of its own: the rows are a pure function, and which levels are open is the overview's own
+/// state.
+class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.track});
 
   final Track track;
-
-  @override
-  State<CatalogPage> createState() => _CatalogPageState();
-}
-
-class _CatalogPageState extends State<CatalogPage> {
-  StatusFilter _status = StatusFilter.all;
 
   @override
   Widget build(BuildContext context) {
@@ -36,31 +31,30 @@ class _CatalogPageState extends State<CatalogPage> {
       // The app gate mounts the router only once the content is ready.
       final state => throw StateError('The catalog needs ready content, not $state'),
     };
-    final view = switch (context.watch<RecordBloc>().state) {
-      RecordReady(:final record) => trackView(record, widget.track),
+    final record = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final record) => record,
       RecordLoading() => null,
     };
-    final rows = catalogRows(index, widget.track, view);
-    final visible = applyStatus(rows, _status);
+    final view = record == null ? null : trackView(record, track);
+    final curriculum = curriculumFor(index, track);
+    final rows = catalogRows(index, track, view);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         Semantics(header: true, child: Text(l10n.catalog_title, style: Theme.of(context).textTheme.headlineSmall)),
         const SizedBox(height: AppSpacing.lg),
-        CatalogFilterBar(
-          track: widget.track,
-          levels: levelsOf(index, rows),
-          level: null,
-          status: _status,
-          onStatus: (status) => setState(() => _status = status),
-          visible: visible.length,
-          total: rows.length,
+        if (record != null && view != null) ...[
+          CatalogStats(completed: signedCount(view, curriculum).signed, days: record.days.length),
+          const SizedBox(height: AppSpacing.lg),
+        ],
+        CatalogOverview(
+          track: track,
+          index: index,
+          rows: rows,
+          counts: view == null ? null : categoryProgress(view, curriculum),
         ),
         const SizedBox(height: AppSpacing.xl),
-        if (visible.isEmpty)
-          CatalogNoMatch(total: rows.length, onShowAll: () => setState(() => _status = StatusFilter.all))
-        else
-          CatalogOverview(track: widget.track, index: index, rows: visible),
+        const CatalogLegend(),
       ],
     );
   }

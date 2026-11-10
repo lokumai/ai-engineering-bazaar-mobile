@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 
 part 'reader_event.dart';
@@ -38,7 +39,9 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
       emit(const ReaderNotFound());
       return;
     }
-    final path = entry.tracks[event.track]?.docs['en'];
+    final docs = entry.tracks[event.track]?.docs;
+    // A module not translated into the language opens in English, as the web does (plan 1Q).
+    final path = docs?[event.language] ?? docs?['en'];
     if (path == null) {
       // Only For Everyone may lack a version; For Engineers always has one, so its absence is no module here.
       emit(event.track == Track.everyone ? ReaderNotWritten(entry: entry) : const ReaderNotFound());
@@ -75,7 +78,7 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
     }
     final doc = current.doc;
     _recordBloc.add(
-      CompletionToggled(key: doc.key, revision: current.entry.tracks[doc.track]?.revision?.hash, track: doc.track),
+      completionToggled(_index, doc.key, doc.track, revision: current.entry.tracks[doc.track]?.revision?.hash),
     );
   }
 }

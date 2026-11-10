@@ -11,7 +11,7 @@ import '../../../../support/golden_app.dart';
 Widget _catalog(Brightness brightness) => SizedBox.fromSize(
   size: kGoldenScreenSize,
   child: bazaarTestApp(
-    router: const AppRouterFactory().create(),
+    router: const AppRouterFactory(initialLocation: '/sheets').create(),
     record: readyRecordBloc(signOff(RecordData.empty, 'alpha/first', 'abc1234', '2026-11-09T10:00:00.000Z')),
     brightness: brightness,
   ),

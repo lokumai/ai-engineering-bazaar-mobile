@@ -52,13 +52,19 @@ Future<void> pumpPanel(
   await tester.pumpWidget(panelApp(quiz, platform: platform));
 }
 
-/// Opens or closes the panel by its title.
+/// Opens the quiz from its card, full screen.
 Future<void> toggle(WidgetTester tester) async {
-  await tester.tap(find.text('Questions on this module'));
+  await tester.tap(find.byKey(const Key('quiz-card')));
   await tester.pumpAndSettle();
 }
 
-/// Pumps the panel over [items] and opens it.
+/// Closes the full-screen quiz, back to the page with its card.
+Future<void> close(WidgetTester tester) async {
+  await tester.tap(find.byType(CloseButton));
+  await tester.pumpAndSettle();
+}
+
+/// Pumps the card over [items] and opens the quiz.
 Future<void> open(WidgetTester tester, {TargetPlatform platform = TargetPlatform.android}) async {
   await pumpPanel(tester, items, platform: platform);
   await toggle(tester);
@@ -75,7 +81,7 @@ VoidCallback? pressed<T extends ButtonStyleButton>(WidgetTester tester, String l
     tester.widget<T>(find.widgetWithText(T, label)).onPressed;
 
 void main() {
-  testWidgets('the panel starts collapsed', (tester) async {
+  testWidgets('the card names the quiz and its count, and opens nothing by itself', (tester) async {
     await pumpPanel(tester, items);
 
     expect(find.text('Questions on this module'), findsOneWidget);
@@ -83,8 +89,10 @@ void main() {
     expect(find.text('Question 1 of 3'), findsNothing);
   });
 
-  testWidgets('opening the panel shows the first question', (tester) async {
+  testWidgets('the card opens the quiz full screen at its first question', (tester) async {
     await open(tester);
+
+    expect(find.byType(QuizScreen), findsOneWidget);
 
     expect(find.text('Question 1 of 3'), findsOneWidget);
     expect(find.text('Q1'), findsOneWidget);
@@ -234,6 +242,19 @@ void main() {
     expect(find.textContaining('Not this one'), findsNothing);
   });
 
+  testWidgets('the results show the score dial, and Back to the module closes the quiz', (tester) async {
+    await pumpPanel(tester, items.sublist(0, 1));
+    await toggle(tester);
+    await tapText(tester, 'One');
+    await tapText(tester, 'See results');
+
+    expect(find.text('1/1'), findsOneWidget);
+    await tapText(tester, 'Back to the module');
+
+    expect(find.byType(QuizScreen), findsNothing);
+    expect(find.byKey(const Key('quiz-card')), findsOneWidget);
+  });
+
   testWidgets('Previous is disabled on the first question', (tester) async {
     await open(tester);
 
@@ -258,11 +279,12 @@ void main() {
     expect(find.descendant(of: find.byWidget(focused.widget), matching: find.text('Q2')), findsOneWidget);
   });
 
-  testWidgets('the answers survive collapsing the panel', (tester) async {
+  testWidgets('the answers survive closing the quiz and opening it again', (tester) async {
     await open(tester);
 
     await tapText(tester, 'Two');
-    await toggle(tester);
+    await close(tester);
+    expect(find.byType(QuizScreen), findsNothing);
     expect(find.text('Not this one. The answer is A.'), findsNothing);
 
     await toggle(tester);

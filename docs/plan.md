@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Next |
+| 1. The redesign | In review: 1A to 1I built, review round 1 (1J to 1Q) planned, on `feature/redesign` |
 | 2. Small fixes in the reader | Planned |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -53,15 +53,83 @@ The whole phase lands in one pull request on one branch, so that a review sees t
 Inside it each step is one or more commits, each with its code and its tests together, in the order below.
 Every commit passes the gate with the goldens regenerated and the accessibility checks (text scale 2.0, the reader 3.0).
 
-- [ ] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
-- [ ] **1B Shell** (`lib/app/shell/`): the bar with the logo and the title, the band under it, a four-item bottom navigation (Home, Catalog, Progress, Settings). The track switch leaves the bar and becomes the shared segmented control (`lib/shared/`).
-- [ ] **1C Home** (`lib/features/home/`, new): a route at the app's start; the continue card (the next module not completed in the current track, with its level and minutes); the level list with a dial and a count per level; the offline line. Its own bloc or pure mapping, its own tests.
-- [ ] **1D Catalog** (`lib/features/catalog/`): level chips in a row with their hue; a three-way status control (All, Not completed, Completed); module cards with number, title, summary, minutes and the completion disc; the level header with its segment meter.
-- [ ] **1E Reader** (`lib/features/reader/`): the bar with back, the module title and the contents button; the contents as a bottom sheet instead of the end drawer; the reading progress bar; the track segment; the completion row; a "Test yourself" card that opens the quiz; the next module card.
-- [ ] **1F Quiz** (`lib/features/quiz/`): full-screen over the reader; question count and step bar; options with letter discs; the verdict and the explanation; the results with a score dial, Try again and Back to the module.
-- [ ] **1G Progress** (`lib/features/progress/`): track tabs; stats that the record carries (modules completed, days read); level cards with hue and dial, their modules listed; the data line kept whole (Back up, Restore, Reset with its undo, the set-aside notice).
-- [ ] **1H Settings** (`lib/features/settings/`): not in the mockup; restyled in the same language with the same content.
-- [ ] **1I Welcome** (`lib/features/welcome/`, new): the gate, the lamps and the cast with their motion, stopped under reduced motion; "Enter the bazaar"; shown once. The illustrations come from the web repo's assets as app assets, with their source and licence noted.
+- [x] **1A Design foundation** (`lib/shared/design_system/`): the lattice band under the bar; a level hue per level from the generated category tokens; the completion dial; the level key square; the arch and leaf card shapes; the section rule with the dashed line. Each piece with its own widget test and golden.
+- [x] **1B Shell** (`lib/app/shell/`): the bar with the logo and the title, the band under it, a four-item bottom navigation (Home, Catalog, Progress, Settings). The track switch leaves the bar and becomes the shared segmented control (`lib/shared/`).
+- [x] **1C Home** (`lib/features/home/`, new): a route at the app's start; the continue card (the next module not completed in the current track, with its level and minutes); the level list with a dial and a count per level; the offline line. Its own bloc or pure mapping, its own tests.
+- [x] **1D Catalog** (`lib/features/catalog/`): level chips with their hue; the status chips keep the web's five filters (All, Ready, Planned, Completed, Not completed), not the mockup's three, since the filters are behaviour (R31); module cards with number, title, Description, Length and Requires, and the completion disc; the level header with its segment meter.
+- [x] **1E Reader** (`lib/features/reader/`): back in the shell's bar over every pushed page; the level and number over the title; the contents as a bottom sheet instead of the end drawer; the reading progress bar; the track switch, kept on every reader state as the bar kept it; the completion row; the quiz card; the pager stacked with the next module first.
+- [x] **1F Quiz** (`lib/features/quiz/`): a card in the reader with the web's title ("Questions on this module") opens the quiz full screen over the reader; every behaviour of the web's quiz is kept (Previous, Next, the verdict, the recap that returns to a question, Back to the questions, Start over); the results add a score dial and Back to the module.
+- [x] **1G Progress** (`lib/features/progress/`): track tabs; stats that the record carries (modules completed in the shown track, and the active days: the record's `days`, the days on which anything was written); level cards with hue and dial, their modules listed; the data line kept whole (Back up, Restore, Reset with its undo, the set-aside notice).
+- [x] **1H Settings** (`lib/features/settings/`): not in the mockup; restyled in the same language with the same content.
+- [x] **1I Welcome** (`lib/features/welcome/`, new): the gate with its lamps and five of the cast, with their motion, stopped under reduced motion; "Enter the bazaar"; shown once, by a file flag under Application Support (`lib/infrastructure/storage/flags/`). The web draws the gate and the cast as inline SVG its renderer cannot draw here, so they are drawn to WebP once (`assets/welcome/SOURCE.md`, MIT).
+
+### Changed along the way
+
+- **Home is `/` and the For Engineers catalog `/sheets`**, the web's own paths. Decision A9 had put the catalog at `/` while the app had no Home; `/courses` now redirects to `/sheets`.
+- **The segmented control wraps** its segments onto more lines when the labels do not fit, so a large text scale never hides one.
+
+### Review round 1: the first run on the emulator (2026-11-09)
+
+The owner ran 1A to 1I on the Android emulator. These steps land on the same branch and in the same pull request, each as its own commit through the gate.
+Three of them change a decision taken above or a requirement; those are marked, and the requirement is updated in the same commit.
+
+- [x] **1J Status bar icons.** The clock and the system icons are drawn dark on the navy bar and can hardly be read. The bar sets light icons (`SystemUiOverlayStyle`) in both themes.
+- [x] **1K Welcome, redrawn.** The Welcome screen looked poor on the phone next to the mockup's. It now follows the mockup's layout: the gate cropped to its centre in a 400 high frame with a light in its arch, the two hanging lamps at the corners (drawn to WebP from the mockup, `assets/welcome/SOURCE.md`), the people standing across the gate's foot, and the mockup's headline in English ("AI engineering, written by the people who build it."). The lamps drop and swing to rest once; nothing keeps moving. The mockup's serif display face is not used, since the web downloads no font (`src/app/layout.tsx`, M16).
+- [x] **1L The track is asked once.** *Changes the decision "the track switch moves into the pages".* The For Engineers and For Everyone switch took room on Home, the catalog and the reader, though most readers choose once.
+  - Welcome asks for the track after Enter the bazaar, with the web's line for each track (`src/app/page.tsx`). The choice is kept as two file flags under Application Support (`track-chosen`, `track-everyone`), never in the record.
+  - The switch is gone from Home, the catalog, the level page and the reader; each page names its track in a small label. Settings has a Reading section where the track changes.
+  - A link into the other track still opens that track for the run, without changing the choice.
+  - Welcome's flag is now `welcome-2-seen`, so a reader who saw the first Welcome sees the new one, and the track question, once.
+- [x] **1M Back follows the pages the reader opened.** The back button in the bar went to the previous step of the path, not to the previous page: someone reading a module expects back to return to that module.
+  - The places that called `context.go` replaced the history: the level chips, the catalog link in a module's text (`link_actions.dart`), and See what is written For Everyone (`not_written_view.dart`). They now push, so back returns to the page they were on.
+  - The level chips are a filter: from the catalog root a level is pushed; on a level page the chosen level takes the page's place, so back skips the levels tried; All returns to the root below when there is one.
+  - Only the bottom navigation, and the recovery links of a page that was not found, start the history again.
+  - `test/app/router/back_history_test.dart` holds the paths.
+- [x] **1N Status filters.** *Changes 1D and R31.* The status chips (All, Ready, Planned, Completed, Not completed) add little, and Planned least of all. Done: the status row and the count are gone. Then, on the owner's second look, the level chips went too: the catalog root shows the levels as buttons, each opening its modules under it, in the redesign's look. A planned module still shows its Planned tag on its card. The web keeps its filters; this is a known difference from the web, recorded in the requirements.
+- [x] **1O "Not responding" on the emulator.** Android sometimes showed the "isn't responding" dialog (Wait or Close app).
+  - Found: the emulator's records (`adb shell dumpsys dropbox`) hold two ANRs since the morning, both of the emulator's own Phone app (`com.android.phone`), at 17:18, as the emulator booted ("failed to complete startup"). The reader has no ANR and no crash on record.
+  - The reader skips about 0.7 s of frames twice at a cold start of a debug build, as a debug build does while it compiles; an ANR needs a 5 s stall.
+  - Closed with no code change. If the dialog comes back, note the app name it shows; if it is Bazaar, read `adb shell dumpsys dropbox --print data_app_anr` and reopen this step.
+- [x] **1P Home, Catalog and Progress overlap.** Up next on Home works well, but the three tabs showed nearly the same thing: the levels with a count and a dial. Each tab gets one job:
+  - [x] **Home:** what to read now. Up next, the two written modules not completed after it, and a link to the catalog; no level list.
+  - [x] **Catalog:** everything there is to read. The levels as buttons that open their modules (1N).
+  - [x] **Progress:** what has been done. It keeps its stats, its levels with their dials and modules, and the data line; with the dials gone from Home and the catalog, it is the one tab that shows them.
+- [x] **1Q Three languages.** *Changes D113 ("only content is multilingual") and R5.* The web publishes every written module in English, Turkish and Persian; the app showed English only, and its interface stayed English whatever the content.
+  - Settings' Reading section chooses the language: English, Türkçe or فارسی, each named in its own language. Before a choice the app takes the device's language when it has it, English otherwise. The choice is kept as a file flag under Application Support (`language-<code>`), never in the record.
+  - The interface follows the language: every string is in `intl_tr.arb` and `intl_fa.arb`; Persian lays the app out right to left, code blocks stay left to right.
+  - The reader opens a module's document in the language; a module with no such document opens in English, and a change of language reopens the module in the new one.
+  - The track names come from the app's strings, since the bundle names the tracks in English only.
+  - Known gap: the bundle's index gives module and level titles, summaries and blurbs in English only, so the catalog, Home and the Quiz tab list them in English. The web would have to publish them per language (Phase 5).
+
+
+### Review round 2: the first launch, again (2026-11-09)
+
+The owner ran the app from a clean install. Each step lands on the same branch and pull request, as its own commit through the gate.
+
+- [x] **1R A thinner bar.** The navy bar looked tall and empty. It is thinner (48). A badge naming the track and the language was tried at its end, then taken out on the owner's look; the bar holds the logo and the name only. The track line on Home, the catalog and the level page is gone too.
+- [x] **1S Welcome, livelier and whole.** The scene reaches the top of the screen under the status bar, so the white strip and the lattice no longer cut it off. It enters in steps: the light in the gate opens, the people step in one after the other, the lamps drop and swing; under reduced motion it is still. The second step asks for the language as well as the track.
+- [x] **1T The first landing is the catalog.** Up next means little to someone who has read nothing. After Welcome the app opens the catalog; every later launch opens Home.
+- [x] **1U Progress shows the current track.** The track is chosen once and changed in Settings, so Progress drops its track tabs and shows the current track only.
+- [x] **1V A module completed For Engineers counts For Everyone.** *Changes the record's use, not its format.* Completing a module For Engineers also completes its For Everyone version, when that is written; the reverse does not hold, and undoing For Engineers leaves For Everyone as it is.
+- [x] **1X A guide on the first launch.** Someone new to the app does not know what it holds. After the language and the track, Welcome shows How the bazaar works once: the levels, the short modules, marking what is finished, and the course kept on the device offline. Open the catalog ends Welcome; only then is it recorded as seen.
+- [x] **1Y The gate plays as the app opens.** *Changes 1I and 1S.* Three Welcome screens were too many, and the first was a page with a button only to go on. The gate, the lamps and the people now play on every launch while the content and the record load (1.8 s), then the scene grows and fades into the app; there is no button. A first launch goes from it straight to the language and the track, then the guide (1X). The scene's lingering life of 1S is gone with the page.
+- [x] **1Z The gate is an animation only, and the bar is on every screen.** The opening gate still looked like a page. It now has no words, no mark and no button: the gate stands in the middle of the screen with its top and foot melting into the page ground, the lamps drop, the people step in, the light comes up, and then the reader walks in, the gate growing towards the light in its arch as it fades (0.7 s). The steps of the first launch (the language and the track, the guide) wear the cobalt bar like every page after them; the bar moved to `lib/shared/design_system/widgets/bazaar_bar.dart`.
+- [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn (removed in 1AE).
+- [ ] **1W Quiz scores (on hold).** The owner would like the app to show how each quiz went (on the Quiz tab since 1AC). The web keeps no quiz score and the record has no field for one (R51), so this waits for amirkia's answer: keep scores on the device apart from the record, or have the web add them to the record first. Nothing is built until then.
+
+### Review round 3: Progress inside the catalog, and quizzes to practise (2026-11-10)
+
+The owner proposed these on 2026-11-10 and settled them the same day: the opening stays (1AA), Progress goes into the catalog, and the fourth tab becomes Quiz. They land on the same branch and pull request.
+
+- [x] **1AB Progress inside the catalog.** The catalog shows each module's completion with the progress page's marks and dials, and the progress page is gone.
+  - Each level is an arch card in its hue with its number, title, length and the dial of its completed modules. A tap opens its modules; each written module has the mark that completes it, and a planned one has the dashed Planned mark. The rest of the row opens the reader.
+  - The modules completed in the track and the active days stand at the top of the catalog, and the legend of the marks at its foot.
+  - Back up, Restore and Reset, the set-aside record notice and the write notice moved to Settings, under Your progress (`lib/features/settings/`). They are R-requirements and stay as they were. The reader's write notice now opens Settings.
+  - A For Everyone reader loses nothing: the catalog of the current track carries what Progress showed since 1U.
+  - Home's line for a reader who has completed every module now leads to the catalog.
+- [x] **1AC A Quiz tab in place of Progress.** The fourth bottom item is Quiz, at `/quiz`. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) at `/quiz/<level>/<module>` without going through the reader; Done closes it. Only For Engineers documents carry a quiz, so the tab lists those, and tells a For Everyone reader where the questions come from. The web has no quiz page (A9); these routes are the app's own.
+- [x] **1AD Practice on Home.** Under the modules after the next one, Home offers Practise again: the quizzes of the three modules completed last in the current track, the most recent first, each opening the quiz full screen. The record keeps when each module was completed, so the order is the record's own. Without quiz scores (1W) practice cannot favour the quizzes that went badly; once scores exist, it can.
+- [x] **1AE The unused gate picture is gone.** With the opening settled, `assets/welcome/gate.webp` is removed. The lamps and the people stay: the opening draws them.
 
 ## Phase 2: small fixes in the reader
 
@@ -78,7 +146,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 - [ ] **3.1 New pages reach the app on their own (web M62, Caravan).** The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
-  - The bottom navigation shows the bundle's extra pages after Progress, as the web's bar does; Settings stays the last item.
+  - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
 - [ ] **3.2 Refresh the bundled snapshot.** The bundled snapshot is contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes.
@@ -107,6 +175,7 @@ The ones that unlock app features:
 - [ ] **5.5** Rewrite the six logos that a renderer without CSS draws wrong.
 - [ ] **5.6** If the redesign's dropped parts are wanted later: saved quiz results in the record, and search data in the bundle. Each is a web decision first.
 - [ ] **5.7** The bar's pages in the bundle: path, title and state (`live` or `maintenance`) of each destination, so a new page reaches the app with no app release (3.1).
+- [ ] **5.8** Module and level titles, summaries and blurbs per language in the index, so the catalog, Home and the Quiz tab list them in the reader's language (1Q).
 
 The rest (register fixes, contrast fixes, conformance cases) are listed in the PR #1 description.
 

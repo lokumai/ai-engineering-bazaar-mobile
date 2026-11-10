@@ -212,6 +212,78 @@ void main() {
     });
   });
 
+  group('plan 1V: a For Engineers completion completes For Everyone too', () {
+    const carried = CompletionToggled(
+      key: 'alpha/first',
+      revision: 'a1b2c3d',
+      track: Track.engineers,
+      everyone: EveryoneCompletion(revision: 'e5f6a7b'),
+    );
+
+    test('completing For Engineers signs both, each with its own revision', () async {
+      await _withClock(() async {
+        final bloc = await _started(_MemoryRecordRepository());
+        bloc.add(carried);
+        await pumpEventQueue();
+
+        final raw = _ready(bloc).record.raw;
+        expect(((raw['sheets']! as Map)['alpha/first'] as Map)['signedRevision'], 'a1b2c3d');
+        final everyone = (raw['everyoneSheets']! as Map)['alpha/first'] as Map;
+        expect(everyone['signedOff'], _now);
+        expect(everyone['signedRevision'], 'e5f6a7b');
+        await bloc.close();
+      });
+    });
+
+    test('undoing For Engineers leaves For Everyone completed', () async {
+      await _withClock(() async {
+        final bloc = await _started(_MemoryRecordRepository());
+        bloc
+          ..add(carried)
+          ..add(carried);
+        await pumpEventQueue();
+
+        final record = _ready(bloc).record;
+        expect(record.signedOff('alpha/first', Track.engineers), isNull);
+        expect(record.signedOff('alpha/first', Track.everyone), _now);
+        await bloc.close();
+      });
+    });
+
+    test('a For Everyone completion already there is kept as it was', () async {
+      await _withClock(() async {
+        final bloc = await _started(_MemoryRecordRepository());
+        bloc.add(const CompletionToggled(key: 'alpha/first', revision: 'old1234', track: Track.everyone));
+        await pumpEventQueue();
+        final before = (_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'];
+
+        bloc.add(carried);
+        await pumpEventQueue();
+
+        expect((_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'], before);
+        await bloc.close();
+      });
+    });
+
+    test('completing For Everyone never completes For Engineers', () async {
+      await _withClock(() async {
+        final bloc = await _started(_MemoryRecordRepository());
+        bloc.add(
+          const CompletionToggled(
+            key: 'alpha/first',
+            revision: null,
+            track: Track.everyone,
+            everyone: EveryoneCompletion(revision: null),
+          ),
+        );
+        await pumpEventQueue();
+
+        expect(_ready(bloc).record.raw['sheets'], isEmpty);
+        await bloc.close();
+      });
+    });
+  });
+
   test('Review Focus 4: two quick taps apply in order and the file equals memory', () async {
     await _withClock(() async {
       final repository = _MemoryRecordRepository();

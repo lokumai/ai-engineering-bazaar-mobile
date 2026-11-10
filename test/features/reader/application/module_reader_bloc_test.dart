@@ -13,6 +13,7 @@ import '../../../support/bazaar_app_harness.dart';
 import '../../../support/content_builders.dart';
 
 const _firstEnglish = 'api/v1/modules/alpha/first/en.json';
+const _firstTurkish = 'api/v1/modules/alpha/first/tr.json';
 const _firstEveryone = 'api/v1/modules/alpha/first/everyone/en.json';
 const _body = [
   ParagraphBlock(inlines: [TextInline(text: 'Body text.')], lead: false),
@@ -22,7 +23,7 @@ final first = testModule(
   tracks: {
     Track.engineers: testModuleTrack(
       revision: const Revision(hash: 'def5678', date: '2026-11-01'),
-      docs: const {'en': _firstEnglish},
+      docs: const {'en': _firstEnglish, 'tr': _firstTurkish},
     ),
     Track.everyone: testModuleTrack(
       revision: const Revision(hash: 'abc1234', date: '2026-11-02'),
@@ -83,6 +84,26 @@ void main() {
     act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.everyone)),
     expect: () => [ReaderWritten(doc: everyoneDoc, entry: first, moduleCount: 2)],
   );
+
+  group('the language (plan 1Q)', () {
+    final turkishDoc = testDoc(body: _body, title: 'Birinci');
+
+    blocTest<ModuleReaderBloc, ReaderState>(
+      'opens the document in the language',
+      build: build,
+      setUp: () => when(() => repository.readModuleDoc(_firstTurkish)).thenAnswer((_) async => turkishDoc),
+      act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers, language: 'tr')),
+      expect: () => [ReaderWritten(doc: turkishDoc, entry: first, moduleCount: 2)],
+    );
+
+    blocTest<ModuleReaderBloc, ReaderState>(
+      'opens a module not translated into the language in English',
+      build: build,
+      setUp: () => when(() => repository.readModuleDoc(_firstEveryone)).thenAnswer((_) async => everyoneDoc),
+      act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.everyone, language: 'fa')),
+      expect: () => [ReaderWritten(doc: everyoneDoc, entry: first, moduleCount: 2)],
+    );
+  });
 
   blocTest<ModuleReaderBloc, ReaderState>(
     'a module with a draft is planned',
@@ -167,6 +188,7 @@ void main() {
     verify: (_) {
       final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
       expect((event.key, event.revision, event.track), ('alpha/first', 'abc1234', Track.everyone));
+      expect(event.everyone, isNull, reason: 'For Everyone never completes For Engineers (plan 1V)');
     },
   );
 
@@ -178,6 +200,7 @@ void main() {
     verify: (_) {
       final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
       expect((event.key, event.revision, event.track), ('alpha/first', 'def5678', Track.engineers));
+      expect(event.everyone?.revision, 'abc1234', reason: 'the written For Everyone version goes with it (plan 1V)');
     },
   );
 

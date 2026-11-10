@@ -22,61 +22,65 @@ class CodeBlockView extends StatelessWidget {
       container: true,
       explicitChildNodes: true,
       label: block.language == 'output' ? s.block_program_output : s.block_code_label(block.language),
-      child: Container(
-        key: const Key('code-slab'),
-        decoration: const BoxDecoration(
-          color: BazaarFixedColors.slabSurface,
-          border: Border.fromBorderSide(BorderSide(color: BazaarFixedColors.slabLine)),
-          borderRadius: BorderRadius.all(BazaarRadii.lg),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: BazaarFixedColors.slabLine)),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 13),
-              child: Text(
-                block.language,
-                style: TextStyle(
-                  fontFamily: mono,
-                  fontSize: BazaarType.mark.size,
-                  color: BazaarFixedColors.slabOnSurfaceMuted,
+      // Code reads left to right in a Persian module too (plan 1Q).
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Container(
+          key: const Key('code-slab'),
+          decoration: const BoxDecoration(
+            color: BazaarFixedColors.slabSurface,
+            border: Border.fromBorderSide(BorderSide(color: BazaarFixedColors.slabLine)),
+            borderRadius: BorderRadius.all(BazaarRadii.lg),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: BazaarFixedColors.slabLine)),
                 ),
-              ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 17),
-              child: Text.rich(
-                key: const Key('code-body'),
-                TextSpan(
+                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 13),
+                child: Text(
+                  block.language,
                   style: TextStyle(
                     fontFamily: mono,
-                    fontSize: BazaarType.code.size,
-                    height: BazaarType.code.height,
-                    color: BazaarFixedColors.slabOnSurface,
+                    fontSize: BazaarType.mark.size,
+                    color: BazaarFixedColors.slabOnSurfaceMuted,
                   ),
-                  children: [
-                    for (final (index, line) in block.lines.indexed) ...[
-                      if (index > 0) const TextSpan(text: '\n'),
-                      for (final token in line)
-                        TextSpan(
-                          text: token.text,
-                          style: TextStyle(
-                            color: BazaarSlab.forRole(token.role),
-                            fontWeight: token.bold ? FontWeight.w600 : FontWeight.w400,
-                          ),
-                        ),
-                    ],
-                  ],
                 ),
-                softWrap: false,
               ),
-            ),
-          ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 17),
+                child: Text.rich(
+                  key: const Key('code-body'),
+                  TextSpan(
+                    style: TextStyle(
+                      fontFamily: mono,
+                      fontSize: BazaarType.code.size,
+                      height: BazaarType.code.height,
+                      color: BazaarFixedColors.slabOnSurface,
+                    ),
+                    children: [
+                      for (final (index, line) in block.lines.indexed) ...[
+                        if (index > 0) const TextSpan(text: '\n'),
+                        for (final token in line)
+                          TextSpan(
+                            text: token.text,
+                            style: TextStyle(
+                              color: BazaarSlab.forRole(token.role),
+                              fontWeight: token.bold ? FontWeight.w600 : FontWeight.w400,
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                  softWrap: false,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

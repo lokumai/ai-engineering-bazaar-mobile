@@ -28,7 +28,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R2 The web is the only producer of content (D89).** The app reads the JSON bundle the web build publishes under `api/v1/` and maps each node to a widget.
 - **R3 Derive nothing (D111, `CLAUDE.md`).** The app may count and sum values the bundle publishes (a module count, a sum of `minutes`, `MODULE n OF N`). It never computes a fact the bundle does not carry. A missing fact becomes a proposed web change, not app code.
 - **R4 No account.** Progress stays on the device. There is no sign-in, no server state and no sync.
-- **R5 Only content is multilingual (D113).** Menus, labels and navigation stay English. The bundle carries English, Turkish and Persian documents; v1 shows English only (D89).
+- **R5 Three languages (plan 1Q, changes D113).** The bundle carries English, Turkish and Persian documents. The reader chooses the language in Settings; the interface and the module documents follow it, Persian right to left. A module with no document in the language opens in English. The index's titles and summaries stay English until the web publishes them per language.
 - **R6 Android and iOS only.** No web, macOS, Linux or Windows platform folders (`platform_folders_test`).
 
 ## 3. Functional requirements
@@ -45,23 +45,23 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 ### Tracks and navigation
 
-- **R20** Both tracks, For Engineers and For Everyone, with a track switch in the bar. The current track lives in memory for the session and starts at For Engineers (A11).
-- **R21** Routes follow the web's paths: `/`, `/everyone/sheets`, `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
+- **R20** Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track (Home, catalog, level page, reader). The current track lives in memory for the session and starts at For Engineers (A11).
+- **R21** Routes follow the web's paths: `/` (Home), `/sheets` and `/everyone/sheets` (the catalogs), `/sheets/<level>`, `/courses/<level>/<module>`, their `/everyone` forms, `/profile` and `/settings` (A9).
 - **R22** No outside link or intent chooses the first page; deep linking is off (A5, final review).
-- **R23** The bottom navigation holds Catalog, Progress and Settings; the redesign adds Home in front of them (plan Phase 1).
-- **R24** A page the web adds to its bar (Caravan first) appears in the app after Progress without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
+- **R23** The bottom navigation holds Home, Catalog, Quiz and Settings (plan Phase 1, 1AC). The catalog shows the progress; there is no progress page (plan 1AB).
+- **R24** A page the web adds to its bar (Caravan first) appears in the app after Quiz without an app release, as soon as the bundle lists it; a page under maintenance says so and links to the catalog (plan 3.1, web change 5.7).
 
 ### Catalog
 
 - **R30** The catalog root mirrors the web's Overview: one section per level, its modules, `Planned` for an unwritten module.
-- **R31** The level page mirrors the web's Cards view with the full filter bar: Level and Status (A10, A45).
+- **R31** The catalog root lists the levels as buttons that open their modules under them; the level page keeps the web's Cards view (A10). The web's Level and Status filters and its `Showing` count are left out on purpose (plan 1N, owner's review): the level buttons replace the Level filter, and each card already says whether it is planned or completed. This is a known difference from the web.
 - **R32** Length is shown in minutes only, until the web publishes a word count (proposed web change 1).
 
 ### Reader
 
 - **R40** A module renders in the web's order: title, minutes, prerequisites, objectives, body, completion, pager, quiz, footer.
 - **R41** Diagrams, figures, logos, tables, code, callouts and quotes render; diagrams follow the device's light or dark mode, with labels in the bundled Vazirmatn face (D89).
-- **R42** A contents drawer lists the depth-2 sections of a written module.
+- **R42** A contents sheet lists the depth-2 sections of a written module.
 - **R43** A planned module shows its schedule of parts; a For Everyone module with no document shows the not-written view.
 - **R44** Captions read `FIG. n · Title` and `TBL. n · Title` (A14); task-list boxes are read-only (A16).
 
@@ -69,22 +69,25 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 - **R50** For Engineers modules with a quiz show it one question at a time; the first pick is final; results list every question.
 - **R51** The quiz writes nothing to the record.
+- **R52** The Quiz tab lists every module quiz by level and opens it full screen without the reader; Home offers the quizzes of the three modules completed last to practise again (plan 1AC, 1AD).
 
 ### Progress and the record
 
 - **R60** The record is the web's, byte for byte. `lib/shared/record` ports the web's code, and `test/shared/record/conformance_test.dart` with `test/fixtures/record_conformance/v1.json` is the authority.
-- **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
+- **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). A For Engineers completion also writes the For Everyone completion of the same module when that version is written and not yet completed; removing a completion touches only its own track (plan 1V, the web does not do this). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
 - **R62** Days are the UTC day of the instant. `asInstant` is a strict grammar (A20).
 - **R63** Writes are atomic: `record.json.tmp` with a flush, then a rename.
-- **R64** A malformed or newer record is set aside in `record-quarantine.json` and reads as empty; the progress page shows a notice with Save a copy and Delete it.
+- **R64** A malformed or newer record is set aside in `record-quarantine.json` and reads as empty; Settings shows a notice with Save a copy and Delete it.
 - **R65** Back up writes the web's export file; restore reads the web's export, refuses a newer schema, and asks before replacing a non-empty record.
 - **R66** Reset needs the word ERASE, shows the counts and the backup line, deletes the record files, and can be undone for 10 s (A42).
 - **R67** The record is included in the device backup, and the erase screen says so (D89).
+- **R68** The progress shows the current track only, in that track's catalog (plan 1U, 1AB); the web's progress page with a tab per track is left out, since the track is chosen once and changed in Settings. This is a known difference from the web.
 
 ### Settings
 
 - **R70** Settings shows the content version, the published day, the source (bundled or downloaded), the refresh status, Check for updates and the licences.
 - **R71** Debug builds also show the developer console button (A6).
+- **R72** Settings holds the reader's data under Your progress: Back up, Restore, Reset and the set-aside record notice (R64 to R66), moved from the progress page (plan 1AB).
 
 ## 4. Engineering requirements
 
@@ -116,7 +119,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - A theme or language menu; the app follows the device's light or dark mode.
 - Reading position, word counts, saved quiz results and search: the bundle and the record carry none of them (plan Phase 1, Phase 5).
 
-Level hues and the level meter's segment gauge, left out by PR #1, come back with the redesign (plan Phase 1).
+Level hues and the level meter's segment gauge, left out by PR #1, came back with the redesign (plan Phase 1).
 
 ## 6. Acceptance
 

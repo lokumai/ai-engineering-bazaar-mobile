@@ -42,7 +42,7 @@ test/
   core/                        logging, security, analytics interface
   infrastructure/              content store and refresh, record files, backup gateway, config, Sentry
   shared/                      content and record kernels, renderers, design system, navigation, track
-  features/<feature>/          catalog, reader, quiz, progress, settings
+  features/<feature>/          home, catalog, reader, quiz, settings, welcome
   tool/                        the snapshot tool, the token generator and the fixture builder
   integration/                 app_smoke_test.dart, the full-app widget test
 integration_test/              device tests: app_test.dart and support/device_app.dart

@@ -6,19 +6,30 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
+import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -45,29 +56,87 @@ class _SmokeDependencies extends FixtureAppDependencies {
   IRecordRepository createRecordRepository() => FileRecordRepository(baseDirectory: () async => dir);
 }
 
+/// The smoke wiring with the real Welcome flag under [dir], as a first launch has it.
+class _FirstLaunchDependencies extends _SmokeDependencies {
+  const _FirstLaunchDependencies(super.dir);
+
+  @override
+  IWelcomeStore createWelcomeStore() => FlagWelcomeStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  ITrackStore createTrackStore() => FlagTrackStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: () async => dir));
+}
+
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated
 /// until [done] holds, failing after [rounds] rounds.
 Future<void> _drain(WidgetTester tester, bool Function() done, {required String what, int rounds = 100}) async {
   for (var round = 0; round < rounds; round++) {
     if (done()) return;
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-    await tester.pump();
+    // Frames move on in time too, so the gate that plays as the app opens plays out (plan 1Y).
+    await tester.pump(const Duration(milliseconds: 50));
   }
   if (done()) return;
   throw TestFailure('$what did not happen after $rounds rounds');
 }
 
 /// End-to-end smoke: boots the whole app over the fixture dependencies (the fixture content, no network), and lands on
-/// the catalog inside the shell once the content and the record are ready. There is no sign-in. The second test
-/// completes a module over real files and reads it back after a restart.
+/// Home inside the shell once the content and the record are ready. There is no sign-in. The second test opens a
+/// module from the catalog, completes it over real files and reads it back after a restart.
 void main() {
-  testWidgets('cold start shows the catalog with no sign-in', (tester) async {
+  testWidgets('cold start shows Home with no sign-in', (tester) async {
     await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
-    await pumpUntilFound(tester, find.byType(CatalogPage));
+    await pumpUntilFound(tester, find.byType(HomePage));
 
-    expect(find.byType(CatalogPage), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
     expect(find.byType(BazaarShell), findsOneWidget);
   });
+
+  testWidgets(
+    'the first launch plays the gate, asks the track, shows the guide and lands on its catalog; the next launch opens Home in that track',
+    (tester) async {
+      final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      expect(find.byType(HomePage), findsNothing);
+      final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+      await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
+      await tester.ensureVisible(everyone);
+      await tester.pump();
+      await tester.tap(everyone);
+      await tester.pump();
+      final start = find.byKey(const Key('welcome-start'));
+      await tester.ensureVisible(start);
+      await tester.pump();
+      await tester.tap(start);
+      final intro = find.byKey(WelcomeIntroView.doneKey);
+      await _drain(tester, () => intro.evaluate().isNotEmpty, what: 'the guide (plan 1X)');
+      await tester.ensureVisible(intro);
+      await tester.pump();
+      await tester.tap(intro);
+      await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
+      expect(find.byType(HomePage), findsNothing);
+      await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
+      await _drain(tester, () => File('${dir.path}/flags/track-chosen').existsSync(), what: 'the chosen track');
+      expect(File('${dir.path}/flags/track-everyone').existsSync(), isTrue);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+      await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
+      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      expect(find.byType(WelcomeTrackView), findsNothing);
+      await _drain(
+        tester,
+        () => tester.element(find.byType(HomePage)).read<TrackCubit>().state == Track.everyone,
+        what: 'the chosen track after a restart',
+      );
+    },
+  );
 
   testWidgets(
     'completing a module survives a restart',
@@ -82,8 +151,24 @@ void main() {
       final completion = find.byKey(const Key('reader-completion'));
 
       Future<void> openFirst() async {
+        await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+        await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
+        await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
-        await tester.tap(find.text(title));
+        // The levels are closed buttons: the first one opens its modules.
+        await tester.tap(find.byKey(CatalogOverview.levelKey('alpha')));
+        await tester.pump();
+        await _drain(
+          tester,
+          () => find.descendant(of: find.byType(CatalogPage), matching: find.text(title)).evaluate().isNotEmpty,
+          what: 'the modules of the first level',
+        );
+        // The modules unfold over a short animation; tap the title once it is in place.
+        await tester.pump(const Duration(seconds: 1));
+        await tester.ensureVisible(find.descendant(of: find.byType(CatalogPage), matching: find.text(title)));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tap(find.descendant(of: find.byType(CatalogPage), matching: find.text(title)));
         await tester.pump();
         await _drain(tester, () => completion.evaluate().isNotEmpty, what: 'the reader of $title');
         await settleContent(tester);
@@ -109,8 +194,9 @@ void main() {
       final state = tester.element(find.byType(ModuleReaderView)).read<RecordBloc>().state;
       expect(state, isA<RecordReady>());
       final record = (state as RecordReady).record;
-      expect(record.signedMap(Track.everyone), isEmpty);
       expect(record.signedOff('alpha/first', Track.engineers), '2026-11-09T10:00:00.000Z');
+      // The fixture's For Everyone version is written, so it is completed along with For Engineers (plan 1V).
+      expect(record.signedMap(Track.everyone), {'alpha/first': '2026-11-09T10:00:00.000Z'});
     }),
   );
 }

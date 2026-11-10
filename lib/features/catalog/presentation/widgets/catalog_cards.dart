@@ -4,7 +4,11 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +50,15 @@ class CatalogCards extends StatelessWidget {
       spacing: AppSpacing.lg,
       children: [
         for (final level in levelsOf(index, rows)) ...[
-          Semantics(header: true, child: Text(level.title, style: textTheme.titleMedium)),
+          Row(
+            spacing: AppSpacing.sm,
+            children: [
+              LevelKey(color: levelHue(context, levelPosition(index, level.slug))),
+              Flexible(
+                child: Semantics(header: true, child: Text(level.title, style: textTheme.titleMedium)),
+              ),
+            ],
+          ),
           for (final row in applyLevel(rows, level.slug))
             _ModuleCard(
               track: track,
@@ -81,66 +93,115 @@ class _ModuleCard extends StatelessWidget {
     final l10n = S.of(context);
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final muted = context.bazaarColors.onSurfaceMuted;
+    final colors = context.bazaarColors;
+    final muted = colors.onSurfaceMuted;
     final minHeight = minTapTarget(theme.platform);
     final summary = row.summary;
-    return Card.outlined(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('${level.title} ${moduleNumber(row.number)}', style: textTheme.labelMedium?.copyWith(color: muted)),
-            InkWell(
-              onTap: () => context.push(BazaarPaths.module(track, row.key)),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: minHeight),
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(row.title, style: textTheme.titleMedium),
+    return BazaarCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 14,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(moduleNumber(row.number), style: textTheme.labelLarge?.copyWith(color: muted)),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  '${level.title} ${moduleNumber(row.number)}',
+                  style: textTheme.labelMedium?.copyWith(color: muted),
                 ),
-              ),
-            ),
-            if (summary != null) ...[
-              Semantics(
-                container: true,
-                button: true,
-                expanded: open,
-                child: InkWell(
-                  onTap: onDescription,
+                InkWell(
+                  onTap: () => context.push(BazaarPaths.module(track, row.key)),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: minHeight),
-                    child: Row(
-                      spacing: AppSpacing.xs,
-                      children: [
-                        Flexible(child: Text(l10n.card_description, style: textTheme.labelLarge)),
-                        ExcludeSemantics(child: Icon(open ? Icons.expand_less : Icons.expand_more, size: 20)),
-                      ],
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(row.title, style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
                     ),
                   ),
                 ),
-              ),
-              if (open)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: Text(summary, style: textTheme.bodyMedium),
+                if (summary != null) ...[
+                  Semantics(
+                    container: true,
+                    button: true,
+                    expanded: open,
+                    child: InkWell(
+                      onTap: onDescription,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: minHeight),
+                        child: Row(
+                          spacing: AppSpacing.xs,
+                          children: [
+                            Flexible(child: Text(l10n.card_description, style: textTheme.labelLarge)),
+                            ExcludeSemantics(child: Icon(open ? Icons.expand_less : Icons.expand_more, size: 20)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (open)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Text(summary, style: textTheme.bodyMedium?.copyWith(color: muted)),
+                    ),
+                ],
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xl,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    _Fact(
+                      label: l10n.card_length,
+                      value: row.drawn ? l10n.card_length_minutes(row.minutes) : l10n.module_planned,
+                    ),
+                    _Fact(label: l10n.card_requires, value: requiresLabel(l10n, row.requires)),
+                  ],
                 ),
-            ],
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.xl,
-              runSpacing: AppSpacing.sm,
-              children: [
-                _Fact(
-                  label: l10n.card_length,
-                  value: row.drawn ? l10n.card_length_minutes(row.minutes) : l10n.module_planned,
-                ),
-                _Fact(label: l10n.card_requires, value: requiresLabel(l10n, row.requires)),
               ],
             ),
-          ],
+          ),
+          if (row.drawn) _CompletionDisc(completed: row.signed),
+        ],
+      ),
+    );
+  }
+}
+
+/// A written module's completion, at the card's end: a filled disc with a check once completed, named for assistive
+/// technology; an empty ring before, which is decoration, since the Status filter already says what is not completed.
+class _CompletionDisc extends StatelessWidget {
+  const _CompletionDisc({required this.completed});
+
+  final bool completed;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!completed) {
+      return ExcludeSemantics(
+        child: Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: context.bazaarColors.lineStrong, width: 1.5),
+          ),
         ),
+      );
+    }
+    return Semantics(
+      image: true,
+      label: S.of(context).catalog_filter_completed,
+      excludeSemantics: true,
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: const BoxDecoration(color: BazaarFixedColors.success, shape: BoxShape.circle),
+        child: const Icon(Icons.check, size: 15, color: Colors.white),
       ),
     );
   }

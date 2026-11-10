@@ -40,7 +40,7 @@ void main() {
     await tester.tap(_button('Catalog'));
     await tester.pumpAndSettle();
 
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/sheets');
   });
 
   testWidgets('Open on the web opens the site', (tester) async {

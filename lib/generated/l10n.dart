@@ -83,14 +83,19 @@ class S {
     return Intl.message('AI Engineering Bazaar', name: 'app_title', desc: '', args: []);
   }
 
+  /// `Home`
+  String get nav_home {
+    return Intl.message('Home', name: 'nav_home', desc: '', args: []);
+  }
+
   /// `Catalog`
   String get nav_catalog {
     return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
   }
 
-  /// `Progress`
-  String get nav_progress {
-    return Intl.message('Progress', name: 'nav_progress', desc: '', args: []);
+  /// `Quiz`
+  String get nav_quiz {
+    return Intl.message('Quiz', name: 'nav_quiz', desc: '', args: []);
   }
 
   /// `Settings`
@@ -98,9 +103,104 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
-  /// `Track`
-  String get track_switch_label {
-    return Intl.message('Track', name: 'track_switch_label', desc: '', args: []);
+  /// `How would you like to read?`
+  String get welcome_track_title {
+    return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
+  }
+
+  /// `Choose your language and one of the two versions of every module. You can change both any time in Settings.`
+  String get welcome_track_lede {
+    return Intl.message(
+      'Choose your language and one of the two versions of every module. You can change both any time in Settings.',
+      name: 'welcome_track_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The technical modules: how each part works, with the code and the numbers behind it.`
+  String get welcome_track_engineers {
+    return Intl.message(
+      'The technical modules: how each part works, with the code and the numbers behind it.',
+      name: 'welcome_track_engineers',
+      desc: 'The web\'s line for the For Engineers track, src/app/page.tsx.',
+      args: [],
+    );
+  }
+
+  /// `The same modules in plain words, for readers with no technical background.`
+  String get welcome_track_everyone {
+    return Intl.message(
+      'The same modules in plain words, for readers with no technical background.',
+      name: 'welcome_track_everyone',
+      desc: 'The web\'s line for the For Everyone track, src/app/page.tsx.',
+      args: [],
+    );
+  }
+
+  /// `Start reading`
+  String get welcome_start {
+    return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
+  }
+
+  /// `Up next`
+  String get home_up_next {
+    return Intl.message('Up next', name: 'home_up_next', desc: '', args: []);
+  }
+
+  /// `Open the module`
+  String get home_open_module {
+    return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
+  }
+
+  /// `Every written module of this track is complete.`
+  String get home_all_complete {
+    return Intl.message(
+      'Every written module of this track is complete.',
+      name: 'home_all_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `After that`
+  String get home_after {
+    return Intl.message('After that', name: 'home_after', desc: '', args: []);
+  }
+
+  /// `See the whole catalog`
+  String get home_see_catalog {
+    return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
+  }
+
+  /// `Practise again`
+  String get home_practice {
+    return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
+  }
+
+  /// `The questions of the modules you completed last, to keep what you read.`
+  String get home_practice_lede {
+    return Intl.message(
+      'The questions of the modules you completed last, to keep what you read.',
+      name: 'home_practice_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The course is on this device`
+  String get home_offline_title {
+    return Intl.message('The course is on this device', name: 'home_offline_title', desc: '', args: []);
+  }
+
+  /// `It reads without a connection. At every start the app asks the site for a newer version.`
+  String get home_offline_body {
+    return Intl.message(
+      'It reads without a connection. At every start the app asks the site for a newer version.',
+      name: 'home_offline_body',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Open on the web`
@@ -143,74 +243,9 @@ class S {
     return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
   }
 
-  /// `Level:`
-  String get catalog_level_label {
-    return Intl.message('Level:', name: 'catalog_level_label', desc: '', args: []);
-  }
-
-  /// `Status:`
-  String get catalog_status_label {
-    return Intl.message('Status:', name: 'catalog_status_label', desc: '', args: []);
-  }
-
-  /// `All`
-  String get catalog_filter_all {
-    return Intl.message('All', name: 'catalog_filter_all', desc: '', args: []);
-  }
-
-  /// `Ready`
-  String get catalog_filter_ready {
-    return Intl.message('Ready', name: 'catalog_filter_ready', desc: '', args: []);
-  }
-
-  /// `Planned`
-  String get catalog_filter_planned {
-    return Intl.message('Planned', name: 'catalog_filter_planned', desc: '', args: []);
-  }
-
   /// `Completed`
   String get catalog_filter_completed {
     return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
-  }
-
-  /// `Not completed`
-  String get catalog_filter_not_completed {
-    return Intl.message('Not completed', name: 'catalog_filter_not_completed', desc: '', args: []);
-  }
-
-  /// `Showing {visible} of {total}`
-  String catalog_showing(int visible, int total) {
-    return Intl.message('Showing $visible of $total', name: 'catalog_showing', desc: '', args: [visible, total]);
-  }
-
-  /// `No module matches both filters · 0 of {total}`
-  String catalog_no_match(int total) {
-    return Intl.message(
-      'No module matches both filters · 0 of $total',
-      name: 'catalog_no_match',
-      desc: '',
-      args: [total],
-    );
-  }
-
-  /// `The two filters select different modules. Widen either one, or clear both to see the whole catalog again.`
-  String get catalog_no_match_cue {
-    return Intl.message(
-      'The two filters select different modules. Widen either one, or clear both to see the whole catalog again.',
-      name: 'catalog_no_match_cue',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Show the whole catalog`
-  String get catalog_show_all {
-    return Intl.message('Show the whole catalog', name: 'catalog_show_all', desc: '', args: []);
-  }
-
-  /// `{ready} of {total} written`
-  String catalog_written(int ready, int total) {
-    return Intl.message('$ready of $total written', name: 'catalog_written', desc: '', args: [ready, total]);
   }
 
   /// `Planned`
@@ -505,6 +540,11 @@ class S {
     return Intl.message('Question $index of $count', name: 'quiz_progress', desc: '', args: [index, count]);
   }
 
+  /// `Back to the module`
+  String get quiz_back_to_module {
+    return Intl.message('Back to the module', name: 'quiz_back_to_module', desc: '', args: []);
+  }
+
   /// `Start over`
   String get quiz_start_over {
     return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);
@@ -560,49 +600,88 @@ class S {
     return Intl.message('Back to the questions', name: 'quiz_back_to_questions', desc: '', args: []);
   }
 
-  /// `Your progress`
-  String get progress_title {
-    return Intl.message('Your progress', name: 'progress_title', desc: '', args: []);
+  /// `Done`
+  String get quiz_done {
+    return Intl.message('Done', name: 'quiz_done', desc: '', args: []);
   }
 
-  /// `Progress by track`
-  String get progress_tabs_label {
-    return Intl.message('Progress by track', name: 'progress_tabs_label', desc: '', args: []);
+  /// `This quiz could not be opened. Close it and try again later.`
+  String get quiz_unavailable {
+    return Intl.message(
+      'This quiz could not be opened. Close it and try again later.',
+      name: 'quiz_unavailable',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `{signed} of {total}`
-  String progress_tab_count(String signed, int total) {
-    return Intl.message('$signed of $total', name: 'progress_tab_count', desc: '', args: [signed, total]);
+  /// `Quizzes`
+  String get quiz_list_title {
+    return Intl.message('Quizzes', name: 'quiz_list_title', desc: '', args: []);
+  }
+
+  /// `The questions at the end of each module, to check what you have read. Open one at any time.`
+  String get quiz_list_lede {
+    return Intl.message(
+      'The questions at the end of each module, to check what you have read. Open one at any time.',
+      name: 'quiz_list_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The questions come with the {track} modules.`
+  String quiz_list_engineers_only(String track) {
+    return Intl.message(
+      'The questions come with the $track modules.',
+      name: 'quiz_list_engineers_only',
+      desc: '',
+      args: [track],
+    );
+  }
+
+  /// `{count, plural, =1{module completed} other{modules completed}}`
+  String catalog_stat_completed(int count) {
+    return Intl.plural(
+      count,
+      one: 'module completed',
+      other: 'modules completed',
+      name: 'catalog_stat_completed',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{active day} other{active days}}`
+  String catalog_stat_days(int count) {
+    return Intl.plural(
+      count,
+      one: 'active day',
+      other: 'active days',
+      name: 'catalog_stat_days',
+      desc: '',
+      args: [count],
+    );
   }
 
   /// `{approved}/{total}`
-  String progress_level_dial(String approved, int total) {
-    return Intl.message('$approved/$total', name: 'progress_level_dial', desc: '', args: [approved, total]);
-  }
-
-  /// `{number} {title}`
-  String progress_module_link(String number, String title) {
-    return Intl.message('$number $title', name: 'progress_module_link', desc: '', args: [number, title]);
+  String catalog_level_dial(String approved, int total) {
+    return Intl.message('$approved/$total', name: 'catalog_level_dial', desc: '', args: [approved, total]);
   }
 
   /// `Complete {title}`
-  String progress_complete_module(String title) {
-    return Intl.message('Complete $title', name: 'progress_complete_module', desc: '', args: [title]);
-  }
-
-  /// `Every module, {track}`
-  String progress_every_module(String track) {
-    return Intl.message('Every module, $track', name: 'progress_every_module', desc: '', args: [track]);
+  String catalog_complete_module(String title) {
+    return Intl.message('Complete $title', name: 'catalog_complete_module', desc: '', args: [title]);
   }
 
   /// `Complete`
-  String get progress_state_complete {
-    return Intl.message('Complete', name: 'progress_state_complete', desc: '', args: []);
+  String get catalog_state_complete {
+    return Intl.message('Complete', name: 'catalog_state_complete', desc: '', args: []);
   }
 
   /// `Not yet`
-  String get progress_state_not_yet {
-    return Intl.message('Not yet', name: 'progress_state_not_yet', desc: '', args: []);
+  String get catalog_state_not_yet {
+    return Intl.message('Not yet', name: 'catalog_state_not_yet', desc: '', args: []);
   }
 
   /// `Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.`
@@ -924,6 +1003,31 @@ class S {
     );
   }
 
+  /// `Reading`
+  String get settings_reading {
+    return Intl.message('Reading', name: 'settings_reading', desc: '', args: []);
+  }
+
+  /// `Track`
+  String get settings_track {
+    return Intl.message('Track', name: 'settings_track', desc: '', args: []);
+  }
+
+  /// `Home, the catalog and the reader open this track. A link into the other track still opens it.`
+  String get settings_track_note {
+    return Intl.message(
+      'Home, the catalog and the reader open this track. A link into the other track still opens it.',
+      name: 'settings_track_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your progress`
+  String get settings_data {
+    return Intl.message('Your progress', name: 'settings_data', desc: '', args: []);
+  }
+
   /// `Content`
   String get settings_content {
     return Intl.message('Content', name: 'settings_content', desc: '', args: []);
@@ -1068,13 +1172,157 @@ class S {
   String get settings_dev_console {
     return Intl.message('Developer console', name: 'settings_dev_console', desc: '', args: []);
   }
+
+  /// `Language`
+  String get settings_language {
+    return Intl.message(
+      'Language',
+      name: 'settings_language',
+      desc: 'Settings\' language setting (plan 1Q).',
+      args: [],
+    );
+  }
+
+  /// `The interface and the modules follow this language. A module not yet translated opens in English.`
+  String get settings_language_note {
+    return Intl.message(
+      'The interface and the modules follow this language. A module not yet translated opens in English.',
+      name: 'settings_language_note',
+      desc: 'Under Settings\' language setting.',
+      args: [],
+    );
+  }
+
+  /// `For Engineers`
+  String get track_engineers {
+    return Intl.message(
+      'For Engineers',
+      name: 'track_engineers',
+      desc: 'The For Engineers track\'s name; the bundle names tracks in English only.',
+      args: [],
+    );
+  }
+
+  /// `For Everyone`
+  String get track_everyone {
+    return Intl.message(
+      'For Everyone',
+      name: 'track_everyone',
+      desc: 'The For Everyone track\'s name; the bundle names tracks in English only.',
+      args: [],
+    );
+  }
+
+  /// `How the bazaar works`
+  String get welcome_intro_title {
+    return Intl.message(
+      'How the bazaar works',
+      name: 'welcome_intro_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Level by level`
+  String get welcome_intro_levels_title {
+    return Intl.message(
+      'Level by level',
+      name: 'welcome_intro_levels_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.`
+  String welcome_intro_levels(int count, String first) {
+    return Intl.message(
+      'The course is set out in $count levels, starting with $first. Begin with the first and move on when you are ready.',
+      name: 'welcome_intro_levels',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [count, first],
+    );
+  }
+
+  /// `Short modules`
+  String get welcome_intro_modules_title {
+    return Intl.message(
+      'Short modules',
+      name: 'welcome_intro_modules_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
+  String get welcome_intro_modules {
+    return Intl.message(
+      'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
+      name: 'welcome_intro_modules',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Mark what you finish`
+  String get welcome_intro_complete_title {
+    return Intl.message(
+      'Mark what you finish',
+      name: 'welcome_intro_complete_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.`
+  String get welcome_intro_complete {
+    return Intl.message(
+      'At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.',
+      name: 'welcome_intro_complete',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `On this device, offline`
+  String get welcome_intro_offline_title {
+    return Intl.message(
+      'On this device, offline',
+      name: 'welcome_intro_offline_title',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
+  String get welcome_intro_offline {
+    return Intl.message(
+      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
+      name: 'welcome_intro_offline',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
+
+  /// `Open the catalog`
+  String get welcome_intro_start {
+    return Intl.message(
+      'Open the catalog',
+      name: 'welcome_intro_start',
+      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
+    return const <Locale>[
+      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'fa'),
+      Locale.fromSubtags(languageCode: 'tr'),
+    ];
   }
 
   @override

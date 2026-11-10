@@ -11,6 +11,8 @@ import 'package:go_router/go_router.dart';
 /// The previous and the next module (web `PrevNext.tsx`): Next filled in primary, Previous outlined in it, each a small
 /// label over the bold title, with ` · Planned` on a target that is not written. With no target the cell says the
 /// course starts or ends there; a target in a track this app does not know is shown but is not a link.
+///
+/// On a phone the two stack, Next first as the mockup's next-module card, each as wide as the page.
 class Pager extends StatelessWidget {
   const Pager({super.key, required this.previous, required this.next});
 
@@ -19,15 +21,13 @@ class Pager extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: _Cell(ref: previous, forward: false)),
-          const SizedBox(width: 12),
-          Expanded(child: _Cell(ref: next, forward: true)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 12,
+      children: [
+        _Cell(ref: next, forward: true),
+        _Cell(ref: previous, forward: false),
+      ],
     );
   }
 }
@@ -43,10 +43,10 @@ class _Cell extends StatelessWidget {
     final s = S.of(context);
     final colors = context.bazaarColors;
     final ref = this.ref;
-    final align = forward ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final textAlign = forward ? TextAlign.end : TextAlign.start;
-    final titleStyle = TextStyle(fontSize: BazaarType.control.size, fontWeight: FontWeight.w600);
-    const padding = EdgeInsets.symmetric(vertical: 12, horizontal: 14);
+    const align = CrossAxisAlignment.start;
+    const textAlign = TextAlign.start;
+    final titleStyle = TextStyle(fontSize: BazaarType.item.size + 2, fontWeight: FontWeight.w600);
+    const padding = EdgeInsets.symmetric(vertical: 12, horizontal: 16);
     const shape = RoundedRectangleBorder(borderRadius: BorderRadius.all(BazaarRadii.md));
 
     if (ref == null) {
@@ -56,7 +56,7 @@ class _Cell extends StatelessWidget {
           borderRadius: const BorderRadius.all(BazaarRadii.md),
         ),
         padding: padding,
-        alignment: forward ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        alignment: AlignmentDirectional.centerStart,
         child: Text(
           forward ? s.reader_end_of_course : s.reader_start_of_course,
           style: titleStyle.copyWith(color: colors.onSurface),
@@ -88,7 +88,7 @@ class _Cell extends StatelessWidget {
           borderRadius: const BorderRadius.all(BazaarRadii.md),
         ),
         padding: padding,
-        alignment: forward ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        alignment: AlignmentDirectional.centerStart,
         child: DefaultTextStyle.merge(
           style: TextStyle(color: colors.onSurface),
           child: texts,
@@ -96,13 +96,13 @@ class _Cell extends StatelessWidget {
       );
     }
 
-    final chevron = ExcludeSemantics(child: Icon(forward ? Icons.chevron_right : Icons.chevron_left, size: 20));
+    final arrow = ExcludeSemantics(child: Icon(forward ? Icons.arrow_forward : Icons.arrow_back, size: 20));
     final child = Row(
-      mainAxisAlignment: forward ? MainAxisAlignment.end : MainAxisAlignment.start,
+      spacing: 12,
       children: [
-        if (!forward) chevron,
-        Flexible(child: texts),
-        if (forward) chevron,
+        if (!forward) arrow,
+        Expanded(child: texts),
+        if (forward) arrow,
       ],
     );
     void open() => unawaited(context.push<void>(BazaarPaths.module(track, ref.key)));

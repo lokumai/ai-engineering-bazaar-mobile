@@ -5,11 +5,14 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mocktail/mocktail.dart';
@@ -69,9 +72,20 @@ MockRecordRepository readyRecordRepository() {
   return repository;
 }
 
-/// App dependencies for widget tests: the test config with [testContentBaseUrl], [readyContentRepository] and
-/// [readyRecordRepository], so no test opens the bundled snapshot, calls `path_provider`, touches the record files or
-/// reaches the network.
+/// A welcome store that says Welcome was seen, so the app opens on Home.
+final class SeenWelcomeStore implements IWelcomeStore {
+  const SeenWelcomeStore();
+
+  @override
+  Future<bool> seen() async => true;
+
+  @override
+  Future<void> markSeen() async {}
+}
+
+/// App dependencies for widget tests: the test config with [testContentBaseUrl], [readyContentRepository],
+/// [readyRecordRepository] and a [SeenWelcomeStore], so no test opens the bundled snapshot, calls `path_provider`,
+/// touches the record files or reaches the network, and the app opens on Home.
 class FixtureAppDependencies extends AppDependencies {
   const FixtureAppDependencies({super.appConfig = const AppConfig.test(contentBaseUrl: testContentBaseUrl)});
 
@@ -80,4 +94,13 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IRecordRepository createRecordRepository() => readyRecordRepository();
+
+  @override
+  IWelcomeStore createWelcomeStore() => const SeenWelcomeStore();
+
+  @override
+  ITrackStore createTrackStore() => const MemoryTrackStore();
+
+  @override
+  ILanguageStore createLanguageStore() => const MemoryLanguageStore();
 }

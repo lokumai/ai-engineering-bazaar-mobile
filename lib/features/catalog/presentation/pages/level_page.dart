@@ -1,28 +1,26 @@
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_cards.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_filter_bar.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_no_match.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/level_notes.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// The level page of [track] (web `LevelCatalog`, `src/components/catalog/LevelCatalog.tsx:20-97`) in the web's default
 /// Cards view (A10): the level title, the lead line, the meter text, then the catalog with this level chosen (the
-/// filter bar, A45, and the cards, or the empty state), then the level's `General notes` when it has a document.
+/// level chips, A45, and the cards), then the level's `General notes` when it has a document.
 ///
-/// The meter's segment gauge is left out: its text carries it (the gauge is `aria-hidden` on the web). The Status filter
-/// and the open Description are local UI state. An unknown level shows [NotFoundView].
+/// The meter's segment gauge is drawn in the level's hue under its text, which carries it for assistive technology
+/// (the gauge is `aria-hidden` on the web). The open Description is local UI state. An unknown level shows [NotFoundView].
 class LevelPage extends StatefulWidget {
   const LevelPage({super.key, required this.track, required this.level});
 
@@ -36,7 +34,6 @@ class LevelPage extends StatefulWidget {
 }
 
 class _LevelPageState extends State<LevelPage> {
-  StatusFilter _status = StatusFilter.all;
   String? _openDescription;
 
   @override
@@ -58,20 +55,16 @@ class _LevelPageState extends State<LevelPage> {
       RecordLoading() => null,
     };
     // `--/{total}` until the record is read, as the web's server render.
-    final String meter;
-    if (view == null) {
-      meter = l10n.level_completed_pending(entry.total);
-    } else {
-      final count = categoryProgress(view, curriculumFor(index, track))[entry.slug]!;
-      meter = l10n.level_completed(count.approved, count.total);
-    }
+    final count = view == null ? null : categoryProgress(view, curriculumFor(index, track))[entry.slug]!;
+    final meter = count == null
+        ? l10n.level_completed_pending(entry.total)
+        : l10n.level_completed(count.approved, count.total);
     final minutes = index.modules
         .where((module) => module.level == entry.slug)
         .fold(0, (sum, module) => sum + module.minutes);
 
     final rows = catalogRows(index, track, view);
-    // The web's `applyLevel(applyFilter(rows))`: the count is this level's rows of every row.
-    final visible = applyLevel(applyStatus(rows, _status), entry.slug);
+    final visible = applyLevel(rows, entry.slug);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -82,27 +75,26 @@ class _LevelPageState extends State<LevelPage> {
           style: textTheme.bodyMedium,
         ),
         Text(meter, style: textTheme.bodyMedium),
-        const SizedBox(height: AppSpacing.lg),
-        CatalogFilterBar(
-          track: track,
-          levels: levelsOf(index, rows),
-          level: entry.slug,
-          status: _status,
-          onStatus: (status) => setState(() => _status = status),
-          visible: visible.length,
-          total: rows.length,
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        if (visible.isEmpty)
-          CatalogNoMatch(total: rows.length, onShowAll: () => context.go(BazaarPaths.catalog(track)))
-        else
-          CatalogCards(
-            track: track,
-            index: index,
-            rows: visible,
-            openDescription: _openDescription,
-            onDescription: (key) => setState(() => _openDescription = key),
+        // The gauge of the meter, in the level's hue; the text above carries it, as the web's gauge is `aria-hidden`.
+        if (count case final count?) ...[
+          const SizedBox(height: AppSpacing.sm),
+          ExcludeSemantics(
+            child: SegmentMeter(
+              done: count.approved,
+              total: count.total,
+              color: levelHue(context, levelPosition(index, entry.slug)),
+              semanticLabel: meter,
+            ),
           ),
+        ],
+        const SizedBox(height: AppSpacing.xl),
+        CatalogCards(
+          track: track,
+          index: index,
+          rows: visible,
+          openDescription: _openDescription,
+          onDescription: (key) => setState(() => _openDescription = key),
+        ),
         if (entry.readme case final readme?) LevelNotes(readme: readme, diagramThemes: index.diagramThemes),
       ],
     );

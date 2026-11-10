@@ -7,14 +7,16 @@ import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-/// The production wiring with three changes: the content site is an https address that refuses the connection at once,
+/// The production wiring with four changes: the content site is an https address that refuses the connection at once,
 /// so every refresh fails as `network` and the app runs on the bundled snapshot; the content cache lives in
-/// `<directory>/cache`; and the record lives in `<directory>/record/`.
+/// `<directory>/cache`; the record lives in `<directory>/record/`; and Welcome counts as seen, so the app opens on
+/// Home.
 class _DeviceDependencies extends AppDependencies {
   _DeviceDependencies(this.directory)
     : super(
@@ -26,6 +28,19 @@ class _DeviceDependencies extends AppDependencies {
 
   @override
   IRecordRepository createRecordRepository() => FileRecordRepository(baseDirectory: () async => directory);
+
+  @override
+  IWelcomeStore createWelcomeStore() => const _SeenWelcome();
+}
+
+final class _SeenWelcome implements IWelcomeStore {
+  const _SeenWelcome();
+
+  @override
+  Future<bool> seen() async => true;
+
+  @override
+  Future<void> markSeen() async {}
 }
 
 /// Pumps the whole app over [directory]; nothing an earlier run left on the device reaches it.
