@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
@@ -31,6 +32,9 @@ class _DeviceDependencies extends AppDependencies {
 
   @override
   IWelcomeStore createWelcomeStore() => const _SeenWelcome();
+
+  @override
+  IQuizScoreStore createQuizScoreStore() => MemoryQuizScoreStore();
 }
 
 final class _SeenWelcome implements IWelcomeStore {

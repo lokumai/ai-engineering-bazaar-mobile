@@ -85,6 +85,7 @@ lib/
     content/                                    FileContentRepository, BundledContent, ContentHttp, object store
     storage/record/file_record_repository.dart  record files under Application Support/record/
     storage/flags/file_flag_store.dart          the app's own flags under Application Support/flags/ (Welcome seen)
+    storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository
@@ -93,6 +94,8 @@ lib/
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
+    quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
+                                                app's own quiz scores, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features

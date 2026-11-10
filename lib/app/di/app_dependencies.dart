@@ -18,6 +18,9 @@ import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
+import 'package:ai_engineering_bazaar/infrastructure/storage/text/file_text_store.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -65,6 +68,27 @@ class AppDependencies {
 
   /// The chosen language, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 1Q).
   ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
+  IQuizScoreStore createQuizScoreStore() =>
+      FileQuizScoreStore(FileTextStore(baseDirectory: supportDirectory, path: 'quiz/scores.json'));
+}
+
+/// The quiz scores' port over one text file of the app's own.
+final class FileQuizScoreStore implements IQuizScoreStore {
+  const FileQuizScoreStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<Map<String, QuizScore>> load() async {
+    final text = await _file.read();
+    return text == null ? const {} : decodeQuizScores(text);
+  }
+
+  @override
+  Future<void> save(Map<String, QuizScore> scores) =>
+      scores.isEmpty ? _file.delete() : _file.write(encodeQuizScores(scores));
 }
 
 /// The welcome feature's port over the app's file flags: the flag `welcome-2-seen`. Welcome 2 asks for the track
