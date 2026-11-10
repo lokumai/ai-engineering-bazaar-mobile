@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AL) in review on `feature/review-round-4` |
+| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AM) in review on `feature/review-round-4` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -117,7 +117,7 @@ The owner ran the app from a clean install. Each step lands on the same branch a
 - [x] **1AA A full-screen bazaar opening.** *Changes 1Y and 1Z.* The gate in the middle of the screen was not a full-screen opening. The opening now fills the screen on the bar's navy: a bazaar arch draws itself from the apex down in red and cream voussoirs, the tiled wall comes up around it in a ripple, the lattice band runs out along the threshold, the two lamps drop on their cords and swing, the light comes up inside the arch with the Lokum logo in it, and the people step onto the threshold (2.2 s). Then the reader walks in: the arch grows past the screen's edges and the app is there inside it (0.75 s). It plays on every launch. The Android launch screen (12+ with no icon) and the iOS launch screen are the same navy, so there is no white flash and no Flutter logo before it. The gate picture (`assets/welcome/gate.webp`) is no longer drawn (removed in 1AE).
 - [x] **1W Quiz scores.** The owner would like the app to show how each quiz went (on the Quiz tab since 1AC). The web keeps no quiz score and the record has no field for one (R51). amirkia answered on 2026-11-10: the site keeps no user data (zero data retention), so the web will not add scores, and keeping them on the device in the app is fine. Built in review round 4:
   - Each quiz keeps its last score, its best and the one before the last, in `quiz/scores.json` under Application Support (`lib/shared/quiz_scores`, `QuizScoresBloc`). Never in the record (R60) nor the backup file, which are the web's.
-  - The Quiz tab shows them with the catalog's design, not in words: each taken quiz has a dial of its last score in place of its question disc, and each level a dial of how many of its quizzes were taken. The best is on the results and in what a screen reader says.
+  - No words on the Quiz tab and Home: each level has the catalog's dial of how many of its quizzes were taken, and each taken quiz a meter of its last score, one segment per question, the right ones filled (the meter, not the dial, so the two read apart). The best is on the results and in what a screen reader says.
   - The results show the attempt before and the best.
   - Home's Practise again puts a quiz never finished first, then the lowest last score, then the most recent.
   - Settings' Reset erases the scores with the record, and its undo brings them back.
@@ -151,6 +151,7 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
 - [x] **1AJ The app icon.** The striped gate: the bazaar arch with the lattice band's stripes inside, on white like other apps. Android has an adaptive icon with a monochrome layer for themed icons (Android 13+). iOS has light, dark and tinted versions in one 1024 icon (iOS 18); not yet checked on a Mac. The sources are in `assets/brand/app_icon/`.
 - [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The level of the next module to read starts open (1AL).
 - [x] **1AL The level of the next module starts open.** On the catalog and the Quiz tab the level of the next module to read starts open, and the others closed. What the reader opens or closes stays while the app runs, through a tab change and back, and a new launch starts again from the next module (`CatalogFoldCubit`, `QuizFoldCubit`, in memory only). A level the reader has not touched follows the next module as modules are completed.
+- [x] **1AM Less text on the tabs.** Catalog, Quiz and Settings lose their heading, which repeated the tab's name, and the Quiz tab its description; a For Everyone reader still sees why the quizzes are For Engineers ones. The catalog loses its stats (modules completed, active days): the level dials say it.
 
 ## Phase 2: small fixes in the reader
 

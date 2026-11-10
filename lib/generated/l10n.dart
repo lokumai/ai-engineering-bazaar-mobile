@@ -233,11 +233,6 @@ class S {
     return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
 
-  /// `Catalog`
-  String get catalog_title {
-    return Intl.message('Catalog', name: 'catalog_title', desc: '', args: []);
-  }
-
   /// `Completed`
   String get catalog_filter_completed {
     return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
@@ -610,21 +605,6 @@ class S {
     );
   }
 
-  /// `Quizzes`
-  String get quiz_list_title {
-    return Intl.message('Quizzes', name: 'quiz_list_title', desc: '', args: []);
-  }
-
-  /// `The questions at the end of each module, to check what you have read. Open one at any time.`
-  String get quiz_list_lede {
-    return Intl.message(
-      'The questions at the end of each module, to check what you have read. Open one at any time.',
-      name: 'quiz_list_lede',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `{count, plural, =1{1 quiz} other{{count} quizzes}}`
   String quiz_list_count(int count) {
     return Intl.plural(count, one: '1 quiz', other: '$count quizzes', name: 'quiz_list_count', desc: '', args: [count]);
@@ -662,30 +642,6 @@ class S {
       name: 'quiz_list_engineers_only',
       desc: '',
       args: [track],
-    );
-  }
-
-  /// `{count, plural, =1{module completed} other{modules completed}}`
-  String catalog_stat_completed(int count) {
-    return Intl.plural(
-      count,
-      one: 'module completed',
-      other: 'modules completed',
-      name: 'catalog_stat_completed',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{active day} other{active days}}`
-  String catalog_stat_days(int count) {
-    return Intl.plural(
-      count,
-      one: 'active day',
-      other: 'active days',
-      name: 'catalog_stat_days',
-      desc: '',
-      args: [count],
     );
   }
 

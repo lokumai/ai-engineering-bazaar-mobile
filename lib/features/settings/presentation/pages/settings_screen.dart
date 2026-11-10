@@ -66,8 +66,6 @@ class _SettingsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(header: true, child: Text(s.settings, style: theme.textTheme.headlineSmall)),
-          const SizedBox(height: AppSpacing.lg),
           if (ready.notice != null) ...[
             ContentNoticeBanner(notice: ready.notice),
             const SizedBox(height: AppSpacing.lg),

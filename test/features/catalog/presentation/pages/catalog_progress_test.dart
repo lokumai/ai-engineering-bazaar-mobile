@@ -74,23 +74,11 @@ class _MemoryRecordRepository implements IRecordRepository {
 void main() {
   setUpAll(registerAllFallbackValues);
 
-  testWidgets('the stats show the modules completed in the track and the active days', (tester) async {
-    final record = signOff(
-      signOff(RecordData.empty, 'alpha/first', 'abc1234', '2026-11-08T10:00:00.000Z'),
-      'alpha/second',
-      'abc1234',
-      '2026-11-09T10:00:00.000Z',
-    );
-    await _pump(tester, record: readyRecordBloc(record));
+  testWidgets('the catalog shows no stats over the levels (owner, 2026-11-10)', (tester) async {
+    await _pump(tester, record: readyRecordBloc(_firstCompleted()));
 
-    // Each stat is read as one line: the number, then its label.
-    String spoken(String label) => tester.getSemantics(find.text(label)).label;
-    expect(spoken('modules completed'), '2 modules completed');
-    expect(spoken('active days'), '2 active days');
-
-    await _pump(tester, location: '/everyone/sheets', record: readyRecordBloc(record));
-    expect(spoken('modules completed'), '0 modules completed', reason: 'the count follows the track');
-    expect(spoken('active days'), '2 active days', reason: "the days are the record's");
+    expect(find.textContaining('modules completed'), findsNothing);
+    expect(find.textContaining('active day'), findsNothing);
   });
 
   testWidgets('each level shows its dial, numbered in the index order', (tester) async {
@@ -103,13 +91,12 @@ void main() {
     expect(find.textContaining('03  Gamma Level'), findsOneWidget);
   });
 
-  testWidgets('prints -- while the record loads, and no stats', (tester) async {
+  testWidgets('prints -- while the record loads', (tester) async {
     await _pump(tester, record: loadingRecordBloc());
 
     for (final dial in ['--/3', '--/2', '--/1']) {
       expect(find.text(dial), findsOneWidget, reason: dial);
     }
-    expect(find.textContaining('modules completed'), findsNothing);
   });
 
   testWidgets('the levels end with the legend', (tester) async {

@@ -65,8 +65,6 @@
   "@content_broken_storage_message": {},
   "loading": "Loading",
   "@loading": {},
-  "catalog_title": "Catalog",
-  "@catalog_title": {},
   "catalog_filter_completed": "Completed",
   "@catalog_filter_completed": {},
   "module_planned": "Planned",
@@ -345,10 +343,6 @@
   "@quiz_done": {},
   "quiz_unavailable": "This quiz could not be opened. Close it and try again later.",
   "@quiz_unavailable": {},
-  "quiz_list_title": "Quizzes",
-  "@quiz_list_title": {},
-  "quiz_list_lede": "The questions at the end of each module, to check what you have read. Open one at any time.",
-  "@quiz_list_lede": {},
   "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quizzes}}",
   "@quiz_list_count": {"placeholders": {"count": {"type": "int"}}},
   "quiz_score_before": "The time before: {previous} of {total}. Best: {best} of {total}.",
@@ -362,22 +356,6 @@
     "placeholders": {
       "track": {
         "type": "String"
-      }
-    }
-  },
-  "catalog_stat_completed": "{count, plural, =1{module completed} other{modules completed}}",
-  "@catalog_stat_completed": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "catalog_stat_days": "{count, plural, =1{active day} other{active days}}",
-  "@catalog_stat_days": {
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
