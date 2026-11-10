@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -122,6 +123,7 @@ void main() {
         find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.byType(SegmentMeter)),
       );
       expect((meter.done, meter.total), (1, 2), reason: 'the last score, one segment per question');
+      expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
       expect(
         find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/second')), matching: find.byType(SegmentMeter)),
         findsNothing,

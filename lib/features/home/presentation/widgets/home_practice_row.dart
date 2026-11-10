@@ -58,6 +58,7 @@ class HomePracticeRow extends StatelessWidget {
                       done: score.last,
                       total: score.total,
                       color: BazaarFixedColors.success,
+                      restColor: colors.fault,
                       semanticLabel: line!,
                     ),
                   ),

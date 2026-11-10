@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show Size;
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -178,6 +179,7 @@ void main() {
       find.descendant(of: first, matching: find.byType(SegmentMeter), skipOffstage: false),
     );
     expect((meter.done, meter.total), (1, 2));
+    expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
     expect(find.descendant(of: fourth, matching: find.byType(SegmentMeter), skipOffstage: false), findsNothing);
     expect(find.textContaining('Last 1 of 2', skipOffstage: false), findsNothing);
   });

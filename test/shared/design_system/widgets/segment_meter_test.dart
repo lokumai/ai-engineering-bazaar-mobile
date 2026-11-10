@@ -27,6 +27,15 @@ void main() {
     expect(segmentColours(tester), [fill, fill, now, track, track]);
   });
 
+  testWidgets('draws the segments past the done ones in the rest colour when given', (tester) async {
+    const rest = Color(0xffad5b47);
+    await tester.pumpWidget(
+      themedApp(const SegmentMeter(done: 2, total: 5, color: fill, restColor: rest, semanticLabel: '2 of 5')),
+    );
+
+    expect(segmentColours(tester), [fill, fill, rest, rest, rest]);
+  });
+
   testWidgets('every segment is as tall as the meter', (tester) async {
     await tester.pumpWidget(themedApp(const SegmentMeter(done: 1, total: 3, color: fill, semanticLabel: '')));
 

@@ -248,8 +248,8 @@ class _QuizRow extends StatelessWidget {
   }
 }
 
-/// The last score of a quiz as one segment per question, the right ones filled: a meter, not the level's dial, and
-/// no words (owner, 2026-11-10).
+/// The last score of a quiz as one segment per question, the right ones green and the wrong ones red: a meter, not the
+/// level's dial, and no words (owner, 2026-11-10).
 class _ScoreMeter extends StatelessWidget {
   const _ScoreMeter({required this.score, required this.label});
 
@@ -264,7 +264,13 @@ class _ScoreMeter extends StatelessWidget {
     final scale = MediaQuery.textScalerOf(context);
     return SizedBox(
       width: scale.scale(_segment * score.total + 4 * (score.total - 1)),
-      child: SegmentMeter(done: score.last, total: score.total, color: BazaarFixedColors.success, semanticLabel: label),
+      child: SegmentMeter(
+        done: score.last,
+        total: score.total,
+        color: BazaarFixedColors.success,
+        restColor: context.bazaarColors.fault,
+        semanticLabel: label,
+      ),
     );
   }
 }
