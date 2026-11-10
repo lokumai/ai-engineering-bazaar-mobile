@@ -98,7 +98,7 @@ void main() {
       record: _completed(['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']),
     );
 
-    expect(find.text('Every written module of this track is complete.'), findsOneWidget);
+    expect(find.text('Every written module is complete.'), findsOneWidget);
     expect(find.text('Open the module'), findsNothing);
     await _tap(tester, find.text('See the whole catalog').first);
 

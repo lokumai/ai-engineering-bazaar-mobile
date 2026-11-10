@@ -166,7 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
     "error_link_open_failed": m15,
     "home_after": MessageLookupByLibrary.simpleMessage("بعد از آن"),
-    "home_all_complete": MessageLookupByLibrary.simpleMessage("همهٔ درس‌های نوشته‌شدهٔ این مسیر تکمیل شده‌اند."),
+    "home_all_complete": MessageLookupByLibrary.simpleMessage("همهٔ درس‌های نوشته‌شده تکمیل شده‌اند."),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "بدون اتصال به اینترنت هم خوانده می‌شود. برنامه هر بار که باز می‌شود، از سایت نسخهٔ جدیدتر را می‌پرسد.",
     ),
@@ -289,9 +289,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_data": MessageLookupByLibrary.simpleMessage("پیشرفت شما"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("کنسول توسعه‌دهنده"),
     "settings_language": MessageLookupByLibrary.simpleMessage("زبان"),
-    "settings_language_note": MessageLookupByLibrary.simpleMessage(
-      "رابط برنامه و درس‌ها به این زبان نمایش داده می‌شوند. درسی که هنوز ترجمه نشده به انگلیسی باز می‌شود.",
-    ),
     "settings_licences": MessageLookupByLibrary.simpleMessage("مجوزها"),
     "settings_published": MessageLookupByLibrary.simpleMessage("انتشار"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("خواندن"),
@@ -318,10 +315,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source": MessageLookupByLibrary.simpleMessage("منبع"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("همراه برنامه"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
-    "settings_track": MessageLookupByLibrary.simpleMessage("مسیر"),
-    "settings_track_note": MessageLookupByLibrary.simpleMessage(
-      "خانه، کاتالوگ و صفحهٔ خواندن این مسیر را باز می‌کنند. پیوندی که به مسیر دیگر می‌رود همچنان همان مسیر را باز می‌کند.",
-    ),
+    "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(

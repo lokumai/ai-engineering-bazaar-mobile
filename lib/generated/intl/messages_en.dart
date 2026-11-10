@@ -166,7 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "error_link_open_failed": m15,
     "home_after": MessageLookupByLibrary.simpleMessage("After that"),
-    "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module of this track is complete."),
+    "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "It reads without a connection. At every start the app asks the site for a newer version.",
     ),
@@ -289,9 +289,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_data": MessageLookupByLibrary.simpleMessage("Your progress"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Language"),
-    "settings_language_note": MessageLookupByLibrary.simpleMessage(
-      "The interface and the modules follow this language. A module not yet translated opens in English.",
-    ),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
@@ -316,10 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source": MessageLookupByLibrary.simpleMessage("Source"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Bundled with the app"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
-    "settings_track": MessageLookupByLibrary.simpleMessage("Track"),
-    "settings_track_note": MessageLookupByLibrary.simpleMessage(
-      "Home, the catalog and the reader open this track. A link into the other track still opens it.",
-    ),
+    "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(

@@ -166,7 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
     "error_link_open_failed": m15,
     "home_after": MessageLookupByLibrary.simpleMessage("Sonrasında"),
-    "home_all_complete": MessageLookupByLibrary.simpleMessage("Bu yolun yazılmış bütün modülleri tamamlandı."),
+    "home_all_complete": MessageLookupByLibrary.simpleMessage("Yazılmış bütün modüller tamamlandı."),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "Bağlantı olmadan da okunur. Uygulama her açılışta siteye daha yeni bir sürüm olup olmadığını sorar.",
     ),
@@ -289,9 +289,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_data": MessageLookupByLibrary.simpleMessage("İlerlemen"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Geliştirici konsolu"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Dil"),
-    "settings_language_note": MessageLookupByLibrary.simpleMessage(
-      "Arayüz ve modüller bu dilde açılır. Henüz çevrilmemiş bir modül İngilizce açılır.",
-    ),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Lisanslar"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Yayın tarihi"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Okuma"),
@@ -316,10 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source": MessageLookupByLibrary.simpleMessage("Kaynak"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("Uygulamayla birlikte geldi"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
-    "settings_track": MessageLookupByLibrary.simpleMessage("Yol"),
-    "settings_track_note": MessageLookupByLibrary.simpleMessage(
-      "Ana sayfa, katalog ve okuyucu bu yolu açar. Diğer yola giden bir bağlantı yine o yolu açar.",
-    ),
+    "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "welcome_intro_complete": MessageLookupByLibrary.simpleMessage(

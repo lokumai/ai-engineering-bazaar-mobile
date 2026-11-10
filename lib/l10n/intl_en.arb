@@ -41,7 +41,7 @@
   "@home_up_next": {},
   "home_open_module": "Open the module",
   "@home_open_module": {},
-  "home_all_complete": "Every written module of this track is complete.",
+  "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
   "home_after": "After that",
   "@home_after": {},
@@ -504,10 +504,8 @@
   "@content_notice_cache_discarded": {},
   "settings_reading": "Reading",
   "@settings_reading": {},
-  "settings_track": "Track",
+  "settings_track": "Audience",
   "@settings_track": {},
-  "settings_track_note": "Home, the catalog and the reader open this track. A link into the other track still opens it.",
-  "@settings_track_note": {},
   "settings_data": "Your progress",
   "@settings_data": {},
   "settings_content": "Content",
@@ -563,10 +561,6 @@
   "settings_language": "Language",
   "@settings_language": {
     "description": "Settings' language setting (plan 1Q)."
-  },
-  "settings_language_note": "The interface and the modules follow this language. A module not yet translated opens in English.",
-  "@settings_language_note": {
-    "description": "Under Settings' language setting."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {

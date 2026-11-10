@@ -93,10 +93,6 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                Text(
-                  s.settings_track_note,
-                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
-                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(s.settings_language, style: theme.textTheme.titleSmall),
                 BazaarSegmentedControl<String>(
@@ -111,10 +107,6 @@ class _SettingsView extends StatelessWidget {
                         key: settingsLanguageKey(language),
                       ),
                   ],
-                ),
-                Text(
-                  s.settings_language_note,
-                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
                 ),
               ],
             ),

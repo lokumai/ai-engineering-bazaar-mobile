@@ -153,14 +153,9 @@ class S {
     return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
   }
 
-  /// `Every written module of this track is complete.`
+  /// `Every written module is complete.`
   String get home_all_complete {
-    return Intl.message(
-      'Every written module of this track is complete.',
-      name: 'home_all_complete',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
   }
 
   /// `After that`
@@ -1008,19 +1003,9 @@ class S {
     return Intl.message('Reading', name: 'settings_reading', desc: '', args: []);
   }
 
-  /// `Track`
+  /// `Audience`
   String get settings_track {
-    return Intl.message('Track', name: 'settings_track', desc: '', args: []);
-  }
-
-  /// `Home, the catalog and the reader open this track. A link into the other track still opens it.`
-  String get settings_track_note {
-    return Intl.message(
-      'Home, the catalog and the reader open this track. A link into the other track still opens it.',
-      name: 'settings_track_note',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Audience', name: 'settings_track', desc: '', args: []);
   }
 
   /// `Your progress`
@@ -1179,16 +1164,6 @@ class S {
       'Language',
       name: 'settings_language',
       desc: 'Settings\' language setting (plan 1Q).',
-      args: [],
-    );
-  }
-
-  /// `The interface and the modules follow this language. A module not yet translated opens in English.`
-  String get settings_language_note {
-    return Intl.message(
-      'The interface and the modules follow this language. A module not yet translated opens in English.',
-      name: 'settings_language_note',
-      desc: 'Under Settings\' language setting.',
       args: [],
     );
   }
