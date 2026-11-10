@@ -11,8 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The story of the Bazaar from the [AboutBloc] in context, as one scrolling page: the story's title, each section with
 /// its picture, its heading and its paragraphs, then the motto; [footer] after it, as Welcome's way into the catalog.
 ///
-/// The words are the bundle's (web D125) and the pictures the web's scenes as stills (`assets/about/SOURCE.md`): the
-/// web scrolls its scenes into motion, and the app shows each one still (D111, the design may differ). The story keeps
+/// The words are the bundle's (web D125) and the pictures the web's scenes in motion (`assets/about/SOURCE.md`): the
+/// web plays its scenes under the scroll, and the app plays each one as a loop, like a short film (D111, the design
+/// may differ). The story keeps
 /// its own direction, and says it is in English when the app is not.
 class AboutStoryView extends StatelessWidget {
   const AboutStoryView({super.key, required this.language, this.footer});
@@ -83,7 +84,8 @@ class _Story extends StatelessWidget {
         ],
         for (final (position, stall) in story.stalls.indexed) ...[
           if (position < AboutArt.scenes.length) ...[
-            // Decoration: the heading and the paragraphs carry the section.
+            // Decoration: the heading and the paragraphs carry the section. Each picture is a short loop of the web's
+            // scene in motion; under reduced motion `Image` holds it on its first frame.
             ExcludeSemantics(
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
