@@ -83,4 +83,21 @@ void main() {
     expect(find.byType(SvgPicture), findsNothing);
     expect(tester.getSize(find.byType(LogoView)), const Size(22, 22));
   });
+
+  testWidgets('a logo that does not parse keeps its square of space and draws nothing (plan 2.2)', (tester) async {
+    when(() => repository.readObject(any())).thenAnswer((_) async => Uint8List.fromList('<svg><g'.codeUnits));
+    await pumpInTheme(
+      tester,
+      const Center(child: LogoView(src: _src, mono: true, fontSize: 20)),
+      Brightness.light,
+      repository: repository,
+    );
+    await settleContent(tester);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(LogoView)), const Size(22, 22));
+    expect(find.descendant(of: find.byType(SvgPicture), matching: find.byKey(LogoView.unreadableKey)), findsOneWidget);
+  });
 }
