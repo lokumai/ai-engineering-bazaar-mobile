@@ -11,7 +11,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 0. The reader (PR #1, merged as a03bf37) | Done |
 | 1. The redesign | Done (PR #3); review round 4 (1AF to 1AM) in review on `feature/review-round-4` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
-| 3. Parity with the website | Planned |
+| 3. Parity with the website | 3.2, 3.3 and 3.4 done on `feature/phase-3`; 3.1 waits for web change 5.7 |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
 | 6. Release | Later |
@@ -165,14 +165,20 @@ The fixes land together in one pull request; each fix is its own commit, test fi
 
 The website keeps moving; content reaches the app through the bundle, but a new page or menu needs app code.
 
-- [ ] **3.1 New pages reach the app on their own (web M62, Caravan).** The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
+- [ ] **3.1 New pages reach the app on their own (web M62, Caravan; D115 to D117, About).** Waiting for web change 5.7 (owner, 2026-11-10): the bar now holds two pages, Caravan (no longer under maintenance: the shadow play on sample data) and About, and neither page's content is in the bundle, so the plan below is revisited when 5.7 lands. The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
   - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
 - [x] **3.2 Refresh the bundled snapshot.** The bundled snapshot was contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes. Done: contentVersion `cac0bf8e...` (published 2026-11-10 12:43 UTC), with Key Terms (D118), A2A and six new images. The snapshot went from 38 MB to 17 MB and the arm64 release APK from 52 MB to 32 MB; the tokens did not change.
-- [ ] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan.
+- [x] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan. Read on 2026-11-10, D114 to D122:
+  - D112 (WebP images), D118 (Key Terms at the end of every written For Engineers module) and new content reach the app with the snapshot (3.2); Key Terms renders as any other section, in the three languages.
+  - D115, D116, D117: the web's bar now holds Caravan, a real page on sample data (the shadow play), and About, the story of the Bazaar; neither is in the bundle. Decided with the owner: wait for 5.7, see 3.1.
+  - D122: the owner's identity and a privacy note on the site. The app gets its own, see 3.4.
+  - D114 (a block's menu), D119 and D120 (search engines) and D121 (assessment in Microsoft Forms, outside the site) change nothing in the app.
+  - Read again before each phase; the next decision after D122 starts the next read.
+- [x] **3.4 The owner and a privacy note in Settings (web D122).** Settings, under About, opens Privacy and legal (`/settings/privacy`): the privacy note is the app's own, since the app is not the site (it downloads the course from the site on GitHub Pages, keeps progress, quiz scores and settings on the device, and names crash reports only in a build that sends them); the owner as the web prints it (trade name, MERSİS no., address, email, phone; `lib/features/settings/domain/site_owner.dart`, copied from the web's `SITE_OWNER`, since the bundle does not carry it); and the web's note on third-party marks and images, worded without "we" for the copy register. A change on the web's `SITE_OWNER` is a change in the app.
 
 ## Phase 4: owner follow-ups from PR #1
 

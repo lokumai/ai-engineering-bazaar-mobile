@@ -180,6 +180,23 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("Bütün kataloğu gör"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Sıradaki"),
+    "legal_address": MessageLookupByLibrary.simpleMessage("Adres"),
+    "legal_email": MessageLookupByLibrary.simpleMessage("E-posta"),
+    "legal_images": MessageLookupByLibrary.simpleMessage(
+      "Bazı görseller makalelerden ve başka açık kaynaklardan gelir; yazarlarına içtenlikle teşekkürler. Görseller sahiplerinin malı olarak kalır, üzerlerinde hiçbir hak iddia edilmez ve yalnızca yanlarındaki konuyu açıklamak için gösterilirler. Burada gösterilen bir görselin ya da markanın sahibi, aşağıdaki adrese yazarak tercihine göre adının eklenmesini ya da görselin kaldırılmasını isteyebilir.",
+    ),
+    "legal_licence": MessageLookupByLibrary.simpleMessage(
+      "Projenin MIT lisansı kodunu ve içeriğini kapsar. Üçüncü tarafların markalarını ve görsellerini kapsamaz.",
+    ),
+    "legal_licence_link": MessageLookupByLibrary.simpleMessage("MIT lisansı"),
+    "legal_marks": MessageLookupByLibrary.simpleMessage(
+      "Modüllerde görünen şirket adları ve logoları sahiplerine aittir. Yalnızca hangi şirketin kastedildiğini söylemek için yer alırlar; o şirketin bu uygulamayı desteklediği anlamına gelmezler.",
+    ),
+    "legal_marks_title": MessageLookupByLibrary.simpleMessage("Üçüncü tarafların markaları ve görselleri"),
+    "legal_mersis": MessageLookupByLibrary.simpleMessage("MERSİS no."),
+    "legal_owner": MessageLookupByLibrary.simpleMessage("Sahibi"),
+    "legal_phone": MessageLookupByLibrary.simpleMessage("Telefon"),
+    "legal_title": MessageLookupByLibrary.simpleMessage("Yasal bilgiler"),
     "level_completed": m14,
     "level_completed_pending": m15,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("Genel notlar"),
@@ -195,6 +212,22 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("Böyle bir modül yok"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Web\'de aç"),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
+    "privacy_crash": MessageLookupByLibrary.simpleMessage(
+      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulama rapordaki kişisel ayrıntıları cihazdan çıkmadan önce gizler.",
+    ),
+    "privacy_download": MessageLookupByLibrary.simpleMessage(
+      "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
+    ),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_no_data": MessageLookupByLibrary.simpleMessage(
+      "Bu uygulama kişisel veri toplamaz. Hesap, analiz aracı ve reklam yoktur.",
+    ),
+    "privacy_on_device": MessageLookupByLibrary.simpleMessage(
+      "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
+    ),
+    "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "Kopya yazılamadı. Kenara ayrılan kayıt değişmedi.",
     ),
@@ -293,6 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Geliştirici konsolu"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Dil"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Lisanslar"),
+    "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("Gizlilik ve yasal bilgiler"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Yayın tarihi"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Okuma"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Güncellemeler kontrol ediliyor"),

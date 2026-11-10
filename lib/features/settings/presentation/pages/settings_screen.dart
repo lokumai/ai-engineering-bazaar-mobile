@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -15,10 +16,12 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 /// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the track the reader chose (plan 1L,
 /// the one place it changes after Welcome), the reader's data with Back up, Restore and Reset (plan 1AB: the progress
-/// page that held them is gone), the content status with Check for updates (spec 3.4.2 to 3.4.4), the licences, and
+/// page that held them is gone), the content status with Check for updates (spec 3.4.2 to 3.4.4), the privacy and
+/// legal notes (plan 3.4), the licences, and
 /// the developer console when [openDevConsole] is set.
 ///
 /// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). Only
@@ -154,6 +157,10 @@ class _SettingsView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                _Action(
+                  label: s.settings_privacy_legal,
+                  onPressed: () => context.push(ApplicationRoutesConstants.privacyLegal),
+                ),
                 _Action(
                   label: s.settings_licences,
                   onPressed: () => showLicensePage(context: context, applicationName: s.app_title),

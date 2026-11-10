@@ -5,6 +5,9 @@ class ApplicationRoutesConstants {
   // Settings routes
   static const settings = '/settings';
 
+  /// Settings' privacy and legal notes (plan 3.4).
+  static const privacyLegal = '/settings/privacy';
+
   // Error routes
   static const notFound = '/not-found';
 }

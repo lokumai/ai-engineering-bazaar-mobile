@@ -180,6 +180,23 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("دیدن کل کاتالوگ"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("درس بعدی"),
+    "legal_address": MessageLookupByLibrary.simpleMessage("نشانی"),
+    "legal_email": MessageLookupByLibrary.simpleMessage("ایمیل"),
+    "legal_images": MessageLookupByLibrary.simpleMessage(
+      "برخی تصاویر از مقاله‌ها و دیگر منابع عمومی آمده‌اند، با سپاس صمیمانه از نویسندگانشان. این تصاویر دارایی صاحبانشان می‌مانند، هیچ حقی بر آن‌ها ادعا نمی‌شود و فقط برای توضیح مطلب کنارشان نشان داده می‌شوند. صاحب تصویر یا نشانی که اینجا آمده می‌تواند به نشانی زیر بنویسد تا نامش افزوده شود یا آن برداشته شود، هر کدام را که ترجیح دهد.",
+    ),
+    "legal_licence": MessageLookupByLibrary.simpleMessage(
+      "مجوز MIT پروژه کد و محتوای آن را در بر می‌گیرد. نشان‌ها و تصاویر دیگران را در بر نمی‌گیرد.",
+    ),
+    "legal_licence_link": MessageLookupByLibrary.simpleMessage("مجوز MIT"),
+    "legal_marks": MessageLookupByLibrary.simpleMessage(
+      "نام‌ها و نشان‌های شرکت‌ها که در ماژول‌ها می‌آیند متعلق به صاحبانشان هستند. فقط برای این آمده‌اند که بگویند منظور کدام شرکت است و به این معنا نیستند که آن شرکت این برنامه را تأیید می‌کند.",
+    ),
+    "legal_marks_title": MessageLookupByLibrary.simpleMessage("نشان‌ها و تصاویر دیگران"),
+    "legal_mersis": MessageLookupByLibrary.simpleMessage("شماره MERSİS"),
+    "legal_owner": MessageLookupByLibrary.simpleMessage("مالک"),
+    "legal_phone": MessageLookupByLibrary.simpleMessage("تلفن"),
+    "legal_title": MessageLookupByLibrary.simpleMessage("اطلاعات حقوقی"),
     "level_completed": m14,
     "level_completed_pending": m15,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("یادداشت‌های کلی"),
@@ -195,6 +212,22 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("چنین درسی وجود ندارد"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("باز کردن در وب"),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
+    "privacy_crash": MessageLookupByLibrary.simpleMessage(
+      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برنامه پیش از خروج گزارش از دستگاه، جزئیات شخصی آن را می‌پوشاند.",
+    ),
+    "privacy_download": MessageLookupByLibrary.simpleMessage(
+      "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
+    ),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_no_data": MessageLookupByLibrary.simpleMessage(
+      "این برنامه هیچ داده شخصی جمع نمی‌کند. حساب کاربری، ابزار تحلیل و تبلیغ ندارد.",
+    ),
+    "privacy_on_device": MessageLookupByLibrary.simpleMessage(
+      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما فقط روی همین دستگاه ذخیره می‌شوند. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
+    ),
+    "privacy_title": MessageLookupByLibrary.simpleMessage("حریم خصوصی"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "کپی نوشته نشد. سابقهٔ کنارگذاشته‌شده تغییری نکرده است.",
     ),
@@ -293,6 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("کنسول توسعه‌دهنده"),
     "settings_language": MessageLookupByLibrary.simpleMessage("زبان"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("مجوزها"),
+    "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("حریم خصوصی و اطلاعات حقوقی"),
     "settings_published": MessageLookupByLibrary.simpleMessage("انتشار"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("خواندن"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("در حال بررسی به‌روزرسانی‌ها"),

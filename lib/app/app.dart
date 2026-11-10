@@ -24,7 +24,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late final GoRouter _router = const AppRouterFactory().create();
+  late final GoRouter _router = AppRouterFactory(crashReports: widget.dependencies.appConfig.sentryDsn != null)
+      .create();
 
   @override
   void dispose() {

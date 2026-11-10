@@ -1283,6 +1283,151 @@ class S {
       args: [],
     );
   }
+
+  /// `Privacy and legal`
+  String get settings_privacy_legal {
+    return Intl.message(
+      'Privacy and legal',
+      name: 'settings_privacy_legal',
+      desc: 'Settings\' privacy and legal page (plan 3.4, web D122).',
+      args: [],
+    );
+  }
+
+  /// `Privacy`
+  String get privacy_title {
+    return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
+  }
+
+  /// `This app collects no personal data. It has no account, no analytics and no ads.`
+  String get privacy_no_data {
+    return Intl.message(
+      'This app collects no personal data. It has no account, no analytics and no ads.',
+      name: 'privacy_no_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.`
+  String get privacy_on_device {
+    return Intl.message(
+      'Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.',
+      name: 'privacy_on_device',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.`
+  String get privacy_download {
+    return Intl.message(
+      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
+      name: 'privacy_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.`
+  String get privacy_crash {
+    return Intl.message(
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.',
+      name: 'privacy_crash',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `For any question about personal data, write to us.`
+  String get privacy_contact {
+    return Intl.message(
+      'For any question about personal data, write to us.',
+      name: 'privacy_contact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Legal`
+  String get legal_title {
+    return Intl.message('Legal', name: 'legal_title', desc: '', args: []);
+  }
+
+  /// `Owner`
+  String get legal_owner {
+    return Intl.message('Owner', name: 'legal_owner', desc: '', args: []);
+  }
+
+  /// `MERSİS no.`
+  String get legal_mersis {
+    return Intl.message('MERSİS no.', name: 'legal_mersis', desc: '', args: []);
+  }
+
+  /// `Address`
+  String get legal_address {
+    return Intl.message('Address', name: 'legal_address', desc: '', args: []);
+  }
+
+  /// `Email`
+  String get legal_email {
+    return Intl.message('Email', name: 'legal_email', desc: '', args: []);
+  }
+
+  /// `Phone`
+  String get legal_phone {
+    return Intl.message('Phone', name: 'legal_phone', desc: '', args: []);
+  }
+
+  /// `Third-party marks and images`
+  String get legal_marks_title {
+    return Intl.message('Third-party marks and images', name: 'legal_marks_title', desc: '', args: []);
+  }
+
+  /// `Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.`
+  String get legal_marks {
+    return Intl.message(
+      'Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.',
+      name: 'legal_marks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.`
+  String get legal_images {
+    return Intl.message(
+      'Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.',
+      name: 'legal_images',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The project's MIT licence covers its code and its content. It does not cover third-party marks or images.`
+  String get legal_licence {
+    return Intl.message(
+      'The project\'s MIT licence covers its code and its content. It does not cover third-party marks or images.',
+      name: 'legal_licence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MIT licence`
+  String get legal_licence_link {
+    return Intl.message('MIT licence', name: 'legal_licence_link', desc: '', args: []);
+  }
+
+  /// `What is GitHub Pages?`
+  String get privacy_github_pages {
+    return Intl.message('What is GitHub Pages?', name: 'privacy_github_pages', desc: '', args: []);
+  }
+
+  /// `GitHub General Privacy Statement`
+  String get privacy_github_statement {
+    return Intl.message('GitHub General Privacy Statement', name: 'privacy_github_statement', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

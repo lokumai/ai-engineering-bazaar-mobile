@@ -114,7 +114,7 @@ class _BazaarShellState extends State<BazaarShell> {
   /// Home, Catalog (every page of a track), Quiz and Settings.
   int get _selectedIndex => switch (widget.location) {
     BazaarPaths.quizzes => 2,
-    BazaarPaths.settings => 3,
+    final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 3,
     final location when BazaarPaths.trackOf(location) != null => 1,
     _ => 0,
   };

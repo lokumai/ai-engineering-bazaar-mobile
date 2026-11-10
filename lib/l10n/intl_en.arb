@@ -344,13 +344,52 @@
   "quiz_unavailable": "This quiz could not be opened. Close it and try again later.",
   "@quiz_unavailable": {},
   "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quizzes}}",
-  "@quiz_list_count": {"placeholders": {"count": {"type": "int"}}},
+  "@quiz_list_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_score_before": "The time before: {previous} of {total}. Best: {best} of {total}.",
-  "@quiz_score_before": {"placeholders": {"previous": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_score_before": {
+    "placeholders": {
+      "previous": {
+        "type": "int"
+      },
+      "best": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
-  "@quiz_score_line": {"placeholders": {"last": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_score_line": {
+    "placeholders": {
+      "last": {
+        "type": "int"
+      },
+      "best": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_list_taken": "{taken} of {total} taken",
-  "@quiz_list_taken": {"placeholders": {"taken": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_list_taken": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_all_right": "All answers right",
   "quiz_list_engineers_only": "The questions come with the {track} modules.",
   "@quiz_list_engineers_only": {
@@ -607,5 +646,47 @@
   "welcome_intro_start": "Open the catalog",
   "@welcome_intro_start": {
     "description": "Welcome's first-launch guide (plan 1X)."
-  }
+  },
+  "settings_privacy_legal": "Privacy and legal",
+  "@settings_privacy_legal": {
+    "description": "Settings' privacy and legal page (plan 3.4, web D122)."
+  },
+  "privacy_title": "Privacy",
+  "@privacy_title": {},
+  "privacy_no_data": "This app collects no personal data. It has no account, no analytics and no ads.",
+  "@privacy_no_data": {},
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+  "@privacy_on_device": {},
+  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
+  "@privacy_download": {},
+  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+  "@privacy_crash": {},
+  "privacy_contact": "For any question about personal data, write to us.",
+  "@privacy_contact": {},
+  "legal_title": "Legal",
+  "@legal_title": {},
+  "legal_owner": "Owner",
+  "@legal_owner": {},
+  "legal_mersis": "MERSİS no.",
+  "@legal_mersis": {},
+  "legal_address": "Address",
+  "@legal_address": {},
+  "legal_email": "Email",
+  "@legal_email": {},
+  "legal_phone": "Phone",
+  "@legal_phone": {},
+  "legal_marks_title": "Third-party marks and images",
+  "@legal_marks_title": {},
+  "legal_marks": "Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.",
+  "@legal_marks": {},
+  "legal_images": "Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.",
+  "@legal_images": {},
+  "legal_licence": "The project's MIT licence covers its code and its content. It does not cover third-party marks or images.",
+  "@legal_licence": {},
+  "legal_licence_link": "MIT licence",
+  "@legal_licence_link": {},
+  "privacy_github_pages": "What is GitHub Pages?",
+  "@privacy_github_pages": {},
+  "privacy_github_statement": "GitHub General Privacy Statement",
+  "@privacy_github_statement": {}
 }

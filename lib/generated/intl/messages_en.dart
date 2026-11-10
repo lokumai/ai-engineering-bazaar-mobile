@@ -180,6 +180,23 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
+    "legal_address": MessageLookupByLibrary.simpleMessage("Address"),
+    "legal_email": MessageLookupByLibrary.simpleMessage("Email"),
+    "legal_images": MessageLookupByLibrary.simpleMessage(
+      "Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.",
+    ),
+    "legal_licence": MessageLookupByLibrary.simpleMessage(
+      "The project\'s MIT licence covers its code and its content. It does not cover third-party marks or images.",
+    ),
+    "legal_licence_link": MessageLookupByLibrary.simpleMessage("MIT licence"),
+    "legal_marks": MessageLookupByLibrary.simpleMessage(
+      "Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.",
+    ),
+    "legal_marks_title": MessageLookupByLibrary.simpleMessage("Third-party marks and images"),
+    "legal_mersis": MessageLookupByLibrary.simpleMessage("MERSİS no."),
+    "legal_owner": MessageLookupByLibrary.simpleMessage("Owner"),
+    "legal_phone": MessageLookupByLibrary.simpleMessage("Phone"),
+    "legal_title": MessageLookupByLibrary.simpleMessage("Legal"),
     "level_completed": m14,
     "level_completed_pending": m15,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
@@ -195,6 +212,22 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("No such module"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
+    "privacy_crash": MessageLookupByLibrary.simpleMessage(
+      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+    ),
+    "privacy_download": MessageLookupByLibrary.simpleMessage(
+      "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",
+    ),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_no_data": MessageLookupByLibrary.simpleMessage(
+      "This app collects no personal data. It has no account, no analytics and no ads.",
+    ),
+    "privacy_on_device": MessageLookupByLibrary.simpleMessage(
+      "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+    ),
+    "privacy_title": MessageLookupByLibrary.simpleMessage("Privacy"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "The copy could not be written. The set-aside record is unchanged.",
     ),
@@ -293,6 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Language"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
+    "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("Privacy and legal"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
