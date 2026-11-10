@@ -99,6 +99,7 @@
   "quiz_score_before": "Bir önceki: {previous} / {total}. En iyi: {best} / {total}.",
   "quiz_score_line": "Son {last} / {total} · en iyi {best} / {total}",
   "quiz_list_taken": "{total} quizden {taken} tanesi çözüldü",
+  "quiz_all_right": "Tüm cevaplar doğru",
   "quiz_list_engineers_only": "Sorular {track} modülleriyle gelir.",
   "catalog_level_dial": "{approved}/{total}",
   "catalog_complete_module": "{title} modülünü tamamla",

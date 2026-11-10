@@ -129,7 +129,16 @@ void main() {
         findsNothing,
       );
       expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
-      expect(find.bySemanticsLabel('01 First Module, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('01 First Module, All answers right, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+        reason: 'the best attempt was all right: the catalog check, not the question mark',
+      );
+      expect(
+        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/second')), matching: find.text('?')),
+        findsOneWidget,
+      );
       expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
       expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz, 0 of 1 taken$')), findsOneWidget);

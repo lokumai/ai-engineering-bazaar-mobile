@@ -109,6 +109,14 @@ void main() {
       expect(practice[1].score, scores['beta/fourth']);
     });
 
+    test('a quiz once answered all right is not offered again', () {
+      final record = at([('alpha/first', '2026-11-01T10:00:00.000Z'), ('alpha/second', '2026-11-03T10:00:00.000Z')]);
+      const scores = {'alpha/second': QuizScore(last: 3, best: 4, total: 4, previous: 4)};
+
+      final practice = homeOverview(index, Track.engineers, record, scores).practice;
+      expect([for (final entry in practice) entry.module.key], ['alpha/first']);
+    });
+
     test('two completed at the same instant keep their number order', () {
       final record = at([('beta/fourth', now), ('alpha/first', now)]);
 

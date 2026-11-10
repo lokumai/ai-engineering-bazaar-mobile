@@ -224,6 +224,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "پیشرفتی که نسخهٔ جدیدتری از برنامه نوشته است. خوانده نشد.",
     ),
     "quarantine_save_copy": MessageLookupByLibrary.simpleMessage("ذخیرهٔ یک کپی"),
+    "quiz_all_right": MessageLookupByLibrary.simpleMessage("همه پاسخ‌ها درست"),
     "quiz_back_to_module": MessageLookupByLibrary.simpleMessage("بازگشت به درس"),
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("بازگشت به پرسش‌ها"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("درست است."),

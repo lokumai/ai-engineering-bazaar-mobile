@@ -20,6 +20,11 @@ void main() {
       );
     });
 
+    test('perfect once the best attempt answered every question right, even after a worse one', () {
+      expect(const QuizScore(last: 2, best: 5, total: 5, previous: 5).perfect, isTrue);
+      expect(const QuizScore(last: 4, best: 4, total: 5).perfect, isFalse);
+    });
+
     test('the last share', () {
       expect(const QuizScore(last: 3, best: 4, total: 4).lastShare, 0.75);
     });

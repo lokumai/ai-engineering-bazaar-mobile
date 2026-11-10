@@ -224,6 +224,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
     ),
     "quarantine_save_copy": MessageLookupByLibrary.simpleMessage("Save a copy"),
+    "quiz_all_right": MessageLookupByLibrary.simpleMessage("All answers right"),
     "quiz_back_to_module": MessageLookupByLibrary.simpleMessage("Back to the module"),
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),

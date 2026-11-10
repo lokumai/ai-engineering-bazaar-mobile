@@ -164,7 +164,7 @@ void main() {
     tester,
   ) async {
     final scores = QuizScoresBloc(
-      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 2, total: 2, previous: 2)}),
+      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 1, total: 2, previous: 0)}),
     )..add(const QuizScoresStarted());
     addTearDown(scores.close);
     tester.view.physicalSize = const Size(800, 2400);

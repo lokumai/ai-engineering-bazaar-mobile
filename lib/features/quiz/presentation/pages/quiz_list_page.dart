@@ -185,7 +185,7 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc, the number and title with the last score as one segment
+/// One module's quiz in an open level: the question disc, or the catalog's check once every answer was right, the number and title with the last score as one segment
 /// per question once taken, and an arrow; one button as a whole. The best score is spoken with the row and shown on
 /// the results.
 class _QuizRow extends StatelessWidget {
@@ -206,7 +206,7 @@ class _QuizRow extends StatelessWidget {
     final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
     return Semantics(
       button: true,
-      label: [('$number $title'), ?line].join(', '),
+      label: [('$number $title'), if (score?.perfect ?? false) S.of(context).quiz_all_right, ?line].join(', '),
       excludeSemantics: true,
       child: InkWell(
         onTap: () => context.push(BazaarPaths.quiz(module.key)),
@@ -217,16 +217,25 @@ class _QuizRow extends StatelessWidget {
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-                  child: Text(
-                    '?',
-                    style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
+                if (score?.perfect ?? false)
+                  // The catalog's completed disc: every question answered right once.
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: const BoxDecoration(color: BazaarFixedColors.success, shape: BoxShape.circle),
+                    child: const Icon(Icons.check, size: 18, color: Colors.white),
+                  )
+                else
+                  Container(
+                    width: 28,
+                    height: 28,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+                    child: Text(
+                      '?',
+                      style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
+                    ),
                   ),
-                ),
                 Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
                   child: Column(

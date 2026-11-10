@@ -20,6 +20,10 @@ final class QuizScore extends Equatable {
   /// The right answers of the attempt before the last; null after the first.
   final int? previous;
 
+  /// Whether an attempt answered every question right: the quiz is done, as a completed module is, and stays so after
+  /// a worse attempt.
+  bool get perfect => best == total;
+
   /// The share of the last attempt answered right, from 0 to 1.
   double get lastShare => total == 0 ? 0 : last / total;
 

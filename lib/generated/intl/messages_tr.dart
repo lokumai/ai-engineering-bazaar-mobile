@@ -224,6 +224,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "İLERLEME, UYGULAMANIN DAHA YENİ BİR SÜRÜMÜYLE YAZILMIŞ. OKUNMADI.",
     ),
     "quarantine_save_copy": MessageLookupByLibrary.simpleMessage("Kopyasını kaydet"),
+    "quiz_all_right": MessageLookupByLibrary.simpleMessage("Tüm cevaplar doğru"),
     "quiz_back_to_module": MessageLookupByLibrary.simpleMessage("Modüle dön"),
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Sorulara dön"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Doğru."),

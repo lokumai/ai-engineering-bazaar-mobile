@@ -635,6 +635,11 @@ class S {
     return Intl.message('$taken of $total taken', name: 'quiz_list_taken', desc: '', args: [taken, total]);
   }
 
+  /// `All answers right`
+  String get quiz_all_right {
+    return Intl.message('All answers right', name: 'quiz_all_right', desc: '', args: []);
+  }
+
   /// `The questions come with the {track} modules.`
   String quiz_list_engineers_only(String track) {
     return Intl.message(

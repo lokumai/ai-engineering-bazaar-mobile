@@ -95,9 +95,14 @@ HomeOverview homeOverview(
   );
 }
 
-/// The first [HomeOverview.practiceCount] of [recent], the most recently completed first: a quiz never finished comes
-/// first, then the lowest share of the last attempt; the order of [recent] breaks ties.
+/// The first [HomeOverview.practiceCount] of [recent], the most recently completed first, leaving out a quiz once
+/// answered all right: a quiz never finished comes first, then the lowest share of the last attempt; the order of
+/// [recent] breaks ties.
 List<String> _toPractise(List<String> recent, Map<String, QuizScore> scores) {
+  recent = [
+    for (final key in recent)
+      if (!(scores[key]?.perfect ?? false)) key,
+  ];
   final order = {for (final (position, key) in recent.indexed) key: position};
   double share(String key) => scores[key]?.lastShare ?? -1;
   return ([...recent]..sort((a, b) {

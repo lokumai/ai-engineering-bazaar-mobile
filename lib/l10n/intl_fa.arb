@@ -99,6 +99,7 @@
   "quiz_score_before": "دفعهٔ قبل: {previous} از {total}. بهترین: {best} از {total}.",
   "quiz_score_line": "آخرین {last} از {total} · بهترین {best} از {total}",
   "quiz_list_taken": "{taken} از {total} آزمون حل شده",
+  "quiz_all_right": "همه پاسخ‌ها درست",
   "quiz_list_engineers_only": "پرسش‌ها همراه درس‌های {track} می‌آیند.",
   "catalog_level_dial": "{approved}/{total}",
   "catalog_complete_module": "تکمیل {title}",
