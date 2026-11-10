@@ -700,5 +700,21 @@
   "about_english": "The story is written in English.",
   "@about_english": {
     "description": "The About page, above the story, when the app's language is not English: the story has no translation yet."
+  },
+  "about_skip": "Skip",
+  "@about_skip": {
+    "description": "The story film at the top, on the first launch: leaves the story for the language and track step."
+  },
+  "about_close": "Close",
+  "@about_close": {
+    "description": "The story film from Settings: its close button at the top and the button at its end, back to Settings."
+  },
+  "about_next": "Next",
+  "@about_next": {
+    "description": "The story film, for a screen reader: the far side of the screen, which goes on to the next screen."
+  },
+  "about_previous": "Previous",
+  "@about_previous": {
+    "description": "The story film, for a screen reader: the near side of the screen, which goes back a screen."
   }
 }

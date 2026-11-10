@@ -13,10 +13,12 @@ String? sansFamily(TargetPlatform platform) => platform == TargetPlatform.iOS ? 
 /// `ui-monospace` (`bazaar.css:164`), which no Flutter platform resolves.
 String monoFamily(TargetPlatform platform) => platform == TargetPlatform.iOS ? 'Menlo' : 'monospace';
 
-/// Adds the SIL Open Font License of the bundled Vazirmatn (spec 1.4 decisions 5 and 8) to the [LicenseRegistry], so
-/// the licences page lists it. The app calls it once at start-up; this is the only registration.
+/// Adds the SIL Open Font License of each bundled face to the [LicenseRegistry], so the licences page lists them:
+/// Vazirmatn (spec 1.4 decisions 5 and 8) and Fraunces, the face of the story's headings (plan 3.5). The app calls it
+/// once at start-up; this is the only registration.
 void registerFontLicences() {
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(const [diagramFontFamily], await rootBundle.loadString('assets/fonts/OFL.txt'));
+    yield LicenseEntryWithLineBreaks(const ['Fraunces'], await rootBundle.loadString('assets/fonts/OFL-Fraunces.txt'));
   });
 }

@@ -78,7 +78,6 @@ class AppRouterFactory {
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
-            ...AboutFeatureRoutes.routes(),
             ...GuideFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
@@ -88,6 +87,8 @@ class AppRouterFactory {
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
           ],
         ),
+        // The story of the Bazaar, a film over the whole app with no bar and no navigation (plan 3.5).
+        ...AboutFeatureRoutes.routes(),
         // A module's quiz full screen, over the shell, from the Quiz tab or Home's practice (plan 1AC, 1AD).
         _pageOf(
           'quiz',

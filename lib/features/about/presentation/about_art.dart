@@ -8,4 +8,7 @@ abstract final class AboutArt {
     'assets/about/scene_4.webp',
     'assets/about/scene_5.webp',
   ];
+
+  /// Each picture's width over its height: the treaty's hall is wider than the others' square.
+  static const aspects = [710 / 560, 1.0, 1.0, 1.0, 1.0];
 }

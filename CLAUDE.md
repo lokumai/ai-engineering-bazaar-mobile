@@ -114,13 +114,13 @@ lib/
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
                                                 first-launch steps (the story the app passes in, then language and track)
-    about/                                      the story of the Bazaar from the bundle (AboutBloc), at `/settings/about`,
-                                                and Welcome's first step
+    about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
+                                                whole screen: at `/settings/about`, outside the shell, and Welcome's first step
     guide/                                      How the bazaar works, at `/settings/guide`
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
-assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt
+assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
 assets/brand/, assets/welcome/, assets/about/   the Lokum logo, the Welcome art and the story's scenes, each with its SOURCE.md
 integration_test/                               device tests
 ```

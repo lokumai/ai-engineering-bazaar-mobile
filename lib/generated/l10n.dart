@@ -1459,6 +1459,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Skip`
+  String get about_skip {
+    return Intl.message(
+      'Skip',
+      name: 'about_skip',
+      desc: 'The story film at the top, on the first launch: leaves the story for the language and track step.',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get about_close {
+    return Intl.message(
+      'Close',
+      name: 'about_close',
+      desc: 'The story film from Settings: its close button at the top and the button at its end, back to Settings.',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get about_next {
+    return Intl.message(
+      'Next',
+      name: 'about_next',
+      desc: 'The story film, for a screen reader: the far side of the screen, which goes on to the next screen.',
+      args: [],
+    );
+  }
+
+  /// `Previous`
+  String get about_previous {
+    return Intl.message(
+      'Previous',
+      name: 'about_previous',
+      desc: 'The story film, for a screen reader: the near side of the screen, which goes back a screen.',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

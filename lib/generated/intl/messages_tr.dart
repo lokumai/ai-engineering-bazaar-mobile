@@ -92,8 +92,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "about_close": MessageLookupByLibrary.simpleMessage("Kapat"),
     "about_english": MessageLookupByLibrary.simpleMessage("Hikâye İngilizce yazıldı."),
     "about_failed": MessageLookupByLibrary.simpleMessage("Hikâye açılamadı. Güncellemeleri denetle, sonra yeniden aç."),
+    "about_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
+    "about_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
+    "about_skip": MessageLookupByLibrary.simpleMessage("Geç"),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "block_code_label": m0,
     "block_figure_caption": m1,

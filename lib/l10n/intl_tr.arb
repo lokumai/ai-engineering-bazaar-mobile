@@ -210,5 +210,9 @@
   "privacy_github_statement": "GitHub General Privacy Statement",
   "settings_story": "Bazaar'ın hikâyesi",
   "about_failed": "Hikâye açılamadı. Güncellemeleri denetle, sonra yeniden aç.",
-  "about_english": "Hikâye İngilizce yazıldı."
+  "about_english": "Hikâye İngilizce yazıldı.",
+  "about_skip": "Geç",
+  "about_close": "Kapat",
+  "about_next": "Sonraki",
+  "about_previous": "Önceki"
 }

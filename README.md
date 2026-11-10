@@ -85,4 +85,5 @@ CI runs the same steps, then builds the release APK and app bundle, runs the And
 
 The app is under the MIT License, see [LICENSE](LICENSE).
 Vazirmatn, the diagram font, is under the SIL Open Font License, see [assets/fonts/OFL.txt](assets/fonts/OFL.txt).
+Fraunces, the face of the story's headings, is under the same licence, see [assets/fonts/OFL-Fraunces.txt](assets/fonts/OFL-Fraunces.txt).
 The course content is under the web repo's licence.

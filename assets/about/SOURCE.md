@@ -14,4 +14,6 @@ They were recorded from the built site (`npm run build`, then `out/` served on a
 
 Under reduced motion Flutter's `Image` holds each one on its first frame, which is why each loop starts on a full picture.
 
+`grain.png` is the ground's grain, the web's `.ground::before` (`src/app/about.css`: fractal noise in cream, `rgb(1, .97, .9)` at `.9` of the noise, the layer at `.075`) baked into one 256 px tile: Pillow's Gaussian noise, blurred by 0.6 px, its alpha `.9 * .075` of the noise. The film repeats it over the whole screen.
+
 The words beside them are not here: they come from the content bundle (`api/v1/story/en.json`, web D125).

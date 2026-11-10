@@ -210,5 +210,9 @@
   "privacy_github_statement": "GitHub General Privacy Statement",
   "settings_story": "داستان بازار",
   "about_failed": "داستان باز نشد. به‌روزرسانی‌ها را بررسی کنید و دوباره باز کنید.",
-  "about_english": "داستان به انگلیسی نوشته شده است."
+  "about_english": "داستان به انگلیسی نوشته شده است.",
+  "about_skip": "رد شدن",
+  "about_close": "بستن",
+  "about_next": "بعدی",
+  "about_previous": "قبلی"
 }
