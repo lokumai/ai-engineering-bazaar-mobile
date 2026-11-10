@@ -9,7 +9,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AM) in review on `feature/review-round-4` |
+| 1. The redesign | Done (PR #3, PR #4: review round 4, 1AF to 1AM); 1AN on `feature/phase-3` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
 | 3. Parity with the website | 3.2, 3.3 and 3.4 done on `feature/phase-3`; 3.1 waits for web change 5.7 |
 | 4. Owner follow-ups from PR #1 | Planned |
@@ -152,6 +152,7 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
 - [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The level of the next module to read starts open (1AL).
 - [x] **1AL The level of the next module starts open.** On the catalog and the Quiz tab the level of the next module to read starts open, and the others closed. What the reader opens or closes stays while the app runs, through a tab change and back, and a new launch starts again from the next module (`CatalogFoldCubit`, `QuizFoldCubit`, in memory only). A level the reader has not touched follows the next module as modules are completed.
 - [x] **1AM Less text on the tabs.** Catalog, Quiz and Settings lose their heading, which repeated the tab's name, and the Quiz tab its description; a For Everyone reader still sees why the quizzes are For Engineers ones. The catalog loses its stats (modules completed, active days): the level dials say it.
+- [x] **1AN The quiz full screen loses the navy bar too.** It had kept Material's navy app bar and the full band; it now has the app's bar on the page ground, with a close button and the module's title, and the thin band, as every other page (`QuizFrame`, `BazaarBar.close`). Done on `feature/phase-3`.
 
 ## Phase 2: small fixes in the reader
 

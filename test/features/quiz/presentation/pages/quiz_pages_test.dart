@@ -8,6 +8,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -164,6 +166,9 @@ void main() {
     expect(find.byType(QuizScreen), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
+    expect(find.byType(AppBar), findsNothing, reason: 'no navy bar: the app bar on the page ground');
+    expect(find.descendant(of: find.byType(BazaarBar), matching: find.byType(CloseButton)), findsOneWidget);
+    expect(find.byWidgetPredicate((widget) => widget is LatticeBand && widget.thin), findsOneWidget);
     expect(find.text('Q1'), findsOneWidget);
 
     await _tap(tester, find.text('One'));
