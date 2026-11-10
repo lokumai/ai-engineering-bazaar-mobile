@@ -1,9 +1,11 @@
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
+import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -40,6 +42,10 @@ class CatalogPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
+        // (review round 4), and without it the catalog and the Quiz tab open alike.
+        SectionRule(title: S.of(context).nav_catalog),
+        const SizedBox(height: AppSpacing.md),
         CatalogOverview(
           track: track,
           index: index,

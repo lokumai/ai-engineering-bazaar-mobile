@@ -76,7 +76,7 @@ void main() {
     expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
     expect(find.byType(CompletionDial), findsNothing);
     expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
-    expect(find.text('Practise again', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
+    expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
   });
 
   testWidgets('the continue card opens the next module', (tester) async {
@@ -152,7 +152,7 @@ void main() {
     final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']));
 
     final practice = find.byKey(const ValueKey('home-practice-alpha/first'), skipOffstage: false);
-    expect(find.text('Practise again', skipOffstage: false), findsOneWidget);
+    expect(find.text('Quizzes to practise', skipOffstage: false), findsOneWidget);
     expect(practice, findsOneWidget);
     expect(find.byKey(const ValueKey('home-practice-beta/fourth'), skipOffstage: false), findsOneWidget);
 

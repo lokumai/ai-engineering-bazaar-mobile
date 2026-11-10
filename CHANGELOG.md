@@ -34,6 +34,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
+- The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.
+- Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Reset on its own line; the level's title follows the back arrow in the bar.
 - Headings are set in Fraunces, the web's display face; the text stays in the sans.
 - Lists stand on the page with a hairline between rows instead of a card each; the levels are washed in their hues, and the chosen track and language are a light wash instead of a solid block.
 - The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.

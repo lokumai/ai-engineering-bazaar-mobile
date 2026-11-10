@@ -61,6 +61,7 @@ class _InlineTextState extends State<InlineText> {
     final spans = _SpanBuilder(
       colors: context.bazaarColors,
       fontSize: widget.style.fontSize!,
+      ink: widget.style.color ?? context.bazaarColors.onSurface,
       onLink: widget.onLink,
       recognizers: _recognizers,
     ).build(widget.inlines, null);
@@ -72,10 +73,19 @@ class _InlineTextState extends State<InlineText> {
 }
 
 class _SpanBuilder {
-  _SpanBuilder({required this.colors, required this.fontSize, required this.onLink, required this.recognizers});
+  _SpanBuilder({
+    required this.colors,
+    required this.fontSize,
+    required this.ink,
+    required this.onLink,
+    required this.recognizers,
+  });
 
   final BazaarColors colors;
   final double fontSize;
+
+  /// The colour of the text, which the external mark takes.
+  final Color ink;
   final LinkHandler onLink;
   final List<TapGestureRecognizer> recognizers;
 
@@ -149,12 +159,15 @@ class _SpanBuilder {
         ),
         children: build(inlines, recognizer),
       ),
-      if (target is ExternalTarget)
-        TextSpan(
-          text: '$_wordJoiner↗',
-          semanticsLabel: '',
-          style: TextStyle(color: colors.onSurfaceFaint, fontSize: BazaarType.mark.size),
+      // The mark that the link leaves the app, drawn as an icon in the text's colour: no text face carries the arrow,
+      // so as a character it fell back to the colour emoji. The joiner keeps it on the line of the link's last word.
+      if (target is ExternalTarget) ...[
+        const TextSpan(text: _wordJoiner, semanticsLabel: ''),
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: ExternalMark(size: fontSize, color: ink),
         ),
+      ],
     ];
   }
 }
@@ -183,4 +196,24 @@ String inlinePlainText(List<Inline> inlines) {
 
   write(inlines);
   return buffer.toString();
+}
+
+/// The mark after a link that leaves the app: a small north-east arrow in [color], or the surrounding icon colour when
+/// null, sized to text of [size]. Decoration: the link says where it goes.
+class ExternalMark extends StatelessWidget {
+  const ExternalMark({super.key, required this.size, this.color});
+
+  /// The font size of the text it follows.
+  final double size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(start: size * 0.08),
+        child: Icon(Icons.north_east, size: size * 0.8, color: color),
+      ),
+    );
+  }
 }

@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.d
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -63,8 +64,11 @@ class QuizListPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        // No heading: the tab names the page (owner, 2026-11-10). A For Everyone reader still learns why the quizzes
-        // are For Engineers ones.
+        // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
+        // (review round 4), and without it the Quiz tab and the catalog open alike.
+        SectionRule(title: s.nav_quiz),
+        const SizedBox(height: AppSpacing.md),
+        // A For Everyone reader learns why the quizzes are For Engineers ones.
         if (track != Track.engineers) ...[
           Text(s.quiz_list_engineers_only(trackName(s, Track.engineers)), style: muted),
           const SizedBox(height: AppSpacing.lg),

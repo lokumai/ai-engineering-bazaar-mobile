@@ -77,7 +77,10 @@ void main() {
     );
   });
 
-  testWidgets('an external link gets a word-joined arrow hidden from semantics', (tester) async {
+  testWidgets('an external link gets a word-joined arrow icon in the text colour, hidden from semantics', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
     await pump(tester, const [
       LinkInline(
         target: ExternalTarget(url: 'https://example.com/'),
@@ -85,11 +88,16 @@ void main() {
       ),
     ]);
 
-    final arrow = leafSpans(rootSpan(tester)).last;
-    expect(arrow.text, '\u2060↗');
-    expect(arrow.semanticsLabel, '');
-    expect(arrow.style!.color, tester.element(find.byType(InlineText)).bazaarColors.onSurfaceFaint);
-    expect(arrow.style!.fontSize, BazaarType.mark.size);
+    // An icon, not the arrow character, which no text face carries and Android drew as a colour emoji.
+    expect(find.textContaining('↗'), findsNothing);
+    final joiner = leafSpans(rootSpan(tester)).last;
+    expect((joiner.text, joiner.semanticsLabel), ('\u2060', ''));
+    final icon = tester.widget<Icon>(find.descendant(of: find.byType(ExternalMark), matching: find.byType(Icon)));
+    expect(icon.icon, Icons.north_east);
+    final style = tester.widget<RichText>(find.byType(RichText).first).text.style!;
+    expect(icon.color, style.color ?? tester.element(find.byType(InlineText)).bazaarColors.onSurface);
+    expect(find.bySemanticsLabel(RegExp('north')), findsNothing);
+    semantics.dispose();
   });
 
   testWidgets('a link to another kind of target has no arrow', (tester) async {

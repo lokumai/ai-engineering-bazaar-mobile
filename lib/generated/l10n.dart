@@ -178,19 +178,19 @@ class S {
     return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
   }
 
-  /// `Practise again`
+  /// `Quizzes to practise`
   String get home_practice {
-    return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
+    return Intl.message('Quizzes to practise', name: 'home_practice', desc: '', args: []);
   }
 
-  /// `The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.`
+  /// `Quizzes from the modules you completed.`
   String get home_practice_lede {
-    return Intl.message(
-      'The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.',
-      name: 'home_practice_lede',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Quizzes from the modules you completed.', name: 'home_practice_lede', desc: '', args: []);
+  }
+
+  /// `Open the diagram full screen`
+  String get diagram_expand {
+    return Intl.message('Open the diagram full screen', name: 'diagram_expand', desc: '', args: []);
   }
 
   /// `Your path`

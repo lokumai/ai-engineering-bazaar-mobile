@@ -164,6 +164,17 @@ The user asked for a look as finished as the story's across the tabs. They land 
 - [x] **1AR Your path on Home.** Under Practise again, one line per level: its title, a bar in its hue filled by the share of its written modules completed, and the count.
 - [x] **1AS Lighter choices.** The chosen segment of a choice (track, language) is a light wash of the primary under the title ink, not a solid block.
 
+### Review round 6: findings from a walk-through (2026-11-10)
+
+A walk-through of the running app (light and dark) found these; the user chose the full screen for diagrams and the page names on Catalog and Quiz. The opening on every launch stays as it is (owner).
+
+- [x] **1AT The external link mark.** The arrow after a link that leaves the app was a character no text face carries, so Android drew it as a blue colour emoji, seven to a sentence in RAG & Embeddings. It is now a small icon in the text's colour, kept on the line of the link's last word and hidden from assistive technology.
+- [x] **1AU Diagrams full screen.** A diagram is too small to read at a phone's width. A tap anywhere on it opens it full screen on its own ground, where it zooms up to six times, pans and turns with the phone; a mark in its corner says so, and a screen reader hears it as a button. The page no longer zooms in place, so a drag over a diagram always scrolls. The lilac fills come from the bundle, so a palette change is a web change.
+- [x] **1AV Quizzes to practise.** Home's heading held quizzes never taken, so "Practise again" became "Quizzes to practise", and its line says only where they come from.
+- [x] **1AW Catalog and Quiz open on their names.** The two tabs opened alike; each now opens on its name, in the style of Settings' headings, scrolling away with the page. The bar stays empty on the tabs (1AH).
+- [x] **1AX The data actions are buttons.** Back up, Restore, Reset and Check for updates are outlined buttons; Reset, still in on-surface (A18), sits on a line of its own below the other two.
+- [x] **1AY Two reader points.** Before you start spaces its links near the body's list items, each keeping its 48 px target; on a level's page and a module's, the hue square and the title follow the back arrow at the start of the bar.
+
 ## Phase 2: small fixes in the reader
 
 The fixes land together in one pull request; each fix is its own commit, test first, through the gate.

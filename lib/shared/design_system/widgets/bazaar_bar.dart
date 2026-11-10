@@ -67,7 +67,7 @@ class BazaarBar extends StatelessWidget {
                   ),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: accent == null ? MainAxisAlignment.start : MainAxisAlignment.end,
+                    // Right after the back arrow, start-aligned (review findings, F).
                     spacing: AppSpacing.sm,
                     children: [
                       if (accent != null)

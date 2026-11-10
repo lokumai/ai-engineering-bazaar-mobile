@@ -76,7 +76,11 @@ void main() {
   testWidgets('the Quiz tab lists every quiz by level, under the Quiz destination', (tester) async {
     await _pump(tester);
 
-    expect(find.text('Quizzes'), findsNothing, reason: 'no heading, the tab names the page');
+    expect(
+      find.descendant(of: find.byType(ListView), matching: find.text('Quiz')),
+      findsOneWidget,
+      reason: 'its name',
+    );
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');

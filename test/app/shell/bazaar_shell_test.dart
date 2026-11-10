@@ -145,7 +145,7 @@ void main() {
     }
   });
 
-  testWidgets("a level's page and a module's carry the level's hue, with the title at the end of the bar", (
+  testWidgets("a level's page and a module's carry the level's hue, its square and title right after the back arrow", (
     tester,
   ) async {
     for (final location in ['/sheets/beta', '/courses/beta/fourth', '/everyone/sheets/beta']) {
@@ -154,7 +154,9 @@ void main() {
       final context = tester.element(bar);
       expect(tester.widget<BazaarBar>(bar).accent, levelHue(context, 1), reason: location);
       final title = find.descendant(of: bar, matching: find.byType(Text)).last;
-      expect(tester.getTopRight(title).dx, closeTo(tester.getTopRight(bar).dx - 16, 1), reason: location);
+      // At the start, not the far end: the bar's inset, the hue square of 12, 8 apart the title (opened directly, with
+      // no page to go back to; a back arrow comes before them both).
+      expect(tester.getTopLeft(title).dx, closeTo(tester.getTopLeft(bar).dx + 16 + 12 + 8, 1), reason: location);
     }
     for (final location in ['/', '/sheets', '/quiz', '/settings']) {
       await _pumpAt(tester, location, TrackCubit());

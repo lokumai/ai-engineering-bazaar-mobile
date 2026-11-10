@@ -218,7 +218,7 @@ class _Fact extends StatelessWidget {
   }
 }
 
-/// A start-aligned text button; the theme sizes it to the platform's tap target.
+/// A start-aligned outlined button, so it reads as one; the theme sizes it to the platform's tap target.
 class _Action extends StatelessWidget {
   const _Action({required this.label, required this.onPressed});
 
@@ -229,7 +229,7 @@ class _Action extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: AlignmentDirectional.centerStart,
-      child: TextButton(onPressed: onPressed, child: Text(label)),
+      child: OutlinedButton(onPressed: onPressed, child: Text(label)),
     );
   }
 }

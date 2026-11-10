@@ -52,16 +52,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('shows no heading, one button per level, with no filters, the next level open (owner review)', (
+  testWidgets('opens on its name, one button per level, with no filters, the next level open (owner review)', (
     tester,
   ) async {
     await _pumpCatalog(tester);
 
-    expect(
-      find.descendant(of: find.byType(ListView), matching: find.text('Catalog')),
-      findsNothing,
-      reason: 'no heading, the tab names the page',
-    );
+    // The page's name heads its content, so the catalog and the Quiz tab do not open alike (review findings, D).
+    expect(find.descendant(of: find.byType(ListView), matching: find.text('Catalog')), findsOneWidget);
     expect(find.byType(ChoiceChip), findsNothing);
     for (final slug in ['alpha', 'beta', 'gamma']) {
       expect(find.byKey(CatalogOverview.levelKey(slug)), findsOneWidget, reason: slug);

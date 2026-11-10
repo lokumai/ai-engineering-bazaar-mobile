@@ -13,7 +13,7 @@ import '../data_host.dart';
 
 const _actions = ['Back up to a file', 'Restore from a file', 'Reset'];
 
-Finder _button(String label) => find.widgetWithText(TextButton, label);
+Finder _button(String label) => find.widgetWithText(OutlinedButton, label);
 
 void main() {
   Future<DataBloc> pumpLine(WidgetTester tester, [DataState state = const DataState()]) async {
@@ -34,15 +34,19 @@ void main() {
       tester.getTopLeft(_button('Back up to a file')).dx,
       lessThan(tester.getTopLeft(_button('Restore from a file')).dx),
     );
-    expect(tester.getTopLeft(_button('Restore from a file')).dx, lessThan(tester.getTopLeft(_button('Reset')).dx));
   });
 
   testWidgets('Reset is drawn in onSurface', (tester) async {
     await pumpLine(tester);
     final theme = Theme.of(tester.element(find.byType(DataLine)));
 
-    final button = tester.widget<TextButton>(_button('Reset'));
+    final button = tester.widget<OutlinedButton>(_button('Reset'));
     expect(button.style!.foregroundColor!.resolve(<WidgetState>{}), theme.colorScheme.onSurface);
+    expect(
+      tester.getTopLeft(_button('Reset')).dy,
+      greaterThan(tester.getBottomLeft(_button('Back up to a file')).dy),
+      reason: 'Reset sits on a line of its own, below Back up and Restore',
+    );
   });
 
   testWidgets('the actions add their events', (tester) async {
@@ -59,12 +63,12 @@ void main() {
     for (final busy in [DataBusy.backingUp, DataBusy.restoring, DataBusy.erasing, DataBusy.savingQuarantine]) {
       await pumpLine(tester, DataState(busy: busy));
       for (final label in _actions) {
-        expect(tester.widget<TextButton>(_button(label)).onPressed, isNull, reason: '$label while $busy');
+        expect(tester.widget<OutlinedButton>(_button(label)).onPressed, isNull, reason: '$label while $busy');
       }
     }
     await pumpLine(tester);
     for (final label in _actions) {
-      expect(tester.widget<TextButton>(_button(label)).onPressed, isNotNull, reason: label);
+      expect(tester.widget<OutlinedButton>(_button(label)).onPressed, isNotNull, reason: label);
     }
   });
 
