@@ -9,8 +9,8 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | In review: 1A to 1I built, review round 1 (1J to 1Q) planned, on `feature/redesign` |
-| 2. Small fixes in the reader | Planned |
+| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AJ) in review on `feature/review-round-4` |
+| 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
 | 3. Parity with the website | Planned |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
@@ -130,6 +130,20 @@ The owner proposed these on 2026-11-10 and settled them the same day: the openin
 - [x] **1AC A Quiz tab in place of Progress.** The fourth bottom item is Quiz, at `/quiz`. It lists each module's quiz, grouped by level, and opens the full-screen quiz (2F) at `/quiz/<level>/<module>` without going through the reader; Done closes it. Only For Engineers documents carry a quiz, so the tab lists those, and tells a For Everyone reader where the questions come from. The web has no quiz page (A9); these routes are the app's own.
 - [x] **1AD Practice on Home.** Under the modules after the next one, Home offers Practise again: the quizzes of the three modules completed last in the current track, the most recent first, each opening the quiz full screen. The record keeps when each module was completed, so the order is the record's own. Without quiz scores (1W) practice cannot favour the quizzes that went badly; once scores exist, it can.
 - [x] **1AE The unused gate picture is gone.** With the opening settled, `assets/welcome/gate.webp` is removed. The lamps and the people stay: the opening draws them.
+
+### Review round 4: the bar, room to read and the icon (2026-11-10)
+
+The owner looked at the app on the emulator again on 2026-11-10 and asked for these. They land with Phase 2 in one pull request.
+
+- [x] **1AF Settings says less.** The notes under Language and under the track are gone; each heading says enough. The track's heading is Audience (Turkish Anlatım, Persian مخاطب).
+- [x] **1AG Diagrams stay light.** In dark mode the diagrams turned dark while the photos did not. Diagrams are now drawn in their light version in both modes, as photos are (R41).
+- [x] **1AH A quieter top.** The navy bar, its logo and the app's name are gone.
+  - The strip behind the status bar and the bar are on the page's ground, with status icons that read on it, over a thinner lattice band (8).
+  - The four tabs, Home, Catalog, Quiz and Settings, show nothing in the bar.
+  - A level's page and a module's page show the back button, a rounded square in the level's hue and the page's name at the bar's end.
+  - The bar is 40 high with or without the back button. A version with no bar row, only the band and a floating back button, was built for comparison and dropped on the owner's look.
+- [x] **1AI Room to read.** On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down and come back on a scroll up, at the top and at the end. They stay while a screen reader runs and move at once under reduced motion. The reading bar now follows every scroll step, not only changes of the page's size, so it moves smoothly.
+- [x] **1AJ The app icon.** The striped gate: the bazaar arch with the lattice band's stripes inside, on white like other apps. Android has an adaptive icon with a monochrome layer for themed icons (Android 13+). iOS has light, dark and tinted versions in one 1024 icon (iOS 18); not yet checked on a Mac. The sources are in `assets/brand/app_icon/`.
 
 ## Phase 2: small fixes in the reader
 

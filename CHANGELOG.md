@@ -21,8 +21,10 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. The app has no progress page of its own: the catalog shows the progress.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
-- The redesign after the team's mobile mockup: the logo bar, the lattice band, level hues, dials and meters, and a
-  four-item bottom navigation.
+- The redesign after the team's mobile mockup: a bar on the page's ground over a thin lattice band, naming a level's page
+  and a module's with the level's hue, level hues, dials and meters, and a four-item bottom navigation.
+- On a module page the bar, the band and the bottom navigation slide away while reading down and come back on a scroll up.
+- The app icon, the striped gate, with an Android themed icon and iOS dark and tinted versions.
 - Device tests under `integration_test/` and a workflow that runs them on demand.
 
 ### Changed
@@ -30,6 +32,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
 - The Dart package name is `ai_engineering_bazaar`.
 - The template palettes are replaced by the Bazaar theme, built from design tokens generated from the snapshot.
+- Diagrams are drawn in their light version in both themes, as photos are.
+- A table row longer or shorter than its head is cut or padded to the head, as GFM does.
+- A logo that does not parse keeps its square of space, as a missing one does.
 
 ### Removed
 
