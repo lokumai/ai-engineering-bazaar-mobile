@@ -225,6 +225,12 @@ final class FileContentRepository implements IContentRepository {
     return ContentParser.parseLevelDoc(utf8.decode(bytes), index, path: sitePath);
   }
 
+  @override
+  Future<StoryDoc> readStoryDoc(String sitePath) async {
+    final bytes = await readObject(sitePath);
+    return ContentParser.parseStoryDoc(utf8.decode(bytes), path: sitePath);
+  }
+
   _Opened _requireOpened() => _opened ?? (throw StateError('open() has not completed'));
 }
 

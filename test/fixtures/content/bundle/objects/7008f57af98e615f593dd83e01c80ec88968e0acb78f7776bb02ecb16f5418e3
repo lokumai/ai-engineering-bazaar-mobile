@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "lang": "en",
+  "dir": "ltr",
+  "title": "Fixture Story",
+  "stalls": [
+    {
+      "heading": "The first fixture section.",
+      "paragraphs": [
+        "A first paragraph of the fixture story.",
+        "A second paragraph."
+      ]
+    },
+    {
+      "heading": "The second fixture section.",
+      "paragraphs": [
+        "One paragraph."
+      ]
+    }
+  ],
+  "motto": {
+    "lead": "Our motto",
+    "lines": [
+      "“A fixture line.",
+      "A second fixture line.”"
+    ]
+  }
+}

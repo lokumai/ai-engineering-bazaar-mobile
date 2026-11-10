@@ -26,6 +26,9 @@ abstract interface class IContentRepository {
   Future<ModuleDoc> readModuleDoc(String sitePath);
 
   Future<LevelDoc> readLevelDoc(String sitePath);
+
+  /// The story document at [sitePath] (web D125), read as [readObject] reads a file.
+  Future<StoryDoc> readStoryDoc(String sitePath);
 }
 
 /// Where the current content came from.

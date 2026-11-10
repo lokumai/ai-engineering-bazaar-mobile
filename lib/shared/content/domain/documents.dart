@@ -13,6 +13,53 @@ final class LevelDoc extends Equatable {
   List<Object?> get props => [slug, title, blocks];
 }
 
+/// The About page's story, `api/v1/story/<lang>.json` (web D115, D125), parsed by `ContentParser.parseStoryDoc`: the
+/// web's `mini-courses/STORY.md` as the site's About page reads it, in plain strings.
+final class StoryDoc extends Equatable {
+  const StoryDoc({
+    required this.lang,
+    required this.dir,
+    required this.title,
+    required this.stalls,
+    required this.motto,
+  });
+
+  final String lang;
+  final TextDir dir;
+
+  /// The story's own heading, or null when it has none.
+  final String? title;
+
+  /// One per section of the story, in order.
+  final List<StoryStall> stalls;
+  final StoryMotto? motto;
+
+  @override
+  List<Object?> get props => [lang, dir, title, stalls, motto];
+}
+
+/// One section of the story: its heading and its paragraphs.
+final class StoryStall extends Equatable {
+  const StoryStall({required this.heading, required this.paragraphs});
+
+  final String heading;
+  final List<String> paragraphs;
+
+  @override
+  List<Object?> get props => [heading, paragraphs];
+}
+
+/// The story's closing motto: what introduces it and the quotation, one sentence per line.
+final class StoryMotto extends Equatable {
+  const StoryMotto({required this.lead, required this.lines});
+
+  final String lead;
+  final List<String> lines;
+
+  @override
+  List<Object?> get props => [lead, lines];
+}
+
 /// A module document in one track and language, parsed by `ContentParser.parseModuleDoc`.
 ///
 /// [body] is null exactly when [draft] is not: a written module has a body, an unwritten one a draft.

@@ -74,6 +74,14 @@ abstract final class ContentParser {
     );
 
     final moved = root['moved'];
+    // Added by the web in D125; an index from before it has none, and an app that finds none shows no story.
+    final story = root
+        .optional('story')
+        ?.let(
+          (node) => Map<String, String>.unmodifiable({
+            for (final MapEntry(:key, :value) in node.entries()) key: value.listedIn(files),
+          }),
+        );
     return BundleIndex(
       contentVersion: contentVersion,
       publishedAt: publishedAt,
@@ -86,6 +94,7 @@ abstract final class ContentParser {
       moved: Moved(levels: _strings(moved['levels']), modules: _strings(moved['modules'])),
       files: files,
       images: images,
+      story: story ?? const {},
     );
   }
 
@@ -142,6 +151,33 @@ abstract final class ContentParser {
       slug: root['slug'].string(),
       title: root['title'].string(),
       blocks: _DocumentReader(index).blocks(root['blocks']),
+    );
+  }
+
+  /// Parses the story document at the site path [path] (web D125).
+  static StoryDoc parseStoryDoc(String json, {required String path}) {
+    final root = _Node.root(json, path);
+    _schemaVersion(root);
+    final stalls = root['stalls'].list();
+    if (stalls.isEmpty) root['stalls'].fail();
+    return StoryDoc(
+      lang: root['lang'].string(),
+      dir: root['dir'].named(TextDir.values.asNameMap()),
+      title: root['title'].nullable((node) => node.string()),
+      stalls: List.unmodifiable(
+        stalls.map(
+          (stall) => StoryStall(
+            heading: stall['heading'].string(),
+            paragraphs: List.unmodifiable(stall['paragraphs'].list().map((paragraph) => paragraph.string())),
+          ),
+        ),
+      ),
+      motto: root['motto'].nullable(
+        (node) => StoryMotto(
+          lead: node['lead'].string(),
+          lines: List.unmodifiable(node['lines'].list().map((line) => line.string())),
+        ),
+      ),
     );
   }
 

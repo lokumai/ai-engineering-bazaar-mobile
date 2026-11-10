@@ -840,4 +840,60 @@ void main() {
       throwsA(formatError(_levelPath, 'schemaVersion')),
     );
   });
+
+  group('the story document (web D125)', () {
+    const path = 'api/v1/story/en.json';
+    Map<String, dynamic> story() => {
+      'schemaVersion': 1,
+      'lang': 'en',
+      'dir': 'ltr',
+      'title': 'A Title',
+      'stalls': [
+        {
+          'heading': 'One.',
+          'paragraphs': ['First.', 'Second.'],
+        },
+      ],
+      'motto': {
+        'lead': 'Lead',
+        'lines': ['A.', 'B.'],
+      },
+    };
+    StoryDoc parse(Map<String, dynamic> json) => ContentParser.parseStoryDoc(jsonEncode(json), path: path);
+
+    test('parses the title, the sections and the motto', () {
+      expect(
+        parse(story()),
+        const StoryDoc(
+          lang: 'en',
+          dir: TextDir.ltr,
+          title: 'A Title',
+          stalls: [
+            StoryStall(heading: 'One.', paragraphs: ['First.', 'Second.']),
+          ],
+          motto: StoryMotto(lead: 'Lead', lines: ['A.', 'B.']),
+        ),
+      );
+    });
+
+    test('reads a story with no title and no motto, and ignores keys it does not know', () {
+      final doc = parse(story()..addAll({'title': null, 'motto': null, 'later': true}));
+      expect(doc.title, isNull);
+      expect(doc.motto, isNull);
+    });
+
+    for (final (field, why, mutate) in <(String, String, void Function(Map<String, dynamic>))>[
+      ('schemaVersion', 'a major other than 1', (json) => json['schemaVersion'] = 2),
+      ('stalls', 'no section', (json) => json['stalls'] = []),
+      ('stalls[0].heading', 'a section with no heading', (json) => (json['stalls'] as List).first.remove('heading')),
+      ('dir', 'a direction outside the closed set', (json) => json['dir'] = 'ttb'),
+      ('motto.lines', 'missing', (json) => (json['motto'] as Map).remove('lines')),
+    ]) {
+      test('rejects $field: $why', () {
+        final json = story();
+        mutate(json);
+        expect(() => parse(json), throwsA(formatError(path, field)));
+      });
+    }
+  });
 }

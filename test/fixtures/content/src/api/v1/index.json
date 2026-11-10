@@ -161,6 +161,9 @@
       "alpha/zeroth": "alpha/first"
     }
   },
+  "story": {
+    "en": "api/v1/story/en.json"
+  },
   "files": {},
   "images": {}
 }

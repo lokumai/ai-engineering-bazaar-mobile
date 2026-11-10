@@ -27,6 +27,7 @@ final class BundleIndex extends Equatable {
     required this.moved,
     required this.files,
     required this.images,
+    this.story = const {},
   }) : _levelBySlug = {for (final level in levels) level.slug: level},
        _moduleByKey = {for (final module in modules) module.key: module};
 
@@ -55,6 +56,12 @@ final class BundleIndex extends Equatable {
   /// Site path to sha256, for the figures and logos.
   final Map<String, String> images;
 
+  /// The About page's story document per language it is written in (web D125); empty while the site publishes none.
+  final Map<String, String> story;
+
+  /// The story's document in [language], or in English when it is not written in [language]; null when there is none.
+  String? storyIn(String language) => story[language] ?? story['en'];
+
   final Map<String, LevelEntry> _levelBySlug;
   final Map<String, ModuleEntry> _moduleByKey;
 
@@ -78,6 +85,7 @@ final class BundleIndex extends Equatable {
     moved,
     files,
     images,
+    story,
   ];
 
   /// Names the version only, so a logged state never prints the whole index.

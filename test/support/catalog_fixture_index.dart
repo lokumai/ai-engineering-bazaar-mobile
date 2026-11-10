@@ -2,9 +2,11 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 
 /// A synthetic index built with the entity constructors (no file, no parser), for the shell, router and catalog tests:
-/// three levels and six modules, some written in one track only and some planned in both.
-BundleIndex catalogFixtureIndex() {
+/// three levels and six modules, some written in one track only and some planned in both; [story] names a story
+/// document (web D125), none by default.
+BundleIndex catalogFixtureIndex({Map<String, String> story = const {}}) {
   return BundleIndex(
+    story: story,
     contentVersion: 'f' * 64,
     publishedAt: '2026-11-01T00:00:00.000Z',
     publishedAtInstant: DateTime.utc(2026, 11, 1),

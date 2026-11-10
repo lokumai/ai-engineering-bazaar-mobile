@@ -81,6 +81,7 @@ MockContentRepository missingContentRepository() {
   when(() => repository.readObject(any())).thenAnswer(missing);
   when(() => repository.readModuleDoc(any())).thenAnswer(missing);
   when(() => repository.readLevelDoc(any())).thenAnswer(missing);
+  when(() => repository.readStoryDoc(any())).thenAnswer(missing);
   return repository;
 }
 
