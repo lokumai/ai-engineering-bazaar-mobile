@@ -356,6 +356,31 @@ void main() {
     expect(find.byKey(const Key('write-failure')), findsNothing);
   });
 
+  testWidgets('the reading bar follows every scroll step', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(
+          body: [for (var i = 0; i < 60; i++) _paragraph('Paragraph $i of a long module.')],
+          next: testRef(),
+        ),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester);
+    double read() => tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value!;
+    expect(read(), 0);
+
+    final page = find.byType(SingleChildScrollView).first;
+    var last = read();
+    for (var step = 0; step < 3; step++) {
+      await tester.drag(page, const Offset(0, -200));
+      await tester.pump();
+      expect(read(), greaterThan(last), reason: 'step $step');
+      last = read();
+    }
+  });
+
   testWidgets('the contents sheet lists depth-2 entries and jumps to them', (tester) async {
     stateIs(
       ReaderWritten(
