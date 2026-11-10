@@ -226,6 +226,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "level_module_count": m17,
     "loading": MessageLookupByLibrary.simpleMessage("در حال بارگذاری"),
     "module_planned": MessageLookupByLibrary.simpleMessage("برنامه‌ریزی‌شده"),
+    "nav_caravan": MessageLookupByLibrary.simpleMessage("کاروان"),
     "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("کاروان، به‌زودی"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("کاتالوگ"),
     "nav_home": MessageLookupByLibrary.simpleMessage("خانه"),

@@ -19,7 +19,7 @@ import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
 import '../../support/fold.dart';
 
-/// A destination by its name: the navigation shows icons only, each named by its tooltip.
+/// A destination by its tooltip, its name or, for the Caravan, its name and that it is coming soon.
 Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip(label));
 
 /// Pumps the app's router at [location] with [track], and settles.
@@ -290,7 +290,7 @@ void main() {
     expect(_destination('Quiz'), findsOneWidget);
     expect(_destination('Settings'), findsOneWidget);
     expect(selected(), 1, reason: 'a level page is under Catalog');
-    // Icons only: the bar is lower than Material's, which leaves room for the words.
+    // Lower than Material's bar, with each name small under its icon.
     expect(tester.getSize(find.byType(NavigationBar)).height, BazaarShell.navHeight);
 
     // The Caravan holds the middle ahead of its page, and goes nowhere yet.

@@ -77,7 +77,7 @@ lib/
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the four tabs), thin lattice band, bottom navigation of icons
-                                                only (Home, Catalog, the Caravan's camel held for its page,
+                                                with small names (Home, Catalog, the Caravan's camel held for its page,
                                                 Quiz, Settings; caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/

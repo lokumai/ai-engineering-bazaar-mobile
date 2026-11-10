@@ -224,6 +224,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "level_module_count": m17,
     "loading": MessageLookupByLibrary.simpleMessage("Yükleniyor"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planlandı"),
+    "nav_caravan": MessageLookupByLibrary.simpleMessage("Kervan"),
     "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("Kervan, yakında"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Katalog"),
     "nav_home": MessageLookupByLibrary.simpleMessage("Ana sayfa"),

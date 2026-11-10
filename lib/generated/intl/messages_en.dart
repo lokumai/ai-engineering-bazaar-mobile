@@ -226,6 +226,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "level_module_count": m17,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
+    "nav_caravan": MessageLookupByLibrary.simpleMessage("Caravan"),
     "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("Caravan, coming soon"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
     "nav_home": MessageLookupByLibrary.simpleMessage("Home"),

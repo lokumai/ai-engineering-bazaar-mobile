@@ -103,6 +103,11 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
+  /// `Caravan`
+  String get nav_caravan {
+    return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
+  }
+
   /// `Caravan, coming soon`
   String get nav_caravan_soon {
     return Intl.message('Caravan, coming soon', name: 'nav_caravan_soon', desc: '', args: []);

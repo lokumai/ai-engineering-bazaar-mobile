@@ -23,6 +23,8 @@
   "@nav_quiz": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
+  "nav_caravan": "Caravan",
+  "@nav_caravan": {},
   "nav_caravan_soon": "Caravan, coming soon",
   "@nav_caravan_soon": {},
   "welcome_track_title": "How would you like to read?",

@@ -19,10 +19,10 @@ import 'package:go_router/go_router.dart';
 /// `src/components/shell/MainNav.tsx`; `Quiz` and `Settings` are app copy: the catalog carries the progress, plan 1AB,
 /// 1AC). The track is chosen once and changed in Settings (plan 1L).
 ///
-/// The navigation is a low row of icons with no words, on the page's ground under a hairline: the open tab's icon is
-/// filled and dark, the others outlined and muted (the user, 2026-11-10: "like X"). Each icon's name is its tooltip and
-/// what a screen reader says. The Caravan's camel holds the middle, ahead of its page (plan 3.1): it is shown and
-/// named as coming soon, and does nothing yet.
+/// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
+/// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
+/// names kept so each is clear). The Caravan's camel holds the middle, ahead of its page (plan 3.1): it is named,
+/// says it is coming soon, and does nothing yet.
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
@@ -37,8 +37,8 @@ class BazaarShell extends StatefulWidget {
   final String location;
   final Widget child;
 
-  /// The navigation's height: under Material's 80, the icons alone.
-  static const double navHeight = 56;
+  /// The navigation's height: under Material's 80, the icons and their small names.
+  static const double navHeight = 62;
 
   @override
   State<BazaarShell> createState() => _BazaarShellState();
@@ -165,8 +165,8 @@ class _BazaarShellState extends State<BazaarShell> {
     final motion = media.disableAnimations ? Duration.zero : BazaarMotion.fold;
     final pushed = _pushed(GoRouter.of(context).routerDelegate.currentConfiguration.matches);
     final colors = context.bazaarColors;
-    final idle = IconThemeData(size: 26, color: colors.onSurfaceMuted);
-    final open = IconThemeData(size: 26, color: colors.onSurface);
+    final idle = IconThemeData(size: 24, color: colors.onSurfaceMuted);
+    final open = IconThemeData(size: 24, color: colors.onSurface);
     NavigationDestination tab(IconData outlined, IconData filled, String label) => NavigationDestination(
       icon: Icon(outlined, color: idle.color, size: idle.size),
       selectedIcon: Icon(filled, color: open.color, size: open.size),
@@ -231,7 +231,17 @@ class _BazaarShellState extends State<BazaarShell> {
                 surfaceTintColor: Colors.transparent,
                 indicatorColor: Colors.transparent,
                 overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                labelPadding: const EdgeInsets.only(top: 2),
+                labelTextStyle: WidgetStateProperty.resolveWith(
+                  (states) => TextStyle(
+                    fontSize: 10.5,
+                    height: 1.2,
+                    letterSpacing: 0.1,
+                    fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
+                    color: states.contains(WidgetState.selected) ? open.color : idle.color,
+                  ),
+                ),
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: _onDestinationSelected,
                 destinations: [
@@ -239,7 +249,8 @@ class _BazaarShellState extends State<BazaarShell> {
                   tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
                   NavigationDestination(
                     icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
-                    label: l10n.nav_caravan_soon,
+                    label: l10n.nav_caravan,
+                    tooltip: l10n.nav_caravan_soon,
                     enabled: false,
                   ),
                   tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
