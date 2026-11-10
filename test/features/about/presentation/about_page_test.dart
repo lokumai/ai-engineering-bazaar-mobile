@@ -123,7 +123,7 @@ void main() {
     expect(_said('The first section.'), findsOneWidget);
     expect(_said('A first paragraph.'), findsOneWidget);
     expect(_said('A second paragraph.'), findsOneWidget);
-    expect(find.byType(Image), findsOneWidget, reason: 'the section\'s scene');
+    expect(find.byType(RawImage), findsOneWidget, reason: 'the section\'s scene');
 
     // The film stops at the motto, so it settles there.
     await tester.pumpAndSettle();

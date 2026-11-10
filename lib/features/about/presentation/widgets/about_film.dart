@@ -65,10 +65,12 @@ sealed class _Shot {
 }
 
 final class _Opening extends _Shot {
-  const _Opening() : super(3.2, 4.6);
+  const _Opening() : super(2.5, 3.4);
 }
 
 final class _Section extends _Shot {
+  /// A section stays for its words to arrive and be read, about 6 to 8 seconds, and moves on once its scene, too, has
+  /// told its own story (`AboutArt.waits`).
   _Section(this.position, this.stall) : super(_reveal, _reveal + (_words(stall) * 0.07).clamp(3.0, 6.0));
 
   final int position;
@@ -103,6 +105,24 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
   /// The film holds while the app is out of sight.
   late final AppLifecycleListener _lifecycle;
 
+  /// The scenes decoded to their first frame ahead of their section, so each starts the moment its section comes in.
+  final Set<int> _ready = {};
+
+  /// Puts the scene at [position] back to its first frame: the next picture of it decodes it from the start.
+  void _rewind(int position) {
+    if (position < AboutArt.scenes.length) unawaited(AssetImage(AboutArt.scenes[position]).evict());
+  }
+
+  /// Decodes the scene of the screen at [index], if it is a section's, from its start, ahead of it.
+  void _prepare(int index) {
+    if (index >= _shots.length || MediaQuery.disableAnimationsOf(context)) return;
+    if (_shots[index] case _Section(:final position) when position < AboutArt.scenes.length) {
+      _rewind(position);
+      unawaited(precacheImage(AssetImage(AboutArt.scenes[position]), context));
+      _ready.add(position);
+    }
+  }
+
   bool get _last => _index == _shots.length - 1;
 
   AnimationController _start(_Shot shot) {
@@ -113,19 +133,42 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
     return clock..forward();
   }
 
+  /// The sections whose scene has shown its first frame, and its last, since the section came in.
+  final Set<int> _playing = {};
+  final Set<int> _ended = {};
+
+  /// Whether the screen shown waits on its scene before it moves on: the scene has an end it waits for, is playing,
+  /// and has not reached it. A scene that never shows a frame holds nothing up.
+  bool get _waiting => switch (_shots[_index]) {
+    _Section(:final position) => AboutArt.waits(position) && _playing.contains(position) && !_ended.contains(position),
+    _ => false,
+  };
+
   void _onStatus(AnimationStatus status) {
-    if (status != AnimationStatus.completed || _last || !mounted) return;
+    if (status == AnimationStatus.completed) _onward();
+  }
+
+  /// Moves on by itself once the screen's time is up and its scene has told its story; never under a screen reader.
+  void _onward() {
+    if (_last || !mounted || !_clock.isCompleted || _waiting) return;
     if (MediaQuery.accessibleNavigationOf(context)) return;
     _go(_index + 1);
+  }
+
+  void _onSceneEnded(int position) {
+    _ended.add(position);
+    _onward();
   }
 
   void _go(int index) {
     if (index < 0 || index >= _shots.length) return;
     final shot = _shots[index];
-    if (shot is _Section && shot.position < AboutArt.scenes.length) {
-      // A scene starts from its first frame each time its section comes in.
-      unawaited(AssetImage(AboutArt.scenes[shot.position]).evict());
+    if (shot is _Section) {
+      _playing.remove(shot.position);
+      _ended.remove(shot.position);
+      if (!_ready.remove(shot.position)) _rewind(shot.position);
     }
+    _prepare(index + 1);
     for (final clock in _gone) {
       clock.dispose();
     }
@@ -158,6 +201,9 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _prepare(1);
+    });
     _lifecycle = AppLifecycleListener(onHide: () => _clock.stop(), onShow: () => _clock.forward());
   }
 
@@ -237,13 +283,20 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 64),
                       child: AnimatedSwitcher(
-                        duration: still ? Duration.zero : const Duration(milliseconds: 500),
+                        duration: still ? Duration.zero : const Duration(milliseconds: 700),
                         // The screen that goes is gone in the first half, so its words never lie over the next.
-                        switchOutCurve: const Interval(0.5, 1, curve: Curves.easeIn),
-                        switchInCurve: const Interval(0.3, 1, curve: Curves.easeOut),
+                        switchOutCurve: const Interval(0.45, 1, curve: Curves.easeInSine),
+                        switchInCurve: const Interval(0.25, 1, curve: Curves.easeOutSine),
                         child: KeyedSubtree(
                           key: ValueKey(_index),
-                          child: _Screen(shot: shot, clock: _clock, still: still, film: widget),
+                          child: _Screen(
+                            shot: shot,
+                            clock: _clock,
+                            still: still,
+                            film: widget,
+                            onSceneStarted: _playing.add,
+                            onSceneEnded: _onSceneEnded,
+                          ),
                         ),
                       ),
                     ),
@@ -333,12 +386,21 @@ class _Progress extends StatelessWidget {
 
 /// The screen [shot] at its [clock].
 class _Screen extends StatelessWidget {
-  const _Screen({required this.shot, required this.clock, required this.still, required this.film});
+  const _Screen({
+    required this.shot,
+    required this.clock,
+    required this.still,
+    required this.film,
+    required this.onSceneStarted,
+    required this.onSceneEnded,
+  });
 
   final _Shot shot;
   final Animation<double> clock;
   final bool still;
   final AboutFilm film;
+  final ValueChanged<int> onSceneStarted;
+  final ValueChanged<int> onSceneEnded;
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -347,7 +409,13 @@ class _Screen extends StatelessWidget {
       final at = RevealClock(clock.value * shot.length, still: still);
       return switch (shot) {
         _Opening() => _OpeningView(story: film.story, note: film.note, clock: at),
-        _Section(:final position, :final stall) => _SectionView(position: position, stall: stall, clock: at),
+        _Section(:final position, :final stall) => _SectionView(
+          position: position,
+          stall: stall,
+          clock: at,
+          onSceneStarted: () => onSceneStarted(position),
+          onSceneEnded: () => onSceneEnded(position),
+        ),
         _Motto(:final motto) => _MottoView(
           motto: motto,
           clock: at,
@@ -400,9 +468,9 @@ class _OpeningView extends StatelessWidget {
                 width: height * ArchPainter.aspect,
                 child: CustomPaint(
                   painter: ArchPainter(
-                    outer: clock.at(0, 2.4, RevealCurves.draw),
-                    inner: clock.at(0.29, 2.4, RevealCurves.draw),
-                    finial: clock.at(1.92, 0.72, RevealCurves.pop),
+                    outer: clock.at(0, 1.8, RevealCurves.draw),
+                    inner: clock.at(0.22, 1.8, RevealCurves.draw),
+                    finial: clock.at(1.45, 0.55, RevealCurves.pop),
                     color: AboutPalette.gold,
                   ),
                 ),
@@ -418,7 +486,7 @@ class _OpeningView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Rise(
-                        progress: clock.at(0.5, 1.5, RevealCurves.rise),
+                        progress: clock.at(0.35, 1.2, RevealCurves.rise),
                         from: 1.15,
                         child: Text(lead, style: small),
                       ),
@@ -428,9 +496,9 @@ class _OpeningView extends StatelessWidget {
                           text: rest,
                           style: big,
                           clock: clock,
-                          start: 0.6,
+                          start: 0.45,
                           stagger: 0.1,
-                          duration: 1.5,
+                          duration: 1.2,
                           from: 1.15,
                           textAlign: TextAlign.center,
                         ),
@@ -438,7 +506,7 @@ class _OpeningView extends StatelessWidget {
                       if (note case final note?) ...[
                         const SizedBox(height: 20),
                         Opacity(
-                          opacity: clock.at(2.2, 0.8),
+                          opacity: clock.at(1.6, 0.7),
                           child: Text(
                             note,
                             textAlign: TextAlign.center,
@@ -460,11 +528,19 @@ class _OpeningView extends StatelessWidget {
 
 /// A section: its scene comes in, then its number, its heading word by word and its paragraphs line by line.
 class _SectionView extends StatelessWidget {
-  const _SectionView({required this.position, required this.stall, required this.clock});
+  const _SectionView({
+    required this.position,
+    required this.stall,
+    required this.clock,
+    required this.onSceneStarted,
+    required this.onSceneEnded,
+  });
 
   final int position;
   final StoryStall stall;
   final RevealClock clock;
+  final VoidCallback onSceneStarted;
+  final VoidCallback onSceneEnded;
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +558,7 @@ class _SectionView extends StatelessWidget {
     final mark = clock.at(0.35, 0.8, RevealCurves.settle);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final sceneHeight = (constraints.maxHeight * 0.42).clamp(0.0, constraints.maxWidth);
+        final sceneHeight = (constraints.maxHeight * 0.44).clamp(0.0, constraints.maxWidth);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -493,7 +569,7 @@ class _SectionView extends StatelessWidget {
                   opacity: scene,
                   child: Transform.scale(
                     scale: 0.94 + 0.06 * scene,
-                    child: _Scene(position: position),
+                    child: _Scene(position: position, onStarted: onSceneStarted, onEnded: onSceneEnded),
                   ),
                 ),
               ),
@@ -541,34 +617,115 @@ class _SectionView extends StatelessWidget {
 
 /// A scene with no box: its edges melt into the ground, as the web's scenes stand on the page with no frame. It is
 /// decoration; the heading and the paragraphs carry the section. Under reduced motion `Image` holds its first frame.
-class _Scene extends StatelessWidget {
-  const _Scene({required this.position});
+class _Scene extends StatefulWidget {
+  const _Scene({required this.position, required this.onStarted, required this.onEnded});
 
   final int position;
+
+  /// Called at the scene's first frame.
+  final VoidCallback onStarted;
+
+  /// Called once the scene has shown its last frame, at once for a still.
+  final VoidCallback onEnded;
+
+  @override
+  State<_Scene> createState() => _SceneState();
+}
+
+/// The scene plays once from its start, as the web starts it when its section arrives, and stays on its last frame;
+/// under reduced motion it is the web's own still picture. It counts the frames it shows, so the film knows when it
+/// has told its story whatever the device's pace.
+class _SceneState extends State<_Scene> {
+  ImageStream? _stream;
+  ImageInfo? _frame;
+  int _shown = 0;
+  bool _ended = false;
+  late final ImageStreamListener _listener = ImageStreamListener(_onFrame, onError: (error, stack) => _end());
+
+  bool get _still => MediaQuery.disableAnimationsOf(context);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final path = _still ? AboutArt.stills[widget.position] : AboutArt.scenes[widget.position];
+    final stream = AssetImage(path).resolve(createLocalImageConfiguration(context));
+    if (stream.key == _stream?.key) return;
+    _stream?.removeListener(_listener);
+    _stream = stream..addListener(_listener);
+  }
+
+  void _onFrame(ImageInfo frame, bool synchronous) {
+    // Past its last frame the scene stays where it is, whatever the codec does next.
+    if (_ended && !_still) {
+      frame.dispose();
+      return;
+    }
+    if (_shown++ == 0) widget.onStarted();
+    if (_still || _shown >= AboutArt.frames[widget.position]) _end();
+    if (!mounted) {
+      frame.dispose();
+      return;
+    }
+    setState(() {
+      _frame?.dispose();
+      _frame = frame;
+    });
+  }
+
+  void _end() {
+    if (_ended) return;
+    _ended = true;
+    // Told after the frame, since the film moves on from its own state.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onEnded();
+    });
+  }
+
+  @override
+  void dispose() {
+    _stream?.removeListener(_listener);
+    _frame?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: Center(
       child: AspectRatio(
-        aspectRatio: AboutArt.aspects[position],
-        child: ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (rect) => ellipseGradient(
-            rect.center,
-            rect.width / 2,
-            rect.height / 2,
-            const [Color(0xffffffff), Color(0xffffffff), Color(0x00ffffff)],
-            const [0, 0.62, 1],
-          ),
-          child: Image.asset(
-            AboutArt.scenes[position],
-            fit: BoxFit.fill,
-            gaplessPlayback: true,
-            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+        aspectRatio: AboutArt.aspects[widget.position],
+        // Each picture is drawn on its section's ground, so only a thin band at each edge melts into the screen's,
+        // where the grain and the vignette are.
+        child: _Edge(
+          axis: Axis.horizontal,
+          child: _Edge(
+            axis: Axis.vertical,
+            child: RawImage(image: _frame?.image, fit: BoxFit.fill),
           ),
         ),
       ),
     ),
+  );
+}
+
+/// [child] fading to clear over the outer [band] of its length along [axis] at each end.
+class _Edge extends StatelessWidget {
+  const _Edge({required this.axis, required this.child});
+
+  final Axis axis;
+  final Widget child;
+
+  static const band = 0.07;
+
+  @override
+  Widget build(BuildContext context) => ShaderMask(
+    blendMode: BlendMode.dstIn,
+    shaderCallback: (rect) => LinearGradient(
+      begin: axis == Axis.horizontal ? Alignment.centerLeft : Alignment.topCenter,
+      end: axis == Axis.horizontal ? Alignment.centerRight : Alignment.bottomCenter,
+      colors: const [Color(0x00ffffff), Color(0xffffffff), Color(0xffffffff), Color(0x00ffffff)],
+      stops: const [0, band, 1 - band, 1],
+    ).createShader(rect),
+    child: child,
   );
 }
 
