@@ -143,7 +143,7 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
 - [x] **1AF Settings says less.** The notes under Language and under the track are gone; each heading says enough. The track's heading is Audience (Turkish Anlatım, Persian مخاطب).
 - [x] **1AG Diagrams stay light.** In dark mode the diagrams turned dark while the photos did not. Diagrams are now drawn in their light version in both modes, as photos are (R41).
 - [x] **1AH A quieter top.** The navy bar, its logo and the app's name are gone.
-  - The strip behind the status bar and the bar are on the page's ground, with status icons that read on it, over a thinner lattice band (8).
+  - The strip behind the status bar and the bar are on the page's ground, with status icons that read on it, over a thinner lattice band (10; first 8, made 10 on the owner's look).
   - The four tabs, Home, Catalog, Quiz and Settings, show nothing in the bar.
   - A level's page and a module's page show the back button, a rounded square in the level's hue and the page's name at the bar's end.
   - The bar is 40 high with or without the back button. A version with no bar row, only the band and a floating back button, was built for comparison and dropped on the owner's look.

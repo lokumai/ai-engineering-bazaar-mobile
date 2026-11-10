@@ -14,7 +14,7 @@ class LatticeBand extends StatelessWidget {
 
   /// The height of the thin band under the page's top: the mark of the bazaar without a bar (owner's review,
   /// 2026-11-10).
-  static const double thinHeight = 8;
+  static const double thinHeight = 10;
 
   /// Whether this is the thin band, [thinHeight] high instead of [height].
   final bool thin;
