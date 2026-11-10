@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -72,7 +73,7 @@ void main() {
   testWidgets('the Quiz tab lists every quiz by level, under the Quiz destination', (tester) async {
     await _pump(tester);
 
-    expect(find.text('Quizzes'), findsOneWidget);
+    expect(find.text('Quizzes'), findsNothing, reason: 'no heading, the tab names the page');
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
@@ -108,7 +109,7 @@ void main() {
   });
 
   testWidgets(
-    'a quiz finished on this device shows its last score in a dial, and its level how many in the catalog dial',
+    'a quiz finished on this device shows its last score as segments, and its level how many in the catalog dial',
     (tester) async {
       final scores = QuizScoresBloc(
         store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 2, total: 2, previous: 2)}),
@@ -116,13 +117,16 @@ void main() {
       addTearDown(scores.close);
       await _pump(tester, scores: scores);
 
-      expect(find.text('Last 1 of 2 · best 2 of 2'), findsNothing, reason: 'the dial says it, as in the catalog');
-      expect(
-        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.text('1/2')),
-        findsOneWidget,
-        reason: 'the last score in the row dial',
+      expect(find.text('Last 1 of 2 · best 2 of 2'), findsNothing, reason: 'no words');
+      final meter = tester.widget<SegmentMeter>(
+        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.byType(SegmentMeter)),
       );
-      expect(find.text('1/2'), findsNWidgets(2), reason: 'and the level dial: 1 of 2 taken');
+      expect((meter.done, meter.total), (1, 2), reason: 'the last score, one segment per question');
+      expect(
+        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/second')), matching: find.byType(SegmentMeter)),
+        findsNothing,
+      );
+      expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
       expect(find.bySemanticsLabel('01 First Module, Last 1 of 2 · best 2 of 2'), findsOneWidget);
       expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
       expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);

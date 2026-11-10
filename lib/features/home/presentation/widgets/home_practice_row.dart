@@ -3,11 +3,13 @@ import 'package:ai_engineering_bazaar/features/home/presentation/home_labels.dar
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:flutter/material.dart';
 
 /// One completed module whose quiz the reader can take again (plan 1AD): the question disc, the number and title, the
-/// level with the last and best score once taken (plan 1W), and an arrow; a tap opens the quiz full screen.
+/// level, the last score as one segment per question once taken (plan 1W, as on the Quiz tab), and an arrow; a tap opens the quiz full screen.
 class HomePracticeRow extends StatelessWidget {
   const HomePracticeRow({super.key, required this.entry, required this.onTap});
 
@@ -47,10 +49,19 @@ class HomePracticeRow extends StatelessWidget {
                   '$number ${entry.title}',
                   style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
                 ),
-                Text(
-                  [entry.level.title, ?line].join(' · '),
-                  style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                ),
+                Text(entry.level.title, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                if (score != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  SizedBox(
+                    width: MediaQuery.textScalerOf(context).scale(14.0 * score.total + 4 * (score.total - 1)),
+                    child: SegmentMeter(
+                      done: score.last,
+                      total: score.total,
+                      color: BazaarFixedColors.success,
+                      semanticLabel: line!,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

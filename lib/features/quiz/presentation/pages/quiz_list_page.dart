@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -61,14 +62,12 @@ class QuizListPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        Semantics(header: true, child: Text(s.quiz_list_title, style: theme.textTheme.headlineSmall)),
-        const SizedBox(height: AppSpacing.sm),
-        Text(s.quiz_list_lede, style: muted),
+        // No heading: the tab names the page (owner, 2026-11-10). A For Everyone reader still learns why the quizzes
+        // are For Engineers ones.
         if (track != Track.engineers) ...[
-          const SizedBox(height: AppSpacing.sm),
           Text(s.quiz_list_engineers_only(trackName(s, Track.engineers)), style: muted),
+          const SizedBox(height: AppSpacing.lg),
         ],
-        const SizedBox(height: AppSpacing.lg),
         for (final level in quizLevels(index)) ...[
           _LevelCard(
             key: QuizListPage.levelKey(level.level.slug),
@@ -186,8 +185,9 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc, or the dial of the last score once taken, the number and
-/// title, and an arrow; one button as a whole. The best score is spoken with the row and shown on the results.
+/// One module's quiz in an open level: the question disc, the number and title with the last score as one segment
+/// per question once taken, and an arrow; one button as a whole. The best score is spoken with the row and shown on
+/// the results.
 class _QuizRow extends StatelessWidget {
   const _QuizRow({super.key, required this.module, required this.score});
 
@@ -217,34 +217,26 @@ class _QuizRow extends StatelessWidget {
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                SizedBox.square(
-                  dimension: MediaQuery.textScalerOf(context).scale(_dial),
-                  child: Center(
-                    child: score == null
-                        ? Container(
-                            width: 28,
-                            height: 28,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-                            child: Text(
-                              '?',
-                              style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
-                            ),
-                          )
-                        : CompletionDial(
-                            done: score.last,
-                            total: score.total,
-                            color: BazaarFixedColors.success,
-                            center: '${score.last}/${score.total}',
-                            semanticLabel: line!,
-                            size: _dial,
-                            ring: 4,
-                          ),
+                Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+                  child: Text(
+                    '?',
+                    style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
                   ),
                 ),
                 Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
-                  child: Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: AppSpacing.xs,
+                    children: [
+                      Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+                      if (score != null) _ScoreMeter(score: score, label: line!),
+                    ],
+                  ),
                 ),
                 Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
               ],
@@ -256,8 +248,26 @@ class _QuizRow extends StatelessWidget {
   }
 }
 
-/// The diameter of a quiz row's dial, and of the space its question disc takes, at text scale 1.
-const double _dial = 38;
+/// The last score of a quiz as one segment per question, the right ones filled: a meter, not the level's dial, and
+/// no words (owner, 2026-11-10).
+class _ScoreMeter extends StatelessWidget {
+  const _ScoreMeter({required this.score, required this.label});
+
+  final QuizScore score;
+  final String label;
+
+  /// The width of one segment at text scale 1.
+  static const double _segment = 14;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context);
+    return SizedBox(
+      width: scale.scale(_segment * score.total + 4 * (score.total - 1)),
+      child: SegmentMeter(done: score.last, total: score.total, color: BazaarFixedColors.success, semanticLabel: label),
+    );
+  }
+}
 
 /// A level's or a module's number in two digits, as the catalog prints it.
 String _number(int number) => number.toString().padLeft(2, '0');
