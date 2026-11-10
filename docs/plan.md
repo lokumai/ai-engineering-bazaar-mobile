@@ -171,7 +171,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
   - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
-- [ ] **3.2 Refresh the bundled snapshot.** The bundled snapshot is contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes.
+- [x] **3.2 Refresh the bundled snapshot.** The bundled snapshot was contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes. Done: contentVersion `cac0bf8e...` (published 2026-11-10 12:43 UTC), with Key Terms (D118), A2A and six new images. The snapshot went from 38 MB to 17 MB and the arm64 release APK from 52 MB to 32 MB; the tokens did not change.
 - [ ] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan.
 
 ## Phase 4: owner follow-ups from PR #1
