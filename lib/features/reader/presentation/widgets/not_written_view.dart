@@ -56,11 +56,12 @@ class NotWrittenView extends StatelessWidget {
   }
 }
 
-/// The module title: the display step at weight 600 with its tracking, in the title ink.
-TextStyle readerTitleStyle(BuildContext context) => TextStyle(
-  fontSize: BazaarType.display.size,
-  height: BazaarType.display.height,
-  fontWeight: FontWeight.w600,
-  letterSpacing: BazaarType.trackingDisplay * BazaarType.display.size,
-  color: context.bazaarColors.onSurfaceTitle,
-);
+/// The module title: the display step at weight 600 in the display face, in the title ink.
+TextStyle readerTitleStyle(BuildContext context) => displayFace(
+  TextStyle(
+    fontSize: BazaarType.display.size,
+    height: BazaarType.display.height,
+    fontWeight: FontWeight.w600,
+    color: context.bazaarColors.onSurfaceTitle,
+  ),
+)!;

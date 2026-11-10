@@ -193,6 +193,11 @@ class S {
     );
   }
 
+  /// `Your path`
+  String get home_path {
+    return Intl.message('Your path', name: 'home_path', desc: '', args: []);
+  }
+
   /// `The course is on this device`
   String get home_offline_title {
     return Intl.message('The course is on this device', name: 'home_offline_title', desc: '', args: []);

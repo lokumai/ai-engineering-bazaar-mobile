@@ -129,6 +129,7 @@ class _LevelCard extends StatelessWidget {
     return BazaarCard(
       shape: BazaarCardShape.arch,
       accent: hue,
+      tint: hue,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

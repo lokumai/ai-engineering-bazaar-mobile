@@ -11,7 +11,7 @@ import 'package:equatable/equatable.dart';
 ///
 /// Home has no bloc of its own: this is a pure mapping of the two kernels' ready states, as the catalog's rows are.
 final class HomeOverview extends Equatable {
-  const HomeOverview({required this.next, required this.after, this.practice = const []});
+  const HomeOverview({required this.next, required this.after, this.practice = const [], this.levels = const []});
 
   /// The first module by number that is written in the track and not completed (the web's `nextUnsigned`); null when
   /// every written module of the track is completed.
@@ -32,8 +32,27 @@ final class HomeOverview extends Equatable {
   /// How many modules [practice] holds at most.
   static const practiceCount = 3;
 
+  /// Each level that holds a module written in the track, in the index's order, with how many of those are completed:
+  /// the reader's path at a glance (the user, 2026-11-10). The catalog keeps the modules themselves.
+  final List<HomeLevel> levels;
+
   @override
-  List<Object?> get props => [next, after, practice];
+  List<Object?> get props => [next, after, practice, levels];
+}
+
+/// One level on the reader's path: its written modules in the track and how many of them are completed.
+final class HomeLevel extends Equatable {
+  const HomeLevel({required this.level, required this.position, required this.done, required this.total});
+
+  final LevelEntry level;
+
+  /// The level's 0-based place in the index, which picks its hue.
+  final int position;
+  final int done;
+  final int total;
+
+  @override
+  List<Object?> get props => [level, position, done, total];
 }
 
 /// The module the continue card opens.
@@ -92,8 +111,24 @@ HomeOverview homeOverview(
       for (final key in _toPractise(_recentlyCompletedWithQuiz(index, curriculum, view), scores))
         entryOf(key, Track.engineers, scores[key]),
     ],
+    levels: [
+      for (final (position, level) in index.levels.indexed)
+        if (_written(curriculum, level.slug) case final written when written.isNotEmpty)
+          HomeLevel(
+            level: level,
+            position: position,
+            done: written.where((fact) => isSigned(fact, view)).length,
+            total: written.length,
+          ),
+    ],
   );
 }
+
+/// The modules of [curriculum] in the level [slug] that are written in its track.
+List<CurriculumFact> _written(Curriculum curriculum, String slug) => [
+  for (final fact in curriculum.modules)
+    if (fact.level == slug && fact.drawn) fact,
+];
 
 /// The first [HomeOverview.practiceCount] of [recent], the most recently completed first, leaving out a quiz once
 /// answered all right: a quiz never finished comes first, then the lowest share of the last attempt; the order of

@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -106,6 +107,7 @@ class _LevelCard extends StatelessWidget {
     return BazaarCard(
       shape: BazaarCardShape.arch,
       accent: hue,
+      tint: hue,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,7 +175,12 @@ class _LevelCard extends StatelessWidget {
                       Divider(height: 1, color: colors.line),
                       const SizedBox(height: AppSpacing.xs),
                       for (final module in level.modules)
-                        _QuizRow(key: QuizListPage.rowKey(module.key), module: module, score: scores.of(module.key)),
+                        _QuizRow(
+                          key: QuizListPage.rowKey(module.key),
+                          module: module,
+                          hue: hue,
+                          score: scores.of(module.key),
+                        ),
                       const SizedBox(height: AppSpacing.xs),
                     ],
                   )
@@ -185,13 +192,16 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc, or the catalog's check once every answer was right, the number and title with the last score as one segment
+/// One module's quiz in an open level: the question disc in the level's hue, or the catalog's check once every answer was right, the number and title with the last score as one segment
 /// per question once taken, and an arrow; one button as a whole. The best score is spoken with the row and shown on
 /// the results.
 class _QuizRow extends StatelessWidget {
-  const _QuizRow({super.key, required this.module, required this.score});
+  const _QuizRow({super.key, required this.module, required this.hue, required this.score});
 
   final ModuleEntry module;
+
+  /// The level's hue, which rings the question disc.
+  final Color hue;
 
   /// The score kept on this device; null for a quiz never finished.
   final QuizScore? score;
@@ -226,16 +236,7 @@ class _QuizRow extends StatelessWidget {
                     child: const Icon(Icons.check, size: 18, color: Colors.white),
                   )
                 else
-                  Container(
-                    width: 28,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-                    child: Text(
-                      '?',
-                      style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
-                    ),
-                  ),
+                  QuizDisc(hue: hue),
                 Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
                   child: Column(

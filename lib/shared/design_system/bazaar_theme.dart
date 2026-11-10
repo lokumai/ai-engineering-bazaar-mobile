@@ -130,13 +130,13 @@ TextTheme _textTheme(TextTheme base) {
   const w600 = FontWeight.w600;
   const w400 = FontWeight.w400;
   return base.copyWith(
-    displayLarge: step(base.displayLarge, BazaarType.display, w600, BazaarType.trackingDisplay),
-    displayMedium: step(base.displayMedium, BazaarType.display, w600, BazaarType.trackingDisplay),
-    displaySmall: step(base.displaySmall, BazaarType.display, w600, BazaarType.trackingDisplay),
-    headlineLarge: step(base.headlineLarge, BazaarType.section, w600, BazaarType.trackingSection),
-    headlineMedium: step(base.headlineMedium, BazaarType.section, w600, BazaarType.trackingSection),
-    headlineSmall: step(base.headlineSmall, BazaarType.section, w600, BazaarType.trackingSection),
-    titleLarge: step(base.titleLarge, BazaarType.subsection, w600),
+    displayLarge: displayFace(step(base.displayLarge, BazaarType.display, w600, BazaarType.trackingDisplay)),
+    displayMedium: displayFace(step(base.displayMedium, BazaarType.display, w600, BazaarType.trackingDisplay)),
+    displaySmall: displayFace(step(base.displaySmall, BazaarType.display, w600, BazaarType.trackingDisplay)),
+    headlineLarge: displayFace(step(base.headlineLarge, BazaarType.section, w600, BazaarType.trackingSection)),
+    headlineMedium: displayFace(step(base.headlineMedium, BazaarType.section, w600, BazaarType.trackingSection)),
+    headlineSmall: displayFace(step(base.headlineSmall, BazaarType.section, w600, BazaarType.trackingSection)),
+    titleLarge: displayFace(step(base.titleLarge, BazaarType.subsection, w600)),
     titleMedium: step(base.titleMedium, BazaarType.item, w600),
     titleSmall: step(base.titleSmall, BazaarType.control, w600),
     bodyLarge: step(base.bodyLarge, BazaarType.body, w400),
@@ -145,6 +145,22 @@ TextTheme _textTheme(TextTheme base) {
     labelLarge: step(base.labelLarge, BazaarType.control, w600),
     labelMedium: step(base.labelMedium, BazaarType.mark, w600),
     labelSmall: step(base.labelSmall, BazaarType.label, w600, BazaarType.trackingLabel),
+  );
+}
+
+/// [style] in the display face, Fraunces, as the web sets the headings of its front door and its story (web
+/// `src/app/page.tsx`, `HomeStreet.tsx`): its weight and optical size set on the face's axes, which the weight alone
+/// does not move. Persian, which Fraunces does not carry, falls back to Vazirmatn, as the web gives it.
+TextStyle? displayFace(TextStyle? style) {
+  if (style == null) return null;
+  final size = style.fontSize ?? 20;
+  final weight = style.fontWeight?.value ?? 600;
+  return style.copyWith(
+    fontFamily: displayFamily,
+    fontFamilyFallback: const [diagramFontFamily],
+    // The face's own spacing reads well; the sans tracking would pinch it.
+    letterSpacing: 0,
+    fontVariations: [FontVariation('wght', weight.toDouble()), FontVariation('opsz', size.clamp(9, 144).toDouble())],
   );
 }
 

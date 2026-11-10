@@ -195,6 +195,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_offline_title": MessageLookupByLibrary.simpleMessage("Kurs bu cihazda"),
     "home_open_module": MessageLookupByLibrary.simpleMessage("Modülü aç"),
+    "home_path": MessageLookupByLibrary.simpleMessage("Yolun"),
     "home_practice": MessageLookupByLibrary.simpleMessage("Tekrar et"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın modüllerin quizleri: önce henüz çözülmemiş olanlar, sonra skoru en düşük olanlar.",

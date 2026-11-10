@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 /// set in the face the web measured them with (spec 1.4 decision 8).
 const String diagramFontFamily = 'Vazirmatn';
 
+/// The display family of the app's headings, bundled from `assets/fonts/` (plan 3.5): Fraunces, the web's display face.
+const String displayFamily = 'Fraunces';
+
 /// The sans family for [platform] (spec 1.4 decision 5): Avenir Next on iOS; null on Android and elsewhere, which
 /// leaves the platform default face.
 String? sansFamily(TargetPlatform platform) => platform == TargetPlatform.iOS ? 'Avenir Next' : null;

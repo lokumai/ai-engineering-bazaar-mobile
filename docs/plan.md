@@ -154,6 +154,16 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
 - [x] **1AM Less text on the tabs.** Catalog, Quiz and Settings lose their heading, which repeated the tab's name, and the Quiz tab its description; a For Everyone reader still sees why the quizzes are For Engineers ones. The catalog loses its stats (modules completed, active days): the level dials say it.
 - [x] **1AN The quiz full screen loses the navy bar too.** It had kept Material's navy app bar and the full band; it now has the app's bar on the page ground, with a close button and the module's title, and the thin band, as every other page (`QuizFrame`, `BazaarBar.close`). Done on `feature/phase-3`.
 
+### Review round 5: the look of the tabs (2026-11-10)
+
+The user asked for a look as finished as the story's across the tabs. They land with Phase 3 in one pull request.
+
+- [x] **1AO Headings in the display face.** Every heading is set in Fraunces, the web's display face (its front door and its story): the page and section headings, the continue card's title, a level's title, and in the reader the module title and its section headings. Text, lists, buttons and the bars stay in the sans. Persian falls back to Vazirmatn, as on the web.
+- [x] **1AP Fewer boxes.** Lists stand straight on the page with a hairline between rows: Home's After that and Practise again, Settings' sections and About's pages, the privacy notes. The offline note is a quiet line at the foot of Home. Cards stay for the continue card and the level folds.
+- [x] **1AQ The levels in their hues.** A level's fold on the catalog and the Quiz tab is washed faintly in its hue, and each quiz's question mark sits in a ring of its level's hue, on Home too.
+- [x] **1AR Your path on Home.** Under Practise again, one line per level: its title, a bar in its hue filled by the share of its written modules completed, and the count.
+- [x] **1AS Lighter choices.** The chosen segment of a choice (track, language) is a light wash of the primary under the title ink, not a solid block.
+
 ## Phase 2: small fixes in the reader
 
 The fixes land together in one pull request; each fix is its own commit, test first, through the gate.

@@ -47,6 +47,16 @@ void main() {
     expect(homeOverview(index, Track.everyone, record).next, isNotNull, reason: 'the other track is not completed');
   });
 
+  test('the path counts each level\'s written modules in the track and how many are completed', () {
+    final levels = homeOverview(index, Track.engineers, completed(['alpha/first', 'beta/fourth'])).levels;
+
+    expect(
+      [for (final level in levels) (level.level.slug, level.position, level.done, level.total)],
+      [('alpha', 0, 1, 2), ('beta', 1, 1, 1), ('gamma', 2, 0, 1)],
+      reason: 'alpha/third is not written For Engineers, so it is not on the path',
+    );
+  });
+
   test('after the next module come up to two more, written and not completed, in number order (plan 1P)', () {
     expect(
       [for (final entry in homeOverview(index, Track.engineers, RecordData.empty).after) entry.module.key],

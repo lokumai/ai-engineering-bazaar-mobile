@@ -16,6 +16,7 @@ class BazaarCard extends StatelessWidget {
     required this.child,
     this.shape = BazaarCardShape.plain,
     this.accent,
+    this.tint,
     this.onTap,
     this.padding = const EdgeInsets.all(16),
     this.semanticLabel,
@@ -26,6 +27,10 @@ class BazaarCard extends StatelessWidget {
 
   /// A 3 px edge along the top, such as the level hue; none when null.
   final Color? accent;
+
+  /// A hue washed faintly over the card's surface, so a level's card reads as its own (the user, 2026-11-10); none
+  /// when null.
+  final Color? tint;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
   final String? semanticLabel;
@@ -51,7 +56,9 @@ class BazaarCard extends StatelessWidget {
       );
     }
     final card = Material(
-      color: colors.surfaceRaised,
+      color: tint == null
+          ? colors.surfaceRaised
+          : Color.alphaBlend(tint!.withValues(alpha: 0.07), colors.surfaceRaised),
       shape: RoundedRectangleBorder(
         borderRadius: radius,
         side: BorderSide(color: colors.line),

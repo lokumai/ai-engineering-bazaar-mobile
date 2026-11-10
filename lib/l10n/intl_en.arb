@@ -55,6 +55,8 @@
   "@home_practice": {},
   "home_practice_lede": "The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.",
   "@home_practice_lede": {},
+  "home_path": "Your path",
+  "@home_path": {},
   "home_offline_title": "The course is on this device",
   "@home_offline_title": {},
   "home_offline_body": "It reads without a connection. At every start the app asks the site for a newer version.",

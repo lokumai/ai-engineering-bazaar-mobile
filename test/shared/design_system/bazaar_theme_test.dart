@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,14 +54,21 @@ void main() {
 
   test('the text theme takes the Bazaar steps, tracking as a factor of the style size (A27)', () {
     final t = bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android).textTheme;
+    // The headings in the display face, at its own spacing, its weight and optical size on its axes.
     expect(
-      (t.displaySmall!.fontSize, t.displaySmall!.height, t.displaySmall!.letterSpacing),
-      (BazaarType.display.size, BazaarType.display.height, BazaarType.trackingDisplay * BazaarType.display.size),
+      (t.displaySmall!.fontSize, t.displaySmall!.height, t.displaySmall!.letterSpacing, t.displaySmall!.fontFamily),
+      (BazaarType.display.size, BazaarType.display.height, 0.0, displayFamily),
     );
     expect(
-      (t.headlineSmall!.fontSize, t.headlineSmall!.letterSpacing),
-      (BazaarType.section.size, BazaarType.trackingSection * BazaarType.section.size),
+      (t.headlineSmall!.fontSize, t.headlineSmall!.letterSpacing, t.headlineSmall!.fontFamily),
+      (BazaarType.section.size, 0.0, displayFamily),
     );
+    expect(t.titleLarge!.fontVariations, [
+      const FontVariation('wght', 600),
+      FontVariation('opsz', BazaarType.subsection.size),
+    ]);
+    expect(t.titleLarge!.fontFamilyFallback, [diagramFontFamily], reason: 'Persian falls back to Vazirmatn');
+    expect(t.titleMedium!.fontFamily, isNot(displayFamily), reason: 'the text below the headings stays in the sans');
     expect(
       (t.bodyLarge!.fontSize, t.bodyLarge!.height, t.bodyLarge!.color),
       (BazaarType.body.size, BazaarType.body.height, BazaarColors.light.onSurface),

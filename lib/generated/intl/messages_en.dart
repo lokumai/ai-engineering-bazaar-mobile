@@ -197,6 +197,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_offline_title": MessageLookupByLibrary.simpleMessage("The course is on this device"),
     "home_open_module": MessageLookupByLibrary.simpleMessage("Open the module"),
+    "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_practice": MessageLookupByLibrary.simpleMessage("Practise again"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage(
       "The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.",

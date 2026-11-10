@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- Your path on Home: each level with a bar of its modules completed, in its hue.
 - The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle holds the Caravan's place, said to be coming soon until its page arrives.
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told first on the first launch, before the language and the track, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
@@ -33,6 +34,8 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- Headings are set in Fraunces, the web's display face; the text stays in the sans.
+- Lists stand on the page with a hairline between rows instead of a card each; the levels are washed in their hues, and the chosen track and language are a light wash instead of a solid block.
 - The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
 - The Dart package name is `ai_engineering_bazaar`.
 - The template palettes are replaced by the Bazaar theme, built from design tokens generated from the snapshot.

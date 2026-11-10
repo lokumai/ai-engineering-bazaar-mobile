@@ -7,7 +7,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -76,42 +76,40 @@ class _SettingsView extends StatelessWidget {
           ],
           SectionRule(title: s.settings_reading),
           const SizedBox(height: AppSpacing.md),
-          BazaarCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.sm,
-              children: [
-                Text(s.settings_track, style: theme.textTheme.titleSmall),
-                BazaarSegmentedControl<Track>(
-                  semanticLabel: s.settings_track,
-                  selected: context.watch<TrackCubit>().state,
-                  onSelected: (track) => context.read<TrackCubit>().choose(track),
-                  segments: [
-                    for (final info in index.tracks)
-                      BazaarSegment(
-                        value: info.track,
-                        label: trackName(s, info.track),
-                        key: settingsTrackKey(info.track),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(s.settings_language, style: theme.textTheme.titleSmall),
-                BazaarSegmentedControl<String>(
-                  semanticLabel: s.settings_language,
-                  selected: context.watch<LanguageCubit>().state,
-                  onSelected: (language) => context.read<LanguageCubit>().choose(language),
-                  segments: [
-                    for (final language in LanguageCubit.supported)
-                      BazaarSegment(
-                        value: language,
-                        label: LanguageCubit.names[language]!,
-                        key: settingsLanguageKey(language),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.sm,
+            children: [
+              Text(s.settings_track, style: theme.textTheme.titleSmall),
+              BazaarSegmentedControl<Track>(
+                semanticLabel: s.settings_track,
+                selected: context.watch<TrackCubit>().state,
+                onSelected: (track) => context.read<TrackCubit>().choose(track),
+                segments: [
+                  for (final info in index.tracks)
+                    BazaarSegment(
+                      value: info.track,
+                      label: trackName(s, info.track),
+                      key: settingsTrackKey(info.track),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(s.settings_language, style: theme.textTheme.titleSmall),
+              BazaarSegmentedControl<String>(
+                semanticLabel: s.settings_language,
+                selected: context.watch<LanguageCubit>().state,
+                onSelected: (language) => context.read<LanguageCubit>().choose(language),
+                segments: [
+                  for (final language in LanguageCubit.supported)
+                    BazaarSegment(
+                      value: language,
+                      label: LanguageCubit.names[language]!,
+                      key: settingsLanguageKey(language),
+                    ),
+                ],
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_data),
@@ -120,60 +118,51 @@ class _SettingsView extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_content),
           const SizedBox(height: AppSpacing.md),
-          BazaarCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _Fact(label: s.settings_content_version, value: index.contentVersion.substring(0, 12)),
-                _Fact(label: s.settings_published, value: _utcDay(index.publishedAtInstant)),
-                _Fact(
-                  label: s.settings_source,
-                  value: switch (ready.origin) {
-                    ContentOrigin.bundled => s.settings_source_bundled,
-                    ContentOrigin.downloaded => s.settings_source_downloaded,
-                  },
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
-                _Action(
-                  label: s.settings_check_for_updates,
-                  onPressed: switch (ready.refresh) {
-                    RefreshChecking() => null,
-                    RefreshIdle() ||
-                    RefreshUpToDate() ||
-                    RefreshUpdated() ||
-                    RefreshFailed() ||
-                    RefreshNeedsAppUpdate() => () => context.read<ContentBloc>().add(const ContentRefreshRequested()),
-                  },
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _Fact(label: s.settings_content_version, value: index.contentVersion.substring(0, 12)),
+              _Fact(label: s.settings_published, value: _utcDay(index.publishedAtInstant)),
+              _Fact(
+                label: s.settings_source,
+                value: switch (ready.origin) {
+                  ContentOrigin.bundled => s.settings_source_bundled,
+                  ContentOrigin.downloaded => s.settings_source_downloaded,
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
+              _Action(
+                label: s.settings_check_for_updates,
+                onPressed: switch (ready.refresh) {
+                  RefreshChecking() => null,
+                  RefreshIdle() ||
+                  RefreshUpToDate() ||
+                  RefreshUpdated() ||
+                  RefreshFailed() ||
+                  RefreshNeedsAppUpdate() => () => context.read<ContentBloc>().add(const ContentRefreshRequested()),
+                },
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_about),
           const SizedBox(height: AppSpacing.md),
-          BazaarCard(
-            shape: BazaarCardShape.leaf,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // The story only where the content names one (web D125).
-                if (hasStory)
-                  _Action(label: s.settings_story, onPressed: () => context.push(ApplicationRoutesConstants.about)),
-                _Action(label: s.guide_title, onPressed: () => context.push(ApplicationRoutesConstants.guide)),
-                _Action(
-                  label: s.settings_privacy_legal,
-                  onPressed: () => context.push(ApplicationRoutesConstants.privacyLegal),
-                ),
-                _Action(
-                  label: s.settings_licences,
-                  onPressed: () => showLicensePage(context: context, applicationName: s.app_title),
-                ),
-                if (openDevConsole != null)
-                  _Action(label: s.settings_dev_console, onPressed: () => openDevConsole(context)),
-              ],
-            ),
+          BazaarRows(
+            children: [
+              // The story only where the content names one (web D125).
+              if (hasStory) _Page(label: s.settings_story, onTap: () => context.push(ApplicationRoutesConstants.about)),
+              _Page(label: s.guide_title, onTap: () => context.push(ApplicationRoutesConstants.guide)),
+              _Page(
+                label: s.settings_privacy_legal,
+                onTap: () => context.push(ApplicationRoutesConstants.privacyLegal),
+              ),
+              _Page(
+                label: s.settings_licences,
+                onTap: () => showLicensePage(context: context, applicationName: s.app_title),
+              ),
+              if (openDevConsole != null) _Page(label: s.settings_dev_console, onTap: () => openDevConsole(context)),
+            ],
           ),
         ],
       ),
@@ -241,6 +230,31 @@ class _Action extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: TextButton(onPressed: onPressed, child: Text(label)),
+    );
+  }
+}
+
+/// A page that About opens: its name and an arrow, one row straight on the page, the whole row the button.
+class _Page extends StatelessWidget {
+  const _Page({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    return BazaarRow(
+      onTap: onTap,
+      child: Row(
+        spacing: AppSpacing.md,
+        children: [
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+          ),
+          ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
+        ],
+      ),
     );
   }
 }

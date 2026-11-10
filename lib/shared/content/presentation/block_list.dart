@@ -173,19 +173,23 @@ class _Heading extends StatelessWidget {
     final scope = ProseScope.maybeOf(context);
     final ink = scope?.ink ?? colors.onSurfaceTitle;
     final style = switch (block.depth) {
-      2 => TextStyle(
-        fontSize: BazaarType.section.size,
-        height: BazaarType.section.height,
-        fontWeight: FontWeight.w600,
-        letterSpacing: BazaarType.trackingSection * BazaarType.section.size,
-        color: ink,
-      ),
-      3 => TextStyle(
-        fontSize: BazaarType.subsection.size,
-        height: BazaarType.subsection.height,
-        fontWeight: FontWeight.w600,
-        color: ink,
-      ),
+      // The section headings in the display face, as every heading of the app; the text stays in the sans.
+      2 => displayFace(
+        TextStyle(
+          fontSize: BazaarType.section.size,
+          height: BazaarType.section.height,
+          fontWeight: FontWeight.w600,
+          color: ink,
+        ),
+      )!,
+      3 => displayFace(
+        TextStyle(
+          fontSize: BazaarType.subsection.size,
+          height: BazaarType.subsection.height,
+          fontWeight: FontWeight.w600,
+          color: ink,
+        ),
+      )!,
       _ => _bodyStyle(ink).copyWith(fontWeight: FontWeight.w600),
     };
     // The mark is never drawn: the web keeps it only for its table of contents (corrections, row 3.6.3).

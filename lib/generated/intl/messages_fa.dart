@@ -197,6 +197,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "home_offline_title": MessageLookupByLibrary.simpleMessage("دوره روی این دستگاه است"),
     "home_open_module": MessageLookupByLibrary.simpleMessage("باز کردن درس"),
+    "home_path": MessageLookupByLibrary.simpleMessage("مسیر شما"),
     "home_practice": MessageLookupByLibrary.simpleMessage("دوباره تمرین کنید"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage(
       "آزمون‌های درس‌هایی که تکمیل کرده‌اید: اول آن‌هایی که هنوز حل نشده‌اند یا کمترین امتیاز را دارند.",

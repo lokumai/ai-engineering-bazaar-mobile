@@ -2,7 +2,6 @@ import 'package:ai_engineering_bazaar/features/settings/domain/site_owner.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:flutter/material.dart';
@@ -27,54 +26,48 @@ class PrivacyLegalPage extends StatelessWidget {
           children: [
             SectionRule(title: s.privacy_title),
             const SizedBox(height: AppSpacing.md),
-            BazaarCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpacing.sm,
-                children: [
-                  _Paragraph(s.privacy_no_data),
-                  _Paragraph(s.privacy_on_device),
-                  _Paragraph(s.privacy_download),
-                  _Link(label: s.privacy_github_pages, uri: LegalLinks.githubPages),
-                  _Link(label: s.privacy_github_statement, uri: LegalLinks.githubPrivacy),
-                  if (crashReports) _Paragraph(s.privacy_crash),
-                  _Paragraph(s.privacy_contact),
-                  _Link(label: SiteOwner.email, uri: LegalLinks.email),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.sm,
+              children: [
+                _Paragraph(s.privacy_no_data),
+                _Paragraph(s.privacy_on_device),
+                _Paragraph(s.privacy_download),
+                _Link(label: s.privacy_github_pages, uri: LegalLinks.githubPages),
+                _Link(label: s.privacy_github_statement, uri: LegalLinks.githubPrivacy),
+                if (crashReports) _Paragraph(s.privacy_crash),
+                _Paragraph(s.privacy_contact),
+                _Link(label: SiteOwner.email, uri: LegalLinks.email),
+              ],
             ),
             const SizedBox(height: AppSpacing.xl),
             SectionRule(title: s.legal_title),
             const SizedBox(height: AppSpacing.md),
-            BazaarCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _Row(label: s.legal_owner, value: SiteOwner.tradeName),
-                  _Row(label: s.legal_mersis, value: SiteOwner.mersis),
-                  _Row(label: s.legal_address, value: SiteOwner.address),
-                  _Row(label: s.legal_email, value: SiteOwner.email, uri: LegalLinks.email),
-                  _Row(label: s.legal_phone, value: SiteOwner.phone, uri: LegalLinks.phone),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Row(label: s.legal_owner, value: SiteOwner.tradeName),
+                _Row(label: s.legal_mersis, value: SiteOwner.mersis),
+                _Row(label: s.legal_address, value: SiteOwner.address),
+                _Row(label: s.legal_email, value: SiteOwner.email, uri: LegalLinks.email),
+                _Row(label: s.legal_phone, value: SiteOwner.phone, uri: LegalLinks.phone),
+              ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            BazaarCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpacing.sm,
-                children: [
-                  Text(
-                    s.legal_marks_title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
-                  ),
-                  _Paragraph(s.legal_marks),
-                  _Paragraph(s.legal_images),
-                  _Link(label: SiteOwner.email, uri: LegalLinks.email),
-                  _Paragraph(s.legal_licence),
-                  _Link(label: s.legal_licence_link, uri: LegalLinks.licence),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.sm,
+              children: [
+                Text(
+                  s.legal_marks_title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                ),
+                _Paragraph(s.legal_marks),
+                _Paragraph(s.legal_images),
+                _Link(label: SiteOwner.email, uri: LegalLinks.email),
+                _Paragraph(s.legal_licence),
+                _Link(label: s.legal_licence_link, uri: LegalLinks.licence),
+              ],
             ),
           ],
         ),
