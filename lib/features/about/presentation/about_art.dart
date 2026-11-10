@@ -26,7 +26,7 @@ abstract final class AboutArt {
   /// How many frames each scene's file holds, a run of equal frames being one longer frame: its section moves on only
   /// after the last, so the treaty gives its answer, the needle is bared, the seal pressed and the engraving drawn,
   /// whatever the device's pace.
-  static const frames = [277, 180, 253, 240, 156];
+  static const frames = [132, 150, 211, 200, 129];
 
   /// Whether the section at [position] waits for its scene to end: the memes have no end, so theirs does not.
   static bool waits(int position) => position < frames.length && position != 3;

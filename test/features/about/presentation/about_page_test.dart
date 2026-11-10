@@ -271,6 +271,47 @@ void main() {
       expect(done, ['done']);
     });
 
+    testWidgets('waits behind the app\'s opening and starts from its beginning once the opening gives way', (
+      tester,
+    ) async {
+      final shown = ValueNotifier(false);
+      addTearDown(shown.dispose);
+      await tester.pumpWidget(
+        bazaarTestApp(
+          router: AppRouterFactory(initialLocation: '/').create(),
+          content: readyContentBloc(catalogFixtureIndex(story: const {'en': _path})),
+          repository: _repository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final context = tester.element(find.byType(Navigator).first);
+      unawaited(
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            // As the app's opening holds the motion behind it.
+            builder: (_) => ValueListenableBuilder(
+              valueListenable: shown,
+              builder: (_, on, child) => TickerMode(enabled: on, child: child!),
+              child: AboutWelcomeStep(onDone: () {}),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final semantics = tester.ensureSemantics();
+      await tester.pump(const Duration(seconds: 12));
+      expect(_said('The first section.'), findsNothing, reason: 'nothing plays out of sight');
+
+      shown.value = true;
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      expect(_said('The first section.'), findsNothing, reason: 'the opening plays from its start');
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
+      expect(_said('The first section.'), findsOneWidget);
+      semantics.dispose();
+    });
+
     testWidgets('Skip leaves the story at any time', (tester) async {
       final done = await pumpStep(tester);
 

@@ -96,7 +96,10 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
   ];
 
   int _index = 0;
-  late AnimationController _clock = _start(_shots.first);
+  late AnimationController _clock = _start(_shots.first, run: false);
+
+  /// Whether the film has started: it waits while it is out of sight behind the app's opening, whose motion is off.
+  bool _begun = false;
 
   /// The clocks of screens that went, kept while their screen fades out and let go at the next screen; a clock that is
   /// let go stays stopped where it was, so a screen still fading reads it as it was.
@@ -125,12 +128,13 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
 
   bool get _last => _index == _shots.length - 1;
 
-  AnimationController _start(_Shot shot) {
+  AnimationController _start(_Shot shot, {bool run = true}) {
     final clock = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: (shot.length * 1000).round()),
     )..addStatusListener(_onStatus);
-    return clock..forward();
+    if (run) unawaited(clock.forward());
+    return clock;
   }
 
   /// The sections whose scene has shown its first frame, and its last, since the section came in.
@@ -204,7 +208,21 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _prepare(1);
     });
-    _lifecycle = AppLifecycleListener(onHide: () => _clock.stop(), onShow: () => _clock.forward());
+    _lifecycle = AppLifecycleListener(
+      onHide: () => _clock.stop(),
+      onShow: () {
+        if (_begun) unawaited(_clock.forward());
+      },
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_begun && TickerMode.valuesOf(context).enabled) {
+      _begun = true;
+      unawaited(_clock.forward());
+    }
   }
 
   @override

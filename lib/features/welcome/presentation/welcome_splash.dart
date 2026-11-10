@@ -94,8 +94,9 @@ class _WelcomeSplashState extends State<WelcomeSplash> with TickerProviderStateM
     return Stack(
       fit: StackFit.expand,
       children: [
-        // The app builds behind the opening, so it is in place when the arch opens onto it.
-        widget.child,
+        // The app builds behind the opening, so it is in place when the arch opens onto it; its own motion waits
+        // until the arch opens, so what moves on its first screen is seen from the start.
+        TickerMode(enabled: leaving || _gone, child: widget.child),
         // Under reduced motion there is no walk to wait for: the opening is gone once the app is ready.
         if (!_gone && !(leaving && still))
           IgnorePointer(
