@@ -349,6 +349,8 @@
   "@quiz_list_title": {},
   "quiz_list_lede": "The questions at the end of each module, to check what you have read. Open one at any time.",
   "@quiz_list_lede": {},
+  "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quizzes}}",
+  "@quiz_list_count": {"placeholders": {"count": {"type": "int"}}},
   "quiz_list_engineers_only": "The questions come with the {track} modules.",
   "@quiz_list_engineers_only": {
     "placeholders": {

@@ -52,6 +52,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// Opens the levels [slugs] on the Quiz tab.
+Future<void> _openLevels(WidgetTester tester, List<String> slugs) async {
+  for (final slug in slugs) {
+    await _tap(tester, find.byKey(QuizListPage.levelKey(slug)));
+  }
+}
+
 void main() {
   setUpAll(registerAllFallbackValues);
 
@@ -60,6 +67,9 @@ void main() {
 
     expect(find.text('Quizzes'), findsOneWidget);
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'the levels start closed');
+    expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes$')), findsOneWidget);
+    await _openLevels(tester, ['alpha', 'beta', 'gamma']);
     for (final key in ['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']) {
       expect(find.byKey(QuizListPage.rowKey(key)), findsOneWidget, reason: key);
     }
@@ -74,11 +84,13 @@ void main() {
     await _pump(tester, track: track);
 
     expect(find.text('The questions come with the For Engineers modules.'), findsOneWidget);
+    await _openLevels(tester, ['alpha']);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget);
   });
 
   testWidgets('a row opens the quiz full screen, titled with the module, and Done comes back', (tester) async {
     final router = await _pump(tester, repository: _withQuiz());
+    await _openLevels(tester, ['alpha']);
 
     await _tap(tester, find.byKey(QuizListPage.rowKey('alpha/first')));
     expect(router.state.uri.path, '/quiz/alpha/first');
@@ -93,12 +105,17 @@ void main() {
     await _tap(tester, find.text('See results'));
     await _tap(tester, find.text('Done'));
     expect(router.state.uri.path, '/quiz');
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'the level stays open');
+
+    await _tap(tester, find.byKey(QuizListPage.levelKey('alpha')));
+    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'a second tap closes it');
   });
 
   testWidgets('a quiz that cannot be read says so, and closes', (tester) async {
     final repository = MockContentRepository();
     when(() => repository.readModuleDoc(any())).thenThrow(const ContentMissingException('gone'));
     final router = await _pump(tester, repository: repository);
+    await _openLevels(tester, ['beta']);
 
     await _tap(tester, find.byKey(QuizListPage.rowKey('beta/fourth')));
     expect(find.text('This quiz could not be opened. Close it and try again later.'), findsOneWidget);
@@ -112,12 +129,12 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
+    final list = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
+    final gamma = find.byKey(QuizListPage.levelKey('gamma'));
+    await tester.scrollUntilVisible(gamma, 200, scrollable: list);
+    await _tap(tester, gamma);
     final last = find.byKey(QuizListPage.rowKey('gamma/sixth'));
-    await tester.scrollUntilVisible(
-      last,
-      200,
-      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
-    );
+    await tester.scrollUntilVisible(last, 200, scrollable: list);
     await tester.pump();
     expectHittable(tester, last);
   });

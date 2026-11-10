@@ -17,7 +17,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The catalog root at `/sheets` with the reader's progress in it: the modules completed and the active days, a dial per level, and in each level's modules a mark to complete a module or the Planned mark, with a legend. The level page. The web's filters are left out.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
   reading bar.
-- The module quiz, opened full screen from a card in the reader, and the Quiz tab, which lists every module's quiz and opens it without the reader.
+- The module quiz, opened full screen from a card in the reader, and the Quiz tab, which lists every module's quiz in a card per level that opens and closes, as the catalog does, and opens a quiz without the reader.
 - The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. The app has no progress page of its own: the catalog shows the progress.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.

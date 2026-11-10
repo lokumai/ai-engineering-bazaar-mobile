@@ -98,6 +98,7 @@
   "quiz_unavailable": "Bu quiz açılamadı. Kapatıp daha sonra yeniden dene.",
   "quiz_list_title": "Quizler",
   "quiz_list_lede": "Her modülün sonundaki sorular; okuduklarını kontrol etmek için. İstediğin zaman birini aç.",
+  "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quiz}}",
   "quiz_list_engineers_only": "Sorular {track} modülleriyle gelir.",
   "catalog_stat_completed": "{count, plural, =1{tamamlanan modül} other{tamamlanan modül}}",
   "catalog_stat_days": "{count, plural, =1{aktif gün} other{aktif gün}}",

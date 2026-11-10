@@ -625,6 +625,11 @@ class S {
     );
   }
 
+  /// `{count, plural, =1{1 quiz} other{{count} quizzes}}`
+  String quiz_list_count(int count) {
+    return Intl.plural(count, one: '1 quiz', other: '$count quizzes', name: 'quiz_list_count', desc: '', args: [count]);
+  }
+
   /// `The questions come with the {track} modules.`
   String quiz_list_engineers_only(String track) {
     return Intl.message(
