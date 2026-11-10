@@ -187,7 +187,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 - [ ] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`.
 - [ ] **4.3** iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
 - [ ] **4.4** Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
-- [ ] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught.
+- [x] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught. Done: `Pacific/Kiritimati` (UTC+14), which puts most instants on the next day; the suite passed in it and in UTC-11 before the change.
 - [ ] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise).
 - [ ] **4.7** Decide whether the licences page also carries the course content's licence.
 - [ ] **4.8** Reader performance on a real low-end Android device.
