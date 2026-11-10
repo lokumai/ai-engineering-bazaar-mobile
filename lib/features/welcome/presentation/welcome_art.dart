@@ -2,7 +2,6 @@
 abstract final class WelcomeArt {
   /// The Lokum logo (`assets/brand/SOURCE.md`), at the heart of the opening.
   static const logo = 'assets/brand/lokum_logo.webp';
-  static const gate = 'assets/welcome/gate.webp';
   static const cast = [
     'assets/welcome/cast_mihri.webp',
     'assets/welcome/cast_dariush.webp',

@@ -64,7 +64,6 @@ flutter:
     - assets/content/objects/
     - assets/fonts/OFL.txt
     - assets/brand/lokum_logo.webp
-    - assets/welcome/gate.webp
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
     - assets/welcome/cast_bit.webp
