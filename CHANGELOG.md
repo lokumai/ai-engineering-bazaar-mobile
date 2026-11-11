@@ -7,6 +7,8 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, Turkish and Persian written as the web's search finds them, and each hit opens its module at its section.
+- A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
 - The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is under maintenance until the web's timeline reaches the content bundle.
@@ -35,6 +37,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The back arrow on a module goes to the catalog of its track, found as it was left with its search, and no longer to the page before: a module opened from Home and found again from the Catalog tab went back to Home. A link to a section, or a search hit, keeps its heading at the top while pictures above it load.
 - A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
 - A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
 - The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.

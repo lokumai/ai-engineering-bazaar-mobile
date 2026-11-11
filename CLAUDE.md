@@ -107,7 +107,7 @@ lib/
   features/
     home/                                       Home at `/`: continue card, the modules after it, practice, offline note
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
-                                                legend) and the level page (Cards)
+                                                legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
     quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
                                                 module's quiz at `/quiz/<level>/<module>`
