@@ -163,6 +163,16 @@ class S {
     return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
   }
 
+  /// `On to our story`
+  String get welcome_to_story {
+    return Intl.message(
+      'On to our story',
+      name: 'welcome_to_story',
+      desc: 'Welcome\'s choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5).',
+      args: [],
+    );
+  }
+
   /// `Up next`
   String get home_up_next {
     return Intl.message('Up next', name: 'home_up_next', desc: '', args: []);
@@ -1386,12 +1396,12 @@ class S {
     );
   }
 
-  /// `Continue`
+  /// `Start learning`
   String get welcome_story_continue {
     return Intl.message(
-      'Continue',
+      'Start learning',
       name: 'welcome_story_continue',
-      desc: 'Welcome\'s first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5).',
+      desc: 'Welcome\'s last step: the button at the end of the story of the Bazaar, into the app (plan 3.5).',
       args: [],
     );
   }

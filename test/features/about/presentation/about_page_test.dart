@@ -259,14 +259,14 @@ void main() {
       return done;
     }
 
-    testWidgets('ends with the way on to the track, reachable at text scale 2.0', (tester) async {
+    testWidgets('ends with the way into the app, Start learning, reachable at text scale 2.0', (tester) async {
       final done = await pumpStep(tester, scale: 2.0);
 
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       final start = find.byKey(AboutWelcomeStep.doneKey);
       expectHittable(tester, start);
-      expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Start learning'), findsOneWidget);
       await tester.tap(start);
       expect(done, ['done']);
     });

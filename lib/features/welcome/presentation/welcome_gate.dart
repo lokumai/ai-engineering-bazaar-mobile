@@ -14,9 +14,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// While the store is asked, the page ground is shown, so neither screen flashes before the other.
 ///
-/// Its first step is the story of the Bazaar (plan 3.5), which the app passes as [story], since the story is a feature
-/// of its own; the language and the track follow. Content that names no story (a copy from before the site published
-/// it, web D125) starts at the language and the track.
+/// Its first step is the language and the track; the story of the Bazaar follows in the language chosen (plan 3.5),
+/// which the app passes as [story], since the story is a feature of its own. Content that names no story (a copy
+/// from before the site published it, web D125) ends at the language and the track.
 class WelcomeGate extends StatelessWidget {
   const WelcomeGate({super.key, required this.child, required this.story, this.onFinished});
 
@@ -25,8 +25,8 @@ class WelcomeGate extends StatelessWidget {
   /// Welcome's first step, which calls its argument once the reader goes on.
   final Widget Function(VoidCallback onDone) story;
 
-  /// Called with the chosen track once a reader on a first launch chose one and read the guide; the app opens that
-  /// track's catalog, since Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch
+  /// Called with the chosen track once a reader on a first launch chose one and read or skipped the story; the app
+  /// opens that track's catalog, since Up next means little to someone who has read nothing yet (plan 1T). Not called on a launch
   /// that skips Welcome.
   final ValueChanged<Track>? onFinished;
 
@@ -35,18 +35,20 @@ class WelcomeGate extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           WelcomeBloc(store: context.read<IWelcomeStore>())..add(WelcomeStarted(story: _hasStory(context))),
-      child: BlocBuilder<WelcomeBloc, WelcomeState>(
+      child: BlocConsumer<WelcomeBloc, WelcomeState>(
+        listenWhen: (previous, current) => current is WelcomeDone && current.chosen != null,
+        listener: (context, state) => onFinished?.call((state as WelcomeDone).chosen!),
         builder: (context, state) => switch (state) {
           WelcomeChecking() => ColoredBox(color: Theme.of(context).colorScheme.surface),
-          WelcomeTellingStory() => story(() => context.read<WelcomeBloc>().add(const WelcomeStoryRead())),
-          WelcomeChoosingTrack() => WelcomeTrackView(
+          WelcomeChoosingTrack(:final story) => WelcomeTrackView(
             initial: context.read<TrackCubit>().state,
+            story: story,
             onChosen: (track) {
               unawaited(context.read<TrackCubit>().choose(track));
-              context.read<WelcomeBloc>().add(const WelcomeTrackChosen());
-              onFinished?.call(track);
+              context.read<WelcomeBloc>().add(WelcomeTrackChosen(track));
             },
           ),
+          WelcomeTellingStory() => story(() => context.read<WelcomeBloc>().add(const WelcomeStoryRead())),
           WelcomeDone() => child,
         },
       ),

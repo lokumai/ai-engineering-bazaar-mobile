@@ -1,3 +1,5 @@
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
+import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 
@@ -29,3 +31,12 @@ int levelPosition(BundleIndex index, String slug) => index.levels.indexWhere((le
 
 /// The no-reading form the web prints before the record is read (`ProgressTabs.tsx:10`).
 const catalogNoReading = '--';
+
+/// A written module's length as its web page prints it under the title (web D128): its minutes and the words of the
+/// document the reader opens, in [language] or in English where it is not written in it; null when the content has no
+/// word count for it.
+String? moduleLength(S s, CatalogRow row, String language) {
+  final lang = row.words.containsKey(language) ? language : 'en';
+  final words = row.words[lang];
+  return words == null ? null : s.length_minutes_words(row.minutes, groupedNumber(words, lang));
+}

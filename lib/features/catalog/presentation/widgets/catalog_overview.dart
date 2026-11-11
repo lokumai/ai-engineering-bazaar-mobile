@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -229,7 +230,8 @@ class _ModuleRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final minHeight = minTapTarget(theme.platform);
-    final length = durationLabel(s, row.minutes);
+    // The words beside the minutes, as under the module's title; the minutes alone without a word count.
+    final length = moduleLength(s, row, context.watch<LanguageCubit>().state) ?? durationLabel(s, row.minutes);
     final Widget leading;
     if (row.drawn) {
       void toggle() => context.read<RecordBloc>().add(completionToggled(index, row.key, track, revision: null));
