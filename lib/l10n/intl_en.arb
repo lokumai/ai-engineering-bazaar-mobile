@@ -72,6 +72,8 @@
   "@home_practice_lede": {},
   "diagram_expand": "Open the diagram full screen",
   "@diagram_expand": {},
+  "image_expand": "Open the image full screen",
+  "@image_expand": {},
   "home_path": "Your path",
   "@home_path": {},
   "home_offline_title": "The course is on this device",
@@ -150,6 +152,34 @@
   "@level_general_notes": {},
   "card_description": "Description",
   "@card_description": {},
+  "catalog_search_hint": "Search the modules",
+  "@catalog_search_hint": {},
+  "catalog_search_clear": "Clear the search",
+  "@catalog_search_clear": {},
+  "catalog_search_count": "{count, plural, =1{1 result} other{{count} results}}",
+  "@catalog_search_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_shown": "the first {count} shown",
+  "@catalog_search_shown": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_none": "Nothing found for “{query}”.",
+  "@catalog_search_none": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "card_length": "Length",
   "@card_length": {},
   "card_length_minutes": "{minutes} min",

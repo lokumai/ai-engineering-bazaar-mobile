@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/figure_image.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/image_full_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -51,6 +52,38 @@ void main() {
     expect(tester.getSize(find.byType(FigureImage)), const Size(390, 195));
   });
 
+  testWidgets('a tap opens the image full screen, to zoom, and the close button comes back', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final png = File('test/fixtures/content/src/course-images/alpha/figure.png').readAsBytesSync();
+    when(() => repository.readObject(image.src)).thenAnswer((_) async => Uint8List.fromList(png));
+    await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+    await settleContent(tester);
+    expect(find.byKey(FigureImage.expandKey), findsOneWidget, reason: 'the mark that it opens full screen');
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('A figure')),
+      matchesSemantics(
+        isImage: true,
+        isButton: true,
+        hasTapAction: true,
+        label: 'A figure',
+        hint: 'Open the image full screen',
+      ),
+    );
+
+    await tester.tap(find.byType(FigureImage));
+    await tester.pumpAndSettle();
+    expect(find.byType(ImageFullScreen), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).maxScale, 6);
+    expect(tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor, ImageFullScreen.ground);
+    expect(find.bySemanticsLabel('A figure'), findsOneWidget, reason: 'named by its alt text full screen too');
+
+    await tester.tap(find.byType(CloseButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(ImageFullScreen), findsNothing);
+    semantics.dispose();
+  });
+
   testWidgets('a missing object shows the alt text and the unreadable line', (tester) async {
     when(() => repository.readObject(any())).thenThrow(const ContentMissingException('course-images/alpha/figure.png'));
     await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
@@ -69,6 +102,7 @@ void main() {
     expect(find.text('A figure'), findsOneWidget);
     expect(find.text(S.current.content_unreadable), findsOneWidget);
     expect(tester.getSize(find.byType(FigureImage)), const Size(390, 195));
+    expect(find.byKey(FigureImage.expandKey), findsNothing, reason: 'nothing to open');
   });
 
   group('at text scale 2.0 the unreadable state grows past the reserved space', () {

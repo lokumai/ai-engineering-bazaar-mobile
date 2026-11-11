@@ -223,6 +223,11 @@ class S {
     return Intl.message('Open the diagram full screen', name: 'diagram_expand', desc: '', args: []);
   }
 
+  /// `Open the image full screen`
+  String get image_expand {
+    return Intl.message('Open the image full screen', name: 'image_expand', desc: '', args: []);
+  }
+
   /// `Your path`
   String get home_path {
     return Intl.message('Your path', name: 'home_path', desc: '', args: []);
@@ -333,6 +338,38 @@ class S {
   /// `Description`
   String get card_description {
     return Intl.message('Description', name: 'card_description', desc: '', args: []);
+  }
+
+  /// `Search the modules`
+  String get catalog_search_hint {
+    return Intl.message('Search the modules', name: 'catalog_search_hint', desc: '', args: []);
+  }
+
+  /// `Clear the search`
+  String get catalog_search_clear {
+    return Intl.message('Clear the search', name: 'catalog_search_clear', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{1 result} other{{count} results}}`
+  String catalog_search_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 result',
+      other: '$count results',
+      name: 'catalog_search_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `the first {count} shown`
+  String catalog_search_shown(int count) {
+    return Intl.message('the first $count shown', name: 'catalog_search_shown', desc: '', args: [count]);
+  }
+
+  /// `Nothing found for “{query}”.`
+  String catalog_search_none(String query) {
+    return Intl.message('Nothing found for “$query”.', name: 'catalog_search_none', desc: '', args: [query]);
   }
 
   /// `Length`
