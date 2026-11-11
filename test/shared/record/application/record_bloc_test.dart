@@ -212,6 +212,25 @@ void main() {
     });
   });
 
+  test('D129: a checklist tick is written under its index, and taking it away writes again', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository();
+      final bloc = await _started(repository);
+
+      bloc.add(const ChecklistItemToggled(key: 'alpha/first', index: 2, ticked: true, track: Track.engineers));
+      await pumpEventQueue();
+      expect(_ready(bloc).record.ticks('alpha/first', Track.engineers), {2});
+      expect(_ready(bloc).record.days, ['2026-03-14']);
+      expect(repository.writes.single, serialise(_ready(bloc).record, _now, pretty: false));
+
+      bloc.add(const ChecklistItemToggled(key: 'alpha/first', index: 2, ticked: false, track: Track.engineers));
+      await pumpEventQueue();
+      expect(_ready(bloc).record.ticks('alpha/first', Track.engineers), isEmpty);
+      expect(repository.writes, hasLength(2));
+      await bloc.close();
+    });
+  });
+
   group('plan 1V: a For Engineers completion completes For Everyone too', () {
     const carried = CompletionToggled(
       key: 'alpha/first',

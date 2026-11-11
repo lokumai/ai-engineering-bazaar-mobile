@@ -138,4 +138,56 @@ void main() {
       '"persisted":null}}}',
     );
   });
+
+  group('setChecklistItem (web events.ts setChecklistItem)', () {
+    Map<String, Object?> checklistOf(RecordData data, [String key = 'sheets']) =>
+        (sheetsOf(data, key)['a']! as Map)['checklist']! as Map<String, Object?>;
+
+    test('a tick writes true under the index and stamps the day', () {
+      final after = setChecklistItem(RecordData.empty, 'a', 3, now, ticked: true);
+      expect(checklistOf(after), {'3': true});
+      expect(after.ticks('a', Track.engineers), {3});
+      expect(after.days, ['2026-03-15']);
+    });
+
+    test('taking a tick away deletes its key, and keeps the others as they are', () {
+      final before = withSheets({
+        'a': {
+          'checklist': {'1': true, '3': true, 'x': 'kept'},
+        },
+      });
+      final after = setChecklistItem(before, 'a', 3, now, ticked: false);
+      expect(checklistOf(after), {'1': true, 'x': 'kept'});
+      expect(after.ticks('a', Track.engineers), {1});
+    });
+
+    test('an item already as asked, an index out of range or an unsafe slug is a no-op', () {
+      final ticked = setChecklistItem(RecordData.empty, 'a', 0, now, ticked: true);
+      expect(setChecklistItem(ticked, 'a', 0, now, ticked: true), same(ticked));
+      expect(setChecklistItem(RecordData.empty, 'a', 0, now, ticked: false), same(RecordData.empty));
+      expect(setChecklistItem(RecordData.empty, 'a', -1, now, ticked: true), same(RecordData.empty));
+      expect(setChecklistItem(RecordData.empty, 'a', 10000, now, ticked: true), same(RecordData.empty));
+      expect(setChecklistItem(RecordData.empty, '__proto__', 0, now, ticked: true), same(RecordData.empty));
+    });
+
+    test('For Everyone writes everyoneSheets only', () {
+      final after = setChecklistItem(RecordData.empty, 'a', 2, now, ticked: true, track: Track.everyone);
+      expect(sheetsOf(after), isEmpty);
+      expect(checklistOf(after, 'everyoneSheets'), {'2': true});
+      expect(after.ticks('a', Track.everyone), {2});
+      expect(after.ticks('a', Track.engineers), isEmpty);
+    });
+
+    test('ticks reads only a key of one to four digits holding true (web coerceChecklist)', () {
+      final data = withSheets({
+        'a': {
+          'checklist': {'0': true, '1': false, '2': 'true', '12345': true, '-1': true, 'x': true, '9999': true},
+        },
+        'b': {'checklist': 'none'},
+      });
+      expect(data.ticks('a', Track.engineers), {0, 9999});
+      expect(data.ticks('b', Track.engineers), isEmpty);
+      expect(data.ticks('c', Track.engineers), isEmpty);
+    });
+  });
 }

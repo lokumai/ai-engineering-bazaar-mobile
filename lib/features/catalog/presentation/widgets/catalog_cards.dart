@@ -9,8 +9,11 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The catalog's Cards view (web `CatalogCards.tsx:226-320`): per level that holds a visible row, a heading with the
@@ -18,8 +21,9 @@ import 'package:go_router/go_router.dart';
 /// Description disclosure, and the Length and Requires facts.
 ///
 /// One Description is open at a time (the web's `<details name>` group); the page holds which one.
-/// Length shows minutes only (A10, A15), and a planned card has no Description, because the index carries neither the
-/// word count nor a planned module's parts (D111).
+/// Length shows the minutes and the words of the document the reader opens (web D128), the minutes only where the
+/// content has no word count; a planned card has no Description, because the index carries no planned module's parts
+/// (D111).
 class CatalogCards extends StatelessWidget {
   const CatalogCards({
     super.key,
@@ -157,7 +161,7 @@ class _ModuleCard extends StatelessWidget {
                   children: [
                     _Fact(
                       label: l10n.card_length,
-                      value: row.drawn ? l10n.card_length_minutes(row.minutes) : l10n.module_planned,
+                      value: row.drawn ? _length(l10n, row, context.watch<LanguageCubit>().state) : l10n.module_planned,
                     ),
                     _Fact(label: l10n.card_requires, value: requiresLabel(l10n, row.requires)),
                   ],
@@ -225,4 +229,15 @@ class _Fact extends StatelessWidget {
       ],
     );
   }
+}
+
+/// A written module's length: its minutes and the words of the document the reader opens, in the reader's language or
+/// in English where it is not written in it, as its web page prints them (web D128); the minutes alone when the content
+/// has no word count.
+String _length(S l10n, CatalogRow row, String language) {
+  final lang = row.words.containsKey(language) ? language : 'en';
+  return switch (row.words[lang]) {
+    final words? => l10n.length_minutes_words(row.minutes, groupedNumber(words, lang)),
+    null => l10n.card_length_minutes(row.minutes),
+  };
 }

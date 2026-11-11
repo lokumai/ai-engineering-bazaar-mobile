@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -25,8 +26,9 @@ TextStyle styleOf(WidgetTester tester, String text) =>
 
 BazaarColors colorsOf(WidgetTester tester) => tester.element(find.byType(BlockList).first).bazaarColors;
 
-ListItem item(String text, {bool? checked}) => ListItem(
+ListItem item(String text, {bool? checked, int? taskIndex}) => ListItem(
   checked: checked,
+  taskIndex: taskIndex,
   blocks: [
     ParagraphBlock(inlines: [TextInline(text: text)], lead: false),
   ],
@@ -179,6 +181,53 @@ void main() {
     expect(boxes.map((b) => b.value), [true, false]);
     expect(boxes.every((b) => b.onChanged == null), isTrue); // A16
     expect(find.text('•'), findsNothing);
+  });
+
+  group('a live checklist (web D129)', () {
+    testWidgets("the boxes show the reader's ticks, a tap reports the item's index, and each is named by its text", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final toggled = <(int, bool)>[];
+      await pumpBlocks(
+        tester,
+        [
+          ListBlock(
+            ordered: false,
+            start: null,
+            items: [
+              item('done', checked: false, taskIndex: 0),
+              item('open', checked: true, taskIndex: 1),
+              item('plain'),
+            ],
+          ),
+        ],
+        wrap: (child) => ChecklistScope(
+          ticks: const {0},
+          onToggle: (index, {required ticked}) => toggled.add((index, ticked)),
+          child: child,
+        ),
+      );
+
+      final boxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
+      // The record's ticks, not the document's task.checked.
+      expect(boxes.map((b) => b.value), [true, false]);
+      await tester.tap(find.byType(Checkbox).first);
+      await tester.tap(find.byType(Checkbox).last);
+      expect(toggled, [(0, false), (1, true)]);
+      expect(tester.getSemantics(find.byType(Checkbox).last).label, 'open');
+      await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
+      semantics.dispose();
+    });
+
+    testWidgets('an item from a document without indexes stays read-only under a checklist', (tester) async {
+      await pumpBlocks(tester, [
+        ListBlock(ordered: false, start: null, items: [item('old', checked: true)]),
+      ], wrap: (child) => ChecklistScope(ticks: const {}, onToggle: (_, {required ticked}) {}, child: child));
+      final box = tester.widget<Checkbox>(find.byType(Checkbox));
+      expect(box.value, isTrue);
+      expect(box.onChanged, isNull);
+    });
   });
 
   testWidgets('a quote shows its label', (tester) async {

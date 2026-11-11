@@ -487,6 +487,16 @@ class S {
     return Intl.message('$minutes min', name: 'reader_minutes', desc: '', args: [minutes]);
   }
 
+  /// `{minutes} min · {words} words`
+  String length_minutes_words(int minutes, String words) {
+    return Intl.message(
+      '$minutes min · $words words',
+      name: 'length_minutes_words',
+      desc: 'A written module\'s length, as its web page prints it under the title (web readingTime); words already grouped.',
+      args: [minutes, words],
+    );
+  }
+
   /// `Before you start`
   String get reader_before_you_start {
     return Intl.message('Before you start', name: 'reader_before_you_start', desc: '', args: []);

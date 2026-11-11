@@ -198,6 +198,19 @@ void main() {
     expect(tester.getSemantics(find.text('First')), isSemantics(isHeader: true, label: 'First'));
   });
 
+  testWidgets('the words go beside the minutes, as the web page prints them (web D128)', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(body: [_paragraph('Body text.')], words: 2317),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester);
+    expect(find.text('12 min · 2,317 words'), findsOneWidget);
+    expect(find.text('12 min'), findsNothing);
+  });
+
   testWidgets('a planned module shows its band, summary and schedule, and no completion', (tester) async {
     final parts = ['Part one', 'Part two'];
     stateIs(

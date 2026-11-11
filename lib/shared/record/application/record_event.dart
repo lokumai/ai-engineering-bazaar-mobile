@@ -23,6 +23,18 @@ final class CompletionToggled extends RecordEvent {
   final EveryoneCompletion? everyone;
 }
 
+/// The reader ticked the checklist item [index] of [key] on [track], or took the tick away (web `ChecklistIsland`).
+final class ChecklistItemToggled extends RecordEvent {
+  const ChecklistItemToggled({required this.key, required this.index, required this.ticked, required this.track});
+
+  final String key;
+
+  /// The item's place in the module's checklist, from 0 (web D129).
+  final int index;
+  final bool ticked;
+  final Track track;
+}
+
 /// The For Everyone version of a module, completed along with its For Engineers version (plan 1V).
 final class EveryoneCompletion {
   const EveryoneCompletion({required this.revision});

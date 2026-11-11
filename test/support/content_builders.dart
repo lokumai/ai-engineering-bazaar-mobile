@@ -108,6 +108,7 @@ ModuleDoc testDoc({
   List<TocEntry> toc = const [],
   List<String> objectives = const [],
   List<String>? translatedObjectives,
+  int? words,
 }) {
   return ModuleDoc(
     key: key,
@@ -115,6 +116,7 @@ ModuleDoc testDoc({
     lang: 'en',
     dir: TextDir.ltr,
     title: title,
+    words: words,
     objectives: objectives,
     translatedObjectives: translatedObjectives,
     prerequisites: prerequisites,
@@ -193,7 +195,8 @@ class BlockHarness {
 final testWebPage = Uri.parse('${testContentBaseUrl}courses/alpha/first/');
 
 /// Pumps [blocks] as a [BlockList] in a scrolling 390 px column ([pumpInTheme]), with [testWebPage] as the document's
-/// web page, or none for a [levelDocument], and the light `diagramThemes` of [testIndex].
+/// web page, or none for a [levelDocument], and the light `diagramThemes` of [testIndex]; [wrap], when given, wraps the
+/// scrolling column.
 Future<BlockHarness> pumpBlocks(
   WidgetTester tester,
   List<Block> blocks, {
@@ -201,6 +204,7 @@ Future<BlockHarness> pumpBlocks(
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   IContentRepository? repository,
+  Widget Function(Widget child)? wrap,
 }) async {
   final harness = BlockHarness();
   final render = BlockRenderContext(
@@ -211,8 +215,10 @@ Future<BlockHarness> pumpBlocks(
   );
   await pumpInTheme(
     tester,
-    SingleChildScrollView(
-      child: BlockList(blocks: blocks, render: render),
+    (wrap ?? (child) => child)(
+      SingleChildScrollView(
+        child: BlockList(blocks: blocks, render: render),
+      ),
     ),
     brightness,
     platform: platform,

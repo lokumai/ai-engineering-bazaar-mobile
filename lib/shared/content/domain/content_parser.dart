@@ -110,6 +110,9 @@ abstract final class ContentParser {
     final lang = root['lang'].string();
     final dir = root['dir'].named(TextDir.values.asNameMap());
     final title = root['title'].string();
+    // Added by the web in D128: the words the module's page prints under its title, null on a draft. A document from
+    // before it has no key.
+    final words = root.optional('words')?.nullable((node) => node.integer(min: 1));
     final objectivesNode = root['objectives'];
     objectivesNode['lang'].string();
     final objectives = List<String>.unmodifiable(objectivesNode['items'].list().map((item) => item.string()));
@@ -138,6 +141,7 @@ abstract final class ContentParser {
       lang: lang,
       dir: dir,
       title: title,
+      words: words,
       objectives: objectives,
       translatedObjectives: translatedObjectives,
       prerequisites: prerequisites,
@@ -292,6 +296,12 @@ abstract final class ContentParser {
     });
     // The English document of the For Engineers track is required; the operator throws when the key is missing.
     if (track == Track.engineers) docsNode['en'];
+    // Added by the web in D128: the words each language's page prints; empty where the module is not written. An
+    // index from before it has no key.
+    final words = Map<String, int>.unmodifiable({
+      for (final MapEntry(:key, :value) in node.optional('words')?.entries() ?? const <MapEntry<String, _Node>>[])
+        key: value.integer(min: 1),
+    });
     return ModuleTrack(
       title: title,
       drawn: drawn,
@@ -299,6 +309,7 @@ abstract final class ContentParser {
       hasQuiz: hasQuiz,
       revision: revision,
       docs: docs,
+      words: words,
       webPath: node['webPath'].matching(_sitePath),
     );
   }
@@ -380,8 +391,16 @@ final class _DocumentReader {
     final type => UnknownBlock(type: type),
   };
 
-  ListItem _listItem(_Node node) =>
-      ListItem(checked: node.optional('task')?['checked'].boolean(), blocks: blocks(node['blocks']));
+  ListItem _listItem(_Node node) {
+    final task = node.optional('task');
+    return ListItem(
+      checked: task?['checked'].boolean(),
+      // Added by the web in D129: the item's place in the module's one checklist, the key its tick is recorded under.
+      // A document from before it has no key, and its boxes stay as drawn.
+      taskIndex: task?.optional('index')?.integer(min: 0),
+      blocks: blocks(node['blocks']),
+    );
+  }
 
   CodeBlock _code(_Node node) {
     final languageNode = node['language'];

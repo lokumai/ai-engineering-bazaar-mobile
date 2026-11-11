@@ -269,6 +269,18 @@
       }
     }
   },
+  "length_minutes_words": "{minutes} min · {words} words",
+  "@length_minutes_words": {
+    "description": "A written module's length, as its web page prints it under the title (web readingTime); words already grouped.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "words": {
+        "type": "String"
+      }
+    }
+  },
   "reader_before_you_start": "Before you start",
   "@reader_before_you_start": {},
   "reader_objectives": "What you will be able to do",

@@ -12,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/table_block_vi
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:flutter/material.dart';
 
 /// What the blocks of one document share: where a link tap goes, the document's web page, the key each heading
@@ -273,6 +274,7 @@ class _ListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
     final markerStyle = _bodyStyle(ProseScope.maybeOf(context)?.ink ?? colors.onSurface);
+    final checklist = ChecklistScope.maybeOf(context);
     final start = block.start ?? 1;
     final markerWidth = block.ordered
         ? _orderedMarkerWidth(context, '${start + block.items.length - 1}.', markerStyle)
@@ -282,46 +284,60 @@ class _ListView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final (index, item) in block.items.indexed)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (item.checked case final checked?)
-                  // A16: the box shows the bundle's task.checked and cannot be changed.
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 6),
-                    child: Checkbox(
-                      value: checked,
-                      onChanged: null,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  )
-                else
-                  SizedBox(
-                    width: markerWidth,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(end: _markerGap),
-                      child: Text(
-                        block.ordered ? '${start + index}.' : '•',
-                        style: markerStyle,
-                        textAlign: TextAlign.end,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
+          _maybeMerged(
+            live: checklist != null && item.checked != null && item.taskIndex != null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (item.checked case final checked?)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 6),
+                      child: switch ((checklist, item.taskIndex)) {
+                        // D129: the reader's tick, recorded under the item's index, as on the web.
+                        (final scope?, final at?) => Checkbox(
+                          value: scope.ticks.contains(at),
+                          onChanged: (value) => scope.onToggle(at, ticked: value ?? false),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        // A16: without a checklist, the box shows the bundle's task.checked and cannot be changed.
+                        _ => Checkbox(
+                          value: checked,
+                          onChanged: null,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      },
+                    )
+                  else
+                    SizedBox(
+                      width: markerWidth,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: _markerGap),
+                        child: Text(
+                          block.ordered ? '${start + index}.' : '•',
+                          style: markerStyle,
+                          textAlign: TextAlign.end,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                        ),
                       ),
                     ),
+                  Expanded(
+                    child: BlockList(blocks: item.blocks, render: render, nested: true),
                   ),
-                Expanded(
-                  child: BlockList(blocks: item.blocks, render: render, nested: true),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
       ],
     );
   }
 }
+
+/// A live task item as one node, so a screen reader names the box by the item's text (web `ChecklistIsland`).
+Widget _maybeMerged({required bool live, required Widget child}) => live ? MergeSemantics(child: child) : child;
 
 class _Quote extends StatelessWidget {
   const _Quote({required this.block, required this.render});

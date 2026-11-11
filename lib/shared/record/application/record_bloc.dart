@@ -85,6 +85,13 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
               : signed;
         }
         await _commit(current, next, emit);
+      case ChecklistItemToggled(:final key, :final index, :final ticked, :final track):
+        if (_pendingErases > 0) return;
+        await _commit(
+          current,
+          setChecklistItem(current.record, key, index, nowIso(), ticked: ticked, track: track),
+          emit,
+        );
       case BackupStarted(:final at, :final reply):
         final next = markActivity(current.record, at);
         if (_pendingErases == 0) await _commit(current, next, emit);

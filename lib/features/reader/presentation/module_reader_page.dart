@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.dart';
@@ -29,6 +30,7 @@ import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:clock/clock.dart';
@@ -356,82 +358,89 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
           Expanded(
             child: NotificationListener<Notification>(
               onNotification: _onScroll,
-              child: _findScope(
-                finder,
-                SingleChildScrollView(
-                  controller: _scroll,
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (sections.isNotEmpty)
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: TextButton.icon(
-                            onPressed: () => unawaited(_openContents(sections)),
-                            icon: const Icon(Icons.toc),
-                            label: Text(s.reader_contents),
+              child: _checklistScope(
+                doc,
+                _findScope(
+                  finder,
+                  SingleChildScrollView(
+                    controller: _scroll,
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (sections.isNotEmpty)
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: TextButton.icon(
+                              onPressed: () => unawaited(_openContents(sections)),
+                              icon: const Icon(Icons.toc),
+                              label: Text(s.reader_contents),
+                            ),
                           ),
-                        ),
-                      if (draft != null && !written) ...[
-                        StatusBand(partlyWritten: draft.written != null),
-                        const SizedBox(height: 20),
-                      ],
-                      // The level and the module's number over the title (the mockup's line; both are the index's).
-                      if (level != null)
-                        Text(
-                          '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
-                          style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
-                        ),
-                      Semantics(header: true, child: Text(doc.title, style: readerTitleStyle(context))),
-                      if (written) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          s.reader_minutes(entry.minutes),
-                          style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      if (doc.prerequisites.isNotEmpty) ...[
-                        PrerequisitesBox(refs: doc.prerequisites),
+                        if (draft != null && !written) ...[
+                          StatusBand(partlyWritten: draft.written != null),
+                          const SizedBox(height: 20),
+                        ],
+                        // The level and the module's number over the title (the mockup's line; both are the index's).
+                        if (level != null)
+                          Text(
+                            '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
+                            style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+                          ),
+                        Semantics(header: true, child: Text(doc.title, style: readerTitleStyle(context))),
+                        if (written) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            // The minutes and the words as the module's web page prints them under its title (web D128).
+                            switch (doc.words) {
+                              final words? => s.length_minutes_words(entry.minutes, groupedNumber(words, doc.lang)),
+                              null => s.reader_minutes(entry.minutes),
+                            },
+                            style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
+                          ),
+                        ],
                         const SizedBox(height: 24),
-                      ],
-                      if (doc.shownObjectives.isNotEmpty) ...[
-                        ObjectivesCard(objectives: doc.shownObjectives),
-                        const SizedBox(height: 26),
-                      ],
-                      if (body != null)
-                        BlockList(blocks: body, render: render)
-                      else if (draft != null) ...[
-                        if (draft.summary case final summary?)
-                          BlockList(
-                            blocks: [
-                              ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
-                            ],
-                            render: render,
-                          ),
-                        if (draft.parts.isNotEmpty) ...[
-                          ScheduleOfParts(parts: draft.parts),
+                        if (doc.prerequisites.isNotEmpty) ...[
+                          PrerequisitesBox(refs: doc.prerequisites),
+                          const SizedBox(height: 24),
+                        ],
+                        if (doc.shownObjectives.isNotEmpty) ...[
+                          ObjectivesCard(objectives: doc.shownObjectives),
                           const SizedBox(height: 26),
                         ],
-                        if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
-                      ],
-                      if (written) ...[
-                        const SizedBox(height: 16),
-                        CompletionRow(
-                          doc: doc,
-                          onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
-                        ),
-                      ],
-                      const SizedBox(height: 32),
-                      Pager(previous: doc.previous, next: doc.next),
-                      if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
+                        if (body != null)
+                          BlockList(blocks: body, render: render)
+                        else if (draft != null) ...[
+                          if (draft.summary case final summary?)
+                            BlockList(
+                              blocks: [
+                                ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                              ],
+                              render: render,
+                            ),
+                          if (draft.parts.isNotEmpty) ...[
+                            ScheduleOfParts(parts: draft.parts),
+                            const SizedBox(height: 26),
+                          ],
+                          if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
+                        ],
+                        if (written) ...[
+                          const SizedBox(height: 16),
+                          CompletionRow(
+                            doc: doc,
+                            onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                          ),
+                        ],
                         const SizedBox(height: 32),
-                        quizBuilder(context, entry.key, quiz),
+                        Pager(previous: doc.previous, next: doc.next),
+                        if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
+                          const SizedBox(height: 32),
+                          quizBuilder(context, entry.key, quiz),
+                        ],
+                        const SizedBox(height: 40),
+                        ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
                       ],
-                      const SizedBox(height: 40),
-                      ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -444,6 +453,19 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   static Widget _findScope(TextFinder? finder, Widget child) =>
       finder == null ? child : TextFindScope(finder: finder, child: child);
+
+  /// The module's checklist, live (web `ChecklistIsland`, D129): its boxes show the reader's ticks and change them in
+  /// the record, under the module's key in the document's track.
+  static Widget _checklistScope(ModuleDoc doc, Widget child) => BlocSelector<RecordBloc, RecordState, Set<int>>(
+    selector: (state) => state is RecordReady ? state.record.ticks(doc.key, doc.track) : const {},
+    builder: (context, ticks) => ChecklistScope(
+      ticks: ticks,
+      onToggle: (index, {required ticked}) => context.read<RecordBloc>().add(
+        ChecklistItemToggled(key: doc.key, index: index, ticked: ticked, track: doc.track),
+      ),
+      child: child,
+    ),
+  );
 
   /// Scrolls to the place the module was left once, after the first frame that draws the module; again as the page's
   /// length changes until the reader scrolls.

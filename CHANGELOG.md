@@ -7,6 +7,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- The word count beside the minutes, under a module's title and in a level page card's Length, in the reader's language, as the web page prints it (web D128).
+- A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
+- The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
 - A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, Turkish and Persian written as the web's search finds them. The hits are grouped by module, and each opens its module at its section with the words marked, and a bar under the module's bar steps from one mark to the next.
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
@@ -15,7 +18,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told first on the first launch, before the language and the track, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
-- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-10 (`c03b9e70`), with the web's WebP images, Key Terms and the story of the Bazaar.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-11 (`9247aac0`), with the web's WebP images, Key Terms and the story of the Bazaar.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.

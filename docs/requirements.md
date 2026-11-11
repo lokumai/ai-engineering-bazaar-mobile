@@ -55,7 +55,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 - **R30** The catalog root mirrors the web's Overview: one section per level, its modules, `Planned` for an unwritten module.
 - **R31** The catalog root lists the levels as buttons that open their modules under them; the level page keeps the web's Cards view (A10). The web's Level and Status filters and its `Showing` count are left out on purpose (plan 1N, owner's review): the level buttons replace the Level filter, and each card already says whether it is planned or completed. This is a known difference from the web.
-- **R32** Length is shown in minutes only, until the web publishes a word count (proposed web change 1).
+- **R32** Length is shown in minutes and words, the words the bundle publishes for the document the reader opens (web D128); in minutes only where the content has no count.
 
 ### Reader
 
@@ -63,7 +63,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 - **R41** Diagrams, figures, logos, tables, code, callouts and quotes render; diagrams are drawn in their light version in both modes, as photos are (owner, 2026-11-10), with labels in the bundled Vazirmatn face (D89).
 - **R42** A contents sheet lists the depth-2 sections of a written module.
 - **R43** A planned module shows its schedule of parts; a For Everyone module with no document shows the not-written view.
-- **R44** Captions read `FIG. n · Title` and `TBL. n · Title` (A14); task-list boxes are read-only (A16).
+- **R44** Captions read `FIG. n · Title` and `TBL. n · Title` (A14); task-list boxes show and change the record's ticks under the item's checklist index (web D129); a document without an index keeps them read-only (A16).
 
 ### Quiz
 

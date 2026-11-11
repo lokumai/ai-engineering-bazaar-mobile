@@ -74,6 +74,7 @@
   "reader_band_parts_only": "فقط برنامهٔ بخش‌ها",
   "reader_band_partly_written": "بخشی نوشته شده",
   "reader_minutes": "{minutes} دقیقه",
+  "length_minutes_words": "{minutes} دقیقه مطالعه · {words} کلمه",
   "reader_before_you_start": "پیش از شروع",
   "reader_objectives": "آنچه خواهید توانست انجام دهید",
   "reader_schedule_of_parts": "برنامهٔ بخش‌ها",

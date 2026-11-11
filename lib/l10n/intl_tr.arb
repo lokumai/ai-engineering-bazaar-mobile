@@ -74,6 +74,7 @@
   "reader_band_parts_only": "Yalnızca bölüm planı",
   "reader_band_partly_written": "Kısmen yazıldı",
   "reader_minutes": "{minutes} dk",
+  "length_minutes_words": "{minutes} dk · {words} kelime",
   "reader_before_you_start": "Başlamadan önce",
   "reader_objectives": "Neler yapabileceksin",
   "reader_schedule_of_parts": "Bölüm planı",

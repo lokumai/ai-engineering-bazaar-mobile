@@ -293,4 +293,20 @@ void main() {
       expect(() => _parse(json), throwsA(formatError(_indexPath, rejection.field)));
     });
   }
+
+  group('word counts (web D128)', () {
+    test("each language's words are read, and none is an empty map", () {
+      final json = validIndexJson();
+      _track(json, 'engineers')['words'] = {'en': 2754, 'tr': 2356};
+      final tracks = _parse(json).module('alpha/first')!.tracks;
+      expect(tracks[Track.engineers]!.words, {'en': 2754, 'tr': 2356});
+      expect(tracks[Track.everyone]!.words, isEmpty);
+    });
+
+    test('a word count below one is refused', () {
+      final json = validIndexJson();
+      _track(json, 'engineers')['words'] = {'en': 0};
+      expect(() => _parse(json), throwsA(formatError(_indexPath, 'modules[0].tracks.engineers.words.en')));
+    });
+  });
 }
