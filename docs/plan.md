@@ -15,6 +15,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
 | 6. Release | Later |
+| 7. New features in the app | Planned (the owner, 2026-11-11) |
 
 ## Phase 0: the reader (done)
 
@@ -265,3 +266,10 @@ The owner's manager started opening the store accounts on 2026-11-11.
 3. Tests first, mirroring the feature under `test/features/`.
 4. The gate through `heavy` before every commit.
 5. Small commits inside the branch, then a pull request with the checks green.
+
+## Phase 7: new features in the app
+
+Asked by the owner on 2026-11-11.
+
+- [ ] **7.1 A search bar with keywords in the catalog.** A field at the top of the catalog narrows the modules to those that match the words typed, in the current track. The web has a search of its own (MiniSearch, with chips for track, level and language, D103, D104, D127), but its index is served at `/search/<file>`, outside the bundle, so it does not reach the app (see 5.6). Decide with the owner whether the app searches what the bundle already carries (titles, summaries, objectives, and the text of the documents it has) or waits for the web to publish its index in the bundle. Phase 1 dropped search from the bar for the same reason; this brings it back in the catalog only.
+- [ ] **7.2 Photos and GIFs open full screen.** A tap on an image or an animated image in the reader opens it full screen on its own ground, where it zooms, pans and turns with the phone, as diagrams already do (1AU); a screen reader hears it as a button, with the image's alt text. Diagrams keep their own full screen.
