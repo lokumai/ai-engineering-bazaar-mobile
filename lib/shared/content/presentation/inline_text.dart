@@ -1,5 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/search_text.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/logo_view.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
@@ -19,6 +21,8 @@ const _wordJoiner = '\u2060';
 /// web's trailing arrow, word-joined to the link and hidden from semantics. A link whose target this app does not know
 /// is drawn as plain text and is not tappable (Decision A23), as is an inline of a kind it does not know. A logo is
 /// drawn at text height and held to the next word, as the web's `.bz-logo-pair` does.
+///
+/// Under a [TextFindScope] the words that answer the search are marked, the current one more strongly (plan 7.1).
 class InlineText extends StatefulWidget {
   const InlineText({
     super.key,
@@ -39,7 +43,9 @@ class InlineText extends StatefulWidget {
   State<InlineText> createState() => _InlineTextState();
 }
 
-class _InlineTextState extends State<InlineText> {
+class _InlineTextState extends State<InlineText> implements TextFindTarget {
+  TextFinder? _finder;
+
   final _recognizers = <TapGestureRecognizer>[];
 
   void _disposeRecognizers() {
@@ -51,6 +57,7 @@ class _InlineTextState extends State<InlineText> {
 
   @override
   void dispose() {
+    _finder?.forget(this);
     _disposeRecognizers();
     super.dispose();
   }
@@ -58,19 +65,61 @@ class _InlineTextState extends State<InlineText> {
   @override
   Widget build(BuildContext context) {
     _disposeRecognizers();
+    final finder = TextFindScope.of(context);
+    if (finder != _finder) {
+      _finder?.forget(this);
+      _finder = finder;
+    }
+    final marker = finder == null || finder.terms.isEmpty ? null : _Marker(finder, this);
     final spans = _SpanBuilder(
       colors: context.bazaarColors,
       fontSize: widget.style.fontSize!,
       ink: widget.style.color ?? context.bazaarColors.onSurface,
       onLink: widget.onLink,
       recognizers: _recognizers,
+      marker: marker,
     ).build(widget.inlines, null);
+    finder?.report(this, marker?.count ?? 0);
     return Text.rich(
       TextSpan(style: widget.style, children: spans),
       textAlign: widget.textAlign,
     );
   }
 }
+
+/// Marks the words of a text that answer a [TextFinder], counting them in order.
+class _Marker {
+  _Marker(this.finder, this.target);
+
+  final TextFinder finder;
+  final TextFindTarget target;
+
+  /// The marks made so far.
+  int count = 0;
+
+  /// The spans of [text], its matching words marked.
+  List<TextSpan> spans(String text, TapGestureRecognizer? recognizer) {
+    final spans = <TextSpan>[];
+    var at = 0;
+    for (final word in wordPattern.allMatches(text)) {
+      if (!matchesTerms(word[0]!, finder.terms, finder.lang)) continue;
+      if (word.start > at) spans.add(TextSpan(text: text.substring(at, word.start), recognizer: recognizer));
+      final current = finder.isCurrent(target, count++);
+      spans.add(TextSpan(text: word[0], recognizer: recognizer, style: current ? _currentStyle : _markStyle));
+      at = word.end;
+    }
+    if (spans.isEmpty) return [TextSpan(text: text, recognizer: recognizer)];
+    if (at < text.length) spans.add(TextSpan(text: text.substring(at), recognizer: recognizer));
+    return spans;
+  }
+}
+
+/// The ground of a marked word, and of the current one: the caution hue, faint and full.
+final _markStyle = TextStyle(background: Paint()..color = BazaarFixedColors.caution.withAlpha(0x55));
+final _currentStyle = TextStyle(
+  color: BazaarFixedColors.onCaution,
+  background: Paint()..color = BazaarFixedColors.caution,
+);
 
 class _SpanBuilder {
   _SpanBuilder({
@@ -79,7 +128,11 @@ class _SpanBuilder {
     required this.ink,
     required this.onLink,
     required this.recognizers,
+    this.marker,
   });
+
+  /// Marks the words searched; null when nothing is searched.
+  final _Marker? marker;
 
   final BazaarColors colors;
   final double fontSize;
@@ -95,7 +148,7 @@ class _SpanBuilder {
   ];
 
   List<InlineSpan> _spansOf(Inline inline, TapGestureRecognizer? recognizer) => switch (inline) {
-    TextInline(:final text) => [TextSpan(text: text, recognizer: recognizer)],
+    TextInline(:final text) => marker?.spans(text, recognizer) ?? [TextSpan(text: text, recognizer: recognizer)],
     CodeInline(:final text) => [
       TextSpan(
         text: text,

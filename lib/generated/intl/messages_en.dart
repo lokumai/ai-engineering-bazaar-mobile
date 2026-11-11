@@ -86,17 +86,19 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(date) => "Completed ${date}";
 
-  static String m32(minutes) => "${minutes} min";
+  static String m32(position, total) => "Match ${position} of ${total}";
 
-  static String m33(number, count) => "MODULE ${number} OF ${count}";
+  static String m33(minutes) => "${minutes} min";
 
-  static String m34(label) => "${label} · Planned";
+  static String m34(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m35(hash, date) => "Rev ${hash} · ${date}";
+  static String m35(label) => "${label} · Planned";
 
-  static String m36(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m36(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m37(reason) => "The check for updates did not finish: ${reason}.";
+  static String m37(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+
+  static String m38(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -335,24 +337,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
+    "reader_find_close": MessageLookupByLibrary.simpleMessage("Stop marking the search"),
+    "reader_find_next": MessageLookupByLibrary.simpleMessage("Next match"),
+    "reader_find_position": m32,
+    "reader_find_previous": MessageLookupByLibrary.simpleMessage("Previous match"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m32,
-    "reader_module_of": m33,
+    "reader_minutes": m33,
+    "reader_module_of": m34,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m34,
+    "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
-    "reader_revision": m35,
+    "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m36,
+    "record_not_saved": m37,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -375,7 +381,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m37,
+    "settings_refresh_failed": m38,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",

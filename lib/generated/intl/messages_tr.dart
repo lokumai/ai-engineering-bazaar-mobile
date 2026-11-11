@@ -86,17 +86,19 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(date) => "${date} tarihinde tamamlandı";
 
-  static String m32(minutes) => "${minutes} dk";
+  static String m32(position, total) => "${total} eşleşmeden ${position}.";
 
-  static String m33(number, count) => "MODÜL ${number} / ${count}";
+  static String m33(minutes) => "${minutes} dk";
 
-  static String m34(label) => "${label} · Planlandı";
+  static String m34(number, count) => "MODÜL ${number} / ${count}";
 
-  static String m35(hash, date) => "Rev. ${hash} · ${date}";
+  static String m35(label) => "${label} · Planlandı";
 
-  static String m36(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
+  static String m36(hash, date) => "Rev. ${hash} · ${date}";
 
-  static String m37(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
+  static String m37(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
+
+  static String m38(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -331,26 +333,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Modülü tamamlama"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("İçindekiler"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("Kursun sonu"),
+    "reader_find_close": MessageLookupByLibrary.simpleMessage("Arama işaretlerini kaldır"),
+    "reader_find_next": MessageLookupByLibrary.simpleMessage("Sonraki eşleşme"),
+    "reader_find_position": m32,
+    "reader_find_previous": MessageLookupByLibrary.simpleMessage("Önceki eşleşme"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Bu modülü tamamlandı olarak işaretle"),
-    "reader_minutes": m32,
-    "reader_module_of": m33,
+    "reader_minutes": m33,
+    "reader_module_of": m34,
     "reader_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage(
       "Bu modülün Herkes için sürümü henüz planlama aşamasında.",
     ),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("Neler yapabileceksin"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("Bu sayfada"),
-    "reader_pager_planned": m34,
+    "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için sürümünü oku"),
-    "reader_revision": m35,
+    "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Madde"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Bölüm planı"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Bölümler"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("Herkes için yazılanlara bak"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Kursun başı"),
-    "record_not_saved": m36,
+    "record_not_saved": m37,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("kayıt, uygulamanın yazabileceğinden büyük"),
@@ -373,7 +379,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Yayın tarihi"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Okuma"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Güncellemeler kontrol ediliyor"),
-    "settings_refresh_failed": m37,
+    "settings_refresh_failed": m38,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Uygulama açıldığından beri kontrol edilmedi"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Yeni içerik, uygulamanın daha yeni bir sürümünü gerektiriyor. Almak için uygulamayı güncelle.",

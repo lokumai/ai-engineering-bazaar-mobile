@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/features/settings/navigation/settings_rout
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -115,14 +116,19 @@ class AppRouterFactory {
     return LevelPage(key: ValueKey(level), track: track, level: level);
   }
 
-  /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`, with the quiz
-  /// feature's panel in its quiz slot (Decision A38). For Everyone documents carry no quiz, so their slot stays empty.
-  static Widget _reader(GoRouterState state, Track track) => ModuleReaderPage(
-    moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
-    track: track,
-    fragment: state.extra as String?,
-    quizBuilder: buildQuizPanel,
-  );
+  /// The reader of the module the path names, scrolled to the heading a module link or a search hit passes as `extra`,
+  /// the words searched marked, with the quiz feature's panel in its quiz slot (Decision A38). For Everyone documents
+  /// carry no quiz, so their slot stays empty.
+  static Widget _reader(GoRouterState state, Track track) {
+    final target = ReaderTarget.of(state.extra);
+    return ModuleReaderPage(
+      moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
+      track: track,
+      fragment: target.fragment,
+      query: target.query,
+      quizBuilder: buildQuizPanel,
+    );
+  }
 
   static GoRoute _page(String name, String path, Widget child) => _pageOf(name, path, (_) => child);
 

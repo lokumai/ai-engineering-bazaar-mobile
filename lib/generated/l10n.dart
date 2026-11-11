@@ -437,6 +437,26 @@ class S {
     return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
   }
 
+  /// `Previous match`
+  String get reader_find_previous {
+    return Intl.message('Previous match', name: 'reader_find_previous', desc: '', args: []);
+  }
+
+  /// `Next match`
+  String get reader_find_next {
+    return Intl.message('Next match', name: 'reader_find_next', desc: '', args: []);
+  }
+
+  /// `Stop marking the search`
+  String get reader_find_close {
+    return Intl.message('Stop marking the search', name: 'reader_find_close', desc: '', args: []);
+  }
+
+  /// `Match {position} of {total}`
+  String reader_find_position(int position, int total) {
+    return Intl.message('Match $position of $total', name: 'reader_find_position', desc: '', args: [position, total]);
+  }
+
   /// `Close`
   String get reader_close {
     return Intl.message('Close', name: 'reader_close', desc: '', args: []);

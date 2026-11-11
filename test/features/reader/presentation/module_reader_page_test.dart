@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -112,6 +113,7 @@ void main() {
     WidgetTester tester, {
     RecordBloc? record,
     String? fragment,
+    String? query,
     QuizBuilder? quizBuilder,
     bool reducedMotion = false,
     TargetPlatform platform = TargetPlatform.android,
@@ -132,7 +134,13 @@ void main() {
           builder: (context, _) {
             final view = BlocProvider<ModuleReaderBloc>.value(
               value: readerBloc,
-              child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder, place: place, onPlace: onPlace),
+              child: ModuleReaderView(
+                fragment: fragment,
+                query: query,
+                quizBuilder: quizBuilder,
+                place: place,
+                onPlace: onPlace,
+              ),
             );
             if (!reducedMotion) return view;
             return MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: view);
@@ -533,6 +541,78 @@ void main() {
 
     expect(find.text('Yapay bir modül oku.'), findsOneWidget);
     expect(find.text('Read a synthetic module.'), findsNothing);
+  });
+
+  group('the words searched in the catalog (plan 7.1)', () {
+    final searched = ReaderWritten(
+      doc: testDoc(
+        toc: _toc,
+        body: [
+          _paragraph('Agents call tools.'),
+          ..._filler,
+          _sectionOne,
+          _paragraph('An agent plans, then the agent acts.'),
+        ],
+      ),
+      entry: first,
+      moduleCount: 2,
+    );
+
+    testWidgets('are marked, with a bar that starts at the first mark of the section opened', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsOneWidget);
+      expect(find.text('agent'), findsOneWidget, reason: 'the words as typed');
+      expect(find.text('2 / 3'), findsOneWidget, reason: 'the first mark under Section one, of three');
+    });
+
+    testWidgets('the arrows step from mark to mark, round from the last to the first', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 3'), findsOneWidget);
+      expect(top(tester, find.text('Agents call tools.', findRichText: true)), lessThan(844));
+
+      await tester.tap(find.byTooltip('Previous match'));
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsOneWidget);
+    });
+
+    testWidgets('close takes the bar and the marks away', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Stop marking the search'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsNothing);
+      final text = tester.widget<RichText>(
+        find.byWidgetPredicate((w) => w is RichText && w.text.toPlainText() == 'Agents call tools.'),
+      );
+      var marked = false;
+      text.text.visitChildren((span) {
+        marked |= span is TextSpan && span.style?.background != null;
+        return true;
+      });
+      expect(marked, isFalse);
+    });
+
+    testWidgets('no words, no bar', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester);
+
+      expect(find.byType(FindBar), findsNothing);
+    });
   });
 
   group('the reading place (plan 1BA)', () {

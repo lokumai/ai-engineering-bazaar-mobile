@@ -35,29 +35,6 @@ SearchEntry _entry(
 );
 
 void main() {
-  group('normalise, as the web does', () {
-    test('English is lower-cased', () => expect(normalise('Agent', 'en'), 'agent'));
-
-    test('Turkish folds its letters, so a word typed on an English keyboard finds it', () {
-      expect(normalise('Görev', 'tr'), 'gorev');
-      expect(normalise('IŞIK', 'tr'), 'isik');
-      expect(normalise('İçerik', 'tr'), 'icerik');
-    });
-
-    test('Persian makes the Arabic forms Persian and drops the non-joiner and the digits', () {
-      expect(normalise('كتاب', 'fa'), 'کتاب');
-      expect(normalise('ي', 'fa'), 'ی');
-      expect(normalise('می\u200cخوام', 'fa'), 'میخوام');
-      expect(normalise('۱۲', 'fa'), '12');
-    });
-  });
-
-  test('tokenize splits on space and punctuation and keeps a joined Persian word whole and in parts', () {
-    expect(tokenize('Tool-calling, agents: (RAG).'), ['Tool', 'calling', 'agents', 'RAG']);
-    expect(tokenize('a\u200cb'), ['a', 'b', 'a\u200cb']);
-    expect(tokenize('LLMها'), ['LLM', 'ها']);
-  });
-
   group('entriesOf', () {
     test('a written module gives itself, by its opening, then one entry per ## section', () {
       final doc = testDoc(

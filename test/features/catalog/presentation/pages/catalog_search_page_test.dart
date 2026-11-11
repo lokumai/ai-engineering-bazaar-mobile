@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +93,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, startsWith('/courses/'));
-    expect(router.state.extra, 'retrieval');
+    final target = router.state.extra! as ReaderTarget;
+    expect((target.fragment, target.query), ('retrieval', 'passages'));
 
     // The bar's back finds the search as it was left (the owner, 2026-11-11).
     await tester.tap(find.byType(BackButton));

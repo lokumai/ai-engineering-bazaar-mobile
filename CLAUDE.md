@@ -89,9 +89,11 @@ lib/
     storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
   shared/
-    content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository
+    content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
+                                                word rules (search_text.dart)
     content/application/                        ContentBloc
-    content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart
+    content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart,
+                                                the marks of the words searched (text_find.dart)
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
@@ -100,6 +102,7 @@ lib/
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
+    navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
                                                 rule, segmented control

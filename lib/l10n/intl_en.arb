@@ -234,6 +234,23 @@
   },
   "reader_contents": "Contents",
   "@reader_contents": {},
+  "reader_find_previous": "Previous match",
+  "@reader_find_previous": {},
+  "reader_find_next": "Next match",
+  "@reader_find_next": {},
+  "reader_find_close": "Stop marking the search",
+  "@reader_find_close": {},
+  "reader_find_position": "Match {position} of {total}",
+  "@reader_find_position": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reader_close": "Close",
   "@reader_close": {},
   "reader_on_this_page": "On this page",
