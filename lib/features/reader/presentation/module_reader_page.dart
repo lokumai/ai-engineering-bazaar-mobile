@@ -110,6 +110,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   bool _fragmentScheduled = false;
 
+  /// The heading the page opened at, from a link or a search hit: kept at the top as the page's length changes, as a
+  /// picture above it loads, until the reader scrolls.
+  String? _held;
+
   /// The page's scroll, to open the module at [ModuleReaderView.place].
   final _scroll = ScrollController();
 
@@ -141,10 +145,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       ScrollMetricsNotification(:final depth, :final metrics) => (depth, metrics),
       _ => (-1, null),
     };
-    if (notification case UserScrollNotification(depth: 0)) _moved = true;
+    if (notification case UserScrollNotification(depth: 0)) {
+      _moved = true;
+      _held = null;
+    }
     if (notification case ScrollEndNotification(depth: 0, :final metrics)) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
+    if (notification is ScrollMetricsNotification) _holdHeading();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
     return false;
   }
@@ -204,6 +212,17 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
     final clamped = target.clamp(position.minScrollExtent, position.maxScrollExtent);
     if ((clamped - position.pixels).abs() > 0.5) _scroll.jumpTo(clamped);
+  }
+
+  /// Brings the heading the page opened at back to the top, after a picture above it changed the page's length.
+  void _holdHeading() {
+    final id = _held;
+    if (id == null || !_scroll.hasClients) return;
+    final base = _headingOffset(id);
+    if (base == null) return;
+    final position = _scroll.position;
+    final target = base.clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - position.pixels).abs() > 0.5) _scroll.jumpTo(target);
   }
 
   /// Opens the contents sheet and scrolls to the heading chosen once the sheet is gone.
@@ -375,13 +394,16 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     });
   }
 
-  /// Scrolls to the fragment once, after the first frame that draws the module.
+  /// Scrolls to the fragment once, after the first frame that draws the module, and holds it there as pictures above
+  /// it load, until the reader scrolls.
   void _scheduleFragment() {
     final fragment = widget.fragment;
     if (fragment == null || _fragmentScheduled) return;
     _fragmentScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollTo(fragment);
+      if (!mounted) return;
+      _scrollTo(fragment);
+      _held = fragment;
     });
   }
 }

@@ -173,6 +173,38 @@ class _BazaarShellState extends State<BazaarShell> {
   static int _pages(List<RouteMatchBase> matches) =>
       matches.fold(0, (count, match) => count + (match is ShellRouteMatch ? _pages(match.matches) : 1));
 
+  /// The paths of the pages in [matches], the first page first.
+  static List<String> _locations(List<RouteMatchBase> matches) => [
+    for (final match in matches)
+      if (match is ShellRouteMatch) ..._locations(match.matches) else match.matchedLocation,
+  ];
+
+  /// The bar's back button, which only a module's page shows: it goes back to the catalog of the module's track, not to
+  /// the page before as a browser would (the owner, 2026-11-11). The catalog page under the module, its root or a level's
+  /// page, is found again as it was left, its search included; when none is under it (the module was opened from Home,
+  /// from Quiz or from another module), the catalog opens.
+  void _back() {
+    final router = GoRouter.of(context);
+    final track = BazaarPaths.trackOf(widget.location);
+    if (track == null) {
+      router.pop();
+      return;
+    }
+    final catalog = BazaarPaths.catalog(track);
+    final pages = _locations(router.routerDelegate.currentConfiguration.matches);
+    // The catalog's root or one of its level pages, of the module's track.
+    final at = pages.lastIndexWhere(
+      (page) => page == catalog || (BazaarPaths.levelOf(page) != null && BazaarPaths.trackOf(page) == track),
+    );
+    if (at < 0) {
+      router.go(catalog);
+      return;
+    }
+    for (var i = pages.length - 1; i > at; i--) {
+      router.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
@@ -216,8 +248,8 @@ class _BazaarShellState extends State<BazaarShell> {
                       statusStrip: false,
                       title: _title(index),
                       accent: _accent(context, index),
-                      // The bar sits above the shell's navigator, so the router pops the page it pushed.
-                      onBack: pushed ? () => GoRouter.of(context).pop() : null,
+                      // The bar sits above the shell's navigator, so the router goes back, to the catalog.
+                      onBack: pushed ? _back : null,
                     ),
                     const LatticeBand(thin: true),
                   ],

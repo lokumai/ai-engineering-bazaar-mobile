@@ -271,6 +271,41 @@ void main() {
     expect(find.byType(BackButton), findsNothing);
   });
 
+  group("a module's back goes to the catalog, not to the page before (the owner, 2026-11-11)", () {
+    testWidgets('from a module opened on Home, after another tab, to the catalog and not Home', (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      router.push('/courses/alpha/first');
+      await tester.pumpAndSettle();
+      await _tap(tester, _destination('Quiz'));
+      await _tap(tester, _destination('Catalog'));
+      expect(_path(router), '/courses/alpha/first', reason: 'the tab opens its module again');
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets');
+      expect(find.byType(BackButton), findsNothing);
+    });
+
+    testWidgets('from a module opened from another module, past it to the catalog under them', (tester) async {
+      final router = await _pumpAt(tester, '/sheets', TrackCubit());
+      await _pushFromCatalog(tester, 'Alpha Level', 'First Module');
+      router.push('/courses/beta/fourth');
+      await tester.pumpAndSettle();
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets');
+      expect(find.byType(BackButton), findsNothing);
+    });
+
+    testWidgets("For Everyone's module goes to For Everyone's catalog", (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      router.push('/everyone/courses/alpha/first');
+      await tester.pumpAndSettle();
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/everyone/sheets');
+    });
+  });
+
   testWidgets('Android back pops a pushed page and leaves the app only from the first page', (tester) async {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     final calls = _watchPlatformCalls(tester);
@@ -368,7 +403,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/sheets', reason: 'the open tab goes back to its first page');
     expect(find.byType(BackButton), findsNothing);
-    // A module opened from Home is under Catalog too, with Home under it.
+    // A module opened from Home is under Catalog too, with Home under it; its back goes to the catalog (the owner,
+    // 2026-11-11).
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Open the module'));
@@ -379,7 +415,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('text scale 2.0', (tester) async {

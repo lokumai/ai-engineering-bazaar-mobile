@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/bazaar_app_harness.dart';
 
-/// Back follows the pages the reader opened (plan 1M): opening a page pushes it, and only the bottom navigation starts
-/// the history again.
+/// Opening a page pushes it, and only the bottom navigation starts the history again (plan 1M); a module's back arrow goes
+/// to the catalog page under it, or else opens the catalog (plan 7.3).
 void main() {
   Future<GoRouter> pumpAt(WidgetTester tester, String location) async {
     final router = AppRouterFactory(initialLocation: location).create();
@@ -33,13 +33,13 @@ void main() {
 
   Future<void> back(WidgetTester tester) => tap(tester, find.byType(BackButton));
 
-  testWidgets('a module opened from Home returns to Home', (tester) async {
+  testWidgets('a module opened from Home goes back to the catalog', (tester) async {
     final router = await pumpAt(tester, '/');
     await tap(tester, find.text('Open the module'));
     expect(path(router), '/courses/alpha/first');
 
     await back(tester);
-    expect(path(router), '/');
+    expect(path(router), '/sheets');
     expect(find.byType(BackButton), findsNothing);
   });
 
@@ -63,12 +63,12 @@ void main() {
     expect(path(router), '/sheets/alpha');
   });
 
-  testWidgets('a module after the next one on Home opens it, and back returns to Home', (tester) async {
+  testWidgets('a module after the next one on Home opens it, and back goes to the catalog', (tester) async {
     final router = await pumpAt(tester, '/');
     await tap(tester, find.text('Second Module'));
     expect(path(router), '/courses/alpha/second');
 
     await back(tester);
-    expect(path(router), '/');
+    expect(path(router), '/sheets');
   });
 }

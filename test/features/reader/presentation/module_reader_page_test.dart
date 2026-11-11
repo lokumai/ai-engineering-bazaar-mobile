@@ -492,6 +492,31 @@ void main() {
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
   });
 
+  testWidgets('the fragment stays at the top as the page above it grows, until the reader scrolls', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(toc: _toc, body: [..._filler, _sectionOne, ..._filler]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, fragment: 'one');
+    final heading = find.text('Section one', findRichText: true);
+    final opened = top(tester, heading);
+
+    // Larger text lengthens the page above the heading, as a picture above it does when it loads.
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+    expect(top(tester, heading), closeTo(opened, 1));
+
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, 300));
+    await tester.pumpAndSettle();
+    tester.platformDispatcher.textScaleFactorTestValue = 1.0;
+    await tester.pumpAndSettle();
+    expect(top(tester, heading), isNot(closeTo(opened, 1)), reason: 'the reader moved: the heading is let go');
+  });
+
   testWidgets("a translation's objectives are shown in place of the English (web D124)", (tester) async {
     stateIs(
       ReaderWritten(
