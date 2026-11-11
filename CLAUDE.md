@@ -76,9 +76,9 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
-                                                module pages; empty on the four tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's camel held for its page,
-                                                Quiz, Settings; caravan_icon.dart)
+                                                module pages; empty on the tabs), thin lattice band, bottom navigation of icons
+                                                with small names (Home, Catalog, the Caravan's camel, Quiz, Settings;
+                                                caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -118,6 +118,8 @@ lib/
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's first step
     guide/                                      How the bazaar works, at `/settings/guide`
+    caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
+                                                the web's timeline
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)

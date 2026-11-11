@@ -108,9 +108,19 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Caravan, coming soon`
-  String get nav_caravan_soon {
-    return Intl.message('Caravan, coming soon', name: 'nav_caravan_soon', desc: '', args: []);
+  /// `Under maintenance`
+  String get caravan_maintenance {
+    return Intl.message('Under maintenance', name: 'caravan_maintenance', desc: '', args: []);
+  }
+
+  /// `The Caravan, a timeline of what was trending in AI engineering, is still being built.`
+  String get caravan_maintenance_body {
+    return Intl.message(
+      'The Caravan, a timeline of what was trending in AI engineering, is still being built.',
+      name: 'caravan_maintenance_body',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `How would you like to read?`

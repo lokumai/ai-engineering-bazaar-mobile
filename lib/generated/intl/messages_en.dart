@@ -109,6 +109,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
+    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Under maintenance"),
+    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
+      "The Caravan, a timeline of what was trending in AI engineering, is still being built.",
+    ),
     "card_description": MessageLookupByLibrary.simpleMessage("Description"),
     "card_length": MessageLookupByLibrary.simpleMessage("Length"),
     "card_length_minutes": m4,
@@ -232,7 +236,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("Caravan"),
-    "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("Caravan, coming soon"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Catalog"),
     "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
     "nav_quiz": MessageLookupByLibrary.simpleMessage("Quiz"),

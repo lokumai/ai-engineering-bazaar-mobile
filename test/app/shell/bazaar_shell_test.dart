@@ -19,7 +19,7 @@ import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
 import '../../support/fold.dart';
 
-/// A destination by its tooltip, its name or, for the Caravan, its name and that it is coming soon.
+/// A destination by its tooltip, which is its name.
 Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip(label));
 
 /// Pumps the app's router at [location] with [track], and settles.
@@ -309,15 +309,15 @@ void main() {
     // Lower than Material's bar, with each name small under its icon.
     expect(tester.getSize(find.byType(NavigationBar)).height, BazaarShell.navHeight);
 
-    // The Caravan holds the middle ahead of its page, and goes nowhere yet.
-    final caravan = _destination('Caravan, coming soon');
+    // The Caravan holds the middle and opens its page, under maintenance (plan 3.1).
+    final caravan = find.descendant(of: find.byType(NavigationBar), matching: find.text('Caravan'));
     expect(caravan, findsOneWidget);
     final centre = tester.getCenter(caravan).dx;
     expect(centre, closeTo(tester.getCenter(find.byType(NavigationBar)).dx, 1));
-    await tester.tap(caravan, warnIfMissed: false);
+    await tester.tap(caravan);
     await tester.pumpAndSettle();
-    expect(_path(router), '/sheets/alpha');
-    expect(selected(), 1);
+    expect(_path(router), '/caravan');
+    expect(selected(), 2);
 
     await tester.tap(_destination('Quiz'));
     await tester.pumpAndSettle();

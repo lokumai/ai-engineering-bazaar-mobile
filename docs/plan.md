@@ -195,6 +195,7 @@ The fixes land together in one pull request; each fix is its own commit, test fi
 The website keeps moving; content reaches the app through the bundle, but a new page or menu needs app code.
 
 - [ ] **3.1 New pages reach the app on their own (web M62, Caravan; D115 to D117, About).** Waiting for web change 5.7 (owner, 2026-11-10): the bar now holds two pages, Caravan (no longer under maintenance: the shadow play on sample data) and About, so the plan below is revisited when 5.7 lands. About is done another way, see 3.5. Caravan waits for the author's real trends and for its document in the bundle, which the web has already shaped (D116: `api/v1/caravan/<lang>.json`); its trends were written by an agent as a sample and are not built into the app. The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
+  - [x] Until then (the owner, 2026-11-11): the Caravan tab opens a page that says the Caravan is under maintenance, in the app's three languages, as the web's first Caravan page did, instead of doing nothing. Done: `lib/features/caravan/`, at `/caravan`, the page's name, Under maintenance, a line on what the Caravan is, and the way to the catalog of the current track; the camel is selected while it is open. The web's `/caravan/` still shows sample trends and `mini-courses/caravan/trends.yaml` holds none (checked on the web's main, 2026-11-11).
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
   - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
@@ -222,21 +223,21 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 
 ## Phase 4: owner follow-ups from PR #1
 
-- [ ] **4.1** Decide on the twelve unused template components under `lib/shared/design_system/components/`: delete them, or build the redesign on them (Phase 1A).
-- [ ] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`.
-- [ ] **4.3** iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
-- [ ] **4.4** Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
+- [x] **4.1** Decide on the twelve unused template components under `lib/shared/design_system/components/`: delete them, or build the redesign on them (Phase 1A). Checked 2026-11-11: eleven files remain; only `app_page_transition.dart` is used by the app (the router and three features), the other ten are used by their own tests only. Done (the owner, 2026-11-11): the ten are removed with their tests and goldens, and so are `app_breakpoints.dart` and `app_sizes.dart`, which only they used; `app_page_transition.dart` and the tokens it uses stay.
+- [ ] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`. Dispatched on 2026-11-11 (run 42993408811).
+- [ ] **4.3** (the owner's Mac, from 2026-11-12) iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
+- [ ] **4.4** (with 4.3, from 2026-11-12) Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
 - [x] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught. Done: `Pacific/Kiritimati` (UTC+14), which puts most instants on the next day; the suite passed in it and in UTC-11 before the change.
 - [x] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise). Done: Android's restore picker shows every file, since a provider may label a backup other than `application/json`; a file that is not a backup says nothing changed, as before, and a file over 16 MB is refused before it is read. iOS keeps the `.json` filter.
-- [ ] **4.7** Decide whether the licences page also carries the course content's licence.
-- [ ] **4.8** Reader performance on a real low-end Android device.
+- [ ] **4.7** Decide whether the licences page also carries the course content's licence. The course is written by the company's web team and published under the web repo's MIT licence (lokumai); the app's licences page lists only the packages. Explained to the owner, 2026-11-11; asked of the web team at the meeting of 2026-11-11, and added or not by its answer.
+- [ ] **4.8** Reader performance on a real low-end Android device. Later (the owner, 2026-11-11).
 
 ## Phase 5: web changes the app needs
 
 PR #1 lists 13 proposed web changes; none is opened on the web yet (Q2).
 The ones that unlock app features:
 
-- [ ] **5.1** A word count per track document, for the catalog's Length and the reader's facts line.
+- [ ] **5.1** A word count per track document, for the catalog's Length and the reader's facts line. The site prints it already (`extent()` in `src/lib/content/derive.ts`, shown by `FactsStrip`), but the bundle carries only `minutes` (checked 2026-11-11).
 - [ ] **5.2** A checklist index per task item, so the app can show the record's ticks.
 - [ ] **5.3** The first parts of a planned module in the index, so a planned card can show its Description.
 - [ ] **5.4** Drop the empty Mermaid `<rect>` elements that draw a dot above every node label.
@@ -247,7 +248,11 @@ The ones that unlock app features:
 
 The rest (register fixes, contrast fixes, conformance cases) are listed in the PR #1 description.
 
+The owner takes 5.1 to 5.8 to the web team on 2026-11-11, with two questions: whether more quizzes are coming (For Everyone has none; Expert, Ecosystem and Emerging are drafts) and when the Caravan gets its real trends.
+
 ## Phase 6: release
+
+The owner's manager started opening the store accounts on 2026-11-11.
 
 - [ ] **6.1** Release signing: an upload keystore, `key.properties` kept out of git, and CI secrets. Release builds are signed with the debug key today (`android/app/build.gradle.kts`).
 - [ ] **6.2** Store listings, the privacy text and the data safety answers (see 4.4).

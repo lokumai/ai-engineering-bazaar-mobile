@@ -15,6 +15,11 @@ abstract final class BazaarPaths {
   static const catalogEngineers = '/sheets';
   static const catalogEveryone = '/everyone/sheets';
   static const quizzes = '/quiz';
+
+  /// The Caravan, the web's trends timeline (`/caravan/`); under maintenance in the app until the bundle carries it
+  /// (plan 3.1).
+  static const caravan = '/caravan';
+
   static const settings = '/settings';
 
   static const _everyone = 'everyone';

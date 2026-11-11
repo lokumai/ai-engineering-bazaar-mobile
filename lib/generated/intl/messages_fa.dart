@@ -109,6 +109,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("این بخش به نسخهٔ جدیدتری از برنامه نیاز دارد."),
+    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("در دست تعمیر و نگهداری"),
+    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
+      "کاروان، گاه‌شمار آنچه در مهندسی هوش مصنوعی پرطرفدار بوده، هنوز در دست ساخت است.",
+    ),
     "card_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "card_length": MessageLookupByLibrary.simpleMessage("مدت"),
     "card_length_minutes": m4,
@@ -232,7 +236,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "loading": MessageLookupByLibrary.simpleMessage("در حال بارگذاری"),
     "module_planned": MessageLookupByLibrary.simpleMessage("برنامه‌ریزی‌شده"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("کاروان"),
-    "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("کاروان، به‌زودی"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("کاتالوگ"),
     "nav_home": MessageLookupByLibrary.simpleMessage("خانه"),
     "nav_quiz": MessageLookupByLibrary.simpleMessage("آزمون"),

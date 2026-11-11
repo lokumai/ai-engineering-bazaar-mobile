@@ -107,6 +107,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("Bu bölüm için uygulamanın daha yeni bir sürümü gerekiyor."),
+    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Bakımda"),
+    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
+      "Kervan, yapay zekâ mühendisliğinde gündemde olanların zaman çizelgesi, hâlâ yapım aşamasında.",
+    ),
     "card_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "card_length": MessageLookupByLibrary.simpleMessage("Süre"),
     "card_length_minutes": m4,
@@ -230,7 +234,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "loading": MessageLookupByLibrary.simpleMessage("Yükleniyor"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planlandı"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("Kervan"),
-    "nav_caravan_soon": MessageLookupByLibrary.simpleMessage("Kervan, yakında"),
     "nav_catalog": MessageLookupByLibrary.simpleMessage("Katalog"),
     "nav_home": MessageLookupByLibrary.simpleMessage("Ana sayfa"),
     "nav_quiz": MessageLookupByLibrary.simpleMessage("Quiz"),

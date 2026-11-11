@@ -22,8 +22,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
 /// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
-/// names kept so each is clear). The Caravan's camel holds the middle, ahead of its page (plan 3.1): it is named,
-/// says it is coming soon, and does nothing yet.
+/// names kept so each is clear). The Caravan's camel holds the middle and opens its page, which says it is under
+/// maintenance until the bundle carries the web's timeline (plan 3.1).
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
@@ -130,15 +130,13 @@ class _BazaarShellState extends State<BazaarShell> {
     if (track != null) context.read<TrackCubit>().select(track);
   }
 
-  /// The Caravan's place in the navigation, in the middle.
-  static const int _caravan = 2;
-
   /// The pages each tab showed last, by its place in the navigation, with the path of the page on top: a tab opened
   /// again opens them again.
   final _stacks = <int, ({RouteMatchList pages, String top})>{};
 
   /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
   int get _selectedIndex => switch (widget.location) {
+    BazaarPaths.caravan => 2,
     BazaarPaths.quizzes => 3,
     final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
     final location when BazaarPaths.trackOf(location) != null => 1,
@@ -146,10 +144,10 @@ class _BazaarShellState extends State<BazaarShell> {
   };
 
   void _onDestinationSelected(int index) {
-    if (index == _caravan) return;
     final track = context.read<TrackCubit>().state;
     final target = switch (index) {
       0 => BazaarPaths.home,
+      2 => BazaarPaths.caravan,
       3 => BazaarPaths.quizzes,
       4 => BazaarPaths.settings,
       _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? track),
@@ -275,9 +273,8 @@ class _BazaarShellState extends State<BazaarShell> {
                   tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
                   NavigationDestination(
                     icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
+                    selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
                     label: l10n.nav_caravan,
-                    tooltip: l10n.nav_caravan_soon,
-                    enabled: false,
                   ),
                   tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
                   tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),

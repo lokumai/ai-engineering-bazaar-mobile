@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
+import 'package:ai_engineering_bazaar/features/caravan/navigation/caravan_routes.dart';
 import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
@@ -77,6 +78,8 @@ class AppRouterFactory {
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
+            // The Caravan tab, under maintenance until the bundle carries the web's timeline (plan 3.1).
+            ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
             ...GuideFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
