@@ -74,6 +74,14 @@ abstract final class ContentParser {
     );
 
     final moved = root['moved'];
+    // Added by the web in D125; an index from before it has none, and an app that finds none shows no story.
+    final story = root
+        .optional('story')
+        ?.let(
+          (node) => Map<String, String>.unmodifiable({
+            for (final MapEntry(:key, :value) in node.entries()) key: value.listedIn(files),
+          }),
+        );
     return BundleIndex(
       contentVersion: contentVersion,
       publishedAt: publishedAt,
@@ -86,6 +94,7 @@ abstract final class ContentParser {
       moved: Moved(levels: _strings(moved['levels']), modules: _strings(moved['modules'])),
       files: files,
       images: images,
+      story: story ?? const {},
     );
   }
 
@@ -104,6 +113,13 @@ abstract final class ContentParser {
     final objectivesNode = root['objectives'];
     objectivesNode['lang'].string();
     final objectives = List<String>.unmodifiable(objectivesNode['items'].list().map((item) => item.string()));
+    // Added by the web in D124: the objectives the document's own translation declares, null in English and where it
+    // declares none. A document from before it has no key; a list in another language than the document's is not its.
+    final translatedObjectives = root.optional('translatedObjectives')?.nullable((node) {
+      final language = node['lang'].string();
+      final items = List<String>.unmodifiable(node['items'].list().map((item) => item.string()));
+      return language == lang && items.isNotEmpty ? items : null;
+    });
     final prerequisites = List<Ref>.unmodifiable(root['prerequisites'].list().map(_ref));
     final previous = root['previous'].nullable(_ref);
     final next = root['next'].nullable(_ref);
@@ -123,6 +139,7 @@ abstract final class ContentParser {
       dir: dir,
       title: title,
       objectives: objectives,
+      translatedObjectives: translatedObjectives,
       prerequisites: prerequisites,
       previous: previous,
       next: next,
@@ -142,6 +159,33 @@ abstract final class ContentParser {
       slug: root['slug'].string(),
       title: root['title'].string(),
       blocks: _DocumentReader(index).blocks(root['blocks']),
+    );
+  }
+
+  /// Parses the story document at the site path [path] (web D125).
+  static StoryDoc parseStoryDoc(String json, {required String path}) {
+    final root = _Node.root(json, path);
+    _schemaVersion(root);
+    final stalls = root['stalls'].list();
+    if (stalls.isEmpty) root['stalls'].fail();
+    return StoryDoc(
+      lang: root['lang'].string(),
+      dir: root['dir'].named(TextDir.values.asNameMap()),
+      title: root['title'].nullable((node) => node.string()),
+      stalls: List.unmodifiable(
+        stalls.map(
+          (stall) => StoryStall(
+            heading: stall['heading'].string(),
+            paragraphs: List.unmodifiable(stall['paragraphs'].list().map((paragraph) => paragraph.string())),
+          ),
+        ),
+      ),
+      motto: root['motto'].nullable(
+        (node) => StoryMotto(
+          lead: node['lead'].string(),
+          lines: List.unmodifiable(node['lines'].list().map((line) => line.string())),
+        ),
+      ),
     );
   }
 

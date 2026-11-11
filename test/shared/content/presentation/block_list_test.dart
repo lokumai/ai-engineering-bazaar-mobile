@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/foundation.dart';
@@ -89,7 +90,9 @@ void main() {
     expect(style.fontSize, BazaarType.section.size);
     expect(style.fontWeight, FontWeight.w600);
     expect(style.color, colorsOf(tester).onSurfaceTitle);
-    expect(style.letterSpacing, closeTo(BazaarType.trackingSection * BazaarType.section.size, 1e-9));
+    // In the display face, at its own spacing.
+    expect(style.fontFamily, displayFamily);
+    expect(style.letterSpacing, 0);
     expect(find.byKey(const Key('heading-rule')), findsOneWidget);
   });
 

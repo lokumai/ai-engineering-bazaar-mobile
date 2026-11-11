@@ -14,7 +14,7 @@ final class BazaarSegment<T> {
   final Key? key;
 }
 
-/// A row of choices in one framed track, the chosen one filled (the mockup's track and status controls).
+/// A row of choices in one framed track, the chosen one tinted (the mockup's track and status controls).
 ///
 /// Each segment is a selectable button named by its label, at least the platform's tap target tall (spec 3.10, A28).
 /// The segments share the width when every label fits its share on one line; otherwise they wrap onto more lines,
@@ -36,7 +36,7 @@ class BazaarSegmentedControl<T> extends StatelessWidget {
   /// The name of the group for assistive technology.
   final String semanticLabel;
 
-  /// Whether the chosen segment is filled with the primary colour (the track control) or with the sunken surface (the
+  /// Whether the chosen segment is tinted with the primary colour (the track control) or with the sunken surface (the
   /// status control).
   final bool filled;
 
@@ -124,7 +124,11 @@ class _SegmentButton<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
     final (Color background, Color ink) = switch ((chosen, filled)) {
-      (true, true) => (colors.primary, colors.onPrimary),
+      // Chosen: a light wash of the primary under its ink, not a solid block (the user, 2026-11-10).
+      (true, true) => (
+        Color.alphaBlend(colors.primary.withValues(alpha: 0.12), colors.surfaceRaised),
+        colors.onSurfaceTitle,
+      ),
       (true, false) => (colors.surfaceSunken, colors.onSurfaceTitle),
       (false, _) => (Colors.transparent, colors.onSurfaceMuted),
     };

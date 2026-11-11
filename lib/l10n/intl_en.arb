@@ -23,6 +23,10 @@
   "@nav_quiz": {},
   "nav_settings": "Settings",
   "@nav_settings": {},
+  "nav_caravan": "Caravan",
+  "@nav_caravan": {},
+  "nav_caravan_soon": "Caravan, coming soon",
+  "@nav_caravan_soon": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
@@ -41,16 +45,33 @@
   "@home_up_next": {},
   "home_open_module": "Open the module",
   "@home_open_module": {},
+  "home_continue_reading": "Continue reading",
+  "@home_continue_reading": {},
+  "home_read_percent": "{percent} % read",
+  "@home_read_percent": {
+    "description": "How far down a half-read module the reader left it, on Home's continue card.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "home_continue": "Continue",
+  "@home_continue": {},
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
   "home_after": "After that",
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",
   "@home_see_catalog": {},
-  "home_practice": "Practise again",
+  "home_practice": "Quizzes to practise",
   "@home_practice": {},
-  "home_practice_lede": "The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.",
+  "home_practice_lede": "Quizzes from the modules you completed.",
   "@home_practice_lede": {},
+  "diagram_expand": "Open the diagram full screen",
+  "@diagram_expand": {},
+  "home_path": "Your path",
+  "@home_path": {},
   "home_offline_title": "The course is on this device",
   "@home_offline_title": {},
   "home_offline_body": "It reads without a connection. At every start the app asks the site for a newer version.",
@@ -344,13 +365,52 @@
   "quiz_unavailable": "This quiz could not be opened. Close it and try again later.",
   "@quiz_unavailable": {},
   "quiz_list_count": "{count, plural, =1{1 quiz} other{{count} quizzes}}",
-  "@quiz_list_count": {"placeholders": {"count": {"type": "int"}}},
+  "@quiz_list_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_score_before": "The time before: {previous} of {total}. Best: {best} of {total}.",
-  "@quiz_score_before": {"placeholders": {"previous": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_score_before": {
+    "placeholders": {
+      "previous": {
+        "type": "int"
+      },
+      "best": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
-  "@quiz_score_line": {"placeholders": {"last": {"type": "int"}, "best": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_score_line": {
+    "placeholders": {
+      "last": {
+        "type": "int"
+      },
+      "best": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_list_taken": "{taken} of {total} taken",
-  "@quiz_list_taken": {"placeholders": {"taken": {"type": "int"}, "total": {"type": "int"}}},
+  "@quiz_list_taken": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "quiz_all_right": "All answers right",
   "quiz_list_engineers_only": "The questions come with the {track} modules.",
   "@quiz_list_engineers_only": {
@@ -559,16 +619,16 @@
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
   },
-  "welcome_intro_title": "How the bazaar works",
-  "@welcome_intro_title": {
+  "guide_title": "How the bazaar works",
+  "@guide_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_levels_title": "Level by level",
-  "@welcome_intro_levels_title": {
+  "guide_levels_title": "Level by level",
+  "@guide_levels_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_levels": "The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.",
-  "@welcome_intro_levels": {
+  "guide_levels": "The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.",
+  "@guide_levels": {
     "description": "Welcome's first-launch guide (plan 1X).",
     "placeholders": {
       "count": {
@@ -580,32 +640,102 @@
       }
     }
   },
-  "welcome_intro_modules_title": "Short modules",
-  "@welcome_intro_modules_title": {
+  "guide_modules_title": "Short modules",
+  "@guide_modules_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
-  "@welcome_intro_modules": {
+  "guide_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+  "@guide_modules": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_complete_title": "Mark what you finish",
-  "@welcome_intro_complete_title": {
+  "guide_complete_title": "Mark what you finish",
+  "@guide_complete_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_complete": "At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.",
-  "@welcome_intro_complete": {
+  "guide_complete": "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
+  "@guide_complete": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_offline_title": "On this device, offline",
-  "@welcome_intro_offline_title": {
+  "guide_offline_title": "On this device, offline",
+  "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
-  "@welcome_intro_offline": {
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+  "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_intro_start": "Open the catalog",
-  "@welcome_intro_start": {
-    "description": "Welcome's first-launch guide (plan 1X)."
+  "welcome_story_continue": "Continue",
+  "@welcome_story_continue": {
+    "description": "Welcome's first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5)."
+  },
+  "settings_privacy_legal": "Privacy and legal",
+  "@settings_privacy_legal": {
+    "description": "Settings' privacy and legal page (plan 3.4, web D122)."
+  },
+  "privacy_title": "Privacy",
+  "@privacy_title": {},
+  "privacy_no_data": "This app collects no personal data. It has no account, no analytics and no ads.",
+  "@privacy_no_data": {},
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+  "@privacy_on_device": {},
+  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
+  "@privacy_download": {},
+  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+  "@privacy_crash": {},
+  "privacy_contact": "For any question about personal data, write to us.",
+  "@privacy_contact": {},
+  "legal_title": "Legal",
+  "@legal_title": {},
+  "legal_owner": "Owner",
+  "@legal_owner": {},
+  "legal_mersis": "MERSİS no.",
+  "@legal_mersis": {},
+  "legal_address": "Address",
+  "@legal_address": {},
+  "legal_email": "Email",
+  "@legal_email": {},
+  "legal_phone": "Phone",
+  "@legal_phone": {},
+  "legal_marks_title": "Third-party marks and images",
+  "@legal_marks_title": {},
+  "legal_marks": "Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.",
+  "@legal_marks": {},
+  "legal_images": "Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.",
+  "@legal_images": {},
+  "legal_licence": "The project's MIT licence covers its code and its content. It does not cover third-party marks or images.",
+  "@legal_licence": {},
+  "legal_licence_link": "MIT licence",
+  "@legal_licence_link": {},
+  "privacy_github_pages": "What is GitHub Pages?",
+  "@privacy_github_pages": {},
+  "privacy_github_statement": "GitHub General Privacy Statement",
+  "@privacy_github_statement": {},
+  "settings_story": "The story of the Bazaar",
+  "@settings_story": {
+    "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
+  },
+  "about_failed": "The story could not be opened. Check for updates, then open it again.",
+  "@about_failed": {
+    "description": "The About page, when the story document cannot be read."
+  },
+  "about_english": "The story is written in English.",
+  "@about_english": {
+    "description": "The About page, above the story, when the app's language is not English: the story has no translation yet."
+  },
+  "about_skip": "Skip",
+  "@about_skip": {
+    "description": "The story film at the top, on the first launch: leaves the story for the language and track step."
+  },
+  "about_close": "Close",
+  "@about_close": {
+    "description": "The story film from Settings: its close button at the top and the button at its end, back to Settings."
+  },
+  "about_next": "Next",
+  "@about_next": {
+    "description": "The story film, for a screen reader: the far side of the screen, which goes on to the next screen."
+  },
+  "about_previous": "Previous",
+  "@about_previous": {
+    "description": "The story film, for a screen reader: the near side of the screen, which goes back a screen."
   }
 }

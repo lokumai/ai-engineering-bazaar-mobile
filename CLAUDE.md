@@ -76,8 +76,9 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
-                                                module pages; empty on the four tabs), thin lattice band, bottom navigation (Home,
-                                                Catalog, Quiz, Settings)
+                                                module pages; empty on the four tabs), thin lattice band, bottom navigation of icons
+                                                with small names (Home, Catalog, the Caravan's camel held for its page,
+                                                Quiz, Settings; caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -113,12 +114,15 @@ lib/
     settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
-                                                first-launch steps (language and track, the guide)
+                                                first-launch steps (the story the app passes in, then language and track)
+    about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
+                                                whole screen: at `/settings/about`, outside the shell, and Welcome's first step
+    guide/                                      How the bazaar works, at `/settings/guide`
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
-assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt
-assets/brand/, assets/welcome/                  the Lokum logo and the Welcome art, each with its SOURCE.md
+assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
+assets/brand/, assets/welcome/, assets/about/   the Lokum logo, the Welcome art and the story's scenes, each with its SOURCE.md
 integration_test/                               device tests
 ```
 

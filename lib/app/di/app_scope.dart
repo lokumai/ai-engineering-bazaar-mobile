@@ -13,6 +13,8 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
@@ -41,6 +43,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
         RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
+        RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -60,6 +63,11 @@ class AppScope extends StatelessWidget {
           BlocProvider<QuizScoresBloc>(
             lazy: false,
             create: (context) => QuizScoresBloc(store: context.read<IQuizScoreStore>())..add(const QuizScoresStarted()),
+          ),
+          BlocProvider<ReadingPlacesBloc>(
+            lazy: false,
+            create: (context) =>
+                ReadingPlacesBloc(store: context.read<IReadingPlaceStore>())..add(const ReadingPlacesStarted()),
           ),
           // Which levels the catalog and the Quiz tab show open: in memory, so a new launch starts afresh.
           BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),

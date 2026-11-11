@@ -35,11 +35,16 @@ void main() {
     expect((sansFamily(TargetPlatform.android), monoFamily(TargetPlatform.android)), (null, 'monospace'));
   });
 
-  test('registerFontLicences adds the Vazirmatn OFL', () async {
+  test('registerFontLicences adds the OFL of Vazirmatn and of Fraunces', () async {
     LicenseRegistry.reset();
     addTearDown(LicenseRegistry.reset);
     registerFontLicences();
-    final entry = (await LicenseRegistry.licenses.toList()).singleWhere((e) => e.packages.contains('Vazirmatn'));
-    expect(entry.paragraphs.map((p) => p.text).join('\n'), contains('SIL Open Font License, Version 1.1'));
+    final entries = await LicenseRegistry.licenses.toList();
+    for (final face in ['Vazirmatn', 'Fraunces']) {
+      final entry = entries.singleWhere((e) => e.packages.contains(face));
+      final text = entry.paragraphs.map((p) => p.text).join('\n');
+      expect(text, contains('SIL Open Font License, Version 1.1'), reason: face);
+      expect(text, contains('The $face Project Authors'), reason: face);
+    }
   });
 }

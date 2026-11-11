@@ -63,6 +63,7 @@ flutter:
     - assets/content/
     - assets/content/objects/
     - assets/fonts/OFL.txt
+    - assets/fonts/OFL-Fraunces.txt
     - assets/brand/lokum_logo.webp
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
@@ -71,7 +72,23 @@ flutter:
     - assets/welcome/cast_piri.webp
     - assets/welcome/lamp_left.webp
     - assets/welcome/lamp_right.webp
+    - assets/about/grain.png
+    - assets/about/scene_1.webp
+    - assets/about/scene_1_still.webp
+    - assets/about/scene_2.webp
+    - assets/about/scene_2_still.webp
+    - assets/about/scene_3.webp
+    - assets/about/scene_3_still.webp
+    - assets/about/scene_4.webp
+    - assets/about/scene_4_still.webp
+    - assets/about/scene_5.webp
+    - assets/about/scene_5_still.webp
   fonts:
     - family: Vazirmatn
       fonts:
         - asset: assets/fonts/Vazirmatn-Regular.ttf
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/Fraunces.ttf
+        - asset: assets/fonts/Fraunces-Italic.ttf
+          style: italic

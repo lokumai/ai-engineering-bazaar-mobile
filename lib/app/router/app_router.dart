@@ -1,3 +1,5 @@
+import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
+import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
 import 'package:ai_engineering_bazaar/app/router/app_root_page.dart';
@@ -21,10 +23,13 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {
-  const AppRouterFactory({this.initialLocation = BazaarPaths.home});
+  const AppRouterFactory({this.initialLocation = BazaarPaths.home, this.crashReports = false});
 
   /// Where the router starts.
   final String initialLocation;
+
+  /// Whether this build sends crash reports, which Settings' privacy note then says (plan 3.4).
+  final bool crashReports;
 
   static final _log = AppLogger.getLogger('AppRouterFactory');
 
@@ -73,11 +78,17 @@ class AppRouterFactory {
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
-            ...SettingsFeatureRoutes.routes(openDevConsole: kDebugMode ? DevConsoleOverlay.show : null),
+            ...GuideFeatureRoutes.routes(),
+            ...SettingsFeatureRoutes.routes(
+              openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
+              crashReports: crashReports,
+            ),
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
           ],
         ),
+        // The story of the Bazaar, a film over the whole app with no bar and no navigation (plan 3.5).
+        ...AboutFeatureRoutes.routes(),
         // A module's quiz full screen, over the shell, from the Quiz tab or Home's practice (plan 1AC, 1AD).
         _pageOf(
           'quiz',

@@ -25,7 +25,7 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_sto
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
+import 'package:ai_engineering_bazaar/features/about/presentation/pages/about_welcome_step.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
@@ -95,7 +95,7 @@ void main() {
   });
 
   testWidgets(
-    'the first launch plays the gate, asks the track, shows the guide and lands on its catalog; the next launch opens Home in that track',
+    'the first launch plays the gate, tells the story, asks the track and lands on its catalog; the next launch opens Home in that track',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
@@ -103,6 +103,17 @@ void main() {
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
       expect(find.byType(HomePage), findsNothing);
+      // The story first (plan 3.5), its film played to the end.
+      final intro = find.byKey(AboutWelcomeStep.doneKey);
+      await _drain(tester, () => find.text('Story').evaluate().isNotEmpty, what: 'the story first (plan 3.5)');
+      // Each tap on the far side moves on a screen, and at the motto brings its button.
+      for (var tap = 0; tap < 8 && intro.hitTestable().evaluate().isEmpty; tap++) {
+        final size = tester.getSize(find.byType(AboutWelcomeStep));
+        await tester.tapAt(Offset(size.width * 0.85, size.height * 0.6));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+      }
+      await tester.tap(intro);
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
       await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
       await tester.ensureVisible(everyone);
@@ -113,11 +124,6 @@ void main() {
       await tester.ensureVisible(start);
       await tester.pump();
       await tester.tap(start);
-      final intro = find.byKey(WelcomeIntroView.doneKey);
-      await _drain(tester, () => intro.evaluate().isNotEmpty, what: 'the guide (plan 1X)');
-      await tester.ensureVisible(intro);
-      await tester.pump();
-      await tester.tap(intro);
       await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
       expect(find.byType(HomePage), findsNothing);
       await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
@@ -152,7 +158,7 @@ void main() {
       Future<void> openFirst() async {
         await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
         await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
-        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
+        await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');
         // The level of the next module to read starts open: alpha, before and after the completion.

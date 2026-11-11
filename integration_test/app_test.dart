@@ -30,10 +30,15 @@ void main() {
     return dir;
   }
 
-  Future<ContentReady> settledContent(WidgetTester tester) async => await pumpUntil<ContentBloc, ContentState>(
-    tester,
-    (s) => s is ContentReady && s.refresh is! RefreshChecking && s.refresh is! RefreshIdle,
-  ) as ContentReady;
+  // The settled content, once the router's pages are on screen with nothing over them.
+  Future<ContentReady> settledContent(WidgetTester tester) async {
+    final content = await pumpUntil<ContentBloc, ContentState>(
+      tester,
+      (s) => s is ContentReady && s.refresh is! RefreshChecking && s.refresh is! RefreshIdle,
+    ) as ContentReady;
+    await pumpUntilShown(tester);
+    return content;
+  }
 
   // True once the reader shows this module in this track; a leftover reader of the previous page never matches.
   bool showsModule(ReaderState s, String key, Track track) => switch (s) {

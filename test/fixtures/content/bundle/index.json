@@ -161,6 +161,9 @@
       "alpha/zeroth": "alpha/first"
     }
   },
+  "story": {
+    "en": "api/v1/story/en.json"
+  },
   "files": {
     "api/v1/diagrams/77235fba878b47f1d72f180d8babf2c4.svg": "79cff2ce4604ad3a21d8d8ed753b9dc25b79cbc858c30d6d37d0cef0d4f223c4",
     "api/v1/diagrams/9bb8502b0371cba0d2e5b7e98362455e.svg": "8b2b74e97ac66e362db9d4bc76c3f9e100bb6b1dc5d27aefb2cd61c38620bc2b",
@@ -170,7 +173,8 @@
     "api/v1/modules/alpha/first/en.json": "acd3325d286dc85893dd63df07c4bab97984708397fa814c12627b1c12dc8468",
     "api/v1/modules/alpha/first/everyone/en.json": "01d8760b81d377162397a9a02766513b79e400a449950803dc959ff1e5476d50",
     "api/v1/modules/alpha/second/en.json": "c861f8d9322ff13d72757cd3246309d1f4c275c74d25ac73c203afc2a62696b9",
-    "api/v1/modules/beta/third/en.json": "789bf0cb93e785fb914b18d4ea618c2658585586878d98fbfcb6f2fda9654769"
+    "api/v1/modules/beta/third/en.json": "789bf0cb93e785fb914b18d4ea618c2658585586878d98fbfcb6f2fda9654769",
+    "api/v1/story/en.json": "7008f57af98e615f593dd83e01c80ec88968e0acb78f7776bb02ecb16f5418e3"
   },
   "images": {
     "course-images/alpha/figure.png": "e1a62d9bb17c7b4681c56d01c7720b10ee49061676e5652563fa011f810debd6",

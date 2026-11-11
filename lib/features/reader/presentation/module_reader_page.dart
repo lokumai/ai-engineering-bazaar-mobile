@@ -25,13 +25,18 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The module [moduleKey] in [track] (spec 3.6.3): opens a [ModuleReaderBloc] over the content index in context and
-/// shows [ModuleReaderView].
+/// shows [ModuleReaderView], at the place the module was left on this device (plan 1BA), which it keeps as the reader
+/// scrolls.
 ///
 /// The app mounts the router only once the content is ready (spec 3.7), so any other content state is a fault. The
 /// reader keeps the index it opened with (spec 3.4.4).
@@ -54,6 +59,7 @@ class ModuleReaderPage extends StatelessWidget {
       final state => throw StateError('The reader needs ready content, not $state'),
     };
     final language = context.watch<LanguageCubit>().state;
+    final places = context.read<ReadingPlacesBloc>();
     return BlocProvider(
       // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
       // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
@@ -63,7 +69,16 @@ class ModuleReaderPage extends StatelessWidget {
         index: index,
         recordBloc: context.read<RecordBloc>(),
       )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
-      child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder),
+      child: ModuleReaderView(
+        fragment: fragment,
+        quizBuilder: quizBuilder,
+        place: places.state.of(track, moduleKey),
+        onPlace: (place) => places.add(
+          place == null
+              ? ReadingPlaceCleared(track: track, module: moduleKey)
+              : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+        ),
+      ),
     );
   }
 }
@@ -73,10 +88,16 @@ class ModuleReaderPage extends StatelessWidget {
 /// the body (or the summary, the schedule of parts and the written sections of a draft), the completion, the pager, the
 /// quiz and the footer.
 class ModuleReaderView extends StatefulWidget {
-  const ModuleReaderView({super.key, this.fragment, this.quizBuilder});
+  const ModuleReaderView({super.key, this.fragment, this.quizBuilder, this.place, this.onPlace});
 
   final String? fragment;
   final QuizBuilder? quizBuilder;
+
+  /// Where the module was left, to open it there; a [fragment] wins over it, as a link names its own place.
+  final ReadingPlace? place;
+
+  /// Told where the module is left each time a scroll ends; null once it is back at its top.
+  final ValueChanged<ReadingPlace?>? onPlace;
 
   @override
   State<ModuleReaderView> createState() => _ModuleReaderViewState();
@@ -89,13 +110,26 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   bool _fragmentScheduled = false;
 
-  /// How far the module is read, from 0 to 1, by the scroll position on screen; drawn as the reading bar and never
-  /// saved (the record keeps no reading position, R61).
+  /// The page's scroll, to open the module at [ModuleReaderView.place].
+  final _scroll = ScrollController();
+
+  bool _placeScheduled = false;
+
+  /// Whether the page was scrolled by the reader or to a heading: the place is no longer applied as the page's length
+  /// changes, as a picture loads.
+  bool _moved = false;
+
+  /// A place this near the top is no place: the module opens at its top.
+  static const double _topSlack = 120;
+
+  /// How far the module is read, from 0 to 1, by the scroll position on screen; drawn as the reading bar. The record
+  /// keeps no reading position (R61); the place kept on this device is [ModuleReaderView.onPlace]'s.
   final _readProgress = ValueNotifier<double>(0);
 
   @override
   void dispose() {
     _readProgress.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -107,7 +141,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       ScrollMetricsNotification(:final depth, :final metrics) => (depth, metrics),
       _ => (-1, null),
     };
+    if (notification case UserScrollNotification(depth: 0)) _moved = true;
+    if (notification case ScrollEndNotification(depth: 0, :final metrics)) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
+    if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
     return false;
   }
@@ -118,7 +155,55 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
     if (target == null) throw StateError('No heading of this module has the id $id');
+    _moved = true;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
+  }
+
+  /// The scroll offset that brings the heading [id] to the top of the page, or null when it is not drawn.
+  double? _headingOffset(String id) {
+    final box = _headingKeys[id]?.currentContext?.findRenderObject();
+    if (box == null || !box.attached) return null;
+    return RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+  }
+
+  /// Tells [ModuleReaderView.onPlace] where the page stands: the last heading above the top and the distance past it.
+  void _keepPlace(ScrollMetrics metrics) {
+    final onPlace = widget.onPlace;
+    if (onPlace == null) return;
+    if (metrics.pixels < _topSlack) {
+      onPlace(null);
+      return;
+    }
+    String? heading;
+    var base = 0.0;
+    for (final id in _headingKeys.keys) {
+      final offset = _headingOffset(id);
+      if (offset != null && offset <= metrics.pixels + 1 && offset >= base) {
+        heading = id;
+        base = offset;
+      }
+    }
+    onPlace(
+      ReadingPlace(
+        heading: heading,
+        offset: metrics.pixels - base,
+        share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
+        at: clock.now(),
+      ),
+    );
+  }
+
+  /// Scrolls to [ModuleReaderView.place]: its heading and the distance past it, or its share of the page when the
+  /// heading is gone from the module.
+  void _applyPlace() {
+    final place = widget.place;
+    if (place == null || widget.fragment != null || !_placeScheduled || !_scroll.hasClients) return;
+    final position = _scroll.position;
+    final heading = place.heading;
+    final base = heading == null ? 0.0 : _headingOffset(heading);
+    final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
+    final clamped = target.clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((clamped - position.pixels).abs() > 0.5) _scroll.jumpTo(clamped);
   }
 
   /// Opens the contents sheet and scrolls to the heading chosen once the sheet is gone.
@@ -154,6 +239,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       _keyedDoc = doc;
     }
     _scheduleFragment();
+    _schedulePlace();
 
     final diagramThemes = switch (context.read<ContentBloc>().state) {
       ContentReady(:final index) => index.diagramThemes,
@@ -200,6 +286,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             child: NotificationListener<Notification>(
               onNotification: _onScroll,
               child: SingleChildScrollView(
+                controller: _scroll,
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -236,8 +323,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                       PrerequisitesBox(refs: doc.prerequisites),
                       const SizedBox(height: 24),
                     ],
-                    if (doc.objectives.isNotEmpty) ...[
-                      ObjectivesCard(objectives: doc.objectives),
+                    if (doc.shownObjectives.isNotEmpty) ...[
+                      ObjectivesCard(objectives: doc.shownObjectives),
                       const SizedBox(height: 26),
                     ],
                     if (body != null)
@@ -276,6 +363,16 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         ],
       ),
     );
+  }
+
+  /// Scrolls to the place the module was left once, after the first frame that draws the module; again as the page's
+  /// length changes until the reader scrolls.
+  void _schedulePlace() {
+    if (widget.place == null || widget.fragment != null || _placeScheduled) return;
+    _placeScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _applyPlace();
+    });
   }
 
   /// Scrolls to the fragment once, after the first frame that draws the module.

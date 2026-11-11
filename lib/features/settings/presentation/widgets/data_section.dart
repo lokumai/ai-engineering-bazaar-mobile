@@ -3,8 +3,8 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/dat
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_notice.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -27,6 +27,7 @@ class DataSection extends StatelessWidget {
         gateway: context.read<IBackupGateway>(),
         repository: context.read<IRecordRepository>(),
         scores: context.read<QuizScoresBloc>(),
+        places: context.read<ReadingPlacesBloc>(),
       ),
       child: const _DataWithBloc(),
     );
@@ -59,7 +60,7 @@ class _DataWithBloc extends StatelessWidget {
               writeState: writeState!,
               onBackUp: () => context.read<DataBloc>().add(const BackupRequested()),
             ),
-          const BazaarCard(child: DataLine()),
+          DataLine(),
         ],
       ),
     );

@@ -8,7 +8,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_frame.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:flutter/material.dart';
@@ -154,13 +154,9 @@ class QuizScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const CloseButton(),
-        title: Text(title ?? S.of(context).quiz_title),
-        bottom: const PreferredSize(preferredSize: Size.fromHeight(LatticeBand.height), child: LatticeBand()),
-      ),
-      body: SingleChildScrollView(
+    return QuizFrame(
+      title: title ?? S.of(context).quiz_title,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
         child: _QuizBody(moduleKey: moduleKey, items: items, doneLabel: doneLabel),
       ),

@@ -12,14 +12,14 @@ final class WelcomeChecking extends WelcomeState {
   const WelcomeChecking();
 }
 
-/// The first launch: the reader chooses the language and a track (plan 1L, 1Y).
-final class WelcomeChoosingTrack extends WelcomeState {
-  const WelcomeChoosingTrack();
+/// The first launch opens on the story of the Bazaar (plan 3.5).
+final class WelcomeTellingStory extends WelcomeState {
+  const WelcomeTellingStory();
 }
 
-/// A track was chosen: the first-launch guide says how the bazaar works (plan 1X).
-final class WelcomeIntroducing extends WelcomeState {
-  const WelcomeIntroducing();
+/// The reader chooses the language and a track (plan 1L, 1Y), after the story.
+final class WelcomeChoosingTrack extends WelcomeState {
+  const WelcomeChoosingTrack();
 }
 
 /// Welcome was seen: the app is shown.

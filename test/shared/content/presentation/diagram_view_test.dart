@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/diagram_full_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/diagram_view.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/diagram_frame_ink.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +64,41 @@ void main() {
     final decoration = frameDecoration(tester);
     expect(decoration.color, const Color(0xFFFFFFFF));
     expect((decoration.border! as Border).top.color, DiagramFrameInk.of(DiagramVariant.light).edge);
-    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(find.byKey(DiagramView.expandKey), findsOneWidget, reason: 'the mark that it opens full screen');
+    expect(find.byType(InteractiveViewer), findsNothing, reason: 'the page scrolls over it; it zooms full screen');
     expect(find.bySemanticsLabel('FIG. 1.1 · Flow'), findsOneWidget);
+  });
+
+  testWidgets('a tap opens the diagram full screen, to zoom, and the close button comes back', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.light,
+      repository: repository,
+    );
+    await settleContent(tester);
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('FIG. 1.1 · Flow')),
+      matchesSemantics(
+        isImage: true,
+        isButton: true,
+        hasTapAction: true,
+        label: 'FIG. 1.1 · Flow',
+        hint: 'Open the diagram full screen',
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('diagram-frame')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DiagramFullScreen), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor, const Color(0xFFFFFFFF));
+
+    await tester.tap(find.byType(CloseButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(DiagramFullScreen), findsNothing);
+    semantics.dispose();
   });
 
   testWidgets('a dark theme still draws svgLight on the white ground, as photos stay as they are', (tester) async {
@@ -81,7 +115,7 @@ void main() {
     final decoration = frameDecoration(tester);
     expect(decoration.color, const Color(0xFFFFFFFF));
     expect((decoration.border! as Border).top.color, DiagramFrameInk.of(DiagramVariant.light).edge);
-    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(find.byKey(DiagramView.expandKey), findsOneWidget);
   });
 
   testWidgets('variant overrides the brightness', (tester) async {
@@ -111,15 +145,14 @@ void main() {
       repository: repository,
     );
     await settleContent(tester);
-    expect(find.byType(InteractiveViewer), findsOneWidget);
     final before = tester.getTopLeft(find.byKey(const Key('after'))).dy;
 
-    await tester.drag(find.byType(InteractiveViewer), const Offset(0, -300));
+    await tester.drag(find.byType(SvgPicture), const Offset(0, -300));
     await tester.pumpAndSettle();
 
-    // The InteractiveViewer joins the gesture arena, so the list's drag wins only past the touch slop and the first
-    // kDragSlopDefault pixels are not scrolled; had the viewer won, the page would not move at all.
+    // The list's drag wins past the touch slop, so the first kDragSlopDefault pixels may not be scrolled.
     expect(tester.getTopLeft(find.byKey(const Key('after'))).dy, closeTo(before - 300, kDragSlopDefault));
+    expect(find.byType(DiagramFullScreen), findsNothing, reason: 'a drag is not a tap');
   });
 
   testWidgets('a missing diagram shows the unreadable state', (tester) async {
@@ -133,7 +166,7 @@ void main() {
     await settleContent(tester);
 
     expect(find.text(S.current.content_unreadable), findsOneWidget);
-    expect(find.byType(InteractiveViewer), findsNothing);
+    expect(find.byKey(DiagramView.expandKey), findsNothing, reason: 'nothing to open');
   });
 
   testWidgets('a corrupt diagram shows the unreadable state', (tester) async {

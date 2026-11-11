@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -6,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 
 /// The modules to read first (web `Prerequisites.tsx:23-48`, `app/prose.css:565-575`): a book icon and the title, then
@@ -89,16 +91,22 @@ class _Prerequisite extends StatelessWidget {
         if (!ref.drawn) ...[const SizedBox(width: 8), const _PlannedTag()],
       ],
     );
+    // Spaced near the body's list items, not a full tap target apart (review findings, F): each link keeps its 48 px
+    // target, and the rows overlap by the part of it the text does not need.
     if (track == null) {
-      return Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: label);
+      return Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: label);
     }
-    return TextButton(
-      onPressed: () => unawaited(context.push<void>(BazaarPaths.module(track, ref.key))),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        alignment: AlignmentDirectional.centerStart,
+    return _Overlapping(
+      by: 7,
+      child: TextButton(
+        onPressed: () => unawaited(context.push<void>(BazaarPaths.module(track, ref.key))),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          alignment: AlignmentDirectional.centerStart,
+        ),
+        child: label,
       ),
-      child: label,
     );
   }
 }
@@ -122,4 +130,64 @@ class _PlannedTag extends StatelessWidget {
       ),
     );
   }
+}
+
+/// [child] laid out [by] shorter at its top and at its bottom than it is: it paints and takes taps over the whole of
+/// itself, overlapping its neighbours by that much, so a tap target can be taller than the line it sits on.
+class _Overlapping extends SingleChildRenderObjectWidget {
+  const _Overlapping({required this.by, required super.child});
+
+  final double by;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderOverlapping(by);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderOverlapping renderObject) => renderObject.by = by;
+}
+
+class _RenderOverlapping extends RenderProxyBox {
+  _RenderOverlapping(this._by);
+
+  double _by;
+  set by(double value) {
+    if (value == _by) return;
+    _by = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child!..layout(constraints.loosen(), parentUsesSize: true);
+    final inset = math.min(_by, child.size.height / 2);
+    size = constraints.constrain(Size(child.size.width, child.size.height - inset * 2));
+    (child.parentData! as BoxParentData).offset = Offset(0, -inset);
+  }
+
+  Offset get _offset => (child!.parentData! as BoxParentData).offset;
+
+  @override
+  void setupParentData(RenderObject child) {
+    if (child.parentData is! BoxParentData) child.parentData = BoxParentData();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => context.paintChild(child!, offset + _offset);
+
+  @override
+  bool hitTestSelf(Offset position) => false;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) => hitTestChildren(result, position: position);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => result.addWithPaintOffset(
+    offset: _offset,
+    position: position,
+    hitTest: (result, transformed) => child!.hitTest(result, position: transformed),
+  );
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) =>
+      transform.translateByDouble(_offset.dx, _offset.dy, 0, 1);
 }

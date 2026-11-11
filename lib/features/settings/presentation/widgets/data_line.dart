@@ -6,8 +6,9 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The data line of the Settings page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the actions Back up,
-/// Restore, Reset and, while the reset can be undone, Undo, then the status lines in a live region.
+/// The data line of the Settings page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the buttons Back up and
+/// Restore, then on a line of their own Reset and, while the reset can be undone, Undo, then the status lines in a live
+/// region.
 ///
 /// Reset is drawn in on-surface (Decision A18) and asks through [showEraseDialog] first. Every action is off while a
 /// flow of [DataBloc] runs.
@@ -33,18 +34,34 @@ class DataLine extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: [
-            TextButton(onPressed: idle ? () => bloc.add(const BackupRequested()) : null, child: Text(s.data_back_up)),
-            TextButton(onPressed: idle ? () => bloc.add(const RestoreRequested()) : null, child: Text(s.data_restore)),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurface),
+            OutlinedButton(
+              onPressed: idle ? () => bloc.add(const BackupRequested()) : null,
+              child: Text(s.data_back_up),
+            ),
+            OutlinedButton(
+              onPressed: idle ? () => bloc.add(const RestoreRequested()) : null,
+              child: Text(s.data_restore),
+            ),
+          ],
+        ),
+        // Reset on a line of its own, away from the two above, so it is not hit by accident.
+        const SizedBox(height: AppSpacing.md),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(foregroundColor: theme.colorScheme.onSurface),
               onPressed: idle ? () => _reset(context) : null,
               child: Text(s.data_reset),
             ),
             if (state.reset is ResetCounting)
-              TextButton(onPressed: idle ? () => bloc.add(const UndoRequested()) : null, child: Text(s.data_undo)),
+              OutlinedButton(onPressed: idle ? () => bloc.add(const UndoRequested()) : null, child: Text(s.data_undo)),
           ],
         ),
+        const SizedBox(height: AppSpacing.sm),
         if (lines.isNotEmpty)
           Semantics(
             liveRegion: true,

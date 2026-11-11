@@ -9,9 +9,9 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | Phase | State |
 | --- | --- |
 | 0. The reader (PR #1, merged as a03bf37) | Done |
-| 1. The redesign | Done (PR #3); review round 4 (1AF to 1AM) in review on `feature/review-round-4` |
+| 1. The redesign | Done (PR #3, PR #4: review round 4, 1AF to 1AM); 1AN on `feature/phase-3` |
 | 2. Small fixes in the reader | Done: 2.3 in PR #2, 2.1 and 2.2 on `feature/review-round-4` |
-| 3. Parity with the website | Planned |
+| 3. Parity with the website | 3.2 to 3.5 done on `feature/phase-3`, the story in the bundled snapshot; 3.1 waits for web change 5.7 |
 | 4. Owner follow-ups from PR #1 | Planned |
 | 5. Web changes the app needs | Proposed, for the web repo's owner |
 | 6. Release | Later |
@@ -35,7 +35,7 @@ The mockup decides the look; the requirements decide what the app shows and does
 
 | In the mockup | Rule it breaks | In the app |
 | --- | --- | --- |
-| "Section 3 of 8, 37 %, 15 min left" on Home | R61: the app writes no reading position | The next module not yet completed (`nextUnsigned`) |
+| "Section 3 of 8, 37 %, 15 min left" on Home | R61: the app writes no reading position | The next module not yet completed (`nextUnsigned`); since 1BA, the module left half read, with how far, from a place kept apart from the record |
 | A word count in the reader | R3: the bundle carries no word count | Minutes only, until web change 5.1 |
 | Saved quiz scores ("Quiz 4/5", "quizzes taken") | R51: the quiz writes nothing; the record has no quiz field | The score shows on the quiz's results only |
 | Theme and text-size buttons in the bar | v1 follows the device's mode and text scale | Dropped |
@@ -152,6 +152,35 @@ The owner looked at the app on the emulator again on 2026-11-10 and asked for th
 - [x] **1AK The Quiz tab folds like the catalog.** Each level is an arch card in its hue with its number, title and count of quizzes; a tap opens its quizzes under it and a second tap closes them. The level of the next module to read starts open (1AL).
 - [x] **1AL The level of the next module starts open.** On the catalog and the Quiz tab the level of the next module to read starts open, and the others closed. What the reader opens or closes stays while the app runs, through a tab change and back, and a new launch starts again from the next module (`CatalogFoldCubit`, `QuizFoldCubit`, in memory only). A level the reader has not touched follows the next module as modules are completed.
 - [x] **1AM Less text on the tabs.** Catalog, Quiz and Settings lose their heading, which repeated the tab's name, and the Quiz tab its description; a For Everyone reader still sees why the quizzes are For Engineers ones. The catalog loses its stats (modules completed, active days): the level dials say it.
+- [x] **1AN The quiz full screen loses the navy bar too.** It had kept Material's navy app bar and the full band; it now has the app's bar on the page ground, with a close button and the module's title, and the thin band, as every other page (`QuizFrame`, `BazaarBar.close`). Done on `feature/phase-3`.
+
+### Review round 5: the look of the tabs (2026-11-10)
+
+The user asked for a look as finished as the story's across the tabs. They land with Phase 3 in one pull request.
+
+- [x] **1AO Headings in the display face.** Every heading is set in Fraunces, the web's display face (its front door and its story): the page and section headings, the continue card's title, a level's title, and in the reader the module title and its section headings. Text, lists, buttons and the bars stay in the sans. Persian falls back to Vazirmatn, as on the web.
+- [x] **1AP Fewer boxes.** Lists stand straight on the page with a hairline between rows: Home's After that and Practise again, Settings' sections and About's pages, the privacy notes. The offline note is a quiet line at the foot of Home. Cards stay for the continue card and the level folds.
+- [x] **1AQ The levels in their hues.** A level's fold on the catalog and the Quiz tab is washed faintly in its hue, and each quiz's question mark sits in a ring of its level's hue, on Home too.
+- [x] **1AR Your path on Home.** Under Practise again, one line per level: its title, a bar in its hue filled by the share of its written modules completed, and the count.
+- [x] **1AS Lighter choices.** The chosen segment of a choice (track, language) is a light wash of the primary under the title ink, not a solid block.
+
+### Review round 6: findings from a walk-through (2026-11-10)
+
+A walk-through of the running app (light and dark) found these; the user chose the full screen for diagrams and the page names on Catalog and Quiz. The opening on every launch stays as it is (owner).
+
+- [x] **1AT The external link mark.** The arrow after a link that leaves the app was a character no text face carries, so Android drew it as a blue colour emoji, seven to a sentence in RAG & Embeddings. It is now a small icon in the text's colour, kept on the line of the link's last word and hidden from assistive technology.
+- [x] **1AU Diagrams full screen.** A diagram is too small to read at a phone's width. A tap anywhere on it opens it full screen on its own ground, where it zooms up to six times, pans and turns with the phone; a mark in its corner says so, and a screen reader hears it as a button. The page no longer zooms in place, so a drag over a diagram always scrolls. The lilac fills come from the bundle, so a palette change is a web change.
+- [x] **1AV Quizzes to practise.** Home's heading held quizzes never taken, so "Practise again" became "Quizzes to practise", and its line says only where they come from.
+- [x] **1AW Catalog and Quiz open on their names.** The two tabs opened alike; each now opens on its name, in the style of Settings' headings, scrolling away with the page. The bar stays empty on the tabs (1AH).
+- [x] **1AX The data actions are buttons.** Back up, Restore, Reset and Check for updates are outlined buttons; Reset, still in on-surface (A18), sits on a line of its own below the other two.
+- [x] **1AY Two reader points.** Before you start spaces its links near the body's list items, each keeping its 48 px target; on a level's page and a module's, the hue square and the title follow the back arrow at the start of the bar.
+
+### Review round 7: the reading place (2026-11-11)
+
+The user asked for both: a module goes on where it was left, from another tab and from Home.
+
+- [x] **1AZ Tabs keep their place.** Leaving a module for another tab and coming back opens the module again where the reader left it. The shell stays one `ShellRoute`: it keeps the pages each tab showed last and opens them again with the router's `restore`, and the reader opens at the module's place (1BA). A tap on the open tab goes back to its first page; the Catalog tab opens its first page when the track changed since. A module opened from Home is under Catalog, with Home under it, as before. Each tab keeping a navigator of its own (`StatefulShellRoute`) was not taken: Home and the reader push modules that belong to Catalog, and go_router does not push across branches. A scroll the app makes for the reader does not fold the bar and the navigation away.
+- [x] **1BA Continue reading where you stopped.** The reader keeps where each module was left, on this device and apart from the record (R61), which is the web's and goes into the backup file: the last heading above the top and the distance past it, with the share of the page and the time (`lib/shared/reading/`, `reading/places.json` under Application Support, the 50 most recent). A module opens at its place unless a link names a heading; scrolled back to its top it has none. Home's card goes on with the module left last that is written in the track and not completed: Continue reading, how far it was read with a bar in its level's hue, and Continue; the next module comes first after it. Settings' reset erases the places with the record and its undo brings them back. A backup carries no place, so a restore on another device starts each module at its top.
 
 ## Phase 2: small fixes in the reader
 
@@ -165,14 +194,31 @@ The fixes land together in one pull request; each fix is its own commit, test fi
 
 The website keeps moving; content reaches the app through the bundle, but a new page or menu needs app code.
 
-- [ ] **3.1 New pages reach the app on their own (web M62, Caravan).** The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
+- [ ] **3.1 New pages reach the app on their own (web M62, Caravan; D115 to D117, About).** Waiting for web change 5.7 (owner, 2026-11-10): the bar now holds two pages, Caravan (no longer under maintenance: the shadow play on sample data) and About, so the plan below is revisited when 5.7 lands. About is done another way, see 3.5. Caravan waits for the author's real trends and for its document in the bundle, which the web has already shaped (D116: `api/v1/caravan/<lang>.json`); its trends were written by an agent as a sample and are not built into the app. The web added `/caravan/` to its bar after Progress; the page says only "Under maintenance." with a link to the catalog. Decided: a page the web adds to its bar appears in the app without an app release.
   - Today the web's bar is written in its code (`src/components/shell/MainNav.tsx`) and the bundle does not carry it, so the app cannot see a new page. Web change 5.7 publishes it.
   - The app gets one feature for such pages, `lib/features/pages/`: one route, `/<slug>`, drawn from the bundle's entry (title, path, state). A page under maintenance shows its title, "Under maintenance." and the link to the catalog, as the web does.
   - The bottom navigation shows the bundle's extra pages after Quiz, as the web's bar does; Settings stays the last item.
+  - Done ahead of the page (the user, 2026-11-10): the bottom navigation is a low row of icons, like X's, each with its name small under it so each is clear: the open tab filled and dark, the others outlined and muted, a hairline above. The Caravan's camel holds the middle, between Catalog and Quiz, named Caravan, said to be coming soon, and doing nothing until its page lands.
   - Until 5.7 is published, the app ships Caravan as the one known entry, so it matches the web now; the bundle's list replaces it as soon as it is there.
   - A page that later gets real content (the trends timeline) gets its own feature, like every other page.
-- [ ] **3.2 Refresh the bundled snapshot.** The bundled snapshot is contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes.
-- [ ] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan.
+- [x] **3.2 Refresh the bundled snapshot.** The bundled snapshot was contentVersion `c535b551...` (published 2026-11-09 00:15 UTC). Since then the web published WebP images (D112) and new content. Run `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`, and check that the contract test still passes. Done: contentVersion `cac0bf8e...` (published 2026-11-10 12:43 UTC), with Key Terms (D118), A2A and six new images. The snapshot went from 38 MB to 17 MB and the arm64 release APK from 52 MB to 32 MB; the tokens did not change. Refreshed again on 2026-11-11 to contentVersion `c03b9e70...` (published 2026-11-10 20:34 UTC), the first with the story (web D125) and the translated objectives (D124), so a first launch offline tells the story; the snapshot is 22 MB.
+- [x] **3.3 Watch the web's decisions.** Read `kia-context/logs/BRAINSTORM.md` and `PROGRESS.md` for new decisions that change behaviour, and add each to this plan. Read on 2026-11-10, D114 to D122:
+  - D112 (WebP images), D118 (Key Terms at the end of every written For Engineers module) and new content reach the app with the snapshot (3.2); Key Terms renders as any other section, in the three languages.
+  - D115, D116, D117: the web's bar now holds Caravan, a real page on sample data (the shadow play), and About, the story of the Bazaar; neither is in the bundle. Decided with the owner: wait for 5.7, see 3.1.
+  - D122: the owner's identity and a privacy note on the site. The app gets its own, see 3.4.
+  - D114 (a block's menu), D119 and D120 (search engines) and D121 (assessment in Microsoft Forms, outside the site) change nothing in the app.
+  - Read again before each phase; the next decision after D122 starts the next read. D123 (translated objectives on the site) leads to the bundle's D124 and D125, both from the app (3.5, 5.8).
+- [x] **3.4 The owner and a privacy note in Settings (web D122).** Settings, under About, opens Privacy and legal (`/settings/privacy`): the privacy note is the app's own, since the app is not the site (it downloads the course from the site on GitHub Pages, keeps progress, quiz scores and settings on the device, and names crash reports only in a build that sends them); the owner as the web prints it (trade name, MERSİS no., address, email, phone; `lib/features/settings/domain/site_owner.dart`, copied from the web's `SITE_OWNER`, since the bundle does not carry it); and the web's note on third-party marks and images, worded without "we" for the copy register. A change on the web's `SITE_OWNER` is a change in the app.
+
+- [x] **3.5 The story of the Bazaar (web D115; the bundle's story, web D125).** Decided with the user, 2026-11-10: the first launch opens on the story, before the language and the track, in place of How the bazaar works, and Settings, under About, opens both the story and How the bazaar works.
+  - The words come from the bundle: the web added `api/v1/story/en.json` and the index's `story` in the same PR as `translatedObjectives` (web PR #108, M100, D125). STORY.md is in English only, so the story says so when the app is in Turkish or Persian.
+  - The web draws five scenes in code and starts each as its section arrives (the haystack's straws fly with the scroll). The app plays each from its own start, as recorded from the web's own scene code at 20 frames a second (`assets/about/`, animated WebP, about 3.7 MB; `assets/about/SOURCE.md`; the treaty retimed to 8 s, its pages read faster, the user, 2026-11-10: "the first scene can be a little shorter"), once, and holds its last frame; a section moves on only after its scene has ended, so the treaty gives its answer and the seal is pressed on any device (the user, 2026-11-10: "the same as the web, one to one"). Under reduced motion each section shows the web's still picture. On the first launch the film waits behind the app's opening and starts as the arch opens.
+  - The story is a film over the whole screen, apart from the rest of the app (the user, 2026-11-10: "like a video", on the web's ground). The web's page told one screen at a time: the opening (the gate draws itself, the title rises in it), one screen per section on its own ground of "Dusk to dawn" with the web's grain and vignette, its scene with no box, then its number, its heading word by word and its paragraph line by line, and the motto at dawn in the gate, underlined by hand, with the way on. Headings are in Fraunces, the web's display face, bundled at the web's axes (SOFT 50, WONK 0) with Latin glyphs only, about 230 KB.
+  - Each screen moves on by itself after its words arrive and a reading time by its length, about 6 to 8 seconds a section (the user: shorter than 12 to 20), or once its scene has ended if later, about 14 seconds for the treaty; the opening takes 3.4 seconds; a tap on the far side moves on, on the near side goes back, holding pauses, and Skip (Welcome) or Close (Settings) leaves. Under a screen reader nothing moves on by itself and the two sides are Previous and Next; under reduced motion each screen is drawn in place. From Settings the film opens outside the shell, with no bar and no navigation.
+  - `lib/features/about/` (the story's bloc, page and Welcome step, at `/settings/about`) and `lib/features/guide/` (How the bazaar works, at `/settings/guide`) are features of their own; the app passes the story step to Welcome, which imports neither.
+  - Content that names no story (the bundled snapshot until the web publishes it) starts Welcome at the language and the track and shows no story row. The web published it with PR #108, and the snapshot carries it since 2026-11-11 (3.2), so a first launch tells the story offline too.
+
+- [x] **3.6 Translated objectives (web D123, D124).** A Turkish or Persian module showed its "What you will learn" card in English. The web keeps `objectives` English in v1 and adds `translatedObjectives` (`{ lang, items }`, null in English and where a translation declares none), asked for by the app in web PR #108. The reader shows the translated list when its language is the document's, else the English, as the site's fallback (M19); a list with an item that is not a string is a format error. The snapshot of 2026-11-11 carries 84 such lists, 42 Turkish and 42 Persian, each in its document's language.
 
 ## Phase 4: owner follow-ups from PR #1
 
@@ -180,8 +226,8 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 - [ ] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`.
 - [ ] **4.3** iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
 - [ ] **4.4** Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
-- [ ] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught.
-- [ ] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise).
+- [x] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught. Done: `Pacific/Kiritimati` (UTC+14), which puts most instants on the next day; the suite passed in it and in UTC-11 before the change.
+- [x] **4.6** Decide on the Android import picker's MIME filter (`application/json` greys out files a provider labels otherwise). Done: Android's restore picker shows every file, since a provider may label a backup other than `application/json`; a file that is not a backup says nothing changed, as before, and a file over 16 MB is refused before it is read. iOS keeps the `.json` filter.
 - [ ] **4.7** Decide whether the licences page also carries the course content's licence.
 - [ ] **4.8** Reader performance on a real low-end Android device.
 

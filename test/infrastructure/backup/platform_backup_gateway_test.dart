@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,7 +35,10 @@ final class _FakePlatformFile extends PlatformFile {
   int? lengthSync() => throw UnimplementedError();
 
   @override
-  Future<int?> length() => throw UnimplementedError();
+  Future<int?> length() async => fakeLength ?? bytes?.length;
+
+  /// The length the file reports, when the test sets one apart from its bytes.
+  int? fakeLength;
 
   @override
   Stream<Uint8List> readAsByteStream() => throw UnimplementedError();
@@ -123,6 +127,32 @@ void main() {
       final gateway = PlatformBackupGateway(pickFile: () async => throw StateError('picker'));
 
       await expectLater(gateway.pickJson(), throwsStateError);
+    });
+  });
+
+  group('the restore picker', () {
+    test('shows every file on Android, where a provider may label a backup other than application/json', () {
+      expect(backupPickFilter(TargetPlatform.android), (FileType.any, null));
+    });
+
+    test('keeps the json filter on iOS', () {
+      final (type, extensions) = backupPickFilter(TargetPlatform.iOS);
+      expect(type, FileType.custom);
+      expect(extensions, ['json']);
+    });
+
+    test('refuses a file larger than a backup could be, before reading it', () async {
+      final file = _FakePlatformFile(error: Exception('read'))..fakeLength = PlatformBackupGateway.maxBackupBytes + 1;
+      final gateway = PlatformBackupGateway(pickFile: () async => file);
+
+      expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+    });
+
+    test('reads a file at the limit', () async {
+      final file = _FakePlatformFile(bytes: [123, 125])..fakeLength = PlatformBackupGateway.maxBackupBytes;
+      final gateway = PlatformBackupGateway(pickFile: () async => file);
+
+      expect(await gateway.pickJson(), isA<PickedBackupBytes>());
     });
   });
 }

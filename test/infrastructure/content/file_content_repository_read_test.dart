@@ -92,6 +92,15 @@ void main() {
     expect((await repository.readLevelDoc('api/v1/levels/alpha.json')).slug, 'alpha');
   });
 
+  test('readStoryDoc parses the story document (web D125)', () async {
+    final repository = fixtureRepository(cacheRoot);
+    final opening = await repository.open();
+
+    final story = await repository.readStoryDoc(opening.index.storyIn('en')!);
+    expect(story.lang, 'en');
+    expect(story.stalls, isNotEmpty);
+  });
+
   test('a cached object whose bytes no longer match raises ContentCorruptException and writes the marker', () async {
     writeCache(cacheRoot, publishedAt: laterPublishedAt);
     final repository = fixtureRepository(cacheRoot);

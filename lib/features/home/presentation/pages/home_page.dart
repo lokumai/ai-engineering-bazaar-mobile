@@ -2,15 +2,19 @@ import 'package:ai_engineering_bazaar/features/home/application/home_overview.da
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
-/// card, the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), and the offline
-/// note. Home says what to read now (plan 1P): the levels and their completion live on the catalog (plan 1AB).
+/// card (Continue reading when a module was left half read, plan 1BA), the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), the reader's path
+/// through the levels at a glance, and the offline note. Home says what to read now (plan 1P); the levels, their modules
+/// and their completion in full live on the catalog (plan 1AB).
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
@@ -42,7 +47,12 @@ class HomePage extends StatelessWidget {
       QuizScoresReady(:final scores) => scores,
       QuizScoresLoading() => const <String, QuizScore>{},
     };
-    final overview = homeOverview(index, track, record, scores);
+    final places = switch (context.watch<ReadingPlacesBloc>().state) {
+      ReadingPlacesReady(:final places) => places,
+      ReadingPlacesLoading() => const <String, ReadingPlace>{},
+    };
+    final overview = homeOverview(index, track, record, scores: scores, places: places);
+    final label = overview.next?.share != null ? s.home_continue_reading : s.home_up_next;
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 
     return ListView(
@@ -52,9 +62,9 @@ class HomePage extends StatelessWidget {
         // Shown in capitals as the mockup's label; read as written.
         Semantics(
           header: true,
-          label: s.home_up_next,
+          label: label,
           excludeSemantics: true,
-          child: Text(s.home_up_next.toUpperCase(), style: labelStyle),
+          child: Text(label.toUpperCase(), style: labelStyle),
         ),
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),
@@ -62,10 +72,13 @@ class HomePage extends StatelessWidget {
         if (overview.after.isNotEmpty) ...[
           SectionRule(title: s.home_after),
           const SizedBox(height: 12),
-          for (final entry in overview.after) ...[
-            HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
-            const SizedBox(height: 10),
-          ],
+          BazaarRows(
+            children: [
+              for (final entry in overview.after)
+                HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
+            ],
+          ),
+          const SizedBox(height: 10),
         ],
         if (overview.practice.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -76,14 +89,17 @@ class HomePage extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.bazaarColors.onSurfaceMuted),
           ),
           const SizedBox(height: 12),
-          for (final entry in overview.practice) ...[
-            HomePracticeRow(
-              key: ValueKey('home-practice-${entry.module.key}'),
-              entry: entry,
-              onTap: () => context.push(BazaarPaths.quiz(entry.module.key)),
-            ),
-            const SizedBox(height: 10),
-          ],
+          BazaarRows(
+            children: [
+              for (final entry in overview.practice)
+                HomePracticeRow(
+                  key: ValueKey('home-practice-${entry.module.key}'),
+                  entry: entry,
+                  onTap: () => context.push(BazaarPaths.quiz(entry.module.key)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
         ],
         Align(
           alignment: AlignmentDirectional.centerStart,
@@ -93,7 +109,15 @@ class HomePage extends StatelessWidget {
             child: Text(s.home_see_catalog),
           ),
         ),
-        const SizedBox(height: 16),
+        if (overview.levels.isNotEmpty) ...[
+          const SizedBox(height: 22),
+          SectionRule(title: s.home_path),
+          const SizedBox(height: 14),
+          HomePath(levels: overview.levels),
+        ],
+        const SizedBox(height: 22),
+        const Divider(height: 1, thickness: 0.5),
+        const SizedBox(height: 4),
         const HomeOfflineNote(),
       ],
     );

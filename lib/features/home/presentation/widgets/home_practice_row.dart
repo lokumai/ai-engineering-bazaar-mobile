@@ -4,11 +4,13 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:flutter/material.dart';
 
-/// One completed module whose quiz the reader can take again (plan 1AD): the question disc, the number and title, the
+/// One completed module whose quiz the reader can take again (plan 1AD), straight on the page: the question disc in its level's hue, the number and title, the
 /// level, the last score as one segment per question once taken (plan 1W, as on the Quiz tab), and an arrow; a tap opens the quiz full screen.
 class HomePracticeRow extends StatelessWidget {
   const HomePracticeRow({super.key, required this.entry, required this.onTap});
@@ -23,23 +25,13 @@ class HomePracticeRow extends StatelessWidget {
     final number = homeModuleNumber(entry.module.number);
     final score = entry.score;
     final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
-    return BazaarCard(
+    return BazaarRow(
       onTap: onTap,
       semanticLabel: ['$number ${entry.title}', entry.level.title, ?line].join(', '),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
-            child: Text(
-              '?',
-              style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.w700),
-            ),
-          ),
+          QuizDisc(hue: levelHue(context, entry.position)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

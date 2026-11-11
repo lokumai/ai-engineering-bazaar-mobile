@@ -137,6 +137,12 @@ final List<_Rejection> _rejections = [
     why: 'uppercase hex',
     mutate: (json) => (json['images'] as Map)['course-images/alpha/figure.png'] = 'E' * 64,
   ),
+  (
+    field: 'story.en',
+    why: 'a story document the files do not list',
+    mutate: (json) => json['story'] = {'en': 'api/v1/story/en.json'},
+  ),
+  (field: 'story', why: 'not an object', mutate: (json) => json['story'] = ['api/v1/story/en.json']),
 ];
 
 void main() {
@@ -243,6 +249,20 @@ void main() {
     final json = validIndexJson();
     _level(json)['readme'] = null;
     expect(_parse(json).level('alpha')!.readme, isNull);
+  });
+
+  test('reads the story documents the index names, and English when a language has none (web D125)', () {
+    final json = validIndexJson();
+    json['story'] = {'en': 'api/v1/levels/alpha.json'};
+    final index = _parse(json);
+    expect(index.story, {'en': 'api/v1/levels/alpha.json'});
+    expect(index.storyIn('tr'), 'api/v1/levels/alpha.json');
+  });
+
+  test('an index from before the story names none (web D125)', () {
+    final index = _parse(validIndexJson());
+    expect(index.story, isEmpty);
+    expect(index.storyIn('en'), isNull);
   });
 
   test('parseMajors reads the majors list', () => expect(ContentParser.parseMajors('{"majors":[1,2]}').majors, [1, 2]));

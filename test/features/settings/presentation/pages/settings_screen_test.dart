@@ -228,14 +228,14 @@ void main() {
   testWidgets('Check for updates is off while checking', (tester) async {
     await _pump(tester, content: _contentBloc(refresh: const RefreshChecking()));
 
-    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    final button = tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Check for updates'));
     expect(button.onPressed, isNull);
   });
 
   testWidgets('Check for updates is on otherwise', (tester) async {
     await _pump(tester, content: _contentBloc(refresh: const RefreshFailed(ContentErrorCode.network)));
 
-    final button = tester.widget<TextButton>(find.widgetWithText(TextButton, 'Check for updates'));
+    final button = tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Check for updates'));
     expect(button.onPressed, isNotNull);
   });
 

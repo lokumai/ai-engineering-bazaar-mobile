@@ -103,6 +103,16 @@ class S {
     return Intl.message('Settings', name: 'nav_settings', desc: '', args: []);
   }
 
+  /// `Caravan`
+  String get nav_caravan {
+    return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
+  }
+
+  /// `Caravan, coming soon`
+  String get nav_caravan_soon {
+    return Intl.message('Caravan, coming soon', name: 'nav_caravan_soon', desc: '', args: []);
+  }
+
   /// `How would you like to read?`
   String get welcome_track_title {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
@@ -153,6 +163,26 @@ class S {
     return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
   }
 
+  /// `Continue reading`
+  String get home_continue_reading {
+    return Intl.message('Continue reading', name: 'home_continue_reading', desc: '', args: []);
+  }
+
+  /// `{percent} % read`
+  String home_read_percent(int percent) {
+    return Intl.message(
+      '$percent % read',
+      name: 'home_read_percent',
+      desc: 'How far down a half-read module the reader left it, on Home\'s continue card.',
+      args: [percent],
+    );
+  }
+
+  /// `Continue`
+  String get home_continue {
+    return Intl.message('Continue', name: 'home_continue', desc: '', args: []);
+  }
+
   /// `Every written module is complete.`
   String get home_all_complete {
     return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
@@ -168,19 +198,24 @@ class S {
     return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
   }
 
-  /// `Practise again`
+  /// `Quizzes to practise`
   String get home_practice {
-    return Intl.message('Practise again', name: 'home_practice', desc: '', args: []);
+    return Intl.message('Quizzes to practise', name: 'home_practice', desc: '', args: []);
   }
 
-  /// `The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.`
+  /// `Quizzes from the modules you completed.`
   String get home_practice_lede {
-    return Intl.message(
-      'The quizzes of the modules you completed, the ones not taken yet or with the lowest score first.',
-      name: 'home_practice_lede',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Quizzes from the modules you completed.', name: 'home_practice_lede', desc: '', args: []);
+  }
+
+  /// `Open the diagram full screen`
+  String get diagram_expand {
+    return Intl.message('Open the diagram full screen', name: 'diagram_expand', desc: '', args: []);
+  }
+
+  /// `Your path`
+  String get home_path {
+    return Intl.message('Your path', name: 'home_path', desc: '', args: []);
   }
 
   /// `The course is on this device`
@@ -1185,101 +1220,317 @@ class S {
   }
 
   /// `How the bazaar works`
-  String get welcome_intro_title {
+  String get guide_title {
     return Intl.message(
       'How the bazaar works',
-      name: 'welcome_intro_title',
+      name: 'guide_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Level by level`
-  String get welcome_intro_levels_title {
+  String get guide_levels_title {
     return Intl.message(
       'Level by level',
-      name: 'welcome_intro_levels_title',
+      name: 'guide_levels_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `The course is set out in {count} levels, starting with {first}. Begin with the first and move on when you are ready.`
-  String welcome_intro_levels(int count, String first) {
+  String guide_levels(int count, String first) {
     return Intl.message(
       'The course is set out in $count levels, starting with $first. Begin with the first and move on when you are ready.',
-      name: 'welcome_intro_levels',
+      name: 'guide_levels',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [count, first],
     );
   }
 
   /// `Short modules`
-  String get welcome_intro_modules_title {
+  String get guide_modules_title {
     return Intl.message(
       'Short modules',
-      name: 'welcome_intro_modules_title',
+      name: 'guide_modules_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
-  String get welcome_intro_modules {
+  String get guide_modules {
     return Intl.message(
       'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
-      name: 'welcome_intro_modules',
+      name: 'guide_modules',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `Mark what you finish`
-  String get welcome_intro_complete_title {
+  String get guide_complete_title {
     return Intl.message(
       'Mark what you finish',
-      name: 'welcome_intro_complete_title',
+      name: 'guide_complete_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
-  /// `At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.`
-  String get welcome_intro_complete {
+  /// `At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.`
+  String get guide_complete {
     return Intl.message(
-      'At the end of a module, mark it complete. Progress shows what you have read, and Home shows what comes next.',
-      name: 'welcome_intro_complete',
+      'At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.',
+      name: 'guide_complete',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `On this device, offline`
-  String get welcome_intro_offline_title {
+  String get guide_offline_title {
     return Intl.message(
       'On this device, offline',
-      name: 'welcome_intro_offline_title',
+      name: 'guide_offline_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
   /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
-  String get welcome_intro_offline {
+  String get guide_offline {
     return Intl.message(
       'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
-      name: 'welcome_intro_offline',
+      name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
     );
   }
 
-  /// `Open the catalog`
-  String get welcome_intro_start {
+  /// `Continue`
+  String get welcome_story_continue {
     return Intl.message(
-      'Open the catalog',
-      name: 'welcome_intro_start',
-      desc: 'Welcome\'s first-launch guide (plan 1X).',
+      'Continue',
+      name: 'welcome_story_continue',
+      desc: 'Welcome\'s first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5).',
+      args: [],
+    );
+  }
+
+  /// `Privacy and legal`
+  String get settings_privacy_legal {
+    return Intl.message(
+      'Privacy and legal',
+      name: 'settings_privacy_legal',
+      desc: 'Settings\' privacy and legal page (plan 3.4, web D122).',
+      args: [],
+    );
+  }
+
+  /// `Privacy`
+  String get privacy_title {
+    return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
+  }
+
+  /// `This app collects no personal data. It has no account, no analytics and no ads.`
+  String get privacy_no_data {
+    return Intl.message(
+      'This app collects no personal data. It has no account, no analytics and no ads.',
+      name: 'privacy_no_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.`
+  String get privacy_on_device {
+    return Intl.message(
+      'Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.',
+      name: 'privacy_on_device',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.`
+  String get privacy_download {
+    return Intl.message(
+      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
+      name: 'privacy_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.`
+  String get privacy_crash {
+    return Intl.message(
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.',
+      name: 'privacy_crash',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `For any question about personal data, write to us.`
+  String get privacy_contact {
+    return Intl.message(
+      'For any question about personal data, write to us.',
+      name: 'privacy_contact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Legal`
+  String get legal_title {
+    return Intl.message('Legal', name: 'legal_title', desc: '', args: []);
+  }
+
+  /// `Owner`
+  String get legal_owner {
+    return Intl.message('Owner', name: 'legal_owner', desc: '', args: []);
+  }
+
+  /// `MERSİS no.`
+  String get legal_mersis {
+    return Intl.message('MERSİS no.', name: 'legal_mersis', desc: '', args: []);
+  }
+
+  /// `Address`
+  String get legal_address {
+    return Intl.message('Address', name: 'legal_address', desc: '', args: []);
+  }
+
+  /// `Email`
+  String get legal_email {
+    return Intl.message('Email', name: 'legal_email', desc: '', args: []);
+  }
+
+  /// `Phone`
+  String get legal_phone {
+    return Intl.message('Phone', name: 'legal_phone', desc: '', args: []);
+  }
+
+  /// `Third-party marks and images`
+  String get legal_marks_title {
+    return Intl.message('Third-party marks and images', name: 'legal_marks_title', desc: '', args: []);
+  }
+
+  /// `Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.`
+  String get legal_marks {
+    return Intl.message(
+      'Company names and logos shown in the modules belong to their owners. They appear only to say which company is meant, and they do not mean that the company endorses this app.',
+      name: 'legal_marks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.`
+  String get legal_images {
+    return Intl.message(
+      'Some images come from articles and other public sources, with sincere thanks to their authors. They remain the property of their owners, no rights in them are claimed, and they are shown only to explain the point next to them. The owner of an image or a mark shown here can write to the address below to have it credited or removed, whichever they prefer.',
+      name: 'legal_images',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The project's MIT licence covers its code and its content. It does not cover third-party marks or images.`
+  String get legal_licence {
+    return Intl.message(
+      'The project\'s MIT licence covers its code and its content. It does not cover third-party marks or images.',
+      name: 'legal_licence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MIT licence`
+  String get legal_licence_link {
+    return Intl.message('MIT licence', name: 'legal_licence_link', desc: '', args: []);
+  }
+
+  /// `What is GitHub Pages?`
+  String get privacy_github_pages {
+    return Intl.message('What is GitHub Pages?', name: 'privacy_github_pages', desc: '', args: []);
+  }
+
+  /// `GitHub General Privacy Statement`
+  String get privacy_github_statement {
+    return Intl.message('GitHub General Privacy Statement', name: 'privacy_github_statement', desc: '', args: []);
+  }
+
+  /// `The story of the Bazaar`
+  String get settings_story {
+    return Intl.message(
+      'The story of the Bazaar',
+      name: 'settings_story',
+      desc: 'Settings, About: the row that opens the story of the Bazaar (web D115, D125).',
+      args: [],
+    );
+  }
+
+  /// `The story could not be opened. Check for updates, then open it again.`
+  String get about_failed {
+    return Intl.message(
+      'The story could not be opened. Check for updates, then open it again.',
+      name: 'about_failed',
+      desc: 'The About page, when the story document cannot be read.',
+      args: [],
+    );
+  }
+
+  /// `The story is written in English.`
+  String get about_english {
+    return Intl.message(
+      'The story is written in English.',
+      name: 'about_english',
+      desc:
+          'The About page, above the story, when the app\'s language is not English: the story has no translation yet.',
+      args: [],
+    );
+  }
+
+  /// `Skip`
+  String get about_skip {
+    return Intl.message(
+      'Skip',
+      name: 'about_skip',
+      desc: 'The story film at the top, on the first launch: leaves the story for the language and track step.',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get about_close {
+    return Intl.message(
+      'Close',
+      name: 'about_close',
+      desc: 'The story film from Settings: its close button at the top and the button at its end, back to Settings.',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get about_next {
+    return Intl.message(
+      'Next',
+      name: 'about_next',
+      desc: 'The story film, for a screen reader: the far side of the screen, which goes on to the next screen.',
+      args: [],
+    );
+  }
+
+  /// `Previous`
+  String get about_previous {
+    return Intl.message(
+      'Previous',
+      name: 'about_previous',
+      desc: 'The story film, for a screen reader: the near side of the screen, which goes back a screen.',
       args: [],
     );
   }

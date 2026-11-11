@@ -3,7 +3,7 @@ import 'package:ai_engineering_bazaar/features/home/presentation/home_labels.dar
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:flutter/material.dart';
 
 /// One module that comes after the next one (plan 1P): its number, title, level and reading time; a tap opens it.
@@ -19,9 +19,8 @@ class HomeAfterRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final line = [entry.level.title, ?homeDurationLabel(s, entry.module.minutes)].join(' · ');
-    return BazaarCard(
+    return BazaarRow(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Row(
         spacing: AppSpacing.md,
         children: [

@@ -8,6 +8,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -74,8 +76,12 @@ void main() {
   testWidgets('the Quiz tab lists every quiz by level, under the Quiz destination', (tester) async {
     await _pump(tester);
 
-    expect(find.text('Quizzes'), findsNothing, reason: 'no heading, the tab names the page');
-    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
+    expect(
+      find.descendant(of: find.byType(ListView), matching: find.text('Quiz')),
+      findsOneWidget,
+      reason: 'its name',
+    );
+    expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
     expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
     expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 0 of 2 taken$')), findsOneWidget);
@@ -164,6 +170,9 @@ void main() {
     expect(find.byType(QuizScreen), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
+    expect(find.byType(AppBar), findsNothing, reason: 'no navy bar: the app bar on the page ground');
+    expect(find.descendant(of: find.byType(BazaarBar), matching: find.byType(CloseButton)), findsOneWidget);
+    expect(find.byWidgetPredicate((widget) => widget is LatticeBand && widget.thin), findsOneWidget);
     expect(find.text('Q1'), findsOneWidget);
 
     await _tap(tester, find.text('One'));

@@ -21,6 +21,8 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_
 import 'package:ai_engineering_bazaar/infrastructure/storage/text/file_text_store.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -72,6 +74,28 @@ class AppDependencies {
   /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
   IQuizScoreStore createQuizScoreStore() =>
       FileQuizScoreStore(FileTextStore(baseDirectory: supportDirectory, path: 'quiz/scores.json'));
+
+  /// Where each module was left, as one file under [supportDirectory]`/reading/places.json`, apart from the record
+  /// (plan 1BA).
+  IReadingPlaceStore createReadingPlaceStore() =>
+      FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
+}
+
+/// The reading places' port over one text file of the app's own.
+final class FileReadingPlaceStore implements IReadingPlaceStore {
+  const FileReadingPlaceStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<Map<String, ReadingPlace>> load() async {
+    final text = await _file.read();
+    return text == null ? const {} : decodeReadingPlaces(text);
+  }
+
+  @override
+  Future<void> save(Map<String, ReadingPlace> places) =>
+      places.isEmpty ? _file.delete() : _file.write(encodeReadingPlaces(places));
 }
 
 /// The quiz scores' port over one text file of the app's own.

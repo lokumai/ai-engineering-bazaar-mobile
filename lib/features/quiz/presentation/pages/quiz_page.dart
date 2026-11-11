@@ -1,10 +1,10 @@
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_loader.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_frame.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,13 +59,6 @@ class _Frame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const CloseButton(),
-        title: Text(S.of(context).quiz_title),
-        bottom: const PreferredSize(preferredSize: Size.fromHeight(LatticeBand.height), child: LatticeBand()),
-      ),
-      body: child,
-    );
+    return QuizFrame(title: S.of(context).quiz_title, child: child);
   }
 }

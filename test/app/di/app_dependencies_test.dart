@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -143,6 +144,28 @@ void main() {
 
     await store.save(const {});
     expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
+  });
+
+  test('createReadingPlaceStore keeps the places in one file under the support directory (plan 1BA)', () async {
+    final root = Directory.systemTemp.createTempSync('reading_place_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createReadingPlaceStore();
+    expect(store, isA<FileReadingPlaceStore>());
+    expect(await store.load(), isEmpty);
+
+    final places = {'engineers:alpha/first': ReadingPlace(offset: 300, share: 0.2, at: DateTime.utc(2026, 11, 11))};
+    await store.save(places);
+    expect(await dependencies.createReadingPlaceStore().load(), places, reason: 'kept for the next start');
+    expect(File('${root.path}/reading/places.json').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+
+    await store.save(const {});
+    expect(File('${root.path}/reading/places.json').existsSync(), isFalse, reason: 'no places, no file');
   });
 
   test('the backup goes through the platform gateway', () {

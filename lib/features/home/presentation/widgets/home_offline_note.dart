@@ -1,10 +1,10 @@
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:flutter/material.dart';
 
-/// The offline note, in the leaf shape: the whole course ships in the app and reads offline, and every start asks the
+/// The offline note, a quiet line at the foot of Home: the whole course ships in the app and reads offline, and every start asks the
 /// site for a newer version (R10, R11). The mockup's "8 modules downloaded" is replaced by this true line (plan
 /// Phase 1, decisions taken).
 class HomeOfflineNote extends StatelessWidget {
@@ -15,9 +15,7 @@ class HomeOfflineNote extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    return BazaarCard(
-      shape: BazaarCardShape.leaf,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return BazaarRow(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12,

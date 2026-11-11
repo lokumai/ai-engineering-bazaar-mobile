@@ -63,6 +63,10 @@ jobs:
 
       - name: Run tests
         timeout-minutes: 15
+        # Far from UTC, so a day printed in the local zone where the app means UTC (Settings' published day) differs
+        # from the UTC one and fails a test; UTC+14 puts most instants on the next day (plan 4.5).
+        env:
+          TZ: Pacific/Kiritimati
         run: flutter test --coverage --concurrency=4 --reporter=compact
 
       - name: Check coverage threshold

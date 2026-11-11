@@ -9,10 +9,13 @@ import 'package:flutter/services.dart';
 /// the strip. The shell places it over the router's pages and the thin lattice band under it, and Welcome's steps
 /// over theirs (plan 1Z).
 class BazaarBar extends StatelessWidget {
-  const BazaarBar({super.key, this.onBack, this.title, this.accent, this.statusStrip = true});
+  const BazaarBar({super.key, this.onBack, this.close = false, this.title, this.accent, this.statusStrip = true});
 
   /// Goes back to the page below; null shows no back button.
   final VoidCallback? onBack;
+
+  /// Whether the button of [onBack] is a close button, for a page that covers the app, as the quiz full screen.
+  final bool close;
 
   /// The name of the page under the bar; null leaves the bar without a title, as on Home and Welcome's steps.
   final String? title;
@@ -57,12 +60,14 @@ class BazaarBar extends StatelessWidget {
                     height: height,
                     child: OverflowBox(
                       maxHeight: kMinInteractiveDimension,
-                      child: BackButton(color: colors.onSurface, onPressed: onBack),
+                      child: close
+                          ? CloseButton(color: colors.onSurface, onPressed: onBack)
+                          : BackButton(color: colors.onSurface, onPressed: onBack),
                     ),
                   ),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: accent == null ? MainAxisAlignment.start : MainAxisAlignment.end,
+                    // Right after the back arrow, start-aligned (review findings, F).
                     spacing: AppSpacing.sm,
                     children: [
                       if (accent != null)

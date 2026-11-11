@@ -7,6 +7,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
@@ -304,6 +307,27 @@ void main() {
         expect(scores.state, const QuizScoresReady(kept), reason: 'a reset that did not erase keeps the scores');
         bloc.close();
         scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test('the reset erases the reading places with the record, and its undo brings them back (plan 1BA)', () {
+      onFakeClock((async) {
+        final kept = {'engineers:alpha/first': ReadingPlace(offset: 300, share: 0.4, at: DateTime.utc(2026, 11, 11))};
+        final places = ReadingPlacesBloc(store: MemoryReadingPlaceStore(kept))..add(const ReadingPlacesStarted());
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, places: places);
+        async.flushMicrotasks();
+        expect(places.state, ReadingPlacesReady(kept));
+
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(places.state, const ReadingPlacesReady({}));
+
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(places.state, ReadingPlacesReady(kept));
+        bloc.close();
+        places.close();
         async.flushMicrotasks();
       });
     });

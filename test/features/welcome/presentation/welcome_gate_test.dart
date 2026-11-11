@@ -5,7 +5,6 @@ import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_intro_view.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -37,13 +36,22 @@ final class _MemoryWelcomeStore implements IWelcomeStore {
 
 const _app = Text('the app');
 
-ContentBloc _content() {
+/// The story step as the app would pass it: a button that goes on.
+const _storyDoneKey = Key('story-done');
+
+Widget _story(VoidCallback onDone) => Scaffold(
+  body: Center(
+    child: TextButton(key: _storyDoneKey, onPressed: onDone, child: const Text('the story')),
+  ),
+);
+
+ContentBloc _content({bool story = true}) {
   final content = MockContentBloc();
   whenListen(
     content,
     const Stream<ContentState>.empty(),
     initialState: ContentReady(
-      index: catalogFixtureIndex(),
+      index: catalogFixtureIndex(story: story ? const {'en': 'api/v1/story/en.json'} : const {}),
       origin: ContentOrigin.bundled,
       notice: null,
       refresh: const RefreshUpToDate(),
@@ -58,11 +66,12 @@ Widget _gate(
   bool reducedMotion = false,
   TrackCubit? track,
   ValueChanged<Track>? onFinished,
+  bool story = true,
 }) => RepositoryProvider<IWelcomeStore>.value(
   value: store,
   child: MultiBlocProvider(
     providers: [
-      BlocProvider<ContentBloc>.value(value: _content()),
+      BlocProvider<ContentBloc>.value(value: _content(story: story)),
       if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
       BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
     ],
@@ -80,13 +89,13 @@ Widget _gate(
       builder: (context, child) => reducedMotion
           ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
           : child!,
-      home: WelcomeGate(onFinished: onFinished, child: _app),
+      home: WelcomeGate(story: _story, onFinished: onFinished, child: _app),
     ),
   ),
 );
 
 void main() {
-  testWidgets('the first launch asks the language and the track, then shows the guide, then opens the app (plan 1Y)', (
+  testWidgets('the first launch tells the story, then asks the language and the track, then opens the app (plan 3.5)', (
     tester,
   ) async {
     final store = _MemoryWelcomeStore();
@@ -97,7 +106,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsNothing);
-    expect(find.byType(WelcomeTrackView), findsOneWidget, reason: 'no page with a button before it (plan 1Y)');
+    expect(find.text('the story'), findsOneWidget, reason: 'the story of the Bazaar comes first (plan 3.5)');
+    expect(find.byType(WelcomeTrackView), findsNothing);
+    await tester.tap(find.byKey(_storyDoneKey));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(WelcomeTrackView), findsOneWidget);
     expect(find.text('How would you like to read?'), findsOneWidget);
     expect(store.wasSeen, isFalse, reason: 'not before a track is chosen');
     final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
@@ -110,15 +124,6 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('welcome-start')));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(WelcomeIntroView), findsOneWidget, reason: 'the guide, on the first launch only (plan 1X)');
-    expect(find.text('How the bazaar works'), findsOneWidget);
-    expect(store.wasSeen, isFalse, reason: 'not before the guide is read');
-    expect(finished, isEmpty);
-    await tester.ensureVisible(find.byKey(WelcomeIntroView.doneKey));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(WelcomeIntroView.doneKey));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsOneWidget);
@@ -138,7 +143,7 @@ void main() {
   });
 
   testWidgets('the track step chooses the language too, at once (plan 1S)', (tester) async {
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore()));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
     await tester.pumpAndSettle();
 
     final language = tester.element(find.byType(WelcomeTrackView)).read<LanguageCubit>();
@@ -151,7 +156,7 @@ void main() {
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {
-    await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore()), scale: 2.0);
+    await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore(), story: false), scale: 2.0);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -166,43 +171,27 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform, story: false));
     await tester.pumpAndSettle();
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  group('the guide (plan 1X)', () {
-    /// Steps through Welcome to the guide.
-    Future<void> toGuide(WidgetTester tester) async {
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('welcome-start')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('welcome-start')));
-      await tester.pumpAndSettle();
-    }
+  testWidgets('content that names no story starts at the track and goes from it into the app (web D125)', (
+    tester,
+  ) async {
+    final store = _MemoryWelcomeStore();
+    final finished = <Track>[];
+    await tester.pumpWidget(_gate(store, onFinished: finished.add, story: false));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
 
-    testWidgets('keeps the way on reachable at text scale 2.0', (tester) async {
-      await pumpAtTextScale(tester, _gate(_MemoryWelcomeStore()), scale: 2.0);
-      await toGuide(tester);
-
-      expect(tester.takeException(), isNull);
-      expect(find.byType(WelcomeIntroView), findsOneWidget);
-      await tester.ensureVisible(find.byKey(WelcomeIntroView.doneKey));
-      await tester.pumpAndSettle();
-      expectHittable(tester, find.byKey(WelcomeIntroView.doneKey));
-    });
-
-    testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(_gate(_MemoryWelcomeStore(), platform: defaultTargetPlatform));
-      await toGuide(tester);
-
-      expect(find.text('How the bazaar works'), findsOneWidget);
-      await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
-    });
+    expect(find.text('the story'), findsNothing);
+    expect(find.text('the app'), findsOneWidget);
+    expect(store.wasSeen, isTrue);
+    expect(finished, [Track.engineers]);
   });
 }

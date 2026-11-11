@@ -322,6 +322,52 @@ final List<_Rejection> _rejections = [
 ];
 
 void main() {
+  group('translated objectives (web D124)', () {
+    Map<String, dynamic> turkish(Object? translated) => validModuleDocJson()
+      ..['lang'] = 'tr'
+      ..['translatedObjectives'] = translated;
+
+    test("a translation's own objectives are shown in place of the English", () {
+      final doc = _parse(
+        turkish({
+          'lang': 'tr',
+          'items': ['Yapay bir modül oku.'],
+        }),
+      );
+      expect(doc.objectives, ['Read a synthetic module.']);
+      expect(doc.translatedObjectives, ['Yapay bir modül oku.']);
+      expect(doc.shownObjectives, ['Yapay bir modül oku.']);
+    });
+
+    test('none, null, a list in another language or an empty one shows the English', () {
+      for (final json in [
+        validModuleDocJson()..['lang'] = 'tr',
+        turkish(null),
+        turkish({
+          'lang': 'fa',
+          'items': ['x'],
+        }),
+        turkish({'lang': 'tr', 'items': <String>[]}),
+      ]) {
+        final doc = _parse(json);
+        expect(doc.translatedObjectives, isNull, reason: '${json['translatedObjectives']}');
+        expect(doc.shownObjectives, ['Read a synthetic module.']);
+      }
+    });
+
+    test('a translated objective that is not a string is refused', () {
+      expect(
+        () => _parse(
+          turkish({
+            'lang': 'tr',
+            'items': [1],
+          }),
+        ),
+        throwsA(formatError(_modulePath, 'translatedObjectives.items[0]')),
+      );
+    });
+  });
+
   test('parses the valid module document', () {
     final doc = _parse(validModuleDocJson());
     expect(
@@ -839,5 +885,61 @@ void main() {
       ),
       throwsA(formatError(_levelPath, 'schemaVersion')),
     );
+  });
+
+  group('the story document (web D125)', () {
+    const path = 'api/v1/story/en.json';
+    Map<String, dynamic> story() => {
+      'schemaVersion': 1,
+      'lang': 'en',
+      'dir': 'ltr',
+      'title': 'A Title',
+      'stalls': [
+        {
+          'heading': 'One.',
+          'paragraphs': ['First.', 'Second.'],
+        },
+      ],
+      'motto': {
+        'lead': 'Lead',
+        'lines': ['A.', 'B.'],
+      },
+    };
+    StoryDoc parse(Map<String, dynamic> json) => ContentParser.parseStoryDoc(jsonEncode(json), path: path);
+
+    test('parses the title, the sections and the motto', () {
+      expect(
+        parse(story()),
+        const StoryDoc(
+          lang: 'en',
+          dir: TextDir.ltr,
+          title: 'A Title',
+          stalls: [
+            StoryStall(heading: 'One.', paragraphs: ['First.', 'Second.']),
+          ],
+          motto: StoryMotto(lead: 'Lead', lines: ['A.', 'B.']),
+        ),
+      );
+    });
+
+    test('reads a story with no title and no motto, and ignores keys it does not know', () {
+      final doc = parse(story()..addAll({'title': null, 'motto': null, 'later': true}));
+      expect(doc.title, isNull);
+      expect(doc.motto, isNull);
+    });
+
+    for (final (field, why, mutate) in <(String, String, void Function(Map<String, dynamic>))>[
+      ('schemaVersion', 'a major other than 1', (json) => json['schemaVersion'] = 2),
+      ('stalls', 'no section', (json) => json['stalls'] = []),
+      ('stalls[0].heading', 'a section with no heading', (json) => (json['stalls'] as List).first.remove('heading')),
+      ('dir', 'a direction outside the closed set', (json) => json['dir'] = 'ttb'),
+      ('motto.lines', 'missing', (json) => (json['motto'] as Map).remove('lines')),
+    ]) {
+      test('rejects $field: $why', () {
+        final json = story();
+        mutate(json);
+        expect(() => parse(json), throwsA(formatError(path, field)));
+      });
+    }
   });
 }

@@ -7,12 +7,17 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
+- Your path on Home: each level with a bar of its modules completed, in its hue.
+- The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle holds the Caravan's place, said to be coming soon until its page arrives.
+- The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told first on the first launch, before the language and the track, and in Settings under About, beside How the bazaar works.
+- Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
-- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-10 (`c03b9e70`), with the web's WebP images, Key Terms and the story of the Bazaar.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
-- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then asks for the language and the track, shows How the bazaar works once, and lands on the catalog.
+- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then tells the story of the Bazaar, asks for the language and the track, and lands on the catalog.
 - Home at `/`: the next module to read, the modules after it, the quizzes of the modules completed last to practise again, and the offline note.
 - The catalog root at `/sheets` with the reader's progress in it: a dial per level, and in each level's modules a mark to complete a module or the Planned mark, with a legend. The level page. The web's filters are left out.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
@@ -30,6 +35,12 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
+- A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
+- The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.
+- Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Reset on its own line; the level's title follows the back arrow in the bar.
+- Headings are set in Fraunces, the web's display face; the text stays in the sans.
+- Lists stand on the page with a hairline between rows instead of a card each; the levels are washed in their hues, and the chosen track and language are a light wash instead of a solid block.
 - The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
 - The Dart package name is `ai_engineering_bazaar`.
 - The template palettes are replaced by the Bazaar theme, built from design tokens generated from the snapshot.

@@ -6,7 +6,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:flutter/material.dart';
 
 /// The web's external-link arrow, held to the label by a word joiner.
-const _externalMark = '\u2060↗';
 
 /// A callout card (`w3b` C.1): centred text inside a 2 px edge whose colour names the kind, an optional title, the
 /// body, and an optional button for its link. There is no icon and no kind word for any kind; a warning is filled
@@ -113,7 +112,8 @@ class _ActionButton extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          if (action.target is ExternalTarget) const ExcludeSemantics(child: Text(_externalMark)),
+          // In the button's own ink, as its label.
+          if (action.target is ExternalTarget) ExternalMark(size: label.fontSize!),
         ],
       ),
     );

@@ -152,7 +152,7 @@ void main() {
 
     final button = find.byType(FilledButton);
     expect(find.descendant(of: button, matching: find.text('Read more')), findsOneWidget);
-    expect(find.descendant(of: button, matching: find.text('\u2060↗')), findsOneWidget);
+    expect(find.descendant(of: button, matching: find.byType(ExternalMark)), findsOneWidget);
     expect(tester.getSize(button).height, greaterThanOrEqualTo(minTapTarget(TargetPlatform.android)));
     expect(tester.getTopLeft(button).dy - tester.getBottomLeft(find.text('Body.')).dy, greaterThanOrEqualTo(22));
 
@@ -172,7 +172,7 @@ void main() {
     ]);
 
     expect(find.text('Jump'), findsOneWidget);
-    expect(find.text('\u2060↗'), findsNothing);
+    expect(find.byType(ExternalMark), findsNothing);
   });
 
   testWidgets('a callout sits inside a block list with its margins', (tester) async {
