@@ -224,7 +224,7 @@ The website keeps moving; content reaches the app through the bundle, but a new 
 ## Phase 4: owner follow-ups from PR #1
 
 - [x] **4.1** Decide on the twelve unused template components under `lib/shared/design_system/components/`: delete them, or build the redesign on them (Phase 1A). Checked 2026-11-11: eleven files remain; only `app_page_transition.dart` is used by the app (the router and three features), the other ten are used by their own tests only. Done (the owner, 2026-11-11): the ten are removed with their tests and goldens, and so are `app_breakpoints.dart` and `app_sizes.dart`, which only they used; `app_page_transition.dart` and the tokens it uses stay.
-- [ ] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`. Dispatched on 2026-11-11 (run 42993408811).
+- [x] **4.2** Dispatch the device tests once: `gh workflow run device_tests.yml --ref main`. Done 2026-11-11 (run 42993408811 on `main` at e6b1eef): the Android emulator and the iOS simulator both passed.
 - [ ] **4.3** (the owner's Mac, from 2026-11-12) iOS checks on a Mac: diagrams, logos, the animated WebP and fonts; the file picker; device tests on a simulator.
 - [ ] **4.4** (with 4.3, from 2026-11-12) Scrub the iOS native Sentry SDK's own events, as `NativeSentry.kt` does on Android, or say so in the privacy text.
 - [x] **4.5** Set `TZ` on the CI test job, so a day printed in the local zone is caught. Done: `Pacific/Kiritimati` (UTC+14), which puts most instants on the next day; the suite passed in it and in UTC-11 before the change.
