@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -308,7 +309,10 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 child: MediaQuery.removePadding(
                   context: context,
                   removeTop: true,
-                  child: KeyedSubtree(key: _pageKey, child: widget.child),
+                  child: KeyedSubtree(
+                    key: _pageKey,
+                    child: ReadableWidth(child: widget.child),
+                  ),
                 ),
               ),
             ),

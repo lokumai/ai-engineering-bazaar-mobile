@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,9 +32,6 @@ class DiagramFullScreen extends StatefulWidget {
     ),
   );
 
-  /// The orientations of the app, which it takes back on leaving (`AppBootstrapConfig.preferredOrientations`).
-  static const appOrientations = [DeviceOrientation.portraitUp];
-
   @override
   State<DiagramFullScreen> createState() => _DiagramFullScreenState();
 }
@@ -48,7 +46,7 @@ class _DiagramFullScreenState extends State<DiagramFullScreen> {
 
   @override
   void dispose() {
-    unawaited(SystemChrome.setPreferredOrientations(DiagramFullScreen.appOrientations));
+    unawaited(SystemChrome.setPreferredOrientations(appOrientations()));
     super.dispose();
   }
 

@@ -105,8 +105,10 @@ lib/
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
-                                                rule, segmented control
+                                                rule, segmented control, the readable width that holds a tablet's page to a
+                                                phone's measure
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
+    utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
   features/
     home/                                       Home at `/`: continue card, the modules after it, practice, offline note
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,

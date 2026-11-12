@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/utils/animated_image.dart';
+import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -33,9 +34,6 @@ class ImageFullScreen extends StatefulWidget {
         ),
       );
 
-  /// The orientations of the app, which it takes back on leaving (`AppBootstrapConfig.preferredOrientations`).
-  static const appOrientations = [DeviceOrientation.portraitUp];
-
   @override
   State<ImageFullScreen> createState() => _ImageFullScreenState();
 }
@@ -59,7 +57,7 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
 
   @override
   void dispose() {
-    unawaited(SystemChrome.setPreferredOrientations(ImageFullScreen.appOrientations));
+    unawaited(SystemChrome.setPreferredOrientations(appOrientations()));
     super.dispose();
   }
 

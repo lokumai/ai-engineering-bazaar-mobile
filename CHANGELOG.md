@@ -8,6 +8,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 ### Added
 
 - On iOS a tap on the status bar takes the page in front back to its top, a module included.
+- On an iPad or another tablet the pages keep a phone's measure in the middle of the screen, and the app turns to landscape.
 - The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).
 - A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
@@ -43,6 +44,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The catalog search's keyboard goes away on a tap elsewhere and on a drag through the hits, as iOS has no back key; iOS's own sheets follow the app's languages.
 - Android's back on the first page of Catalog, the Caravan, Quiz or Settings goes Home; it leaves the app from Home.
 - Persian pages put a table's cells, the edge of a notice and the Planned band on their right, as the site does.
 - A cache that cannot be cleaned up, or an object in it that cannot be read, no longer stops the course from opening: the bundled snapshot opens, and the object reads as missing.
