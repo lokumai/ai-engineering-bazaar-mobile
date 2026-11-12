@@ -64,6 +64,7 @@ final class HomeNext extends Equatable {
     required this.level,
     required this.position,
     required this.title,
+    this.words = const {},
     this.score,
     this.share,
   });
@@ -77,6 +78,9 @@ final class HomeNext extends Equatable {
   /// The module's title in the track.
   final String title;
 
+  /// The words of the module's document in the track, per language (web D128); empty where the content has no count.
+  final Map<String, int> words;
+
   /// The quiz's score kept on this device, on a practice entry whose quiz was finished; null otherwise.
   final QuizScore? score;
 
@@ -85,7 +89,7 @@ final class HomeNext extends Equatable {
   final double? share;
 
   @override
-  List<Object?> get props => [module, level, position, title, score, share];
+  List<Object?> get props => [module, level, position, title, words, score, share];
 }
 
 /// The overview of [track] from [index], [record], and the quiz [scores] and reading [places] of this device.
@@ -107,6 +111,7 @@ HomeOverview homeOverview(
       level: index.level(module.level)!,
       position: positions[module.level]!,
       title: module.tracks[titled]!.title,
+      words: module.tracks[titled]!.words,
       score: score,
       share: share,
     );
