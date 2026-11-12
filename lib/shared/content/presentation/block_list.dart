@@ -73,16 +73,33 @@ class BlockList extends StatelessWidget {
   Widget build(BuildContext context) {
     final children = <Widget>[];
     var previousBottom = 0.0;
+    final marked = nested ? const <int>{} : _modulesHeadings(blocks);
     for (final (index, block) in blocks.indexed) {
       final margin = _marginOf(block);
       final gap = index == 0 ? margin.top : math.max(previousBottom, margin.top);
       if (gap > 0) children.add(SizedBox(height: gap));
-      children.add(BlockView(block: block, render: render));
+      children.add(BlockView(block: block, render: render, modulesMark: marked.contains(index)));
       previousBottom = margin.bottom;
     }
     if (!nested && previousBottom > 0) children.add(SizedBox(height: previousBottom));
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: children);
   }
+}
+
+/// The compass the corpus writes at the head of the References' Modules subsection (web D135).
+final _compass = RegExp(r'^🧭\s*');
+
+/// The places in [blocks] of the References' Modules subsection, which the LokumAI mark heads in place of its 🧭 (web
+/// D135, `swapModulesMark` in `render.ts`): a `###` after the last `##` whose text starts with the compass. Matched by
+/// place and glyph, not by a language's word, as the web matches it.
+Set<int> _modulesHeadings(List<Block> blocks) {
+  final last = blocks.lastIndexWhere((block) => block is HeadingBlock && block.depth == 2);
+  if (last < 0) return const {};
+  return {
+    for (final (index, block) in blocks.indexed.skip(last + 1))
+      if (block case HeadingBlock(depth: 3, inlines: [TextInline(:final text), ...]) when _compass.hasMatch(text))
+        index,
+  };
 }
 
 /// The space above and below a block, before collapsing.
@@ -103,15 +120,21 @@ class BlockList extends StatelessWidget {
 
 /// One block, drawn as the web draws it (`w3b` F.1).
 class BlockView extends StatelessWidget {
-  const BlockView({super.key, required this.block, required this.render});
+  const BlockView({super.key, required this.block, required this.render, this.modulesMark = false});
 
   final Block block;
   final BlockRenderContext render;
 
+  /// Whether this heading is the References' Modules subsection, headed by the LokumAI mark (web D135).
+  final bool modulesMark;
+
+  /// The key of the mark at the head of the References' Modules subsection.
+  static const modulesMarkKey = Key('modules-mark');
+
   @override
   Widget build(BuildContext context) => switch (block) {
     final ParagraphBlock block => _Paragraph(block: block, render: render),
-    final HeadingBlock block => _Heading(block: block, render: render),
+    final HeadingBlock block => _Heading(block: block, render: render, modulesMark: modulesMark),
     final ListBlock block => _ListView(block: block, render: render),
     final QuoteBlock block => _Quote(block: block, render: render),
     final CalloutBlock block => CalloutView(block: block, render: render),
@@ -163,10 +186,14 @@ class _Paragraph extends StatelessWidget {
 }
 
 class _Heading extends StatelessWidget {
-  const _Heading({required this.block, required this.render});
+  const _Heading({required this.block, required this.render, this.modulesMark = false});
 
   final HeadingBlock block;
   final BlockRenderContext render;
+  final bool modulesMark;
+
+  /// The LokumAI mark (`assets/brand/SOURCE.md`), which the site draws in the navbar.
+  static const lokumMark = 'assets/brand/lokum_logo.webp';
 
   @override
   Widget build(BuildContext context) {
@@ -194,12 +221,24 @@ class _Heading extends StatelessWidget {
       _ => _bodyStyle(ink).copyWith(fontWeight: FontWeight.w600),
     };
     // The mark is never drawn: the web keeps it only for its table of contents (corrections, row 3.6.3).
-    final text = InlineText(
-      inlines: block.inlines,
+    Widget text = InlineText(
+      inlines: modulesMark ? _withoutCompass(block.inlines) : block.inlines,
       style: style,
       onLink: render.onLink,
       textAlign: scope?.textAlign ?? TextAlign.start,
     );
+    if (modulesMark) {
+      // The LokumAI mark in the compass's place, sized like the emoji beside the text, as the site draws it (web D135);
+      // decoration, so the heading is named by its words alone, as on the site.
+      final size = style.fontSize! * 1.3;
+      text = Row(
+        spacing: 8,
+        children: [
+          Image.asset(lokumMark, key: BlockView.modulesMarkKey, width: size, height: size, excludeFromSemantics: true),
+          Flexible(child: text),
+        ],
+      );
+    }
     return Semantics(
       container: true,
       header: true,
@@ -209,6 +248,12 @@ class _Heading extends StatelessWidget {
       ),
     );
   }
+
+  /// [inlines] without the compass at their head.
+  static List<Inline> _withoutCompass(List<Inline> inlines) => [
+    TextInline(text: (inlines.first as TextInline).text.replaceFirst(_compass, '')),
+    ...inlines.skip(1),
+  ];
 
   /// The section heading with the web's dashed ornament rule filling the rest of its line: the rule runs full width
   /// behind the text, which sits on a surface box with 12 px after it.

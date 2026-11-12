@@ -75,6 +75,42 @@ void main() {
     expect(harness.links, const [AnchorTarget(id: 'two')]);
   });
 
+  group('the References\' Modules subsection (web D135)', () {
+    HeadingBlock heading(int depth, String id, String text) => HeadingBlock(
+      depth: depth,
+      id: id,
+      mark: '',
+      inlines: [TextInline(text: text)],
+    );
+
+    testWidgets('is headed by the LokumAI mark in place of its compass, named by its words alone', (tester) async {
+      await pumpBlocks(tester, [
+        heading(2, 'body', 'Body'),
+        heading(3, 'early', '🧭 Early'),
+        heading(2, 'references', 'Kaynaklar'),
+        heading(3, 'papers', '📄 Papers'),
+        heading(3, 'modules', '🧭 Modüller'),
+      ]);
+
+      expect(find.byKey(BlockView.modulesMarkKey), findsOneWidget);
+      expect(
+        find.text('Modüller'),
+        findsOneWidget,
+        reason: 'the compass gone, matched by place and glyph, not by word',
+      );
+      expect(tester.getSemantics(find.text('Modüller')), matchesSemantics(isHeader: true, label: 'Modüller'));
+      expect(find.text('🧭 Early'), findsOneWidget, reason: 'before the last ## heading, the compass stays');
+      expect(find.text('📄 Papers'), findsOneWidget);
+    });
+
+    testWidgets('a document with no ## heading has no mark', (tester) async {
+      await pumpBlocks(tester, [heading(3, 'modules', '🧭 Modules')]);
+
+      expect(find.byKey(BlockView.modulesMarkKey), findsNothing);
+      expect(find.text('🧭 Modules'), findsOneWidget);
+    });
+  });
+
   testWidgets('a depth-2 heading is a header without its mark and owns its key', (tester) async {
     final harness = await pumpBlocks(tester, const [
       HeadingBlock(
