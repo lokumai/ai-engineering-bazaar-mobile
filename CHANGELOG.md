@@ -80,6 +80,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- A module that cannot be read offers Try again instead of only asking for a restart, and the reader's loading spinner is named for a screen reader.
 - A second reset while Undo is still offered no longer empties the undo: Undo brings back the progress from before the first.
 - A reset that fails part way leaves the progress on the device, not only on the screen.
 - An unexpected error at launch no longer leaves the app on its loading page: the course says it cannot be opened, or the progress opens read-only and is never written over.

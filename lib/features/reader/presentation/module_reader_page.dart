@@ -20,7 +20,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
-import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -299,10 +298,25 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   Widget build(BuildContext context) {
     return BlocBuilder<ModuleReaderBloc, ReaderState>(
       builder: (context, state) => switch (state) {
-        ReaderLoading() => const Scaffold(body: Center(child: CircularProgressIndicator())),
+        ReaderLoading() => Scaffold(
+          body: Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
+        ),
         ReaderNotFound() => const Scaffold(body: NotFoundView()),
-        ReaderFailed() => const Scaffold(
-          body: Padding(padding: EdgeInsets.all(16), child: ContentUnreadable()),
+        ReaderFailed() => Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(S.of(context).reader_failed),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => context.read<ModuleReaderBloc>().add(const ReaderRetried()),
+                  child: Text(S.of(context).reader_retry),
+                ),
+              ],
+            ),
+          ),
         ),
         ReaderNotWritten(:final entry) => Scaffold(body: NotWrittenView(entry: entry)),
         ReaderWritten(:final doc, :final entry, :final moduleCount) => _module(context, doc, entry, moduleCount),

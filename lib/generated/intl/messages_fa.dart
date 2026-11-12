@@ -341,6 +341,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("تکمیل درس"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("فهرست مطالب"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("پایان دوره"),
+    "reader_failed": MessageLookupByLibrary.simpleMessage(
+      "این ماژول روی این دستگاه خوانده نشد. دوباره تلاش کنید یا برنامه را از نو باز کنید.",
+    ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("حذف نشانه‌های جستجو"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("مورد بعدی"),
     "reader_find_position": m32,
@@ -355,6 +358,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("خواندن نسخهٔ «برای مهندسان»"),
+    "reader_retry": MessageLookupByLibrary.simpleMessage("دوباره تلاش کنید"),
     "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("مورد"),

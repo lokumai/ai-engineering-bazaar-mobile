@@ -235,5 +235,7 @@
   "about_skip": "Geç",
   "about_close": "Kapat",
   "about_next": "Sonraki",
-  "about_previous": "Önceki"
+  "about_previous": "Önceki",
+  "reader_failed": "Bu modül bu cihazda okunamadı. Yeniden dene ya da uygulamayı yeniden başlat.",
+  "reader_retry": "Yeniden dene"
 }

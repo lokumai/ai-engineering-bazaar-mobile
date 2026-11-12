@@ -14,7 +14,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
-import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
@@ -991,15 +990,13 @@ void main() {
     expect(_path(router), '/sheets');
   });
 
-  testWidgets('a failed read shows the unreadable line', (tester) async {
+  testWidgets('a failed read says so and offers Try again, which reads the module again', (tester) async {
     stateIs(const ReaderFailed(code: ContentErrorCode.missing));
     await pumpReader(tester);
 
-    expect(find.byType(ContentUnreadable), findsOneWidget);
-    expect(
-      find.text('This part of the course could not be read on this device. Restart the app to reload it.'),
-      findsOneWidget,
-    );
+    expect(find.text('This module could not be read on this device. Try again, or restart the app.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Try again'));
+    verify(() => readerBloc.add(const ReaderRetried())).called(1);
   });
 
   testWidgets('loading shows a spinner', (tester) async {
@@ -1020,6 +1017,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.bySemanticsLabel('Loading'), findsOneWidget, reason: 'named for a screen reader, as the gate is');
   });
 
   testWidgets('an unknown block opens the web page of the document track', (tester) async {

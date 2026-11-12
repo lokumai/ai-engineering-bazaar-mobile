@@ -339,6 +339,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Modülü tamamlama"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("İçindekiler"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("Kursun sonu"),
+    "reader_failed": MessageLookupByLibrary.simpleMessage(
+      "Bu modül bu cihazda okunamadı. Yeniden dene ya da uygulamayı yeniden başlat.",
+    ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Arama işaretlerini kaldır"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Sonraki eşleşme"),
     "reader_find_position": m32,
@@ -355,6 +358,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için sürümünü oku"),
+    "reader_retry": MessageLookupByLibrary.simpleMessage("Yeniden dene"),
     "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Madde"),

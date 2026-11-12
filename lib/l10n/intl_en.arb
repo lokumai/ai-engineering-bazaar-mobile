@@ -800,5 +800,9 @@
   "about_previous": "Previous",
   "@about_previous": {
     "description": "The story film, for a screen reader: the near side of the screen, which goes back a screen."
-  }
+  },
+  "reader_failed": "This module could not be read on this device. Try again, or restart the app.",
+  "@reader_failed": {},
+  "reader_retry": "Try again",
+  "@reader_retry": {}
 }

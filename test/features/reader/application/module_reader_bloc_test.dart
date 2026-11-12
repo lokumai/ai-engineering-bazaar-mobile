@@ -151,6 +151,45 @@ void main() {
     expect: () => [const ReaderFailed(code: ContentErrorCode.missing)],
   );
 
+  group('Try again', () {
+    var reads = 0;
+
+    blocTest<ModuleReaderBloc, ReaderState>(
+      'reads the module again after it failed, and opens it when it reads',
+      build: build,
+      setUp: () {
+        reads = 0;
+        when(() => repository.readModuleDoc(_firstEnglish)).thenAnswer((_) async {
+          if (reads++ == 0) throw const ContentMissingException(_firstEnglish);
+          return writtenDoc;
+        });
+      },
+      act: (bloc) async {
+        bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers));
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const ReaderRetried());
+      },
+      expect: () => [
+        const ReaderFailed(code: ContentErrorCode.missing),
+        const ReaderLoading(),
+        ReaderWritten(doc: writtenDoc, entry: first, moduleCount: 2),
+      ],
+    );
+
+    blocTest<ModuleReaderBloc, ReaderState>(
+      'does nothing on a module that is open',
+      build: build,
+      setUp: () => when(() => repository.readModuleDoc(_firstEnglish)).thenAnswer((_) async => writtenDoc),
+      act: (bloc) async {
+        bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers));
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const ReaderRetried());
+      },
+      expect: () => [ReaderWritten(doc: writtenDoc, entry: first, moduleCount: 2)],
+      verify: (_) => verify(() => repository.readModuleDoc(_firstEnglish)).called(1),
+    );
+  });
+
   blocTest<ModuleReaderBloc, ReaderState>(
     'a corrupt object fails with corrupt',
     build: build,

@@ -235,5 +235,7 @@
   "about_skip": "رد شدن",
   "about_close": "بستن",
   "about_next": "بعدی",
-  "about_previous": "قبلی"
+  "about_previous": "قبلی",
+  "reader_failed": "این ماژول روی این دستگاه خوانده نشد. دوباره تلاش کنید یا برنامه را از نو باز کنید.",
+  "reader_retry": "دوباره تلاش کنید"
 }

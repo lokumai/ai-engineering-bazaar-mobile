@@ -1631,6 +1631,21 @@ class S {
       args: [],
     );
   }
+
+  /// `This module could not be read on this device. Try again, or restart the app.`
+  String get reader_failed {
+    return Intl.message(
+      'This module could not be read on this device. Try again, or restart the app.',
+      name: 'reader_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get reader_retry {
+    return Intl.message('Try again', name: 'reader_retry', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
