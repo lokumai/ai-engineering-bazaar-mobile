@@ -313,8 +313,12 @@ void main() {
     expect(find.byType(BackButton), findsNothing);
   });
 
-  group("a module's back goes to the catalog, not to the page before (the owner, 2026-11-11)", () {
-    testWidgets('from a module opened on Home, after another tab, to the catalog and not Home', (tester) async {
+  group('the bar\'s back goes to the page the module was opened from (the owner, 2026-11-12)', () {
+    int selected(WidgetTester tester) => tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    testWidgets('from a module opened on Home, after another tab, to Home; Catalog then opens at its first page', (
+      tester,
+    ) async {
       final router = await _pumpAt(tester, '/', TrackCubit());
       router.push('/courses/alpha/first');
       await tester.pumpAndSettle();
@@ -323,28 +327,33 @@ void main() {
       expect(_path(router), '/courses/alpha/first', reason: 'the tab opens its module again');
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/sheets');
+      expect(_path(router), '/');
+      expect(selected(tester), 0);
       expect(find.byType(BackButton), findsNothing);
+
+      await _tap(tester, _destination('Catalog'));
+      expect(_path(router), '/sheets', reason: 'not the module already gone back from');
     });
 
-    testWidgets('from a module opened from another module, past it to the catalog under them', (tester) async {
+    testWidgets('from a module opened from another module, to that module', (tester) async {
       final router = await _pumpAt(tester, '/sheets', TrackCubit());
       await _pushFromCatalog(tester, 'Alpha Level', 'First Module');
       router.push('/courses/beta/fourth');
       await tester.pumpAndSettle();
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/sheets');
-      expect(find.byType(BackButton), findsNothing);
+      expect(_path(router), '/courses/alpha/first');
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets', reason: 'the catalog the first module was opened from');
     });
 
-    testWidgets("For Everyone's module goes to For Everyone's catalog", (tester) async {
+    testWidgets("For Everyone's module opened on Home goes back Home", (tester) async {
       final router = await _pumpAt(tester, '/', TrackCubit());
       router.push('/everyone/courses/alpha/first');
       await tester.pumpAndSettle();
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/everyone/sheets');
+      expect(_path(router), '/');
     });
   });
 
@@ -451,8 +460,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/sheets', reason: 'the open tab goes back to its first page');
     expect(find.byType(BackButton), findsNothing);
-    // A module opened from Home is under Catalog too, with Home under it; its back goes to the catalog (the owner,
-    // 2026-11-11).
+    // A module opened from Home is under Catalog too, with Home under it; its back goes Home, where it was opened.
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Open the module'));
@@ -463,7 +471,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
-    expect(_path(router), '/sheets');
+    expect(_path(router), '/', reason: 'back where it was opened, Home (the owner, 2026-11-12)');
   });
 
   group('another tab opens at once, with no transition (the owner, 2026-11-12)', () {

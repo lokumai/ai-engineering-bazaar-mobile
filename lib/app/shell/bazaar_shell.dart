@@ -112,7 +112,13 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.location != widget.location) {
       // The shell is built before its navigator, so the move to another tab ends once the new pages are drawn.
-      if (TabSwitch.active) WidgetsBinding.instance.addPostFrameCallback((_) => TabSwitch.end());
+      if (TabSwitch.active) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => TabSwitch.end());
+      } else if (_tabOf(oldWidget.location) != _selectedIndex) {
+        // Back or a link left the tab's pages for another tab's page: the tab left keeps no pages, so it opens at its
+        // first page again rather than at a page already gone back from.
+        _stacks.remove(_tabOf(oldWidget.location));
+      }
       _rememberTrack();
       _navHidden = false;
       _run = 0;
@@ -177,7 +183,9 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   final _stacks = <int, ({RouteMatchList pages, String top})>{};
 
   /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
-  int get _selectedIndex => switch (widget.location) {
+  int get _selectedIndex => _tabOf(widget.location);
+
+  static int _tabOf(String location) => switch (location) {
     BazaarPaths.caravan => 2,
     BazaarPaths.quizzes => 3,
     final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
@@ -216,37 +224,9 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   static int _pages(List<RouteMatchBase> matches) =>
       matches.fold(0, (count, match) => count + (match is ShellRouteMatch ? _pages(match.matches) : 1));
 
-  /// The paths of the pages in [matches], the first page first.
-  static List<String> _locations(List<RouteMatchBase> matches) => [
-    for (final match in matches)
-      if (match is ShellRouteMatch) ..._locations(match.matches) else match.matchedLocation,
-  ];
-
-  /// The bar's back button, which only a module's page shows: it goes back to the catalog of the module's track, not to
-  /// the page before as a browser would (the owner, 2026-11-11). The catalog page under the module, its root or a level's
-  /// page, is found again as it was left, its search included; when none is under it (the module was opened from Home,
-  /// from Quiz or from another module), the catalog opens.
-  void _back() {
-    final router = GoRouter.of(context);
-    final track = BazaarPaths.trackOf(widget.location);
-    if (track == null) {
-      router.pop();
-      return;
-    }
-    final catalog = BazaarPaths.catalog(track);
-    final pages = _locations(router.routerDelegate.currentConfiguration.matches);
-    // The catalog's root or one of its level pages, of the module's track.
-    final at = pages.lastIndexWhere(
-      (page) => page == catalog || (BazaarPaths.levelOf(page) != null && BazaarPaths.trackOf(page) == track),
-    );
-    if (at < 0) {
-      router.go(catalog);
-      return;
-    }
-    for (var i = pages.length - 1; i > at; i--) {
-      router.pop();
-    }
-  }
+  /// The bar's back button goes to the page before, where the page was opened from, as Android's back and the iOS edge
+  /// swipe do (the owner, 2026-11-12; from 2026-11-11 a module's arrow went to its catalog instead).
+  void _back() => GoRouter.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
