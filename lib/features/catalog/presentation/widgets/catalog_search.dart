@@ -72,6 +72,8 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
         unawaited(context.read<CatalogSearchCubit>().search(text));
       },
       textInputAction: TextInputAction.search,
+      // A tap elsewhere puts the keyboard away: iOS has no back key to do it.
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         hintText: s.catalog_search_hint,

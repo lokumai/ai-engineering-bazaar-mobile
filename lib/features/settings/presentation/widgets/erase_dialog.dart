@@ -80,6 +80,7 @@ class _EraseDialogState extends State<_EraseDialog> {
             controller: _typed,
             autocorrect: false,
             enableSuggestions: false,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(labelText: s.erase_field_label),
             onChanged: (_) => setState(() {}),
           ),

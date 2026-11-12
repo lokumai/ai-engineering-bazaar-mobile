@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/cata
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -128,6 +129,26 @@ void main() {
     await tester.tap(find.text('Gamma Level'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/sheets/gamma');
+  });
+
+  testWidgets('a tap elsewhere or a drag through the hits puts the keyboard away, as iOS has no back key', (
+    tester,
+  ) async {
+    await _pump(tester, platform: TargetPlatform.iOS);
+
+    await tester.showKeyboard(find.byType(TextField));
+    await _type(tester, 'agent');
+    expect(tester.testTextInput.isVisible, isTrue);
+    await tester.tap(find.byType(SectionRule));
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isFalse, reason: 'a tap outside the field');
+
+    await tester.showKeyboard(find.byType(TextField));
+    expect(tester.testTextInput.isVisible, isTrue);
+    await tester.drag(find.byType(CatalogSearchResults), const Offset(0, -100));
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isFalse, reason: 'a drag through the hits');
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'agent', reason: 'the words stay');
   });
 
   testWidgets('words that match nothing say so, and the clear button brings the levels back', (tester) async {

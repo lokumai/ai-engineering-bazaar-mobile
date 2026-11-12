@@ -67,6 +67,8 @@ class CatalogPage extends StatelessWidget {
       child: BlocSelector<CatalogSearchCubit, CatalogSearchState, bool>(
         selector: (state) => state.active,
         builder: (context, searching) => ListView(
+          // A drag through the hits puts the keyboard away, so it does not hide them.
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
