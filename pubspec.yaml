@@ -1,7 +1,7 @@
 name: ai_engineering_bazaar
 description: "AI Engineering Bazaar reader for Android and iOS."
 publish_to: 'none'
-version: 0.22.2+1
+version: 1.0.0+1
 
 # ➜  ai_engineering_bazaar git:(main) ✗ flutter --version
 # Flutter 3.47.7 • channel stable • https://github.com/flutter/flutter.git

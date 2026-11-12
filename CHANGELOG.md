@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- The iOS privacy manifest: the app tracks nothing and collects nothing.
 - On iOS a tap on the status bar takes the page in front back to its top, a module included.
 - On an iPad or another tablet the pages keep a phone's measure in the middle of the screen, and the app turns to landscape.
 - The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).

@@ -267,7 +267,7 @@ The owner's manager started opening the store accounts on 2026-11-11.
   - The app collects no data: no account, no analytics, no advertising, the progress on the device, and Sentry off in every build so far, so both stores' forms answer Data Not Collected. Whether crash reports are wanted is the owner's manager's call (2026-11-12).
   - iOS export compliance: `Info.plist` says the app uses no encryption beyond the system's HTTPS (`ITSAppUsesNonExemptEncryption` false), so App Store Connect does not ask at every upload.
   - The stores ask for a public privacy policy address. The site's note is at `https://ai-bazaar.lokum.dev/legend/#privacy` (web D122); it speaks of the site, so the web team may add a line on the app.
-- [ ] **6.3** Version and changelog for the first release.
+- [ ] **6.3** Version and changelog for the first release. The version is `1.0.0+1` since 2026-11-12 (8.8); the changelog's Unreleased section becomes 1.0.0 when it ships.
 
 ## How each step is done
 
@@ -303,3 +303,4 @@ A review of `feature/ios` at `7b433d5` by three reviewers who read the code and 
 - [x] **8.5 A reset that stops part way loses nothing** (review B2). `deleteAll` deletes `record.json` last, and an erase whose delete fails writes back the files it read before, so the progress stays on the device as well as on the screen.
 - [x] **8.6 A second reset keeps the undo** (review B3). A reset made while the undo of the one before is still open used to set aside the empty record, so the undo brought back nothing. It now keeps the first reset's record, quiz scores and reading places, and the undo brings back what was there before both; what was done between them is not brought back. Two quick confirmations make one reset (`ResetConfirmed` is dropped while one runs).
 - [x] **8.7 Try again on a module that cannot be read** (review C1). The reader's failure page said only to restart the app; it now says the module could not be read and offers Try again, which reads it again (`ReaderRetried`). Its loading spinner is named for a screen reader, as the gate's is.
+- [x] **8.8 Before the stores, crash reports aside** (review F). `ios/Runner/PrivacyInfo.xcprivacy` is the app's privacy manifest, in the Runner's resources: no tracking, no data collected, and no API that needs a reason in the app's own code. The plugins carry their own where they need one (`package_info_plus`, `url_launcher_ios`, the Sentry SDK); App Store Connect names any that is missing at the first upload. Should crash reports be turned on (the owner's manager decides), the manifest lists crash data. The version is `1.0.0+1` for the first release (6.3); each upload to a store raises the build number after the `+`. Symbols for readable crash reports wait on the same decision.
