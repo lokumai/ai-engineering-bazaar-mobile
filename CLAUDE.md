@@ -103,6 +103,7 @@ lib/
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
+    navigation/tab_switch.dart                  marks a move to another tab, whose pages come in and go out at once
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
                                                 rule, segmented control, the readable width that holds a tablet's page to a

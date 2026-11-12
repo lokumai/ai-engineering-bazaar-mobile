@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,8 @@ import 'package:go_router/go_router.dart';
 /// reader runs, and move without animation under reduced motion.
 ///
 /// Each tab keeps its pages: leaving a module for another tab and coming back opens the module again, where the reader
-/// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page.
+/// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page. Another tab's pages come at once, with
+/// no transition, as tabs change on iOS and Android ([TabSwitch], the owner, 2026-11-12).
 ///
 /// On iOS a tap on the status bar takes the page in front back to its top, as iOS apps do.
 ///
@@ -76,6 +78,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    TabSwitch.end();
     super.dispose();
   }
 
@@ -108,6 +111,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   void didUpdateWidget(BazaarShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.location != widget.location) {
+      // The shell is built before its navigator, so the move to another tab ends once the new pages are drawn.
+      if (TabSwitch.active) WidgetsBinding.instance.addPostFrameCallback((_) => TabSwitch.end());
       _rememberTrack();
       _navHidden = false;
       _run = 0;
@@ -191,6 +196,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     };
     final router = GoRouter.of(context);
     final kept = _stacks[index];
+    if (index != _selectedIndex) TabSwitch.begin();
     // The open tab goes back to its first page; another opens its own pages again, unless they are of the track the
     // reader left since (Settings changes the track).
     if (index == _selectedIndex || kept == null || (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {

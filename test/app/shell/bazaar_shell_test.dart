@@ -7,10 +7,13 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -461,6 +464,56 @@ void main() {
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
     expect(_path(router), '/sheets');
+  });
+
+  group('another tab opens at once, with no transition (the owner, 2026-11-12)', () {
+    /// Taps the destination [label] and draws a single frame.
+    Future<void> tapOnce(WidgetTester tester, String label) async {
+      await tester.tap(_destination(label));
+      await tester.pump();
+    }
+
+    testWidgets("the page left is gone in the next frame, and none shows through the other's", (tester) async {
+      await _pumpAt(tester, '/sheets', TrackCubit());
+
+      await tapOnce(tester, 'Quiz');
+      expect(find.byType(QuizListPage), findsOneWidget);
+      expect(find.byType(CatalogOverview), findsNothing);
+      expect(TabSwitch.active, isFalse, reason: 'the move ends once the page is drawn');
+
+      await tapOnce(tester, 'Catalog');
+      expect(find.byType(CatalogOverview), findsOneWidget);
+      expect(find.byType(QuizListPage), findsNothing);
+    });
+
+    testWidgets('a module kept under a tab goes and comes back at once too', (tester) async {
+      final router = await _pumpAt(tester, '/sheets', TrackCubit());
+      await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
+
+      await tapOnce(tester, 'Quiz');
+      expect(find.byType(ModuleReaderPage), findsNothing);
+      expect(find.byType(QuizListPage), findsOneWidget);
+
+      await tapOnce(tester, 'Catalog');
+      expect(_path(router), '/courses/beta/fourth');
+      expect(find.byType(QuizListPage), findsNothing);
+      expect(find.byType(ModuleReaderPage), findsOneWidget);
+    });
+
+    testWidgets('a page opened after the move still moves in, over the page under it', (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      await tapOnce(tester, 'Catalog');
+      await tester.pumpAndSettle();
+
+      router.push('/courses/alpha/first');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final route = ModalRoute.of(tester.element(find.byType(ModuleReaderPage)))!;
+      expect(route.animation!.isCompleted, isFalse, reason: 'still moving in');
+      expect(find.byType(CatalogOverview), findsOneWidget, reason: 'the catalog stays under it until it is in');
+      await tester.pumpAndSettle();
+      expect(route.animation!.isCompleted, isTrue);
+    });
   });
 
   testWidgets('text scale 2.0', (tester) async {
