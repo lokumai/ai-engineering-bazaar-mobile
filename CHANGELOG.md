@@ -7,10 +7,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
-- The word count beside the minutes, under a module's title, in a level page card's Length and in the catalog's rows, in the reader's language, as the web page prints it (web D128).
+- The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).
 - A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
-- A replay button over an animated recording in a module, beside the full-screen mark, which plays it again from its start (web D136).
+- A replay button over an animated recording in a module, beside the full-screen mark, and full screen in its top corner, which plays it again from its start (web D136).
+- The LokumAI mark heads the Modules subsection of a module's References in place of its compass, as on the site (web D135).
 - A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, Turkish and Persian written as the web's search finds them. The hits are grouped by module, and each opens its module at its section with the words marked, and a bar under the module's bar steps from one mark to the next.
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
@@ -46,7 +47,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
 - A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
 - The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.
-- Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Reset on its own line; the level's title follows the back arrow in the bar.
+- Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Back up, Restore and Reset on one line, their names shortened to fit in every language; the level's title follows the back arrow in the bar.
 - Headings are set in Fraunces, the web's display face; the text stays in the sans.
 - Lists stand on the page with a hairline between rows instead of a card each; the levels are washed in their hues, and the chosen track and language are a light wash instead of a solid block.
 - The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
