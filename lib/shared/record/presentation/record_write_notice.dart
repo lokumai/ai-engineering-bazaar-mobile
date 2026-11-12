@@ -38,10 +38,10 @@ class RecordWriteNotice extends StatelessWidget {
           constraints: BoxConstraints(minHeight: minTapTarget(defaultTargetPlatform)),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border(left: BorderSide(width: 2, color: colors.fault)),
+              border: BorderDirectional(start: BorderSide(width: 2, color: colors.fault)),
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 0, 8),
+              padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 0, 8),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 widthFactor: 1,

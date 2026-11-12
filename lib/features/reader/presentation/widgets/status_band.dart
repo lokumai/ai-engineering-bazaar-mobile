@@ -22,7 +22,7 @@ class StatusBand extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colors.surfaceRaised,
-        border: const Border(left: BorderSide(width: 2, color: BazaarFixedColors.caution)),
+        border: const BorderDirectional(start: BorderSide(width: 2, color: BazaarFixedColors.caution)),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Text.rich(

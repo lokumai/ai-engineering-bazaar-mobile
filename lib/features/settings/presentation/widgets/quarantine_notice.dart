@@ -47,10 +47,10 @@ class QuarantineNotice extends StatelessWidget {
       label: s.quarantine_label,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(left: BorderSide(width: 2, color: context.bazaarColors.fault)),
+          border: BorderDirectional(start: BorderSide(width: 2, color: context.bazaarColors.fault)),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(left: AppSpacing.md),
+          padding: const EdgeInsetsDirectional.only(start: AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: AppSpacing.xs,

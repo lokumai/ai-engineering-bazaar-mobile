@@ -69,8 +69,9 @@ void main() {
     final box = tester.widget<DecoratedBox>(
       find.descendant(of: find.byKey(const Key('write-failure')), matching: find.byType(DecoratedBox)).first,
     );
-    final border = (box.decoration as BoxDecoration).border! as Border;
-    expect(border.left, BorderSide(width: 2, color: colors.fault));
-    expect([border.top, border.right, border.bottom], everyElement(BorderSide.none));
+    // On the start edge, the right of a Persian notice.
+    final border = (box.decoration as BoxDecoration).border! as BorderDirectional;
+    expect(border.start, BorderSide(width: 2, color: colors.fault));
+    expect([border.top, border.end, border.bottom], everyElement(BorderSide.none));
   });
 }

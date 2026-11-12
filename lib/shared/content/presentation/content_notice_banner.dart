@@ -22,10 +22,10 @@ class ContentNoticeBanner extends StatelessWidget {
     final theme = Theme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 2, color: context.bazaarColors.lineStrong)),
+        border: BorderDirectional(start: BorderSide(width: 2, color: context.bazaarColors.lineStrong)),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: AppSpacing.md),
+        padding: const EdgeInsetsDirectional.only(start: AppSpacing.md),
         child: Text(text, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
       ),
     );
