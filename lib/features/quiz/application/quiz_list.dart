@@ -16,17 +16,17 @@ final class QuizLevel extends Equatable {
   List<Object?> get props => [level, position, modules];
 }
 
-/// The levels of [index] that hold a module with a quiz, in the index's order, each with those modules.
+/// The levels of [index] that hold a module with a quiz in [track], in the index's order, each with those modules.
 ///
-/// Only For Engineers documents carry a quiz (`hasQuiz`, web `ModuleSheet.tsx:493-509`), so the tab lists the For
-/// Engineers modules whatever the current track.
-List<QuizLevel> quizLevels(BundleIndex index) => [
+/// A module has one quiz file, shown on both tracks (web D137), so a module carries a quiz in a track when it is written
+/// in that track (`hasQuiz`).
+List<QuizLevel> quizLevels(BundleIndex index, Track track) => [
   for (final (position, level) in index.levels.indexed)
-    if (_withQuiz(index, level.slug) case final modules when modules.isNotEmpty)
+    if (_withQuiz(index, level.slug, track) case final modules when modules.isNotEmpty)
       QuizLevel(level: level, position: position, modules: modules),
 ];
 
-List<ModuleEntry> _withQuiz(BundleIndex index, String level) => [
+List<ModuleEntry> _withQuiz(BundleIndex index, String level, Track track) => [
   for (final module in index.modules)
-    if (module.level == level && (module.tracks[Track.engineers]?.hasQuiz ?? false)) module,
+    if (module.level == level && (module.tracks[track]?.hasQuiz ?? false)) module,
 ]..sort((a, b) => a.number.compareTo(b.number));

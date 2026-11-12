@@ -163,10 +163,10 @@ class S {
     return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
   }
 
-  /// `On to our story`
+  /// `On to the story`
   String get welcome_to_story {
     return Intl.message(
-      'On to our story',
+      'On to the story',
       name: 'welcome_to_story',
       desc: 'Welcome\'s choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5).',
       args: [],
@@ -236,6 +236,16 @@ class S {
   /// `Open the image full screen`
   String get image_expand {
     return Intl.message('Open the image full screen', name: 'image_expand', desc: '', args: []);
+  }
+
+  /// `Replay`
+  String get image_replay {
+    return Intl.message(
+      'Replay',
+      name: 'image_replay',
+      desc: 'The button over an animated recording that plays it again from its start (web D136).',
+      args: [],
+    );
   }
 
   /// `Your path`
@@ -760,16 +770,6 @@ class S {
   /// `All answers right`
   String get quiz_all_right {
     return Intl.message('All answers right', name: 'quiz_all_right', desc: '', args: []);
-  }
-
-  /// `The questions come with the {track} modules.`
-  String quiz_list_engineers_only(String track) {
-    return Intl.message(
-      'The questions come with the $track modules.',
-      name: 'quiz_list_engineers_only',
-      desc: '',
-      args: [track],
-    );
   }
 
   /// `{approved}/{total}`

@@ -177,12 +177,12 @@ void main() {
       );
     });
 
-    test('a For Everyone reader practises the For Engineers quiz of the modules completed in their track', () {
+    test('a For Everyone reader practises the quizzes of the modules completed in their track (web D137)', () {
       final record = at([('alpha/first', now)], track: Track.everyone);
 
       final practice = homeOverview(index, Track.everyone, record).practice;
       expect([for (final entry in practice) entry.module.key], ['alpha/first']);
-      expect(practice.single.title, 'First Module', reason: 'the quiz is the For Engineers one');
+      expect(practice.single.title, 'First Story', reason: 'one quiz on both tracks, under the track\'s title');
       expect(homeOverview(index, Track.engineers, record).practice, isEmpty, reason: 'not completed For Engineers');
     });
   });

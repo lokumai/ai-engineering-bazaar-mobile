@@ -117,7 +117,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
     final start = find.byKey(const Key('welcome-start'));
-    expect(find.descendant(of: start, matching: find.text('On to our story')), findsOneWidget);
+    expect(find.descendant(of: start, matching: find.text('On to the story')), findsOneWidget);
     await tester.ensureVisible(start);
     await tester.pumpAndSettle();
     await tester.tap(start);

@@ -136,7 +136,7 @@ ModuleEntry _module(
         title: everyoneTitle,
         drawn: everyoneDrawn,
         summary: everyoneSummary,
-        hasQuiz: false,
+        hasQuiz: everyoneDrawn && engineersDrawn,
         revision: everyoneDrawn ? _revision : null,
         docs: everyoneDrawn ? {'en': 'api/v1/modules/$key/everyone/en.json'} : const {},
         webPath: 'everyone/courses/$key/',

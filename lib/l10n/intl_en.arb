@@ -43,7 +43,7 @@
   },
   "welcome_start": "Start reading",
   "@welcome_start": {},
-  "welcome_to_story": "On to our story",
+  "welcome_to_story": "On to the story",
   "@welcome_to_story": {
     "description": "Welcome's choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5)."
   },
@@ -78,6 +78,10 @@
   "@diagram_expand": {},
   "image_expand": "Open the image full screen",
   "@image_expand": {},
+  "image_replay": "Replay",
+  "@image_replay": {
+    "description": "The button over an animated recording that plays it again from its start (web D136)."
+  },
   "home_path": "Your path",
   "@home_path": {},
   "home_offline_title": "The course is on this device",
@@ -477,14 +481,6 @@
     }
   },
   "quiz_all_right": "All answers right",
-  "quiz_list_engineers_only": "The questions come with the {track} modules.",
-  "@quiz_list_engineers_only": {
-    "placeholders": {
-      "track": {
-        "type": "String"
-      }
-    }
-  },
   "catalog_level_dial": "{approved}/{total}",
   "@catalog_level_dial": {
     "placeholders": {

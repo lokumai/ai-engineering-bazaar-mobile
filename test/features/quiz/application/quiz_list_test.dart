@@ -1,11 +1,12 @@
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_list.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/catalog_fixture_index.dart';
 
 void main() {
   test('lists the levels that hold a quiz, each with its quiz modules in number order (plan 1AC)', () {
-    final levels = quizLevels(catalogFixtureIndex());
+    final levels = quizLevels(catalogFixtureIndex(), Track.engineers);
 
     expect([for (final level in levels) level.level.slug], ['alpha', 'beta', 'gamma']);
     expect([for (final level in levels) level.position], [0, 1, 2]);
@@ -19,6 +20,22 @@ void main() {
         ['gamma/sixth'],
       ],
       reason: 'alpha/third and beta/fifth are planned For Engineers and carry no quiz',
+    );
+  });
+
+  test('lists For Everyone the modules written For Everyone, one quiz on both tracks (web D137)', () {
+    final levels = quizLevels(catalogFixtureIndex(), Track.everyone);
+
+    expect(
+      [
+        for (final level in levels) [for (final module in level.modules) module.key],
+      ],
+      [
+        ['alpha/first'],
+        ['beta/fourth'],
+        ['gamma/sixth'],
+      ],
+      reason: 'alpha/second is not written For Everyone, so it has no page and no quiz there',
     );
   });
 }
