@@ -24,6 +24,13 @@ void main() {
     await store().delete();
   });
 
+  test('a file that is not UTF-8 text reads as null, not an error', () async {
+    Directory('${root.path}/quiz').createSync();
+    File('${root.path}/quiz/scores.json').writeAsBytesSync([0xff, 0xfe, 0xc3, 0x28]);
+
+    expect(await store().read(), isNull);
+  });
+
   test('a file that cannot be written or read is logged, not thrown', () async {
     File('${root.path}/quiz').writeAsStringSync('a file where the folder goes');
 

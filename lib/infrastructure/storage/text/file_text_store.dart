@@ -27,6 +27,10 @@ final class FileTextStore {
     } on FileSystemException catch (error) {
       _log.warn('{} not read: {}', [_path, error]);
       return null;
+    } on FormatException catch (error) {
+      // Bytes that are not UTF-8 text: as unreadable as a file that cannot be opened, so the app starts without it.
+      _log.warn('{} not text: {}', [_path, error]);
+      return null;
     }
   }
 

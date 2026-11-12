@@ -40,6 +40,16 @@ void main() {
     expect(Directory(content).existsSync(), isFalse);
   });
 
+  test('a cache that cannot be deleted still opens the bundle rather than broken content', () async {
+    writeCache(cacheRoot, publishedAt: laterPublishedAt);
+    File('$content/corrupt').writeAsStringSync('');
+    // A folder whose entries cannot be removed: deleting the cache fails.
+    Process.runSync('chmod', ['a-w', content]);
+    addTearDown(() => Process.runSync('chmod', ['u+w', content]));
+
+    expect(await fixtureRepository(cacheRoot).open(), bundledOpening);
+  });
+
   test('row 3: current names a missing index: cache deleted, notice set', () async {
     writeCache(cacheRoot, publishedAt: laterPublishedAt);
     File('$content/current').writeAsStringSync('3333333333333333333333333333333333333333333333333333333333333333');

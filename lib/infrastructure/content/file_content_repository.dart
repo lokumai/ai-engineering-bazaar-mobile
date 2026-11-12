@@ -101,17 +101,28 @@ final class FileContentRepository implements IContentRepository {
     return ContentParser.parseIndex(utf8.decode(bytes));
   }
 
+  /// Deletes the cache. A cache that cannot be deleted is left for the next start to try again: the bundle still opens,
+  /// rather than the app showing broken content over a cleanup.
   Future<void> _discard(Directory store, String reason) async {
     _log.warn('content cache discarded: {}', [reason]);
-    if (await store.exists()) await store.delete(recursive: true);
+    try {
+      if (await store.exists()) await store.delete(recursive: true);
+    } on FileSystemException catch (error) {
+      _log.warn('content cache not deleted: {}', [error]);
+    }
   }
 
+  /// Deletes what [directory] holds beyond [keep]; what cannot be deleted stays until the next start.
   Future<void> _deleteEntries(Directory directory, {required Set<String> keep}) async {
-    if (!await directory.exists()) return;
-    await for (final entry in directory.list(followLinks: false)) {
-      if (!keep.contains(entry.uri.pathSegments.lastWhere((segment) => segment.isNotEmpty))) {
-        await entry.delete(recursive: true);
+    try {
+      if (!await directory.exists()) return;
+      await for (final entry in directory.list(followLinks: false)) {
+        if (!keep.contains(entry.uri.pathSegments.lastWhere((segment) => segment.isNotEmpty))) {
+          await entry.delete(recursive: true);
+        }
       }
+    } on FileSystemException catch (error) {
+      _log.warn('content cache entries not deleted: {}', [error]);
     }
   }
 
@@ -200,7 +211,9 @@ final class FileContentRepository implements IContentRepository {
     final Uint8List bytes;
     try {
       bytes = await File('${opened.store.path}/objects/$sha256Name').readAsBytes();
-    } on PathNotFoundException {
+    } on FileSystemException catch (error) {
+      // Gone, or there and unreadable: either way the object is missing, which every reader of it handles.
+      if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sitePath, error]);
       throw ContentMissingException(sitePath);
     }
     if (sha256.convert(bytes).toString() != sha256Name) {
