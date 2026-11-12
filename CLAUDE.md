@@ -117,9 +117,9 @@ lib/
     settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
-                                                first-launch steps (the story the app passes in, then language and track)
+                                                first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
-                                                whole screen: at `/settings/about`, outside the shell, and Welcome's first step
+                                                whole screen: at `/settings/about`, outside the shell, and Welcome's last step
     guide/                                      How the bazaar works, at `/settings/guide`
     caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
                                                 the web's timeline
@@ -227,7 +227,8 @@ Reach for `BlocSelector` only when narrowing to a slice of a variant's fields, n
 The record is the web's, byte for byte; `lib/shared/record` ports the web's code and the conformance fixture pins it.
 
 - The app writes a completion and its removal in the current track's map (the completion event carries the track, A35), the active day, and `meta.lastExport` after a confirmed save (A19).
-- The app never writes `prefs`, checklist ticks, dwell or `reachedEnd`; it keeps them as it read them.
+- The app writes a checklist tick and its removal under `sheets[key].checklist["<index>"]` (web D129).
+- The app never writes `prefs`, dwell or `reachedEnd`; it keeps them as it read them.
 - Files live under Application Support: `record/record.json`, `record/record-quarantine.json` and `record/record.json.tmp`.
   A write goes to `record.json.tmp` with a flush, then is renamed over `record.json`; a leftover `.tmp` is ignored at launch.
 - A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty.

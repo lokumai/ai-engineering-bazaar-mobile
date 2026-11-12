@@ -7,22 +7,23 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
-- The word count beside the minutes, under a module's title and in a level page card's Length, in the reader's language, as the web page prints it (web D128).
+- The word count beside the minutes, under a module's title, in a level page card's Length and in the catalog's rows, in the reader's language, as the web page prints it (web D128).
 - A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
+- A replay button over an animated recording in a module, beside the full-screen mark, which plays it again from its start (web D136).
 - A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, Turkish and Persian written as the web's search finds them. The hits are grouped by module, and each opens its module at its section with the words marked, and a bar under the module's bar steps from one mark to the next.
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
 - The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is under maintenance until the web's timeline reaches the content bundle.
-- The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told first on the first launch, before the language and the track, and in Settings under About, beside How the bazaar works.
+- The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch after the language and the track are chosen, its last button Start learning, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
-- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-11 (`9247aac0`), with the web's WebP images, Key Terms and the story of the Bazaar.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-11 (`7a0ef035`), with the web's WebP images, Key Terms, the story of the Bazaar and a quiz on both tracks.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
-- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then tells the story of the Bazaar, asks for the language and the track, and lands on the catalog.
+- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then asks for the language and the track, tells the story of the Bazaar, and lands on the catalog.
 - Home at `/`: the next module to read, the modules after it, the quizzes of the modules completed last to practise again, and the offline note.
 - The catalog root at `/sheets` with the reader's progress in it: a dial per level, and in each level's modules a mark to complete a module or the Planned mark, with a legend. The level page. The web's filters are left out.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
@@ -40,6 +41,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A For Everyone reader takes the quiz of each module written For Everyone, under its title there, on the Quiz tab, in Home's practice and at the module's end: a module has one quiz on both tracks (web D137). The note that the questions come with the For Engineers modules is gone.
 - The back arrow on a module goes to the catalog of its track, found as it was left with its search, and no longer to the page before: a module opened from Home and found again from the Catalog tab went back to Home. A link to a section, or a search hit, keeps its heading at the top while pictures above it load.
 - A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
 - A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
