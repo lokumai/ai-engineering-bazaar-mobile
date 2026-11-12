@@ -49,6 +49,9 @@ final class _MemoryRecordRepository implements IRecordRepository {
   Completer<void>? gate;
   FileSystemException? readStoredError;
   FileSystemException? deleteAllError;
+
+  /// Whether a failing [deleteAll] has deleted `record.json` before it fails.
+  bool deleteAllPartly = false;
   final writes = <String>[];
   final calls = <String>[];
 
@@ -79,7 +82,10 @@ final class _MemoryRecordRepository implements IRecordRepository {
   @override
   Future<void> deleteAll() async {
     calls.add('deleteAll');
-    if (deleteAllError case final error?) throw error;
+    if (deleteAllError case final error?) {
+      if (deleteAllPartly) record = null;
+      throw error;
+    }
     record = null;
     quarantine = null;
   }
@@ -800,6 +806,27 @@ void main() {
     }
   });
 
+  test('an erase that deleted record.json and then failed writes it back, so nothing is lost on the device', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository();
+      final bloc = _startedFake(async, repository)..add(_toggle);
+      async.flushMicrotasks();
+      final stored = repository.record;
+      expect(stored, isNotNull);
+
+      repository
+        ..deleteAllError = _injected()
+        ..deleteAllPartly = true;
+      bloc.add(RecordErased(at: _t));
+      async.flushMicrotasks();
+
+      expect(repository.record, stored, reason: 'written back as it was read');
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
+      unawaited(bloc.close());
+      async.flushMicrotasks();
+    });
+  });
+
   test('A41: an erase whose files cannot be deleted does not happen', () {
     _fake((async) {
       final repository = _MemoryRecordRepository()
@@ -823,8 +850,7 @@ void main() {
         quarantineKept: true,
       );
       expect(bloc.state, expected);
-      expect(repository.calls.last, 'deleteAll');
-      expect(repository.calls, isNot(contains('restore')));
+      expect(repository.calls, containsAllInOrder(['readStored', 'deleteAll', 'restore']));
       expect(replied, isFalse);
 
       final states = <RecordState>[];

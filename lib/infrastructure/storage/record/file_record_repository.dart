@@ -119,12 +119,13 @@ final class FileRecordRepository implements IRecordRepository {
     }
   }
 
+  /// `record.json` goes last, so an error on any other file leaves the record where it was.
   @override
   Future<void> deleteAll() async {
-    await _deleteIfPresent(await _record);
-    await _deleteIfPresent(await _quarantine);
     await _deleteIfPresent(await _tmp);
     await _deleteIfPresent(await _quarantineTmp);
+    await _deleteIfPresent(await _quarantine);
+    await _deleteIfPresent(await _record);
   }
 
   @override

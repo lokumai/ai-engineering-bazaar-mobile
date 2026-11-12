@@ -236,7 +236,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   /// Decision A41: an erase whose files cannot be read still erases with no undo bytes; one whose files cannot be
-  /// deleted does not happen.
+  /// deleted does not happen, and the files read before it are written back, so a delete that stopped part way loses
+  /// nothing on the device.
   Future<void> _onErased(RecordReady current, DateTime at, Completer<bool>? reply, Emitter<RecordState> emit) async {
     StoredBytes bytes;
     try {
@@ -249,6 +250,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       await _repository.deleteAll();
     } on FileSystemException catch (error) {
       _log.warn('record erase failed: {}', [error]);
+      if (bytes.record != null || bytes.quarantine != null) {
+        final put = await _repository.restore(bytes);
+        if (put.write != WriteResult.saved) _log.error('record not written back after a failed erase: {}', [put.write]);
+      }
       emit(
         RecordReady(
           record: current.record,

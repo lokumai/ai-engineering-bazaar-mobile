@@ -265,6 +265,16 @@ void main() {
       expect(quarantineFile.readAsBytesSync(), [2]);
     });
 
+    test('deleteAll deletes record.json last: an error on the quarantine leaves the record in place', () async {
+      recordFile
+        ..createSync(recursive: true)
+        ..writeAsBytesSync([1]);
+      Directory('${base.path}/record/record-quarantine.json/inner').createSync(recursive: true);
+
+      await expectLater(repo.deleteAll(), throwsA(isA<FileSystemException>()));
+      expect(recordFile.readAsBytesSync(), [1]);
+    });
+
     test('readStored and deleteAll throw on an I/O error other than not-found', () async {
       Directory('${base.path}/record/record.json/inner').createSync(recursive: true); // a non-empty directory
       final ioError = throwsA(allOf(isA<FileSystemException>(), isNot(isA<PathNotFoundException>())));
