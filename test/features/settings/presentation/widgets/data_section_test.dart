@@ -55,11 +55,11 @@ void main() {
     expect(find.bySemanticsLabel('Record status'), findsNothing);
     expect(find.byType(RecordWriteNotice), findsNothing);
     final section = tester.getTopLeft(find.text('Your progress')).dy;
-    final backUp = tester.getTopLeft(find.text('Back up to a file')).dy;
+    final backUp = tester.getTopLeft(find.text('Back up')).dy;
     expect(section, lessThan(backUp));
     await tester.ensureVisible(find.text('Content'));
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(find.text('Back up to a file')).dy, lessThan(tester.getTopLeft(find.text('Content')).dy));
+    expect(tester.getTopLeft(find.text('Back up')).dy, lessThan(tester.getTopLeft(find.text('Content')).dy));
   });
 
   testWidgets('the quarantine notice and the write notice sit above the data line', (tester) async {
@@ -72,7 +72,7 @@ void main() {
 
     final quarantine = tester.getTopLeft(find.bySemanticsLabel('Record status')).dy;
     final notice = tester.getTopLeft(find.byType(RecordWriteNotice)).dy;
-    final backUp = tester.getTopLeft(find.text('Back up to a file')).dy;
+    final backUp = tester.getTopLeft(find.text('Back up')).dy;
     expect(quarantine, lessThan(notice));
     expect(notice, lessThan(backUp));
 
@@ -90,7 +90,7 @@ void main() {
           .thenAnswer((_) async => PickedBackupBytes(bytes: Uint8List.fromList(utf8.encode(_restorable))));
       await _pump(tester, record: recordBloc, gateway: gateway);
 
-      await _tap(tester, find.text('Restore from a file'));
+      await _tap(tester, find.text('Restore'));
       expect(find.text('Replace the progress on this device?'), findsOneWidget, reason: answer);
 
       await tester.tap(find.text(answer));
@@ -111,7 +111,7 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: router, record: readyRecordBloc()), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    for (final target in [find.text('Back up to a file'), find.text('Restore from a file'), find.text('Reset')]) {
+    for (final target in [find.text('Back up'), find.text('Restore'), find.text('Reset')]) {
       await tester.ensureVisible(target);
       await tester.pump();
       expectHittable(tester, target);

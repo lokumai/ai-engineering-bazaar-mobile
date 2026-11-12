@@ -147,7 +147,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_unreadable": MessageLookupByLibrary.simpleMessage(
       "Kursun bu bölümü bu cihazda okunamadı. Yeniden yüklemek için uygulamayı yeniden başlat.",
     ),
-    "data_back_up": MessageLookupByLibrary.simpleMessage("Dosyaya yedekle"),
+    "data_back_up": MessageLookupByLibrary.simpleMessage("Yedekle"),
     "data_backed_up": m10,
     "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
       "Yedek dosyası yazılamadı. Hiçbir şey yedeklendi olarak işaretlenmedi.",
@@ -161,7 +161,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
       "Sıfırlama tamamlanmadı: uygulama dosyalarını silemedi. Bu cihazdaki ilerlemen değişmedi.",
     ),
-    "data_restore": MessageLookupByLibrary.simpleMessage("Dosyadan geri yükle"),
+    "data_restore": MessageLookupByLibrary.simpleMessage("Geri yükle"),
     "data_restore_empty": MessageLookupByLibrary.simpleMessage(
       "Hiçbir şey değişmedi. Bu dosyada ilerleme yok; ilerleme yalnızca yedek dosyasında bulunur.",
     ),

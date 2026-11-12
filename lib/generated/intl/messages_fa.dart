@@ -149,7 +149,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_unreadable": MessageLookupByLibrary.simpleMessage(
       "این بخش از دوره روی این دستگاه خوانده نشد. برای بارگذاری دوباره، برنامه را از نو باز کنید.",
     ),
-    "data_back_up": MessageLookupByLibrary.simpleMessage("پشتیبان‌گیری در فایل"),
+    "data_back_up": MessageLookupByLibrary.simpleMessage("پشتیبان‌گیری"),
     "data_backed_up": m10,
     "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
       "فایل پشتیبان نوشته نشد. هیچ چیز به‌عنوان پشتیبان‌گیری‌شده علامت نخورد.",
@@ -163,7 +163,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
       "بازنشانی کامل نشد: برنامه نتوانست فایل‌هایش را حذف کند. پیشرفت روی این دستگاه تغییری نکرده است.",
     ),
-    "data_restore": MessageLookupByLibrary.simpleMessage("بازیابی از فایل"),
+    "data_restore": MessageLookupByLibrary.simpleMessage("بازیابی"),
     "data_restore_empty": MessageLookupByLibrary.simpleMessage(
       "چیزی تغییر نکرد. این فایل پیشرفتی در خود ندارد؛ فقط فایل پشتیبان پیشرفت را نگه می‌دارد.",
     ),

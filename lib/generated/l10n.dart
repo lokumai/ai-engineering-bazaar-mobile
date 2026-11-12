@@ -802,14 +802,14 @@ class S {
     );
   }
 
-  /// `Back up to a file`
+  /// `Back up`
   String get data_back_up {
-    return Intl.message('Back up to a file', name: 'data_back_up', desc: '', args: []);
+    return Intl.message('Back up', name: 'data_back_up', desc: '', args: []);
   }
 
-  /// `Restore from a file`
+  /// `Restore`
   String get data_restore {
-    return Intl.message('Restore from a file', name: 'data_restore', desc: '', args: []);
+    return Intl.message('Restore', name: 'data_restore', desc: '', args: []);
   }
 
   /// `Reset`

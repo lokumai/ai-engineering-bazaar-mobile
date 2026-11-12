@@ -149,7 +149,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_unreadable": MessageLookupByLibrary.simpleMessage(
       "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
-    "data_back_up": MessageLookupByLibrary.simpleMessage("Back up to a file"),
+    "data_back_up": MessageLookupByLibrary.simpleMessage("Back up"),
     "data_backed_up": m10,
     "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
       "The backup file could not be written. Nothing was marked as backed up.",
@@ -163,7 +163,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
       "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
     ),
-    "data_restore": MessageLookupByLibrary.simpleMessage("Restore from a file"),
+    "data_restore": MessageLookupByLibrary.simpleMessage("Restore"),
     "data_restore_empty": MessageLookupByLibrary.simpleMessage(
       "Nothing was changed. That file holds no progress; only a backup file does.",
     ),
