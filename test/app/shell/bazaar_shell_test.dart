@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
@@ -306,7 +307,9 @@ void main() {
     });
   });
 
-  testWidgets('Android back pops a pushed page and leaves the app only from the first page', (tester) async {
+  testWidgets('Android back pops a pushed page, goes Home from another tab, and leaves the app only from Home', (
+    tester,
+  ) async {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     final calls = _watchPlatformCalls(tester);
     await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
@@ -314,6 +317,10 @@ void main() {
 
     await _back(tester);
     expect(_path(router), '/sheets');
+    expect(calls, isNot(contains('SystemNavigator.pop')));
+
+    await _back(tester);
+    expect(_path(router), BazaarPaths.home);
     expect(calls, isNot(contains('SystemNavigator.pop')));
 
     await _back(tester);

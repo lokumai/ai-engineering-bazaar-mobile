@@ -228,89 +228,98 @@ class _BazaarShellState extends State<BazaarShell> {
       selectedIcon: Icon(filled, color: open.color, size: open.size),
       label: label,
     );
-    return Scaffold(
-      body: Column(
-        children: [
-          // The status strip stays; the bar and the band fold up with the navigation while a module is read.
-          const BazaarStatusStrip(),
-          ClipRect(
-            child: AnimatedAlign(
-              alignment: Alignment.bottomCenter,
-              heightFactor: chromeHidden ? 0 : 1,
-              duration: motion,
-              curve: BazaarMotion.bazaar,
-              child: ExcludeSemantics(
-                excluding: chromeHidden,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    BazaarBar(
-                      statusStrip: false,
-                      title: _title(index),
-                      accent: _accent(context, index),
-                      // The bar sits above the shell's navigator, so the router goes back, to the catalog.
-                      onBack: pushed ? _back : null,
+    // The system back on the first page of a tab other than Home goes Home, as Android apps with a navigation bar do,
+    // rather than leaving the app; on Home's first page it leaves.
+    final atTabRoot = !pushed && _selectedIndex != 0;
+    return PopScope(
+      canPop: !atTabRoot,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && atTabRoot) _onDestinationSelected(0);
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            // The status strip stays; the bar and the band fold up with the navigation while a module is read.
+            const BazaarStatusStrip(),
+            ClipRect(
+              child: AnimatedAlign(
+                alignment: Alignment.bottomCenter,
+                heightFactor: chromeHidden ? 0 : 1,
+                duration: motion,
+                curve: BazaarMotion.bazaar,
+                child: ExcludeSemantics(
+                  excluding: chromeHidden,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BazaarBar(
+                        statusStrip: false,
+                        title: _title(index),
+                        accent: _accent(context, index),
+                        // The bar sits above the shell's navigator, so the router goes back, to the catalog.
+                        onBack: pushed ? _back : null,
+                      ),
+                      const LatticeBand(thin: true),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // The status strip already keeps the page clear of the status bar.
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: _onScroll,
+                child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
+              ),
+            ),
+          ],
+        ),
+        // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
+        bottomNavigationBar: ClipRect(
+          child: AnimatedAlign(
+            alignment: Alignment.topCenter,
+            heightFactor: chromeHidden ? 0 : 1,
+            duration: motion,
+            curve: BazaarMotion.bazaar,
+            child: ExcludeSemantics(
+              excluding: chromeHidden,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(top: BorderSide(color: colors.line, width: 0.5)),
+                ),
+                child: NavigationBar(
+                  height: BazaarShell.navHeight,
+                  backgroundColor: colors.surface,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  indicatorColor: Colors.transparent,
+                  overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  labelPadding: const EdgeInsets.only(top: 2),
+                  labelTextStyle: WidgetStateProperty.resolveWith(
+                    (states) => TextStyle(
+                      fontSize: 10.5,
+                      height: 1.2,
+                      letterSpacing: 0.1,
+                      fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
+                      color: states.contains(WidgetState.selected) ? open.color : idle.color,
                     ),
-                    const LatticeBand(thin: true),
+                  ),
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  destinations: [
+                    tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
+                    tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
+                    NavigationDestination(
+                      icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
+                      selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
+                      label: l10n.nav_caravan,
+                    ),
+                    tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
+                    tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
                   ],
                 ),
-              ),
-            ),
-          ),
-          // The status strip already keeps the page clear of the status bar.
-          Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _onScroll,
-              child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
-            ),
-          ),
-        ],
-      ),
-      // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
-      bottomNavigationBar: ClipRect(
-        child: AnimatedAlign(
-          alignment: Alignment.topCenter,
-          heightFactor: chromeHidden ? 0 : 1,
-          duration: motion,
-          curve: BazaarMotion.bazaar,
-          child: ExcludeSemantics(
-            excluding: chromeHidden,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surface,
-                border: Border(top: BorderSide(color: colors.line, width: 0.5)),
-              ),
-              child: NavigationBar(
-                height: BazaarShell.navHeight,
-                backgroundColor: colors.surface,
-                elevation: 0,
-                surfaceTintColor: Colors.transparent,
-                indicatorColor: Colors.transparent,
-                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                labelPadding: const EdgeInsets.only(top: 2),
-                labelTextStyle: WidgetStateProperty.resolveWith(
-                  (states) => TextStyle(
-                    fontSize: 10.5,
-                    height: 1.2,
-                    letterSpacing: 0.1,
-                    fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
-                    color: states.contains(WidgetState.selected) ? open.color : idle.color,
-                  ),
-                ),
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onDestinationSelected,
-                destinations: [
-                  tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
-                  tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
-                  NavigationDestination(
-                    icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
-                    selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
-                    label: l10n.nav_caravan,
-                  ),
-                  tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
-                  tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
-                ],
               ),
             ),
           ),
