@@ -264,6 +264,9 @@ The owner's manager started opening the store accounts on 2026-11-11.
 
 - [ ] **6.1** Release signing: an upload keystore, `key.properties` kept out of git, and CI secrets. Release builds are signed with the debug key today (`android/app/build.gradle.kts`).
 - [ ] **6.2** Store listings, the privacy text and the data safety answers (see 4.4).
+  - The app collects no data: no account, no analytics, no advertising, the progress on the device, and Sentry off in every build so far, so both stores' forms answer Data Not Collected. Whether crash reports are wanted is the owner's manager's call (2026-11-12).
+  - iOS export compliance: `Info.plist` says the app uses no encryption beyond the system's HTTPS (`ITSAppUsesNonExemptEncryption` false), so App Store Connect does not ask at every upload.
+  - The stores ask for a public privacy policy address. The site's note is at `https://ai-bazaar.lokum.dev/legend/#privacy` (web D122); it speaks of the site, so the web team may add a line on the app.
 - [ ] **6.3** Version and changelog for the first release.
 
 ## How each step is done
