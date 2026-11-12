@@ -215,6 +215,7 @@ final class ModuleTrack extends Equatable {
     required this.hasQuiz,
     required this.revision,
     required this.docs,
+    this.words = const {},
     required this.webPath,
   });
 
@@ -231,11 +232,14 @@ final class ModuleTrack extends Equatable {
   /// Language to the document's site path; may be empty.
   final Map<String, String> docs;
 
+  /// Language to the words its web page prints under the title (web D128); empty where the module is not written.
+  final Map<String, int> words;
+
   /// The page on the web, relative to the site root (`courses/<key>/`).
   final String webPath;
 
   @override
-  List<Object?> get props => [title, drawn, summary, hasQuiz, revision, docs, webPath];
+  List<Object?> get props => [title, drawn, summary, hasQuiz, revision, docs, words, webPath];
 }
 
 /// The commit a module was last changed in.

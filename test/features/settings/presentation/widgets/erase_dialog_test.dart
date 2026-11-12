@@ -117,7 +117,7 @@ void main() {
     expect(find.text('Erase all progress on this device?'), findsNothing);
 
     final backedUp = await open(tester, data: bloc);
-    await tester.tap(find.text('Back up to a file'));
+    await tester.tap(find.text('Back up'));
     await tester.pump();
     expect(verify(() => bloc.add(captureAny())).captured, [isA<BackupRequested>()]);
     expect(find.text('Erase all progress on this device?'), findsOneWidget);
@@ -137,7 +137,7 @@ void main() {
     final (bloc, _) = dataBlocAt(const DataState(busy: DataBusy.backingUp));
     await open(tester, data: bloc);
 
-    expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Back up to a file')).onPressed, isNull);
+    expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Back up')).onPressed, isNull);
   });
 
   testWidgets('Erase all data has a fault edge and an onSurface label', (tester) async {
@@ -163,7 +163,7 @@ void main() {
     await armed(tester);
 
     expect(tester.takeException(), isNull);
-    for (final button in [_erase(), find.text('Keep my data'), find.text('Back up to a file')]) {
+    for (final button in [_erase(), find.text('Keep my data'), find.text('Back up')]) {
       await tester.ensureVisible(button);
       await tester.pumpAndSettle();
       expectHittable(tester, button);

@@ -19,7 +19,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at
 /// once; Start reading hands the track to [onChosen].
 class WelcomeTrackView extends StatefulWidget {
-  const WelcomeTrackView({super.key, required this.initial, required this.onChosen});
+  const WelcomeTrackView({super.key, required this.initial, this.story = false, required this.onChosen});
+
+  /// Whether the story follows; its button then says so.
+  final bool story;
 
   /// The track chosen when the screen opens.
   final Track initial;
@@ -125,7 +128,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                       icon: const Icon(Icons.arrow_forward),
                       iconAlignment: IconAlignment.end,
-                      label: Text(s.welcome_start),
+                      label: Text(widget.story ? s.welcome_to_story : s.welcome_start),
                     ),
                   ],
                 ),

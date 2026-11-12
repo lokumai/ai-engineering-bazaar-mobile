@@ -3,7 +3,10 @@ library;
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -112,6 +115,7 @@ void main() {
     WidgetTester tester, {
     RecordBloc? record,
     String? fragment,
+    String? query,
     QuizBuilder? quizBuilder,
     bool reducedMotion = false,
     TargetPlatform platform = TargetPlatform.android,
@@ -132,7 +136,13 @@ void main() {
           builder: (context, _) {
             final view = BlocProvider<ModuleReaderBloc>.value(
               value: readerBloc,
-              child: ModuleReaderView(fragment: fragment, quizBuilder: quizBuilder, place: place, onPlace: onPlace),
+              child: ModuleReaderView(
+                fragment: fragment,
+                query: query,
+                quizBuilder: quizBuilder,
+                place: place,
+                onPlace: onPlace,
+              ),
             );
             if (!reducedMotion) return view;
             return MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: view);
@@ -188,6 +198,19 @@ void main() {
     expect(find.text('Planned'), findsNothing);
     expect(find.text('Contents'), findsNothing);
     expect(tester.getSemantics(find.text('First')), isSemantics(isHeader: true, label: 'First'));
+  });
+
+  testWidgets('the words go beside the minutes, as the web page prints them (web D128)', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(body: [_paragraph('Body text.')], words: 2317),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester);
+    expect(find.text('12 min · 2,317 words'), findsOneWidget);
+    expect(find.text('12 min'), findsNothing);
   });
 
   testWidgets('a planned module shows its band, summary and schedule, and no completion', (tester) async {
@@ -492,6 +515,31 @@ void main() {
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
   });
 
+  testWidgets('the fragment stays at the top as the page above it grows, until the reader scrolls', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(toc: _toc, body: [..._filler, _sectionOne, ..._filler]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, fragment: 'one');
+    final heading = find.text('Section one', findRichText: true);
+    final opened = top(tester, heading);
+
+    // Larger text lengthens the page above the heading, as a picture above it does when it loads.
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+    expect(top(tester, heading), closeTo(opened, 1));
+
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, 300));
+    await tester.pumpAndSettle();
+    tester.platformDispatcher.textScaleFactorTestValue = 1.0;
+    await tester.pumpAndSettle();
+    expect(top(tester, heading), isNot(closeTo(opened, 1)), reason: 'the reader moved: the heading is let go');
+  });
+
   testWidgets("a translation's objectives are shown in place of the English (web D124)", (tester) async {
     stateIs(
       ReaderWritten(
@@ -508,6 +556,144 @@ void main() {
 
     expect(find.text('Yapay bir modül oku.'), findsOneWidget);
     expect(find.text('Read a synthetic module.'), findsNothing);
+  });
+
+  group('the words searched in the catalog (plan 7.1)', () {
+    final searched = ReaderWritten(
+      doc: testDoc(
+        toc: _toc,
+        body: [
+          _paragraph('Agents call tools.'),
+          ..._filler,
+          _sectionOne,
+          _paragraph('An agent plans, then the agent acts.'),
+        ],
+      ),
+      entry: first,
+      moduleCount: 2,
+    );
+
+    testWidgets('are marked, with a bar that starts at the first mark of the section opened', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsOneWidget);
+      expect(find.text('agent'), findsOneWidget, reason: 'the words as typed');
+      expect(find.text('2 / 3'), findsOneWidget, reason: 'the first mark under Section one, of three');
+    });
+
+    testWidgets('the arrows step from mark to mark, round from the last to the first', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 3'), findsOneWidget);
+      expect(top(tester, find.text('Agents call tools.', findRichText: true)), lessThan(844));
+
+      await tester.tap(find.byTooltip('Previous match'));
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsOneWidget);
+    });
+
+    testWidgets('close takes the bar and the marks away', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Stop marking the search'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsNothing);
+      final text = tester.widget<RichText>(
+        find.byWidgetPredicate((w) => w is RichText && w.text.toPlainText() == 'Agents call tools.'),
+      );
+      var marked = false;
+      text.text.visitChildren((span) {
+        marked |= span is TextSpan && span.style?.background != null;
+        return true;
+      });
+      expect(marked, isFalse);
+    });
+
+    testWidgets('close keeps the page where the reader is, rather than going back to its top', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+      final before = top(tester, find.text('Section one', findRichText: true));
+
+      await tester.tap(find.byTooltip('Stop marking the search'));
+      await tester.pumpAndSettle();
+
+      // The section stays about where it was, give or take the bar's height; the page does not go back to its start.
+      expect(top(tester, find.text('Section one', findRichText: true)), closeTo(before, 120));
+      expect(
+        top(tester, find.text('Agents call tools.', findRichText: true)),
+        lessThan(0),
+        reason: 'the start is off screen',
+      );
+    });
+
+    testWidgets('a step to a mark deep in a paragraph longer than the page brings the mark itself into view', (
+      tester,
+    ) async {
+      final long = 'Filler words here. ' * 120;
+      stateIs(
+        ReaderWritten(
+          doc: testDoc(body: [..._filler, _paragraph('${long}The agent ends it.')]),
+          entry: first,
+          moduleCount: 2,
+        ),
+      );
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      final paragraph = find.text('${long}The agent ends it.', findRichText: true);
+      final state = tester.state(find.ancestor(of: paragraph, matching: find.byType(InlineText)).first);
+      final rect = (state as TextFindTarget).markRect(0)!;
+      expect(rect.top, greaterThanOrEqualTo(0));
+      expect(rect.bottom, lessThanOrEqualTo(844));
+    });
+
+    testWidgets('words in code within a line are marked too', (tester) async {
+      stateIs(
+        ReaderWritten(
+          doc: testDoc(
+            body: [
+              const ParagraphBlock(
+                inlines: [
+                  TextInline(text: 'Call '),
+                  CodeInline(text: 'agent.run()'),
+                  TextInline(text: ' once.'),
+                ],
+                lead: false,
+              ),
+            ],
+          ),
+          entry: first,
+          moduleCount: 2,
+        ),
+      );
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 / 1'), findsOneWidget);
+    });
+
+    testWidgets('no words, no bar', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester);
+
+      expect(find.byType(FindBar), findsNothing);
+    });
   });
 
   group('the reading place (plan 1BA)', () {
@@ -612,6 +798,21 @@ void main() {
     await tester.pump();
 
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
+  });
+
+  testWidgets('a fragment this module does not draw leaves the page at its top, without an error', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(toc: _toc, body: [..._filler, _sectionOne]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, fragment: 'not-a-heading-here');
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Filler paragraph number 0 of the module body.', findRichText: true), findsOneWidget);
   });
 
   testWidgets('the pager marks a planned target and pushes it', (tester) async {

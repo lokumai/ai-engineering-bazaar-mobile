@@ -10,7 +10,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Size;
+import 'package:flutter/widgets.dart' show Size, Text;
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
 
 const _now = '2026-11-09T10:00:00.000Z';
 
@@ -82,6 +83,22 @@ void main() {
     expect(find.byType(CompletionDial), findsNothing);
     expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
+  });
+
+  testWidgets("the modules after it give their minutes and words, as the catalog's rows do (web D128)", (tester) async {
+    await _pumpHome(
+      tester,
+      index: catalogFixtureIndex(
+        words: {
+          'alpha/second': {'en': 3670},
+        },
+      ),
+    );
+
+    expect(find.text('Alpha Level · 25 min · 3,670 words'), findsOneWidget);
+    final fourth = tester.widget<Text>(find.textContaining('Beta Level · ', skipOffstage: false)).data!;
+    expect(fourth, isNot(contains('words')), reason: 'the minutes alone where the content has no word count');
+    expect(fourth, contains('40'));
   });
 
   testWidgets('the continue card opens the next module', (tester) async {

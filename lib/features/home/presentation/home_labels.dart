@@ -1,4 +1,6 @@
+import 'package:ai_engineering_bazaar/features/home/application/home_overview.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 
 // The catalog prints the same labels; Home keeps its own copy, since a feature imports no other feature (R80).
 
@@ -14,4 +16,13 @@ String? homeDurationLabel(S s, int minutes) {
   if (hours == 0) return s.duration_minutes(rest);
   if (rest == 0) return s.duration_hours(hours);
   return s.duration_hours_minutes(hours, rest);
+}
+
+/// A module's length as its web page prints it under the title (web D128), as the catalog's rows print it: its minutes
+/// and the words of the document the reader opens, in [language] or in English where it is not written in it; null
+/// when the content has no word count for it.
+String? homeModuleLength(S s, HomeNext entry, String language) {
+  final lang = entry.words.containsKey(language) ? language : 'en';
+  final words = entry.words[lang];
+  return words == null ? null : s.length_minutes_words(entry.module.minutes, groupedNumber(words, lang));
 }

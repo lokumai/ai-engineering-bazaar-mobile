@@ -69,6 +69,11 @@ void main() {
             );
           }
           reply?.complete(eraseSucceeds);
+        // The undo is answered as the record's own is: open while the erase's undo is.
+        case EraseUndone(:final reply):
+          final open = recordState is RecordReady && (recordState as RecordReady).undo != null;
+          if (open) recordState = _ready();
+          reply?.complete(open);
         default:
       }
     });
@@ -184,6 +189,23 @@ void main() {
         );
         final replaced = added().whereType<RecordReplaced>().single;
         expect(replaced.data.signedOff('alpha/first', Track.engineers), _nowIso);
+        await bloc.close();
+      });
+    });
+
+    test('a backup whose record is larger than the app writes is refused, and nothing is replaced', () async {
+      await onClock(() async {
+        final sheets = [for (var i = 0; i < 12000; i++) '"level/module-$i":{"signedOff":"2026-03-15T10:00:00.000Z"}']
+            .join(',');
+        final huge = '{"schema":1,"savedAt":"2026-03-15T10:00:00.000Z","data":{"sheets":{$sheets}}}';
+        final bloc = build();
+        when(() => gateway.pickJson()).thenAnswer((_) async => _picked(huge));
+        bloc.add(const RestoreRequested());
+        await expectLater(
+          bloc.stream,
+          emitsInOrder([const DataState(busy: DataBusy.restoring), const DataState(restore: RestoreOutcome.tooLarge)]),
+        );
+        verifyNever(() => recordBloc.add(any()));
         await bloc.close();
       });
     });
@@ -306,6 +328,50 @@ void main() {
         async.flushMicrotasks();
         expect(scores.state, const QuizScoresReady(kept), reason: 'a reset that did not erase keeps the scores');
         bloc.close();
+        scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test('an undo the record no longer takes brings back neither the scores nor the places', () {
+      onFakeClock((async) {
+        const kept = {'alpha/first': QuizScore(last: 2, best: 3, total: 3)};
+        final scores = QuizScoresBloc(store: MemoryQuizScoreStore(kept))..add(const QuizScoresStarted());
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, scores: scores);
+        async.flushMicrotasks();
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+
+        // The record's window closed a moment before the line caught up.
+        recordState = _ready();
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady({}), reason: 'never half a reset undone');
+        bloc.close();
+        scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test('a reset whose page closes while it waits still erases the scores with the record', () {
+      onFakeClock((async) {
+        const kept = {'alpha/first': QuizScore(last: 2, best: 3, total: 3)};
+        final scores = QuizScoresBloc(store: MemoryQuizScoreStore(kept))..add(const QuizScoresStarted());
+        final reply = Completer<bool>();
+        when(() => recordBloc.add(any())).thenAnswer((invocation) {
+          if (invocation.positionalArguments.first case RecordErased(reply: final done?)) {
+            reply.future.then(done.complete);
+          }
+        });
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, scores: scores);
+        async.flushMicrotasks();
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        bloc.close();
+        async.flushMicrotasks();
+        reply.complete(true);
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady({}));
         scores.close();
         async.flushMicrotasks();
       });

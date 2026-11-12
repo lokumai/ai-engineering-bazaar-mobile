@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show FileSystemException;
 
 import 'package:clock/clock.dart';
@@ -13,9 +14,11 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/instant.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
 
@@ -120,6 +123,10 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
   /// The state once [data] is offered: applied at once over a record that carries nothing, else held for the
   /// reader's confirmation with the tally of what it replaces.
   DataState _offer(RecordData data) {
+    // A record the app would not write is refused before it replaces anything: it would be gone at the next start.
+    if (utf8.encode(serialise(data, nowIso(), pretty: false)).length > RecordConstants.softCapBytes) {
+      return state._with(restore: RestoreOutcome.tooLarge);
+    }
     final local = switch (_recordBloc.state) {
       RecordReady(:final record) => record,
       RecordLoading() => throw StateError('the record is not read yet'),
@@ -160,6 +167,11 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final done = Completer<bool>();
       _recordBloc.add(RecordErased(at: at, reply: done));
       final erased = await done.future;
+      // The scores and the places go with the record even when the page closed meanwhile: a reset is never half done.
+      if (erased) {
+        _scores?.add(const QuizScoresErased());
+        _places?.add(const ReadingPlacesErased());
+      }
       // The page closed while the erase waited in the record's queue: a ticker started now is never cancelled.
       if (isClosed) return;
       if (!erased) {
@@ -167,8 +179,6 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
         return;
       }
       _erasedAt = at;
-      _scores?.add(const QuizScoresErased());
-      _places?.add(const ReadingPlacesErased());
       emit(
         state._with(
           busy: DataBusy.idle,
@@ -183,14 +193,18 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     }
   }
 
-  /// Web `onUndo` (`DataPanel.tsx:192-199`); RecordBloc restores the record and the files.
-  void _onUndoRequested(UndoRequested event, Emitter<DataState> emit) {
+  /// Web `onUndo` (`DataPanel.tsx:192-199`); RecordBloc restores the record and the files. The scores and the places
+  /// come back only when the record does: a tap as the window closes undoes nothing rather than half the reset.
+  Future<void> _onUndoRequested(UndoRequested event, Emitter<DataState> emit) async {
     if (state.reset is! ResetCounting) return;
-    _recordBloc.add(const EraseUndone());
-    _scores?.add(const QuizScoresEraseUndone());
-    _places?.add(const ReadingPlacesEraseUndone());
+    final undone = Completer<bool>();
+    _recordBloc.add(EraseUndone(reply: undone));
     _stopTicker();
     emit(state._with(reset: null));
+    if (await undone.future) {
+      _scores?.add(const QuizScoresEraseUndone());
+      _places?.add(const ReadingPlacesEraseUndone());
+    }
   }
 
   /// Shows the seconds left while the record's undo for [_erasedAt] is open; closes the line once it is not.

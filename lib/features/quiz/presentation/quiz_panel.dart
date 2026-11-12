@@ -20,7 +20,7 @@ Widget buildQuizPanel(BuildContext context, String moduleKey, List<QuizItem> ite
 
 /// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W).
 QuizCubit quizCubitFor(BuildContext context, String moduleKey, List<QuizItem> items) {
-  final scores = context.read<QuizScoresBloc>();
+  final scores = context.read<QuizScoresBloc>()..add(QuizLengthSeen(key: moduleKey, total: items.length));
   return QuizCubit(
     items,
     onFinished: (right, total) => scores.add(QuizScoreRecorded(key: moduleKey, right: right, total: total)),
@@ -43,9 +43,9 @@ Size _textSize(BuildContext context, String text, TextStyle style) {
   return size;
 }
 
-/// The quiz at the end of a For Engineers module (web `QuickQuiz.tsx`, `ModuleSheet.tsx:493-509`) as the redesign
-/// draws it (plan Phase 1F): a card in the reader that opens the quiz full screen over the reader, one question at a
-/// time, then the score and a recap. The quiz has no route of its own, as the web's has none (A9).
+/// The quiz at the end of a module on either track (web D137, `QuickQuiz.tsx`, `ModuleSheet.tsx:493-509`) as the
+/// redesign draws it (plan Phase 1F): a card in the reader that opens the quiz full screen over the reader, one
+/// question at a time, then the score and a recap. The quiz has no route of its own, as the web's has none (A9).
 ///
 /// The [QuizCubit] lives with the card, so closing the quiz and opening it again keeps the answers, as collapsing the
 /// web's disclosure does; nothing is written to the record (R51), and the score is kept on this device (plan 1W).

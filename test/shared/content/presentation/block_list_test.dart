@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -25,8 +26,9 @@ TextStyle styleOf(WidgetTester tester, String text) =>
 
 BazaarColors colorsOf(WidgetTester tester) => tester.element(find.byType(BlockList).first).bazaarColors;
 
-ListItem item(String text, {bool? checked}) => ListItem(
+ListItem item(String text, {bool? checked, int? taskIndex}) => ListItem(
   checked: checked,
+  taskIndex: taskIndex,
   blocks: [
     ParagraphBlock(inlines: [TextInline(text: text)], lead: false),
   ],
@@ -71,6 +73,42 @@ void main() {
 
     await tester.tapOnText(find.textRange.ofSubstring('below'));
     expect(harness.links, const [AnchorTarget(id: 'two')]);
+  });
+
+  group('the References\' Modules subsection (web D135)', () {
+    HeadingBlock heading(int depth, String id, String text) => HeadingBlock(
+      depth: depth,
+      id: id,
+      mark: '',
+      inlines: [TextInline(text: text)],
+    );
+
+    testWidgets('is headed by the LokumAI mark in place of its compass, named by its words alone', (tester) async {
+      await pumpBlocks(tester, [
+        heading(2, 'body', 'Body'),
+        heading(3, 'early', '🧭 Early'),
+        heading(2, 'references', 'Kaynaklar'),
+        heading(3, 'papers', '📄 Papers'),
+        heading(3, 'modules', '🧭 Modüller'),
+      ]);
+
+      expect(find.byKey(BlockView.modulesMarkKey), findsOneWidget);
+      expect(
+        find.text('Modüller'),
+        findsOneWidget,
+        reason: 'the compass gone, matched by place and glyph, not by word',
+      );
+      expect(tester.getSemantics(find.text('Modüller')), matchesSemantics(isHeader: true, label: 'Modüller'));
+      expect(find.text('🧭 Early'), findsOneWidget, reason: 'before the last ## heading, the compass stays');
+      expect(find.text('📄 Papers'), findsOneWidget);
+    });
+
+    testWidgets('a document with no ## heading has no mark', (tester) async {
+      await pumpBlocks(tester, [heading(3, 'modules', '🧭 Modules')]);
+
+      expect(find.byKey(BlockView.modulesMarkKey), findsNothing);
+      expect(find.text('🧭 Modules'), findsOneWidget);
+    });
   });
 
   testWidgets('a depth-2 heading is a header without its mark and owns its key', (tester) async {
@@ -179,6 +217,53 @@ void main() {
     expect(boxes.map((b) => b.value), [true, false]);
     expect(boxes.every((b) => b.onChanged == null), isTrue); // A16
     expect(find.text('•'), findsNothing);
+  });
+
+  group('a live checklist (web D129)', () {
+    testWidgets("the boxes show the reader's ticks, a tap reports the item's index, and each is named by its text", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final toggled = <(int, bool)>[];
+      await pumpBlocks(
+        tester,
+        [
+          ListBlock(
+            ordered: false,
+            start: null,
+            items: [
+              item('done', checked: false, taskIndex: 0),
+              item('open', checked: true, taskIndex: 1),
+              item('plain'),
+            ],
+          ),
+        ],
+        wrap: (child) => ChecklistScope(
+          ticks: const {0},
+          onToggle: (index, {required ticked}) => toggled.add((index, ticked)),
+          child: child,
+        ),
+      );
+
+      final boxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
+      // The record's ticks, not the document's task.checked.
+      expect(boxes.map((b) => b.value), [true, false]);
+      await tester.tap(find.byType(Checkbox).first);
+      await tester.tap(find.byType(Checkbox).last);
+      expect(toggled, [(0, false), (1, true)]);
+      expect(tester.getSemantics(find.byType(Checkbox).last).label, 'open');
+      await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
+      semantics.dispose();
+    });
+
+    testWidgets('an item from a document without indexes stays read-only under a checklist', (tester) async {
+      await pumpBlocks(tester, [
+        ListBlock(ordered: false, start: null, items: [item('old', checked: true)]),
+      ], wrap: (child) => ChecklistScope(ticks: const {}, onToggle: (_, {required ticked}) {}, child: child));
+      final box = tester.widget<Checkbox>(find.byType(Checkbox));
+      expect(box.value, isTrue);
+      expect(box.onChanged, isNull);
+    });
   });
 
   testWidgets('a quote shows its label', (tester) async {

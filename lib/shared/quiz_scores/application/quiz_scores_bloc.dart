@@ -31,8 +31,14 @@ final class QuizScoresBloc extends Bloc<QuizScoresEvent, QuizScoresState> {
       case QuizScoresStarted():
         emit(QuizScoresReady(await _store.load()));
       case QuizScoreRecorded(:final key, :final right, :final total):
+        // A quiz finished after a reset keeps the reset's undo open: the undo merges it in (see below).
         final scores = {..._scores, key: QuizScore.after(_scores[key], right, total)};
-        _erased = null;
+        emit(QuizScoresReady(scores));
+        await _store.save(scores);
+      case QuizLengthSeen(:final key, :final total):
+        final kept = _scores[key];
+        if (kept == null || kept.total == total) return;
+        final scores = {..._scores}..remove(key);
         emit(QuizScoresReady(scores));
         await _store.save(scores);
       case QuizScoresErased():
@@ -43,8 +49,25 @@ final class QuizScoresBloc extends Bloc<QuizScoresEvent, QuizScoresState> {
         final erased = _erased;
         if (erased == null) return;
         _erased = null;
-        emit(QuizScoresReady(erased));
-        await _store.save(erased);
+        // The scores before the reset, with every quiz finished since on top: its last attempt, and the better best.
+        final scores = {
+          ...erased,
+          for (final MapEntry(:key, value: now) in _scores.entries) key: _merged(erased[key], now),
+        };
+        emit(QuizScoresReady(scores));
+        await _store.save(scores);
     }
+  }
+
+  /// A quiz's score from before a reset, [before], and from after it, [now], as one: the attempt after the reset is the
+  /// last, and the best is the better of both; a quiz whose length changed keeps only the new score.
+  static QuizScore _merged(QuizScore? before, QuizScore now) {
+    if (before == null || before.total != now.total) return now;
+    return QuizScore(
+      last: now.last,
+      best: now.best > before.best ? now.best : before.best,
+      total: now.total,
+      previous: now.previous ?? before.last,
+    );
   }
 }

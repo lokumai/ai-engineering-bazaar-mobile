@@ -28,6 +28,17 @@ final class TrackCubit extends Cubit<Track> {
   /// Makes [track] the current track and keeps it as the reader's choice.
   Future<void> choose(Track track) async {
     select(track);
-    await _store.choose(track);
+    // One choice is written at a time, in the order made: the store clears the other choices before it keeps this one,
+    // so two quick choices written at once could leave both kept, and the next start take the wrong one.
+    final previous = _saving;
+    final saving = _saving = () async {
+      // A write that failed was logged by the store; the next one still runs.
+      await previous.catchError((Object _) {});
+      await _store.choose(track);
+    }();
+    await saving;
   }
+
+  /// The write of the last choice, which the next one waits for.
+  Future<void> _saving = Future<void>.value();
 }

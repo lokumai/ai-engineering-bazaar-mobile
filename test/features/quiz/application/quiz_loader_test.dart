@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_loader.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -38,6 +39,26 @@ void main() {
     build: loader,
     act: (loader) => loader.load('alpha/first', 'tr'),
     expect: () => [const QuizReady(title: 'First Module', items: _items)],
+  );
+
+  blocTest<QuizLoader, QuizLoad>(
+    'For Everyone reads the For Everyone document, under its title there (web D137)',
+    setUp: () =>
+        when(() => repository.readModuleDoc('api/v1/modules/alpha/first/everyone/en.json'))
+            .thenAnswer((_) async => testDoc(quiz: _items)),
+    build: loader,
+    act: (loader) => loader.load('alpha/first', 'en', track: Track.everyone),
+    expect: () => [const QuizReady(title: 'First Story', items: _items)],
+  );
+
+  blocTest<QuizLoader, QuizLoad>(
+    'For Everyone, a module not written there lends its For Engineers quiz, so a link to it still opens',
+    setUp: () =>
+        when(() => repository.readModuleDoc('api/v1/modules/alpha/second/en.json'))
+            .thenAnswer((_) async => testDoc(quiz: _items)),
+    build: loader,
+    act: (loader) => loader.load('alpha/second', 'en', track: Track.everyone),
+    expect: () => [const QuizReady(title: 'Second Module', items: _items)],
   );
 
   blocTest<QuizLoader, QuizLoad>(

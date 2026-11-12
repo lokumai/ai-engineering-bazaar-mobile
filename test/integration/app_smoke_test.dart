@@ -95,7 +95,7 @@ void main() {
   });
 
   testWidgets(
-    'the first launch plays the gate, tells the story, asks the track and lands on its catalog; the next launch opens Home in that track',
+    'the first launch plays the gate, asks the track, tells the story and lands on its catalog; the next launch opens Home in that track',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
@@ -103,9 +103,20 @@ void main() {
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
       await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
       expect(find.byType(HomePage), findsNothing);
-      // The story first (plan 3.5), its film played to the end.
+      // The language and the track first, then the story (plan 3.5).
+      final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
+      await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question first (plan 3.5)');
+      await tester.ensureVisible(everyone);
+      await tester.pump();
+      await tester.tap(everyone);
+      await tester.pump();
+      final toStory = find.byKey(const Key('welcome-start'));
+      await tester.ensureVisible(toStory);
+      await tester.pump();
+      await tester.tap(toStory);
+      // The story, its film played to the end.
       final intro = find.byKey(AboutWelcomeStep.doneKey);
-      await _drain(tester, () => find.text('Story').evaluate().isNotEmpty, what: 'the story first (plan 3.5)');
+      await _drain(tester, () => find.text('Story').evaluate().isNotEmpty, what: 'the story after the track');
       // Each tap on the far side moves on a screen, and at the motto brings its button.
       for (var tap = 0; tap < 8 && intro.hitTestable().evaluate().isEmpty; tap++) {
         final size = tester.getSize(find.byType(AboutWelcomeStep));
@@ -114,16 +125,6 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
       }
       await tester.tap(intro);
-      final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
-      await _drain(tester, () => everyone.evaluate().isNotEmpty, what: 'the track question');
-      await tester.ensureVisible(everyone);
-      await tester.pump();
-      await tester.tap(everyone);
-      await tester.pump();
-      final start = find.byKey(const Key('welcome-start'));
-      await tester.ensureVisible(start);
-      await tester.pump();
-      await tester.tap(start);
       await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
       expect(find.byType(HomePage), findsNothing);
       await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');

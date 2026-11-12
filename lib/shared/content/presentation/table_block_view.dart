@@ -9,8 +9,9 @@ import 'package:flutter/material.dart';
 
 /// A table in its frame (`w3b` F.1): the caption first, inside the frame, then the cells in a region named
 /// `Table {number}` that scrolls sideways when the table is wider than the column. Head cells sit on the sunken strip
-/// at weight 600; with row headers the first cell of each body row is 600 too. Every cell is left-aligned whatever
-/// `align` says, as the web's CSS draws it (A39); the parser still checks `align` as a closed set.
+/// at weight 600; with row headers the first cell of each body row is 600 too. Every cell starts at its start edge
+/// whatever `align` says, the left and in Persian the right, as the web's CSS draws it (A39, `prose.css`); the parser
+/// still checks `align` as a closed set.
 class TableBlockView extends StatelessWidget {
   const TableBlockView({super.key, required this.block, required this.render});
 
@@ -42,7 +43,7 @@ class TableBlockView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: cellMaxWidth),
-        child: InlineText(inlines: cell.inlines, style: style, onLink: render.onLink, textAlign: TextAlign.left),
+        child: InlineText(inlines: cell.inlines, style: style, onLink: render.onLink, textAlign: TextAlign.start),
       ),
     );
 

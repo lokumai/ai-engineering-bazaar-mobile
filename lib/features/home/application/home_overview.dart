@@ -27,8 +27,8 @@ final class HomeOverview extends Equatable {
   static const afterCount = 2;
 
   /// Up to [practiceCount] completed modules whose quiz the reader can take again (plan 1AD): a quiz never finished
-  /// first, then the lowest last score, then the most recently completed (plan 1W). Only For Engineers documents carry
-  /// a quiz, so each entry is titled as For Engineers.
+  /// first, then the lowest last score, then the most recently completed (plan 1W). A module has one quiz on both
+  /// tracks (web D137), so each entry is titled in the track.
   final List<HomeNext> practice;
 
   /// How many modules [practice] holds at most.
@@ -64,6 +64,7 @@ final class HomeNext extends Equatable {
     required this.level,
     required this.position,
     required this.title,
+    this.words = const {},
     this.score,
     this.share,
   });
@@ -77,6 +78,9 @@ final class HomeNext extends Equatable {
   /// The module's title in the track.
   final String title;
 
+  /// The words of the module's document in the track, per language (web D128); empty where the content has no count.
+  final Map<String, int> words;
+
   /// The quiz's score kept on this device, on a practice entry whose quiz was finished; null otherwise.
   final QuizScore? score;
 
@@ -85,7 +89,7 @@ final class HomeNext extends Equatable {
   final double? share;
 
   @override
-  List<Object?> get props => [module, level, position, title, score, share];
+  List<Object?> get props => [module, level, position, title, words, score, share];
 }
 
 /// The overview of [track] from [index], [record], and the quiz [scores] and reading [places] of this device.
@@ -107,6 +111,7 @@ HomeOverview homeOverview(
       level: index.level(module.level)!,
       position: positions[module.level]!,
       title: module.tracks[titled]!.title,
+      words: module.tracks[titled]!.words,
       score: score,
       share: share,
     );
@@ -131,8 +136,8 @@ HomeOverview homeOverview(
         : entryOf(first, track),
     after: [for (final key in open.where((key) => key != shown).take(HomeOverview.afterCount)) entryOf(key, track)],
     practice: [
-      for (final key in _toPractise(_recentlyCompletedWithQuiz(index, curriculum, view), scores))
-        entryOf(key, Track.engineers, scores[key]),
+      for (final key in _toPractise(_recentlyCompletedWithQuiz(index, curriculum, view, track), scores))
+        entryOf(key, track, scores[key]),
     ],
     levels: [
       for (final (position, level) in index.levels.indexed)
@@ -181,13 +186,14 @@ List<String> _toPractise(List<String> recent, Map<String, QuizScore> scores) {
       .toList();
 }
 
-/// The completed modules of [curriculum] in [view] whose For Engineers version carries a quiz, the most recently
+/// The completed modules of [curriculum] in [view] whose version in [track] carries a quiz (one quiz on both tracks, web
+/// D137), the most recently
 /// completed first; two completed at the same instant keep their number order. The record keeps when each module was
 /// completed (`signedOff`), so this is the record's own order, nothing derived (D111).
-List<String> _recentlyCompletedWithQuiz(BundleIndex index, Curriculum curriculum, RecordData view) {
+List<String> _recentlyCompletedWithQuiz(BundleIndex index, Curriculum curriculum, RecordData view, Track track) {
   final done = [
     for (final fact in [...curriculum.modules]..sort((a, b) => a.number.compareTo(b.number)))
-      if (isSigned(fact, view) && (index.module(fact.slug)?.tracks[Track.engineers]?.hasQuiz ?? false))
+      if (isSigned(fact, view) && (index.module(fact.slug)?.tracks[track]?.hasQuiz ?? false))
         (key: fact.slug, at: DateTime.parse(view.signedOff(fact.slug, Track.engineers)!)),
   ];
   // A stable sort: List.sort is not, so the number order breaks ties explicitly.

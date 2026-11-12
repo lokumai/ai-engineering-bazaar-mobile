@@ -76,9 +76,9 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
-                                                module pages; empty on the four tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's camel held for its page,
-                                                Quiz, Settings; caravan_icon.dart)
+                                                module pages; empty on the tabs), thin lattice band, bottom navigation of icons
+                                                with small names (Home, Catalog, the Caravan's camel, Quiz, Settings;
+                                                caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -89,9 +89,11 @@ lib/
     storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
   shared/
-    content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository
+    content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
+                                                word rules (search_text.dart)
     content/application/                        ContentBloc
-    content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart
+    content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart,
+                                                the marks of the words searched (text_find.dart)
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
@@ -100,6 +102,7 @@ lib/
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
+    navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
                                                 rule, segmented control
@@ -107,17 +110,19 @@ lib/
   features/
     home/                                       Home at `/`: continue card, the modules after it, practice, offline note
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
-                                                legend) and the level page (Cards)
+                                                legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
     quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
                                                 module's quiz at `/quiz/<level>/<module>`
     settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
-                                                first-launch steps (the story the app passes in, then language and track)
+                                                first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
-                                                whole screen: at `/settings/about`, outside the shell, and Welcome's first step
+                                                whole screen: at `/settings/about`, outside the shell, and Welcome's last step
     guide/                                      How the bazaar works, at `/settings/guide`
+    caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
+                                                the web's timeline
   l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
@@ -222,7 +227,8 @@ Reach for `BlocSelector` only when narrowing to a slice of a variant's fields, n
 The record is the web's, byte for byte; `lib/shared/record` ports the web's code and the conformance fixture pins it.
 
 - The app writes a completion and its removal in the current track's map (the completion event carries the track, A35), the active day, and `meta.lastExport` after a confirmed save (A19).
-- The app never writes `prefs`, checklist ticks, dwell or `reachedEnd`; it keeps them as it read them.
+- The app writes a checklist tick and its removal under `sheets[key].checklist["<index>"]` (web D129).
+- The app never writes `prefs`, dwell or `reachedEnd`; it keeps them as it read them.
 - Files live under Application Support: `record/record.json`, `record/record-quarantine.json` and `record/record.json.tmp`.
   A write goes to `record.json.tmp` with a flush, then is renamed over `record.json`; a leftover `.tmp` is ignored at launch.
 - A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty.

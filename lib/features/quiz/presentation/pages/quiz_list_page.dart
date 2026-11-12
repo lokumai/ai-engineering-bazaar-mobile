@@ -20,14 +20,13 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Quiz tab at `/quiz` (plan 1AC, in place of the progress page): every module's quiz, grouped by level, each
-/// opening the quiz full screen without the reader. Only For Engineers modules carry a quiz, so a For Everyone reader
-/// is told where the questions come from.
+/// opening the quiz full screen without the reader. The current track's modules are listed, each under its title in
+/// that track: a module has one quiz on both tracks (web D137).
 ///
 /// Each level is an arch card in its hue, as in the catalog (owner, 2026-11-10): a tap opens its quizzes under it and a
 /// second tap closes them; several levels may be open at once. The level of the next module to read in the current
@@ -44,8 +43,6 @@ class QuizListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final theme = Theme.of(context);
-    final colors = context.bazaarColors;
     final index = switch (context.watch<ContentBloc>().state) {
       ContentReady(:final index) => index,
       // The app gate mounts the router only once the content is ready.
@@ -60,7 +57,6 @@ class QuizListPage extends StatelessWidget {
     final scores = context.watch<QuizScoresBloc>().state;
     final fold = context.watch<QuizFoldCubit>();
     final open = fold.openWith(upNext);
-    final muted = theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -68,15 +64,11 @@ class QuizListPage extends StatelessWidget {
         // (review round 4), and without it the Quiz tab and the catalog open alike.
         SectionRule(title: s.nav_quiz),
         const SizedBox(height: AppSpacing.md),
-        // A For Everyone reader learns why the quizzes are For Engineers ones.
-        if (track != Track.engineers) ...[
-          Text(s.quiz_list_engineers_only(trackName(s, Track.engineers)), style: muted),
-          const SizedBox(height: AppSpacing.lg),
-        ],
-        for (final level in quizLevels(index)) ...[
+        for (final level in quizLevels(index, track)) ...[
           _LevelCard(
             key: QuizListPage.levelKey(level.level.slug),
             level: level,
+            track: track,
             scores: scores,
             open: open.contains(level.level.slug),
             onToggle: () => fold.toggle(level.level.slug, upNext),
@@ -90,9 +82,19 @@ class QuizListPage extends StatelessWidget {
 
 /// One level: its number, title and count of quizzes on an arch card in its hue, and its quizzes under it when open.
 class _LevelCard extends StatelessWidget {
-  const _LevelCard({super.key, required this.level, required this.scores, required this.open, required this.onToggle});
+  const _LevelCard({
+    super.key,
+    required this.level,
+    required this.track,
+    required this.scores,
+    required this.open,
+    required this.onToggle,
+  });
 
   final QuizLevel level;
+
+  /// The track whose titles the rows show.
+  final Track track;
   final QuizScoresState scores;
   final bool open;
   final VoidCallback onToggle;
@@ -182,6 +184,7 @@ class _LevelCard extends StatelessWidget {
                         _QuizRow(
                           key: QuizListPage.rowKey(module.key),
                           module: module,
+                          track: track,
                           hue: hue,
                           score: scores.of(module.key),
                         ),
@@ -200,9 +203,10 @@ class _LevelCard extends StatelessWidget {
 /// per question once taken, and an arrow; one button as a whole. The best score is spoken with the row and shown on
 /// the results.
 class _QuizRow extends StatelessWidget {
-  const _QuizRow({super.key, required this.module, required this.hue, required this.score});
+  const _QuizRow({super.key, required this.module, required this.track, required this.hue, required this.score});
 
   final ModuleEntry module;
+  final Track track;
 
   /// The level's hue, which rings the question disc.
   final Color hue;
@@ -215,7 +219,7 @@ class _QuizRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final number = _number(module.number);
-    final title = module.tracks[Track.engineers]!.title;
+    final title = module.tracks[track]!.title;
     final score = this.score;
     final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
     return Semantics(

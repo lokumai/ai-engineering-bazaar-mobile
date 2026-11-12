@@ -23,6 +23,18 @@ final class CompletionToggled extends RecordEvent {
   final EveryoneCompletion? everyone;
 }
 
+/// The reader ticked the checklist item [index] of [key] on [track], or took the tick away (web `ChecklistIsland`).
+final class ChecklistItemToggled extends RecordEvent {
+  const ChecklistItemToggled({required this.key, required this.index, required this.ticked, required this.track});
+
+  final String key;
+
+  /// The item's place in the module's checklist, from 0 (web D129).
+  final int index;
+  final bool ticked;
+  final Track track;
+}
+
 /// The For Everyone version of a module, completed along with its For Engineers version (plan 1V).
 final class EveryoneCompletion {
   const EveryoneCompletion({required this.revision});
@@ -64,9 +76,13 @@ final class RecordErased extends RecordEvent {
   final Completer<bool>? reply;
 }
 
-/// The reader asked to undo the erase while its window is open.
+/// The reader asked to undo the erase while its window is open. [reply] completes with true once the record is back,
+/// and with false when the window had already closed, so the quiz scores and the reading places come back with it or
+/// not at all.
 final class EraseUndone extends RecordEvent {
-  const EraseUndone();
+  const EraseUndone({this.reply});
+
+  final Completer<bool>? reply;
 }
 
 /// The undo window ended; only RecordBloc's own timer adds it (Decision A42).

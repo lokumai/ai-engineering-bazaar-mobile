@@ -116,6 +116,17 @@ void main() {
     expect(Directory(content).existsSync(), isFalse);
   });
 
+  test('a cached object there but unreadable is missing, not an error the reader cannot handle', () async {
+    writeCache(cacheRoot, publishedAt: laterPublishedAt);
+    final repository = fixtureRepository(cacheRoot);
+    expect((await repository.open()).origin, ContentOrigin.downloaded);
+    // A folder where the object's file is: reading it fails with an error other than not found.
+    final object = File('$content/objects/${cacheOnlySha()}')..deleteSync();
+    Directory(object.path).createSync();
+
+    await expectLater(repository.readObject(cacheOnlyPath), throwsA(const ContentMissingException(cacheOnlyPath)));
+  });
+
   test('Review Focus 5: a cached object the OS deleted after startup', () async {
     writeCache(cacheRoot, publishedAt: laterPublishedAt);
     final repository = fixtureRepository(cacheRoot);

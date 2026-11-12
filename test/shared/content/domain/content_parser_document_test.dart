@@ -322,6 +322,18 @@ final List<_Rejection> _rejections = [
 ];
 
 void main() {
+  group('word count (web D128)', () {
+    test('the words are read, and a document from before them has none', () {
+      expect(_parse(validModuleDocJson()..['words'] = 2317).words, 2317);
+      expect(_parse(validModuleDocJson()..['words'] = null).words, isNull);
+      expect(_parse(validModuleDocJson()).words, isNull);
+    });
+
+    test('a word count below one is refused', () {
+      expect(() => _parse(validModuleDocJson()..['words'] = 0), throwsA(formatError(_modulePath, 'words')));
+    });
+  });
+
   group('translated objectives (web D124)', () {
     Map<String, dynamic> turkish(Object? translated) => validModuleDocJson()
       ..['lang'] = 'tr'
@@ -448,6 +460,10 @@ void main() {
             'blocks': [_paragraph()],
           },
           {
+            'task': {'checked': true, 'index': 4},
+            'blocks': [_paragraph()],
+          },
+          {
             'blocks': [_paragraph()],
           },
         ],
@@ -457,6 +473,7 @@ void main() {
         start: 3,
         items: [
           ListItem(checked: false, blocks: [ParagraphBlock(inlines: _x, lead: false)]),
+          ListItem(checked: true, taskIndex: 4, blocks: [ParagraphBlock(inlines: _x, lead: false)]),
           ListItem(checked: null, blocks: [ParagraphBlock(inlines: _x, lead: false)]),
         ],
       ),

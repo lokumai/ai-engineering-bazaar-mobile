@@ -84,11 +84,13 @@ void main() {
     expect(inlineOf(tester, 'a1').style.fontWeight, FontWeight.w400);
   });
 
-  testWidgets('every cell is left-aligned whatever align says, and the table scrolls sideways', (tester) async {
+  testWidgets('every cell starts at its start edge whatever align says, and the table scrolls sideways', (
+    tester,
+  ) async {
     await pumpBlocks(tester, [table]);
 
     for (final text in ['Name', 'Kind', 'Count', 'alpha', 'one', '12', 'beta', 'two', '7']) {
-      expect(inlineOf(tester, text).textAlign, TextAlign.left, reason: text); // A39
+      expect(inlineOf(tester, text).textAlign, TextAlign.start, reason: text); // A39, the right in Persian
     }
     expect(
       find.byWidgetPredicate((w) => w is SingleChildScrollView && w.scrollDirection == Axis.horizontal),

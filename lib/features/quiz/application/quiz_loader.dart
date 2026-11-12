@@ -7,8 +7,10 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Reads the quiz of one module for the quiz page (plan 1AC), from the module's For Engineers document in the reader's
-/// language, or in English when it is not translated, as the reader does (plan 1Q).
+/// Reads the quiz of one module for the quiz page (plan 1AC), from the module's document in the reader's track and
+/// language, or in English when it is not translated, as the reader does (plan 1Q). A module has one quiz file on both
+/// tracks (web D137); a module not written in the track lends its For Engineers document, so a link to its quiz still
+/// opens.
 ///
 /// A `Cubit` because it loads once and the event stream adds nothing.
 final class QuizLoader extends Cubit<QuizLoad> {
@@ -19,9 +21,11 @@ final class QuizLoader extends Cubit<QuizLoad> {
   final IContentRepository _repository;
   final BundleIndex _index;
 
-  /// Loads the quiz of the module [key] in [language].
-  Future<void> load(String key, String language) async {
-    final version = _index.module(key)?.tracks[Track.engineers];
+  /// Loads the quiz of the module [key] in [track] and [language].
+  Future<void> load(String key, String language, {Track track = Track.engineers}) async {
+    final tracks = _index.module(key)?.tracks;
+    final own = tracks?[track];
+    final version = own != null && own.hasQuiz ? own : tracks?[Track.engineers];
     final path = version == null || !version.hasQuiz ? null : version.docs[language] ?? version.docs['en'];
     if (version == null || path == null) {
       emit(const QuizMissing());

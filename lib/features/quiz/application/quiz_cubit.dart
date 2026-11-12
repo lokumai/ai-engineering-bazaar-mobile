@@ -5,7 +5,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 
 part 'quiz_state.dart';
 
-/// The quiz at the end of a For Engineers module, as the web's `QuickQuiz.tsx` behaves.
+/// The quiz at the end of a module, on either track (web D137), as the web's `QuickQuiz.tsx` behaves.
 ///
 /// The first answer to a question is final; Next and See results wait for it; Start over clears every answer and shows
 /// the first question. Nothing is written to the record (spec 3.3.1), so a new page is a fresh quiz; the score goes to [onFinished].

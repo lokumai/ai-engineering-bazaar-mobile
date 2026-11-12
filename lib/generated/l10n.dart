@@ -108,9 +108,19 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Caravan, coming soon`
-  String get nav_caravan_soon {
-    return Intl.message('Caravan, coming soon', name: 'nav_caravan_soon', desc: '', args: []);
+  /// `Under maintenance`
+  String get caravan_maintenance {
+    return Intl.message('Under maintenance', name: 'caravan_maintenance', desc: '', args: []);
+  }
+
+  /// `The Caravan, a timeline of what was trending in AI engineering, is still being built.`
+  String get caravan_maintenance_body {
+    return Intl.message(
+      'The Caravan, a timeline of what was trending in AI engineering, is still being built.',
+      name: 'caravan_maintenance_body',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `How would you like to read?`
@@ -151,6 +161,16 @@ class S {
   /// `Start reading`
   String get welcome_start {
     return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
+  }
+
+  /// `On to the story`
+  String get welcome_to_story {
+    return Intl.message(
+      'On to the story',
+      name: 'welcome_to_story',
+      desc: 'Welcome\'s choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5).',
+      args: [],
+    );
   }
 
   /// `Up next`
@@ -211,6 +231,21 @@ class S {
   /// `Open the diagram full screen`
   String get diagram_expand {
     return Intl.message('Open the diagram full screen', name: 'diagram_expand', desc: '', args: []);
+  }
+
+  /// `Open the image full screen`
+  String get image_expand {
+    return Intl.message('Open the image full screen', name: 'image_expand', desc: '', args: []);
+  }
+
+  /// `Replay`
+  String get image_replay {
+    return Intl.message(
+      'Replay',
+      name: 'image_replay',
+      desc: 'The button over an animated recording that plays it again from its start (web D136).',
+      args: [],
+    );
   }
 
   /// `Your path`
@@ -325,6 +360,38 @@ class S {
     return Intl.message('Description', name: 'card_description', desc: '', args: []);
   }
 
+  /// `Search the modules`
+  String get catalog_search_hint {
+    return Intl.message('Search the modules', name: 'catalog_search_hint', desc: '', args: []);
+  }
+
+  /// `Clear the search`
+  String get catalog_search_clear {
+    return Intl.message('Clear the search', name: 'catalog_search_clear', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{1 result} other{{count} results}}`
+  String catalog_search_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 result',
+      other: '$count results',
+      name: 'catalog_search_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `the first {count} shown`
+  String catalog_search_shown(int count) {
+    return Intl.message('the first $count shown', name: 'catalog_search_shown', desc: '', args: [count]);
+  }
+
+  /// `Nothing found for “{query}”.`
+  String catalog_search_none(String query) {
+    return Intl.message('Nothing found for “$query”.', name: 'catalog_search_none', desc: '', args: [query]);
+  }
+
   /// `Length`
   String get card_length {
     return Intl.message('Length', name: 'card_length', desc: '', args: []);
@@ -390,6 +457,26 @@ class S {
     return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
   }
 
+  /// `Previous match`
+  String get reader_find_previous {
+    return Intl.message('Previous match', name: 'reader_find_previous', desc: '', args: []);
+  }
+
+  /// `Next match`
+  String get reader_find_next {
+    return Intl.message('Next match', name: 'reader_find_next', desc: '', args: []);
+  }
+
+  /// `Stop marking the search`
+  String get reader_find_close {
+    return Intl.message('Stop marking the search', name: 'reader_find_close', desc: '', args: []);
+  }
+
+  /// `Match {position} of {total}`
+  String reader_find_position(int position, int total) {
+    return Intl.message('Match $position of $total', name: 'reader_find_position', desc: '', args: [position, total]);
+  }
+
   /// `Close`
   String get reader_close {
     return Intl.message('Close', name: 'reader_close', desc: '', args: []);
@@ -418,6 +505,16 @@ class S {
   /// `{minutes} min`
   String reader_minutes(int minutes) {
     return Intl.message('$minutes min', name: 'reader_minutes', desc: '', args: [minutes]);
+  }
+
+  /// `{minutes} min · {words} words`
+  String length_minutes_words(int minutes, String words) {
+    return Intl.message(
+      '$minutes min · $words words',
+      name: 'length_minutes_words',
+      desc: 'A written module\'s length, as its web page prints it under the title (web readingTime); words already grouped.',
+      args: [minutes, words],
+    );
   }
 
   /// `Before you start`
@@ -675,16 +772,6 @@ class S {
     return Intl.message('All answers right', name: 'quiz_all_right', desc: '', args: []);
   }
 
-  /// `The questions come with the {track} modules.`
-  String quiz_list_engineers_only(String track) {
-    return Intl.message(
-      'The questions come with the $track modules.',
-      name: 'quiz_list_engineers_only',
-      desc: '',
-      args: [track],
-    );
-  }
-
   /// `{approved}/{total}`
   String catalog_level_dial(String approved, int total) {
     return Intl.message('$approved/$total', name: 'catalog_level_dial', desc: '', args: [approved, total]);
@@ -715,14 +802,14 @@ class S {
     );
   }
 
-  /// `Back up to a file`
+  /// `Back up`
   String get data_back_up {
-    return Intl.message('Back up to a file', name: 'data_back_up', desc: '', args: []);
+    return Intl.message('Back up', name: 'data_back_up', desc: '', args: []);
   }
 
-  /// `Restore from a file`
+  /// `Restore`
   String get data_restore {
-    return Intl.message('Restore from a file', name: 'data_restore', desc: '', args: []);
+    return Intl.message('Restore', name: 'data_restore', desc: '', args: []);
   }
 
   /// `Reset`
@@ -788,6 +875,16 @@ class S {
   /// `That file could not be opened.`
   String get data_restore_unreadable {
     return Intl.message('That file could not be opened.', name: 'data_restore_unreadable', desc: '', args: []);
+  }
+
+  /// `That backup is larger than the app can keep. Nothing was changed.`
+  String get data_restore_too_large {
+    return Intl.message(
+      'That backup is larger than the app can keep. Nothing was changed.',
+      name: 'data_restore_too_large',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}`
@@ -1309,12 +1406,12 @@ class S {
     );
   }
 
-  /// `Continue`
+  /// `Start learning`
   String get welcome_story_continue {
     return Intl.message(
-      'Continue',
+      'Start learning',
       name: 'welcome_story_continue',
-      desc: 'Welcome\'s first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5).',
+      desc: 'Welcome\'s last step: the button at the end of the story of the Bazaar, into the app (plan 3.5).',
       args: [],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
+import 'package:ai_engineering_bazaar/features/caravan/navigation/caravan_routes.dart';
 import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart';
 import 'package:ai_engineering_bazaar/app/dev_console/dev_console_overlay.dart';
@@ -18,6 +19,7 @@ import 'package:ai_engineering_bazaar/features/settings/navigation/settings_rout
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -77,6 +79,8 @@ class AppRouterFactory {
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
+            // The Caravan tab, under maintenance until the bundle carries the web's timeline (plan 3.1).
+            ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
             ...GuideFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
@@ -112,14 +116,19 @@ class AppRouterFactory {
     return LevelPage(key: ValueKey(level), track: track, level: level);
   }
 
-  /// The reader of the module the path names, scrolled to the heading a module link passes as `extra`, with the quiz
-  /// feature's panel in its quiz slot (Decision A38). For Everyone documents carry no quiz, so their slot stays empty.
-  static Widget _reader(GoRouterState state, Track track) => ModuleReaderPage(
-    moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
-    track: track,
-    fragment: state.extra as String?,
-    quizBuilder: buildQuizPanel,
-  );
+  /// The reader of the module the path names, scrolled to the heading a module link or a search hit passes as `extra`,
+  /// the words searched marked, with the quiz feature's panel in its quiz slot (Decision A38). For Everyone documents
+  /// carry no quiz, so their slot stays empty.
+  static Widget _reader(GoRouterState state, Track track) {
+    final target = ReaderTarget.of(state.extra);
+    return ModuleReaderPage(
+      moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}',
+      track: track,
+      fragment: target.fragment,
+      query: target.query,
+      quizBuilder: buildQuizPanel,
+    );
+  }
 
   static GoRoute _page(String name, String path, Widget child) => _pageOf(name, path, (_) => child);
 

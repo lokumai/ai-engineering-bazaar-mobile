@@ -75,7 +75,7 @@ void main() {
   );
 
   blocTest<ReadingPlacesBloc, ReadingPlacesState>(
-    'an undo with no erase, or after a new place, changes nothing',
+    'an undo with no erase changes nothing, and one after a new place brings the old places back with the new one',
     build: () => ReadingPlacesBloc(store: store),
     act: (bloc) => bloc
       ..add(const ReadingPlacesStarted())
@@ -87,6 +87,7 @@ void main() {
       ReadingPlacesReady(_kept),
       const ReadingPlacesReady({}),
       ReadingPlacesReady({'engineers:beta/fourth': later}),
+      ReadingPlacesReady({..._kept, 'engineers:beta/fourth': later}),
     ],
   );
 

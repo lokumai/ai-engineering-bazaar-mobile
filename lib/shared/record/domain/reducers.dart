@@ -36,6 +36,40 @@ RecordData unsign(RecordData data, String slug, {Track track = Track.engineers})
   track,
 );
 
+/// The highest checklist index a tick is recorded under; a longer checklist than any in the course.
+///
+/// Web source: `events.ts:40` (`MAX_CHECKLIST_INDEX`).
+const maxChecklistIndex = 9999;
+
+/// [data] with the checklist item [index] of [slug] on [track] ticked or not, and the day of [now] stamped.
+///
+/// Web source: `events.ts:132-145` (`setChecklistItem`).
+/// Only ticks are stored: a tick writes `true` under the index as a string, and taking it away deletes the key. An
+/// index outside 0 to [maxChecklistIndex], an unsafe [slug], or an item already as asked is a no-op that returns
+/// [data] itself. The checklist's other keys are kept as they are (Decision W9).
+RecordData setChecklistItem(
+  RecordData data,
+  String slug,
+  int index,
+  String now, {
+  required bool ticked,
+  Track track = Track.engineers,
+}) {
+  if (index < 0 || index > maxChecklistIndex) return data;
+  final key = '$index';
+  return _editSheet(data, slug, now, (sheet) {
+    final raw = sheet['checklist'];
+    final checklist = raw is Map ? Map<String, Object?>.from(raw) : <String, Object?>{};
+    if ((checklist[key] == true) == ticked) return null;
+    if (ticked) {
+      checklist[key] = true;
+    } else {
+      checklist.remove(key);
+    }
+    return {...sheet, 'checklist': Map<String, Object?>.unmodifiable(checklist)};
+  }, track);
+}
+
 /// [data] with the day of [now] stamped.
 ///
 /// Web source: `events.ts:223-225` (`markActivity`).

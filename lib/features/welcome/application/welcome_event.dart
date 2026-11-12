@@ -7,8 +7,8 @@ sealed class WelcomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// The app started: whether Welcome was seen is asked once; [story] says whether the content has a story to tell
-/// first (web D125).
+/// The app started: whether Welcome was seen is asked once; [story] says whether the content has a story to tell after
+/// the language and the track (web D125).
 final class WelcomeStarted extends WelcomeEvent {
   const WelcomeStarted({this.story = false});
 
@@ -18,12 +18,17 @@ final class WelcomeStarted extends WelcomeEvent {
   List<Object?> get props => [story];
 }
 
-/// The story was read: the language and the track follow.
+/// The story was read or skipped: Welcome is done.
 final class WelcomeStoryRead extends WelcomeEvent {
   const WelcomeStoryRead();
 }
 
-/// A track was chosen: Welcome is done.
+/// The language and [track] were chosen: the story follows when there is one, else Welcome is done.
 final class WelcomeTrackChosen extends WelcomeEvent {
-  const WelcomeTrackChosen();
+  const WelcomeTrackChosen(this.track);
+
+  final Track track;
+
+  @override
+  List<Object?> get props => [track];
 }

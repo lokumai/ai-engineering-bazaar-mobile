@@ -36,6 +36,20 @@ final class RecordData extends Equatable {
   /// Every module completed on [track], in map order, mapped to its completion instant.
   Map<String, String> signedMap(Track track) => {for (final slug in _sheets(track).keys) slug: ?signedOff(slug, track)};
 
+  /// The checklist items of [slug] ticked on [track], by their index.
+  ///
+  /// Web source: `coerceChecklist` (`validate.ts:129-138`): a key of one to four digits holding `true`; anything else
+  /// is not a tick.
+  Set<int> ticks(String slug, Track track) {
+    final sheet = _sheets(track)[slug];
+    final checklist = sheet is Map ? sheet['checklist'] : null;
+    if (checklist is! Map) return const {};
+    return {
+      for (final MapEntry(:key, :value) in checklist.entries)
+        if (key is String && _indexKey.hasMatch(key) && value == true) int.parse(key),
+    };
+  }
+
   /// The days with activity, distinct and sorted.
   List<String> get days => (raw['days']! as List).cast<String>();
 
@@ -46,6 +60,9 @@ final class RecordData extends Equatable {
 }
 
 final _isoDay = RegExp(RecordConstants.isoDay);
+
+/// A checklist key (web `validate.ts:59`, `INDEX_KEY`).
+final _indexKey = RegExp(r'^\d{1,4}$');
 
 /// [data] normalised as spec 3.3.4 with Decision A21 has it, deeply unmodifiable.
 ///

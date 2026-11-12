@@ -15,6 +15,7 @@ final class CatalogRow extends Equatable {
     required this.drawn,
     required this.signed,
     required this.minutes,
+    this.words = const {},
     required this.summary,
     required this.requires,
   });
@@ -36,6 +37,9 @@ final class CatalogRow extends Equatable {
   final bool signed;
   final int minutes;
 
+  /// Language to the words the module's web page prints in this track (web D128); empty where it is not written.
+  final Map<String, int> words;
+
   /// The track's summary; null when the module is planned in the track.
   final String? summary;
 
@@ -43,7 +47,7 @@ final class CatalogRow extends Equatable {
   final List<int> requires;
 
   @override
-  List<Object?> get props => [key, level, number, title, drawn, signed, minutes, summary, requires];
+  List<Object?> get props => [key, level, number, title, drawn, signed, minutes, words, summary, requires];
 }
 
 /// The rows of [index] for [track], in the index's module order. [view] is the record seen through [track]
@@ -60,6 +64,7 @@ List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view) {
         drawn: module.tracks[track]!.drawn,
         signed: view != null && isSigned(facts[module.key]!, view),
         minutes: module.minutes,
+        words: module.tracks[track]!.words,
         summary: module.tracks[track]!.summary,
         requires: [for (final key in module.prerequisites) index.module(key)!.number],
       ),

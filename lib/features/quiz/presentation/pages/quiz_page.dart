@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,11 +28,13 @@ class QuizPage extends StatelessWidget {
       final state => throw StateError('The quiz needs ready content, not $state'),
     };
     final language = context.watch<LanguageCubit>().state;
+    final track = context.watch<TrackCubit>().state;
     return BlocProvider(
-      // A new language reads the quiz again in it.
-      key: ValueKey((moduleKey, language)),
+      // A new language or track reads the quiz again in it.
+      key: ValueKey((moduleKey, language, track)),
       create: (context) =>
-          QuizLoader(repository: context.read<IContentRepository>(), index: index)..load(moduleKey, language),
+          QuizLoader(repository: context.read<IContentRepository>(), index: index)
+            ..load(moduleKey, language, track: track),
       child: BlocBuilder<QuizLoader, QuizLoad>(
         builder: (context, state) => switch (state) {
           QuizReady(:final title, :final items) => BlocProvider(

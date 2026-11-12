@@ -25,8 +25,10 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "nav_caravan_soon": "Caravan, coming soon",
-  "@nav_caravan_soon": {},
+  "caravan_maintenance": "Under maintenance",
+  "@caravan_maintenance": {},
+  "caravan_maintenance_body": "The Caravan, a timeline of what was trending in AI engineering, is still being built.",
+  "@caravan_maintenance_body": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
@@ -41,6 +43,10 @@
   },
   "welcome_start": "Start reading",
   "@welcome_start": {},
+  "welcome_to_story": "On to the story",
+  "@welcome_to_story": {
+    "description": "Welcome's choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5)."
+  },
   "home_up_next": "Up next",
   "@home_up_next": {},
   "home_open_module": "Open the module",
@@ -70,6 +76,12 @@
   "@home_practice_lede": {},
   "diagram_expand": "Open the diagram full screen",
   "@diagram_expand": {},
+  "image_expand": "Open the image full screen",
+  "@image_expand": {},
+  "image_replay": "Replay",
+  "@image_replay": {
+    "description": "The button over an animated recording that plays it again from its start (web D136)."
+  },
   "home_path": "Your path",
   "@home_path": {},
   "home_offline_title": "The course is on this device",
@@ -148,6 +160,34 @@
   "@level_general_notes": {},
   "card_description": "Description",
   "@card_description": {},
+  "catalog_search_hint": "Search the modules",
+  "@catalog_search_hint": {},
+  "catalog_search_clear": "Clear the search",
+  "@catalog_search_clear": {},
+  "catalog_search_count": "{count, plural, =1{1 result} other{{count} results}}",
+  "@catalog_search_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_shown": "the first {count} shown",
+  "@catalog_search_shown": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_none": "Nothing found for “{query}”.",
+  "@catalog_search_none": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "card_length": "Length",
   "@card_length": {},
   "card_length_minutes": "{minutes} min",
@@ -202,6 +242,23 @@
   },
   "reader_contents": "Contents",
   "@reader_contents": {},
+  "reader_find_previous": "Previous match",
+  "@reader_find_previous": {},
+  "reader_find_next": "Next match",
+  "@reader_find_next": {},
+  "reader_find_close": "Stop marking the search",
+  "@reader_find_close": {},
+  "reader_find_position": "Match {position} of {total}",
+  "@reader_find_position": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reader_close": "Close",
   "@reader_close": {},
   "reader_on_this_page": "On this page",
@@ -217,6 +274,18 @@
     "placeholders": {
       "minutes": {
         "type": "int"
+      }
+    }
+  },
+  "length_minutes_words": "{minutes} min · {words} words",
+  "@length_minutes_words": {
+    "description": "A written module's length, as its web page prints it under the title (web readingTime); words already grouped.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "words": {
+        "type": "String"
       }
     }
   },
@@ -412,14 +481,6 @@
     }
   },
   "quiz_all_right": "All answers right",
-  "quiz_list_engineers_only": "The questions come with the {track} modules.",
-  "@quiz_list_engineers_only": {
-    "placeholders": {
-      "track": {
-        "type": "String"
-      }
-    }
-  },
   "catalog_level_dial": "{approved}/{total}",
   "@catalog_level_dial": {
     "placeholders": {
@@ -445,9 +506,9 @@
   "@catalog_state_not_yet": {},
   "data_line_text": "Your progress is saved on this device only. A backup file keeps it safe if the app's data is cleared, and moves it to another device or to the website.",
   "@data_line_text": {},
-  "data_back_up": "Back up to a file",
+  "data_back_up": "Back up",
   "@data_back_up": {},
-  "data_restore": "Restore from a file",
+  "data_restore": "Restore",
   "@data_restore": {},
   "data_reset": "Reset",
   "@data_reset": {},
@@ -473,6 +534,8 @@
   "@data_restore_malformed": {},
   "data_restore_unreadable": "That file could not be opened.",
   "@data_restore_unreadable": {},
+  "data_restore_too_large": "That backup is larger than the app can keep. Nothing was changed.",
+  "@data_restore_too_large": {},
   "data_reset_counting": "{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}",
   "@data_reset_counting": {
     "placeholders": {
@@ -664,9 +727,9 @@
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "welcome_story_continue": "Continue",
+  "welcome_story_continue": "Start learning",
   "@welcome_story_continue": {
-    "description": "Welcome's first step: the button after the story of the Bazaar, on to the language and the track (plan 3.5)."
+    "description": "Welcome's last step: the button at the end of the story of the Bazaar, into the app (plan 3.5)."
   },
   "settings_privacy_legal": "Privacy and legal",
   "@settings_privacy_legal": {

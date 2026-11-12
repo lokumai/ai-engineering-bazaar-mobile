@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -130,6 +131,7 @@ Widget bazaarTestApp({
             create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())..add(const ReadingPlacesStarted()),
           ),
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
+        BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)

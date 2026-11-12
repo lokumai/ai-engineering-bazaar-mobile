@@ -212,6 +212,25 @@ void main() {
     });
   });
 
+  test('D129: a checklist tick is written under its index, and taking it away writes again', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository();
+      final bloc = await _started(repository);
+
+      bloc.add(const ChecklistItemToggled(key: 'alpha/first', index: 2, ticked: true, track: Track.engineers));
+      await pumpEventQueue();
+      expect(_ready(bloc).record.ticks('alpha/first', Track.engineers), {2});
+      expect(_ready(bloc).record.days, ['2026-03-14']);
+      expect(repository.writes.single, serialise(_ready(bloc).record, _now, pretty: false));
+
+      bloc.add(const ChecklistItemToggled(key: 'alpha/first', index: 2, ticked: false, track: Track.engineers));
+      await pumpEventQueue();
+      expect(_ready(bloc).record.ticks('alpha/first', Track.engineers), isEmpty);
+      expect(repository.writes, hasLength(2));
+      await bloc.close();
+    });
+  });
+
   group('plan 1V: a For Engineers completion completes For Everyone too', () {
     const carried = CompletionToggled(
       key: 'alpha/first',
@@ -522,6 +541,52 @@ void main() {
       async.flushMicrotasks();
       expect(repository.calls, hasLength(calls));
       expect(states, isEmpty);
+      bloc.close();
+      async.flushMicrotasks();
+    });
+  });
+
+  test('a change made while the undo is open is made again on the record the undo brings back', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = RecordLoadOk(data: _signed, quarantineKept: false)
+        ..record = Uint8List.fromList([1]);
+      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+      async.flushMicrotasks();
+      bloc
+        ..add(const CompletionToggled(key: 'beta/fourth', revision: 'b1', track: Track.engineers))
+        ..add(const ChecklistItemToggled(key: 'alpha/first', index: 2, ticked: true, track: Track.engineers));
+      async.flushMicrotasks();
+      expect(_ready(bloc).undo, isNotNull, reason: 'the change leaves the undo open');
+
+      final undone = Completer<bool>();
+      bloc.add(EraseUndone(reply: undone));
+      async.flushMicrotasks();
+      final record = _ready(bloc).record;
+      expect(record.signedOff('alpha/first', Track.engineers), isNotNull, reason: 'the record before the reset');
+      expect(record.signedOff('beta/fourth', Track.engineers), isNotNull, reason: 'the completion since');
+      expect(record.ticks('alpha/first', Track.engineers), {2}, reason: 'the tick since');
+      expect(repository.calls.last, 'write', reason: 'the record with the changes since is on disk');
+      expect(undone.isCompleted, isTrue);
+      bloc.close();
+      async.flushMicrotasks();
+    });
+  });
+
+  test('an undo asked after the window closed answers false and changes nothing', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 10));
+
+      final undone = Completer<bool>();
+      bool? answer;
+      undone.future.then((value) => answer = value);
+      bloc.add(EraseUndone(reply: undone));
+      async.flushMicrotasks();
+      expect(answer, isFalse);
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), isNull);
       bloc.close();
       async.flushMicrotasks();
     });

@@ -88,7 +88,7 @@ void main() {
         )
         .map((box) => box.decoration)
         .whereType<BoxDecoration>()
-        .where((decoration) => (decoration.border as Border?)?.left.color == fault);
+        .where((decoration) => (decoration.border as BorderDirectional?)?.start.color == fault);
     expect(edges, hasLength(1));
   });
 

@@ -70,6 +70,7 @@ final class ModuleDoc extends Equatable {
     required this.lang,
     required this.dir,
     required this.title,
+    this.words,
     required this.objectives,
     this.translatedObjectives,
     required this.prerequisites,
@@ -89,6 +90,9 @@ final class ModuleDoc extends Equatable {
 
   /// The title in this document's track and language.
   final String title;
+
+  /// The words its web page prints under the title (web D128); null on a draft and in a document from before it.
+  final int? words;
 
   /// The objectives, always in English; empty on a draft.
   final List<String> objectives;
@@ -114,6 +118,7 @@ final class ModuleDoc extends Equatable {
     lang,
     dir,
     title,
+    words,
     objectives,
     translatedObjectives,
     prerequisites,
@@ -315,14 +320,18 @@ final class ListBlock extends Block {
 }
 
 final class ListItem extends Equatable {
-  const ListItem({required this.checked, required this.blocks});
+  const ListItem({required this.checked, this.taskIndex, required this.blocks});
 
   /// The task box of a task item; null when the item is not a task.
   final bool? checked;
+
+  /// The task item's place in the module's one checklist, from 0 (web D129): the key of its tick in the record's
+  /// `checklist`. Null when the item is not a task, and in a document from before the web added it.
+  final int? taskIndex;
   final List<Block> blocks;
 
   @override
-  List<Object?> get props => [checked, blocks];
+  List<Object?> get props => [checked, taskIndex, blocks];
 }
 
 final class QuoteBlock extends Block {

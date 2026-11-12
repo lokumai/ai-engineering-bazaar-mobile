@@ -97,7 +97,7 @@ void main() {
 }
 ```
 
-Golden files opt out this way, as `test/shared/design_system/components/app_button_golden_test.dart` does.
+Golden files opt out this way, as `test/shared/design_system/widgets/design_pieces_golden_test.dart` does.
 A mock on a channel the reset never touches needs no opt-out: `test/support/url_launcher_stub.dart` installs one for url_launcher in the test body and removes it when the test ends.
 
 ### The asset cache

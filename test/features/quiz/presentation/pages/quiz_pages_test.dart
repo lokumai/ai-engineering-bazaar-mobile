@@ -151,14 +151,17 @@ void main() {
     },
   );
 
-  testWidgets('a For Everyone reader is told where the questions come from', (tester) async {
+  testWidgets('a For Everyone reader sees the quizzes of the modules written For Everyone, under their titles there', (
+    tester,
+  ) async {
     final track = TrackCubit()..select(Track.everyone);
     addTearDown(track.close);
     await _pump(tester, track: track);
 
-    expect(find.text('The questions come with the For Engineers modules.'), findsOneWidget);
     await _openLevels(tester, ['alpha']);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget);
+    expect(find.text('First Story'), findsOneWidget);
+    expect(find.byKey(QuizListPage.rowKey('alpha/second')), findsNothing, reason: 'not written For Everyone');
   });
 
   testWidgets('a row opens the quiz full screen, titled with the module, and Done comes back', (tester) async {

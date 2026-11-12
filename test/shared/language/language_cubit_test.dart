@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -15,7 +17,41 @@ final class _Store implements ILanguageStore {
   Future<void> choose(String language) async => kept = language;
 }
 
+/// A store whose writes wait until the test lets them finish, and that logs when each one starts.
+final class _SlowStore implements ILanguageStore {
+  final started = <String>[];
+  final gates = <Completer<void>>[];
+
+  @override
+  Future<String?> chosen() async => null;
+
+  @override
+  Future<void> choose(String language) async {
+    started.add(language);
+    final gate = Completer<void>();
+    gates.add(gate);
+    await gate.future;
+  }
+}
+
 void main() {
+  test('two quick choices are written one after the other, in the order made', () async {
+    final store = _SlowStore();
+    final cubit = LanguageCubit(store: store);
+    unawaited(cubit.choose('tr'));
+    final last = cubit.choose('fa');
+    await pumpEventQueue();
+    expect(store.started, ['tr'], reason: 'the second waits for the first');
+
+    store.gates.first.complete();
+    await pumpEventQueue();
+    expect(store.started, ['tr', 'fa']);
+    store.gates.last.complete();
+    await last;
+    expect(cubit.state, 'fa');
+    await cubit.close();
+  });
+
   test('starts in English', () => expect(LanguageCubit().state, 'en'));
   test('starts in the device language when the app has it', () => expect(LanguageCubit(initial: 'tr').state, 'tr'));
   test('starts in English when the device language is not one the app has', () {

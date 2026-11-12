@@ -11,7 +11,7 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../support/accessibility.dart';
 import '../data_host.dart';
 
-const _actions = ['Back up to a file', 'Restore from a file', 'Reset'];
+const _actions = ['Back up', 'Restore', 'Reset'];
 
 Finder _button(String label) => find.widgetWithText(OutlinedButton, label);
 
@@ -30,30 +30,28 @@ void main() {
       expect(find.text(label), findsOneWidget);
     }
     expect(find.text('Undo'), findsNothing);
-    expect(
-      tester.getTopLeft(_button('Back up to a file')).dx,
-      lessThan(tester.getTopLeft(_button('Restore from a file')).dx),
-    );
+    expect(tester.getTopLeft(_button('Back up')).dx, lessThan(tester.getTopLeft(_button('Restore')).dx));
   });
 
-  testWidgets('Reset is drawn in onSurface', (tester) async {
+  testWidgets('Reset is drawn in onSurface, last on the line of the three', (tester) async {
     await pumpLine(tester);
     final theme = Theme.of(tester.element(find.byType(DataLine)));
 
     final button = tester.widget<OutlinedButton>(_button('Reset'));
     expect(button.style!.foregroundColor!.resolve(<WidgetState>{}), theme.colorScheme.onSurface);
     expect(
-      tester.getTopLeft(_button('Reset')).dy,
-      greaterThan(tester.getBottomLeft(_button('Back up to a file')).dy),
-      reason: 'Reset sits on a line of its own, below Back up and Restore',
+      [for (final label in _actions) tester.getTopLeft(_button(label)).dy],
+      everyElement(tester.getTopLeft(_button('Back up')).dy),
+      reason: 'the three on one line (the owner, 2026-11-12)',
     );
+    expect(tester.getTopLeft(_button('Restore')).dx, lessThan(tester.getTopLeft(_button('Reset')).dx));
   });
 
   testWidgets('the actions add their events', (tester) async {
     final bloc = await pumpLine(tester, const DataState(reset: ResetCounting(5)));
 
-    await tester.tap(find.text('Back up to a file'));
-    await tester.tap(find.text('Restore from a file'));
+    await tester.tap(find.text('Back up'));
+    await tester.tap(find.text('Restore'));
     await tester.tap(find.text('Undo'));
     final events = verify(() => bloc.add(captureAny())).captured;
     expect(events, [isA<BackupRequested>(), isA<RestoreRequested>(), isA<UndoRequested>()]);

@@ -22,8 +22,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
 /// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
-/// names kept so each is clear). The Caravan's camel holds the middle, ahead of its page (plan 3.1): it is named,
-/// says it is coming soon, and does nothing yet.
+/// names kept so each is clear). The Caravan's camel holds the middle and opens its page, which says it is under
+/// maintenance until the bundle carries the web's timeline (plan 3.1).
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
@@ -130,15 +130,13 @@ class _BazaarShellState extends State<BazaarShell> {
     if (track != null) context.read<TrackCubit>().select(track);
   }
 
-  /// The Caravan's place in the navigation, in the middle.
-  static const int _caravan = 2;
-
   /// The pages each tab showed last, by its place in the navigation, with the path of the page on top: a tab opened
   /// again opens them again.
   final _stacks = <int, ({RouteMatchList pages, String top})>{};
 
   /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
   int get _selectedIndex => switch (widget.location) {
+    BazaarPaths.caravan => 2,
     BazaarPaths.quizzes => 3,
     final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
     final location when BazaarPaths.trackOf(location) != null => 1,
@@ -146,10 +144,10 @@ class _BazaarShellState extends State<BazaarShell> {
   };
 
   void _onDestinationSelected(int index) {
-    if (index == _caravan) return;
     final track = context.read<TrackCubit>().state;
     final target = switch (index) {
       0 => BazaarPaths.home,
+      2 => BazaarPaths.caravan,
       3 => BazaarPaths.quizzes,
       4 => BazaarPaths.settings,
       _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? track),
@@ -175,6 +173,38 @@ class _BazaarShellState extends State<BazaarShell> {
   static int _pages(List<RouteMatchBase> matches) =>
       matches.fold(0, (count, match) => count + (match is ShellRouteMatch ? _pages(match.matches) : 1));
 
+  /// The paths of the pages in [matches], the first page first.
+  static List<String> _locations(List<RouteMatchBase> matches) => [
+    for (final match in matches)
+      if (match is ShellRouteMatch) ..._locations(match.matches) else match.matchedLocation,
+  ];
+
+  /// The bar's back button, which only a module's page shows: it goes back to the catalog of the module's track, not to
+  /// the page before as a browser would (the owner, 2026-11-11). The catalog page under the module, its root or a level's
+  /// page, is found again as it was left, its search included; when none is under it (the module was opened from Home,
+  /// from Quiz or from another module), the catalog opens.
+  void _back() {
+    final router = GoRouter.of(context);
+    final track = BazaarPaths.trackOf(widget.location);
+    if (track == null) {
+      router.pop();
+      return;
+    }
+    final catalog = BazaarPaths.catalog(track);
+    final pages = _locations(router.routerDelegate.currentConfiguration.matches);
+    // The catalog's root or one of its level pages, of the module's track.
+    final at = pages.lastIndexWhere(
+      (page) => page == catalog || (BazaarPaths.levelOf(page) != null && BazaarPaths.trackOf(page) == track),
+    );
+    if (at < 0) {
+      router.go(catalog);
+      return;
+    }
+    for (var i = pages.length - 1; i > at; i--) {
+      router.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
@@ -198,90 +228,98 @@ class _BazaarShellState extends State<BazaarShell> {
       selectedIcon: Icon(filled, color: open.color, size: open.size),
       label: label,
     );
-    return Scaffold(
-      body: Column(
-        children: [
-          // The status strip stays; the bar and the band fold up with the navigation while a module is read.
-          const BazaarStatusStrip(),
-          ClipRect(
-            child: AnimatedAlign(
-              alignment: Alignment.bottomCenter,
-              heightFactor: chromeHidden ? 0 : 1,
-              duration: motion,
-              curve: BazaarMotion.bazaar,
-              child: ExcludeSemantics(
-                excluding: chromeHidden,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    BazaarBar(
-                      statusStrip: false,
-                      title: _title(index),
-                      accent: _accent(context, index),
-                      // The bar sits above the shell's navigator, so the router pops the page it pushed.
-                      onBack: pushed ? () => GoRouter.of(context).pop() : null,
+    // The system back on the first page of a tab other than Home goes Home, as Android apps with a navigation bar do,
+    // rather than leaving the app; on Home's first page it leaves.
+    final atTabRoot = !pushed && _selectedIndex != 0;
+    return PopScope(
+      canPop: !atTabRoot,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && atTabRoot) _onDestinationSelected(0);
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            // The status strip stays; the bar and the band fold up with the navigation while a module is read.
+            const BazaarStatusStrip(),
+            ClipRect(
+              child: AnimatedAlign(
+                alignment: Alignment.bottomCenter,
+                heightFactor: chromeHidden ? 0 : 1,
+                duration: motion,
+                curve: BazaarMotion.bazaar,
+                child: ExcludeSemantics(
+                  excluding: chromeHidden,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BazaarBar(
+                        statusStrip: false,
+                        title: _title(index),
+                        accent: _accent(context, index),
+                        // The bar sits above the shell's navigator, so the router goes back, to the catalog.
+                        onBack: pushed ? _back : null,
+                      ),
+                      const LatticeBand(thin: true),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // The status strip already keeps the page clear of the status bar.
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: _onScroll,
+                child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
+              ),
+            ),
+          ],
+        ),
+        // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
+        bottomNavigationBar: ClipRect(
+          child: AnimatedAlign(
+            alignment: Alignment.topCenter,
+            heightFactor: chromeHidden ? 0 : 1,
+            duration: motion,
+            curve: BazaarMotion.bazaar,
+            child: ExcludeSemantics(
+              excluding: chromeHidden,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(top: BorderSide(color: colors.line, width: 0.5)),
+                ),
+                child: NavigationBar(
+                  height: BazaarShell.navHeight,
+                  backgroundColor: colors.surface,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  indicatorColor: Colors.transparent,
+                  overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  labelPadding: const EdgeInsets.only(top: 2),
+                  labelTextStyle: WidgetStateProperty.resolveWith(
+                    (states) => TextStyle(
+                      fontSize: 10.5,
+                      height: 1.2,
+                      letterSpacing: 0.1,
+                      fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
+                      color: states.contains(WidgetState.selected) ? open.color : idle.color,
                     ),
-                    const LatticeBand(thin: true),
+                  ),
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  destinations: [
+                    tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
+                    tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
+                    NavigationDestination(
+                      icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
+                      selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
+                      label: l10n.nav_caravan,
+                    ),
+                    tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
+                    tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
                   ],
                 ),
-              ),
-            ),
-          ),
-          // The status strip already keeps the page clear of the status bar.
-          Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _onScroll,
-              child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
-            ),
-          ),
-        ],
-      ),
-      // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
-      bottomNavigationBar: ClipRect(
-        child: AnimatedAlign(
-          alignment: Alignment.topCenter,
-          heightFactor: chromeHidden ? 0 : 1,
-          duration: motion,
-          curve: BazaarMotion.bazaar,
-          child: ExcludeSemantics(
-            excluding: chromeHidden,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surface,
-                border: Border(top: BorderSide(color: colors.line, width: 0.5)),
-              ),
-              child: NavigationBar(
-                height: BazaarShell.navHeight,
-                backgroundColor: colors.surface,
-                elevation: 0,
-                surfaceTintColor: Colors.transparent,
-                indicatorColor: Colors.transparent,
-                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                labelPadding: const EdgeInsets.only(top: 2),
-                labelTextStyle: WidgetStateProperty.resolveWith(
-                  (states) => TextStyle(
-                    fontSize: 10.5,
-                    height: 1.2,
-                    letterSpacing: 0.1,
-                    fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
-                    color: states.contains(WidgetState.selected) ? open.color : idle.color,
-                  ),
-                ),
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onDestinationSelected,
-                destinations: [
-                  tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
-                  tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
-                  NavigationDestination(
-                    icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
-                    label: l10n.nav_caravan,
-                    tooltip: l10n.nav_caravan_soon,
-                    enabled: false,
-                  ),
-                  tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
-                  tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
-                ],
               ),
             ),
           ),

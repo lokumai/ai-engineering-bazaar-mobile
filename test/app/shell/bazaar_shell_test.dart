@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
@@ -19,7 +20,7 @@ import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
 import '../../support/fold.dart';
 
-/// A destination by its tooltip, its name or, for the Caravan, its name and that it is coming soon.
+/// A destination by its tooltip, which is its name.
 Finder _destination(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip(label));
 
 /// Pumps the app's router at [location] with [track], and settles.
@@ -271,7 +272,44 @@ void main() {
     expect(find.byType(BackButton), findsNothing);
   });
 
-  testWidgets('Android back pops a pushed page and leaves the app only from the first page', (tester) async {
+  group("a module's back goes to the catalog, not to the page before (the owner, 2026-11-11)", () {
+    testWidgets('from a module opened on Home, after another tab, to the catalog and not Home', (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      router.push('/courses/alpha/first');
+      await tester.pumpAndSettle();
+      await _tap(tester, _destination('Quiz'));
+      await _tap(tester, _destination('Catalog'));
+      expect(_path(router), '/courses/alpha/first', reason: 'the tab opens its module again');
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets');
+      expect(find.byType(BackButton), findsNothing);
+    });
+
+    testWidgets('from a module opened from another module, past it to the catalog under them', (tester) async {
+      final router = await _pumpAt(tester, '/sheets', TrackCubit());
+      await _pushFromCatalog(tester, 'Alpha Level', 'First Module');
+      router.push('/courses/beta/fourth');
+      await tester.pumpAndSettle();
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets');
+      expect(find.byType(BackButton), findsNothing);
+    });
+
+    testWidgets("For Everyone's module goes to For Everyone's catalog", (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      router.push('/everyone/courses/alpha/first');
+      await tester.pumpAndSettle();
+
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/everyone/sheets');
+    });
+  });
+
+  testWidgets('Android back pops a pushed page, goes Home from another tab, and leaves the app only from Home', (
+    tester,
+  ) async {
     final router = await _pumpAt(tester, '/sheets', TrackCubit());
     final calls = _watchPlatformCalls(tester);
     await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
@@ -279,6 +317,10 @@ void main() {
 
     await _back(tester);
     expect(_path(router), '/sheets');
+    expect(calls, isNot(contains('SystemNavigator.pop')));
+
+    await _back(tester);
+    expect(_path(router), BazaarPaths.home);
     expect(calls, isNot(contains('SystemNavigator.pop')));
 
     await _back(tester);
@@ -309,15 +351,15 @@ void main() {
     // Lower than Material's bar, with each name small under its icon.
     expect(tester.getSize(find.byType(NavigationBar)).height, BazaarShell.navHeight);
 
-    // The Caravan holds the middle ahead of its page, and goes nowhere yet.
-    final caravan = _destination('Caravan, coming soon');
+    // The Caravan holds the middle and opens its page, under maintenance (plan 3.1).
+    final caravan = find.descendant(of: find.byType(NavigationBar), matching: find.text('Caravan'));
     expect(caravan, findsOneWidget);
     final centre = tester.getCenter(caravan).dx;
     expect(centre, closeTo(tester.getCenter(find.byType(NavigationBar)).dx, 1));
-    await tester.tap(caravan, warnIfMissed: false);
+    await tester.tap(caravan);
     await tester.pumpAndSettle();
-    expect(_path(router), '/sheets/alpha');
-    expect(selected(), 1);
+    expect(_path(router), '/caravan');
+    expect(selected(), 2);
 
     await tester.tap(_destination('Quiz'));
     await tester.pumpAndSettle();
@@ -368,7 +410,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/sheets', reason: 'the open tab goes back to its first page');
     expect(find.byType(BackButton), findsNothing);
-    // A module opened from Home is under Catalog too, with Home under it.
+    // A module opened from Home is under Catalog too, with Home under it; its back goes to the catalog (the owner,
+    // 2026-11-11).
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Open the module'));
@@ -379,7 +422,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
-    expect(_path(router), '/');
+    expect(_path(router), '/sheets');
   });
 
   testWidgets('text scale 2.0', (tester) async {

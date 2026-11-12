@@ -31,6 +31,17 @@ final class LanguageCubit extends Cubit<String> {
   Future<void> choose(String language) async {
     if (!supported.contains(language)) throw ArgumentError.value(language, 'language', 'not supported');
     if (language != state) emit(language);
-    await _store.choose(language);
+    // One choice is written at a time, in the order made: the store clears the other choices before it keeps this one,
+    // so two quick choices written at once could leave both kept, and the next start take the wrong one.
+    final previous = _saving;
+    final saving = _saving = () async {
+      // A write that failed was logged by the store; the next one still runs.
+      await previous.catchError((Object _) {});
+      await _store.choose(language);
+    }();
+    await saving;
   }
+
+  /// The write of the last choice, which the next one waits for.
+  Future<void> _saving = Future<void>.value();
 }
