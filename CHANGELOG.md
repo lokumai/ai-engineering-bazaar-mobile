@@ -12,7 +12,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
 - A replay button over an animated recording in a module, beside the full-screen mark, and full screen in its top corner, which plays it again from its start (web D136).
 - The LokumAI mark heads the Modules subsection of a module's References in place of its compass, as on the site (web D135).
-- A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, Turkish and Persian written as the web's search finds them. The hits are grouped by module, and each opens its module at its section with the words marked, and a bar under the module's bar steps from one mark to the next.
+- A search field at the head of the catalog: the words typed find module titles, section headings and prose in the reader's language, and levels by their name and blurb, Turkish and Persian written as the web's search finds them, a Persian prefix or suffix typed apart included. The hits are grouped by module, and each opens its module at its section with the words marked, code in a line and the parts of a joined Persian word included, and a bar under the module's bar steps from one mark to the next, scrolling to the mark itself. Closing the bar leaves the page where it is. The search stays while another tab is open.
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
@@ -30,7 +30,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
   reading bar.
 - The module quiz, opened full screen from a card in the reader, and the Quiz tab, which lists every module's quiz in a card per level that opens and closes, as the catalog does, and opens a quiz without the reader.
-- The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. The app has no progress page of its own: the catalog shows the progress.
+- The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. An undo keeps what was completed, ticked or scored in its 10 seconds, and undoes all of the reset or none of it. A backup larger than the app keeps is refused with a note, rather than restored until the next start. The app has no progress page of its own: the catalog shows the progress.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
 - Quiz scores kept on the device apart from the record: a dial of the quizzes taken per level and a meter of the last score per quiz on the Quiz tab and Home, the one before on the results, practice on Home led by the quizzes not taken or with the lowest score. Reset erases them with the record.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
@@ -41,6 +41,12 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Device tests under `integration_test/` and a workflow that runs them on demand.
 
 ### Changed
+
+- Android's back on the first page of Catalog, the Caravan, Quiz or Settings goes Home; it leaves the app from Home.
+- Persian pages put a table's cells, the edge of a notice and the Planned band on their right, as the site does.
+- A cache that cannot be cleaned up, or an object in it that cannot be read, no longer stops the course from opening: the bundled snapshot opens, and the object reads as missing.
+- A quiz score from before a content update changed the quiz's length is dropped when the quiz is opened.
+- Choices of language and track made in quick succession are kept in the order made.
 
 - A For Everyone reader takes the quiz of each module written For Everyone, under its title there, on the Quiz tab, in Home's practice and at the module's end: a module has one quiz on both tracks (web D137). The note that the questions come with the For Engineers modules is gone.
 - The back arrow on a module goes to the catalog of its track, found as it was left with its search, and no longer to the page before: a module opened from Home and found again from the Catalog tab went back to Home. A link to a section, or a search hit, keeps its heading at the top while pictures above it load.
