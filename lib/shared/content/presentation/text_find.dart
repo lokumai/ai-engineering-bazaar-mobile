@@ -8,7 +8,9 @@ import 'package:flutter/widgets.dart';
 /// [TextFindScope] marks the words that answer [terms] by the search's own rules, and the reader steps from one to the
 /// next, as a browser's find in page does. The marks are counted in the order they are drawn down the page.
 final class TextFinder extends ChangeNotifier {
-  TextFinder({required String query, required this.lang}) : terms = searchTerms(query, lang), query = query.trim();
+  TextFinder({required String query, required this.lang})
+    : terms = {...searchTerms(query, lang), ...searchTerms(joinedVariant(query, lang) ?? '', lang)}.toList(),
+      query = query.trim();
 
   /// The words as typed.
   final String query;
@@ -125,19 +127,43 @@ final class TextFinder extends ChangeNotifier {
     _current = marks[next];
     onStep?.call();
     notifyListeners();
-    final target = marks[next].$1;
-    unawaited(Scrollable.ensureVisible(target.context, alignment: 0.3, duration: const Duration(milliseconds: 200)));
+    unawaited(_show(marks[next]));
+  }
+
+  /// Scrolls the text holding [mark] into view, then, in a paragraph longer than the page, the mark itself.
+  Future<void> _show((TextFindTarget, int) mark) async {
+    final (target, index) = mark;
+    final context = target.context;
+    const duration = Duration(milliseconds: 200);
+    final page = Scrollable.maybeOf(context, axis: Axis.vertical);
+    await Scrollable.ensureVisible(context, alignment: 0.3, duration: duration);
+    if (_disposed || page == null || !page.mounted) return;
+    final rect = target.markRect(index);
+    final view = page.context.findRenderObject();
+    if (rect == null || view is! RenderBox || !view.attached) return;
+    final top = view.localToGlobal(Offset.zero).dy;
+    final height = view.size.height;
+    if (rect.top >= top && rect.bottom <= top + height) return;
+    final position = page.position;
+    final to = (position.pixels + rect.top - (top + 0.3 * height)).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+    await position.animateTo(to, duration: duration, curve: Curves.ease);
   }
 }
 
 /// A piece of text that may hold marks: an [InlineText]'s state.
 abstract interface class TextFindTarget {
   BuildContext get context;
+
+  /// Where the mark [index] of this text is drawn, in global coordinates; null when it is not laid out.
+  Rect? markRect(int index);
 }
 
-/// Gives the [TextFinder] to the text under it; the text marks nothing without one.
+/// Gives the [TextFinder] to the text under it; the text marks nothing without one, or under a scope with none.
 class TextFindScope extends InheritedNotifier<TextFinder> {
-  const TextFindScope({super.key, required TextFinder finder, required super.child}) : super(notifier: finder);
+  const TextFindScope({super.key, required TextFinder? finder, required super.child}) : super(notifier: finder);
 
   /// The finder above [context], if any, and the text rebuilt as it changes.
   static TextFinder? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TextFindScope>()?.notifier;

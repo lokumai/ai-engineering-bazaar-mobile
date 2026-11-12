@@ -87,6 +87,8 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
         _log.warn('module document {} left out of search: {}', [path, error]);
       }
     }
+    // The levels after the modules: the web's search finds a level by its name and its blurb.
+    entries.addAll(_bundle.levels.map(levelEntryOf));
     return CatalogSearchIndex(entries, lang: _language);
   }
 }

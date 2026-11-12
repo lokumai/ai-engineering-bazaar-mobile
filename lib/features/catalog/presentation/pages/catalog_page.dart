@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
@@ -48,12 +51,19 @@ class CatalogPage extends StatelessWidget {
     return BlocProvider(
       // A new search for another track or language: its index holds one of each.
       key: ValueKey((track, language)),
-      create: (context) => CatalogSearchCubit(
-        repository: context.read<IContentRepository>(),
-        bundle: index,
-        track: track,
-        language: language,
-      ),
+      // The words kept from the last time the catalog was shown are searched again, so a tab left and come back to
+      // finds its search, and a new track or language searches them in its own text.
+      create: (context) {
+        final cubit = CatalogSearchCubit(
+          repository: context.read<IContentRepository>(),
+          bundle: index,
+          track: track,
+          language: language,
+        );
+        final kept = context.read<CatalogQueryCubit>().state;
+        if (kept.trim().isNotEmpty) unawaited(cubit.search(kept));
+        return cubit;
+      },
       child: BlocSelector<CatalogSearchCubit, CatalogSearchState, bool>(
         selector: (state) => state.active,
         builder: (context, searching) => ListView(

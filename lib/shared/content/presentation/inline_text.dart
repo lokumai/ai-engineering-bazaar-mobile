@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 /// What a tap on a link does with its target.
 typedef LinkHandler = void Function(LinkTarget target);
@@ -71,6 +72,7 @@ class _InlineTextState extends State<InlineText> implements TextFindTarget {
       _finder = finder;
     }
     final marker = finder == null || finder.terms.isEmpty ? null : _Marker(finder, this);
+    _marker = marker;
     final spans = _SpanBuilder(
       colors: context.bazaarColors,
       fontSize: widget.style.fontSize!,
@@ -80,10 +82,48 @@ class _InlineTextState extends State<InlineText> implements TextFindTarget {
       marker: marker,
     ).build(widget.inlines, null);
     finder?.report(this, marker?.count ?? 0);
-    return Text.rich(
-      TextSpan(style: widget.style, children: spans),
-      textAlign: widget.textAlign,
+    final root = _root = TextSpan(style: widget.style, children: spans);
+    return Text.rich(root, textAlign: widget.textAlign);
+  }
+
+  /// The marker and the text of the last build, to find where a mark is drawn.
+  _Marker? _marker;
+  TextSpan? _root;
+
+  @override
+  Rect? markRect(int index) {
+    final mark = _marker?.marks.elementAtOrNull(index);
+    final root = _root;
+    final paragraph = _paragraphOf(context.findRenderObject());
+    if (mark == null || root == null || paragraph == null || !paragraph.attached || !paragraph.hasSize) return null;
+    // The mark's place in the text as laid out: a widget span, a logo, stands for one character.
+    var offset = 0;
+    int? start;
+    root.visitChildren((span) {
+      if (identical(span, mark)) {
+        start = offset;
+        return false;
+      }
+      if (span is TextSpan) offset += span.text?.length ?? 0;
+      if (span is PlaceholderSpan) offset += 1;
+      return true;
+    });
+    final from = start;
+    if (from == null) return null;
+    final boxes = paragraph.getBoxesForSelection(
+      TextSelection(baseOffset: from, extentOffset: from + mark.text!.length),
     );
+    if (boxes.isEmpty) return null;
+    final rect = boxes.map((box) => box.toRect()).reduce((a, b) => a.expandToInclude(b));
+    return rect.shift(paragraph.localToGlobal(Offset.zero));
+  }
+
+  /// The paragraph [object] is or holds.
+  static RenderParagraph? _paragraphOf(RenderObject? object) {
+    if (object == null || object is RenderParagraph) return object as RenderParagraph?;
+    RenderParagraph? found;
+    object.visitChildren((child) => found ??= _paragraphOf(child));
+    return found;
   }
 }
 
@@ -97,16 +137,24 @@ class _Marker {
   /// The marks made so far.
   int count = 0;
 
+  /// The spans of the marks made so far, in order, to find where each is drawn.
+  final marks = <TextSpan>[];
+
   /// The spans of [text], its matching words marked.
   List<TextSpan> spans(String text, TapGestureRecognizer? recognizer) {
     final spans = <TextSpan>[];
     var at = 0;
-    for (final word in wordPattern.allMatches(text)) {
-      if (!matchesTerms(word[0]!, finder.terms, finder.lang)) continue;
-      if (word.start > at) spans.add(TextSpan(text: text.substring(at, word.start), recognizer: recognizer));
+    for (final (start, end) in markRanges(text, finder.terms, finder.lang)) {
+      if (start > at) spans.add(TextSpan(text: text.substring(at, start), recognizer: recognizer));
       final current = finder.isCurrent(target, count++);
-      spans.add(TextSpan(text: word[0], recognizer: recognizer, style: current ? _currentStyle : _markStyle));
-      at = word.end;
+      final mark = TextSpan(
+        text: text.substring(start, end),
+        recognizer: recognizer,
+        style: current ? _currentStyle : _markStyle,
+      );
+      marks.add(mark);
+      spans.add(mark);
+      at = end;
     }
     if (spans.isEmpty) return [TextSpan(text: text, recognizer: recognizer)];
     if (at < text.length) spans.add(TextSpan(text: text.substring(at), recognizer: recognizer));
@@ -149,10 +197,12 @@ class _SpanBuilder {
 
   List<InlineSpan> _spansOf(Inline inline, TapGestureRecognizer? recognizer) => switch (inline) {
     TextInline(:final text) => marker?.spans(text, recognizer) ?? [TextSpan(text: text, recognizer: recognizer)],
+    // Code in a line is searched, so its words are marked too.
     CodeInline(:final text) => [
       TextSpan(
-        text: text,
-        recognizer: recognizer,
+        text: marker == null ? text : null,
+        children: marker?.spans(text, recognizer),
+        recognizer: marker == null ? recognizer : null,
         style: TextStyle(
           fontFamily: monoFamily(defaultTargetPlatform),
           fontSize: BazaarType.meta.size,
@@ -186,7 +236,7 @@ class _SpanBuilder {
         alignment: PlaceholderAlignment.baseline,
         baseline: TextBaseline.alphabetic,
         child: Padding(
-          padding: EdgeInsets.only(right: 0.3 * fontSize),
+          padding: EdgeInsetsDirectional.only(end: 0.3 * fontSize),
           child: Transform.translate(
             offset: Offset(0, 0.18 * fontSize),
             child: LogoView(src: src, mono: mono, fontSize: fontSize),

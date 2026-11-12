@@ -1,16 +1,18 @@
 import 'dart:math' as math;
 
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/search_text.dart';
 import 'package:equatable/equatable.dart';
 
 /// The catalog's search (plan 7.1), after the web's search window (web M59, D95, D99; `src/lib/search/`): one entry per
-/// module (its title and its opening) and one per `##` section of a written module (its heading and its prose), in the
-/// reader's language, found by words typed as the web finds them. The web's index is served outside the bundle, so the
+/// module (its title and its opening), one per `##` section of a written module (its heading and its prose), and one
+/// per level (its title and its blurb, in English as the web shows a level's name on every page), in the reader's
+/// language, found by words typed as the web finds them. The web's index is served outside the bundle, so the
 /// app builds its own from the module documents it already has; the rules below are the web's.
 
 /// What a search entry is.
-enum SearchKind { module, section }
+enum SearchKind { module, section, level }
 
 /// One thing the search can find.
 final class SearchEntry extends Equatable {
@@ -27,11 +29,12 @@ final class SearchEntry extends Equatable {
 
   final SearchKind kind;
 
-  /// The module key, `<level>/<module>`.
+  /// The module key, `<level>/<module>`; a level's slug on a level entry.
   final String moduleKey;
   final int number;
 
-  /// The module's title in the document's language; matched as a name on a module entry only.
+  /// The module's title in the document's language, or a level's title; matched as a name on a module or a level
+  /// entry only.
   final String module;
 
   /// A section's heading; empty on a module entry.
@@ -91,6 +94,18 @@ List<SearchEntry> entriesOf(ModuleDoc doc, {required int number}) {
       ),
   ];
 }
+
+/// The entry of a level (web `searchDocs`): its title, matched as a name, and its blurb.
+SearchEntry levelEntryOf(LevelEntry level) => SearchEntry(
+  kind: SearchKind.level,
+  moduleKey: level.slug,
+  number: 0,
+  module: level.title,
+  section: '',
+  sectionId: null,
+  text: level.blurb,
+  ready: true,
+);
 
 /// The words of [blocks] a reader meets, one space between blocks and between list items (web `plain`).
 String plainOf(List<Block> blocks) => _squash(blocks.map(_blockText).join(' '));
@@ -175,7 +190,7 @@ final class CatalogSearchIndex {
   CatalogSearchIndex(this.entries, {required this.lang}) {
     for (var i = 0; i < entries.length; i++) {
       final entry = entries[i];
-      _add(i, _Field.title, entry.kind == SearchKind.module ? entry.module : '');
+      _add(i, _Field.title, entry.kind == SearchKind.section ? '' : entry.module);
       _add(i, _Field.section, entry.section);
       _add(i, _Field.text, entry.text);
     }
@@ -205,10 +220,30 @@ final class CatalogSearchIndex {
   /// The terms of [query] as the index holds them.
   List<String> termsOf(String query) => searchTerms(query, lang);
 
-  /// The hits for [query], best first, at most [limit], and how many there are in all.
+  /// The hits for [query], best first, at most [limit], and how many there are in all. A Persian query with a prefix or
+  /// a suffix typed apart from its word is searched joined as well (web `joinedVariant`), each entry at its better score.
   SearchResults search(String query) {
     final terms = termsOf(query);
     if (terms.isEmpty) return SearchResults.none;
+    final variant = joinedVariant(query, lang);
+    final variantTerms = variant == null ? const <String>[] : termsOf(variant);
+    final total = {...?_scores(terms)};
+    _scores(variantTerms)?.forEach((i, score) {
+      if (score > (total[i] ?? 0)) total[i] = score;
+    });
+    if (total.isEmpty) return SearchResults.none;
+    final marked = {...terms, ...variantTerms}.toList();
+    final ranked = [for (final MapEntry(key: i, :value) in total.entries) (i, value * _rank(entries[i]))]
+      ..sort((a, b) => b.$2.compareTo(a.$2) != 0 ? b.$2.compareTo(a.$2) : a.$1.compareTo(b.$1));
+    return SearchResults(
+      hits: [for (final (i, score) in ranked.take(limit)) _hit(entries[i], score, marked)],
+      total: ranked.length,
+    );
+  }
+
+  /// The score of each entry that every one of [terms] matches; null when none does or there are no terms.
+  Map<int, double>? _scores(List<String> terms) {
+    if (terms.isEmpty) return null;
     Map<int, double>? total;
     for (final term in terms) {
       final scores = <int, double>{};
@@ -227,14 +262,9 @@ final class CatalogSearchIndex {
               for (final MapEntry(:key, :value) in total.entries)
                 if (scores[key] case final score?) key: value + score,
             };
-      if (total.isEmpty) return SearchResults.none;
+      if (total.isEmpty) return null;
     }
-    final ranked = [for (final MapEntry(key: i, :value) in total!.entries) (i, value * _rank(entries[i]))]
-      ..sort((a, b) => b.$2.compareTo(a.$2) != 0 ? b.$2.compareTo(a.$2) : a.$1.compareTo(b.$1));
-    return SearchResults(
-      hits: [for (final (i, score) in ranked.take(limit)) _hit(entries[i], score, terms)],
-      total: ranked.length,
-    );
+    return total;
   }
 
   static double _rank(SearchEntry entry) {

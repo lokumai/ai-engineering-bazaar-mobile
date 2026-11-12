@@ -104,6 +104,32 @@ void main() {
     expect(find.text('6 results'), findsOneWidget);
   });
 
+  testWidgets('another tab and back finds the search as it was left', (tester) async {
+    final router = await _pump(tester);
+    await _type(tester, 'passages');
+
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/');
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Catalog')));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/sheets');
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'passages');
+    expect(find.text('6 results'), findsOneWidget);
+  });
+
+  testWidgets('a level is found by its name, with its module count, and opens its page', (tester) async {
+    final router = await _pump(tester);
+    await _type(tester, 'gamma');
+
+    expect(find.text('Gamma Level'), findsOneWidget);
+    expect(find.text('1 module'), findsOneWidget);
+    await tester.tap(find.text('Gamma Level'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/sheets/gamma');
+  });
+
   testWidgets('words that match nothing say so, and the clear button brings the levels back', (tester) async {
     await _pump(tester);
 

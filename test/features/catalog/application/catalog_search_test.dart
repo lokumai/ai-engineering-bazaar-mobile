@@ -2,6 +2,7 @@
 library;
 
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -180,6 +181,32 @@ void main() {
       final results = index.search('agents');
       expect(results.hits, hasLength(CatalogSearchIndex.limit));
       expect(results.total, CatalogSearchIndex.limit + 5);
+    });
+
+    test('a level is found by its name, as a name, and by its blurb (web searchDocs)', () {
+      const level = LevelEntry(
+        slug: 'fundamentals',
+        title: 'Fundamentals',
+        status: LevelStatus.ready,
+        blurb: 'Where every reader starts.',
+        total: 8,
+        readme: null,
+      );
+      final entry = levelEntryOf(level);
+      final index = CatalogSearchIndex([_entry('the fundamentals of tokens'), entry], lang: 'en');
+
+      expect(entry.kind, SearchKind.level);
+      expect(entry.moduleKey, 'fundamentals');
+      expect(index.search('fundamentals').hits.first.entry, entry, reason: 'a name weighs more than prose');
+      expect(index.search('reader starts').hits.single.entry, entry);
+    });
+
+    test('a Persian prefix or suffix typed apart also finds the word written joined (web joinedVariant)', () {
+      final index = CatalogSearchIndex([_entry('مدلها را میخواهم')], lang: 'fa');
+
+      expect(index.search('می خواهم').hits, hasLength(1));
+      expect(index.search('مدل ها').hits, hasLength(1));
+      expect(index.search('می خواهم').hits.single.marks, isNotEmpty);
     });
 
     test('an empty or one-letter query finds nothing', () {

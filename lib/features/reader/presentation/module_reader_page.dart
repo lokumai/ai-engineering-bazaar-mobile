@@ -210,11 +210,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   GlobalKey _headingKey(String id) => _headingKeys.putIfAbsent(id, GlobalKey.new);
 
-  /// Scrolls the heading [id] to the top, at once under reduced motion (spec 3.10).
+  /// Scrolls the heading [id] to the top, at once under reduced motion (spec 3.10). An id this module does not draw, as
+  /// a fragment named in another language or for a module opened in English, leaves the page where it is. A move the
+  /// reader chose lets go of the heading the page opened at.
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
-    if (target == null) throw StateError('No heading of this module has the id $id');
+    if (target == null) return;
     _moved = true;
+    _held = null;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
   }
 
@@ -451,8 +454,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
   }
 
-  static Widget _findScope(TextFinder? finder, Widget child) =>
-      finder == null ? child : TextFindScope(finder: finder, child: child);
+  /// The scope stands whether or not anything is searched, so closing the find bar keeps the page's scroll view, and
+  /// with it the place the reader is at, rather than building a new one at the top.
+  static Widget _findScope(TextFinder? finder, Widget child) => TextFindScope(finder: finder, child: child);
 
   /// The module's checklist, live (web `ChecklistIsland`, D129): its boxes show the reader's ticks and change them in
   /// the record, under the module's key in the document's track.

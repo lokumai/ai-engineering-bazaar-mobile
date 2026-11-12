@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -71,6 +72,8 @@ class AppScope extends StatelessWidget {
           ),
           // Which levels the catalog and the Quiz tab show open: in memory, so a new launch starts afresh.
           BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
+          // The words in the catalog's search, kept the same way.
+          BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           BlocProvider<LanguageCubit>(
             lazy: false,

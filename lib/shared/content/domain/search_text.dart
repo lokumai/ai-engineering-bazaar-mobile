@@ -53,8 +53,38 @@ List<String> searchTerms(String query, String lang) => [
     if (normalise(word, lang) case final term when term.length >= 2) term,
 ];
 
+/// A Persian prefix or suffix a reader may type apart from its word with a space (web `normalise.ts`).
+final _spacedPrefix = RegExp('(^|\\s)(ن?می)\\s+(?=[\u0600-\u06ff])');
+final _spacedSuffix = RegExp('(?<=[\u0600-\u06ff])\\s+(ها|های|هایی|تر|ترین)(?=\\s|\$)');
+
+/// The query again with a spaced Persian prefix or suffix joined to its word ("می خواهم" as "میخواهم"), or null when
+/// there is none (web `joinedVariant`): searched as well, so a reader's space finds a text that wrote the word joined.
+String? joinedVariant(String query, String lang) {
+  if (lang != 'fa') return null;
+  final joined = query
+      .replaceAllMapped(_spacedPrefix, (m) => '${m[1]}${m[2]}')
+      .replaceAllMapped(_spacedSuffix, (m) => m[1]!);
+  return joined == query ? null : joined;
+}
+
 /// The words of a text as drawn, with where each stands: letters and digits between space and punctuation.
 final wordPattern = RegExp(r'[^\s\p{P}]+', unicode: true);
+
+/// The pieces of a drawn word the search also finds alone, as [tokenize] splits it: the parts a non-joiner joins and
+/// the Latin and Persian runs where the scripts meet.
+final _piece = RegExp('[A-Za-z0-9]+|[\u0600-\u06ff]+|[^A-Za-z0-9\u0600-\u06ff\u200c]+');
+
+/// Where in [text] the words that answer [terms] in [lang] stand, as start and end: a whole word when it answers, else
+/// each of its pieces that does, so "ها" is marked in "ماژول\u200cها" as the catalog found it there.
+List<(int, int)> markRanges(String text, List<String> terms, String lang) => [
+  for (final word in wordPattern.allMatches(text))
+    if (matchesTerms(word[0]!, terms, lang))
+      (word.start, word.end)
+    else
+      for (final piece in _piece.allMatches(word[0]!))
+        if (piece.end - piece.start < word.end - word.start && matchesTerms(piece[0]!, terms, lang))
+          (word.start + piece.start, word.start + piece.end),
+];
 
 /// Whether the word [word] as written answers one of [terms] in [lang].
 bool matchesTerms(String word, List<String> terms, String lang) {

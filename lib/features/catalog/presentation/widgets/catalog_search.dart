@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -29,7 +30,8 @@ class CatalogSearchField extends StatefulWidget {
 }
 
 class _CatalogSearchFieldState extends State<CatalogSearchField> {
-  final _controller = TextEditingController();
+  // The words kept from the last time the catalog was shown.
+  late final _controller = TextEditingController(text: context.read<CatalogQueryCubit>().state);
   Timer? _timer;
 
   @override
@@ -41,6 +43,7 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
 
   void _changed(String text) {
     setState(() {});
+    context.read<CatalogQueryCubit>().keep(text);
     _timer?.cancel();
     final cubit = context.read<CatalogSearchCubit>();
     if (text.trim().isEmpty) {
@@ -54,6 +57,7 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
     _timer?.cancel();
     _controller.clear();
     setState(() {});
+    context.read<CatalogQueryCubit>().keep('');
     context.read<CatalogSearchCubit>().clear();
   }
 
@@ -153,10 +157,15 @@ class _ModuleHits extends StatelessWidget {
   final Track track;
   final String query;
 
-  void _open(BuildContext context, String? fragment) => context.push(
-    BazaarPaths.module(track, hits.first.entry.moduleKey),
-    extra: ReaderTarget(fragment: fragment, query: query),
-  );
+  bool get _level => hits.first.entry.kind == SearchKind.level;
+
+  /// Opens the module at [fragment] with the words searched marked, or the level's page for a level.
+  void _open(BuildContext context, String? fragment) => _level
+      ? context.push(BazaarPaths.level(track, hits.first.entry.moduleKey))
+      : context.push(
+          BazaarPaths.module(track, hits.first.entry.moduleKey),
+          extra: ReaderTarget(fragment: fragment, query: query),
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +174,7 @@ class _ModuleHits extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final first = hits.first.entry;
     final index = (context.read<ContentBloc>().state as ContentReady).index;
+    final level = _level ? index.level(first.moduleKey) : null;
     final hue = levelHue(context, levelPosition(index, first.moduleKey.split('/').first));
     final mark = TextStyle(fontWeight: FontWeight.w700, color: colors.onSurface);
     return Material(
@@ -191,15 +201,21 @@ class _ModuleHits extends StatelessWidget {
                   Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(
-                          text: '${moduleNumber(first.number)}  ',
-                          style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-                        ),
+                        if (!_level)
+                          TextSpan(
+                            text: '${moduleNumber(first.number)}  ',
+                            style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
+                          ),
                         TextSpan(text: first.module),
                       ],
                     ),
                     style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
                   ),
+                  if (level != null)
+                    Text(
+                      s.level_module_count(level.total),
+                      style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
+                    ),
                   if (!first.ready)
                     Text(s.module_planned, style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
                 ],

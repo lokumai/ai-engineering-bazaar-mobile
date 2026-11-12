@@ -5,6 +5,8 @@ import 'package:ai_engineering_bazaar/features/reader/application/module_reader_
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -620,6 +622,72 @@ void main() {
       expect(marked, isFalse);
     });
 
+    testWidgets('close keeps the page where the reader is, rather than going back to its top', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      await tester.pumpAndSettle();
+      final before = top(tester, find.text('Section one', findRichText: true));
+
+      await tester.tap(find.byTooltip('Stop marking the search'));
+      await tester.pumpAndSettle();
+
+      // The section stays about where it was, give or take the bar's height; the page does not go back to its start.
+      expect(top(tester, find.text('Section one', findRichText: true)), closeTo(before, 120));
+      expect(
+        top(tester, find.text('Agents call tools.', findRichText: true)),
+        lessThan(0),
+        reason: 'the start is off screen',
+      );
+    });
+
+    testWidgets('a step to a mark deep in a paragraph longer than the page brings the mark itself into view', (
+      tester,
+    ) async {
+      final long = 'Filler words here. ' * 120;
+      stateIs(
+        ReaderWritten(
+          doc: testDoc(body: [..._filler, _paragraph('${long}The agent ends it.')]),
+          entry: first,
+          moduleCount: 2,
+        ),
+      );
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Next match'));
+      await tester.pumpAndSettle();
+      final paragraph = find.text('${long}The agent ends it.', findRichText: true);
+      final state = tester.state(find.ancestor(of: paragraph, matching: find.byType(InlineText)).first);
+      final rect = (state as TextFindTarget).markRect(0)!;
+      expect(rect.top, greaterThanOrEqualTo(0));
+      expect(rect.bottom, lessThanOrEqualTo(844));
+    });
+
+    testWidgets('words in code within a line are marked too', (tester) async {
+      stateIs(
+        ReaderWritten(
+          doc: testDoc(
+            body: [
+              const ParagraphBlock(
+                inlines: [
+                  TextInline(text: 'Call '),
+                  CodeInline(text: 'agent.run()'),
+                  TextInline(text: ' once.'),
+                ],
+                lead: false,
+              ),
+            ],
+          ),
+          entry: first,
+          moduleCount: 2,
+        ),
+      );
+      await pumpReader(tester, query: 'agent');
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 / 1'), findsOneWidget);
+    });
+
     testWidgets('no words, no bar', (tester) async {
       stateIs(searched);
       await pumpReader(tester);
@@ -730,6 +798,21 @@ void main() {
     await tester.pump();
 
     expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
+  });
+
+  testWidgets('a fragment this module does not draw leaves the page at its top, without an error', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(toc: _toc, body: [..._filler, _sectionOne]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, fragment: 'not-a-heading-here');
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Filler paragraph number 0 of the module body.', findRichText: true), findsOneWidget);
   });
 
   testWidgets('the pager marks a planned target and pushes it', (tester) async {
