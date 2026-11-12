@@ -80,6 +80,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- An unexpected error at launch no longer leaves the app on its loading page: the course says it cannot be opened, or the progress opens read-only and is never written over.
 - Capitals follow the language: Turkish "Sıradaki" is "SIRADAKİ", not "SIRADAKI".
 - The two GitHub links on Privacy and legal are in Turkish and Persian; Turkish reads "%40 okundu" and "Güncellemeleri kontrol et" everywhere.
 - In Persian a quiz verdict's coloured edge is on the right, where its line starts.

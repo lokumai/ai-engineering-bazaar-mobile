@@ -40,6 +40,7 @@ RecordReady ready({
 /// A record store in memory that logs every call, with a gate on the write and injectable errors.
 final class _MemoryRecordRepository implements IRecordRepository {
   RecordLoad loadResult = const RecordLoadEmpty(quarantineKept: false);
+  Object? loadError;
   Completer<void>? loadGate;
   Uint8List? record;
   Uint8List? quarantine;
@@ -55,6 +56,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
   Future<RecordLoad> load() async {
     calls.add('load');
     await loadGate?.future;
+    if (loadError case final error?) throw error;
     return loadResult;
   }
 
@@ -150,6 +152,19 @@ void main() {
         ..loadResult = const RecordLoadQuarantined(reason: QuarantineReason.newer, quarantineKept: true);
       final bloc = await _started(repository);
       expect(bloc.state, ready(record: RecordData.empty, quarantine: QuarantineReason.newer, quarantineKept: true));
+      await bloc.close();
+    });
+  });
+
+  test('a launch read that throws is a failed one: the app opens and writes nothing over the record', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()..loadError = StateError('no support directory');
+      final bloc = await _started(repository);
+      expect(bloc.state, ready(writeState: const WriteBlocked(), launchReadFailed: true));
+
+      bloc.add(_toggle);
+      await pumpEventQueue();
+      expect(repository.writes, isEmpty);
       await bloc.close();
     });
   });

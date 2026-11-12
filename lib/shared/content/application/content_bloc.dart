@@ -44,6 +44,12 @@ interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
       _log.error('content store unusable: {}', [error]);
       emit(const ContentBroken(code: ContentErrorCode.storage));
       return;
+    } on Object catch (error, stack) {
+      // Anything else, such as the platform refusing the cache directory, ends on the notice too and not on the
+      // loading page for ever.
+      _log.error('content could not be opened: {}\n{}', [error, stack]);
+      emit(const ContentBroken(code: ContentErrorCode.storage));
+      return;
     }
     emit(
       ContentReady(index: opening.index, origin: opening.origin, notice: opening.notice, refresh: const RefreshIdle()),

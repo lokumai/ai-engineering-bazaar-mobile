@@ -175,7 +175,15 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   Future<void> _onStarted(Emitter<RecordState> emit) async {
-    final load = await _repository.load();
+    RecordLoad load;
+    try {
+      load = await _repository.load();
+    } on Object catch (error, stack) {
+      // An error the store does not answer for, such as the platform refusing the support directory, is a failed
+      // launch read: the app opens, and nothing is written over a record that may still be there.
+      _log.error('record launch read threw: {}\n{}', [error, stack]);
+      load = const RecordLoadFailed(quarantineKept: false);
+    }
     emit(
       RecordReady(
         record: switch (load) {
