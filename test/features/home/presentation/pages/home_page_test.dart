@@ -10,7 +10,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Size, Text;
+import 'package:flutter/widgets.dart' show Locale, Size, Text;
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -39,6 +39,7 @@ Future<GoRouter> _pumpHome(
   QuizScoresBloc? scores,
   ReadingPlacesBloc? places,
   TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
 }) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
@@ -51,6 +52,7 @@ Future<GoRouter> _pumpHome(
       scores: scores,
       places: places,
       platform: platform,
+      locale: locale,
     ),
   );
   await tester.pumpAndSettle();
@@ -67,6 +69,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets('the label over the card is in Turkish capitals: SIRADAKİ, not SIRADAKI', (tester) async {
+    await _pumpHome(tester, locale: const Locale('tr'));
+
+    expect(find.text('SIRADAKİ'), findsOneWidget);
+    expect(find.text('SIRADAKI'), findsNothing);
+  });
+
   testWidgets('Home is the first page: the track, the next module, the ones after it and the offline note', (
     tester,
   ) async {

@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
 import 'package:flutter/material.dart';
 
 /// Shows the module's sections in a bottom sheet (the redesign's contents sheet, plan Phase 1E; web
@@ -45,7 +46,7 @@ class ContentsSheet extends StatelessWidget {
                   label: s.reader_on_this_page,
                   excludeSemantics: true,
                   child: Text(
-                    s.reader_on_this_page.toUpperCase(),
+                    upperCaseIn(s.reader_on_this_page, Localizations.localeOf(context).languageCode),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted),
                   ),
                 ),

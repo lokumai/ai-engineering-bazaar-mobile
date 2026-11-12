@@ -25,13 +25,17 @@ const items = [
 
 /// The panel over [quiz] of the module `alpha/first` in a scrolling page of the Bazaar theme for [platform], over
 /// [scores] or fresh ones in memory.
-Widget panelApp(List<QuizItem> quiz, {TargetPlatform platform = TargetPlatform.android, QuizScoresBloc? scores}) =>
-    BlocProvider<QuizScoresBloc>.value(
-      value: scores ?? (QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted())),
-      child: _panelApp(quiz, platform),
-    );
+Widget panelApp(
+  List<QuizItem> quiz, {
+  TargetPlatform platform = TargetPlatform.android,
+  QuizScoresBloc? scores,
+  Locale locale = const Locale('en'),
+}) => BlocProvider<QuizScoresBloc>.value(
+  value: scores ?? (QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted())),
+  child: _panelApp(quiz, platform, locale),
+);
 
-Widget _panelApp(List<QuizItem> quiz, TargetPlatform platform) => MaterialApp(
+Widget _panelApp(List<QuizItem> quiz, TargetPlatform platform, Locale locale) => MaterialApp(
   debugShowCheckedModeBanner: false,
   theme: bazaarTheme(brightness: Brightness.light, platform: platform),
   localizationsDelegates: const [
@@ -41,7 +45,7 @@ Widget _panelApp(List<QuizItem> quiz, TargetPlatform platform) => MaterialApp(
     GlobalCupertinoLocalizations.delegate,
   ],
   supportedLocales: S.delegate.supportedLocales,
-  locale: const Locale('en'),
+  locale: locale,
   home: Scaffold(
     body: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -55,12 +59,13 @@ Future<void> pumpPanel(
   WidgetTester tester,
   List<QuizItem> quiz, {
   TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(panelApp(quiz, platform: platform));
+  await tester.pumpWidget(panelApp(quiz, platform: platform, locale: locale));
 }
 
 /// Opens the quiz from its card, full screen.
@@ -216,6 +221,19 @@ void main() {
     )) {
       expect(ink.onTap, isNull);
     }
+  });
+
+  testWidgets("in Persian the verdict's edge is on the right, where its line starts", (tester) async {
+    await pumpPanel(tester, items, locale: const Locale('fa'));
+    await toggle(tester);
+    await tapText(tester, 'One');
+
+    final icon = find.byWidgetPredicate((widget) => widget is Icon && widget.icon == Icons.check && widget.size == 20);
+    final verdict = find.ancestor(of: icon, matching: find.byType(Container)).first;
+    final box = tester.widget<Container>(verdict).decoration! as BoxDecoration;
+    expect(box.border, isA<BorderDirectional>().having((border) => border.start.width, 'start width', 3));
+    // The edge and the wider side of the padding are on the right: the icon starts 3 + 14 from it.
+    expect(tester.getRect(verdict).right - tester.getRect(icon).right, 17);
   });
 
   testWidgets('a right answer says Correct.', (tester) async {

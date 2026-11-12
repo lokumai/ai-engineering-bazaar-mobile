@@ -291,3 +291,10 @@ Asked by the owner on 2026-11-11.
   - In Persian, table cells, the edges of notices and their paddings sit on the start side, as the web aligns them.
   - Reset: what is completed, ticked or restored while the undo is open is kept when the undo is pressed; quiz scores and reading places made then are kept as well. A backup larger than the record may be is refused, and nothing changes. A quiz score whose quiz changed length is dropped.
   - A content cache that cannot be cleaned, an object that cannot be read and a stored file that is not UTF-8 no longer stop the app; choices of language and track made quickly one after another are written in order.
+
+## Phase 8: the code review of 2026-11-12
+
+A review of `feature/ios` at `7b433d5` by three reviewers who read the code and did not run the app. The owner chose what to take on 2026-11-12, on `feature/ios` (PR #7); the rest waits or is left.
+
+- [x] **8.1 The bar's back goes to the page before** (review C2). Done; see 7.3.
+- [x] **8.2 Turkish and Persian.** Capitals follow the language, so Turkish "Sıradaki" is "SIRADAKİ" and not "SIRADAKI" (`lib/shared/utils/locale_case.dart`, on Home's label and the contents sheet's). The two GitHub links on Privacy and legal are translated; "%40 okundu" with no space; "Güncellemeleri kontrol et" everywhere. A quiz verdict's edge is on the start side, the right in Persian. Home, the catalog, a level, a module, Quiz and Settings each have a right-to-left test in Persian (`test/app/rtl_pages_test.dart`). The word ERASE stays English in every language (A33).

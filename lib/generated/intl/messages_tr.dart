@@ -58,7 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m17(count, first) =>
       "Kurs, ${first} ile başlayan ${count} seviyeye ayrılır. İlkinden başla, hazır olduğunda bir sonrakine geç.";
 
-  static String m18(percent) => "% ${percent} okundu";
+  static String m18(percent) => "%${percent} okundu";
 
   static String m19(minutes, words) => "${minutes} dk · ${words} kelime";
 
@@ -104,7 +104,9 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about_close": MessageLookupByLibrary.simpleMessage("Kapat"),
     "about_english": MessageLookupByLibrary.simpleMessage("Hikâye İngilizce yazıldı."),
-    "about_failed": MessageLookupByLibrary.simpleMessage("Hikâye açılamadı. Güncellemeleri denetle, sonra yeniden aç."),
+    "about_failed": MessageLookupByLibrary.simpleMessage(
+      "Hikâye açılamadı. Güncellemeleri kontrol et, sonra yeniden aç.",
+    ),
     "about_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "about_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "about_skip": MessageLookupByLibrary.simpleMessage("Geç"),
@@ -269,8 +271,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
     ),
-    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
-    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "Bu uygulama kişisel veri toplamaz. Hesap, analiz aracı ve reklam yoktur.",
     ),

@@ -271,8 +271,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
     ),
-    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
-    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "این برنامه هیچ داده شخصی جمع نمی‌کند. حساب کاربری، ابزار تحلیل و تبلیغ ندارد.",
     ),

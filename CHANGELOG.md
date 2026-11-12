@@ -76,3 +76,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Login, users, accounts, OIDC and the mock API.
 - Local storage, the lifecycle check and theme switching.
 - The analytics route observer.
+
+### Fixed
+
+- Capitals follow the language: Turkish "Sıradaki" is "SIRADAKİ", not "SIRADAKI".
+- The two GitHub links on Privacy and legal are in Turkish and Persian; Turkish reads "%40 okundu" and "Güncellemeleri kontrol et" everywhere.
+- In Persian a quiz verdict's coloured edge is on the right, where its line starts.

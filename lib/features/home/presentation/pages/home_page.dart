@@ -17,6 +17,7 @@ import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -64,7 +65,7 @@ class HomePage extends StatelessWidget {
           header: true,
           label: label,
           excludeSemantics: true,
-          child: Text(label.toUpperCase(), style: labelStyle),
+          child: Text(upperCaseIn(label, Localizations.localeOf(context).languageCode), style: labelStyle),
         ),
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),
