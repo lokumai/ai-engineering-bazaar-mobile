@@ -26,9 +26,12 @@ final class ReadingPlaceCleared extends ReadingPlacesEvent {
   final String module;
 }
 
-/// Settings' reset erased the record: the places go with it, kept aside for its undo.
+/// Settings' reset erased the record: the places go with it, kept aside for its undo. A reset made [again] while the
+/// undo of the one before is open keeps the places that one set aside.
 final class ReadingPlacesErased extends ReadingPlacesEvent {
-  const ReadingPlacesErased();
+  const ReadingPlacesErased({this.again = false});
+
+  final bool again;
 }
 
 /// The reset was undone: the places it erased come back.

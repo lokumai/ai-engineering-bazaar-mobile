@@ -267,8 +267,12 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       reply?.complete(false);
       return;
     }
+    // A second erase while the first one's undo is open keeps what that undo brings back: the record from before the
+    // first, not the empty one. What was changed in between is erased with it, and does not come back.
+    final open = current.undo;
+    final before = _beforeErase;
     _closeUndo();
-    _beforeErase = current;
+    _beforeErase = open != null && before != null ? before : current;
     emit(
       RecordReady(
         record: erasedRecord(current.record),
@@ -276,7 +280,9 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         quarantine: null,
         quarantineKept: false,
         launchReadFailed: false,
-        undo: EraseUndo(at: at, bytes: bytes, data: current.record),
+        undo: open != null && before != null
+            ? EraseUndo(at: at, bytes: open.bytes, data: open.data, again: true)
+            : EraseUndo(at: at, bytes: bytes, data: current.record),
       ),
     );
     _undoTimer = Timer(RecordConstants.undoWindow, () => add(const UndoExpired()));

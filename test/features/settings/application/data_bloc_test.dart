@@ -64,8 +64,10 @@ void main() {
           reply.complete(RecordBackup(bytes: _backupBytes, filename: _backupName));
         case RecordErased(:final at, :final reply):
           if (eraseSucceeds) {
+            // As the record does: an erase while an undo is open keeps that undo, and says it is again.
+            final open = recordState is RecordReady && (recordState as RecordReady).undo != null;
             recordState = _ready(
-              undo: EraseUndo(at: at, bytes: _noBytes, data: RecordData.empty),
+              undo: EraseUndo(at: at, bytes: _noBytes, data: RecordData.empty, again: open),
             );
           }
           reply?.complete(eraseSucceeds);
@@ -329,6 +331,39 @@ void main() {
         expect(scores.state, const QuizScoresReady(kept), reason: 'a reset that did not erase keeps the scores');
         bloc.close();
         scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test('a second reset while the undo is open keeps the scores and places the first set aside', () {
+      onFakeClock((async) {
+        const kept = {'alpha/first': QuizScore(last: 2, best: 3, total: 3)};
+        final place = ReadingPlace(heading: 'h', offset: 0, share: 0.5, at: _now);
+        final scores = QuizScoresBloc(store: MemoryQuizScoreStore(kept))..add(const QuizScoresStarted());
+        final places = ReadingPlacesBloc(store: MemoryReadingPlaceStore({'engineers:alpha/first': place}))
+          ..add(const ReadingPlacesStarted());
+        final bloc = DataBloc(
+          recordBloc: recordBloc,
+          gateway: gateway,
+          repository: repository,
+          scores: scores,
+          places: places,
+        );
+        async.flushMicrotasks();
+
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady({}));
+
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(scores.state, const QuizScoresReady(kept), reason: 'not the empty scores of the second reset');
+        expect(places.state, ReadingPlacesReady({'engineers:alpha/first': place}));
+        bloc.close();
+        scores.close();
+        places.close();
         async.flushMicrotasks();
       });
     });

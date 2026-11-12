@@ -39,7 +39,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     on<RestoreRequested>(_onRestoreRequested, transformer: EventTransformers.dropConcurrent());
     on<RestoreConfirmed>(_onRestoreConfirmed);
     on<RestoreDeclined>(_onRestoreDeclined);
-    on<ResetConfirmed>(_onResetConfirmed);
+    on<ResetConfirmed>(_onResetConfirmed, transformer: EventTransformers.dropConcurrent());
     on<UndoRequested>(_onUndoRequested);
     on<UndoTicked>(_onUndoTicked);
     on<QuarantineExportRequested>(_onQuarantineExportRequested, transformer: EventTransformers.dropConcurrent());
@@ -169,8 +169,13 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final erased = await done.future;
       // The scores and the places go with the record even when the page closed meanwhile: a reset is never half done.
       if (erased) {
-        _scores?.add(const QuizScoresErased());
-        _places?.add(const ReadingPlacesErased());
+        // A reset while the undo of the one before is open keeps what that undo brings back.
+        final again = switch (_recordBloc.state) {
+          RecordReady(:final undo?) => undo.again,
+          _ => false,
+        };
+        _scores?.add(QuizScoresErased(again: again));
+        _places?.add(ReadingPlacesErased(again: again));
       }
       // The page closed while the erase waited in the record's queue: a ticker started now is never cancelled.
       if (isClosed) return;

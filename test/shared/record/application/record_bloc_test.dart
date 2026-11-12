@@ -520,6 +520,30 @@ void main() {
     });
   });
 
+  test('a second erase while the undo is open keeps the first undo: the undo brings back the record before both', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = RecordLoadOk(data: _signed, quarantineKept: false)
+        ..record = Uint8List.fromList([1]);
+      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+      async.flushMicrotasks();
+      bloc.add(_toggle);
+      async.flushMicrotasks();
+
+      bloc.add(RecordErased(at: _t.add(const Duration(seconds: 3))));
+      async.flushMicrotasks();
+      expect(_ready(bloc).undo?.again, isTrue);
+      expect(_ready(bloc).undo?.data, _signed);
+
+      bloc.add(const EraseUndone());
+      async.flushMicrotasks();
+      expect(repository.record, [1], reason: 'the files from before the first erase');
+      expect(_ready(bloc).record, _signed, reason: 'what was changed between the two erases is not brought back');
+      bloc.close();
+      async.flushMicrotasks();
+    });
+  });
+
   test('undo within 10 s restores the bytes and the record', () {
     _fake((async) {
       final repository = _MemoryRecordRepository()

@@ -41,8 +41,8 @@ final class QuizScoresBloc extends Bloc<QuizScoresEvent, QuizScoresState> {
         final scores = {..._scores}..remove(key);
         emit(QuizScoresReady(scores));
         await _store.save(scores);
-      case QuizScoresErased():
-        _erased = _scores;
+      case QuizScoresErased(:final again):
+        if (!again || _erased == null) _erased = _scores;
         emit(const QuizScoresReady({}));
         await _store.save(const {});
       case QuizScoresEraseUndone():

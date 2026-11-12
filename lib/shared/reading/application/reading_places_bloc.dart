@@ -48,8 +48,8 @@ final class ReadingPlacesBloc extends Bloc<ReadingPlacesEvent, ReadingPlacesStat
         final places = {..._places}..remove(key);
         emit(ReadingPlacesReady(places));
         await _store.save(places);
-      case ReadingPlacesErased():
-        _erased = _places;
+      case ReadingPlacesErased(:final again):
+        if (!again || _erased == null) _erased = _places;
         emit(const ReadingPlacesReady({}));
         await _store.save(const {});
       case ReadingPlacesEraseUndone():
