@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- On iOS a tap on the status bar takes the page in front back to its top, a module included.
 - The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).
 - A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).

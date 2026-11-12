@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
@@ -106,6 +108,16 @@ Future<void> _scroll(WidgetTester tester, double dy) async {
   await tester.pumpAndSettle();
 }
 
+/// A tap on the iOS status bar, as the engine sends it, settled.
+Future<void> _tapStatusBar(WidgetTester tester) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    SystemChannels.statusBar.name,
+    SystemChannels.statusBar.codec.encodeMethodCall(const MethodCall('handleScrollToTop')),
+    (_) {},
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('a tab\'s page has an empty bar, and the lattice band under the status strip; no track switch', (
     tester,
@@ -163,6 +175,32 @@ void main() {
       await _pumpAt(tester, location, TrackCubit());
       expect(tester.widget<BazaarBar>(find.byType(BazaarBar)).accent, isNull, reason: location);
     }
+  });
+
+  testWidgets('a tap on the iOS status bar takes the page back to its top', (tester) async {
+    await _pumpLongPage(tester, '/sheets');
+    final page = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    page.jumpTo(2000);
+    await tester.pumpAndSettle();
+
+    await _tapStatusBar(tester);
+    expect(page.pixels, 0);
+  });
+
+  testWidgets('a tap on the status bar over a pushed module scrolls the module, not the page under it', (tester) async {
+    await _pumpLongPage(tester, '/sheets');
+    final under = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    under.jumpTo(1000);
+    await tester.pumpAndSettle();
+    unawaited(GoRouter.of(tester.element(find.byType(ListView).first)).push('/courses/alpha/first'));
+    await tester.pumpAndSettle();
+    final module = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
+    module.jumpTo(1500);
+    await tester.pumpAndSettle();
+
+    await _tapStatusBar(tester);
+    expect(module.pixels, 0);
+    expect(under.pixels, 1000, reason: 'the page under the module stays where it was');
   });
 
   testWidgets('on a module page the navigation slides away on a scroll down and back on a scroll up', (tester) async {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/shell/caravan_icon.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -32,6 +34,8 @@ import 'package:go_router/go_router.dart';
 /// Each tab keeps its pages: leaving a module for another tab and coming back opens the module again, where the reader
 /// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page.
 ///
+/// On iOS a tap on the status bar takes the page in front back to its top, as iOS apps do.
+///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).
 class BazaarShell extends StatefulWidget {
@@ -48,7 +52,7 @@ class BazaarShell extends StatefulWidget {
   State<BazaarShell> createState() => _BazaarShellState();
 }
 
-class _BazaarShellState extends State<BazaarShell> {
+class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   /// The scroll distance in one direction that hides or shows the navigation, so a trembling finger does neither.
   static const double _travel = 24;
 
@@ -64,7 +68,39 @@ class _BazaarShellState extends State<BazaarShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _rememberTrack();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// The page under the shell, where the scrollable in front is looked for.
+  final _pageKey = GlobalKey();
+
+  /// Takes the page in front back to its top on a tap on the iOS status bar. The shell's Scaffold would scroll its
+  /// primary scroll controller, but the pages scroll under the shell's own navigator, whose routes hold controllers of
+  /// their own, and the reader holds one of its own too; so the shell finds the page's scrollable itself.
+  @override
+  void handleStatusBarTap() {
+    final page = _pageKey.currentContext;
+    final scrollable = page == null ? null : frontScrollable(page);
+    if (scrollable == null) return;
+    final position = scrollable.position;
+    if (MediaQuery.of(context).disableAnimations) {
+      position.jumpTo(position.minScrollExtent);
+    } else {
+      unawaited(
+        position.animateTo(
+          position.minScrollExtent,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCirc,
+        ),
+      );
+    }
   }
 
   @override
@@ -269,7 +305,11 @@ class _BazaarShellState extends State<BazaarShell> {
             Expanded(
               child: NotificationListener<ScrollNotification>(
                 onNotification: _onScroll,
-                child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: KeyedSubtree(key: _pageKey, child: widget.child),
+                ),
               ),
             ),
           ],
@@ -327,4 +367,23 @@ class _BazaarShellState extends State<BazaarShell> {
       ),
     );
   }
+}
+
+/// The first vertical scrollable under [page] on the route in front, an outer one before those inside it; null when
+/// there is none or it has no content yet.
+@visibleForTesting
+ScrollableState? frontScrollable(BuildContext page) {
+  ScrollableState? found;
+  void visit(Element element) {
+    if (found != null) return;
+    if (element case StatefulElement(state: final ScrollableState state)
+        when state.position.axis == Axis.vertical && state.position.hasContentDimensions) {
+      if (ModalRoute.of(element)?.isCurrent ?? true) found = state;
+      return;
+    }
+    element.visitChildElements(visit);
+  }
+
+  (page as Element).visitChildElements(visit);
+  return found;
 }
