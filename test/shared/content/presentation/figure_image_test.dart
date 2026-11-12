@@ -118,6 +118,26 @@ void main() {
       expect(find.byType(ImageFullScreen), findsNothing);
     });
 
+    testWidgets('full screen, an animated image carries it too, and a tap plays it again', (tester) async {
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => gifOf(2));
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+      await tester.tapAt(tester.getCenter(find.byType(FigureImage)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final replay = find.byKey(ImageFullScreen.replayKey);
+      expect(replay, findsOneWidget);
+      expect(find.byTooltip('Replay'), findsWidgets);
+      Image fullScreen() =>
+          tester.widget<Image>(find.descendant(of: find.byType(ImageFullScreen), matching: find.byType(Image)));
+      expect(fullScreen().key, const ValueKey(0));
+
+      await tester.tap(replay);
+      await tester.pump();
+      expect(fullScreen().key, const ValueKey(1), reason: 'drawn afresh, from frame 0');
+    });
+
     testWidgets('a still image has none', (tester) async {
       final png = File('test/fixtures/content/src/course-images/alpha/figure.png').readAsBytesSync();
       when(() => repository.readObject(image.src)).thenAnswer((_) async => Uint8List.fromList(png));
@@ -126,6 +146,11 @@ void main() {
 
       expect(find.byKey(FigureImage.expandKey), findsOneWidget);
       expect(find.byKey(FigureImage.replayKey), findsNothing);
+
+      await tester.tap(find.byType(FigureImage));
+      await tester.pumpAndSettle();
+      expect(find.byType(ImageFullScreen), findsOneWidget);
+      expect(find.byKey(ImageFullScreen.replayKey), findsNothing, reason: 'nor full screen');
     });
   });
 
