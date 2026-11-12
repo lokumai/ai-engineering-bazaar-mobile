@@ -877,6 +877,16 @@ class S {
     return Intl.message('That file could not be opened.', name: 'data_restore_unreadable', desc: '', args: []);
   }
 
+  /// `That backup is larger than the app can keep. Nothing was changed.`
+  String get data_restore_too_large {
+    return Intl.message(
+      'That backup is larger than the app can keep. Nothing was changed.',
+      name: 'data_restore_too_large',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}`
   String data_reset_counting(int seconds) {
     return Intl.plural(

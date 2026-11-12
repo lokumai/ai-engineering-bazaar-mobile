@@ -173,6 +173,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
     ),
+    "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
+      "That backup is larger than the app can keep. Nothing was changed.",
+    ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),

@@ -534,6 +534,8 @@
   "@data_restore_malformed": {},
   "data_restore_unreadable": "That file could not be opened.",
   "@data_restore_unreadable": {},
+  "data_restore_too_large": "That backup is larger than the app can keep. Nothing was changed.",
+  "@data_restore_too_large": {},
   "data_reset_counting": "{seconds, plural, =1{Reset. You can undo it for 1 second.} other{Reset. You can undo it for {seconds} seconds.}}",
   "@data_reset_counting": {
     "placeholders": {

@@ -45,6 +45,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
   Timer? _undoTimer;
 
+  /// The changes made while the undo is open, which the undo makes again on the record it brings back: a module
+  /// completed or a box ticked after the reset is not lost to the undo.
+  final _sinceErase = <RecordData Function(RecordData)>[];
+
   @override
   void add(RecordEvent event) {
     if (event is RecordErased) _pendingErases++;
@@ -73,25 +77,28 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         return;
       case CompletionToggled(:final key, :final revision, :final track, :final everyone):
         if (_pendingErases > 0) return;
-        final RecordData next;
-        if (current.record.signedOff(key, track) != null) {
-          next = unsign(current.record, key, track: track);
-        } else {
-          final now = nowIso();
-          final signed = signOff(current.record, key, revision, now, track: track);
+        final now = nowIso();
+        final signing = current.record.signedOff(key, track) == null;
+        RecordData toggled(RecordData record) {
+          if (!signing) return record.signedOff(key, track) == null ? record : unsign(record, key, track: track);
+          final signed = record.signedOff(key, track) == null
+              ? signOff(record, key, revision, now, track: track)
+              : record;
           // A For Engineers completion completes the For Everyone version too, never the reverse (plan 1V).
-          next = everyone != null && track == Track.engineers && signed.signedOff(key, Track.everyone) == null
+          return everyone != null && track == Track.engineers && signed.signedOff(key, Track.everyone) == null
               ? signOff(signed, key, everyone.revision, now, track: Track.everyone)
               : signed;
         }
-        await _commit(current, next, emit);
+
+        if (current.undo != null) _sinceErase.add(toggled);
+        await _commit(current, toggled(current.record), emit);
       case ChecklistItemToggled(:final key, :final index, :final ticked, :final track):
         if (_pendingErases > 0) return;
-        await _commit(
-          current,
-          setChecklistItem(current.record, key, index, nowIso(), ticked: ticked, track: track),
-          emit,
-        );
+        final now = nowIso();
+        RecordData ticking(RecordData record) =>
+            setChecklistItem(record, key, index, now, ticked: ticked, track: track);
+        if (current.undo != null) _sinceErase.add(ticking);
+        await _commit(current, ticking(current.record), emit);
       case BackupStarted(:final at, :final reply):
         final next = markActivity(current.record, at);
         if (_pendingErases == 0) await _commit(current, next, emit);
@@ -100,6 +107,7 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         );
       case BackupCompleted(:final at):
         if (_pendingErases > 0) return;
+        if (current.undo != null) _sinceErase.add((record) => markExported(record, at));
         await _commit(current, markExported(current.record, at), emit);
       case RecordReplaced(:final data):
         if (_pendingErases > 0) return;
@@ -118,8 +126,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         );
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
-      case EraseUndone():
-        await _onUndone(current, emit);
+      case EraseUndone(:final reply):
+        // Undone first, then answered: `reply?.complete(await ...)` would skip the undo when no one waits for it.
+        final undone = await _onUndone(current, emit);
+        reply?.complete(undone);
       case UndoExpired():
         if (current.undo == null) return;
         _closeUndo();
@@ -154,6 +164,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   void _ignore(RecordEvent event) {
     switch (event) {
       case RecordErased(:final reply):
+        reply?.complete(false);
+      case EraseUndone(:final reply):
         reply?.complete(false);
       case BackupStarted(:final reply):
         reply.completeError(StateError('the record is not read yet'));
@@ -261,10 +273,13 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   /// Puts the record from before the erase back in memory whatever the disk does (spec 3.3.9, Decision E7): a restore
   /// that cannot write answers quota or blocked, and the write notice says so. After an erase that kept no record
   /// bytes (A41), the record is written from memory, so the disk holds what the page shows.
-  Future<void> _onUndone(RecordReady current, Emitter<RecordState> emit) async {
+  ///
+  /// The changes made since the erase are made again on the record brought back. Answers whether the undo was open.
+  Future<bool> _onUndone(RecordReady current, Emitter<RecordState> emit) async {
     final undo = current.undo;
     final before = _beforeErase;
-    if (undo == null || before == null) return;
+    if (undo == null || before == null) return false;
+    final since = [..._sinceErase];
     _closeUndo();
     final restored = await _repository.restore(undo.bytes);
     if (restored.write != WriteResult.saved) _log.warn('record undo write failed: {}', [restored.write]);
@@ -280,6 +295,7 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       launchReadFailed: before.launchReadFailed,
       undo: null,
     );
+    final target = since.fold(undo.data, (record, change) => change(record));
     if (undo.bytes.record == null && !before.launchReadFailed && !carriesNothing(undo.data)) {
       await _commit(
         RecordReady(
@@ -290,12 +306,17 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           launchReadFailed: back.launchReadFailed,
           undo: null,
         ),
-        undo.data,
+        target,
         emit,
       );
-      return;
+      return true;
+    }
+    if (since.isNotEmpty) {
+      await _commit(back, target, emit);
+      return true;
     }
     emit(back);
+    return true;
   }
 
   /// Cancels the undo timer and drops the state the undo would restore.
@@ -303,5 +324,6 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     _undoTimer?.cancel();
     _undoTimer = null;
     _beforeErase = null;
+    _sinceErase.clear();
   }
 }

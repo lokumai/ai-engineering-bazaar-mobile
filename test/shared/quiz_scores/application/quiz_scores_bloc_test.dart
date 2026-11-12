@@ -48,7 +48,7 @@ void main() {
   );
 
   blocTest<QuizScoresBloc, QuizScoresState>(
-    'an undo with no erase, or after a new score, changes nothing',
+    'an undo with no erase changes nothing, and one after a new score brings the old scores back with the new one',
     build: () => QuizScoresBloc(store: store),
     act: (bloc) => bloc
       ..add(const QuizScoresStarted())
@@ -60,7 +60,34 @@ void main() {
       const QuizScoresReady(_kept),
       const QuizScoresReady({}),
       const QuizScoresReady({'beta/fourth': QuizScore(last: 1, best: 1, total: 2)}),
+      const QuizScoresReady({..._kept, 'beta/fourth': QuizScore(last: 1, best: 1, total: 2)}),
     ],
+  );
+
+  blocTest<QuizScoresBloc, QuizScoresState>(
+    'a quiz finished again after a reset keeps the better best and its last attempt on undo',
+    build: () => QuizScoresBloc(store: store),
+    act: (bloc) => bloc
+      ..add(const QuizScoresStarted())
+      ..add(const QuizScoresErased())
+      ..add(const QuizScoreRecorded(key: 'alpha/first', right: 1, total: 3))
+      ..add(const QuizScoresEraseUndone()),
+    skip: 3,
+    expect: () => [
+      const QuizScoresReady({'alpha/first': QuizScore(last: 1, best: 3, total: 3, previous: 2)}),
+    ],
+    verify: (_) async =>
+        expect(await store.load(), {'alpha/first': const QuizScore(last: 1, best: 3, total: 3, previous: 2)}),
+  );
+
+  blocTest<QuizScoresBloc, QuizScoresState>(
+    'a quiz opened at another length drops its old score, and one at the same length keeps it',
+    build: () => QuizScoresBloc(store: store),
+    act: (bloc) => bloc
+      ..add(const QuizScoresStarted())
+      ..add(const QuizLengthSeen(key: 'alpha/first', total: 3))
+      ..add(const QuizLengthSeen(key: 'alpha/first', total: 4)),
+    expect: () => [const QuizScoresReady(_kept), const QuizScoresReady({})],
   );
 
   test('a score of the loading state is none', () {

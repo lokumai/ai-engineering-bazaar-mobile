@@ -171,6 +171,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "Bu dosya, uygulamanın ya da web sitesinin daha yeni bir sürümüyle yazılmış. Uygulamayı güncelle, sonra dosyayı yeniden geri yükle.",
     ),
+    "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
+      "Bu yedek, uygulamanın saklayabileceğinden büyük. Hiçbir şey değişmedi.",
+    ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("Bu dosya açılamadı."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Dosyadan geri yüklendi."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),

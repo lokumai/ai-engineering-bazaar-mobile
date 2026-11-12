@@ -76,9 +76,13 @@ final class RecordErased extends RecordEvent {
   final Completer<bool>? reply;
 }
 
-/// The reader asked to undo the erase while its window is open.
+/// The reader asked to undo the erase while its window is open. [reply] completes with true once the record is back,
+/// and with false when the window had already closed, so the quiz scores and the reading places come back with it or
+/// not at all.
 final class EraseUndone extends RecordEvent {
-  const EraseUndone();
+  const EraseUndone({this.reply});
+
+  final Completer<bool>? reply;
 }
 
 /// The undo window ended; only RecordBloc's own timer adds it (Decision A42).

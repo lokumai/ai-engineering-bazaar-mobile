@@ -137,6 +137,7 @@
   "data_restore_newer": "Bu dosya, uygulamanın ya da web sitesinin daha yeni bir sürümüyle yazılmış. Uygulamayı güncelle, sonra dosyayı yeniden geri yükle.",
   "data_restore_malformed": "Bu dosya, uygulamanın ya da web sitesinin yazdığı bir yedek değil. Hiçbir şey değişmedi.",
   "data_restore_unreadable": "Bu dosya açılamadı.",
+  "data_restore_too_large": "Bu yedek, uygulamanın saklayabileceğinden büyük. Hiçbir şey değişmedi.",
   "data_reset_counting": "{seconds, plural, =1{Sıfırlandı. 1 saniye içinde geri alabilirsin.} other{Sıfırlandı. {seconds} saniye içinde geri alabilirsin.}}",
   "data_reset_closed": "Sıfırlandı. Geri alma süresi doldu.",
   "data_reset_not_finished": "Sıfırlama tamamlanmadı: uygulama dosyalarını silemedi. Bu cihazdaki ilerlemen değişmedi.",

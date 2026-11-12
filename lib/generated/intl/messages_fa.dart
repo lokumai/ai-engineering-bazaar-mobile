@@ -173,6 +173,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "این فایل را نسخهٔ جدیدتری از برنامه یا وب‌سایت نوشته است. برنامه را به‌روزرسانی کنید و دوباره آن را بازیابی کنید.",
     ),
+    "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
+      "این پشتیبان بزرگ‌تر از آن است که برنامه بتواند نگه دارد. چیزی تغییر نکرد.",
+    ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("این فایل باز نشد."),
     "data_restored": MessageLookupByLibrary.simpleMessage("از فایل بازیابی شد."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("چیزی روی این دستگاه ثبت نشده است"),

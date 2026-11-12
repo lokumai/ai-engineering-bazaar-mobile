@@ -78,6 +78,7 @@ class DataLine extends StatelessWidget {
     RestoreOutcome.empty => s.data_restore_empty,
     RestoreOutcome.newer => s.data_restore_newer,
     RestoreOutcome.malformed => s.data_restore_malformed,
+    RestoreOutcome.tooLarge => s.data_restore_too_large,
     RestoreOutcome.unreadable => s.data_restore_unreadable,
   };
 

@@ -38,8 +38,8 @@ final class ReadingPlacesBloc extends Bloc<ReadingPlacesEvent, ReadingPlacesStat
       case ReadingPlaceKept(:final track, :final module, :final place):
         final key = readingPlaceKey(track, module);
         if (_places[key] == place) return;
+        // A place kept after a reset keeps the reset's undo open: the undo merges it in.
         final places = _newest({..._places, key: place});
-        _erased = null;
         emit(ReadingPlacesReady(places));
         await _store.save(places);
       case ReadingPlaceCleared(:final track, :final module):
@@ -56,8 +56,10 @@ final class ReadingPlacesBloc extends Bloc<ReadingPlacesEvent, ReadingPlacesStat
         final erased = _erased;
         if (erased == null) return;
         _erased = null;
-        emit(ReadingPlacesReady(erased));
-        await _store.save(erased);
+        // The places before the reset, with the ones kept since on top.
+        final places = _newest({...erased, ..._places});
+        emit(ReadingPlacesReady(places));
+        await _store.save(places);
     }
   }
 

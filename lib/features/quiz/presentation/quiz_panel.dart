@@ -20,7 +20,7 @@ Widget buildQuizPanel(BuildContext context, String moduleKey, List<QuizItem> ite
 
 /// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W).
 QuizCubit quizCubitFor(BuildContext context, String moduleKey, List<QuizItem> items) {
-  final scores = context.read<QuizScoresBloc>();
+  final scores = context.read<QuizScoresBloc>()..add(QuizLengthSeen(key: moduleKey, total: items.length));
   return QuizCubit(
     items,
     onFinished: (right, total) => scores.add(QuizScoreRecorded(key: moduleKey, right: right, total: total)),

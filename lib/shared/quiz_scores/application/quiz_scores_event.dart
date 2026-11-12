@@ -18,6 +18,15 @@ final class QuizScoreRecorded extends QuizScoresEvent {
   final int total;
 }
 
+/// The quiz of the module [key] was opened with [total] questions: a score kept for a quiz of another length, from
+/// before a content update changed it, no longer says how this quiz went, and is dropped.
+final class QuizLengthSeen extends QuizScoresEvent {
+  const QuizLengthSeen({required this.key, required this.total});
+
+  final String key;
+  final int total;
+}
+
 /// Settings' reset erased the record: the scores go with it, kept aside for its undo.
 final class QuizScoresErased extends QuizScoresEvent {
   const QuizScoresErased();

@@ -19,6 +19,10 @@ enum RestoreOutcome {
 
   /// The file could not be read.
   unreadable,
+
+  /// The file's record is larger than the app writes (the web's soft cap), so restoring it would last only until the
+  /// app closed.
+  tooLarge,
 }
 
 /// How the latest save of the set-aside record ended.
