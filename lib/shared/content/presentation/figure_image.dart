@@ -92,16 +92,27 @@ class _DrawnState extends State<_Drawn> {
   late final bool _animated = isAnimatedImage(widget.bytes);
   var _plays = 0;
 
+  /// The image decoded at the width it is drawn at, in device pixels, and never wider than it is: a photo of 2000
+  /// pixels drawn 360 wide on a phone of ratio 3 is decoded 1080 wide, which looks the same and takes a third of the
+  /// width in memory. The full-screen view decodes it whole, to zoom.
+  ImageProvider _image(BuildContext context) => widget.width.isFinite
+      ? ResizeImage(
+          MemoryImage(widget.bytes),
+          width: (widget.width * MediaQuery.devicePixelRatioOf(context)).ceil(),
+          policy: ResizeImagePolicy.fit,
+        )
+      : MemoryImage(widget.bytes);
+
   /// Starts the animation from its first frame: the image cache keeps an animation's playhead with its decoded image,
   /// so the image is put out of the cache and read again under a new key.
   void _replay() {
-    unawaited(MemoryImage(widget.bytes).evict());
+    unawaited(_image(context).evict());
     setState(() => _plays++);
   }
 
   @override
-  Widget build(BuildContext context) => Image.memory(
-    widget.bytes,
+  Widget build(BuildContext context) => Image(
+    image: _image(context),
     key: ValueKey(_plays),
     width: widget.width,
     height: widget.height,

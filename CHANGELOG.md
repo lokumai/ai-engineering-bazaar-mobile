@@ -44,6 +44,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A picture in a module is decoded at the size it is drawn, which takes less memory and opens a module faster; it looks the same, and full screen still shows it whole.
 - The back arrow in the bar goes to the page the page was opened from, Home, Quiz, a level or another module, as Android's back and the iOS edge swipe do; it no longer goes to the catalog.
 - Another tab opens at once, with no transition, as tabs change on iOS and Android; the page left no longer shows through for a moment. A page opened inside a tab, a module or a level, comes in with the platform's own transition, sliding in from the side on iOS, where the edge swipe goes back, and zooming in on Android.
 - A completed module opens at its top: completing it drops the place it was left at, and none is kept while it stays completed.
