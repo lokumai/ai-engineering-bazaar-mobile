@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../mocks/mock_classes.dart';
+import '../../../support/animated_bytes.dart';
 import '../../../support/content_builders.dart';
 
 const image = ImageBlock(
@@ -82,6 +83,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ImageFullScreen), findsNothing);
     semantics.dispose();
+  });
+
+  group('the replay button (web M115, D136)', () {
+    testWidgets('an animated image carries it, a button of its own named Replay, beside the full-screen mark', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => gifOf(2));
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+
+      expect(find.byKey(FigureImage.replayKey), findsOneWidget);
+      expect(find.byKey(FigureImage.expandKey), findsOneWidget);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Replay')),
+        matchesSemantics(isButton: true, hasTapAction: true, label: 'Replay', tooltip: 'Replay'),
+      );
+      expect(tester.getSize(find.byKey(FigureImage.replayKey)), const Size(48, 48));
+      semantics.dispose();
+    });
+
+    testWidgets('a tap plays it again from its start and does not open it full screen', (tester) async {
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => gifOf(2));
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+      expect(tester.widget<Image>(find.byType(Image)).key, const ValueKey(0));
+
+      await tester.tap(find.byKey(FigureImage.replayKey));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.widget<Image>(find.byType(Image)).key, const ValueKey(1), reason: 'drawn afresh, from frame 0');
+      expect(find.byType(ImageFullScreen), findsNothing);
+    });
+
+    testWidgets('a still image has none', (tester) async {
+      final png = File('test/fixtures/content/src/course-images/alpha/figure.png').readAsBytesSync();
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => Uint8List.fromList(png));
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+
+      expect(find.byKey(FigureImage.expandKey), findsOneWidget);
+      expect(find.byKey(FigureImage.replayKey), findsNothing);
+    });
   });
 
   testWidgets('a missing object shows the alt text and the unreadable line', (tester) async {
