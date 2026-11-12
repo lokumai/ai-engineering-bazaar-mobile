@@ -44,6 +44,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- A completed module opens at its top: completing it drops the place it was left at, and none is kept while it stays completed.
 - The catalog search's keyboard goes away on a tap elsewhere and on a drag through the hits, as iOS has no back key; iOS's own sheets follow the app's languages.
 - Android's back on the first page of Catalog, the Caravan, Quiz or Settings goes Home; it leaves the app from Home.
 - Persian pages put a table's cells, the edge of a notice and the Planned band on their right, as the site does.

@@ -74,24 +74,34 @@ class ModuleReaderPage extends StatelessWidget {
     };
     final language = context.watch<LanguageCubit>().state;
     final places = context.read<ReadingPlacesBloc>();
-    return BlocProvider(
-      // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
-      // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
-      key: ValueKey((moduleKey, track, language)),
-      create: (context) => ModuleReaderBloc(
-        repository: context.read<IContentRepository>(),
-        index: index,
-        recordBloc: context.read<RecordBloc>(),
-      )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
-      child: ModuleReaderView(
-        fragment: fragment,
-        query: query,
-        quizBuilder: quizBuilder,
-        place: places.state.of(track, moduleKey),
-        onPlace: (place) => places.add(
-          place == null
-              ? ReadingPlaceCleared(track: track, module: moduleKey)
-              : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+    final record = context.read<RecordBloc>();
+    // A completed module keeps no place: the reader has finished it, so it opens at its top (the owner, 2026-11-12).
+    bool completed(RecordState state) => switch (state) {
+      RecordReady(:final record) => record.signedOff(moduleKey, track) != null,
+      RecordLoading() => false,
+    };
+    return BlocListener<RecordBloc, RecordState>(
+      listenWhen: (before, now) => !completed(before) && completed(now),
+      listener: (_, _) => places.add(ReadingPlaceCleared(track: track, module: moduleKey)),
+      child: BlocProvider(
+        // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
+        // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
+        key: ValueKey((moduleKey, track, language)),
+        create: (context) => ModuleReaderBloc(
+          repository: context.read<IContentRepository>(),
+          index: index,
+          recordBloc: context.read<RecordBloc>(),
+        )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
+        child: ModuleReaderView(
+          fragment: fragment,
+          query: query,
+          quizBuilder: quizBuilder,
+          place: completed(record.state) ? null : places.state.of(track, moduleKey),
+          onPlace: (place) => places.add(
+            place == null || completed(record.state)
+                ? ReadingPlaceCleared(track: track, module: moduleKey)
+                : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+          ),
         ),
       ),
     );
