@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -110,6 +111,12 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IThemeStore createThemeStore() => const MemoryThemeStore();
+
+  @override
+  IAppIconStore createAppIconStore() => const MemoryAppIconStore();
+
+  @override
+  IAppIconSwitch createAppIconSwitch() => const NoAppIconSwitch();
 
   @override
   IQuizScoreStore createQuizScoreStore() => MemoryQuizScoreStore();

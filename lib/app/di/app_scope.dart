@@ -1,5 +1,7 @@
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
@@ -47,6 +49,8 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
         RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
         RepositoryProvider<IThemeStore>(create: (_) => dependencies.createThemeStore()),
+        RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
+        RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
@@ -90,6 +94,12 @@ class AppScope extends StatelessWidget {
           BlocProvider<ThemeChoiceCubit>(
             lazy: false,
             create: (context) => ThemeChoiceCubit(store: context.read<IThemeStore>())..load(),
+          ),
+          // The opening waits for it, to play in the chosen icon's colours.
+          BlocProvider<AppIconCubit>(
+            lazy: false,
+            create: (context) =>
+                AppIconCubit(store: context.read<IAppIconStore>(), iconSwitch: context.read<IAppIconSwitch>())..load(),
           ),
         ],
         child: child,

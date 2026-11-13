@@ -3,6 +3,7 @@ library;
 
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
@@ -71,6 +72,9 @@ class _FirstLaunchDependencies extends _SmokeDependencies {
 
   @override
   IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: () async => dir));
 }
 
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated

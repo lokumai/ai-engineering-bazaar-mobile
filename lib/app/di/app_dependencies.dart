@@ -14,6 +14,7 @@ import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart'
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
+import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
@@ -30,6 +31,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
@@ -77,6 +80,12 @@ class AppDependencies {
 
   /// The chosen look (light or dark), as file flags under [supportDirectory]`/flags/`, apart from the record.
   IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The chosen app icon, as file flags under [supportDirectory]`/flags/`, apart from the record.
+  IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// Puts the chosen app icon on the home screen, over the native channel.
+  IAppIconSwitch createAppIconSwitch() => const ChannelAppIconSwitch(AppIconChannel());
 
   /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
   IQuizScoreStore createQuizScoreStore() =>
@@ -227,4 +236,40 @@ final class FlagThemeStore implements IThemeStore {
     final flag = _explicit[mode];
     if (flag != null) await _flags.set(flag);
   }
+}
+
+/// The app icon cubit's store over the app's file flags: `app-icon-<name>` for the chosen icon, at most one set. No
+/// flag set means no icon was chosen yet.
+final class FlagAppIconStore implements IAppIconStore {
+  const FlagAppIconStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static String _flag(BazaarIcon icon) => 'app-icon-${icon.name}';
+
+  @override
+  Future<BazaarIcon?> chosen() async {
+    for (final icon in BazaarIcon.values) {
+      if (await _flags.isSet(_flag(icon))) return icon;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {
+    for (final other in BazaarIcon.values) {
+      if (other != icon) await _flags.clear(_flag(other));
+    }
+    await _flags.set(_flag(icon));
+  }
+}
+
+/// The app icon cubit's switch over the native channel, which names each icon by its [BazaarIcon.name].
+final class ChannelAppIconSwitch implements IAppIconSwitch {
+  const ChannelAppIconSwitch(this._channel);
+
+  final AppIconChannel _channel;
+
+  @override
+  Future<void> choose(BazaarIcon icon) => _channel.choose(icon.name);
 }
