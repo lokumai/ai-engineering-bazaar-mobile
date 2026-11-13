@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 
 /// The quiz full screen's frame: the app's bar on the page ground with a close button and [title], the thin lattice
@@ -19,7 +20,11 @@ class QuizFrame extends StatelessWidget {
           const LatticeBand(thin: true),
           // The bar's status strip already keeps the page clear of the status bar.
           Expanded(
-            child: MediaQuery.removePadding(context: context, removeTop: true, child: child),
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: ReadableWidth(child: child),
+            ),
           ),
         ],
       ),

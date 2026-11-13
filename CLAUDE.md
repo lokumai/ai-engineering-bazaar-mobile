@@ -35,7 +35,7 @@ heavy fvm flutter test --tags golden --update-goldens     # regenerate goldens a
 heavy fvm flutter test integration_test -d <device>       # device tests (emulator, simulator or phone)
 
 # The gate every commit passes
-heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 65'
+heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 90'
 
 # Android JVM tests of the native Sentry scrubber (JDK 17; a Flutter Android build, such as
 # fvm flutter build apk --config-only --target lib/main/main_prod.dart, writes the Gradle wrapper)
@@ -78,7 +78,7 @@ lib/
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the tabs), thin lattice band, bottom navigation of icons
                                                 with small names (Home, Catalog, the Caravan's camel, Quiz, Settings;
-                                                caravan_icon.dart)
+                                                shared/design_system/widgets/caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -103,10 +103,13 @@ lib/
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
+    navigation/tab_switch.dart                  marks a move to another tab, whose pages come in and go out at once
     design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
-                                                rule, segmented control
+                                                rule, segmented control, the readable width that holds a tablet's page to a
+                                                phone's measure
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
+    utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
   features/
     home/                                       Home at `/`: continue card, the modules after it, practice, offline note
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
@@ -121,12 +124,12 @@ lib/
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step
     guide/                                      How the bazaar works, at `/settings/guide`
-    caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
+    caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
                                                 the web's timeline
-  l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
+  l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
-assets/fonts/                                   Vazirmatn-Regular.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
+assets/fonts/                                   Vazirmatn-Regular.ttf, Vazirmatn-Bold.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
 assets/brand/, assets/welcome/, assets/about/   the Lokum logo, the Welcome art and the story's scenes, each with its SOURCE.md
 integration_test/                               device tests
 ```
@@ -235,13 +238,13 @@ The record is the web's, byte for byte; `lib/shared/record` ports the web's code
 - Days are the UTC day of the instant, as the web's `toISOString`, never the device's local day.
 - `asInstant` is a strict grammar, not `DateTime.tryParse` (A20).
 - Parsing re-keys every object the web rebuilds from a template into the template's key order (A21).
-- Restoring a file closes an open reset undo; the erase word is accepted trimmed and in any case (A33).
+- Restoring a file closes an open reset undo; the erase word is accepted trimmed and in any case (A33); the dialog also takes the word in the interface's language (`erase_word`: SİL, حذف), Turkish i's folded as one.
 - `test/fixtures/record_conformance/v1.json` is generated by the snapshot tool and never edited; `test/shared/record/conformance_test.dart` is the authority, and export bytes equal the web's.
 
 ## Object store
 
 - The bundled snapshot is `assets/content/index.json`, `assets/content/api_index.json` and `assets/content/objects/<sha256>`.
-- Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json` and the `current` pointer.
+- Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json`, the `current` pointer and the `pending` pointer of a refresh under way. A start keeps the pending refresh's index and objects, so a refresh cut off by closing the app goes on where it stopped.
 - Every object is checked against its sha256 on every read.
 - A refresh adopts only a strictly later `publishedAt` and never leaves a mixed set; a cache not later than the bundled snapshot is deleted at startup.
 - A sha256 mismatch on a downloaded object is `RefreshFailed(checksum)`, retried at the next cold start (A25).
@@ -283,7 +286,7 @@ Reader-visible copy follows the web's register (A12), and `test/architecture/arb
 3. Add BLoCs or Cubits in `application/`.
 4. Define feature-specific routes in `navigation/` and register them in `lib/app/router/app_router.dart`.
 5. Implement pages and feature-specific widgets in `presentation/`.
-6. Add strings to `lib/l10n/intl_en.arb` under the copy register, run `fvm dart run intl_utils:generate`, then `fvm dart format lib/generated --line-length=120`.
+6. Add strings to `lib/l10n/intl_en.arb`, `intl_tr.arb` and `intl_fa.arb` under the copy register, run `fvm dart run intl_utils:generate`, then `fvm dart format lib/generated --line-length=120`.
 7. Write tests mirroring the feature structure under `test/features/<feature_name>/`, with the accessibility checks of `test/support/accessibility.dart` on every page.
 
 ## Testing

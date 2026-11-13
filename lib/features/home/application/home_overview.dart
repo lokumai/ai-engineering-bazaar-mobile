@@ -75,7 +75,7 @@ final class HomeNext extends Equatable {
   /// The level's 0-based place in the index, which picks its hue.
   final int position;
 
-  /// The module's title in the track.
+  /// The module's title in the track, in the overview's language: the English one where it has none (web D139).
   final String title;
 
   /// The words of the module's document in the track, per language (web D128); empty where the content has no count.
@@ -92,13 +92,15 @@ final class HomeNext extends Equatable {
   List<Object?> get props => [module, level, position, title, words, score, share];
 }
 
-/// The overview of [track] from [index], [record], and the quiz [scores] and reading [places] of this device.
+/// The overview of [track] from [index], [record], and the quiz [scores] and reading [places] of this device, with
+/// titles in [language].
 HomeOverview homeOverview(
   BundleIndex index,
   Track track,
   RecordData record, {
   Map<String, QuizScore> scores = const {},
   Map<String, ReadingPlace> places = const {},
+  String language = 'en',
 }) {
   final view = trackView(record, track);
   final curriculum = curriculumFor(index, track);
@@ -110,7 +112,7 @@ HomeOverview homeOverview(
       module: module,
       level: index.level(module.level)!,
       position: positions[module.level]!,
-      title: module.tracks[titled]!.title,
+      title: module.tracks[titled]!.titleIn(language),
       words: module.tracks[titled]!.words,
       score: score,
       share: share,

@@ -1,14 +1,20 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
+import '../../support/catalog_fixture_index.dart';
 import '../../support/fold.dart';
 
 /// A destination by its tooltip, which is its name.
@@ -106,6 +113,16 @@ Future<void> _scroll(WidgetTester tester, double dy) async {
   await tester.pumpAndSettle();
 }
 
+/// A tap on the iOS status bar, as the engine sends it, settled.
+Future<void> _tapStatusBar(WidgetTester tester) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    SystemChannels.statusBar.name,
+    SystemChannels.statusBar.codec.encodeMethodCall(const MethodCall('handleScrollToTop')),
+    (_) {},
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('a tab\'s page has an empty bar, and the lattice band under the status strip; no track switch', (
     tester,
@@ -146,6 +163,35 @@ void main() {
     }
   });
 
+  testWidgets("the bar names a module in the chosen language, and a level in English (web D139)", (tester) async {
+    final router = AppRouterFactory(initialLocation: '/courses/alpha/first').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      bazaarTestApp(
+        router: router,
+        language: LanguageCubit(initial: 'tr'),
+        content: readyContentBloc(
+          catalogFixtureIndex(
+            titles: {
+              'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final bar = find.byType(BazaarBar);
+    expect(find.descendant(of: bar, matching: find.text('Birinci Modül')), findsOneWidget);
+
+    router.go('/sheets/alpha');
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: bar, matching: find.text('Alpha Level')),
+      findsOneWidget,
+      reason: 'no translated level',
+    );
+  });
+
   testWidgets("a level's page and a module's carry the level's hue, its square and title right after the back arrow", (
     tester,
   ) async {
@@ -163,6 +209,32 @@ void main() {
       await _pumpAt(tester, location, TrackCubit());
       expect(tester.widget<BazaarBar>(find.byType(BazaarBar)).accent, isNull, reason: location);
     }
+  });
+
+  testWidgets('a tap on the iOS status bar takes the page back to its top', (tester) async {
+    await _pumpLongPage(tester, '/sheets');
+    final page = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    page.jumpTo(2000);
+    await tester.pumpAndSettle();
+
+    await _tapStatusBar(tester);
+    expect(page.pixels, 0);
+  });
+
+  testWidgets('a tap on the status bar over a pushed module scrolls the module, not the page under it', (tester) async {
+    await _pumpLongPage(tester, '/sheets');
+    final under = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    under.jumpTo(1000);
+    await tester.pumpAndSettle();
+    unawaited(GoRouter.of(tester.element(find.byType(ListView).first)).push('/courses/alpha/first'));
+    await tester.pumpAndSettle();
+    final module = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
+    module.jumpTo(1500);
+    await tester.pumpAndSettle();
+
+    await _tapStatusBar(tester);
+    expect(module.pixels, 0);
+    expect(under.pixels, 1000, reason: 'the page under the module stays where it was');
   });
 
   testWidgets('on a module page the navigation slides away on a scroll down and back on a scroll up', (tester) async {
@@ -272,8 +344,12 @@ void main() {
     expect(find.byType(BackButton), findsNothing);
   });
 
-  group("a module's back goes to the catalog, not to the page before (the owner, 2026-11-11)", () {
-    testWidgets('from a module opened on Home, after another tab, to the catalog and not Home', (tester) async {
+  group('the bar\'s back goes to the page the module was opened from (the owner, 2026-11-12)', () {
+    int selected(WidgetTester tester) => tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    testWidgets('from a module opened on Home, after another tab, to Home; Catalog then opens at its first page', (
+      tester,
+    ) async {
       final router = await _pumpAt(tester, '/', TrackCubit());
       router.push('/courses/alpha/first');
       await tester.pumpAndSettle();
@@ -282,28 +358,33 @@ void main() {
       expect(_path(router), '/courses/alpha/first', reason: 'the tab opens its module again');
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/sheets');
+      expect(_path(router), '/');
+      expect(selected(tester), 0);
       expect(find.byType(BackButton), findsNothing);
+
+      await _tap(tester, _destination('Catalog'));
+      expect(_path(router), '/sheets', reason: 'not the module already gone back from');
     });
 
-    testWidgets('from a module opened from another module, past it to the catalog under them', (tester) async {
+    testWidgets('from a module opened from another module, to that module', (tester) async {
       final router = await _pumpAt(tester, '/sheets', TrackCubit());
       await _pushFromCatalog(tester, 'Alpha Level', 'First Module');
       router.push('/courses/beta/fourth');
       await tester.pumpAndSettle();
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/sheets');
-      expect(find.byType(BackButton), findsNothing);
+      expect(_path(router), '/courses/alpha/first');
+      await _tap(tester, find.byType(BackButton));
+      expect(_path(router), '/sheets', reason: 'the catalog the first module was opened from');
     });
 
-    testWidgets("For Everyone's module goes to For Everyone's catalog", (tester) async {
+    testWidgets("For Everyone's module opened on Home goes back Home", (tester) async {
       final router = await _pumpAt(tester, '/', TrackCubit());
       router.push('/everyone/courses/alpha/first');
       await tester.pumpAndSettle();
 
       await _tap(tester, find.byType(BackButton));
-      expect(_path(router), '/everyone/sheets');
+      expect(_path(router), '/');
     });
   });
 
@@ -410,8 +491,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/sheets', reason: 'the open tab goes back to its first page');
     expect(find.byType(BackButton), findsNothing);
-    // A module opened from Home is under Catalog too, with Home under it; its back goes to the catalog (the owner,
-    // 2026-11-11).
+    // A module opened from Home is under Catalog too, with Home under it; its back goes Home, where it was opened.
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Open the module'));
@@ -422,7 +502,57 @@ void main() {
     await tester.pumpAndSettle();
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
-    expect(_path(router), '/sheets');
+    expect(_path(router), '/', reason: 'back where it was opened, Home (the owner, 2026-11-12)');
+  });
+
+  group('another tab opens at once, with no transition (the owner, 2026-11-12)', () {
+    /// Taps the destination [label] and draws a single frame.
+    Future<void> tapOnce(WidgetTester tester, String label) async {
+      await tester.tap(_destination(label));
+      await tester.pump();
+    }
+
+    testWidgets("the page left is gone in the next frame, and none shows through the other's", (tester) async {
+      await _pumpAt(tester, '/sheets', TrackCubit());
+
+      await tapOnce(tester, 'Quiz');
+      expect(find.byType(QuizListPage), findsOneWidget);
+      expect(find.byType(CatalogOverview), findsNothing);
+      expect(TabSwitch.active, isFalse, reason: 'the move ends once the page is drawn');
+
+      await tapOnce(tester, 'Catalog');
+      expect(find.byType(CatalogOverview), findsOneWidget);
+      expect(find.byType(QuizListPage), findsNothing);
+    });
+
+    testWidgets('a module kept under a tab goes and comes back at once too', (tester) async {
+      final router = await _pumpAt(tester, '/sheets', TrackCubit());
+      await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
+
+      await tapOnce(tester, 'Quiz');
+      expect(find.byType(ModuleReaderPage), findsNothing);
+      expect(find.byType(QuizListPage), findsOneWidget);
+
+      await tapOnce(tester, 'Catalog');
+      expect(_path(router), '/courses/beta/fourth');
+      expect(find.byType(QuizListPage), findsNothing);
+      expect(find.byType(ModuleReaderPage), findsOneWidget);
+    });
+
+    testWidgets('a page opened after the move still moves in, over the page under it', (tester) async {
+      final router = await _pumpAt(tester, '/', TrackCubit());
+      await tapOnce(tester, 'Catalog');
+      await tester.pumpAndSettle();
+
+      router.push('/courses/alpha/first');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final route = ModalRoute.of(tester.element(find.byType(ModuleReaderPage)))!;
+      expect(route.animation!.isCompleted, isFalse, reason: 'still moving in');
+      expect(find.byType(CatalogOverview), findsOneWidget, reason: 'the catalog stays under it until it is in');
+      await tester.pumpAndSettle();
+      expect(route.animation!.isCompleted, isTrue);
+    });
   });
 
   testWidgets('text scale 2.0', (tester) async {

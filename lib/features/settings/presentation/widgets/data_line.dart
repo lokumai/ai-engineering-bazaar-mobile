@@ -75,6 +75,7 @@ class DataLine extends StatelessWidget {
 
   static String _restoreText(S s, RestoreOutcome outcome) => switch (outcome) {
     RestoreOutcome.restored => s.data_restored,
+    RestoreOutcome.notRestored => s.data_restore_not_done,
     RestoreOutcome.empty => s.data_restore_empty,
     RestoreOutcome.newer => s.data_restore_newer,
     RestoreOutcome.malformed => s.data_restore_malformed,

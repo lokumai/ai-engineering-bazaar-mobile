@@ -42,6 +42,29 @@ void main() {
   );
 
   blocTest<QuizLoader, QuizLoad>(
+    'the quiz is titled in the language, the English title where there is none (web D139)',
+    setUp: () =>
+        when(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json'))
+            .thenAnswer((_) async => testDoc(quiz: _items)),
+    build: () => QuizLoader(
+      repository: repository,
+      index: catalogFixtureIndex(
+        titles: {
+          'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+        },
+      ),
+    ),
+    act: (loader) async {
+      await loader.load('alpha/first', 'tr');
+      await loader.load('alpha/first', 'fa');
+    },
+    expect: () => [
+      const QuizReady(title: 'Birinci Modül', items: _items),
+      const QuizReady(title: 'First Module', items: _items),
+    ],
+  );
+
+  blocTest<QuizLoader, QuizLoad>(
     'For Everyone reads the For Everyone document, under its title there (web D137)',
     setUp: () =>
         when(() => repository.readModuleDoc('api/v1/modules/alpha/first/everyone/en.json'))

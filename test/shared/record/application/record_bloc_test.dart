@@ -40,6 +40,7 @@ RecordReady ready({
 /// A record store in memory that logs every call, with a gate on the write and injectable errors.
 final class _MemoryRecordRepository implements IRecordRepository {
   RecordLoad loadResult = const RecordLoadEmpty(quarantineKept: false);
+  Object? loadError;
   Completer<void>? loadGate;
   Uint8List? record;
   Uint8List? quarantine;
@@ -48,6 +49,13 @@ final class _MemoryRecordRepository implements IRecordRepository {
   Completer<void>? gate;
   FileSystemException? readStoredError;
   FileSystemException? deleteAllError;
+
+  /// An error no handler names, thrown by [write] or [restore].
+  Object? writeError;
+  Object? restoreError;
+
+  /// Whether a failing [deleteAll] has deleted `record.json` before it fails.
+  bool deleteAllPartly = false;
   final writes = <String>[];
   final calls = <String>[];
 
@@ -55,6 +63,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
   Future<RecordLoad> load() async {
     calls.add('load');
     await loadGate?.future;
+    if (loadError case final error?) throw error;
     return loadResult;
   }
 
@@ -63,6 +72,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
     calls.add('write');
     writes.add(compactJson);
     await gate?.future;
+    if (writeError case final error?) throw error;
     if (nextResult == WriteResult.saved) record = utf8.encode(compactJson);
     return nextResult;
   }
@@ -77,7 +87,10 @@ final class _MemoryRecordRepository implements IRecordRepository {
   @override
   Future<void> deleteAll() async {
     calls.add('deleteAll');
-    if (deleteAllError case final error?) throw error;
+    if (deleteAllError case final error?) {
+      if (deleteAllPartly) record = null;
+      throw error;
+    }
     record = null;
     quarantine = null;
   }
@@ -85,6 +98,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
   @override
   Future<RestoreResult> restore(StoredBytes bytes) async {
     calls.add('restore');
+    if (restoreError case final error?) throw error;
     if (restoreResult == WriteResult.saved) {
       if (bytes.record case final bytes?) record = bytes;
       if (bytes.quarantine case final bytes?) quarantine = bytes;
@@ -150,6 +164,19 @@ void main() {
         ..loadResult = const RecordLoadQuarantined(reason: QuarantineReason.newer, quarantineKept: true);
       final bloc = await _started(repository);
       expect(bloc.state, ready(record: RecordData.empty, quarantine: QuarantineReason.newer, quarantineKept: true));
+      await bloc.close();
+    });
+  });
+
+  test('a launch read that throws is a failed one: the app opens and writes nothing over the record', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()..loadError = StateError('no support directory');
+      final bloc = await _started(repository);
+      expect(bloc.state, ready(writeState: const WriteBlocked(), launchReadFailed: true));
+
+      bloc.add(_toggle);
+      await pumpEventQueue();
+      expect(repository.writes, isEmpty);
       await bloc.close();
     });
   });
@@ -395,6 +422,65 @@ void main() {
     });
   });
 
+  group('every caller is answered, even after an error no handler names (review B6)', () {
+    test('a backup whose write throws replies with the error, and the next event still runs', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..writeError = StateError('disk');
+        final bloc = await _started(repository);
+        final errors = <Object>[];
+        final subscription = bloc.stream.listen(null, onError: errors.add);
+
+        final reply = Completer<RecordBackup>();
+        bloc.add(BackupStarted(at: '2026-03-15T07:10:00.000Z', reply: reply));
+        await expectLater(reply.future, throwsStateError);
+
+        repository.writeError = null;
+        final replaced = Completer<bool>();
+        bloc.add(RecordReplaced(data: _signed, reply: replaced));
+        expect(await replaced.future, isTrue);
+        await subscription.cancel();
+        await bloc.close();
+      });
+    });
+
+    test('an undo whose restore throws replies false', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        bloc.add(RecordErased(at: _t));
+        await pumpEventQueue();
+        repository.restoreError = StateError('disk');
+
+        final undone = Completer<bool>();
+        bloc.add(EraseUndone(reply: undone));
+        expect(await undone.future, isFalse);
+        await bloc.close();
+      });
+    });
+
+    test('a restore replies true once it replaced the record, and false with an erase waiting', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final d = normaliseRecord({
+          'days': ['2026-01-02'],
+        });
+
+        final replaced = Completer<bool>();
+        bloc.add(RecordReplaced(data: d, reply: replaced));
+        expect(await replaced.future, isTrue);
+        expect(_ready(bloc).record, same(d));
+
+        final dropped = Completer<bool>();
+        bloc
+          ..add(RecordReplaced(data: _signed, reply: dropped))
+          ..add(RecordErased(at: _t));
+        expect(await dropped.future, isFalse, reason: 'an erase waits behind it, and wins');
+        await bloc.close();
+      });
+    });
+  });
+
   test('a completed backup marks lastExport', () async {
     await _withClock(() async {
       final repository = _MemoryRecordRepository();
@@ -496,6 +582,30 @@ void main() {
       expect(repository.writes, isEmpty);
       expect(_ready(bloc).record, same(RecordData.empty));
       await bloc.close();
+    });
+  });
+
+  test('a second erase while the undo is open keeps the first undo: the undo brings back the record before both', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = RecordLoadOk(data: _signed, quarantineKept: false)
+        ..record = Uint8List.fromList([1]);
+      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
+      async.flushMicrotasks();
+      bloc.add(_toggle);
+      async.flushMicrotasks();
+
+      bloc.add(RecordErased(at: _t.add(const Duration(seconds: 3))));
+      async.flushMicrotasks();
+      expect(_ready(bloc).undo?.again, isTrue);
+      expect(_ready(bloc).undo?.data, _signed);
+
+      bloc.add(const EraseUndone());
+      async.flushMicrotasks();
+      expect(repository.record, [1], reason: 'the files from before the first erase');
+      expect(_ready(bloc).record, _signed, reason: 'what was changed between the two erases is not brought back');
+      bloc.close();
+      async.flushMicrotasks();
     });
   });
 
@@ -785,6 +895,27 @@ void main() {
     }
   });
 
+  test('an erase that deleted record.json and then failed writes it back, so nothing is lost on the device', () {
+    _fake((async) {
+      final repository = _MemoryRecordRepository();
+      final bloc = _startedFake(async, repository)..add(_toggle);
+      async.flushMicrotasks();
+      final stored = repository.record;
+      expect(stored, isNotNull);
+
+      repository
+        ..deleteAllError = _injected()
+        ..deleteAllPartly = true;
+      bloc.add(RecordErased(at: _t));
+      async.flushMicrotasks();
+
+      expect(repository.record, stored, reason: 'written back as it was read');
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
+      unawaited(bloc.close());
+      async.flushMicrotasks();
+    });
+  });
+
   test('A41: an erase whose files cannot be deleted does not happen', () {
     _fake((async) {
       final repository = _MemoryRecordRepository()
@@ -808,8 +939,7 @@ void main() {
         quarantineKept: true,
       );
       expect(bloc.state, expected);
-      expect(repository.calls.last, 'deleteAll');
-      expect(repository.calls, isNot(contains('restore')));
+      expect(repository.calls, containsAllInOrder(['readStored', 'deleteAll', 'restore']));
       expect(replied, isFalse);
 
       final states = <RecordState>[];

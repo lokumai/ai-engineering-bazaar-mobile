@@ -58,7 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m17(count, first) =>
       "Kurs, ${first} ile başlayan ${count} seviyeye ayrılır. İlkinden başla, hazır olduğunda bir sonrakine geç.";
 
-  static String m18(percent) => "% ${percent} okundu";
+  static String m18(percent) => "%${percent} okundu";
 
   static String m19(minutes, words) => "${minutes} dk · ${words} kelime";
 
@@ -104,7 +104,9 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about_close": MessageLookupByLibrary.simpleMessage("Kapat"),
     "about_english": MessageLookupByLibrary.simpleMessage("Hikâye İngilizce yazıldı."),
-    "about_failed": MessageLookupByLibrary.simpleMessage("Hikâye açılamadı. Güncellemeleri denetle, sonra yeniden aç."),
+    "about_failed": MessageLookupByLibrary.simpleMessage(
+      "Hikâye açılamadı. Güncellemeleri kontrol et, sonra yeniden aç.",
+    ),
     "about_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "about_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "about_skip": MessageLookupByLibrary.simpleMessage("Geç"),
@@ -115,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("Bu bölüm için uygulamanın daha yeni bir sürümü gerekiyor."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Bakımda"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "Kervan, yapay zekâ mühendisliğinde gündemde olanların zaman çizelgesi, hâlâ yapım aşamasında.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("Yakında"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "Yapay zekâ mühendisliğinde gündemde olanların dönem dönem zaman çizelgesi. O gelene kadar katalog açık.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("Kervan yolda"),
     "card_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "card_length": MessageLookupByLibrary.simpleMessage("Süre"),
     "card_length_minutes": m4,
@@ -171,6 +174,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "Bu dosya, uygulamanın ya da web sitesinin daha yeni bir sürümüyle yazılmış. Uygulamayı güncelle, sonra dosyayı yeniden geri yükle.",
     ),
+    "data_restore_not_done": MessageLookupByLibrary.simpleMessage(
+      "Dosya geri yüklenmedi, çünkü bir sıfırlama sürüyordu. Yeniden dene.",
+    ),
     "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
       "Bu yedek, uygulamanın saklayabileceğinden büyük. Hiçbir şey değişmedi.",
     ),
@@ -187,7 +193,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Cihaz yedeklerinden birinde ilerlemenin daha eski bir kopyası hâlâ bulunabilir.",
     ),
     "erase_confirm": MessageLookupByLibrary.simpleMessage("Bütün verileri sil"),
-    "erase_field_label": MessageLookupByLibrary.simpleMessage("Onaylamak için ERASE yaz"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("Onaylamak için SİL yaz"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("Verilerimi koru"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("Sil"),
     "erase_scope": MessageLookupByLibrary.simpleMessage(
@@ -195,6 +201,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("Bu cihazdaki quiz skorları da silinir."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("SİL"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "Bir modülü bitirince tamamlandı olarak işaretle. Katalog ne okuduğunu, Ana sayfa sırada ne olduğunu gösterir.",
@@ -269,14 +276,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
     ),
-    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
-    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "Bu uygulama kişisel veri toplamaz. Hesap, analiz aracı ve reklam yoktur.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("Sitedeki gizlilik notu"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "Kopya yazılamadı. Kenara ayrılan kayıt değişmedi.",
@@ -337,6 +345,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Modülü tamamlama"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("İçindekiler"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("Kursun sonu"),
+    "reader_failed": MessageLookupByLibrary.simpleMessage(
+      "Bu modül bu cihazda okunamadı. Yeniden dene ya da uygulamayı yeniden başlat.",
+    ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Arama işaretlerini kaldır"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Sonraki eşleşme"),
     "reader_find_position": m32,
@@ -353,6 +364,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için sürümünü oku"),
+    "reader_retry": MessageLookupByLibrary.simpleMessage("Yeniden dene"),
     "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Madde"),

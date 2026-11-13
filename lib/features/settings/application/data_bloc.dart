@@ -39,7 +39,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     on<RestoreRequested>(_onRestoreRequested, transformer: EventTransformers.dropConcurrent());
     on<RestoreConfirmed>(_onRestoreConfirmed);
     on<RestoreDeclined>(_onRestoreDeclined);
-    on<ResetConfirmed>(_onResetConfirmed);
+    on<ResetConfirmed>(_onResetConfirmed, transformer: EventTransformers.dropConcurrent());
     on<UndoRequested>(_onUndoRequested);
     on<UndoTicked>(_onUndoTicked);
     on<QuarantineExportRequested>(_onQuarantineExportRequested, transformer: EventTransformers.dropConcurrent());
@@ -78,7 +78,14 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final at = nowIso();
       final reply = Completer<RecordBackup>();
       _recordBloc.add(BackupStarted(at: at, reply: reply));
-      final backup = await reply.future;
+      final RecordBackup backup;
+      try {
+        backup = await reply.future;
+      } on Object catch (error) {
+        _log.warn('Backup not made: {}', [error.runtimeType]);
+        emit(state._with(busy: DataBusy.idle, backup: const BackupNotWritten()));
+        return;
+      }
       final BackupSaveResult result;
       try {
         result = await _gateway.save(backup.bytes, backup.filename);
@@ -111,7 +118,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
           EnvelopeEmpty() => state._with(restore: RestoreOutcome.empty),
           EnvelopeQuarantine(reason: QuarantineReason.newer) => state._with(restore: RestoreOutcome.newer),
           EnvelopeQuarantine(reason: QuarantineReason.malformed) => state._with(restore: RestoreOutcome.malformed),
-          EnvelopeOk(:final data) => _offer(data),
+          EnvelopeOk(:final data) => await _offer(data),
         },
       };
       emit(next._with(busy: DataBusy.idle));
@@ -122,7 +129,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
 
   /// The state once [data] is offered: applied at once over a record that carries nothing, else held for the
   /// reader's confirmation with the tally of what it replaces.
-  DataState _offer(RecordData data) {
+  Future<DataState> _offer(RecordData data) async {
     // A record the app would not write is refused before it replaces anything: it would be gone at the next start.
     if (utf8.encode(serialise(data, nowIso(), pretty: false)).length > RecordConstants.softCapBytes) {
       return state._with(restore: RestoreOutcome.tooLarge);
@@ -137,21 +144,24 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     );
   }
 
-  /// Replaces the record with [data]; the replacement closes an open undo (A33), so the countdown stops.
-  DataState _apply(RecordData data) {
-    _recordBloc.add(RecordReplaced(data: data));
+  /// Replaces the record with [data] and says restored only once the record did; the replacement closes an open undo
+  /// (A33), so the countdown stops.
+  Future<DataState> _apply(RecordData data) async {
+    final replaced = Completer<bool>();
+    _recordBloc.add(RecordReplaced(data: data, reply: replaced));
+    if (!await replaced.future) return state._with(pendingRestore: null, restore: RestoreOutcome.notRestored);
     _stopTicker();
     return state._with(reset: null, pendingRestore: null, restore: RestoreOutcome.restored);
   }
 
-  void _onRestoreConfirmed(RestoreConfirmed event, Emitter<DataState> emit) {
+  Future<void> _onRestoreConfirmed(RestoreConfirmed event, Emitter<DataState> emit) async {
     final pending = state.pendingRestore;
     if (pending == null) {
       // A second tap on the dialog's button arrives after the first one applied the file.
       _log.debug('Restore confirmed with nothing waiting');
       return;
     }
-    emit(_apply(pending.data));
+    emit(await _apply(pending.data));
   }
 
   void _onRestoreDeclined(RestoreDeclined event, Emitter<DataState> emit) {
@@ -169,8 +179,13 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final erased = await done.future;
       // The scores and the places go with the record even when the page closed meanwhile: a reset is never half done.
       if (erased) {
-        _scores?.add(const QuizScoresErased());
-        _places?.add(const ReadingPlacesErased());
+        // A reset while the undo of the one before is open keeps what that undo brings back.
+        final again = switch (_recordBloc.state) {
+          RecordReady(:final undo?) => undo.again,
+          _ => false,
+        };
+        _scores?.add(QuizScoresErased(again: again));
+        _places?.add(ReadingPlacesErased(again: again));
       }
       // The page closed while the erase waited in the record's queue: a ticker started now is never cancelled.
       if (isClosed) return;

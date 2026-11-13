@@ -18,7 +18,6 @@ class SettingsFeatureRoutes {
       pageBuilder: (context, state) => appTransitionPage(
         context: context,
         state: state,
-        type: AppPageTransitionType.fade,
         child: SettingsPage(openDevConsole: openDevConsole),
       ),
     ),

@@ -34,7 +34,11 @@ final class QuizLoader extends Cubit<QuizLoad> {
     try {
       final doc = await _repository.readModuleDoc(path);
       final items = doc.quiz;
-      emit(items == null || items.isEmpty ? const QuizMissing() : QuizReady(title: version.title, items: items));
+      emit(
+        items == null || items.isEmpty
+            ? const QuizMissing()
+            : QuizReady(title: version.titleIn(language), items: items),
+      );
     } on ContentMissingException catch (error) {
       _log.warn('quiz document {} unreadable: {}', [path, error]);
       emit(const QuizUnreadable());

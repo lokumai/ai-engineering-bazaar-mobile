@@ -117,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("این بخش به نسخهٔ جدیدتری از برنامه نیاز دارد."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("در دست تعمیر و نگهداری"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "کاروان، گاه‌شمار آنچه در مهندسی هوش مصنوعی پرطرفدار بوده، هنوز در دست ساخت است.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("به‌زودی"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "گاه‌شمار آنچه در مهندسی هوش مصنوعی، فصل به فصل، پرطرفدار بوده است. تا رسیدن آن، کاتالوگ باز است.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("کاروان در راه است"),
     "card_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "card_length": MessageLookupByLibrary.simpleMessage("مدت"),
     "card_length_minutes": m4,
@@ -173,6 +174,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "این فایل را نسخهٔ جدیدتری از برنامه یا وب‌سایت نوشته است. برنامه را به‌روزرسانی کنید و دوباره آن را بازیابی کنید.",
     ),
+    "data_restore_not_done": MessageLookupByLibrary.simpleMessage(
+      "فایل بازیابی نشد، چون بازنشانی در جریان بود. دوباره تلاش کنید.",
+    ),
     "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
       "این پشتیبان بزرگ‌تر از آن است که برنامه بتواند نگه دارد. چیزی تغییر نکرد.",
     ),
@@ -189,7 +193,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ممکن است پشتیبان دستگاه هنوز نسخهٔ قدیمی‌تری از پیشرفت شما را داشته باشد.",
     ),
     "erase_confirm": MessageLookupByLibrary.simpleMessage("پاک کردن همهٔ داده‌ها"),
-    "erase_field_label": MessageLookupByLibrary.simpleMessage("برای تأیید، ERASE را تایپ کنید"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("برای تأیید، «حذف» را تایپ کنید"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("داده‌هایم را نگه دار"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("پاک کردن"),
     "erase_scope": MessageLookupByLibrary.simpleMessage(
@@ -197,6 +201,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("امتیازهای آزمون در این دستگاه هم پاک می‌شوند."),
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("حذف"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "وقتی درسی را تمام کردید، آن را تکمیل‌شده علامت بزنید. کاتالوگ نشان می‌دهد چه خوانده‌اید و صفحهٔ خانه درس بعدی را نشان می‌دهد.",
@@ -271,14 +276,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
     ),
-    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
-    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
+    "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "این برنامه هیچ داده شخصی جمع نمی‌کند. حساب کاربری، ابزار تحلیل و تبلیغ ندارد.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما فقط روی همین دستگاه ذخیره می‌شوند. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("یادداشت حریم خصوصی در وب‌سایت"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("حریم خصوصی"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "کپی نوشته نشد. سابقهٔ کنارگذاشته‌شده تغییری نکرده است.",
@@ -341,6 +347,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("تکمیل درس"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("فهرست مطالب"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("پایان دوره"),
+    "reader_failed": MessageLookupByLibrary.simpleMessage(
+      "این ماژول روی این دستگاه خوانده نشد. دوباره تلاش کنید یا برنامه را از نو باز کنید.",
+    ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("حذف نشانه‌های جستجو"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("مورد بعدی"),
     "reader_find_position": m32,
@@ -355,6 +364,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("خواندن نسخهٔ «برای مهندسان»"),
+    "reader_retry": MessageLookupByLibrary.simpleMessage("دوباره تلاش کنید"),
     "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("مورد"),

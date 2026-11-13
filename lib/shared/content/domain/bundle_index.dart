@@ -216,9 +216,11 @@ final class ModuleTrack extends Equatable {
     required this.revision,
     required this.docs,
     this.words = const {},
+    this.titles = const {},
     required this.webPath,
   });
 
+  /// The English title, the source language's.
   final String title;
 
   /// Written in this track.
@@ -235,11 +237,17 @@ final class ModuleTrack extends Equatable {
   /// Language to the words its web page prints under the title (web D128); empty where the module is not written.
   final Map<String, int> words;
 
+  /// Language to the title its document carries (web D139); empty in an index from before it.
+  final Map<String, String> titles;
+
+  /// The title in [language], the English one where the module has none in it.
+  String titleIn(String language) => titles[language] ?? title;
+
   /// The page on the web, relative to the site root (`courses/<key>/`).
   final String webPath;
 
   @override
-  List<Object?> get props => [title, drawn, summary, hasQuiz, revision, docs, words, webPath];
+  List<Object?> get props => [title, drawn, summary, hasQuiz, revision, docs, words, titles, webPath];
 }
 
 /// The commit a module was last changed in.

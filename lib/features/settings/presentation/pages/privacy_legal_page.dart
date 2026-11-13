@@ -3,12 +3,15 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Settings' privacy and legal notes (plan 3.4, web D122): what the app does with data, the owner as the registry has
 /// it, and the note on third-party marks and images. The privacy note is the app's own, since the app is not the site:
-/// it downloads the course from the site and, when [crashReports] is set, sends crash reports.
+/// it downloads the course from the site and, when [crashReports] is set, sends crash reports. It ends on the site's note,
+/// which covers the app too (web D138).
 class PrivacyLegalPage extends StatelessWidget {
   const PrivacyLegalPage({super.key, required this.crashReports});
 
@@ -38,6 +41,7 @@ class PrivacyLegalPage extends StatelessWidget {
                 if (crashReports) _Paragraph(s.privacy_crash),
                 _Paragraph(s.privacy_contact),
                 _Link(label: SiteOwner.email, uri: LegalLinks.email),
+                _Link(label: s.privacy_site_note, uri: context.read<WebLinks>().privacy),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),

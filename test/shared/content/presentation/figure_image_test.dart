@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -17,6 +18,18 @@ import 'package:mocktail/mocktail.dart';
 import '../../../mocks/mock_classes.dart';
 import '../../../support/animated_bytes.dart';
 import '../../../support/content_builders.dart';
+
+/// A PNG of [width] by [height] pixels, drawn in a real wait because the engine encodes outside the fake clock.
+Future<Uint8List> _pngOf(WidgetTester tester, int width, int height) async => (await tester.runAsync(() async {
+  final recorder = ui.PictureRecorder();
+  ui.Canvas(recorder).drawRect(
+    ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+    ui.Paint()..color = const ui.Color(0xFF2F8C86),
+  );
+  final picture = await recorder.endRecording().toImage(width, height);
+  final data = await picture.toByteData(format: ui.ImageByteFormat.png);
+  return data!.buffer.asUint8List();
+}))!;
 
 const image = ImageBlock(
   number: '2.1',
@@ -51,6 +64,43 @@ void main() {
     expect(tester.widget<Image>(find.byType(Image)).semanticLabel, 'A figure');
     expect(find.text(S.current.content_unreadable), findsNothing);
     expect(tester.getSize(find.byType(FigureImage)), const Size(390, 195));
+  });
+
+  group('an image is decoded at the width it is drawn at, and no wider', () {
+    testWidgets('a photo wider than the page is decoded at the page width in device pixels', (tester) async {
+      final png = await _pngOf(tester, 2000, 1000);
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => png);
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+
+      final ratio = tester.view.devicePixelRatio;
+      final decoded = tester.widget<RawImage>(find.byType(RawImage)).image!;
+      expect(decoded.width, (390 * ratio).ceil());
+      expect(decoded.height, (390 * ratio / 2).round(), reason: 'its shape kept');
+      expect(tester.getSize(find.byType(FigureImage)), const Size(390, 195), reason: 'drawn as large as before');
+    });
+
+    testWidgets('a small image is not made larger', (tester) async {
+      final png = File('test/fixtures/content/src/course-images/alpha/figure.png').readAsBytesSync();
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => Uint8List.fromList(png));
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+
+      expect(tester.widget<RawImage>(find.byType(RawImage)).image!.width, 4);
+    });
+
+    testWidgets('full screen decodes it whole, to zoom', (tester) async {
+      final png = await _pngOf(tester, 2000, 1000);
+      when(() => repository.readObject(image.src)).thenAnswer((_) async => png);
+      await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
+      await settleContent(tester);
+      await tester.tap(find.byType(FigureImage));
+      await tester.pumpAndSettle();
+      await settleContent(tester);
+
+      final full = find.descendant(of: find.byType(ImageFullScreen), matching: find.byType(RawImage));
+      expect(tester.widget<RawImage>(full).image!.width, 2000);
+    });
   });
 
   testWidgets('a tap opens the image full screen, to zoom, and the close button comes back', (tester) async {
@@ -110,7 +160,16 @@ void main() {
       await settleContent(tester);
       expect(tester.widget<Image>(find.byType(Image)).key, const ValueKey(0));
 
+      final shown = tester.widget<Image>(find.byType(Image)).image;
+      final key = await shown.obtainKey(ImageConfiguration.empty);
+      expect(imageCache.containsKey(key), isTrue);
+
       await tester.tap(find.byKey(FigureImage.replayKey));
+      expect(
+        imageCache.containsKey(key),
+        isFalse,
+        reason: 'the image as decoded, at its width, is put out of the cache',
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 

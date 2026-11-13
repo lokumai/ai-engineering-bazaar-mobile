@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -17,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +53,8 @@ class HomePage extends StatelessWidget {
       ReadingPlacesReady(:final places) => places,
       ReadingPlacesLoading() => const <String, ReadingPlace>{},
     };
-    final overview = homeOverview(index, track, record, scores: scores, places: places);
+    final language = context.watch<LanguageCubit>().state;
+    final overview = homeOverview(index, track, record, scores: scores, places: places, language: language);
     final label = overview.next?.share != null ? s.home_continue_reading : s.home_up_next;
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 
@@ -64,7 +67,7 @@ class HomePage extends StatelessWidget {
           header: true,
           label: label,
           excludeSemantics: true,
-          child: Text(label.toUpperCase(), style: labelStyle),
+          child: Text(upperCaseIn(label, Localizations.localeOf(context).languageCode), style: labelStyle),
         ),
         const SizedBox(height: 12),
         HomeContinueCard(track: track, next: overview.next),

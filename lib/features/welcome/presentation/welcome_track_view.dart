@@ -12,6 +12,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,78 +60,80 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
             const BazaarBar(),
             const LatticeBand(thin: true),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 20,
-                  children: [
-                    ExcludeSemantics(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        spacing: 4,
-                        children: [
-                          for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
-                            Image(image: AssetImage(art), height: 96, filterQuality: FilterQuality.medium),
-                        ],
-                      ),
-                    ),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        s.welcome_track_title,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineMedium?.copyWith(color: colors.onSurfaceTitle),
-                      ),
-                    ),
-                    Text(
-                      s.welcome_track_lede,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
-                    ),
-                    // The language first: choosing one turns this screen into it at once (plan 1S).
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 8,
-                      children: [
-                        Text(s.settings_language, style: theme.textTheme.titleSmall),
-                        BazaarSegmentedControl<String>(
-                          semanticLabel: s.settings_language,
-                          selected: context.watch<LanguageCubit>().state,
-                          onSelected: (language) => unawaited(context.read<LanguageCubit>().choose(language)),
-                          segments: [
-                            for (final language in LanguageCubit.supported)
-                              BazaarSegment(
-                                value: language,
-                                label: LanguageCubit.names[language]!,
-                                key: WelcomeTrackView.languageKey(language),
-                              ),
+              child: ReadableWidth(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 20,
+                    children: [
+                      ExcludeSemantics(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          spacing: 4,
+                          children: [
+                            for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
+                              Image(image: AssetImage(art), height: 96, filterQuality: FilterQuality.medium),
                           ],
                         ),
-                      ],
-                    ),
-                    for (final info in index.tracks)
-                      _TrackOption(
-                        key: WelcomeTrackView.optionKey(info.track),
-                        title: trackName(s, info.track),
-                        body: switch (info.track) {
-                          Track.engineers => s.welcome_track_engineers,
-                          Track.everyone => s.welcome_track_everyone,
-                        },
-                        selected: _track == info.track,
-                        onTap: () => setState(() => _track = info.track),
                       ),
-                    const SizedBox(height: 4),
-                    FilledButton.icon(
-                      key: const Key('welcome-start'),
-                      onPressed: () => widget.onChosen(_track),
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                      icon: const Icon(Icons.arrow_forward),
-                      iconAlignment: IconAlignment.end,
-                      label: Text(widget.story ? s.welcome_to_story : s.welcome_start),
-                    ),
-                  ],
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          s.welcome_track_title,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineMedium?.copyWith(color: colors.onSurfaceTitle),
+                        ),
+                      ),
+                      Text(
+                        s.welcome_track_lede,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
+                      ),
+                      // The language first: choosing one turns this screen into it at once (plan 1S).
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
+                        children: [
+                          Text(s.settings_language, style: theme.textTheme.titleSmall),
+                          BazaarSegmentedControl<String>(
+                            semanticLabel: s.settings_language,
+                            selected: context.watch<LanguageCubit>().state,
+                            onSelected: (language) => unawaited(context.read<LanguageCubit>().choose(language)),
+                            segments: [
+                              for (final language in LanguageCubit.supported)
+                                BazaarSegment(
+                                  value: language,
+                                  label: LanguageCubit.names[language]!,
+                                  key: WelcomeTrackView.languageKey(language),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      for (final info in index.tracks)
+                        _TrackOption(
+                          key: WelcomeTrackView.optionKey(info.track),
+                          title: trackName(s, info.track),
+                          body: switch (info.track) {
+                            Track.engineers => s.welcome_track_engineers,
+                            Track.everyone => s.welcome_track_everyone,
+                          },
+                          selected: _track == info.track,
+                          onTap: () => setState(() => _track = info.track),
+                        ),
+                      const SizedBox(height: 4),
+                      FilledButton.icon(
+                        key: const Key('welcome-start'),
+                        onPressed: () => widget.onChosen(_track),
+                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                        icon: const Icon(Icons.arrow_forward),
+                        iconAlignment: IconAlignment.end,
+                        label: Text(widget.story ? s.welcome_to_story : s.welcome_start),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

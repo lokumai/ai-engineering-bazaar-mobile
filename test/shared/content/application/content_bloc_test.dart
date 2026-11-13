@@ -76,6 +76,15 @@ void main() {
   );
 
   blocTest<ContentBloc, ContentState>(
+    'any other error at open is ContentBroken(storage), not the loading page for ever',
+    setUp: () => when(() => repository.open()).thenThrow(StateError('no cache directory')),
+    build: () => ContentBloc(repository: repository),
+    act: (bloc) => bloc.add(const ContentStarted()),
+    expect: () => [const ContentBroken(code: ContentErrorCode.storage)],
+    verify: (_) => verifyNever(() => repository.refresh()),
+  );
+
+  blocTest<ContentBloc, ContentState>(
     'an update replaces the index and clears the cache-discarded notice',
     setUp: () {
       opens(notice: ContentNotice.cacheDiscarded);
@@ -101,6 +110,18 @@ void main() {
     act: (bloc) => bloc.add(const ContentStarted()),
     skip: 2,
     expect: () => [ready(const RefreshFailed(ContentErrorCode.network))],
+  );
+
+  blocTest<ContentBloc, ContentState>(
+    'a refresh that throws an error the repository does not name ends the check, so it can run again (review B6)',
+    setUp: () {
+      opens();
+      when(() => repository.refresh()).thenThrow(StateError('unexpected'));
+    },
+    build: () => ContentBloc(repository: repository),
+    act: (bloc) => bloc.add(const ContentStarted()),
+    skip: 2,
+    expect: () => [ready(const RefreshFailed(ContentErrorCode.storage))],
   );
 
   blocTest<ContentBloc, ContentState>(

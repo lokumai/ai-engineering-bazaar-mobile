@@ -44,6 +44,12 @@ interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
       _log.error('content store unusable: {}', [error]);
       emit(const ContentBroken(code: ContentErrorCode.storage));
       return;
+    } on Object catch (error, stack) {
+      // Anything else, such as the platform refusing the cache directory, ends on the notice too and not on the
+      // loading page for ever.
+      _log.error('content could not be opened: {}\n{}', [error, stack]);
+      emit(const ContentBroken(code: ContentErrorCode.storage));
+      return;
     }
     emit(
       ContentReady(index: opening.index, origin: opening.origin, notice: opening.notice, refresh: const RefreshIdle()),
@@ -56,7 +62,16 @@ interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
     if (current is! ContentReady) return;
     emit(current.withRefresh(const RefreshChecking()));
 
-    final outcome = await _repository.refresh();
+    final RefreshOutcome outcome;
+    try {
+      outcome = await _repository.refresh();
+    } on Object catch (error, stack) {
+      // An error the repository does not name ends the check too, or Check for updates would stay disabled until the
+      // next launch. The content in use is kept.
+      _log.error('content refresh failed: {}\n{}', [error, stack]);
+      emit(current.withRefresh(const RefreshFailed(ContentErrorCode.storage)));
+      return;
+    }
     emit(switch (outcome) {
       ContentUpToDate() => current.withRefresh(const RefreshUpToDate()),
       ContentUpdated(:final index) => ContentReady(

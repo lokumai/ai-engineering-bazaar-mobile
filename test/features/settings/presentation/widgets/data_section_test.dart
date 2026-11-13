@@ -85,6 +85,9 @@ void main() {
   testWidgets('a pending restore opens the confirmation', (tester) async {
     for (final (answer, replaced) in [('Replace', true), ('Keep my data', false)]) {
       final recordBloc = readyRecordBloc(_firstCompleted()) as MockRecordBloc;
+      when(() => recordBloc.add(any())).thenAnswer((invocation) {
+        if (invocation.positionalArguments.first case RecordReplaced(:final reply?)) reply.complete(true);
+      });
       final gateway = MockBackupGateway();
       when(gateway.pickJson)
           .thenAnswer((_) async => PickedBackupBytes(bytes: Uint8List.fromList(utf8.encode(_restorable))));

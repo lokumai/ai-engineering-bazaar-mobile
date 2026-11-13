@@ -1,10 +1,6 @@
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../tokens/app_durations.dart';
-
-/// Page transition types for go_router.
-enum AppPageTransitionType { fade, slideRight, slideUp }
 
 /// Creates a platform-adaptive [MaterialPage], built the way go_router 17 built pages for `builder:` routes.
 ///
@@ -24,49 +20,62 @@ MaterialPage<void> appPlatformPage({required Widget child, required GoRouterStat
   );
 }
 
-/// Creates a CustomTransitionPage with consistent animations.
+/// Creates a route's page with the platform's own transition, the theme's: on iOS it slides in from the side and goes
+/// back with the edge swipe, on Android it zooms in. The page is drawn on the app's ground, so the page under it never
+/// shows through while it moves (the owner, 2026-11-12: one tab's text showed behind another's in the fade before).
 ///
 /// Named like [appPlatformPage], so every page carries the same kind of name.
 ///
 /// [context] is the page builder's: when the platform asks for reduced motion, both durations are zero (Decision A40,
-/// spec 3.10). Skipping the animation inside `transitionsBuilder` alone would still keep the route's duration.
-CustomTransitionPage<T> appTransitionPage<T>({
-  required BuildContext context,
-  required Widget child,
-  required GoRouterState state,
-  AppPageTransitionType type = AppPageTransitionType.fade,
-}) {
-  final still = MediaQuery.disableAnimationsOf(context);
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    name: state.name ?? state.path,
-    child: child,
-    transitionDuration: still ? Duration.zero : AppDurations.slow,
-    reverseTransitionDuration: still ? Duration.zero : AppDurations.normal,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      // Respect reduced motion preferences
-      if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
-        return child;
-      }
+/// spec 3.10). While the shell moves to another tab ([TabSwitch]) the page comes in and goes out at once.
+Page<void> appTransitionPage({required BuildContext context, required Widget child, required GoRouterState state}) =>
+    _AppPage(
+      key: state.pageKey,
+      name: state.name ?? state.path,
+      restorationId: state.pageKey.value,
+      still: MediaQuery.disableAnimationsOf(context),
+      child: child,
+    );
 
-      final curve = CurvedAnimation(parent: animation, curve: AppDurations.easeInOut);
+class _AppPage extends MaterialPage<void> {
+  const _AppPage({super.key, super.name, super.restorationId, required this.still, required super.child});
 
-      switch (type) {
-        case AppPageTransitionType.fade:
-          return FadeTransition(opacity: curve, child: child);
+  /// Whether the platform asks for reduced motion.
+  final bool still;
 
-        case AppPageTransitionType.slideRight:
-          return SlideTransition(
-            position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(curve),
-            child: FadeTransition(opacity: curve, child: child),
-          );
+  @override
+  Route<void> createRoute(BuildContext context) => _AppPageRoute(page: this);
+}
 
-        case AppPageTransitionType.slideUp:
-          return SlideTransition(
-            position: Tween<Offset>(begin: const Offset(0.0, 0.3), end: Offset.zero).animate(curve),
-            child: FadeTransition(opacity: curve, child: child),
-          );
-      }
-    },
-  );
+class _AppPageRoute extends PageRoute<void> with MaterialRouteTransitionMixin<void> {
+  _AppPageRoute({required _AppPage page}) : super(settings: page, allowSnapshotting: page.allowSnapshotting);
+
+  _AppPage get _page => settings as _AppPage;
+
+  @override
+  Widget buildContent(BuildContext context) =>
+      ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: _page.child);
+
+  // Read when the route is created: a page that comes in with a move to another tab takes no time.
+  @override
+  Duration get transitionDuration => _page.still || TabSwitch.active ? Duration.zero : super.transitionDuration;
+
+  @override
+  Duration get reverseTransitionDuration => _page.still ? Duration.zero : super.reverseTransitionDuration;
+
+  @override
+  bool didPop(void result) {
+    // The route was created before the move, so its going out is made instant here.
+    if (TabSwitch.active) controller?.reverseDuration = Duration.zero;
+    return super.didPop(result);
+  }
+
+  @override
+  bool get maintainState => _page.maintainState;
+
+  @override
+  bool get fullscreenDialog => _page.fullscreenDialog;
+
+  @override
+  String get debugLabel => '${super.debugLabel}(${_page.name})';
 }

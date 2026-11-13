@@ -63,6 +63,8 @@ void main() {
     'docs/dev-prod-usecase.excalidraw',
     'docs/bloc-use-case.excalidraw',
     'docs/unittest.excalidraw',
+    'docs/superpowers',
+    'docs/archived',
   ];
 
   test('the docs carry no em dash and no en dash', () {

@@ -7,6 +7,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
+- A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
+- The iOS privacy manifest: the app tracks nothing and collects nothing.
+- On iOS a tap on the status bar takes the page in front back to its top, a module included.
+- On an iPad or another tablet the pages keep a phone's measure in the middle of the screen, and the app turns to landscape.
 - The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).
 - A module's checklist is live: a box ticks and unticks, and the tick is kept in the progress where the web keeps it, so a backup carries it both ways (web D129).
 - The story of the Bazaar in Turkish and Persian, as the web publishes it (web D132).
@@ -16,11 +21,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
-- The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is under maintenance until the web's timeline reaches the content bundle.
+- The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is coming soon until the web's timeline reaches the content bundle.
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch after the language and the track are chosen, its last button Start learning, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
-- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-11 (`7a0ef035`), with the web's WebP images, Key Terms, the story of the Bazaar and a quiz on both tracks.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-13 (`22bbb6fa`), with the web's WebP images, Key Terms, the story of the Bazaar, a quiz on both tracks and module titles in every language.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
@@ -42,6 +47,12 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The Caravan tab says the Caravan is coming soon, over a scene of a caravan walking in at dusk, instead of under maintenance.
+- A picture in a module is decoded at the size it is drawn, which takes less memory and opens a module faster; it looks the same, and full screen still shows it whole.
+- The back arrow in the bar goes to the page the page was opened from, Home, Quiz, a level or another module, as Android's back and the iOS edge swipe do; it no longer goes to the catalog.
+- Another tab opens at once, with no transition, as tabs change on iOS and Android; the page left no longer shows through for a moment. A page opened inside a tab, a module or a level, comes in with the platform's own transition, sliding in from the side on iOS, where the edge swipe goes back, and zooming in on Android.
+- A completed module opens at its top: completing it drops the place it was left at, and none is kept while it stays completed.
+- The catalog search's keyboard goes away on a tap elsewhere and on a drag through the hits, as iOS has no back key; iOS's own sheets follow the app's languages.
 - Android's back on the first page of Catalog, the Caravan, Quiz or Settings goes Home; it leaves the app from Home.
 - Persian pages put a table's cells, the edge of a notice and the Planned band on their right, as the site does.
 - A cache that cannot be cleaned up, or an object in it that cannot be read, no longer stops the course from opening: the bundled snapshot opens, and the object reads as missing.
@@ -70,3 +81,19 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Login, users, accounts, OIDC and the mock API.
 - Local storage, the lifecycle check and theme switching.
 - The analytics route observer.
+
+### Fixed
+
+- Persian headings are set in Vazirmatn's own bold face rather than a thickened regular one.
+- A broken link in a module says it could not be opened instead of failing, links open only on the web, mail and the phone, and a download from the site is capped at 32 MB.
+- The reset asks for the word in the interface's language: SİL in Turkish, حذف in Persian. ERASE still works in every language.
+- The catalog's search no longer stays on reading after a module could not be read, and Check for updates no longer stays disabled after an unexpected error.
+- Settings no longer stays busy after an error during a backup, a reset or an undo, and a restore is called done only once the progress took the file.
+- A content update cut off by closing the app goes on where it stopped at the next launch, rather than downloading everything again.
+- A module that cannot be read offers Try again instead of only asking for a restart, and the reader's loading spinner is named for a screen reader.
+- A second reset while Undo is still offered no longer empties the undo: Undo brings back the progress from before the first.
+- A reset that fails part way leaves the progress on the device, not only on the screen.
+- An unexpected error at launch no longer leaves the app on its loading page: the course says it cannot be opened, or the progress opens read-only and is never written over.
+- Capitals follow the language: Turkish "Sıradaki" is "SIRADAKİ", not "SIRADAKI".
+- The two GitHub links on Privacy and legal are in Turkish and Persian; Turkish reads "%40 okundu" and "Güncellemeleri kontrol et" everywhere.
+- In Persian a quiz verdict's coloured edge is on the right, where its line starts.

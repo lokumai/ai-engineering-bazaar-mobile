@@ -81,13 +81,17 @@ final class RecordReady extends RecordState {
 }
 
 /// What an undo of the erase at [at] restores: the files' [bytes] and the record [data].
+///
+/// An erase made while the undo of an earlier one is still open is [again]: its undo keeps the earlier one's bytes and
+/// data, so a second reset never leaves only the empty record to bring back.
 final class EraseUndo extends Equatable {
-  const EraseUndo({required this.at, required this.bytes, required this.data});
+  const EraseUndo({required this.at, required this.bytes, required this.data, this.again = false});
 
   final DateTime at;
   final StoredBytes bytes;
   final RecordData data;
+  final bool again;
 
   @override
-  List<Object?> get props => [at, bytes, data];
+  List<Object?> get props => [at, bytes, data, again];
 }

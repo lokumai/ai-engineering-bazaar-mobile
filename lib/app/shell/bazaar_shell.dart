@@ -1,4 +1,6 @@
-import 'package:ai_engineering_bazaar/app/shell/caravan_icon.dart';
+import 'dart:async';
+
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/caravan_icon.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -7,8 +9,11 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +35,10 @@ import 'package:go_router/go_router.dart';
 /// reader runs, and move without animation under reduced motion.
 ///
 /// Each tab keeps its pages: leaving a module for another tab and coming back opens the module again, where the reader
-/// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page.
+/// left it (plan 1AZ, 1BA); a tap on the open tab goes back to its first page. Another tab's pages come at once, with
+/// no transition, as tabs change on iOS and Android ([TabSwitch], the owner, 2026-11-12).
+///
+/// On iOS a tap on the status bar takes the page in front back to its top, as iOS apps do.
 ///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).
@@ -48,7 +56,7 @@ class BazaarShell extends StatefulWidget {
   State<BazaarShell> createState() => _BazaarShellState();
 }
 
-class _BazaarShellState extends State<BazaarShell> {
+class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   /// The scroll distance in one direction that hides or shows the navigation, so a trembling finger does neither.
   static const double _travel = 24;
 
@@ -64,13 +72,54 @@ class _BazaarShellState extends State<BazaarShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _rememberTrack();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    TabSwitch.end();
+    super.dispose();
+  }
+
+  /// The page under the shell, where the scrollable in front is looked for.
+  final _pageKey = GlobalKey();
+
+  /// Takes the page in front back to its top on a tap on the iOS status bar. The shell's Scaffold would scroll its
+  /// primary scroll controller, but the pages scroll under the shell's own navigator, whose routes hold controllers of
+  /// their own, and the reader holds one of its own too; so the shell finds the page's scrollable itself.
+  @override
+  void handleStatusBarTap() {
+    final page = _pageKey.currentContext;
+    final scrollable = page == null ? null : frontScrollable(page);
+    if (scrollable == null) return;
+    final position = scrollable.position;
+    if (MediaQuery.of(context).disableAnimations) {
+      position.jumpTo(position.minScrollExtent);
+    } else {
+      unawaited(
+        position.animateTo(
+          position.minScrollExtent,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCirc,
+        ),
+      );
+    }
   }
 
   @override
   void didUpdateWidget(BazaarShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.location != widget.location) {
+      // The shell is built before its navigator, so the move to another tab ends once the new pages are drawn.
+      if (TabSwitch.active) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => TabSwitch.end());
+      } else if (_tabOf(oldWidget.location) != _selectedIndex) {
+        // Back or a link left the tab's pages for another tab's page: the tab left keeps no pages, so it opens at its
+        // first page again rather than at a page already gone back from.
+        _stacks.remove(_tabOf(oldWidget.location));
+      }
       _rememberTrack();
       _navHidden = false;
       _run = 0;
@@ -113,11 +162,12 @@ class _BazaarShellState extends State<BazaarShell> {
   }
 
   /// The name the bar gives a level's page or a module's, from the index; none on the four tabs' pages (owner, 2026-11-10).
-  String? _title(BundleIndex? index) {
+  /// A module's is in [language], the English one where it has none (web D139).
+  String? _title(BundleIndex? index, String language) {
     final location = widget.location;
     if (BazaarPaths.moduleOf(location) case final key?) {
       final track = BazaarPaths.trackOf(location)!;
-      if (index?.module(key)?.tracks[track]?.title case final title?) return title;
+      if (index?.module(key)?.tracks[track]?.titleIn(language) case final title?) return title;
     }
     if (BazaarPaths.levelOf(location) case final slug?) {
       if (index?.level(slug)?.title case final title?) return title;
@@ -135,7 +185,9 @@ class _BazaarShellState extends State<BazaarShell> {
   final _stacks = <int, ({RouteMatchList pages, String top})>{};
 
   /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
-  int get _selectedIndex => switch (widget.location) {
+  int get _selectedIndex => _tabOf(widget.location);
+
+  static int _tabOf(String location) => switch (location) {
     BazaarPaths.caravan => 2,
     BazaarPaths.quizzes => 3,
     final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
@@ -154,6 +206,7 @@ class _BazaarShellState extends State<BazaarShell> {
     };
     final router = GoRouter.of(context);
     final kept = _stacks[index];
+    if (index != _selectedIndex) TabSwitch.begin();
     // The open tab goes back to its first page; another opens its own pages again, unless they are of the track the
     // reader left since (Settings changes the track).
     if (index == _selectedIndex || kept == null || (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
@@ -173,37 +226,9 @@ class _BazaarShellState extends State<BazaarShell> {
   static int _pages(List<RouteMatchBase> matches) =>
       matches.fold(0, (count, match) => count + (match is ShellRouteMatch ? _pages(match.matches) : 1));
 
-  /// The paths of the pages in [matches], the first page first.
-  static List<String> _locations(List<RouteMatchBase> matches) => [
-    for (final match in matches)
-      if (match is ShellRouteMatch) ..._locations(match.matches) else match.matchedLocation,
-  ];
-
-  /// The bar's back button, which only a module's page shows: it goes back to the catalog of the module's track, not to
-  /// the page before as a browser would (the owner, 2026-11-11). The catalog page under the module, its root or a level's
-  /// page, is found again as it was left, its search included; when none is under it (the module was opened from Home,
-  /// from Quiz or from another module), the catalog opens.
-  void _back() {
-    final router = GoRouter.of(context);
-    final track = BazaarPaths.trackOf(widget.location);
-    if (track == null) {
-      router.pop();
-      return;
-    }
-    final catalog = BazaarPaths.catalog(track);
-    final pages = _locations(router.routerDelegate.currentConfiguration.matches);
-    // The catalog's root or one of its level pages, of the module's track.
-    final at = pages.lastIndexWhere(
-      (page) => page == catalog || (BazaarPaths.levelOf(page) != null && BazaarPaths.trackOf(page) == track),
-    );
-    if (at < 0) {
-      router.go(catalog);
-      return;
-    }
-    for (var i = pages.length - 1; i > at; i--) {
-      router.pop();
-    }
-  }
+  /// The bar's back button goes to the page before, where the page was opened from, as Android's back and the iOS edge
+  /// swipe do (the owner, 2026-11-12; from 2026-11-11 a module's arrow went to its catalog instead).
+  void _back() => GoRouter.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +279,7 @@ class _BazaarShellState extends State<BazaarShell> {
                     children: [
                       BazaarBar(
                         statusStrip: false,
-                        title: _title(index),
+                        title: _title(index, context.watch<LanguageCubit>().state),
                         accent: _accent(context, index),
                         // The bar sits above the shell's navigator, so the router goes back, to the catalog.
                         onBack: pushed ? _back : null,
@@ -269,7 +294,14 @@ class _BazaarShellState extends State<BazaarShell> {
             Expanded(
               child: NotificationListener<ScrollNotification>(
                 onNotification: _onScroll,
-                child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child),
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: KeyedSubtree(
+                    key: _pageKey,
+                    child: ReadableWidth(child: widget.child),
+                  ),
+                ),
               ),
             ),
           ],
@@ -327,4 +359,23 @@ class _BazaarShellState extends State<BazaarShell> {
       ),
     );
   }
+}
+
+/// The first vertical scrollable under [page] on the route in front, an outer one before those inside it; null when
+/// there is none or it has no content yet.
+@visibleForTesting
+ScrollableState? frontScrollable(BuildContext page) {
+  ScrollableState? found;
+  void visit(Element element) {
+    if (found != null) return;
+    if (element case StatefulElement(state: final ScrollableState state)
+        when state.position.axis == Axis.vertical && state.position.hasContentDimensions) {
+      if (ModalRoute.of(element)?.isCurrent ?? true) found = state;
+      return;
+    }
+    element.visitChildElements(visit);
+  }
+
+  (page as Element).visitChildElements(visit);
+  return found;
 }

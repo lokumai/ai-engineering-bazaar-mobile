@@ -12,4 +12,7 @@ final class WebLinks {
 
   /// The site's home page.
   Uri get site => Uri.parse(contentBaseUrl);
+
+  /// The site's privacy note, which covers the app too (web D138): the address the stores are given.
+  Uri get privacy => webPage('legend/#privacy');
 }

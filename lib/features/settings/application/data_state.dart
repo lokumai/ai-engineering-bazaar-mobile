@@ -8,6 +8,9 @@ enum RestoreOutcome {
   /// The file replaced the record.
   restored,
 
+  /// The file was read but did not replace the record: a reset was under way.
+  notRestored,
+
   /// The file holds no progress.
   empty,
 

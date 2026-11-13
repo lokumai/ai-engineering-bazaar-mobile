@@ -117,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Under maintenance"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "The Caravan, a timeline of what was trending in AI engineering, is still being built.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("Coming soon"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("The Caravan is on its way"),
     "card_description": MessageLookupByLibrary.simpleMessage("Description"),
     "card_length": MessageLookupByLibrary.simpleMessage("Length"),
     "card_length_minutes": m4,
@@ -173,6 +174,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_newer": MessageLookupByLibrary.simpleMessage(
       "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
     ),
+    "data_restore_not_done": MessageLookupByLibrary.simpleMessage(
+      "The file was not restored, because a reset was under way. Try again.",
+    ),
     "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
       "That backup is larger than the app can keep. Nothing was changed.",
     ),
@@ -197,6 +201,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
@@ -279,6 +284,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("The privacy note on the website"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Privacy"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "The copy could not be written. The set-aside record is unchanged.",
@@ -341,6 +347,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
+    "reader_failed": MessageLookupByLibrary.simpleMessage(
+      "This module could not be read on this device. Try again, or restart the app.",
+    ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Stop marking the search"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Next match"),
     "reader_find_position": m32,
@@ -355,6 +364,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_pager_planned": m35,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
+    "reader_retry": MessageLookupByLibrary.simpleMessage("Try again"),
     "reader_revision": m36,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),

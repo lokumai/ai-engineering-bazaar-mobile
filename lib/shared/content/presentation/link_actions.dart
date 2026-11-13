@@ -23,7 +23,8 @@ void followLink(BuildContext context, LinkTarget target, {required void Function
     case CatalogTarget():
       unawaited(context.push<void>(BazaarPaths.catalogEngineers));
     case ExternalTarget(:final url):
-      unawaited(openExternalLink(context, Uri.parse(url)));
+      // The parser admits any http(s) text; one that is not a URL says it did not open rather than throw on the tap.
+      unawaited(openExternalUrl(context, url));
     case UnknownTarget(:final kind):
       throw StateError('An unknown link target is not openable: $kind');
   }

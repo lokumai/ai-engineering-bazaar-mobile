@@ -397,8 +397,8 @@ class _OptionButton extends StatelessWidget {
   }
 }
 
-/// The verdict of an answered question and its explanation, on `surfaceSunken` with a 3 px edge in `success` or
-/// `fault`; the text stays `onSurface` (Decision A18).
+/// The verdict of an answered question and its explanation, on `surfaceSunken` with a 3 px edge at the start of the line
+/// (the right in Persian) in `success` or `fault`; the text stays `onSurface` (Decision A18).
 class _Verdict extends StatelessWidget {
   const _Verdict({required this.item, required this.right});
 
@@ -412,10 +412,10 @@ class _Verdict extends StatelessWidget {
     final edge = right ? BazaarFixedColors.success : colors.fault;
     final style = TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface);
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 10),
       decoration: BoxDecoration(
         color: colors.surfaceSunken,
-        border: Border(left: BorderSide(color: edge, width: 3)),
+        border: BorderDirectional(start: BorderSide(color: edge, width: 3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

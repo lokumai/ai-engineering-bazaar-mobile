@@ -15,7 +15,7 @@ void main() {
     expect(sha256.convert(File('assets/fonts/Vazirmatn-Regular.ttf').readAsBytesSync()).toString(), font['sha256']);
   });
 
-  test('Vazirmatn is a font family of the app', () async {
+  test('Vazirmatn is a font family of the app, with its own bold face (review D4)', () async {
     final manifest = jsonDecode(await rootBundle.loadString('FontManifest.json')) as List<Object?>;
     expect(
       manifest,
@@ -24,10 +24,18 @@ void main() {
           'family': 'Vazirmatn',
           'fonts': [
             {'asset': 'assets/fonts/Vazirmatn-Regular.ttf'},
+            {'asset': 'assets/fonts/Vazirmatn-Bold.ttf', 'weight': 700},
           ],
         }),
       ),
     );
+  });
+
+  test('the bold face is the same release as the regular one, 33.003', () {
+    for (final face in ['Regular', 'Bold']) {
+      final bytes = File('assets/fonts/Vazirmatn-$face.ttf').readAsBytesSync();
+      expect(utf16BigEndianIn(bytes), contains('Version 33.003'), reason: face);
+    }
   });
 
   test('the sans and mono families follow the platform', () {
@@ -47,4 +55,10 @@ void main() {
       expect(text, contains('The $face Project Authors'), reason: face);
     }
   });
+}
+
+/// The UTF-16 big-endian strings of a font's name table, as one text: enough to find its version.
+String utf16BigEndianIn(List<int> bytes) {
+  final units = <int>[for (var i = 0; i + 1 < bytes.length; i += 2) bytes[i] << 8 | bytes[i + 1]];
+  return String.fromCharCodes(units.where((unit) => unit >= 0x20 && unit < 0x7f));
 }

@@ -40,6 +40,7 @@ void main() {
     required DataBloc data,
     RecordData record = RecordData.empty,
     TargetPlatform platform = TargetPlatform.android,
+    Locale locale = const Locale('en'),
   }) async {
     await pumpDataHost(
       tester,
@@ -47,6 +48,7 @@ void main() {
       data: data,
       record: recordBlocAt(record: record),
       platform: platform,
+      locale: locale,
     );
     final answer = showEraseDialog(hostContext(tester));
     await tester.pumpAndSettle();
@@ -61,6 +63,21 @@ void main() {
       await tester.enterText(find.byType(TextField), typed);
       await tester.pump();
       expect(tester.widget<OutlinedButton>(_erase()).onPressed != null, armed, reason: "'$typed'");
+    }
+  });
+
+  testWidgets('in Turkish the dialog asks for SİL, and takes it typed on any keyboard, and ERASE (owner, 2026-11-13)', (
+    tester,
+  ) async {
+    final (bloc, _) = dataBlocAt();
+    await open(tester, data: bloc, locale: const Locale('tr'));
+    expect(find.text('Onaylamak için SİL yaz'), findsOneWidget);
+
+    final erase = find.widgetWithText(OutlinedButton, 'Bütün verileri sil');
+    for (final (typed, armed) in [('si', false), ('sil', true), ('SIL', true), ('erase', true), ('silin', false)]) {
+      await tester.enterText(find.byType(TextField), typed);
+      await tester.pump();
+      expect(tester.widget<OutlinedButton>(erase).onPressed != null, armed, reason: "'$typed'");
     }
   });
 

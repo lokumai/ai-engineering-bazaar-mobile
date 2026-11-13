@@ -62,6 +62,34 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   Future<void> _onEvent(RecordEvent event, Emitter<RecordState> emit) async {
+    try {
+      await _handle(event, emit);
+    } on Object catch (error, stack) {
+      // An error no handler names still answers whoever waits, or the Settings line would stay busy for ever. It is
+      // reported, and the queue goes on with the next event.
+      _log.error('record event {} failed: {}', [event.runtimeType, error]);
+      _answerFailed(event);
+      addError(error, stack);
+    }
+  }
+
+  /// Answers [event]'s caller, when it waits and was not answered yet, that it did not happen.
+  void _answerFailed(RecordEvent event) {
+    switch (event) {
+      case RecordErased(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case EraseUndone(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case RecordReplaced(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case BackupStarted(:final reply) when !reply.isCompleted:
+        reply.completeError(StateError('the backup could not be made'));
+      default:
+        break;
+    }
+  }
+
+  Future<void> _handle(RecordEvent event, Emitter<RecordState> emit) async {
     if (event is RecordErased) _pendingErases--;
     final current = state;
     if (current is! RecordReady) {
@@ -109,8 +137,11 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         if (_pendingErases > 0) return;
         if (current.undo != null) _sinceErase.add((record) => markExported(record, at));
         await _commit(current, markExported(current.record, at), emit);
-      case RecordReplaced(:final data):
-        if (_pendingErases > 0) return;
+      case RecordReplaced(:final data, :final reply):
+        if (_pendingErases > 0) {
+          reply?.complete(false);
+          return;
+        }
         _closeUndo();
         await _commit(
           RecordReady(
@@ -124,6 +155,7 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           data,
           emit,
         );
+        reply?.complete(true);
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
       case EraseUndone(:final reply):
@@ -169,13 +201,23 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         reply?.complete(false);
       case BackupStarted(:final reply):
         reply.completeError(StateError('the record is not read yet'));
+      case RecordReplaced(:final reply):
+        reply?.complete(false);
       default:
         break;
     }
   }
 
   Future<void> _onStarted(Emitter<RecordState> emit) async {
-    final load = await _repository.load();
+    RecordLoad load;
+    try {
+      load = await _repository.load();
+    } on Object catch (error, stack) {
+      // An error the store does not answer for, such as the platform refusing the support directory, is a failed
+      // launch read: the app opens, and nothing is written over a record that may still be there.
+      _log.error('record launch read threw: {}\n{}', [error, stack]);
+      load = const RecordLoadFailed(quarantineKept: false);
+    }
     emit(
       RecordReady(
         record: switch (load) {
@@ -228,7 +270,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   /// Decision A41: an erase whose files cannot be read still erases with no undo bytes; one whose files cannot be
-  /// deleted does not happen.
+  /// deleted does not happen, and the files read before it are written back, so a delete that stopped part way loses
+  /// nothing on the device.
   Future<void> _onErased(RecordReady current, DateTime at, Completer<bool>? reply, Emitter<RecordState> emit) async {
     StoredBytes bytes;
     try {
@@ -241,6 +284,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       await _repository.deleteAll();
     } on FileSystemException catch (error) {
       _log.warn('record erase failed: {}', [error]);
+      if (bytes.record != null || bytes.quarantine != null) {
+        final put = await _repository.restore(bytes);
+        if (put.write != WriteResult.saved) _log.error('record not written back after a failed erase: {}', [put.write]);
+      }
       emit(
         RecordReady(
           record: current.record,
@@ -254,8 +301,12 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       reply?.complete(false);
       return;
     }
+    // A second erase while the first one's undo is open keeps what that undo brings back: the record from before the
+    // first, not the empty one. What was changed in between is erased with it, and does not come back.
+    final open = current.undo;
+    final before = _beforeErase;
     _closeUndo();
-    _beforeErase = current;
+    _beforeErase = open != null && before != null ? before : current;
     emit(
       RecordReady(
         record: erasedRecord(current.record),
@@ -263,7 +314,9 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         quarantine: null,
         quarantineKept: false,
         launchReadFailed: false,
-        undo: EraseUndo(at: at, bytes: bytes, data: current.record),
+        undo: open != null && before != null
+            ? EraseUndo(at: at, bytes: open.bytes, data: open.data, again: true)
+            : EraseUndo(at: at, bytes: bytes, data: current.record),
       ),
     );
     _undoTimer = Timer(RecordConstants.undoWindow, () => add(const UndoExpired()));

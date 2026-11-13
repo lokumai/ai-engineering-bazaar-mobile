@@ -27,9 +27,12 @@ final class QuizLengthSeen extends QuizScoresEvent {
   final int total;
 }
 
-/// Settings' reset erased the record: the scores go with it, kept aside for its undo.
+/// Settings' reset erased the record: the scores go with it, kept aside for its undo. A reset made [again] while the
+/// undo of the one before is open keeps the scores that one set aside.
 final class QuizScoresErased extends QuizScoresEvent {
-  const QuizScoresErased();
+  const QuizScoresErased({this.again = false});
+
+  final bool again;
 }
 
 /// The reset was undone: the scores it erased come back.

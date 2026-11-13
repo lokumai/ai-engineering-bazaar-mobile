@@ -45,9 +45,9 @@ class CatalogPage extends StatelessWidget {
     };
     final view = record == null ? null : trackView(record, track);
     final curriculum = curriculumFor(index, track);
-    final rows = catalogRows(index, track, view);
-    final next = view == null ? null : nextUnsigned(view, curriculum);
     final language = context.watch<LanguageCubit>().state;
+    final rows = catalogRows(index, track, view, language: language);
+    final next = view == null ? null : nextUnsigned(view, curriculum);
     return BlocProvider(
       // A new search for another track or language: its index holds one of each.
       key: ValueKey((track, language)),
@@ -67,6 +67,8 @@ class CatalogPage extends StatelessWidget {
       child: BlocSelector<CatalogSearchCubit, CatalogSearchState, bool>(
         selector: (state) => state.active,
         builder: (context, searching) => ListView(
+          // A drag through the hits puts the keyboard away, so it does not hide them.
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs

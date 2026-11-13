@@ -4,10 +4,11 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 /// A synthetic index built with the entity constructors (no file, no parser), for the shell, router and catalog tests:
 /// three levels and six modules, some written in one track only and some planned in both; [story] names a story
 /// document (web D125), none by default; [words] gives a module's For Engineers word counts per language (web D128),
-/// none by default.
+/// none by default; [titles] gives a module's For Engineers titles per language (web D139), none by default.
 BundleIndex catalogFixtureIndex({
   Map<String, String> story = const {},
   Map<String, Map<String, int>> words = const {},
+  Map<String, Map<String, String>> titles = const {},
 }) {
   return BundleIndex(
     story: story,
@@ -53,6 +54,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'alpha/first',
         words: words['alpha/first'] ?? const {},
+        titles: titles['alpha/first'] ?? const {},
         number: 1,
         minutes: 20,
         prerequisites: const [],
@@ -62,6 +64,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'alpha/second',
         words: words['alpha/second'] ?? const {},
+        titles: titles['alpha/second'] ?? const {},
         number: 2,
         minutes: 25,
         prerequisites: const ['alpha/first'],
@@ -71,6 +74,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'alpha/third',
         words: words['alpha/third'] ?? const {},
+        titles: titles['alpha/third'] ?? const {},
         number: 3,
         minutes: 30,
         prerequisites: const ['alpha/first', 'alpha/second'],
@@ -80,6 +84,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'beta/fourth',
         words: words['beta/fourth'] ?? const {},
+        titles: titles['beta/fourth'] ?? const {},
         number: 4,
         minutes: 40,
         prerequisites: const ['alpha/third'],
@@ -89,6 +94,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'beta/fifth',
         words: words['beta/fifth'] ?? const {},
+        titles: titles['beta/fifth'] ?? const {},
         number: 5,
         minutes: 20,
         prerequisites: const [],
@@ -98,6 +104,7 @@ BundleIndex catalogFixtureIndex({
       _module(
         'gamma/sixth',
         words: words['gamma/sixth'] ?? const {},
+        titles: titles['gamma/sixth'] ?? const {},
         number: 6,
         minutes: 45,
         prerequisites: const ['beta/fourth'],
@@ -122,6 +129,7 @@ ModuleEntry _module(
   required (String, String?) engineers,
   required (String, String?) everyone,
   Map<String, int> words = const {},
+  Map<String, String> titles = const {},
 }) {
   final (engineersTitle, engineersSummary) = engineers;
   final (everyoneTitle, everyoneSummary) = everyone;
@@ -140,6 +148,7 @@ ModuleEntry _module(
         summary: engineersSummary,
         hasQuiz: engineersDrawn,
         words: words,
+        titles: titles,
         revision: _revision,
         docs: {'en': 'api/v1/modules/$key/en.json'},
         webPath: 'courses/$key/',

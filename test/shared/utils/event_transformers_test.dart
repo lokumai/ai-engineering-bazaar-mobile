@@ -48,50 +48,6 @@ void main() {
     });
   });
 
-  group('EventTransformers.debounceRestartable', () {
-    test('rapid bursts collapse to a single handler invocation after debounce', () {
-      fakeAsync((async) {
-        final bloc = _CounterBloc(transformer: EventTransformers.debounceRestartable(const Duration(milliseconds: 50)));
-        final states = <int>[];
-        final sub = bloc.stream.listen(states.add);
-
-        bloc
-          ..add(_Run())
-          ..add(_Run())
-          ..add(_Run());
-
-        async.elapse(const Duration(seconds: 1));
-
-        expect(states, [1]);
-        expect(bloc.runs, 1);
-
-        sub.cancel();
-        bloc.close();
-      });
-    });
-  });
-
-  group('EventTransformers.restart', () {
-    test('a new event cancels the in-flight handler so only the latest emits', () {
-      fakeAsync((async) {
-        final bloc = _CounterBloc(transformer: EventTransformers.restart());
-        final states = <int>[];
-        final sub = bloc.stream.listen(states.add);
-
-        bloc
-          ..add(_Run())
-          ..add(_Run()); // cancels the prior handler before it emits.
-
-        async.elapse(const Duration(seconds: 1));
-
-        expect(states, [1]);
-
-        sub.cancel();
-        bloc.close();
-      });
-    });
-  });
-
   group('EventTransformers.queue', () {
     test('events are processed strictly one-at-a-time in arrival order', () {
       fakeAsync((async) {

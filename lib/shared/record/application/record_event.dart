@@ -60,9 +60,13 @@ final class BackupCompleted extends RecordEvent {
 
 /// An imported record replaces the record: written at once, with no day stamp, and an open undo closes (A33).
 final class RecordReplaced extends RecordEvent {
-  const RecordReplaced({required this.data});
+  const RecordReplaced({required this.data, this.reply});
 
   final RecordData data;
+
+  /// Completes with true once [data] replaced the record, and with false when it did not: an erase was waiting in the
+  /// queue, or the record was not read yet.
+  final Completer<bool>? reply;
 }
 
 /// The reader confirmed an erase at [at] (spec 3.3.11, Decision A41).

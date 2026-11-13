@@ -24,6 +24,7 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
   ModuleReaderBloc({required this._repository, required this._index, required this._recordBloc})
     : super(const ReaderLoading()) {
     on<ReaderOpened>(_onOpened);
+    on<ReaderRetried>(_onRetried);
     on<ReaderCompletionToggled>(_onCompletionToggled);
   }
 
@@ -33,7 +34,18 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
   final BundleIndex _index;
   final RecordBloc _recordBloc;
 
+  /// The module last opened, which [ReaderRetried] reads again.
+  ReaderOpened? _opened;
+
+  Future<void> _onRetried(ReaderRetried event, Emitter<ReaderState> emit) async {
+    final opened = _opened;
+    if (opened == null || state is! ReaderFailed) return;
+    emit(const ReaderLoading());
+    await _onOpened(opened, emit);
+  }
+
   Future<void> _onOpened(ReaderOpened event, Emitter<ReaderState> emit) async {
+    _opened = event;
     final entry = _index.module(event.key);
     if (entry == null) {
       emit(const ReaderNotFound());

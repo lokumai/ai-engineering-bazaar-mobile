@@ -6,11 +6,13 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -24,6 +26,7 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
 import '../../../../support/content_builders.dart';
 import '../../../../support/fold.dart';
 
@@ -40,10 +43,21 @@ Future<GoRouter> _pump(
   TrackCubit? track,
   MockContentRepository? repository,
   QuizScoresBloc? scores,
+  LanguageCubit? language,
+  BundleIndex? index,
 }) async {
   final router = AppRouterFactory(initialLocation: location).create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, track: track, repository: repository, scores: scores));
+  await tester.pumpWidget(
+    bazaarTestApp(
+      router: router,
+      track: track,
+      repository: repository,
+      scores: scores,
+      language: language,
+      content: index == null ? null : readyContentBloc(index),
+    ),
+  );
   await tester.pumpAndSettle();
   return router;
 }
@@ -92,6 +106,20 @@ void main() {
     expect(find.byKey(QuizListPage.rowKey('alpha/third')), findsNothing, reason: 'planned, no quiz');
     expect(find.bySemanticsLabel('01 First Module'), findsOneWidget);
     expect(find.textContaining('come with the'), findsNothing);
+  });
+
+  testWidgets("a quiz's row is titled in the chosen language (web D139)", (tester) async {
+    await _pump(
+      tester,
+      language: LanguageCubit(initial: 'tr'),
+      index: catalogFixtureIndex(
+        titles: {
+          'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+        },
+      ),
+    );
+    expect(find.bySemanticsLabel('01 Birinci Modül'), findsOneWidget);
+    expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget);
   });
 
   testWidgets('what the reader opens or closes stays while the app runs; a new launch opens the next level', (

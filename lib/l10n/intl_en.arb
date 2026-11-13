@@ -25,10 +25,12 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_maintenance": "Under maintenance",
-  "@caravan_maintenance": {},
-  "caravan_maintenance_body": "The Caravan, a timeline of what was trending in AI engineering, is still being built.",
-  "@caravan_maintenance_body": {},
+  "caravan_soon": "Coming soon",
+  "@caravan_soon": {},
+  "caravan_soon_title": "The Caravan is on its way",
+  "@caravan_soon_title": {},
+  "caravan_soon_body": "A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.",
+  "@caravan_soon_body": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
@@ -526,6 +528,8 @@
   "@data_backup_not_written": {},
   "data_restored": "Restored from the file.",
   "@data_restored": {},
+  "data_restore_not_done": "The file was not restored, because a reset was under way. Try again.",
+  "@data_restore_not_done": {},
   "data_restore_empty": "Nothing was changed. That file holds no progress; only a backup file does.",
   "@data_restore_empty": {},
   "data_restore_newer": "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
@@ -568,6 +572,10 @@
   "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
+  "erase_word": "ERASE",
+  "@erase_word": {
+    "description": "The word the reader types to confirm a reset, in the interface's language; ERASE is taken in every language too."
+  },
   "erase_field_label": "Type ERASE to confirm",
   "@erase_field_label": {},
   "erase_confirm": "Erase all data",
@@ -773,6 +781,10 @@
   "@privacy_github_pages": {},
   "privacy_github_statement": "GitHub General Privacy Statement",
   "@privacy_github_statement": {},
+  "privacy_site_note": "The privacy note on the website",
+  "@privacy_site_note": {
+    "description": "Link under Privacy to the site's privacy note, which covers the app too (web D138)."
+  },
   "settings_story": "The story of the Bazaar",
   "@settings_story": {
     "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
@@ -800,5 +812,9 @@
   "about_previous": "Previous",
   "@about_previous": {
     "description": "The story film, for a screen reader: the near side of the screen, which goes back a screen."
-  }
+  },
+  "reader_failed": "This module could not be read on this device. Try again, or restart the app.",
+  "@reader_failed": {},
+  "reader_retry": "Try again",
+  "@reader_retry": {}
 }

@@ -13,7 +13,7 @@ class CaravanIcon extends StatelessWidget {
       child: SizedBox.square(
         dimension: size,
         child: CustomPaint(
-          painter: _CamelPainter(
+          painter: CamelPainter(
             theme.color ?? const Color(0xff000000),
             mirrored: Directionality.of(context) == TextDirection.rtl,
           ),
@@ -23,14 +23,15 @@ class CaravanIcon extends StatelessWidget {
   }
 }
 
-class _CamelPainter extends CustomPainter {
-  const _CamelPainter(this.color, {required this.mirrored});
+/// Paints the Caravan's camel; [camel] is its outline, which the Caravan page's scene draws too.
+class CamelPainter extends CustomPainter {
+  const CamelPainter(this.color, {required this.mirrored});
 
   final Color color;
   final bool mirrored;
 
   /// The camel facing right on a 24 by 24 grid, with its tail apart.
-  static final Path _camel = Path()
+  static final Path camel = Path()
     ..moveTo(4.6, 10.2)
     ..cubicTo(6.0, 9.6, 7.4, 4.6, 10.0, 4.6)
     ..cubicTo(12.6, 4.6, 13.2, 8.4, 14.6, 9.0)
@@ -74,10 +75,10 @@ class _CamelPainter extends CustomPainter {
         ..scale(-1, 1);
     }
     canvas.scale(size.width / 24, size.height / 24);
-    canvas.drawPath(_camel, Paint()..color = color);
+    canvas.drawPath(camel, Paint()..color = color);
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(_CamelPainter oldDelegate) => oldDelegate.color != color || oldDelegate.mirrored != mirrored;
+  bool shouldRepaint(CamelPainter oldDelegate) => oldDelegate.color != color || oldDelegate.mirrored != mirrored;
 }

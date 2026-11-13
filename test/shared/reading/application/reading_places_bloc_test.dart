@@ -75,6 +75,19 @@ void main() {
   );
 
   blocTest<ReadingPlacesBloc, ReadingPlacesState>(
+    'an erase again while the undo is open keeps the places the first set aside',
+    build: () => ReadingPlacesBloc(store: store),
+    act: (bloc) => bloc
+      ..add(const ReadingPlacesStarted())
+      ..add(const ReadingPlacesErased())
+      ..add(ReadingPlaceKept(track: Track.engineers, module: 'beta/fourth', place: later))
+      ..add(const ReadingPlacesErased(again: true))
+      ..add(const ReadingPlacesEraseUndone()),
+    skip: 4,
+    expect: () => [ReadingPlacesReady(_kept)],
+  );
+
+  blocTest<ReadingPlacesBloc, ReadingPlacesState>(
     'an undo with no erase changes nothing, and one after a new place brings the old places back with the new one',
     build: () => ReadingPlacesBloc(store: store),
     act: (bloc) => bloc

@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
@@ -12,7 +14,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
-import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
@@ -989,15 +990,13 @@ void main() {
     expect(_path(router), '/sheets');
   });
 
-  testWidgets('a failed read shows the unreadable line', (tester) async {
+  testWidgets('a failed read says so and offers Try again, which reads the module again', (tester) async {
     stateIs(const ReaderFailed(code: ContentErrorCode.missing));
     await pumpReader(tester);
 
-    expect(find.byType(ContentUnreadable), findsOneWidget);
-    expect(
-      find.text('This part of the course could not be read on this device. Restart the app to reload it.'),
-      findsOneWidget,
-    );
+    expect(find.text('This module could not be read on this device. Try again, or restart the app.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Try again'));
+    verify(() => readerBloc.add(const ReaderRetried())).called(1);
   });
 
   testWidgets('loading shows a spinner', (tester) async {
@@ -1018,6 +1017,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.bySemanticsLabel('Loading'), findsOneWidget, reason: 'named for a screen reader, as the gate is');
   });
 
   testWidgets('an unknown block opens the web page of the document track', (tester) async {
@@ -1199,6 +1199,90 @@ void main() {
 
       expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
       expect(await store.load(), isEmpty);
+    });
+
+    group('a completed module keeps no place (the owner, 2026-11-12)', () {
+      RecordState ready(RecordData record) => RecordReady(
+        record: record,
+        writeState: const WriteSaved(),
+        quarantine: null,
+        quarantineKept: false,
+        launchReadFailed: false,
+        undo: null,
+      );
+      final done = normaliseRecord({
+        'sheets': {
+          'alpha/first': {'signedOff': '2026-11-12T10:00:00.000Z', 'signedRevision': 'def5678'},
+        },
+      });
+
+      Future<(ReadingPlacesBloc, MemoryReadingPlaceStore)> pumpWith(WidgetTester tester, RecordBloc record) async {
+        final repository = MockContentRepository();
+        when(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json'))
+            .thenAnswer((_) async => testDoc(toc: _toc, body: [..._filler, _sectionOne, ..._filler]));
+        final store = MemoryReadingPlaceStore({
+          readingPlaceKey(Track.engineers, 'alpha/first'): ReadingPlace(
+            heading: 'one',
+            offset: 0,
+            share: 0.5,
+            at: DateTime.utc(2026, 11, 11),
+          ),
+        });
+        final places = ReadingPlacesBloc(store: store)..add(const ReadingPlacesStarted());
+        addTearDown(places.close);
+        final router = GoRouter(
+          initialLocation: '/reader',
+          routes: [
+            GoRoute(
+              path: '/reader',
+              builder: (_, _) => const ModuleReaderPage(moduleKey: 'alpha/first', track: Track.engineers),
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await places.stream.first;
+        await tester.pumpWidget(
+          bazaarTestApp(
+            router: router,
+            content: readyContentBloc(index),
+            repository: repository,
+            places: places,
+            record: record,
+          ),
+        );
+        await tester.pumpAndSettle();
+        return (places, store);
+      }
+
+      double scrolled(WidgetTester tester) =>
+          tester.state<ScrollableState>(find.byType(Scrollable).first).position.pixels;
+
+      testWidgets('it opens at its top, and a scroll in it keeps nothing', (tester) async {
+        final (places, _) = await pumpWith(tester, _record(record: done));
+        expect(scrolled(tester), 0, reason: 'not at the place kept before it was completed');
+
+        await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -600));
+        await tester.pumpAndSettle();
+        expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
+      });
+
+      testWidgets('completing it while it is open drops its place', (tester) async {
+        final states = StreamController<RecordState>();
+        addTearDown(states.close);
+        final record = MockRecordBloc();
+        whenListen(record, states.stream, initialState: ready(RecordData.empty));
+        final (places, store) = await pumpWith(tester, record);
+        expect(places.state.of(Track.engineers, 'alpha/first'), isNotNull, reason: 'not completed yet');
+
+        states.add(ready(done));
+        await tester.pumpAndSettle();
+        expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
+        expect(await store.load(), isEmpty);
+      });
     });
 
     testWidgets('throws unless the content is ready', (tester) async {

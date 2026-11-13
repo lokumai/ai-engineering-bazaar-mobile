@@ -92,8 +92,17 @@ RecordData erasedRecord(RecordData data) => RecordData.empty;
 
 /// Whether [typed] confirms an erase: the erase word, trimmed with the JS whitespace set and in any case.
 ///
-/// Web source: `erase.ts:59-61` (`confirmsErase`).
-bool confirmsErase(String typed) => jsTrim(typed).toUpperCase() == RecordConstants.eraseWord;
+/// Web source: `erase.ts:59-61` (`confirmsErase`). The app also takes [localWord], the word in the interface's
+/// language (the owner, 2026-11-13: SİL in Turkish, حذف in Persian), with the four Turkish i's as one, so SİL, SIL, sil
+/// and sıl all confirm; the web's ERASE is taken in every language.
+bool confirmsErase(String typed, {String? localWord}) {
+  final trimmed = jsTrim(typed);
+  if (trimmed.toUpperCase() == RecordConstants.eraseWord) return true;
+  return localWord != null && localWord.isNotEmpty && _foldCase(trimmed) == _foldCase(localWord);
+}
+
+/// [text] in lower case with the dotted and dotless i's of Turkish as one letter.
+String _foldCase(String text) => text.replaceAll(RegExp('[İIı]'), 'i').toLowerCase();
 
 bool _isRevision(Object? value) => value is String && _shortHash.hasMatch(value);
 

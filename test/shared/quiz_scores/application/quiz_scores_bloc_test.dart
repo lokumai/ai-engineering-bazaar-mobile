@@ -48,6 +48,19 @@ void main() {
   );
 
   blocTest<QuizScoresBloc, QuizScoresState>(
+    'an erase again while the undo is open keeps the scores the first set aside',
+    build: () => QuizScoresBloc(store: store),
+    act: (bloc) => bloc
+      ..add(const QuizScoresStarted())
+      ..add(const QuizScoresErased())
+      ..add(const QuizScoreRecorded(key: 'beta/fourth', right: 1, total: 2))
+      ..add(const QuizScoresErased(again: true))
+      ..add(const QuizScoresEraseUndone()),
+    skip: 4,
+    expect: () => [const QuizScoresReady(_kept)],
+  );
+
+  blocTest<QuizScoresBloc, QuizScoresState>(
     'an undo with no erase changes nothing, and one after a new score brings the old scores back with the new one',
     build: () => QuizScoresBloc(store: store),
     act: (bloc) => bloc

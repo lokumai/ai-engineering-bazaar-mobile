@@ -23,3 +23,8 @@ final class ReaderOpened extends ReaderEvent {
 final class ReaderCompletionToggled extends ReaderEvent {
   const ReaderCompletionToggled();
 }
+
+/// The reader asked to read the module again after it could not be read: the last [ReaderOpened] runs again.
+final class ReaderRetried extends ReaderEvent {
+  const ReaderRetried();
+}

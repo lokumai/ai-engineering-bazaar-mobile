@@ -20,7 +20,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
-import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -74,24 +73,34 @@ class ModuleReaderPage extends StatelessWidget {
     };
     final language = context.watch<LanguageCubit>().state;
     final places = context.read<ReadingPlacesBloc>();
-    return BlocProvider(
-      // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
-      // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
-      key: ValueKey((moduleKey, track, language)),
-      create: (context) => ModuleReaderBloc(
-        repository: context.read<IContentRepository>(),
-        index: index,
-        recordBloc: context.read<RecordBloc>(),
-      )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
-      child: ModuleReaderView(
-        fragment: fragment,
-        query: query,
-        quizBuilder: quizBuilder,
-        place: places.state.of(track, moduleKey),
-        onPlace: (place) => places.add(
-          place == null
-              ? ReadingPlaceCleared(track: track, module: moduleKey)
-              : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+    final record = context.read<RecordBloc>();
+    // A completed module keeps no place: the reader has finished it, so it opens at its top (the owner, 2026-11-12).
+    bool completed(RecordState state) => switch (state) {
+      RecordReady(:final record) => record.signedOff(moduleKey, track) != null,
+      RecordLoading() => false,
+    };
+    return BlocListener<RecordBloc, RecordState>(
+      listenWhen: (before, now) => !completed(before) && completed(now),
+      listener: (_, _) => places.add(ReadingPlaceCleared(track: track, module: moduleKey)),
+      child: BlocProvider(
+        // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
+        // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
+        key: ValueKey((moduleKey, track, language)),
+        create: (context) => ModuleReaderBloc(
+          repository: context.read<IContentRepository>(),
+          index: index,
+          recordBloc: context.read<RecordBloc>(),
+        )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
+        child: ModuleReaderView(
+          fragment: fragment,
+          query: query,
+          quizBuilder: quizBuilder,
+          place: completed(record.state) ? null : places.state.of(track, moduleKey),
+          onPlace: (place) => places.add(
+            place == null || completed(record.state)
+                ? ReadingPlaceCleared(track: track, module: moduleKey)
+                : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+          ),
         ),
       ),
     );
@@ -289,10 +298,25 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   Widget build(BuildContext context) {
     return BlocBuilder<ModuleReaderBloc, ReaderState>(
       builder: (context, state) => switch (state) {
-        ReaderLoading() => const Scaffold(body: Center(child: CircularProgressIndicator())),
+        ReaderLoading() => Scaffold(
+          body: Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
+        ),
         ReaderNotFound() => const Scaffold(body: NotFoundView()),
-        ReaderFailed() => const Scaffold(
-          body: Padding(padding: EdgeInsets.all(16), child: ContentUnreadable()),
+        ReaderFailed() => Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(S.of(context).reader_failed),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => context.read<ModuleReaderBloc>().add(const ReaderRetried()),
+                  child: Text(S.of(context).reader_retry),
+                ),
+              ],
+            ),
+          ),
         ),
         ReaderNotWritten(:final entry) => Scaffold(body: NotWrittenView(entry: entry)),
         ReaderWritten(:final doc, :final entry, :final moduleCount) => _module(context, doc, entry, moduleCount),

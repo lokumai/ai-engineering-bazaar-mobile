@@ -91,7 +91,7 @@ MockContentRepository missingContentRepository() {
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
 /// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], [backupGateway] and
 /// [recordRepository] (which the Settings page's data line reads) to fresh mocks, and the web links use
-/// [testContentBaseUrl].
+/// [testContentBaseUrl]. The interface is in [locale], English by default.
 Widget bazaarTestApp({
   required GoRouter router,
   ContentBloc? content,
@@ -105,6 +105,7 @@ Widget bazaarTestApp({
   IRecordRepository? recordRepository,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
 }) {
   return MultiRepositoryProvider(
     providers: [
@@ -148,7 +149,7 @@ Widget bazaarTestApp({
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.delegate.supportedLocales,
-        locale: const Locale('en'),
+        locale: locale,
         routerConfig: router,
       ),
     ),

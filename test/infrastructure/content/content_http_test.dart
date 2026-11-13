@@ -181,4 +181,47 @@ void main() {
     expect(await contentHttp.get('api/v1/x.svg', version: 'ab'), [1, 2, 3]);
     expect(requested, [Uri.parse('https://content.test/api/v1/x.svg?v=ab')]);
   });
+
+  group('a response larger than the cap is cut (review G)', () {
+    test('a body that says it is too large is refused before it is read', () async {
+      final contentHttp = ContentHttp(
+        client: MockClient.streaming(
+          (_, _) async => http.StreamedResponse(const Stream.empty(), 200, contentLength: 101),
+        ),
+        contentBaseUrl: testContentBaseUrl,
+        maxBytes: 100,
+      );
+      await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.format));
+    });
+
+    test('a body that grows past the cap is cut there', () async {
+      var sent = 0;
+      final contentHttp = ContentHttp(
+        client: MockClient.streaming(
+          (_, _) async => http.StreamedResponse(
+            Stream.periodic(Duration.zero, (_) {
+              sent++;
+              return List.filled(40, 7);
+            }).take(1000),
+            200,
+          ),
+        ),
+        contentBaseUrl: testContentBaseUrl,
+        maxBytes: 100,
+      );
+      await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.format));
+      expect(sent, lessThan(10), reason: 'not read to its end');
+    });
+
+    test('a body at the cap is read whole', () async {
+      final contentHttp = ContentHttp(
+        client: MockClient((_) async => http.Response.bytes(List.filled(100, 7), 200)),
+        contentBaseUrl: testContentBaseUrl,
+        maxBytes: 100,
+      );
+      expect(await contentHttp.get('api/index.json'), hasLength(100));
+    });
+
+    test('the default cap is 32 MB', () => expect(ContentHttp.defaultMaxBytes, 32 * 1024 * 1024));
+  });
 }

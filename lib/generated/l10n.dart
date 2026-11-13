@@ -108,16 +108,21 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Under maintenance`
-  String get caravan_maintenance {
-    return Intl.message('Under maintenance', name: 'caravan_maintenance', desc: '', args: []);
+  /// `Coming soon`
+  String get caravan_soon {
+    return Intl.message('Coming soon', name: 'caravan_soon', desc: '', args: []);
   }
 
-  /// `The Caravan, a timeline of what was trending in AI engineering, is still being built.`
-  String get caravan_maintenance_body {
+  /// `The Caravan is on its way`
+  String get caravan_soon_title {
+    return Intl.message('The Caravan is on its way', name: 'caravan_soon_title', desc: '', args: []);
+  }
+
+  /// `A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.`
+  String get caravan_soon_body {
     return Intl.message(
-      'The Caravan, a timeline of what was trending in AI engineering, is still being built.',
-      name: 'caravan_maintenance_body',
+      'A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.',
+      name: 'caravan_soon_body',
       desc: '',
       args: [],
     );
@@ -842,6 +847,16 @@ class S {
     return Intl.message('Restored from the file.', name: 'data_restored', desc: '', args: []);
   }
 
+  /// `The file was not restored, because a reset was under way. Try again.`
+  String get data_restore_not_done {
+    return Intl.message(
+      'The file was not restored, because a reset was under way. Try again.',
+      name: 'data_restore_not_done',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Nothing was changed. That file holds no progress; only a backup file does.`
   String get data_restore_empty {
     return Intl.message(
@@ -962,6 +977,16 @@ class S {
       'A device backup may still hold an earlier copy of your progress.',
       name: 'erase_backup_statement',
       desc: '',
+      args: [],
+    );
+  }
+
+  /// `ERASE`
+  String get erase_word {
+    return Intl.message(
+      'ERASE',
+      name: 'erase_word',
+      desc: 'The word the reader types to confirm a reset, in the interface\'s language; ERASE is taken in every language too.',
       args: [],
     );
   }
@@ -1561,6 +1586,16 @@ class S {
     return Intl.message('GitHub General Privacy Statement', name: 'privacy_github_statement', desc: '', args: []);
   }
 
+  /// `The privacy note on the website`
+  String get privacy_site_note {
+    return Intl.message(
+      'The privacy note on the website',
+      name: 'privacy_site_note',
+      desc: 'Link under Privacy to the site\'s privacy note, which covers the app too (web D138).',
+      args: [],
+    );
+  }
+
   /// `The story of the Bazaar`
   String get settings_story {
     return Intl.message(
@@ -1630,6 +1665,21 @@ class S {
       desc: 'The story film, for a screen reader: the near side of the screen, which goes back a screen.',
       args: [],
     );
+  }
+
+  /// `This module could not be read on this device. Try again, or restart the app.`
+  String get reader_failed {
+    return Intl.message(
+      'This module could not be read on this device. Try again, or restart the app.',
+      name: 'reader_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get reader_retry {
+    return Intl.message('Try again', name: 'reader_retry', desc: '', args: []);
   }
 }
 

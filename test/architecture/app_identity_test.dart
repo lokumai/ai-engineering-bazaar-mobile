@@ -74,5 +74,20 @@ void main() {
         expect(RegExp('<key>$key</key>\\s*<string>Bazaar</string>').hasMatch(plist), isTrue, reason: key);
       }
     });
+
+    // Apple asks every app for a privacy manifest; this one says the app tracks nothing and collects nothing. Should
+    // crash reports be turned on, it must list them (plan 8.8).
+    test('the privacy manifest says no tracking and no data collected, and ships in the app', () {
+      final manifest = File('ios/Runner/PrivacyInfo.xcprivacy').readAsStringSync();
+      expect(RegExp(r'<key>NSPrivacyTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypes</key>\s*<array/>').hasMatch(manifest), isTrue);
+
+      final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      expect(RegExp(r'/\* PrivacyInfo.xcprivacy in Resources \*/,').allMatches(project), hasLength(1));
+    });
+  });
+
+  test('the first release is version 1.0.0, build 1', () {
+    expect(RegExp(r'^version: 1\.0\.0\+1$', multiLine: true).hasMatch(File('pubspec.yaml').readAsStringSync()), isTrue);
   });
 }

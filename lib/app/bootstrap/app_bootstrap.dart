@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,7 +59,7 @@ class AppBootstrap {
 
     Bloc.observer = kDebugMode ? TimeTravelBlocObserver() : AppBlocObserver();
 
-    await SystemChrome.setPreferredOrientations(config.preferredOrientations);
+    await SystemChrome.setPreferredOrientations(appOrientations());
 
     log.info('Starting app with env: {}', [config.environment.name]);
 
