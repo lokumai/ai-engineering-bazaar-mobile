@@ -8,6 +8,7 @@ import UIKit
   static let appIcons: [String: String?] = [
     "dark": nil,
     "cream": "AppIconCream",
+    "noir": "AppIconNoir",
   ]
 
   override func application(

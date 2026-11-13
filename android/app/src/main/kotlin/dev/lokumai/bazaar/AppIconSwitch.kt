@@ -17,6 +17,7 @@ object AppIconSwitch {
     val aliases = linkedMapOf(
         "dark" to "LauncherDark",
         "cream" to "LauncherCream",
+        "noir" to "LauncherNoir",
     )
 
     /**
