@@ -2,6 +2,9 @@
 library;
 
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -68,6 +71,7 @@ GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
         path: '/settings',
         builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
       ),
+      GoRoute(path: '/settings/app-icon', builder: (_, _) => const Text('app icon page')),
     ],
   );
   addTearDown(router.dispose);
@@ -130,6 +134,28 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('the App icon row under the appearance shows the icon in use and opens its page', (tester) async {
+    final appIcon = AppIconCubit(store: const _KeptIcon(BazaarIcon.noir))..load();
+    addTearDown(appIcon.close);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), appIcon: appIcon));
+    await tester.pump();
+
+    final row = find.byKey(const Key('settings-app-icon'));
+    expect(find.descendant(of: row, matching: find.text('App icon')), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.image(AssetImage(BazaarIcon.noir.asset))), findsOneWidget);
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
+    expect(
+      tester.getTopLeft(row).dy,
+      greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy),
+      reason: 'under the appearance',
+    );
+
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+
+    expect(find.text('app icon page'), findsOneWidget);
   });
 
   testWidgets('the appearance is Light or Dark, with Dark selected until one is chosen, whatever the phone', (
@@ -382,4 +408,17 @@ final class _TrackStore implements ITrackStore {
 
   @override
   Future<void> choose(Track track) async => kept = track;
+}
+
+/// A store that holds [icon] as the chosen app icon.
+final class _KeptIcon implements IAppIconStore {
+  const _KeptIcon(this.icon);
+
+  final BazaarIcon icon;
+
+  @override
+  Future<BazaarIcon?> chosen() async => icon;
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {}
 }

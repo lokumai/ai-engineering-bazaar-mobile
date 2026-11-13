@@ -1336,6 +1336,106 @@ class S {
     return Intl.message('Dark', name: 'appearance_dark', desc: 'Appearance choice: the app is always dark.', args: []);
   }
 
+  /// `App icon`
+  String get settings_app_icon {
+    return Intl.message(
+      'App icon',
+      name: 'settings_app_icon',
+      desc: 'Settings\' row that opens the page to choose the app\'s icon on the home screen, and that page\'s title.',
+      args: [],
+    );
+  }
+
+  /// `Dark`
+  String get app_icon_dark {
+    return Intl.message(
+      'Dark',
+      name: 'app_icon_dark',
+      desc: 'App icon choice: the striped agent on the dark ground, the default.',
+      args: [],
+    );
+  }
+
+  /// `Cream`
+  String get app_icon_cream {
+    return Intl.message(
+      'Cream',
+      name: 'app_icon_cream',
+      desc: 'App icon choice: the striped agent on a cream ground.',
+      args: [],
+    );
+  }
+
+  /// `Noir`
+  String get app_icon_noir {
+    return Intl.message(
+      'Noir',
+      name: 'app_icon_noir',
+      desc: 'App icon choice: cream stripes on the dark ground, like a black and white film.',
+      args: [],
+    );
+  }
+
+  /// `Ink`
+  String get app_icon_ink {
+    return Intl.message(
+      'Ink',
+      name: 'app_icon_ink',
+      desc: 'App icon choice: dark stripes on a cream ground.',
+      args: [],
+    );
+  }
+
+  /// `Night gold`
+  String get app_icon_night_gold {
+    return Intl.message(
+      'Night gold',
+      name: 'app_icon_night_gold',
+      desc: 'App icon choice: gold stripes on the dark ground.',
+      args: [],
+    );
+  }
+
+  /// `Night sea`
+  String get app_icon_night_sea {
+    return Intl.message(
+      'Night sea',
+      name: 'app_icon_night_sea',
+      desc: 'App icon choice: teal, gold and cream stripes on a deep green ground.',
+      args: [],
+    );
+  }
+
+  /// `Default`
+  String get app_icon_default {
+    return Intl.message(
+      'Default',
+      name: 'app_icon_default',
+      desc: 'Under the default app icon\'s name on the app icon page.',
+      args: [],
+    );
+  }
+
+  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.`
+  String get app_icon_note_android {
+    return Intl.message(
+      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.',
+      name: 'app_icon_note_android',
+      desc: 'The note on the app icon page on Android: when the icon changes, and what some launchers do.',
+      args: [],
+    );
+  }
+
+  /// `The phone confirms the new icon with a message.`
+  String get app_icon_note_ios {
+    return Intl.message(
+      'The phone confirms the new icon with a message.',
+      name: 'app_icon_note_ios',
+      desc: 'The note on the app icon page on iOS, where the system tells of every icon change.',
+      args: [],
+    );
+  }
+
   /// `For Engineers`
   String get track_engineers {
     return Intl.message(

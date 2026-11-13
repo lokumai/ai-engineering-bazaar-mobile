@@ -64,6 +64,7 @@ flutter:
     - assets/fonts/OFL.txt
     - assets/fonts/OFL-Fraunces.txt
     - assets/brand/lokum_logo.webp
+    - assets/app_icon/dark.png
     - assets/app_icon/cream.png
     - assets/app_icon/noir.png
     - assets/app_icon/ink.png
