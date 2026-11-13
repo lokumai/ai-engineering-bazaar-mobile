@@ -145,6 +145,12 @@ void main() {
     final row = find.byKey(const Key('settings-app-icon'));
     expect(find.descendant(of: row, matching: find.text('App icon')), findsOneWidget);
     expect(find.descendant(of: row, matching: find.image(AssetImage(BazaarIcon.noir.asset))), findsOneWidget);
+    expect(
+      find.descendant(of: row, matching: find.text('Noir')),
+      findsOneWidget,
+      reason: 'the icon in use, named',
+    );
+    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(52, 52));
     expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
     expect(
       tester.getTopLeft(row).dy,
@@ -170,7 +176,10 @@ void main() {
 
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Light'), findsOneWidget);
-    expect(find.text('Dark'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(settingsAppearanceKey(ThemeMode.dark)), matching: find.text('Dark')),
+      findsOneWidget,
+    );
     expect(find.text('Phone'), findsNothing);
     expect(
       tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.dark))),

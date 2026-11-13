@@ -258,8 +258,9 @@ class _Action extends StatelessWidget {
   }
 }
 
-/// The App icon row under the appearance: its name, the icon in use as a small picture, and an arrow to the page that
-/// chooses it, the whole row the button.
+/// The App icon row under the appearance: the icon in use as a picture, the row's name with the icon's name under it,
+/// and an arrow to the page that chooses it, the whole row the button. The picture is large enough to stand out among
+/// the reading options (the owner, 2026-11-14).
 class _AppIconRow extends StatelessWidget {
   const _AppIconRow();
 
@@ -271,6 +272,7 @@ class _AppIconRow extends StatelessWidget {
     final s = S.of(context);
     final colors = context.bazaarColors;
     final icon = context.watch<AppIconCubit>().state.icon;
+    final textTheme = Theme.of(context).textTheme;
     return BazaarRow(
       key: rowKey,
       onTap: () => context.push(ApplicationRoutesConstants.appIcon),
@@ -278,15 +280,19 @@ class _AppIconRow extends StatelessWidget {
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          Expanded(
-            child: Text(
-              s.settings_app_icon,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle),
-            ),
-          ),
           ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(7)),
-            child: Image.asset(icon.asset, width: 32, height: 32),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: Image.asset(icon.asset, width: 52, height: 52),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(s.settings_app_icon, style: textTheme.titleSmall?.copyWith(color: colors.onSurfaceTitle)),
+                Text(appIconName(s, icon), style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
+              ],
+            ),
           ),
           Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
         ],

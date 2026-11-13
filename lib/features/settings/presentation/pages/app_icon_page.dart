@@ -35,8 +35,8 @@ class AppIconPage extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             LayoutBuilder(
               builder: (context, constraints) {
-                // Three to a row on a phone; each choice at most 120 wide on a wider page.
-                final columns = (constraints.maxWidth / 120).ceil().clamp(3, BazaarIcon.values.length);
+                // Three to a row, so the six stand in two rows (the owner, 2026-11-14).
+                const columns = 3;
                 final width = (constraints.maxWidth - AppSpacing.md * (columns - 1)) / columns;
                 return Wrap(
                   spacing: AppSpacing.md,

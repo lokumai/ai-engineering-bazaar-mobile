@@ -59,6 +59,15 @@ void main() {
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(false));
   });
 
+  testWidgets('stands the six in two rows of three', (tester) async {
+    await _pump(tester);
+
+    double top(BazaarIcon icon) => tester.getTopLeft(find.byKey(appIconChoiceKey(icon))).dy;
+    expect({top(BazaarIcon.dark), top(BazaarIcon.cream), top(BazaarIcon.noir)}, hasLength(1));
+    expect({top(BazaarIcon.ink), top(BazaarIcon.nightGold), top(BazaarIcon.nightSea)}, hasLength(1));
+    expect(top(BazaarIcon.ink), greaterThan(top(BazaarIcon.dark)));
+  });
+
   testWidgets('a tap makes that icon the app icon and marks it', (tester) async {
     final iconSwitch = _Switch();
     final cubit = await _pump(tester, iconSwitch: iconSwitch);
@@ -86,7 +95,7 @@ void main() {
   testWidgets('names the icons in Turkish', (tester) async {
     await _pump(tester, locale: const Locale('tr'));
 
-    expect(find.text('Uygulama simgesi'), findsOneWidget);
+    expect(find.text('App ikonu'), findsOneWidget);
     expect(find.text('Gece denizi'), findsOneWidget);
     expect(find.text('Varsayılan'), findsOneWidget);
   });
