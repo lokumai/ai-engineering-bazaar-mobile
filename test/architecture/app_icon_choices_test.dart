@@ -92,6 +92,15 @@ void main() {
     expect(pairs, [for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.dark ? null : iosName(icon))]);
   });
 
+  test('AppDelegate.swift paints the launch picture in the ground of each icon, as the Dart side has it', () {
+    final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+    final grounds = RegExp(r'"(\w+)": 0x([0-9a-f]{6}),').allMatches(swift).map((m) => (m[1], m[2])).toList();
+
+    expect(grounds, [
+      for (final icon in BazaarIcon.values) (icon.name, icon.ground.toARGB32().toRadixString(16).substring(2)),
+    ]);
+  });
+
   test('every icon has its picture for the choice, bundled', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     for (final icon in BazaarIcon.values) {
