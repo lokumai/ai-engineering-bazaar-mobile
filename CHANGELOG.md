@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- Appearance in Settings and on Welcome's first step: Light or Dark. The app opens dark until the reader chooses, whatever the phone's setting, and keeps the choice on the device.
 - Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
 - A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
 - The iOS privacy manifest: the app tracks nothing, and lists what a release with the Sentry DSN sends, linked to no one.
@@ -49,6 +50,10 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The opening is the striped secret agent: it stands still in the middle of the screen, then the camera flies into it and its stripes rush past as ribbons onto the app, 1.45 s, on the page colour of the theme.
+- The app icon is the striped secret agent on the dark page colour, one icon for every phone theme.
+- The launch screens are the dark page colour whatever the phone's theme.
+- Welcome's first step fits a phone with no scrolling; the line under its title is gone.
 - The Caravan tab says the Caravan is coming soon, over a scene of a caravan walking in at dusk, instead of under maintenance.
 - A picture in a module is decoded at the size it is drawn, which takes less memory and opens a module faster; it looks the same, and full screen still shows it whole.
 - The back arrow in the bar goes to the page the page was opened from, Home, Quiz, a level or another module, as Android's back and the iOS edge swipe do; it no longer goes to the catalog.
@@ -78,6 +83,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Removed
 
+- The bazaar gate opening, with its lamps, its people on the threshold and its walk through the arch.
 - The web, macOS, Linux and Windows platforms.
 - Sonar.
 - Login, users, accounts, OIDC and the mock API.

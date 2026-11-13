@@ -100,6 +100,8 @@ lib/
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
+    theme/                                      ThemeChoiceCubit (light or dark; the phone's until chosen), IThemeStore, appearance_name.dart:
+                                                the choice kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
@@ -120,7 +122,7 @@ lib/
                                                 module's quiz at `/quiz/<level>/<module>`
     settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
-    welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
+    welcome/                                    the opening (WelcomeSting, the agent), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step
