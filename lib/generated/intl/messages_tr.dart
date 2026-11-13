@@ -192,7 +192,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Cihaz yedeklerinden birinde ilerlemenin daha eski bir kopyası hâlâ bulunabilir.",
     ),
     "erase_confirm": MessageLookupByLibrary.simpleMessage("Bütün verileri sil"),
-    "erase_field_label": MessageLookupByLibrary.simpleMessage("Onaylamak için ERASE yaz"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("Onaylamak için SİL yaz"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("Verilerimi koru"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("Sil"),
     "erase_scope": MessageLookupByLibrary.simpleMessage(
@@ -200,6 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("Bu cihazdaki quiz skorları da silinir."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("SİL"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "Bir modülü bitirince tamamlandı olarak işaretle. Katalog ne okuduğunu, Ana sayfa sırada ne olduğunu gösterir.",

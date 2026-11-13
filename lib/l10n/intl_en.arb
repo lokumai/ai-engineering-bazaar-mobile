@@ -570,6 +570,10 @@
   "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
+  "erase_word": "ERASE",
+  "@erase_word": {
+    "description": "The word the reader types to confirm a reset, in the interface's language; ERASE is taken in every language too."
+  },
   "erase_field_label": "Type ERASE to confirm",
   "@erase_field_label": {},
   "erase_confirm": "Erase all data",

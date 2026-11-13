@@ -56,8 +56,11 @@ Future<void> pumpDataHost(
   RecordBloc? record,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
 }) async {
-  await tester.pumpWidget(dataHost(child, data: data, record: record, brightness: brightness, platform: platform));
+  await tester.pumpWidget(
+    dataHost(child, data: data, record: record, brightness: brightness, platform: platform, locale: locale),
+  );
   await tester.pump();
 }
 
@@ -68,6 +71,7 @@ Widget dataHost(
   RecordBloc? record,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
 }) {
   // The blocs sit below the Navigator, as on the Settings page, so a dialog sees them only if it provides them again.
   return MaterialApp(
@@ -80,7 +84,7 @@ Widget dataHost(
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: S.delegate.supportedLocales,
-    locale: const Locale('en'),
+    locale: locale,
     home: MultiBlocProvider(
       providers: [
         BlocProvider<DataBloc>.value(value: data),

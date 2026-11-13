@@ -57,7 +57,7 @@ class _EraseDialogState extends State<_EraseDialog> {
       RecordReady(:final record) => tally(record).sheets,
       RecordLoading() => null,
     };
-    final armed = confirmsErase(_typed.text);
+    final armed = confirmsErase(_typed.text, localWord: s.erase_word);
     return AlertDialog(
       scrollable: true,
       title: Column(

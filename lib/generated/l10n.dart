@@ -976,6 +976,16 @@ class S {
     );
   }
 
+  /// `ERASE`
+  String get erase_word {
+    return Intl.message(
+      'ERASE',
+      name: 'erase_word',
+      desc: 'The word the reader types to confirm a reset, in the interface\'s language; ERASE is taken in every language too.',
+      args: [],
+    );
+  }
+
   /// `Type ERASE to confirm`
   String get erase_field_label {
     return Intl.message('Type ERASE to confirm', name: 'erase_field_label', desc: '', args: []);

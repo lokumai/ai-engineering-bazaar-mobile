@@ -120,6 +120,18 @@ void main() {
       expect(confirmsErase(typed), isFalse, reason: typed);
     }
   });
+  test("confirmsErase takes the interface language's word, the Turkish i's as one, and ERASE in every language", () {
+    for (final typed in ['SİL', 'sil', ' Sil ', 'SIL', 'sıl', 'ERASE']) {
+      expect(confirmsErase(typed, localWord: 'SİL'), isTrue, reason: typed);
+    }
+    for (final typed in ['حذف', ' حذف ', 'erase']) {
+      expect(confirmsErase(typed, localWord: 'حذف'), isTrue, reason: typed);
+    }
+    for (final typed in ['SİLİN', 'S IL', 'sl', '']) {
+      expect(confirmsErase(typed, localWord: 'SİL'), isFalse, reason: typed);
+    }
+    expect(confirmsErase('SİL'), isFalse, reason: 'no local word, ERASE only');
+  });
   test('A21: a record written before the tracks, completed For Everyone, keeps everyoneSheets after sheets', () {
     final before = (parseEnvelope(
       '{"schema":1,"savedAt":"2026-03-14T08:00:00.000Z","data":{"sheets":{"alpha/first":'

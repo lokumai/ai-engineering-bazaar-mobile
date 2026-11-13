@@ -200,6 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",

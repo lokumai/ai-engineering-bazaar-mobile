@@ -192,7 +192,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ممکن است پشتیبان دستگاه هنوز نسخهٔ قدیمی‌تری از پیشرفت شما را داشته باشد.",
     ),
     "erase_confirm": MessageLookupByLibrary.simpleMessage("پاک کردن همهٔ داده‌ها"),
-    "erase_field_label": MessageLookupByLibrary.simpleMessage("برای تأیید، ERASE را تایپ کنید"),
+    "erase_field_label": MessageLookupByLibrary.simpleMessage("برای تأیید، «حذف» را تایپ کنید"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("داده‌هایم را نگه دار"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("پاک کردن"),
     "erase_scope": MessageLookupByLibrary.simpleMessage(
@@ -200,6 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage("امتیازهای آزمون در این دستگاه هم پاک می‌شوند."),
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
+    "erase_word": MessageLookupByLibrary.simpleMessage("حذف"),
     "error_link_open_failed": m16,
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "وقتی درسی را تمام کردید، آن را تکمیل‌شده علامت بزنید. کاتالوگ نشان می‌دهد چه خوانده‌اید و صفحهٔ خانه درس بعدی را نشان می‌دهد.",
