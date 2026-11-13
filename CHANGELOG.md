@@ -7,7 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
-- App icon in Settings, under Appearance: six colourings of the striped agent, shown as pictures: Dark (the default), Cream, Noir, Ink, Night gold and Night sea. The chosen one becomes the icon on the home screen (on Android once the app is left; on iOS the phone confirms it) and the opening plays in its colours, on its ground.
+- App icon in Settings, under Appearance: six colourings of the striped agent, shown as pictures: Dark (the default), Cream, Noir, Ink, Night gold and Night sea. The chosen one becomes the icon on the home screen (on Android once the app is left; on iOS the phone confirms it) and the opening plays in its colours, on its ground; on Android 13 and later the launch screen takes its ground too. Welcome's first step says the icon is changed in Settings.
 - Appearance in Settings and on Welcome's first step: Light or Dark. The app opens dark until the reader chooses, whatever the phone's setting, and keeps the choice on the device.
 - Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
 - A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
