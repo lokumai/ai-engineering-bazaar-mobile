@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
@@ -111,4 +112,7 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IReadingPlaceStore createReadingPlaceStore() => MemoryReadingPlaceStore();
+
+  @override
+  IFeedbackSender createFeedbackSender() => MockFeedbackSender();
 }

@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
@@ -103,6 +104,7 @@ Widget bazaarTestApp({
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
+  IFeedbackSender? feedbackSender,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -113,6 +115,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IContentRepository>.value(value: repository ?? missingContentRepository()),
       RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
+      RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
     ],
     child: MultiBlocProvider(
       providers: [

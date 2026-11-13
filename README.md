@@ -120,9 +120,11 @@ Elsewhere, run the commands as they are.
 
 The app collects no personal data.
 The site's privacy note covers the app too: <https://ai-bazaar.lokum.dev/legend/#privacy>.
-Sentry starts only in a prod build with a `SENTRY_DSN` define, and no build sets one yet.
-With one, it sends crash reports and nothing else: no release-health sessions, no performance traces, no route names.
-The app scrubs every crash report on Android and every Dart crash report on iOS; on iOS the native SDK's own crash events and breadcrumbs leave the device as that SDK records them.
+Sentry starts only in a prod build with a `SENTRY_DSN` define, and sends crash reports, hangs, how long the app took to open, release-health sessions and what a reader sends under Report a problem; nothing else: no other performance trace, no route names, no screenshots, no replay.
+The app scrubs every report and every breadcrumb before it leaves the device. On iOS the native SDK records only app hangs and sessions of its own (no native crash handler, breadcrumbs, watchdog or failed request events).
+The Sentry project is `lokumai/ai-bazaar-mobile`, in the EU region, with IP addresses not stored and the server-side scrubbing on.
+The DSN is kept out of git: a release build that sends crash reports reads it from a `sentry_dsn.json` beside `pubspec.yaml`, `{"SENTRY_DSN": "<the project's DSN>"}`, with `--dart-define-from-file=sentry_dsn.json`.
+The iOS privacy manifest and both stores' forms list what is sent, linked to no one and for the app's functioning: see [docs/store-privacy.md](docs/store-privacy.md).
 
 ## Licences
 

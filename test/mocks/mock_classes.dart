@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -16,6 +17,8 @@ class MockContentRepository extends Mock implements IContentRepository {}
 class MockRecordRepository extends Mock implements IRecordRepository {}
 
 class MockBackupGateway extends Mock implements IBackupGateway {}
+
+class MockFeedbackSender extends Mock implements IFeedbackSender {}
 
 class MockDataBloc extends MockBloc<DataEvent, DataState> implements DataBloc {}
 

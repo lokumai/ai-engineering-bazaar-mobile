@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -45,6 +46,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
+        RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
       ],
       child: MultiBlocProvider(
         providers: [

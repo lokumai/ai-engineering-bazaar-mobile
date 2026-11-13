@@ -10,7 +10,9 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
@@ -79,6 +81,17 @@ class AppDependencies {
   /// (plan 1BA).
   IReadingPlaceStore createReadingPlaceStore() =>
       FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
+
+  /// Report a problem's sender, over Sentry's user feedback; Settings shows the page only when Sentry is on.
+  IFeedbackSender createFeedbackSender() => const SentryFeedbackSender();
+}
+
+/// Report a problem's port over Sentry's user feedback ([sendSentryFeedback]).
+final class SentryFeedbackSender implements IFeedbackSender {
+  const SentryFeedbackSender();
+
+  @override
+  Future<void> send(String message) => sendSentryFeedback(message);
 }
 
 /// The reading places' port over one text file of the app's own.

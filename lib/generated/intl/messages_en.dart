@@ -203,6 +203,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
     "error_link_open_failed": m16,
+    "feedback_failed": MessageLookupByLibrary.simpleMessage("The report was not sent. Try again later."),
+    "feedback_field": MessageLookupByLibrary.simpleMessage("What happened"),
+    "feedback_intro": MessageLookupByLibrary.simpleMessage(
+      "Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.",
+    ),
+    "feedback_send": MessageLookupByLibrary.simpleMessage("Send"),
+    "feedback_sending": MessageLookupByLibrary.simpleMessage("Sending"),
+    "feedback_sent": MessageLookupByLibrary.simpleMessage("The report is sent."),
+    "feedback_title": MessageLookupByLibrary.simpleMessage("Report a problem"),
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
     ),
@@ -271,7 +280,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",

@@ -203,6 +203,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
     "erase_word": MessageLookupByLibrary.simpleMessage("حذف"),
     "error_link_open_failed": m16,
+    "feedback_failed": MessageLookupByLibrary.simpleMessage("گزارش ارسال نشد. بعداً دوباره امتحان کنید."),
+    "feedback_field": MessageLookupByLibrary.simpleMessage("چه اتفاقی افتاد"),
+    "feedback_intro": MessageLookupByLibrary.simpleMessage(
+      "بنویسید چه مشکلی پیش آمد. گزارش همراه با نسخهٔ برنامه و مدل و سیستم دستگاه، بدون نام یا ایمیل، به Sentry می‌رود. برنامه پیش از خروج آن از دستگاه، ایمیل‌ها و دیگر جزئیات شخصی‌اش را می‌پوشاند.",
+    ),
+    "feedback_send": MessageLookupByLibrary.simpleMessage("ارسال"),
+    "feedback_sending": MessageLookupByLibrary.simpleMessage("در حال ارسال"),
+    "feedback_sent": MessageLookupByLibrary.simpleMessage("گزارش ارسال شد."),
+    "feedback_title": MessageLookupByLibrary.simpleMessage("گزارش مشکل"),
     "guide_complete": MessageLookupByLibrary.simpleMessage(
       "وقتی درسی را تمام کردید، آن را تکمیل‌شده علامت بزنید. کاتالوگ نشان می‌دهد چه خوانده‌اید و صفحهٔ خانه درس بعدی را نشان می‌دهد.",
     ),
@@ -271,7 +280,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("باز کردن در وب"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برنامه پیش از خروج گزارش از دستگاه، جزئیات شخصی آن را می‌پوشاند.",
+      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، جزئیات شخصی را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",

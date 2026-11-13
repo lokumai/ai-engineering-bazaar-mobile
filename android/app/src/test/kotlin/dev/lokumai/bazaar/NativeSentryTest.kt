@@ -67,10 +67,9 @@ class NativeSentryTest {
         assertEquals("sentry.native.android.flutter", options.nativeSdkName)
     }
 
-    // Crash reports only: a release-health session envelope never passes beforeSend, and sentry-java tracks sessions
-    // by default.
+    // Release health (the owner, 2026-11-13), as configureSentryOptions sets it on the Dart side.
     @Test
-    fun turnsAutomaticSessionTrackingOff() {
-        assertFalse(configured().isEnableAutoSessionTracking)
+    fun turnsAutomaticSessionTrackingOn() {
+        assertTrue(configured().isEnableAutoSessionTracking)
     }
 }
