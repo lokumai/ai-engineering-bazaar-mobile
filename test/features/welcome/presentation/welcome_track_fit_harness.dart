@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +64,7 @@ Future<double> trackStepOverflow(WidgetTester tester, String locale) async {
         BlocProvider<ContentBloc>.value(value: content),
         BlocProvider<LanguageCubit>(create: (_) => LanguageCubit(initial: locale)),
         BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
+        BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

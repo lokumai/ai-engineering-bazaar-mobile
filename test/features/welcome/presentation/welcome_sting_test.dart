@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -15,6 +18,30 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/bazaar_app_harness.dart';
 
+/// A store whose choice is read only when [read] completes.
+final class _SlowStore implements IAppIconStore {
+  final read = Completer<BazaarIcon?>();
+
+  @override
+  Future<BazaarIcon?> chosen() => read.future;
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {}
+}
+
+/// A store that holds [icon] as chosen.
+final class _ChosenStore implements IAppIconStore {
+  const _ChosenStore(this.icon);
+
+  final BazaarIcon icon;
+
+  @override
+  Future<BazaarIcon?> chosen() async => icon;
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {}
+}
+
 /// Draws frames for [duration], as a device does; an animation counts its time from its own first frame.
 Future<void> _frames(WidgetTester tester, Duration duration) async {
   for (var elapsed = Duration.zero; elapsed < duration; elapsed += const Duration(milliseconds: 16)) {
@@ -24,28 +51,33 @@ Future<void> _frames(WidgetTester tester, Duration duration) async {
 
 final _scene = find.byKey(WelcomeSting.sceneKey);
 
-Widget _splash({ContentBloc? content, RecordBloc? record, bool reducedMotion = false}) => MultiBlocProvider(
-  providers: [
-    BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),
-    BlocProvider<RecordBloc>.value(value: record ?? readyRecordBloc()),
-  ],
-  child: MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.delegate.supportedLocales,
-    locale: const Locale('en'),
-    builder: (context, child) => reducedMotion
-        ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
-        : child!,
-    home: const WelcomeSting(child: Text('the app')),
-  ),
-);
+Widget _splash({ContentBloc? content, RecordBloc? record, AppIconCubit? appIcon, bool reducedMotion = false}) =>
+    MultiBlocProvider(
+      providers: [
+        if (appIcon != null)
+          BlocProvider<AppIconCubit>.value(value: appIcon)
+        else
+          BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
+        BlocProvider<ContentBloc>.value(value: content ?? readyContentBloc()),
+        BlocProvider<RecordBloc>.value(value: record ?? readyRecordBloc()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
+        locale: const Locale('en'),
+        builder: (context, child) => reducedMotion
+            ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
+            : child!,
+        home: const WelcomeSting(child: Text('the app')),
+      ),
+    );
 
 const _ready = RecordReady(
   record: RecordData.empty,
@@ -78,6 +110,8 @@ void main() {
     final record = MockRecordBloc();
     whenListen(record, states.stream, initialState: const RecordLoading());
     await tester.pumpWidget(_splash(record: record));
+    // The chosen icon is read, then the hold starts on the next frame.
+    await tester.pump();
     await tester.pump();
     await tester.pump(WelcomeSting.entrance * 2);
 
@@ -108,6 +142,7 @@ void main() {
         providers: [
           BlocProvider<ContentBloc>.value(value: readyContentBloc()),
           BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
+          BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
         ],
         child: MaterialApp(
           theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
@@ -162,5 +197,40 @@ void main() {
     expect(tester.hasRunningAnimations, isFalse);
     await tester.pump();
     expect(_scene, findsNothing);
+  });
+
+  testWidgets('waits for the chosen icon: until it is read, only the dark ground shows and the mark does not start', (
+    tester,
+  ) async {
+    final store = _SlowStore();
+    final appIcon = AppIconCubit(store: store)..load();
+    addTearDown(appIcon.close);
+    await tester.pumpWidget(_splash(appIcon: appIcon));
+    await _frames(tester, WelcomeSting.entrance + WelcomeSting.exit + const Duration(milliseconds: 100));
+
+    expect(_scene, findsOneWidget);
+    final paint = find.descendant(of: _scene, matching: find.byType(CustomPaint));
+    expect(tester.widget<CustomPaint>(paint).painter, isA<StingPainter>().having((p) => p.icon, 'icon', isNull));
+    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.dark.ground));
+
+    store.read.complete(null);
+    await tester.pump();
+    await _frames(tester, WelcomeSting.entrance + WelcomeSting.exit + const Duration(milliseconds: 100));
+
+    expect(_scene, findsNothing);
+  });
+
+  testWidgets('plays in the colours of the chosen icon, on its ground', (tester) async {
+    final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.cream))..load();
+    addTearDown(appIcon.close);
+    await tester.pumpWidget(_splash(appIcon: appIcon));
+    await tester.pump();
+
+    final paint = find.descendant(of: _scene, matching: find.byType(CustomPaint));
+    expect(
+      tester.widget<CustomPaint>(paint).painter,
+      isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.cream),
+    );
+    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.cream.ground));
   });
 }

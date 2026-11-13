@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +11,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The opening while the app starts (plan 1Y, 1AA; the owner, 2026-11-13), on every launch, over the whole screen in
-/// front of [child]: the app icon's mark, the striped secret agent (`assets/brand/app_icon/mark.svg`), on the app's
-/// own page colour, light or dark. The mark stands still in the middle of the screen from the first frame. Once it has
-/// held for [entrance] and the content and the record have settled, the camera flies into it, rolling a little: each
-/// stripe splits into thinner ribbons that lie at different depths, and the ribbons rush past the viewer one after
-/// another as the page gives way to the app.
+/// front of [child]: the app icon's mark, the striped secret agent (`assets/brand/app_icon/mark.svg`), in the colours
+/// of the icon the reader chose ([AppIconCubit], the owner, 2026-11-14): on its ground, with its stripes and its tie.
+/// Until the choice is read the screen stays the launch screen's dark page colour; then the mark stands still in the
+/// middle of the screen from its first frame. Once it has held for [entrance] and the content and the record have
+/// settled, the camera flies into it, rolling a little: each stripe splits into thinner ribbons that lie at different
+/// depths, and the ribbons rush past the viewer one after another as the ground gives way to the app.
 ///
 /// The launch screens are the dark page colour, as the app opens dark until the reader chooses. Under reduced motion
 /// the mark is drawn in place and gives way as soon as the app is ready (spec 3.10). It is decoration, hidden from
@@ -62,8 +65,6 @@ class _WelcomeStingState extends State<WelcomeSting> with TickerProviderStateMix
     if (MediaQuery.disableAnimationsOf(context)) {
       _motion.value = 1;
       _played = true;
-    } else if (_motion.status == AnimationStatus.dismissed) {
-      unawaited(_motion.forward());
     }
   }
 
@@ -82,15 +83,25 @@ class _WelcomeStingState extends State<WelcomeSting> with TickerProviderStateMix
       (ContentReady(), RecordReady()) => true,
       _ => false,
     };
-    final leaving = _played && ready;
+    // The icon's colours; null until the choice is read, when only the launch screen's ground shows.
+    final icon = switch (context.watch<AppIconCubit>().state) {
+      AppIconKnown(:final icon) => icon,
+      AppIconUnread() => null,
+    };
     final still = MediaQuery.disableAnimationsOf(context);
+    if (icon != null && !still && _motion.status == AnimationStatus.dismissed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _motion.status == AnimationStatus.dismissed) unawaited(_motion.forward());
+      });
+    }
+    final leaving = _played && ready && icon != null;
     if (leaving && !still && _flight.status == AnimationStatus.dismissed) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _flight.status == AnimationStatus.dismissed) unawaited(_flight.forward());
       });
     }
-    final theme = Theme.of(context);
-    final dark = theme.brightness == Brightness.dark;
+    final ground = (icon ?? BazaarIcon.dark).ground;
+    final dark = ThemeData.estimateBrightnessForColor(ground) == Brightness.dark;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -100,14 +111,14 @@ class _WelcomeStingState extends State<WelcomeSting> with TickerProviderStateMix
             key: WelcomeSting.sceneKey,
             ignoring: leaving,
             child: AnnotatedRegion<SystemUiOverlayStyle>(
-              // The status bar lies over the page colour.
+              // The status bar lies over the icon's ground.
               value: (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
                 statusBarColor: Colors.transparent,
               ),
               child: ExcludeSemantics(
                 child: SizedBox.expand(
                   child: CustomPaint(
-                    painter: StingPainter(motion: _motion, flight: _flight, page: theme.scaffoldBackgroundColor),
+                    painter: StingPainter(motion: _motion, flight: _flight, icon: icon),
                   ),
                 ),
               ),
@@ -118,21 +129,18 @@ class _WelcomeStingState extends State<WelcomeSting> with TickerProviderStateMix
   }
 }
 
-/// The mark's colours, as `mark.svg` paints them.
-const _teal = Color(0xff2f8c86);
-const _gold = Color(0xffc8a078);
-const _brick = Color(0xffa0503c);
-
 /// One thin ribbon of a stripe: its edges along the mark's bottom edge, the depth it lies at and its shade.
 class _Ribbon {
-  const _Ribbon(this.left, this.right, this.depth, this.colour, this.shade);
+  const _Ribbon(this.left, this.right, this.depth, this.stripe, this.shade);
 
   final double left;
   final double right;
 
   /// 1 is the mark's own plane; a ribbon further back passes the viewer later.
   final double depth;
-  final Color colour;
+
+  /// Which of the icon's three stripe colours it takes: 0, 1 or 2.
+  final int stripe;
 
   /// From -1 (darker) to 1 (lighter), shown more as the flight goes on.
   final double shade;
@@ -249,16 +257,17 @@ abstract final class AgentMark {
   static Path get tie => _tie;
 }
 
-/// Paints the sting on the [page] colour at the [flight]'s progress, in the mark's own 200 x 200 units, seen through a
-/// camera that moves into the screen. [motion] is the hold before the flight; the mark does not move during it.
+/// Paints the sting in [icon]'s colours at the [flight]'s progress, in the mark's own 200 x 200 units, seen through a
+/// camera that moves into the screen. [motion] is the hold before the flight; the mark does not move during it. With
+/// no [icon] (the choice not read yet), only the default's ground is painted.
 @visibleForTesting
 class StingPainter extends CustomPainter {
-  StingPainter({required this.motion, required this.flight, required this.page})
+  StingPainter({required this.motion, required this.flight, required this.icon})
     : super(repaint: Listenable.merge([motion, flight]));
 
   final Animation<double> motion;
   final Animation<double> flight;
-  final Color page;
+  final BazaarIcon? icon;
 
   /// The point the camera flies at, in the agent's head; it is also the middle of the screen.
   static const Offset _focus = Offset(100, 108);
@@ -272,7 +281,6 @@ class StingPainter extends CustomPainter {
   /// The mark's 30 stripes, each 13 units of colour every 19 along its bottom edge (y 220), and the thinner ribbons
   /// each splits into, edge to edge (a hair over, so no seam shows while they lie together).
   static final List<_Ribbon> _ribbons = () {
-    const colours = [_teal, _gold, _brick];
     const cuts = [0.0, 3.5, 6.0, 10.0, 13.0];
     final random = math.Random(7);
     return [
@@ -282,7 +290,7 @@ class StingPainter extends CustomPainter {
             -260 + 19.0 * i + cuts[j] - 0.15,
             -260 + 19.0 * i + cuts[j + 1] + 0.15,
             1.05 + 0.9 * random.nextDouble(),
-            colours[i % 3],
+            i % 3,
             random.nextDouble() * 2 - 1,
           ),
     ];
@@ -292,10 +300,20 @@ class StingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final icon = this.icon;
+    if (icon == null) {
+      canvas.drawRect(Offset.zero & size, Paint()..color = BazaarIcon.dark.ground);
+      return;
+    }
     final f = flight.value;
-    // The page fades onto the app once the ribbons have the screen.
-    final pageLeft = 1 - Curves.easeIn.transform(_span(f, 0.45, 0.85));
-    if (pageLeft > 0) canvas.drawRect(Offset.zero & size, Paint()..color = page.withValues(alpha: page.a * pageLeft));
+    // The ground fades onto the app once the ribbons have the screen.
+    final groundLeft = 1 - Curves.easeIn.transform(_span(f, 0.45, 0.85));
+    final ground = icon.ground;
+    if (groundLeft > 0) {
+      canvas.drawRect(Offset.zero & size, Paint()..color = ground.withValues(alpha: ground.a * groundLeft));
+    }
+    final (first, second, third) = icon.stripes;
+    final colours = [first, second, third];
 
     // The agent stands about three fifths of a phone's width.
     final base = math.min(size.width * 0.6, size.height * 0.34) / _width;
@@ -319,7 +337,7 @@ class StingPainter extends CustomPainter {
       // A ribbon fades out as it reaches the viewer, and is gone once passed.
       final near = _span(ahead, 0, 0.22);
       if (near == 0) continue;
-      final colour = _shade(ribbon.colour, ribbon.shade * _span(f, 0, 0.4) * 0.15);
+      final colour = _shade(colours[ribbon.stripe], ribbon.shade * _span(f, 0, 0.4) * 0.15);
       final path = _ribbon(ribbon.left, ribbon.right);
       // A faint trail behind each ribbon while it moves, from where it was a moment ago.
       if (f > 0) {
@@ -331,7 +349,7 @@ class StingPainter extends CustomPainter {
       canvas.drawPath(path.transform(_at(base * ribbon.depth / ahead)), paint);
     }
     final tieLeft = 1 - _span(f, 0, 0.22);
-    if (tie != null && tieLeft > 0) canvas.drawPath(tie, paint..color = _brick.withValues(alpha: tieLeft));
+    if (tie != null && tieLeft > 0) canvas.drawPath(tie, paint..color = icon.tie.withValues(alpha: tieLeft));
     canvas.restore();
   }
 
@@ -356,5 +374,5 @@ class StingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(StingPainter oldDelegate) =>
-      oldDelegate.motion != motion || oldDelegate.flight != flight || oldDelegate.page != page;
+      oldDelegate.motion != motion || oldDelegate.flight != flight || oldDelegate.icon != icon;
 }
