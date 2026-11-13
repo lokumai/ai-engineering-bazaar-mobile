@@ -80,9 +80,8 @@ void main() {
     test('the privacy manifest says no tracking and crash data only, and ships in the app', () {
       final manifest = File('ios/Runner/PrivacyInfo.xcprivacy').readAsStringSync();
       expect(RegExp(r'<key>NSPrivacyTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
-      expect(RegExp(r'<string>NSPrivacyCollectedDataType[A-Za-z]+</string>').allMatches(manifest).map((m) => m[0]), [
-        '<string>NSPrivacyCollectedDataTypeCrashData</string>',
-      ]);
+      final types = RegExp(r'<key>NSPrivacyCollectedDataType</key>\s*<string>(\w+)</string>').allMatches(manifest);
+      expect(types.map((m) => m[1]), ['NSPrivacyCollectedDataTypeCrashData']);
       expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').hasMatch(manifest), isTrue);
       expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
       expect(manifest, contains('<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>'));
