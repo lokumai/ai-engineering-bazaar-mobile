@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ai_engineering_bazaar/app/shell/caravan_icon.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/caravan_icon.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';

@@ -78,7 +78,7 @@ lib/
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the tabs), thin lattice band, bottom navigation of icons
                                                 with small names (Home, Catalog, the Caravan's camel, Quiz, Settings;
-                                                caravan_icon.dart)
+                                                shared/design_system/widgets/caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -124,7 +124,7 @@ lib/
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step
     guide/                                      How the bazaar works, at `/settings/guide`
-    caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
+    caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
                                                 the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart

@@ -117,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("Bu bölüm için uygulamanın daha yeni bir sürümü gerekiyor."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Bakımda"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "Kervan, yapay zekâ mühendisliğinde gündemde olanların zaman çizelgesi, hâlâ yapım aşamasında.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("Yakında"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "Yapay zekâ mühendisliğinde gündemde olanların dönem dönem zaman çizelgesi. O gelene kadar katalog açık.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("Kervan yolda"),
     "card_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "card_length": MessageLookupByLibrary.simpleMessage("Süre"),
     "card_length_minutes": m4,

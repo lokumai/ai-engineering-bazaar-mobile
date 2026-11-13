@@ -117,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("این بخش به نسخهٔ جدیدتری از برنامه نیاز دارد."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("در دست تعمیر و نگهداری"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "کاروان، گاه‌شمار آنچه در مهندسی هوش مصنوعی پرطرفدار بوده، هنوز در دست ساخت است.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("به‌زودی"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "گاه‌شمار آنچه در مهندسی هوش مصنوعی، فصل به فصل، پرطرفدار بوده است. تا رسیدن آن، کاتالوگ باز است.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("کاروان در راه است"),
     "card_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "card_length": MessageLookupByLibrary.simpleMessage("مدت"),
     "card_length_minutes": m4,

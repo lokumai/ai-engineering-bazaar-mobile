@@ -117,10 +117,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
-    "caravan_maintenance": MessageLookupByLibrary.simpleMessage("Under maintenance"),
-    "caravan_maintenance_body": MessageLookupByLibrary.simpleMessage(
-      "The Caravan, a timeline of what was trending in AI engineering, is still being built.",
+    "caravan_soon": MessageLookupByLibrary.simpleMessage("Coming soon"),
+    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
+      "A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.",
     ),
+    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("The Caravan is on its way"),
     "card_description": MessageLookupByLibrary.simpleMessage("Description"),
     "card_length": MessageLookupByLibrary.simpleMessage("Length"),
     "card_length_minutes": m4,
