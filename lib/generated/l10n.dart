@@ -1436,6 +1436,16 @@ class S {
     );
   }
 
+  /// `The app icon can be changed later in Settings.`
+  String get welcome_app_icon_hint {
+    return Intl.message(
+      'The app icon can be changed later in Settings.',
+      name: 'welcome_app_icon_hint',
+      desc: 'A line on Welcome\'s first step, under Appearance: the app icon is chosen in Settings.',
+      args: [],
+    );
+  }
+
   /// `For Engineers`
   String get track_engineers {
     return Intl.message(

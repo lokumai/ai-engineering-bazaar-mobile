@@ -162,6 +162,18 @@ void main() {
     expect(language.state, 'tr');
   });
 
+  testWidgets('the track step says under the appearance that the app icon is changed in Settings', (tester) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+
+    final hint = find.text('The app icon can be changed later in Settings.');
+    expect(hint, findsOneWidget);
+    expect(
+      tester.getTopLeft(hint).dy,
+      greaterThan(tester.getBottomLeft(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))).dy),
+    );
+  });
+
   testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);

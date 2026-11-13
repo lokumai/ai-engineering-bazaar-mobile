@@ -445,6 +445,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
+    "welcome_app_icon_hint": MessageLookupByLibrary.simpleMessage(
+      "نماد برنامه را بعداً می‌توانید در تنظیمات تغییر دهید.",
+    ),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع خواندن"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("برو به داستان ما"),

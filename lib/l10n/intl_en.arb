@@ -732,6 +732,10 @@
   "@app_icon_note_ios": {
     "description": "The note on the app icon page on iOS, where the system tells of every icon change."
   },
+  "welcome_app_icon_hint": "The app icon can be changed later in Settings.",
+  "@welcome_app_icon_hint": {
+    "description": "A line on Welcome's first step, under Appearance: the app icon is chosen in Settings."
+  },
   "track_engineers": "For Engineers",
   "@track_engineers": {
     "description": "The For Engineers track's name; the bundle names tracks in English only."

@@ -124,6 +124,11 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                                 ),
                             ],
                           ),
+                          // The icon is chosen in Settings, not here; the line says where (the owner, 2026-11-14).
+                          Text(
+                            s.welcome_app_icon_hint,
+                            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                          ),
                         ],
                       ),
                       for (final info in index.tracks)
