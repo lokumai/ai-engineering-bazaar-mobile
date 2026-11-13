@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The bar's navy (BazaarFixedColors.bar), the ground of the opening animation. -->
-    <color name="bazaar_navy">#282864</color>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- The dark page colour (BazaarColors.dark.surface), the ground of the launch screen and of the icon in every
+         phone theme: the app opens dark until the reader chooses (owner, 2026-11-13). -->
+    <color name="bazaar_page">#1D1F27</color>
+    <color name="ic_launcher_background">#1D1F27</color>
 </resources>
