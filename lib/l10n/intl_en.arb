@@ -732,9 +732,9 @@
   "@app_icon_note_ios": {
     "description": "The note on the app icon page on iOS, where the system tells of every icon change."
   },
-  "welcome_app_icon_hint": "The app icon can be changed later in Settings.",
-  "@welcome_app_icon_hint": {
-    "description": "A line on Welcome's first step, under Appearance: the app icon is chosen in Settings."
+  "welcome_app_icon_done": "Done",
+  "@welcome_app_icon_done": {
+    "description": "The button under the six app icons on Welcome's first step: back to the step, the icon kept."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {

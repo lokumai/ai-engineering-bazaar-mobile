@@ -1436,12 +1436,12 @@ class S {
     );
   }
 
-  /// `The app icon can be changed later in Settings.`
-  String get welcome_app_icon_hint {
+  /// `Done`
+  String get welcome_app_icon_done {
     return Intl.message(
-      'The app icon can be changed later in Settings.',
-      name: 'welcome_app_icon_hint',
-      desc: 'A line on Welcome\'s first step, under Appearance: the app icon is chosen in Settings.',
+      'Done',
+      name: 'welcome_app_icon_done',
+      desc: 'The button under the six app icons on Welcome\'s first step: back to the step, the icon kept.',
       args: [],
     );
   }

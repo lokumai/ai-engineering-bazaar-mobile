@@ -443,9 +443,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
-    "welcome_app_icon_hint": MessageLookupByLibrary.simpleMessage(
-      "App ikonunu daha sonra Ayarlar\'dan değiştirebilirsin.",
-    ),
+    "welcome_app_icon_done": MessageLookupByLibrary.simpleMessage("Tamam"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Okumaya başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemize geç"),

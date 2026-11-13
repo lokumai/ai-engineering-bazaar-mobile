@@ -212,7 +212,7 @@
   "app_icon_default": "Varsayılan",
   "app_icon_note_android": "Yeni ikon, uygulamadan çıktığında ana ekrana gelir. Bazı telefonlar o sırada kısayolu ana ekrandan kaldırır; uygulama listesi onu yeni renkleriyle gösterir. Temalı simgeler açıksa telefon her ikonu kendi renkleriyle çizer.",
   "app_icon_note_ios": "Telefon yeni ikonu bir mesajla onaylar.",
-  "welcome_app_icon_hint": "App ikonunu daha sonra Ayarlar'dan değiştirebilirsin.",
+  "welcome_app_icon_done": "Tamam",
   "track_engineers": "Mühendisler için",
   "track_everyone": "Herkes için",
   "guide_title": "Bazaar nasıl işler",

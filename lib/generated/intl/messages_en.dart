@@ -443,7 +443,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
-    "welcome_app_icon_hint": MessageLookupByLibrary.simpleMessage("The app icon can be changed later in Settings."),
+    "welcome_app_icon_done": MessageLookupByLibrary.simpleMessage("Done"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("On to the story"),

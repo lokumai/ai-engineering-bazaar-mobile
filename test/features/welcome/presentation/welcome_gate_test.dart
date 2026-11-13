@@ -11,6 +11,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_choices.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -162,16 +164,65 @@ void main() {
     expect(language.state, 'tr');
   });
 
-  testWidgets('the track step says under the appearance that the app icon is changed in Settings', (tester) async {
+  testWidgets('the track step has the App icon row under the appearance; it opens the six in place, Done keeps one', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+    final appIcon = tester.element(find.byType(WelcomeTrackView)).read<AppIconCubit>();
+
+    final row = find.byKey(WelcomeTrackView.appIconKey);
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Dark', isButton: true));
+    expect(
+      find.descendant(of: row, matching: find.text('Dark')),
+      findsNothing,
+      reason: 'the name is not written',
+    );
+    expect(
+      tester.getTopLeft(row).dy,
+      greaterThan(tester.getBottomLeft(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))).dy),
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('welcome-start')), findsNothing, reason: 'the six stand in place of the step');
+    for (final icon in BazaarIcon.values) {
+      expect(find.byKey(appIconChoiceKey(icon)), findsOneWidget, reason: icon.name);
+    }
+    await tester.tap(find.byKey(appIconChoiceKey(BazaarIcon.nightSea)));
+    await tester.pumpAndSettle();
+    expect(appIcon.state.icon, BazaarIcon.nightSea);
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appIconDoneKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(WelcomeTrackView.appIconDoneKey));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(WelcomeTrackView.appIconKey),
+        matching: find.image(AssetImage(BazaarIcon.nightSea.asset)),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the arrow and the system back close the six and keep the step', (tester) async {
     await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
     await tester.pumpAndSettle();
 
-    final hint = find.text('The app icon can be changed later in Settings.');
-    expect(hint, findsOneWidget);
-    expect(
-      tester.getTopLeft(hint).dy,
-      greaterThan(tester.getBottomLeft(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))).dy),
-    );
+    await tester.tap(find.byKey(WelcomeTrackView.appIconKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+
+    await tester.tap(find.byKey(WelcomeTrackView.appIconKey));
+    await tester.pumpAndSettle();
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+    expect(find.byType(WelcomeTrackView), findsOneWidget);
   });
 
   testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
