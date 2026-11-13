@@ -842,6 +842,16 @@ class S {
     return Intl.message('Restored from the file.', name: 'data_restored', desc: '', args: []);
   }
 
+  /// `The file was not restored, because a reset was under way. Try again.`
+  String get data_restore_not_done {
+    return Intl.message(
+      'The file was not restored, because a reset was under way. Try again.',
+      name: 'data_restore_not_done',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Nothing was changed. That file holds no progress; only a backup file does.`
   String get data_restore_empty {
     return Intl.message(

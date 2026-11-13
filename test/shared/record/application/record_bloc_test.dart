@@ -50,6 +50,10 @@ final class _MemoryRecordRepository implements IRecordRepository {
   FileSystemException? readStoredError;
   FileSystemException? deleteAllError;
 
+  /// An error no handler names, thrown by [write] or [restore].
+  Object? writeError;
+  Object? restoreError;
+
   /// Whether a failing [deleteAll] has deleted `record.json` before it fails.
   bool deleteAllPartly = false;
   final writes = <String>[];
@@ -68,6 +72,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
     calls.add('write');
     writes.add(compactJson);
     await gate?.future;
+    if (writeError case final error?) throw error;
     if (nextResult == WriteResult.saved) record = utf8.encode(compactJson);
     return nextResult;
   }
@@ -93,6 +98,7 @@ final class _MemoryRecordRepository implements IRecordRepository {
   @override
   Future<RestoreResult> restore(StoredBytes bytes) async {
     calls.add('restore');
+    if (restoreError case final error?) throw error;
     if (restoreResult == WriteResult.saved) {
       if (bytes.record case final bytes?) record = bytes;
       if (bytes.quarantine case final bytes?) quarantine = bytes;
@@ -413,6 +419,65 @@ void main() {
       expect(_ready(bloc).record.days, ['2026-03-14', '2026-03-15']);
       expect(repository.writes, hasLength(1));
       await bloc.close();
+    });
+  });
+
+  group('every caller is answered, even after an error no handler names (review B6)', () {
+    test('a backup whose write throws replies with the error, and the next event still runs', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..writeError = StateError('disk');
+        final bloc = await _started(repository);
+        final errors = <Object>[];
+        final subscription = bloc.stream.listen(null, onError: errors.add);
+
+        final reply = Completer<RecordBackup>();
+        bloc.add(BackupStarted(at: '2026-03-15T07:10:00.000Z', reply: reply));
+        await expectLater(reply.future, throwsStateError);
+
+        repository.writeError = null;
+        final replaced = Completer<bool>();
+        bloc.add(RecordReplaced(data: _signed, reply: replaced));
+        expect(await replaced.future, isTrue);
+        await subscription.cancel();
+        await bloc.close();
+      });
+    });
+
+    test('an undo whose restore throws replies false', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        bloc.add(RecordErased(at: _t));
+        await pumpEventQueue();
+        repository.restoreError = StateError('disk');
+
+        final undone = Completer<bool>();
+        bloc.add(EraseUndone(reply: undone));
+        expect(await undone.future, isFalse);
+        await bloc.close();
+      });
+    });
+
+    test('a restore replies true once it replaced the record, and false with an erase waiting', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final d = normaliseRecord({
+          'days': ['2026-01-02'],
+        });
+
+        final replaced = Completer<bool>();
+        bloc.add(RecordReplaced(data: d, reply: replaced));
+        expect(await replaced.future, isTrue);
+        expect(_ready(bloc).record, same(d));
+
+        final dropped = Completer<bool>();
+        bloc
+          ..add(RecordReplaced(data: _signed, reply: dropped))
+          ..add(RecordErased(at: _t));
+        expect(await dropped.future, isFalse, reason: 'an erase waits behind it, and wins');
+        await bloc.close();
+      });
     });
   });
 

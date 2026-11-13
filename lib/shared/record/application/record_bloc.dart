@@ -62,6 +62,34 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   Future<void> _onEvent(RecordEvent event, Emitter<RecordState> emit) async {
+    try {
+      await _handle(event, emit);
+    } on Object catch (error, stack) {
+      // An error no handler names still answers whoever waits, or the Settings line would stay busy for ever. It is
+      // reported, and the queue goes on with the next event.
+      _log.error('record event {} failed: {}', [event.runtimeType, error]);
+      _answerFailed(event);
+      addError(error, stack);
+    }
+  }
+
+  /// Answers [event]'s caller, when it waits and was not answered yet, that it did not happen.
+  void _answerFailed(RecordEvent event) {
+    switch (event) {
+      case RecordErased(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case EraseUndone(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case RecordReplaced(:final reply?) when !reply.isCompleted:
+        reply.complete(false);
+      case BackupStarted(:final reply) when !reply.isCompleted:
+        reply.completeError(StateError('the backup could not be made'));
+      default:
+        break;
+    }
+  }
+
+  Future<void> _handle(RecordEvent event, Emitter<RecordState> emit) async {
     if (event is RecordErased) _pendingErases--;
     final current = state;
     if (current is! RecordReady) {
@@ -109,8 +137,11 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         if (_pendingErases > 0) return;
         if (current.undo != null) _sinceErase.add((record) => markExported(record, at));
         await _commit(current, markExported(current.record, at), emit);
-      case RecordReplaced(:final data):
-        if (_pendingErases > 0) return;
+      case RecordReplaced(:final data, :final reply):
+        if (_pendingErases > 0) {
+          reply?.complete(false);
+          return;
+        }
         _closeUndo();
         await _commit(
           RecordReady(
@@ -124,6 +155,7 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           data,
           emit,
         );
+        reply?.complete(true);
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
       case EraseUndone(:final reply):
@@ -169,6 +201,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         reply?.complete(false);
       case BackupStarted(:final reply):
         reply.completeError(StateError('the record is not read yet'));
+      case RecordReplaced(:final reply):
+        reply?.complete(false);
       default:
         break;
     }

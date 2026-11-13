@@ -50,6 +50,8 @@ void main() {
   late MockRecordRepository repository;
   late RecordState recordState;
   late bool eraseSucceeds;
+  late bool replaceSucceeds;
+  late bool backupFails;
 
   setUp(() {
     recordBloc = readyRecordBloc() as MockRecordBloc;
@@ -57,11 +59,17 @@ void main() {
     repository = MockRecordRepository();
     recordState = _ready();
     eraseSucceeds = true;
+    replaceSucceeds = true;
+    backupFails = false;
     when(() => recordBloc.state).thenAnswer((_) => recordState);
     when(() => recordBloc.add(any())).thenAnswer((invocation) {
       switch (invocation.positionalArguments.first as RecordEvent) {
         case BackupStarted(:final reply):
-          reply.complete(RecordBackup(bytes: _backupBytes, filename: _backupName));
+          if (backupFails) {
+            reply.completeError(StateError('the backup could not be made'));
+          } else {
+            reply.complete(RecordBackup(bytes: _backupBytes, filename: _backupName));
+          }
         case RecordErased(:final at, :final reply):
           if (eraseSucceeds) {
             // As the record does: an erase while an undo is open keeps that undo, and says it is again.
@@ -76,6 +84,9 @@ void main() {
           final open = recordState is RecordReady && (recordState as RecordReady).undo != null;
           if (open) recordState = _ready();
           reply?.complete(open);
+        // A replacement is answered as the record's own is: done unless an erase waits in the queue.
+        case RecordReplaced(:final reply):
+          reply?.complete(replaceSucceeds);
         default:
       }
     });
@@ -161,6 +172,18 @@ void main() {
       });
     });
 
+    test('a backup the record could not make says so, and the line is not left busy (review B6)', () async {
+      await onClock(() async {
+        backupFails = true;
+        final bloc = build();
+        bloc.add(const BackupRequested());
+        await pumpEventQueue();
+        verifyNever(() => gateway.save(any(), any()));
+        expect(bloc.state, const DataState(backup: BackupNotWritten()));
+        await bloc.close();
+      });
+    });
+
     test('a second request while a backup runs is dropped', () async {
       await onClock(() async {
         final bloc = build();
@@ -191,6 +214,20 @@ void main() {
         );
         final replaced = added().whereType<RecordReplaced>().single;
         expect(replaced.data.signedOff('alpha/first', Track.engineers), _nowIso);
+        await bloc.close();
+      });
+    });
+
+    test('a file the record did not take is not called restored (review B6)', () async {
+      await onClock(() async {
+        replaceSucceeds = false;
+        final bloc = build();
+        when(() => gateway.pickJson()).thenAnswer((_) async => _picked(_restorable));
+        bloc.add(const RestoreRequested());
+        await expectLater(
+          bloc.stream,
+          emitsInOrder([const DataState(busy: DataBusy.restoring), const DataState(restore: RestoreOutcome.notRestored)]),
+        );
         await bloc.close();
       });
     });

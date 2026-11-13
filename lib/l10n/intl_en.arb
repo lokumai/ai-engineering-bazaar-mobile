@@ -526,6 +526,8 @@
   "@data_backup_not_written": {},
   "data_restored": "Restored from the file.",
   "@data_restored": {},
+  "data_restore_not_done": "The file was not restored, because a reset was under way. Try again.",
+  "@data_restore_not_done": {},
   "data_restore_empty": "Nothing was changed. That file holds no progress; only a backup file does.",
   "@data_restore_empty": {},
   "data_restore_newer": "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
