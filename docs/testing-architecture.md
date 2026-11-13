@@ -275,7 +275,7 @@ A single file needs nothing more; the whole suite and every gate run through `he
 The gate every commit passes:
 
 ```shell
-heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 65'
+heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 90'
 ```
 
 The Android JVM unit tests (`android/app/src/test/kotlin`) cover the Kotlin scrubber of native Sentry events and run in the Android job of CI.

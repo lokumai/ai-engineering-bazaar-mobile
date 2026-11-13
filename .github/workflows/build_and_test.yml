@@ -71,7 +71,7 @@ jobs:
 
       - name: Check coverage threshold
         # Excludes generated/bootstrap code from the metric (see scripts/check_coverage.sh, issue #149).
-        run: scripts/check_coverage.sh coverage/lcov.info 65
+        run: scripts/check_coverage.sh coverage/lcov.info 90
 
   build:
     name: Build Android

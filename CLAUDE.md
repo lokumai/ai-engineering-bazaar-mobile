@@ -35,7 +35,7 @@ heavy fvm flutter test --tags golden --update-goldens     # regenerate goldens a
 heavy fvm flutter test integration_test -d <device>       # device tests (emulator, simulator or phone)
 
 # The gate every commit passes
-heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 65'
+heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 90'
 
 # Android JVM tests of the native Sentry scrubber (JDK 17; a Flutter Android build, such as
 # fvm flutter build apk --config-only --target lib/main/main_prod.dart, writes the Gradle wrapper)
@@ -126,7 +126,7 @@ lib/
     guide/                                      How the bazaar works, at `/settings/guide`
     caravan/                                    the Caravan tab at `/caravan`, under maintenance until the bundle carries
                                                 the web's timeline
-  l10n/intl_en.arb, generated/                  English strings only (generated/ is never edited)
+  l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
 assets/fonts/                                   Vazirmatn-Regular.ttf, Vazirmatn-Bold.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
@@ -286,7 +286,7 @@ Reader-visible copy follows the web's register (A12), and `test/architecture/arb
 3. Add BLoCs or Cubits in `application/`.
 4. Define feature-specific routes in `navigation/` and register them in `lib/app/router/app_router.dart`.
 5. Implement pages and feature-specific widgets in `presentation/`.
-6. Add strings to `lib/l10n/intl_en.arb` under the copy register, run `fvm dart run intl_utils:generate`, then `fvm dart format lib/generated --line-length=120`.
+6. Add strings to `lib/l10n/intl_en.arb`, `intl_tr.arb` and `intl_fa.arb` under the copy register, run `fvm dart run intl_utils:generate`, then `fvm dart format lib/generated --line-length=120`.
 7. Write tests mirroring the feature structure under `test/features/<feature_name>/`, with the accessibility checks of `test/support/accessibility.dart` on every page.
 
 ## Testing

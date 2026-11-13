@@ -1,94 +1,46 @@
 # Contributing to AI Engineering Bazaar mobile
 
-We welcome contributions to this project! To ensure a smooth and efficient process, please follow the guidelines below.
+Thank you for helping. This app reads the AI Engineering Bazaar course; the course itself is written in the web repo, [lokumai/ai-engineering-bazaar](https://github.com/lokumai/ai-engineering-bazaar).
 
-## How to Contribute
-Reporting Issues
+## Where a change belongs
 
-If you encounter any bugs or issues, please report them by creating a new issue in the issue tracker. Provide as much detail as possible, including steps to reproduce the issue, screenshots, and any relevant logs.
+- A mistake in a module's text, a translation or a diagram: open an issue or a pull request on the web repo. The app shows what the site publishes and takes it at its next refresh.
+- Something the app shows wrong, a crash, a layout or an accessibility problem: open an issue here with the steps, the device and the app's language.
+- A fact the app would need but the bundle does not carry: propose it to the web repo first. The app derives no fact the bundle does not publish (D111).
 
-## Suggesting Enhancements
+## Making a change
 
-If you have ideas for improving the project, please suggest them by creating a new issue with the "Enhancement" label. Describe the enhancement in detail and explain why you believe it would be valuable.
+1. Fork the repo and clone your fork.
+2. Read [CLAUDE.md](CLAUDE.md): it holds the layering rules, the record rules and the copy register, and the guards under `test/architecture/` enforce most of them.
+3. Branch from `main`: `git checkout -b <short-name>`.
+4. Keep each feature in its own folder under `lib/features/`; a feature imports no other feature, and shared code lives in `lib/shared/`.
+5. Put every new string of the interface in all three ARB files under `lib/l10n/`, then run:
 
-## Submitting Code
-
-1. Fork the Repository
-
-    Click the "Fork" button at the top right of this repository to create your own copy.
-
-    Clone Your Fork
-
-    bash
-
-git clone https://github.com/your-username/project-name.git
-
-2. Create a Branch
-
-Create a new branch for your changes:
-
-bash
-
-git checkout -b your-branch-name
-
-3. Make Your Changes
-
-Implement your changes in the new branch. Ensure that your code adheres to the existing code style and includes appropriate tests.
-
-4. Commit Your Changes
-
-Commit your changes with a descriptive message:
-
-bash
-
-git add .
-git commit -m "Your descriptive commit message"
-
-5. Push Your Changes
-
-Push your changes to your fork:
-
-bash
-
-    git push origin your-branch-name
-
-6. Before Pull Request !!!
-- sync your fork on GitHub
-- git pull on your local machine
-- resolve conflicts
-- run commands sequentially; the last one is the gate every commit passes, and it runs through `heavy`, one full gate at a time
     ```shell
-        fvm flutter pub get
-        fvm dart run intl_utils:generate
-        fvm dart format lib/generated --line-length=120
-        heavy bash -c 'fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 65'
+    fvm flutter pub get
+    fvm dart run intl_utils:generate
+    fvm dart format lib/generated --line-length=120
     ```
-- fix errors if needed
 
+6. Give every fix a test that fails without it.
+7. Run the gate before you push:
 
-7. Create a Pull Request
+    ```shell
+    fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 90
+    ```
 
-    Navigate to the original repository and click the "New Pull Request" button. Select your branch and provide a clear description of your changes.
-        Description: Provide a concise summary of what you have changed and why.
-        Related Issues: Link to any related issues if applicable.
+8. Open a pull request against `main` that says what changed and why, and links the issue it closes.
 
-## Code Style
+## Style
 
-    Follow Dart Style Guidelines: Ensure that your code follows the Dart style guide and is properly formatted.
-    Write Tests: Include tests for any new features or bug fixes.
-    Documentation: Update documentation where necessary to reflect your changes.
+- Dart's style, formatted at 120 columns.
+- Docs and strings in plain words; no em or en dashes.
+- Small commits, each with a message that says what it does.
 
-## Review Process
+## Review
 
-    Pull requests will be reviewed by the project maintainers. Feedback will be provided, and changes may be requested.
-    Maintainers will review your pull request, and if everything looks good, it will be merged into the main branch.
+A maintainer reviews every pull request and may ask for changes. CI must pass before a merge.
 
-## Code of Conduct
+## Questions
 
-By contributing to this project, you agree to adhere to our Code of Conduct.
-
-## Contact
-
-If you have any questions, ask in this repository's Discussions or open an issue.
-
-Thank you for your interest in contributing to our project!
+Open an issue in this repo.

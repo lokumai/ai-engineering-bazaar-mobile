@@ -11,7 +11,8 @@
 #
 # Usage:
 #   scripts/check_coverage.sh [LCOV_FILE] [THRESHOLD]
-# Defaults: coverage/lcov.info, 65
+# Defaults: coverage/lcov.info, 90. A missing file or one with no lines fails: a
+# check that cannot measure must not pass.
 #
 # Portable: pure bash + awk, no `lcov` binary required (avoids version-skew
 # pain on CI runners). Reusable locally and in CI.
@@ -19,11 +20,11 @@
 set -euo pipefail
 
 LCOV_FILE="${1:-coverage/lcov.info}"
-THRESHOLD="${2:-65}"
+THRESHOLD="${2:-90}"
 
 if [ ! -f "$LCOV_FILE" ]; then
-  echo "::warning::No coverage file at '$LCOV_FILE'; skipping coverage check"
-  exit 0
+  echo "::error::No coverage file at '$LCOV_FILE'"
+  exit 1
 fi
 
 # Extended-regex of SF: paths excluded from the coverage metric.
@@ -42,8 +43,8 @@ read -r total hit excluded < <(awk -v ex="$EXCLUDE_RE" '
 ' "$LCOV_FILE")
 
 if [ "${total:-0}" -eq 0 ]; then
-  echo "::warning::No instrumented lines after filtering; skipping coverage check"
-  exit 0
+  echo "::error::No instrumented lines after filtering"
+  exit 1
 fi
 
 coverage=$(( hit * 100 / total ))
