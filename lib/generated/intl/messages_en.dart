@@ -111,6 +111,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "about_skip": MessageLookupByLibrary.simpleMessage("Skip"),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "appearance_dark": MessageLookupByLibrary.simpleMessage("Dark"),
+    "appearance_light": MessageLookupByLibrary.simpleMessage("Light"),
     "block_code_label": m0,
     "block_figure_caption": m1,
     "block_program_output": MessageLookupByLibrary.simpleMessage("Program output"),
@@ -393,6 +395,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Replace the progress on this device?"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "settings_about": MessageLookupByLibrary.simpleMessage("About"),
+    "settings_appearance": MessageLookupByLibrary.simpleMessage("Appearance"),
     "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("Check for updates"),
     "settings_content": MessageLookupByLibrary.simpleMessage("Content"),
     "settings_content_version": MessageLookupByLibrary.simpleMessage("Version"),
@@ -436,9 +439,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "welcome_track_everyone": MessageLookupByLibrary.simpleMessage(
       "The same modules in plain words, for readers with no technical background.",
-    ),
-    "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("How would you like to read?"),
   };

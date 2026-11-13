@@ -11,6 +11,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -129,6 +130,35 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('the appearance is Light or Dark, with Dark selected until one is chosen, whatever the phone', (
+    tester,
+  ) async {
+    final themeChoice = ThemeChoiceCubit();
+    addTearDown(themeChoice.close);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), themeChoice: themeChoice));
+    await tester.pump();
+
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Light'), findsOneWidget);
+    expect(find.text('Dark'), findsOneWidget);
+    expect(find.text('Phone'), findsNothing);
+    expect(
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.dark))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+    expect(themeChoice.state, ThemeMode.dark, reason: 'dark until a tap, though the phone is light');
+
+    await tester.tap(find.byKey(settingsAppearanceKey(ThemeMode.light)));
+    await tester.pump();
+    expect(themeChoice.state, ThemeMode.light);
+    expect(
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.light))),
+      isSemantics(isSelected: true, isButton: true),
+    );
   });
 
   testWidgets('shows no heading, only the tab names the page, and the content status', (tester) async {

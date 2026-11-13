@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/infrastructure/content/file_content_reposi
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -121,6 +122,31 @@ void main() {
     await store.choose('tr');
     expect(await store.chosen(), 'tr');
     expect(File('${root.path}/flags/language-fa').existsSync(), isFalse, reason: 'one language at a time');
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createThemeStore keeps the choice as one flag under the support directory', () async {
+    final root = Directory.systemTemp.createTempSync('theme_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createThemeStore();
+    expect(store, isA<FlagThemeStore>());
+    expect(await store.chosen(), isNull);
+
+    await store.choose(ThemeMode.dark);
+    expect(await dependencies.createThemeStore().chosen(), ThemeMode.dark, reason: 'kept for the next start');
+
+    await store.choose(ThemeMode.light);
+    expect(await store.chosen(), ThemeMode.light);
+    expect(File('${root.path}/flags/theme-dark').existsSync(), isFalse, reason: 'one choice at a time');
+
+    await store.choose(ThemeMode.system);
+    expect(await store.chosen(), isNull, reason: 'the phone is no flag at all');
+    expect(File('${root.path}/flags/theme-light').existsSync(), isFalse);
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 

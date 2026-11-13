@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/features/settings/application/feedback_sen
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -106,6 +107,9 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   ILanguageStore createLanguageStore() => const MemoryLanguageStore();
+
+  @override
+  IThemeStore createThemeStore() => const MemoryThemeStore();
 
   @override
   IQuizScoreStore createQuizScoreStore() => MemoryQuizScoreStore();

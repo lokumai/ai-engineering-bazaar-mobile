@@ -111,6 +111,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "about_skip": MessageLookupByLibrary.simpleMessage("Geç"),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "appearance_dark": MessageLookupByLibrary.simpleMessage("Koyu"),
+    "appearance_light": MessageLookupByLibrary.simpleMessage("Açık"),
     "block_code_label": m0,
     "block_figure_caption": m1,
     "block_program_output": MessageLookupByLibrary.simpleMessage("Program çıktısı"),
@@ -393,6 +395,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki ilerleme değiştirilsin mi?"),
     "settings": MessageLookupByLibrary.simpleMessage("Ayarlar"),
     "settings_about": MessageLookupByLibrary.simpleMessage("Hakkında"),
+    "settings_appearance": MessageLookupByLibrary.simpleMessage("Görünüm"),
     "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("Güncellemeleri kontrol et"),
     "settings_content": MessageLookupByLibrary.simpleMessage("İçerik"),
     "settings_content_version": MessageLookupByLibrary.simpleMessage("Sürüm"),
@@ -436,9 +439,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "welcome_track_everyone": MessageLookupByLibrary.simpleMessage(
       "Aynı modüller, sade bir dille, teknik geçmişi olmayan okurlar için.",
-    ),
-    "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "Dilini ve her modülün iki sürümünden birini seç. İkisini de istediğin zaman Ayarlar\'dan değiştirebilirsin.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("Nasıl okumak istersin?"),
   };

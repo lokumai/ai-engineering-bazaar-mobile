@@ -111,6 +111,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "about_skip": MessageLookupByLibrary.simpleMessage("رد شدن"),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
+    "appearance_dark": MessageLookupByLibrary.simpleMessage("تیره"),
+    "appearance_light": MessageLookupByLibrary.simpleMessage("روشن"),
     "block_code_label": m0,
     "block_figure_caption": m1,
     "block_program_output": MessageLookupByLibrary.simpleMessage("خروجی برنامه"),
@@ -393,6 +395,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("پیشرفت روی این دستگاه جایگزین شود؟"),
     "settings": MessageLookupByLibrary.simpleMessage("تنظیمات"),
     "settings_about": MessageLookupByLibrary.simpleMessage("درباره"),
+    "settings_appearance": MessageLookupByLibrary.simpleMessage("ظاهر"),
     "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("بررسی به‌روزرسانی‌ها"),
     "settings_content": MessageLookupByLibrary.simpleMessage("محتوا"),
     "settings_content_version": MessageLookupByLibrary.simpleMessage("نسخه"),
@@ -438,9 +441,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "welcome_track_everyone": MessageLookupByLibrary.simpleMessage(
       "همین درس‌ها به زبان ساده، برای خوانندگانی که پیش‌زمینهٔ فنی ندارند.",
-    ),
-    "welcome_track_lede": MessageLookupByLibrary.simpleMessage(
-      "زبان خود و یکی از دو نسخهٔ هر درس را انتخاب کنید. هر زمان بخواهید می‌توانید هر دو را در تنظیمات تغییر دهید.",
     ),
     "welcome_track_title": MessageLookupByLibrary.simpleMessage("دوست دارید چطور بخوانید؟"),
   };

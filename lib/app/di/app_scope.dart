@@ -2,6 +2,8 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -44,6 +46,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IWelcomeStore>(create: (_) => dependencies.createWelcomeStore()),
         RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
         RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
+        RepositoryProvider<IThemeStore>(create: (_) => dependencies.createThemeStore()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
@@ -83,6 +86,10 @@ class AppScope extends StatelessWidget {
               store: context.read<ILanguageStore>(),
               initial: PlatformDispatcher.instance.locale.languageCode,
             )..load(),
+          ),
+          BlocProvider<ThemeChoiceCubit>(
+            lazy: false,
+            create: (context) => ThemeChoiceCubit(store: context.read<IThemeStore>())..load(),
           ),
         ],
         child: child,

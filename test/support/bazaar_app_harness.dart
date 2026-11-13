@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
@@ -99,6 +100,7 @@ Widget bazaarTestApp({
   RecordBloc? record,
   TrackCubit? track,
   LanguageCubit? language,
+  ThemeChoiceCubit? themeChoice,
   QuizScoresBloc? scores,
   ReadingPlacesBloc? places,
   IContentRepository? repository,
@@ -141,6 +143,10 @@ Widget bazaarTestApp({
           BlocProvider<LanguageCubit>.value(value: language)
         else
           BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+        if (themeChoice != null)
+          BlocProvider<ThemeChoiceCubit>.value(value: themeChoice)
+        else
+          BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

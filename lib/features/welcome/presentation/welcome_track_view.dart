@@ -6,6 +6,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/shared/theme/appearance_name.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 
 import 'dart:async';
@@ -32,6 +34,8 @@ class WelcomeTrackView extends StatefulWidget {
   static Key optionKey(Track track) => ValueKey('welcome-track-${track.id}');
 
   static Key languageKey(String language) => ValueKey('welcome-language-$language');
+
+  static Key appearanceKey(ThemeMode mode) => ValueKey('welcome-appearance-${mode.name}');
 
   @override
   State<WelcomeTrackView> createState() => _WelcomeTrackViewState();
@@ -65,7 +69,8 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                   padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 20,
+                    // Tight enough that the whole step fits a phone with no scrolling (the owner, 2026-11-14).
+                    spacing: 16,
                     children: [
                       ExcludeSemantics(
                         child: Row(
@@ -74,7 +79,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                           spacing: 4,
                           children: [
                             for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
-                              Image(image: AssetImage(art), height: 96, filterQuality: FilterQuality.medium),
+                              Image(image: AssetImage(art), height: 80, filterQuality: FilterQuality.medium),
                           ],
                         ),
                       ),
@@ -85,11 +90,6 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineMedium?.copyWith(color: colors.onSurfaceTitle),
                         ),
-                      ),
-                      Text(
-                        s.welcome_track_lede,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
                       ),
                       // The language first: choosing one turns this screen into it at once (plan 1S).
                       Column(
@@ -107,6 +107,20 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                                   value: language,
                                   label: LanguageCubit.names[language]!,
                                   key: WelcomeTrackView.languageKey(language),
+                                ),
+                            ],
+                          ),
+                          Text(s.settings_appearance, style: theme.textTheme.titleSmall),
+                          BazaarSegmentedControl<ThemeMode>(
+                            semanticLabel: s.settings_appearance,
+                            selected: context.watch<ThemeChoiceCubit>().state,
+                            onSelected: (mode) => unawaited(context.read<ThemeChoiceCubit>().choose(mode)),
+                            segments: [
+                              for (final mode in ThemeChoiceCubit.modes)
+                                BazaarSegment(
+                                  value: mode,
+                                  label: appearanceName(s, mode),
+                                  key: WelcomeTrackView.appearanceKey(mode),
                                 ),
                             ],
                           ),

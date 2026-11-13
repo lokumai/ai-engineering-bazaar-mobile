@@ -133,16 +133,6 @@ class S {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
   }
 
-  /// `Choose your language and one of the two versions of every module. You can change both any time in Settings.`
-  String get welcome_track_lede {
-    return Intl.message(
-      'Choose your language and one of the two versions of every module. You can change both any time in Settings.',
-      name: 'welcome_track_lede',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `The technical modules: how each part works, with the code and the numbers behind it.`
   String get welcome_track_engineers {
     return Intl.message(
@@ -1319,6 +1309,31 @@ class S {
       desc: 'Settings\' language setting (plan 1Q).',
       args: [],
     );
+  }
+
+  /// `Appearance`
+  String get settings_appearance {
+    return Intl.message(
+      'Appearance',
+      name: 'settings_appearance',
+      desc: 'The label of the setting that chooses the look of the app, in Settings and on Welcome\'s first step.',
+      args: [],
+    );
+  }
+
+  /// `Light`
+  String get appearance_light {
+    return Intl.message(
+      'Light',
+      name: 'appearance_light',
+      desc: 'Appearance choice: the app is always light.',
+      args: [],
+    );
+  }
+
+  /// `Dark`
+  String get appearance_dark {
+    return Intl.message('Dark', name: 'appearance_dark', desc: 'Appearance choice: the app is always dark.', args: []);
   }
 
   /// `For Engineers`

@@ -33,8 +33,6 @@
   "@caravan_soon_body": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
-  "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
-  "@welcome_track_lede": {},
   "welcome_track_engineers": "The technical modules: how each part works, with the code and the numbers behind it.",
   "@welcome_track_engineers": {
     "description": "The web's line for the For Engineers track, src/app/page.tsx."
@@ -681,6 +679,18 @@
   "settings_language": "Language",
   "@settings_language": {
     "description": "Settings' language setting (plan 1Q)."
+  },
+  "settings_appearance": "Appearance",
+  "@settings_appearance": {
+    "description": "The label of the setting that chooses the look of the app, in Settings and on Welcome's first step."
+  },
+  "appearance_light": "Light",
+  "@appearance_light": {
+    "description": "Appearance choice: the app is always light."
+  },
+  "appearance_dark": "Dark",
+  "@appearance_dark": {
+    "description": "Appearance choice: the app is always dark."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {

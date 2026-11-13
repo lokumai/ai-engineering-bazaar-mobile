@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
@@ -74,6 +75,7 @@ Widget _gate(
       BlocProvider<ContentBloc>.value(value: _content(story: story)),
       if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
       BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+      BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
     ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -156,6 +158,26 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+
+    final theme = tester.element(find.byType(WelcomeTrackView)).read<ThemeChoiceCubit>();
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Phone'), findsNothing);
+    expect(
+      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.pump();
+
+    expect(theme.state, ThemeMode.light);
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {

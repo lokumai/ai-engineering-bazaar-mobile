@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -29,6 +30,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
 /// Builds the infrastructure the app runs on; a test subclass overrides the factories with doubles.
@@ -72,6 +74,9 @@ class AppDependencies {
 
   /// The chosen language, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 1Q).
   ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The chosen look (light or dark), as file flags under [supportDirectory]`/flags/`, apart from the record.
+  IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: supportDirectory));
 
   /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
   IQuizScoreStore createQuizScoreStore() =>
@@ -194,5 +199,32 @@ final class FlagLanguageStore implements ILanguageStore {
       if (other != language) await _flags.clear(_flag(other));
     }
     await _flags.set(_flag(language));
+  }
+}
+
+/// The theme cubit's port over the app's file flags: `theme-light` or `theme-dark`, at most one set. No flag set means
+/// no choice was made, or the phone was chosen.
+final class FlagThemeStore implements IThemeStore {
+  const FlagThemeStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _explicit = {ThemeMode.light: 'theme-light', ThemeMode.dark: 'theme-dark'};
+
+  @override
+  Future<ThemeMode?> chosen() async {
+    for (final entry in _explicit.entries) {
+      if (await _flags.isSet(entry.value)) return entry.key;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> choose(ThemeMode mode) async {
+    for (final entry in _explicit.entries) {
+      if (entry.key != mode) await _flags.clear(entry.value);
+    }
+    final flag = _explicit[mode];
+    if (flag != null) await _flags.set(flag);
   }
 }
