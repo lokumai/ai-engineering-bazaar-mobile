@@ -66,6 +66,7 @@ flutter:
     - assets/brand/lokum_logo.webp
     - assets/app_icon/cream.png
     - assets/app_icon/noir.png
+    - assets/app_icon/ink.png
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
     - assets/welcome/cast_bit.webp
