@@ -2,6 +2,11 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/app/app.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap.dart';
 import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap_config.dart';
@@ -20,6 +25,7 @@ class _RecordingSentryStart implements SentryStart {
   final AppConfig gated;
   final gatedConfigs = <AppConfig>[];
   final runDsns = <String?>[];
+  final runners = <AppRunner>[];
 
   @override
   Future<bool> Function() get isNativeSdkReady => throw UnimplementedError();
@@ -34,7 +40,32 @@ class _RecordingSentryStart implements SentryStart {
   }
 
   @override
-  Future<void> run(String? dsn, {required String release, required AppRunner appRunner}) async => runDsns.add(dsn);
+  Future<void> run(String? dsn, {required String release, required AppRunner appRunner}) async {
+    runDsns.add(dsn);
+    runners.add(appRunner);
+  }
+}
+
+/// The fixture's dependencies with [icon] kept as the chosen app icon.
+class _IconDependencies extends FixtureAppDependencies {
+  const _IconDependencies(this.icon, {super.appConfig});
+
+  final BazaarIcon icon;
+
+  @override
+  IAppIconStore createAppIconStore() => _KeptIcon(icon);
+}
+
+final class _KeptIcon implements IAppIconStore {
+  const _KeptIcon(this.icon);
+
+  final BazaarIcon icon;
+
+  @override
+  Future<BazaarIcon?> chosen() async => icon;
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {}
 }
 
 void main() {
@@ -83,6 +114,37 @@ void main() {
       expect(sentry.gatedConfigs.map((config) => config.environment), [Environment.prod]);
       expect(sentry.runDsns, ['https://public@example.invalid/1']);
       expect(built, [same(sentry.gated)]);
+    });
+
+    // The opening starts in the chosen icon's colours from the app's first frame (the owner, 2026-11-14).
+    testWidgets('reads the chosen app icon before the first frame and hands it to the app', (tester) async {
+      final sentry = _RecordingSentryStart(
+        const AppConfig(environment: Environment.prod, contentBaseUrl: testContentBaseUrl),
+      );
+      final flutterErrorHandler = FlutterError.onError;
+      final platformErrorHandler = PlatformDispatcher.instance.onError;
+      final observer = Bloc.observer;
+
+      await tester.runAsync(
+        () => AppBootstrap.run(
+          const AppBootstrapConfig(environment: Environment.prod),
+          sentry: sentry,
+          dependencies: (config) => _IconDependencies(BazaarIcon.nightSea, appConfig: config),
+        ),
+      );
+      FlutterError.onError = flutterErrorHandler;
+      PlatformDispatcher.instance.onError = platformErrorHandler;
+      Bloc.observer = observer;
+      await sentry.runners.single();
+
+      expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.nightSea);
+      final sting = find.descendant(of: find.byKey(WelcomeSting.sceneKey), matching: find.byType(CustomPaint));
+      expect(
+        tester.widget<CustomPaint>(sting).painter,
+        isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.nightSea),
+        reason: 'the first frame',
+      );
+      await tester.pumpWidget(const SizedBox());
     });
 
     // Spec 3.7: main_local without --dart-define=CONTENT_BASE_URL fails at start, before anything is built.

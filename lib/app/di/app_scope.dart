@@ -2,6 +2,7 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
@@ -31,9 +32,12 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
 class AppScope extends StatelessWidget {
-  const AppScope({super.key, required this.dependencies, required this.child});
+  const AppScope({super.key, required this.dependencies, required this.child, this.appIcon});
 
   final AppDependencies dependencies;
+
+  /// The app icon the boot read before the first frame; null when it was not read, and the cubit reads it.
+  final BazaarIcon? appIcon;
   final Widget child;
 
   @override
@@ -98,8 +102,11 @@ class AppScope extends StatelessWidget {
           // The opening waits for it, to play in the chosen icon's colours.
           BlocProvider<AppIconCubit>(
             lazy: false,
-            create: (context) =>
-                AppIconCubit(store: context.read<IAppIconStore>(), iconSwitch: context.read<IAppIconSwitch>())..load(),
+            create: (context) => AppIconCubit(
+              store: context.read<IAppIconStore>(),
+              iconSwitch: context.read<IAppIconSwitch>(),
+              initial: appIcon,
+            )..load(),
           ),
         ],
         child: child,

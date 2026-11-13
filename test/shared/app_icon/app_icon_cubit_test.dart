@@ -60,6 +60,19 @@ void main() {
     expect(iconSwitch.asked, [BazaarIcon.ink]);
   });
 
+  test('an icon read at boot is current from the start, and load only names it to the phone', () async {
+    final store = _Store(BazaarIcon.noir);
+    final iconSwitch = _Switch();
+    final cubit = AppIconCubit(store: store, iconSwitch: iconSwitch, initial: BazaarIcon.cream);
+    addTearDown(cubit.close);
+
+    expect(cubit.state, const AppIconKnown(BazaarIcon.cream));
+    await cubit.load();
+
+    expect(cubit.state, const AppIconKnown(BazaarIcon.cream));
+    expect(iconSwitch.asked, [BazaarIcon.cream]);
+  });
+
   test('with nothing kept, load settles on the default', () async {
     final cubit = AppIconCubit(store: _Store());
     addTearDown(cubit.close);

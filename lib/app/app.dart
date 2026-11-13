@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,9 +18,12 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
-  const App({super.key, this.dependencies = const AppDependencies()});
+  const App({super.key, this.dependencies = const AppDependencies(), this.appIcon});
 
   final AppDependencies dependencies;
+
+  /// The app icon the boot read, so the opening starts in its colours; null when it was not read.
+  final BazaarIcon? appIcon;
 
   @override
   State<App> createState() => _AppState();
@@ -38,6 +42,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return AppScope(
+      appIcon: widget.appIcon,
       dependencies: widget.dependencies,
       // The interface follows the chosen language (plan 1Q); Persian lays it out right to left.
       child: BlocBuilder<ThemeChoiceCubit, ThemeMode>(

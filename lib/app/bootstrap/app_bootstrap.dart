@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +62,10 @@ class AppBootstrap {
 
     await SystemChrome.setPreferredOrientations(appOrientations());
 
+    // The chosen app icon, read before the first frame, so the opening starts in its colours rather than the
+    // default's (a few flag files; a file not read counts as no choice).
+    final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.dark;
+
     log.info('Starting app with env: {}', [config.environment.name]);
 
     // The Sentry options are configureSentryOptions (lib/app/bootstrap/sentry_start.dart). On Android the host app
@@ -69,7 +74,7 @@ class AppBootstrap {
     await sentry.run(
       appConfig.sentryDsn,
       release: '${AppConstants.appVersion}+${AppConstants.appBuildNumber}',
-      appRunner: () => runApp(App(dependencies: appDependencies)),
+      appRunner: () => runApp(App(dependencies: appDependencies, appIcon: appIcon)),
     );
   }
 }

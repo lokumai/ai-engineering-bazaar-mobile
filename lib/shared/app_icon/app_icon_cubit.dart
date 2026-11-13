@@ -37,15 +37,23 @@ final class AppIconKnown extends AppIconState {
 /// The app's icon on the home screen, which the reader chooses in Settings (the owner, 2026-11-14); [BazaarIcon.dark]
 /// until they do. The choice is kept by the [IAppIconStore], on this device and never in the record, and put on the
 /// home screen by the [IAppIconSwitch], which each launch names it to again.
+///
+/// The boot reads the kept choice before the app's first frame and passes it as [initial], so the opening starts in
+/// its colours; without it the cubit starts unread and [load] reads it.
 final class AppIconCubit extends Cubit<AppIconState> {
-  AppIconCubit({this._store = const MemoryAppIconStore(), this._iconSwitch = const NoAppIconSwitch()})
-    : super(const AppIconUnread());
+  AppIconCubit({
+    this._store = const MemoryAppIconStore(),
+    this._iconSwitch = const NoAppIconSwitch(),
+    BazaarIcon? initial,
+  }) : super(initial == null ? const AppIconUnread() : AppIconKnown(initial));
 
   final IAppIconStore _store;
   final IAppIconSwitch _iconSwitch;
 
-  /// Reads the chosen icon and makes it current, unless one was chosen meanwhile.
+  /// Reads the chosen icon and makes it current, unless one was chosen meanwhile, and names it to the phone. With an
+  /// [initial] icon there is nothing to read.
   Future<void> load() async {
+    if (state case AppIconKnown(:final icon)) return _queue(() => _iconSwitch.choose(icon));
     final icon = await _store.chosen() ?? BazaarIcon.dark;
     if (isClosed || state is AppIconKnown) return;
     emit(AppIconKnown(icon));
