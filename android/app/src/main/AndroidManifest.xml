@@ -36,11 +36,22 @@
               android:name="flutter_deeplinking_enabled"
               android:value="false"
               />
+        </activity>
+        <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
+             Exactly one is enabled: Dark, the default, until the reader chooses another, and then the one chosen
+             (AppIconSwitch.kt, when the app goes to the background). -->
+        <activity-alias
+            android:name=".LauncherDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
