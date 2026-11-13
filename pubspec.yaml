@@ -87,6 +87,9 @@ flutter:
     - family: Vazirmatn
       fonts:
         - asset: assets/fonts/Vazirmatn-Regular.ttf
+        # The bold face of the same release (33.003), so a Persian heading at 600 or 700 is drawn bold, not thickened.
+        - asset: assets/fonts/Vazirmatn-Bold.ttf
+          weight: 700
     - family: Fraunces
       fonts:
         - asset: assets/fonts/Fraunces.ttf
