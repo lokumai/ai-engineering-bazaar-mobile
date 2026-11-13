@@ -83,6 +83,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- A broken link in a module says it could not be opened instead of failing, links open only on the web, mail and the phone, and a download from the site is capped at 32 MB.
 - The reset asks for the word in the interface's language: SİL in Turkish, حذف in Persian. ERASE still works in every language.
 - The catalog's search no longer stays on reading after a module could not be read, and Check for updates no longer stays disabled after an unexpected error.
 - Settings no longer stays busy after an error during a backup, a reset or an undo, and a restore is called done only once the progress took the file.

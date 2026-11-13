@@ -12,7 +12,7 @@ import '../../support/url_launcher_stub.dart';
 void main() {
   const url = 'https://example.com/docs';
 
-  Future<void> pumpLinkButton(WidgetTester tester) async {
+  Future<void> pumpLinkButton(WidgetTester tester, {Future<void> Function(BuildContext context)? open}) async {
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -25,7 +25,10 @@ void main() {
         home: Scaffold(
           body: Builder(
             builder: (context) =>
-                TextButton(onPressed: () => openExternalLink(context, Uri.parse(url)), child: const Text('Docs')),
+                TextButton(
+                  onPressed: () => open == null ? openExternalLink(context, Uri.parse(url)) : open(context),
+                  child: const Text('Docs'),
+                ),
           ),
         ),
       ),
@@ -53,6 +56,39 @@ void main() {
 
         await expectTapShowsNoMessage(tester, find.byType(TextButton));
         expect(calls.launchedUrls, [url]);
+      });
+    }
+  });
+
+  group('only the web, mail and the phone open (review G)', () {
+    for (final link in ['file:///etc/hosts', 'intent://scan#Intent;end', 'javascript:alert(1)']) {
+      testWidgets('$link is refused and named in a message', (tester) async {
+        final calls = stubOpeningUrlLauncher(canLaunch: true);
+        await pumpLinkButton(tester, open: (context) => openExternalLink(context, Uri.parse(link)));
+        final l10n = S.of(tester.element(find.byType(TextButton)));
+
+        expect(await expectTapShowsMessage(tester, find.byType(TextButton)), [l10n.error_link_open_failed(link)]);
+        expect(calls.launchedUrls, isEmpty);
+      });
+    }
+
+    testWidgets('a link that is not a URL says it did not open instead of throwing', (tester) async {
+      const broken = 'https://[not a url';
+      final calls = stubOpeningUrlLauncher(canLaunch: true);
+      await pumpLinkButton(tester, open: (context) => openExternalUrl(context, broken));
+      final l10n = S.of(tester.element(find.byType(TextButton)));
+
+      expect(await expectTapShowsMessage(tester, find.byType(TextButton)), [l10n.error_link_open_failed(broken)]);
+      expect(calls.launchedUrls, isEmpty);
+    });
+
+    for (final link in ['mailto:info@example.com', 'tel:+905550000000', 'http://example.com/']) {
+      testWidgets('$link opens', (tester) async {
+        final calls = stubOpeningUrlLauncher(canLaunch: true);
+        await pumpLinkButton(tester, open: (context) => openExternalLink(context, Uri.parse(link)));
+
+        await expectTapShowsNoMessage(tester, find.byType(TextButton));
+        expect(calls.launchedUrls, [link]);
       });
     }
   });

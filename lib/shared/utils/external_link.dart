@@ -14,6 +14,10 @@ final _log = AppLogger.getLogger('ExternalLink');
 /// a link that does not open either by returning false or by throwing a [PlatformException], depending on the
 /// platform and the cause, so both are handled as the same failure.
 Future<void> openExternalLink(BuildContext context, Uri uri) async {
+  if (!_openable.contains(uri.scheme.toLowerCase())) {
+    _failed(context, uri.toString(), 'scheme ${uri.scheme} is not opened');
+    return;
+  }
   final messenger = ScaffoldMessenger.of(context);
   final l10n = S.of(context);
   Object failure;
@@ -25,4 +29,22 @@ Future<void> openExternalLink(BuildContext context, Uri uri) async {
   }
   _log.warn('Could not open {}: {}', [uri, failure]);
   messenger.showSnackBar(SnackBar(content: Text(l10n.error_link_open_failed(uri.toString()))));
+}
+
+/// Opens [url] as [openExternalLink] does, and says it did not open when it is not a URL.
+Future<void> openExternalUrl(BuildContext context, String url) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null) {
+    _failed(context, url, 'not a URL');
+    return;
+  }
+  await openExternalLink(context, uri);
+}
+
+/// The schemes a link opens with: the web, mail and the phone. Any other, such as `file` or `intent`, is refused.
+const _openable = {'https', 'http', 'mailto', 'tel'};
+
+void _failed(BuildContext context, String link, String why) {
+  _log.warn('Could not open {}: {}', [link, why]);
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).error_link_open_failed(link))));
 }
