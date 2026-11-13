@@ -97,7 +97,9 @@ void main() {
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
   });
 
-  testWidgets('module titles are in the chosen language, the English one where there is none (web D139)', (tester) async {
+  testWidgets('module titles are in the chosen language, the English one where there is none (web D139)', (
+    tester,
+  ) async {
     await _pumpHome(
       tester,
       language: LanguageCubit(initial: 'tr'),

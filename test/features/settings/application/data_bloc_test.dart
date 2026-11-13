@@ -226,7 +226,10 @@ void main() {
         bloc.add(const RestoreRequested());
         await expectLater(
           bloc.stream,
-          emitsInOrder([const DataState(busy: DataBusy.restoring), const DataState(restore: RestoreOutcome.notRestored)]),
+          emitsInOrder([
+            const DataState(busy: DataBusy.restoring),
+            const DataState(restore: RestoreOutcome.notRestored),
+          ]),
         );
         await bloc.close();
       });

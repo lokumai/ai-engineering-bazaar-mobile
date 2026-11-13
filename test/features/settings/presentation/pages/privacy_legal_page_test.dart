@@ -40,7 +40,9 @@ void main() {
     expect(find.textContaining('hosted on GitHub Pages'), findsOneWidget);
   });
 
-  testWidgets("the privacy note ends on a link to the site's note, which covers the app too (web D138)", (tester) async {
+  testWidgets("the privacy note ends on a link to the site's note, which covers the app too (web D138)", (
+    tester,
+  ) async {
     final calls = stubOpeningUrlLauncher(canLaunch: true);
     await _pump(tester);
 

@@ -185,7 +185,11 @@ void main() {
 
     router.go('/sheets/alpha');
     await tester.pumpAndSettle();
-    expect(find.descendant(of: bar, matching: find.text('Alpha Level')), findsOneWidget, reason: 'no translated level');
+    expect(
+      find.descendant(of: bar, matching: find.text('Alpha Level')),
+      findsOneWidget,
+      reason: 'no translated level',
+    );
   });
 
   testWidgets("a level's page and a module's carry the level's hue, its square and title right after the back arrow", (
