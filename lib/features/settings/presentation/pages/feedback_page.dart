@@ -9,6 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Report a problem, from Settings (the owner, 2026-11-13): the reader writes what went wrong and sends it to Sentry
 /// with the app's version and the device's model and system, its emails and secrets masked on the device. It asks no
 /// name and no email. Shown only in a build that sends crash reports.
+///
+/// iOS has no back key to close the keyboard, so a tap outside the field or a drag of the page closes it, as in the
+/// catalog's search; the field holds four to six lines and scrolls inside past them, so it fits above the keyboard
+/// and the bottom navigation.
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
 
@@ -34,7 +38,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final theme = Theme.of(context);
     final state = context.watch<FeedbackBloc>().state;
     return Scaffold(
+      // The shell's scaffold already makes room for the keyboard; this one making it again shrank the page by the
+      // keyboard twice and cut the field in half.
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,11 +90,12 @@ class _Form extends StatelessWidget {
         TextField(
           controller: controller,
           enabled: !sending,
-          minLines: 5,
-          maxLines: 10,
+          minLines: 4,
+          maxLines: 6,
           maxLength: FeedbackPage.maxLength,
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
           decoration: InputDecoration(labelText: s.feedback_field, alignLabelWithHint: true),
         ),
         if (failed)
