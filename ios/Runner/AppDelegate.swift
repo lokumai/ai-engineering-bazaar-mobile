@@ -7,6 +7,7 @@ import UIKit
   /// default, dark, is the primary icon (nil).
   static let appIcons: [String: String?] = [
     "dark": nil,
+    "cream": "AppIconCream",
   ]
 
   override func application(

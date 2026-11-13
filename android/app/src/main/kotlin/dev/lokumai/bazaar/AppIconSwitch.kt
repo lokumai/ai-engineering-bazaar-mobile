@@ -16,6 +16,7 @@ object AppIconSwitch {
     /** Each icon's name on the Dart side and its launcher entry; the first is the manifest's enabled default. */
     val aliases = linkedMapOf(
         "dark" to "LauncherDark",
+        "cream" to "LauncherCream",
     )
 
     /**
