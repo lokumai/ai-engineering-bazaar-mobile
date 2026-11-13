@@ -1,8 +1,7 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
-import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_name.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -130,7 +129,10 @@ class _SettingsView extends StatelessWidget {
                     BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
                 ],
               ),
-              const _AppIconRow(),
+              AppIconRow(
+                key: const Key('settings-app-icon'),
+                onTap: () => context.push(ApplicationRoutesConstants.appIcon),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -254,49 +256,6 @@ class _Action extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: OutlinedButton(onPressed: onPressed, child: Text(label)),
-    );
-  }
-}
-
-/// The App icon row under the appearance: the icon in use as a picture, the row's name with the icon's name under it,
-/// and an arrow to the page that chooses it, the whole row the button. The picture is large enough to stand out among
-/// the reading options (the owner, 2026-11-14).
-class _AppIconRow extends StatelessWidget {
-  const _AppIconRow();
-
-  /// The row's key.
-  static const rowKey = Key('settings-app-icon');
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
-    final icon = context.watch<AppIconCubit>().state.icon;
-    final textTheme = Theme.of(context).textTheme;
-    return BazaarRow(
-      key: rowKey,
-      onTap: () => context.push(ApplicationRoutesConstants.appIcon),
-      semanticLabel: '${s.settings_app_icon}, ${appIconName(s, icon)}',
-      child: Row(
-        spacing: AppSpacing.md,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: Image.asset(icon.asset, width: 52, height: 52),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(s.settings_app_icon, style: textTheme.titleSmall?.copyWith(color: colors.onSurfaceTitle)),
-                Text(appIconName(s, icon), style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
-        ],
-      ),
     );
   }
 }

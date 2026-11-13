@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/pages/app_i
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_choices.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +42,9 @@ Future<AppIconCubit> _pump(
 Matcher _selected(bool selected) => isSemantics(isSelected: selected, isButton: true);
 
 void main() {
-  testWidgets('shows the six icons as pictures with their names, Dark the default and in use', (tester) async {
+  testWidgets('shows the six icons as pictures, named only to a screen reader, Dark the default and in use', (
+    tester,
+  ) async {
     await _pump(tester);
 
     for (final icon in BazaarIcon.values) {
@@ -52,9 +55,12 @@ void main() {
         reason: icon.name,
       );
     }
+    // No names under the pictures (the owner, 2026-11-14); a screen reader hears them.
     for (final name in ['Dark', 'Cream', 'Noir', 'Ink', 'Night gold', 'Night sea', 'Default']) {
-      expect(find.text(name), findsOneWidget, reason: name);
+      expect(find.text(name), findsNothing, reason: name);
     }
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Dark, Default'));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), isSemantics(label: 'Night sea'));
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), _selected(true));
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(false));
   });
@@ -96,8 +102,8 @@ void main() {
     await _pump(tester, locale: const Locale('tr'));
 
     expect(find.text('App ikonu'), findsOneWidget);
-    expect(find.text('Gece denizi'), findsOneWidget);
-    expect(find.text('Varsayılan'), findsOneWidget);
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), isSemantics(label: 'Gece denizi'));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Koyu, Varsayılan'));
   });
 
   testWidgets('the page meets the platform guidelines', (tester) async {
