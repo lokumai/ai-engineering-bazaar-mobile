@@ -24,11 +24,10 @@ void main() {
         supportedLocales: S.delegate.supportedLocales,
         home: Scaffold(
           body: Builder(
-            builder: (context) =>
-                TextButton(
-                  onPressed: () => open == null ? openExternalLink(context, Uri.parse(url)) : open(context),
-                  child: const Text('Docs'),
-                ),
+            builder: (context) => TextButton(
+              onPressed: () => open == null ? openExternalLink(context, Uri.parse(url)) : open(context),
+              child: const Text('Docs'),
+            ),
           ),
         ),
       ),
