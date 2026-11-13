@@ -38,7 +38,7 @@ void main() {
           'NativeSentryScrubber',
         ])
           '$kotlinMain/$name.kt',
-        for (final name in ['NativeSentryScrubberTest', 'NativeSentryTest'])
+        for (final name in ['AppIconSwitchTest', 'NativeSentryScrubberTest', 'NativeSentryTest'])
           '$kotlinTest/$name.kt',
       });
       for (final source in sources) {
