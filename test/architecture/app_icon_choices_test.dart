@@ -11,8 +11,7 @@ void main() {
   String pascal(String name) => name[0].toUpperCase() + name.substring(1);
   String snake(String name) => name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
   final others = BazaarIcon.values.where((icon) => icon != BazaarIcon.dark);
-  // iOS knows cream's set as AppIconIvory: under AppIconCream an iPhone showed the default picture for it.
-  String iosName(BazaarIcon icon) => icon == BazaarIcon.cream ? 'AppIconIvory' : 'AppIcon${pascal(icon.name)}';
+  String iosName(BazaarIcon icon) => 'AppIcon${pascal(icon.name)}';
 
   test('the Android manifest has one launcher entry per icon, only Dark enabled, each with its own icon', () {
     final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
@@ -82,10 +81,20 @@ void main() {
 
     expect(included, hasLength(3), reason: 'Debug, Release and Profile');
     for (final match in included) {
-      expect(match[1]!.split(' '), unorderedEquals(names));
+      expect(match[1]!.split(' '), names);
     }
     for (final name in names) {
-      expect(File('ios/Runner/Assets.xcassets/$name.appiconset/$name.png').existsSync(), isTrue, reason: name);
+      final set = 'ios/Runner/Assets.xcassets/$name.appiconset';
+      expect(File('$set/$name.png').existsSync(), isTrue, reason: name);
+      // Its own picture in dark mode too: without one iOS darkens a light icon itself, and Cream then looked like
+      // the default on an iPhone in dark mode (the owner, 2026-11-14).
+      expect(File('$set/${name}Dark.png').readAsBytesSync(), File('$set/$name.png').readAsBytesSync(), reason: name);
+      expect(
+        RegExp(r'"appearance": "luminosity",\s*"value": "dark"\s*\}\s*\],\s*"filename": "' + name + r'Dark\.png"')
+            .hasMatch(File('$set/Contents.json').readAsStringSync()),
+        isTrue,
+        reason: name,
+      );
     }
     final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
     final pairs = RegExp(r'"(\w+)": (nil|"(\w+)")').allMatches(swift).map((m) => (m[1], m[3])).toList();

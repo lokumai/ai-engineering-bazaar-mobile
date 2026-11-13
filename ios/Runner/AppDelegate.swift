@@ -4,11 +4,10 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Each app icon's name on the Dart side (lib/shared/app_icon/) and its alternate icon in the asset catalog; the
-  /// default, dark, is the primary icon (nil). Cream's set is AppIconIvory: under its first name an iPhone showed the
-  /// default picture for it, the others right (the owner, 2026-11-14).
+  /// default, dark, is the primary icon (nil).
   static let appIcons: [String: String?] = [
     "dark": nil,
-    "cream": "AppIconIvory",
+    "cream": "AppIconCream",
     "noir": "AppIconNoir",
     "ink": "AppIconInk",
     "nightGold": "AppIconNightGold",
