@@ -2,6 +2,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -81,6 +82,16 @@ void main() {
       verifyNever(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json'));
     },
   );
+
+  test('a document whose read fails with a storage error is left out, and the search answers (review B6)', () async {
+    when(() => repository.readModuleDoc('api/v1/modules/alpha/third/en.json'))
+        .thenThrow(const FileSystemException('read', 'objects/x', OSError('injected', 5)));
+    final search = cubit();
+
+    await search.search('tool');
+    expect(search.state.reading, isFalse);
+    expect(search.state.results!.hits.map((h) => h.entry.module), unorderedEquals(['First', 'Second']));
+  });
 
   test('reads the documents once, for every query after the first', () async {
     final search = cubit();

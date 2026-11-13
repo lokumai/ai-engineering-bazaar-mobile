@@ -62,7 +62,16 @@ interface class ContentBloc extends Bloc<ContentEvent, ContentState> {
     if (current is! ContentReady) return;
     emit(current.withRefresh(const RefreshChecking()));
 
-    final outcome = await _repository.refresh();
+    final RefreshOutcome outcome;
+    try {
+      outcome = await _repository.refresh();
+    } on Object catch (error, stack) {
+      // An error the repository does not name ends the check too, or Check for updates would stay disabled until the
+      // next launch. The content in use is kept.
+      _log.error('content refresh failed: {}\n{}', [error, stack]);
+      emit(current.withRefresh(const RefreshFailed(ContentErrorCode.storage)));
+      return;
+    }
     emit(switch (outcome) {
       ContentUpToDate() => current.withRefresh(const RefreshUpToDate()),
       ContentUpdated(:final index) => ContentReady(

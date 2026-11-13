@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
-import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:equatable/equatable.dart';
@@ -58,7 +57,15 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     var index = _index;
     if (index == null) {
       emit(CatalogSearchState(query: query, reading: true));
-      index = _index = await (_building ??= _build());
+      try {
+        index = _index = await (_building ??= _build());
+      } on Object catch (error, stack) {
+        // A build that failed is not kept: the next query reads the documents again, rather than wait on it for ever.
+        _building = null;
+        _log.error('search index not built: {}\n{}', [error, stack]);
+        if (!isClosed && ticket == _ticket) emit(CatalogSearchState(query: query, results: SearchResults.none));
+        return;
+      }
     }
     if (isClosed || ticket != _ticket) return;
     emit(CatalogSearchState(query: query, results: index.search(query)));
@@ -79,11 +86,8 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
       if (path == null) continue;
       try {
         entries.addAll(entriesOf(await _repository.readModuleDoc(path), number: module.number));
-      } on ContentMissingException catch (error) {
-        _log.warn('module document {} left out of search: {}', [path, error]);
-      } on ContentCorruptException catch (error) {
-        _log.warn('module document {} left out of search: {}', [path, error]);
-      } on ContentFormatException catch (error) {
+      } on Object catch (error) {
+        // Any document that cannot be read, a storage error included, is left out rather than stopping the search.
         _log.warn('module document {} left out of search: {}', [path, error]);
       }
     }

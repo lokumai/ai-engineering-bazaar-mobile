@@ -113,6 +113,18 @@ void main() {
   );
 
   blocTest<ContentBloc, ContentState>(
+    'a refresh that throws an error the repository does not name ends the check, so it can run again (review B6)',
+    setUp: () {
+      opens();
+      when(() => repository.refresh()).thenThrow(StateError('unexpected'));
+    },
+    build: () => ContentBloc(repository: repository),
+    act: (bloc) => bloc.add(const ContentStarted()),
+    skip: 2,
+    expect: () => [ready(const RefreshFailed(ContentErrorCode.storage))],
+  );
+
+  blocTest<ContentBloc, ContentState>(
     'NeedsAppUpdate',
     setUp: () {
       opens();
