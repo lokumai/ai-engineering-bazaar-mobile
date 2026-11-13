@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
@@ -21,16 +22,30 @@ void main() {
       expect(find.byType(HomePage), findsOneWidget);
     });
 
-    testWidgets('follows the system theme with the light and dark app themes', (tester) async {
+    testWidgets('starts dark, with the light and dark app themes', (tester) async {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(app.themeMode, ThemeMode.system);
+      expect(app.themeMode, ThemeMode.dark);
       expect(app.theme!.brightness, Brightness.light);
       expect(app.darkTheme!.brightness, Brightness.dark);
       expect(app.theme!.extension<BazaarColors>(), BazaarColors.light);
       expect(app.darkTheme!.extension<BazaarColors>(), BazaarColors.dark);
+    });
+
+    testWidgets('the chosen appearance drives the theme mode', (tester) async {
+      await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
+      await tester.pump();
+
+      final cubit = tester.element(find.byType(MaterialApp)).read<ThemeChoiceCubit>();
+      await cubit.choose(ThemeMode.dark);
+      await tester.pump();
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode, ThemeMode.dark);
+
+      await cubit.choose(ThemeMode.light);
+      await tester.pump();
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode, ThemeMode.light);
     });
 
     testWidgets('names the app with app_title', (tester) async {

@@ -20,7 +20,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +28,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/about/presentation/pages/about_welcome_step.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -67,6 +68,9 @@ class _FirstLaunchDependencies extends _SmokeDependencies {
 
   @override
   ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: () async => dir));
 }
 
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated
@@ -100,8 +104,8 @@ void main() {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isNotEmpty, what: 'the opening');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty, what: 'the opening giving way');
       expect(find.byType(HomePage), findsNothing);
       // The language and the track first, then the story (plan 3.5).
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
@@ -134,7 +138,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
       await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty, what: 'the opening giving way');
       expect(find.byType(WelcomeTrackView), findsNothing);
       await _drain(
         tester,
@@ -158,7 +162,11 @@ void main() {
 
       Future<void> openFirst() async {
         await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
-        await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+        await _drain(
+          tester,
+          () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty,
+          what: 'the opening giving way',
+        );
         await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');

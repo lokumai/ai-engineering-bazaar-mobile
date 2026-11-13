@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -22,7 +22,7 @@ Future<void> _frames(WidgetTester tester, Duration duration) async {
   }
 }
 
-final _scene = find.byKey(WelcomeSplash.sceneKey);
+final _scene = find.byKey(WelcomeSting.sceneKey);
 
 Widget _splash({ContentBloc? content, RecordBloc? record, bool reducedMotion = false}) => MultiBlocProvider(
   providers: [
@@ -43,7 +43,7 @@ Widget _splash({ContentBloc? content, RecordBloc? record, bool reducedMotion = f
     builder: (context, child) => reducedMotion
         ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
         : child!,
-    home: const WelcomeSplash(child: Text('the app')),
+    home: const WelcomeSting(child: Text('the app')),
   ),
 );
 
@@ -66,7 +66,7 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
     expect(find.text('the app'), findsOneWidget, reason: 'built behind the scene, ready when it fades');
 
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSting.entrance + WelcomeSting.exit + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
     expect(find.text('the app'), findsOneWidget);
@@ -79,12 +79,12 @@ void main() {
     whenListen(record, states.stream, initialState: const RecordLoading());
     await tester.pumpWidget(_splash(record: record));
     await tester.pump();
-    await tester.pump(WelcomeSplash.entrance * 2);
+    await tester.pump(WelcomeSting.entrance * 2);
 
     expect(_scene, findsOneWidget);
 
     states.add(_ready);
-    await _frames(tester, WelcomeSplash.exit + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSting.exit + const Duration(milliseconds: 100));
     expect(_scene, findsNothing);
   });
 
@@ -96,7 +96,7 @@ void main() {
       initialState: const ContentBroken(code: ContentErrorCode.bundledIndexUnreadable),
     );
     await tester.pumpWidget(_splash(content: content, record: loadingRecordBloc()));
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSting.entrance + WelcomeSting.exit + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
   });
@@ -118,7 +118,7 @@ void main() {
           ],
           supportedLocales: S.delegate.supportedLocales,
           locale: const Locale('en'),
-          home: WelcomeSplash(
+          home: WelcomeSting(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => taps++,
@@ -132,7 +132,7 @@ void main() {
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 0);
 
-    await _frames(tester, WelcomeSplash.entrance + WelcomeSplash.exit + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSting.entrance + WelcomeSting.exit + const Duration(milliseconds: 100));
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 1);
   });
@@ -141,7 +141,7 @@ void main() {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(_splash(record: loadingRecordBloc()));
     await tester.pump();
-    await tester.pump(WelcomeSplash.entrance);
+    await tester.pump(WelcomeSting.entrance);
 
     expect(find.bySemanticsLabel(RegExp('logo|band', caseSensitive: false)), findsNothing);
     expect(

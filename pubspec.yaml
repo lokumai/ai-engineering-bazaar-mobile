@@ -69,8 +69,6 @@ flutter:
     - assets/welcome/cast_bit.webp
     - assets/welcome/cast_mei.webp
     - assets/welcome/cast_piri.webp
-    - assets/welcome/lamp_left.webp
-    - assets/welcome/lamp_right.webp
     - assets/about/grain.png
     - assets/about/scene_1.webp
     - assets/about/scene_1_still.webp
