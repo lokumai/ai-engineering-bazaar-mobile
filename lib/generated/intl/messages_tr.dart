@@ -279,6 +279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("Sitedeki gizlilik notu"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "Kopya yazılamadı. Kenara ayrılan kayıt değişmedi.",

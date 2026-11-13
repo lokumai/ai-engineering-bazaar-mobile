@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/content_fixture.dart';
+import '../../../../support/url_launcher_stub.dart';
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -36,6 +38,18 @@ void main() {
     expect(find.textContaining('collects no personal data'), findsOneWidget);
     expect(find.textContaining('saved on this device only'), findsOneWidget);
     expect(find.textContaining('hosted on GitHub Pages'), findsOneWidget);
+  });
+
+  testWidgets("the privacy note ends on a link to the site's note, which covers the app too (web D138)", (tester) async {
+    final calls = stubOpeningUrlLauncher(canLaunch: true);
+    await _pump(tester);
+
+    final link = find.text('The privacy note on the website');
+    await tester.scrollUntilVisible(link, 200);
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+
+    expect(calls.launchedUrls, ['${testContentBaseUrl}legend/#privacy']);
   });
 
   testWidgets('the owner is named as the registry has it', (tester) async {

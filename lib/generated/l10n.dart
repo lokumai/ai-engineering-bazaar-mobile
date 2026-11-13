@@ -1561,6 +1561,16 @@ class S {
     return Intl.message('GitHub General Privacy Statement', name: 'privacy_github_statement', desc: '', args: []);
   }
 
+  /// `The privacy note on the website`
+  String get privacy_site_note {
+    return Intl.message(
+      'The privacy note on the website',
+      name: 'privacy_site_note',
+      desc: 'Link under Privacy to the site\'s privacy note, which covers the app too (web D138).',
+      args: [],
+    );
+  }
+
   /// `The story of the Bazaar`
   String get settings_story {
     return Intl.message(

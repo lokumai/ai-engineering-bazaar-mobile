@@ -279,6 +279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما فقط روی همین دستگاه ذخیره می‌شوند. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("یادداشت حریم خصوصی در وب‌سایت"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("حریم خصوصی"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "کپی نوشته نشد. سابقهٔ کنارگذاشته‌شده تغییری نکرده است.",

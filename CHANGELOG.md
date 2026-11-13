@@ -7,6 +7,8 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
+- A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
 - The iOS privacy manifest: the app tracks nothing and collects nothing.
 - On iOS a tap on the status bar takes the page in front back to its top, a module included.
 - On an iPad or another tablet the pages keep a phone's measure in the middle of the screen, and the app turns to landscape.
@@ -23,7 +25,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch after the language and the track are chosen, its last button Start learning, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
-- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-11 (`7a0ef035`), with the web's WebP images, Key Terms, the story of the Bazaar and a quiz on both tracks.
+- A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-13 (`22bbb6fa`), with the web's WebP images, Key Terms, the story of the Bazaar, a quiz on both tracks and module titles in every language.
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.

@@ -279,6 +279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
     ),
+    "privacy_site_note": MessageLookupByLibrary.simpleMessage("The privacy note on the website"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Privacy"),
     "quarantine_copy_not_written": MessageLookupByLibrary.simpleMessage(
       "The copy could not be written. The set-aside record is unchanged.",

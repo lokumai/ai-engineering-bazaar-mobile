@@ -773,6 +773,10 @@
   "@privacy_github_pages": {},
   "privacy_github_statement": "GitHub General Privacy Statement",
   "@privacy_github_statement": {},
+  "privacy_site_note": "The privacy note on the website",
+  "@privacy_site_note": {
+    "description": "Link under Privacy to the site's privacy note, which covers the app too (web D138)."
+  },
   "settings_story": "The story of the Bazaar",
   "@settings_story": {
     "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
