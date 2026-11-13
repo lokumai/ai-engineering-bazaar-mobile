@@ -45,6 +45,21 @@ void main() {
     test('no view: nothing signed', () {
       expect(catalogRows(index, Track.engineers, null).any((r) => r.signed), isFalse);
     });
+
+    test('titles are in the language, the English one where a module has none in it (web D139)', () {
+      final titled = catalogFixtureIndex(
+        titles: {
+          'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+        },
+      );
+      for (final track in Track.values) {
+        final rows = catalogRows(titled, track, null, language: 'tr');
+        expect(rows[0].title, 'Birinci Modül', reason: 'the For Engineers title in both tracks');
+        expect(rows[1].title, 'Second Module');
+      }
+      expect(catalogRows(titled, Track.engineers, null).first.title, 'First Module');
+      expect(catalogRows(titled, Track.engineers, null, language: 'fa').first.title, 'First Module');
+    });
   });
 
   group('filters', () {

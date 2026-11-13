@@ -309,4 +309,29 @@ void main() {
       expect(() => _parse(json), throwsA(formatError(_indexPath, 'modules[0].tracks.engineers.words.en')));
     });
   });
+
+  group('translated titles (web D139)', () {
+    test("each language's title is read, and an index from before it has none", () {
+      final json = validIndexJson();
+      _track(json, 'engineers')['titles'] = {'en': 'First Module', 'tr': 'Birinci Modül'};
+      final tracks = _parse(json).module('alpha/first')!.tracks;
+      expect(tracks[Track.engineers]!.titles, {'en': 'First Module', 'tr': 'Birinci Modül'});
+      expect(tracks[Track.everyone]!.titles, isEmpty);
+    });
+
+    test('titleIn gives the language\'s title, and the English one where there is none', () {
+      final json = validIndexJson();
+      _track(json, 'engineers')['titles'] = {'en': 'First Module', 'tr': 'Birinci Modül'};
+      final engineers = _parse(json).module('alpha/first')!.tracks[Track.engineers]!;
+      expect(engineers.titleIn('tr'), 'Birinci Modül');
+      expect(engineers.titleIn('fa'), engineers.title);
+      expect(engineers.titleIn('en'), engineers.title);
+    });
+
+    test('a title that is not a string is refused', () {
+      final json = validIndexJson();
+      _track(json, 'engineers')['titles'] = {'tr': 3};
+      expect(() => _parse(json), throwsA(formatError(_indexPath, 'modules[0].tracks.engineers.titles.tr')));
+    });
+  });
 }

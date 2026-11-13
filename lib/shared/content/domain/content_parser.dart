@@ -302,6 +302,11 @@ abstract final class ContentParser {
       for (final MapEntry(:key, :value) in node.optional('words')?.entries() ?? const <MapEntry<String, _Node>>[])
         key: value.integer(min: 1),
     });
+    // Added by the web in D139: the title each language's document carries. An index from before it has no key.
+    final titles = Map<String, String>.unmodifiable({
+      for (final MapEntry(:key, :value) in node.optional('titles')?.entries() ?? const <MapEntry<String, _Node>>[])
+        key: value.string(),
+    });
     return ModuleTrack(
       title: title,
       drawn: drawn,
@@ -310,6 +315,7 @@ abstract final class ContentParser {
       revision: revision,
       docs: docs,
       words: words,
+      titles: titles,
       webPath: node['webPath'].matching(_sitePath),
     );
   }

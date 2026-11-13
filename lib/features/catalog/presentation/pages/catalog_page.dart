@@ -45,9 +45,9 @@ class CatalogPage extends StatelessWidget {
     };
     final view = record == null ? null : trackView(record, track);
     final curriculum = curriculumFor(index, track);
-    final rows = catalogRows(index, track, view);
-    final next = view == null ? null : nextUnsigned(view, curriculum);
     final language = context.watch<LanguageCubit>().state;
+    final rows = catalogRows(index, track, view, language: language);
+    final next = view == null ? null : nextUnsigned(view, curriculum);
     return BlocProvider(
       // A new search for another track or language: its index holds one of each.
       key: ValueKey((track, language)),

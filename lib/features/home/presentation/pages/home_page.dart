@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -52,7 +53,8 @@ class HomePage extends StatelessWidget {
       ReadingPlacesReady(:final places) => places,
       ReadingPlacesLoading() => const <String, ReadingPlace>{},
     };
-    final overview = homeOverview(index, track, record, scores: scores, places: places);
+    final language = context.watch<LanguageCubit>().state;
+    final overview = homeOverview(index, track, record, scores: scores, places: places, language: language);
     final label = overview.next?.share != null ? s.home_continue_reading : s.home_up_next;
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 

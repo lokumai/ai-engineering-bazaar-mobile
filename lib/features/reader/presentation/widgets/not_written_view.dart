@@ -5,8 +5,10 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// A module whose For Everyone version has no document yet (web `NotWritten`, `ModuleSheet.tsx:526-548`): the For
@@ -21,7 +23,7 @@ class NotWrittenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final colors = context.bazaarColors;
-    final title = entry.tracks[Track.engineers]?.title;
+    final title = entry.tracks[Track.engineers]?.titleIn(context.watch<LanguageCubit>().state);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
       child: Column(

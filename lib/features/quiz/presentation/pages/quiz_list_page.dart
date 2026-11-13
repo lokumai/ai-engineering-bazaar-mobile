@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dar
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
@@ -219,7 +220,7 @@ class _QuizRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final number = _number(module.number);
-    final title = module.tracks[track]!.title;
+    final title = module.tracks[track]!.titleIn(context.watch<LanguageCubit>().state);
     final score = this.score;
     final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
     return Semantics(

@@ -27,7 +27,8 @@ final class CatalogRow extends Equatable {
   final String level;
   final int number;
 
-  /// The For Engineers title, in both tracks (web `src/lib/content/manifest.ts:72`).
+  /// The For Engineers title, in both tracks (web `src/lib/content/manifest.ts:72`), in the language of the rows: the
+  /// English one where the module has none in it (web D139).
   final String title;
 
   /// Whether the module is written in the row's track.
@@ -51,8 +52,8 @@ final class CatalogRow extends Equatable {
 }
 
 /// The rows of [index] for [track], in the index's module order. [view] is the record seen through [track]
-/// (`trackView`); when it is null (the record is not read yet) nothing is signed.
-List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view) {
+/// (`trackView`); when it is null (the record is not read yet) nothing is signed. Titles are in [language].
+List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view, {String language = 'en'}) {
   final facts = {for (final fact in curriculumFor(index, track).modules) fact.slug: fact};
   return [
     for (final module in index.modules)
@@ -60,7 +61,7 @@ List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view) {
         key: module.key,
         level: module.level,
         number: module.number,
-        title: module.tracks[Track.engineers]!.title,
+        title: module.tracks[Track.engineers]!.titleIn(language),
         drawn: module.tracks[track]!.drawn,
         signed: view != null && isSigned(facts[module.key]!, view),
         minutes: module.minutes,

@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../support/accessibility.dart';
 import '../../support/bazaar_app_harness.dart';
+import '../../support/catalog_fixture_index.dart';
 import '../../support/fold.dart';
 
 /// A destination by its tooltip, which is its name.
@@ -159,6 +161,31 @@ void main() {
         reason: location,
       );
     }
+  });
+
+  testWidgets("the bar names a module in the chosen language, and a level in English (web D139)", (tester) async {
+    final router = AppRouterFactory(initialLocation: '/courses/alpha/first').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      bazaarTestApp(
+        router: router,
+        language: LanguageCubit(initial: 'tr'),
+        content: readyContentBloc(
+          catalogFixtureIndex(
+            titles: {
+              'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final bar = find.byType(BazaarBar);
+    expect(find.descendant(of: bar, matching: find.text('Birinci Modül')), findsOneWidget);
+
+    router.go('/sheets/alpha');
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: bar, matching: find.text('Alpha Level')), findsOneWidget, reason: 'no translated level');
   });
 
   testWidgets("a level's page and a module's carry the level's hue, its square and title right after the back arrow", (

@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
@@ -63,7 +64,7 @@ class _LevelPageState extends State<LevelPage> {
         .where((module) => module.level == entry.slug)
         .fold(0, (sum, module) => sum + module.minutes);
 
-    final rows = catalogRows(index, track, view);
+    final rows = catalogRows(index, track, view, language: context.watch<LanguageCubit>().state);
     final visible = applyLevel(rows, entry.slug);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),

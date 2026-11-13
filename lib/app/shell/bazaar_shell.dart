@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -161,11 +162,12 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   }
 
   /// The name the bar gives a level's page or a module's, from the index; none on the four tabs' pages (owner, 2026-11-10).
-  String? _title(BundleIndex? index) {
+  /// A module's is in [language], the English one where it has none (web D139).
+  String? _title(BundleIndex? index, String language) {
     final location = widget.location;
     if (BazaarPaths.moduleOf(location) case final key?) {
       final track = BazaarPaths.trackOf(location)!;
-      if (index?.module(key)?.tracks[track]?.title case final title?) return title;
+      if (index?.module(key)?.tracks[track]?.titleIn(language) case final title?) return title;
     }
     if (BazaarPaths.levelOf(location) case final slug?) {
       if (index?.level(slug)?.title case final title?) return title;
@@ -277,7 +279,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                     children: [
                       BazaarBar(
                         statusStrip: false,
-                        title: _title(index),
+                        title: _title(index, context.watch<LanguageCubit>().state),
                         accent: _accent(context, index),
                         // The bar sits above the shell's navigator, so the router goes back, to the catalog.
                         onBack: pushed ? _back : null,

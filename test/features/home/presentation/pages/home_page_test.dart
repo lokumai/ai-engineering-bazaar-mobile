@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show Locale, Size, Text;
@@ -40,6 +41,7 @@ Future<GoRouter> _pumpHome(
   ReadingPlacesBloc? places,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
+  LanguageCubit? language,
 }) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
@@ -53,6 +55,7 @@ Future<GoRouter> _pumpHome(
       places: places,
       platform: platform,
       locale: locale,
+      language: language,
     ),
   );
   await tester.pumpAndSettle();
@@ -92,6 +95,22 @@ void main() {
     expect(find.byType(CompletionDial), findsNothing);
     expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
+  });
+
+  testWidgets('module titles are in the chosen language, the English one where there is none (web D139)', (tester) async {
+    await _pumpHome(
+      tester,
+      language: LanguageCubit(initial: 'tr'),
+      index: catalogFixtureIndex(
+        titles: {
+          'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
+        },
+      ),
+    );
+
+    expect(find.text('Birinci Modül'), findsOneWidget);
+    expect(find.text('First Module'), findsNothing);
+    expect(find.text('Second Module', skipOffstage: false), findsOneWidget);
   });
 
   testWidgets("the modules after it give their minutes and words, as the catalog's rows do (web D128)", (tester) async {
