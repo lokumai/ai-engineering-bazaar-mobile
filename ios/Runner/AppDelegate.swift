@@ -4,10 +4,11 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Each app icon's name on the Dart side (lib/shared/app_icon/) and its alternate icon in the asset catalog; the
-  /// default, dark, is the primary icon (nil).
+  /// default, dark, is the primary icon (nil). Cream's set is AppIconIvory: under its first name an iPhone showed the
+  /// default picture for it, the others right (the owner, 2026-11-14).
   static let appIcons: [String: String?] = [
     "dark": nil,
-    "cream": "AppIconCream",
+    "cream": "AppIconIvory",
     "noir": "AppIconNoir",
     "ink": "AppIconInk",
     "nightGold": "AppIconNightGold",
@@ -36,6 +37,9 @@ import UIKit
         // the chosen icon again).
         guard app.supportsAlternateIcons, app.alternateIconName != name else { return result(nil) }
         app.setAlternateIconName(name) { error in
+          if let error {
+            NSLog("Bazaar: app icon %@ not set: %@", name ?? "default", error.localizedDescription)
+          }
           result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
         }
       }

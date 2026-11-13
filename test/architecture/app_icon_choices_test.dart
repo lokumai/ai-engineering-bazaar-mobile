@@ -11,6 +11,8 @@ void main() {
   String pascal(String name) => name[0].toUpperCase() + name.substring(1);
   String snake(String name) => name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
   final others = BazaarIcon.values.where((icon) => icon != BazaarIcon.dark);
+  // iOS knows cream's set as AppIconIvory: under AppIconCream an iPhone showed the default picture for it.
+  String iosName(BazaarIcon icon) => icon == BazaarIcon.cream ? 'AppIconIvory' : 'AppIcon${pascal(icon.name)}';
 
   test('the Android manifest has one launcher entry per icon, only Dark enabled, each with its own icon', () {
     final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
@@ -75,21 +77,19 @@ void main() {
 
   test('iOS has an alternate icon per other icon, included in every build, named as AppDelegate.swift names it', () {
     final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
-    final names = [for (final icon in others) 'AppIcon${pascal(icon.name)}'];
+    final names = [for (final icon in others) iosName(icon)];
     final included = RegExp(r'ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "([^"]+)";').allMatches(project);
 
     expect(included, hasLength(3), reason: 'Debug, Release and Profile');
     for (final match in included) {
-      expect(match[1]!.split(' '), names);
+      expect(match[1]!.split(' '), unorderedEquals(names));
     }
     for (final name in names) {
       expect(File('ios/Runner/Assets.xcassets/$name.appiconset/$name.png').existsSync(), isTrue, reason: name);
     }
     final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
     final pairs = RegExp(r'"(\w+)": (nil|"(\w+)")').allMatches(swift).map((m) => (m[1], m[3])).toList();
-    expect(pairs, [
-      for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.dark ? null : 'AppIcon${pascal(icon.name)}'),
-    ]);
+    expect(pairs, [for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.dark ? null : iosName(icon))]);
   });
 
   test('every icon has its picture for the choice, bundled', () {
