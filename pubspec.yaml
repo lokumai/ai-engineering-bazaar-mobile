@@ -68,6 +68,7 @@ flutter:
     - assets/app_icon/noir.png
     - assets/app_icon/ink.png
     - assets/app_icon/nightGold.png
+    - assets/app_icon/nightSea.png
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
     - assets/welcome/cast_bit.webp
