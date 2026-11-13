@@ -1486,10 +1486,10 @@ class S {
     );
   }
 
-  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.`
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
   String get privacy_crash {
     return Intl.message(
-      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.',
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.',
       name: 'privacy_crash',
       desc: '',
       args: [],
@@ -1504,6 +1504,46 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Report a problem`
+  String get feedback_title {
+    return Intl.message('Report a problem', name: 'feedback_title', desc: '', args: []);
+  }
+
+  /// `Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.`
+  String get feedback_intro {
+    return Intl.message(
+      'Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.',
+      name: 'feedback_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What happened`
+  String get feedback_field {
+    return Intl.message('What happened', name: 'feedback_field', desc: '', args: []);
+  }
+
+  /// `Send`
+  String get feedback_send {
+    return Intl.message('Send', name: 'feedback_send', desc: '', args: []);
+  }
+
+  /// `Sending`
+  String get feedback_sending {
+    return Intl.message('Sending', name: 'feedback_sending', desc: '', args: []);
+  }
+
+  /// `The report is sent.`
+  String get feedback_sent {
+    return Intl.message('The report is sent.', name: 'feedback_sent', desc: '', args: []);
+  }
+
+  /// `The report was not sent. Try again later.`
+  String get feedback_failed {
+    return Intl.message('The report was not sent. Try again later.', name: 'feedback_failed', desc: '', args: []);
   }
 
   /// `Legal`

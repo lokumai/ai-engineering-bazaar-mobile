@@ -8,6 +8,9 @@ class ApplicationRoutesConstants {
   /// Settings' privacy and legal notes (plan 3.4).
   static const privacyLegal = '/settings/privacy';
 
+  /// Report a problem, from Settings, in a build that sends crash reports.
+  static const feedback = '/settings/feedback';
+
   /// The story of the Bazaar, from Settings (web D115, D125).
   static const about = '/settings/about';
 

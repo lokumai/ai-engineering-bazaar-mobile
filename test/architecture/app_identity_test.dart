@@ -75,16 +75,28 @@ void main() {
       }
     });
 
-    // Apple asks every app for a privacy manifest; this one says the app tracks nothing and collects crash data only,
-    // linked to no one and for the app's functioning, since a prod build with a SENTRY_DSN sends crash reports.
-    test('the privacy manifest says no tracking and crash data only, and ships in the app', () {
+    // Apple asks every app for a privacy manifest; this one says the app tracks nothing, and lists what a prod build
+    // with a SENTRY_DSN sends (docs/store-privacy.md): crash data, performance data (how long the app took to open),
+    // other diagnostic data (hangs), product interaction (the sessions of release health: the app's launches) and
+    // customer support (Report a problem), none linked to the user or used for tracking, all for the app's functioning.
+    test('the privacy manifest says no tracking and lists what Sentry sends, and ships in the app', () {
       final manifest = File('ios/Runner/PrivacyInfo.xcprivacy').readAsStringSync();
       expect(RegExp(r'<key>NSPrivacyTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
       final types = RegExp(r'<key>NSPrivacyCollectedDataType</key>\s*<string>(\w+)</string>').allMatches(manifest);
-      expect(types.map((m) => m[1]), ['NSPrivacyCollectedDataTypeCrashData']);
-      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').hasMatch(manifest), isTrue);
-      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
-      expect(manifest, contains('<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>'));
+      expect(types.map((m) => m[1]), [
+        'NSPrivacyCollectedDataTypeCrashData',
+        'NSPrivacyCollectedDataTypePerformanceData',
+        'NSPrivacyCollectedDataTypeOtherDiagnosticData',
+        'NSPrivacyCollectedDataTypeProductInteraction',
+        'NSPrivacyCollectedDataTypeCustomerSupport',
+      ]);
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').allMatches(manifest), hasLength(5));
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').allMatches(manifest), hasLength(5));
+      expect(
+        RegExp(r'<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>').allMatches(manifest),
+        hasLength(5),
+      );
+      expect(manifest, isNot(contains('NSPrivacyCollectedDataTypePurposeAnalytics')));
 
       final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
       expect(RegExp(r'/\* PrivacyInfo.xcprivacy in Resources \*/,').allMatches(project), hasLength(1));

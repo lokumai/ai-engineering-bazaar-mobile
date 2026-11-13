@@ -142,11 +142,28 @@ const Set<String> sentryNavigationTypes = {'didPush', 'didPop', 'didReplace'};
 /// free text. Native builds never turned `AppLogger` lines into breadcrumbs,
 /// so web now matches them. In a release build this also stops recording
 /// `debugPrint` lines.
+///
+/// A user's feedback passes [sentryBeforeSend] too (`beforeSendFeedback`),
+/// and a transaction passes [sentryBeforeSendTransaction], which keeps the
+/// app start only.
 void installSentryScrubbers(SentryOptions options) {
   options.beforeSend = (event, hint) => sentryBeforeSend(event);
+  options.beforeSendFeedback = (event, hint) => sentryBeforeSend(event);
+  options.beforeSendTransaction = (transaction, hint) => sentryBeforeSendTransaction(transaction);
   options.beforeBreadcrumb = (breadcrumb, hint) => sentryBeforeBreadcrumb(breadcrumb);
   options.enablePrintBreadcrumbs = false;
 }
+
+/// Keeps the app start transaction (`app.start`), how long the app took to
+/// open, and drops every other one before it leaves the device. The app has
+/// no navigator observer, so the app start names no route (sentry_flutter
+/// reports the root route), and a later change that starts another
+/// transaction, which could name a route and so a module, sends nothing.
+SentryTransaction? sentryBeforeSendTransaction(SentryTransaction transaction) =>
+    transaction.contexts.trace?.operation == appStartOperation ? transaction : null;
+
+/// The operation of sentry_flutter's app start transaction (`SentrySpanOperations.appStart`, internal to the SDK).
+const String appStartOperation = 'app.start';
 
 /// Masks emails and JWTs in a URL or in one of its parts. A path, a query
 /// or a fragment can carry an email, and a link such as `?token=` or

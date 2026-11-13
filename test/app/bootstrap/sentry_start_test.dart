@@ -1,9 +1,12 @@
 import 'package:ai_engineering_bazaar/app/bootstrap/sentry_start.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/platform/platform.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -123,23 +126,50 @@ void main() {
       expect(options.enablePrintBreadcrumbs, isFalse);
       expect(options.dsn, _dsn);
       expect(options.release, '1.0.0+1');
-      expect(options.tracesSampleRate, 0);
+      expect(options.tracesSampleRate, 1);
+      expect(options.traceLifecycle, SentryTraceLifecycle.static);
     });
 
-    // O2 and A5: crash reports only. A release-health session envelope never passes beforeSend.
+    // Release health (the owner, 2026-11-13): a session holds no text, only its status, duration and release.
     for (final platform in const <Platform>[_AndroidPlatform(), _IosPlatform()]) {
-      test('turns automatic session tracking off on ${platform.operatingSystem.name}', () {
+      test('turns automatic session tracking on on ${platform.operatingSystem.name}', () {
         final options = SentryFlutterOptions(platform: platform);
 
         configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
 
-        expect(options.enableAutoSessionTracking, isFalse);
+        expect(options.enableAutoSessionTracking, isTrue);
       });
     }
 
+    test('sends the app start transaction and drops every other one', () async {
+      final options = SentryFlutterOptions(platform: const _AndroidPlatform());
+      configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+      final hub = Hub(options);
+      SentryTransaction transaction(String operation) =>
+          SentryTransaction(SentryTracer(SentryTransactionContext('name', operation), hub));
+
+      final start = await options.beforeSendTransaction!(transaction(appStartOperation), Hint());
+      final load = await options.beforeSendTransaction!(transaction('ui.load'), Hint());
+
+      expect(start, isNotNull);
+      expect(load, isNull);
+    });
+
+    test("masks an email in a user's feedback", () async {
+      final options = SentryFlutterOptions(platform: const _AndroidPlatform());
+      configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+      final feedback = await options.beforeSendFeedback!(
+        SentryEvent(message: SentryMessage('write to jane.doe@example.com')),
+        Hint(),
+      );
+
+      expect(feedback!.message!.formatted, 'write to [REDACTED_EMAIL]');
+    });
+
     // Plan 4.4: on iOS sentry_flutter starts sentry-cocoa, whose own events and breadcrumbs never pass the Dart
-    // scrubbers, so it records none: a crash report is a Dart one, masked before it leaves the device.
-    test('on iOS turns off every event and breadcrumb sentry-cocoa would record itself', () {
+    // scrubbers, so it records the least: app hangs and sessions only (the owner, 2026-11-13).
+    test('on iOS turns off the events and breadcrumbs sentry-cocoa would record itself, but app hangs', () {
       final options = SentryFlutterOptions(platform: const _IosPlatform());
 
       configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
@@ -148,7 +178,8 @@ void main() {
       expect(options.enableNativeCrashHandling, isFalse);
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
       expect(options.enableWatchdogTerminationTracking, isFalse);
-      expect(options.enableAppHangTracking, isFalse);
+      expect(options.captureNativeFailedRequests, isFalse);
+      expect(options.enableAppHangTracking, isTrue);
     });
 
     // On Android the host app starts sentry-android with its own scrubber (NativeSentry.kt), which keeps native crash

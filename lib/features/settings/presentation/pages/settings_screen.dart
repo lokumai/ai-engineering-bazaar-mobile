@@ -21,7 +21,7 @@ import 'package:go_router/go_router.dart';
 /// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the track the reader chose (plan 1L,
 /// the one place it changes after Welcome), the reader's data with Back up, Restore and Reset (plan 1AB: the progress
 /// page that held them is gone), the content status with Check for updates (spec 3.4.2 to 3.4.4), the privacy and
-/// legal notes (plan 3.4), the licences, and
+/// legal notes (plan 3.4), Report a problem when [feedback] is set, the licences, and
 /// the developer console when [openDevConsole] is set.
 ///
 /// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). Only
@@ -34,17 +34,20 @@ Key settingsLanguageKey(String language) => ValueKey('settings-language-$languag
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key, this.openDevConsole});
+  const SettingsScreen({super.key, this.openDevConsole, this.feedback = false});
 
   /// Opens the developer console (Decision A6); the router passes it in debug builds only, since a feature imports
   /// nothing from `app/`. Null hides the entry.
   final void Function(BuildContext context)? openDevConsole;
 
+  /// Whether Report a problem is shown: in a build that sends crash reports, since it sends through Sentry too.
+  final bool feedback;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: switch (context.watch<ContentBloc>().state) {
-        ContentReady ready => _SettingsView(ready: ready, openDevConsole: openDevConsole),
+        ContentReady ready => _SettingsView(ready: ready, openDevConsole: openDevConsole, feedback: feedback),
         ContentLoading() || ContentBroken() => const SizedBox.shrink(),
       },
     );
@@ -52,10 +55,11 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class _SettingsView extends StatelessWidget {
-  const _SettingsView({required this.ready, required this.openDevConsole});
+  const _SettingsView({required this.ready, required this.openDevConsole, required this.feedback});
 
   final ContentReady ready;
   final void Function(BuildContext context)? openDevConsole;
+  final bool feedback;
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +161,8 @@ class _SettingsView extends StatelessWidget {
                 label: s.settings_privacy_legal,
                 onTap: () => context.push(ApplicationRoutesConstants.privacyLegal),
               ),
+              if (feedback)
+                _Page(label: s.feedback_title, onTap: () => context.push(ApplicationRoutesConstants.feedback)),
               _Page(
                 label: s.settings_licences,
                 onTap: () => showLicensePage(context: context, applicationName: s.app_title),
