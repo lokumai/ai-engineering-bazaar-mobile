@@ -271,7 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Web\'de aç"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulama rapordaki kişisel ayrıntıları cihazdan çıkmadan önce gizler.",
+      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulama rapordaki kişisel ayrıntıları cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",

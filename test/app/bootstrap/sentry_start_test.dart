@@ -137,6 +137,31 @@ void main() {
       });
     }
 
+    // Plan 4.4: on iOS sentry_flutter starts sentry-cocoa, whose own events and breadcrumbs never pass the Dart
+    // scrubbers, so it records none: a crash report is a Dart one, masked before it leaves the device.
+    test('on iOS turns off every event and breadcrumb sentry-cocoa would record itself', () {
+      final options = SentryFlutterOptions(platform: const _IosPlatform());
+
+      configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+      expect(options.autoInitializeNativeSdk, isTrue);
+      expect(options.enableNativeCrashHandling, isFalse);
+      expect(options.enableAutoNativeBreadcrumbs, isFalse);
+      expect(options.enableWatchdogTerminationTracking, isFalse);
+      expect(options.enableAppHangTracking, isFalse);
+    });
+
+    // On Android the host app starts sentry-android with its own scrubber (NativeSentry.kt), which keeps native crash
+    // handling; the Dart options do not reach it.
+    test('on Android leaves the native options as they are', () {
+      final options = SentryFlutterOptions(platform: const _AndroidPlatform());
+
+      configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+      expect(options.enableNativeCrashHandling, isTrue);
+      expect(options.enableAutoNativeBreadcrumbs, isTrue);
+    });
+
     test('installs a beforeSend that masks an email and a beforeBreadcrumb that masks one', () async {
       final options = SentryFlutterOptions(platform: const _AndroidPlatform());
 

@@ -271,7 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("Open on the web"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",

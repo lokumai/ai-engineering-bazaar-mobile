@@ -75,12 +75,17 @@ void main() {
       }
     });
 
-    // Apple asks every app for a privacy manifest; this one says the app tracks nothing and collects nothing. Should
-    // crash reports be turned on, it must list them (plan 8.8).
-    test('the privacy manifest says no tracking and no data collected, and ships in the app', () {
+    // Apple asks every app for a privacy manifest; this one says the app tracks nothing and collects crash data only,
+    // linked to no one and for the app's functioning, since a prod build with a SENTRY_DSN sends crash reports.
+    test('the privacy manifest says no tracking and crash data only, and ships in the app', () {
       final manifest = File('ios/Runner/PrivacyInfo.xcprivacy').readAsStringSync();
       expect(RegExp(r'<key>NSPrivacyTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
-      expect(RegExp(r'<key>NSPrivacyCollectedDataTypes</key>\s*<array/>').hasMatch(manifest), isTrue);
+      expect(RegExp(r'<string>NSPrivacyCollectedDataType[A-Za-z]+</string>').allMatches(manifest).map((m) => m[0]), [
+        '<string>NSPrivacyCollectedDataTypeCrashData</string>',
+      ]);
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').hasMatch(manifest), isTrue);
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').hasMatch(manifest), isTrue);
+      expect(manifest, contains('<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>'));
 
       final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
       expect(RegExp(r'/\* PrivacyInfo.xcprivacy in Resources \*/,').allMatches(project), hasLength(1));

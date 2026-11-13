@@ -217,7 +217,7 @@
   "privacy_no_data": "Bu uygulama kişisel veri toplamaz. Hesap, analiz aracı ve reklam yoktur.",
   "privacy_on_device": "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
   "privacy_download": "Uygulama kursu web sitesinden indirir; site GitHub Pages'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub'ındır, bizim değil.",
-  "privacy_crash": "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry'ye bir çökme raporu gönderir. Uygulama rapordaki kişisel ayrıntıları cihazdan çıkmadan önce gizler.",
+  "privacy_crash": "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry'ye bir çökme raporu gönderir. Uygulama rapordaki kişisel ayrıntıları cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz.",
   "privacy_contact": "Kişisel verilerle ilgili her soru için bize yaz.",
   "legal_title": "Yasal bilgiler",
   "legal_owner": "Sahibi",

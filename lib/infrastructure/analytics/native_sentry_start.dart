@@ -16,8 +16,8 @@ final _log = AppLogger.getLogger('NativeSentryStart');
 ///
 /// It reads `options.platform`, by which sentry_flutter picks its Java
 /// binding, and not the Flutter target platform, which a test or a debug
-/// session can override. iOS and macOS keep the start by sentry_flutter, and
-/// their native events and breadcrumbs are not scrubbed yet.
+/// session can override. iOS and macOS keep the start by sentry_flutter, with
+/// the native SDK recording nothing of its own ([configureNativeSdkStart]).
 bool hostStartsNativeSdk(SentryOptions options) =>
     hostStartsNativeSdkOn(isWeb: options.platform.isWeb, isAndroid: options.platform.isAndroid);
 
@@ -37,8 +37,19 @@ bool hostStartsNativeSdkOn({required bool isWeb, required bool isAndroid}) => is
 /// `maxBreadcrumbs`, `sendDefaultPii` or the replay options, must be set in
 /// `NativeSentry.kt` of the Android host app (under
 /// `android/app/src/main/kotlin`) as well, or it does nothing there.
+///
+/// Where sentry_flutter starts the native SDK itself (iOS and macOS, sentry-cocoa), no scrubber of the app sees what
+/// that SDK records on its own, so it records nothing: no native crash handler, no native breadcrumbs, no watchdog
+/// termination and no app hang events (plan 4.4). Every crash report there is a Dart one, masked by the Dart
+/// scrubbers before it leaves the device.
 void configureNativeSdkStart(SentryFlutterOptions options, {bool? hostStarts}) {
-  options.autoInitializeNativeSdk = !(hostStarts ?? hostStartsNativeSdk(options));
+  final host = hostStarts ?? hostStartsNativeSdk(options);
+  options.autoInitializeNativeSdk = !host;
+  if (host || options.platform.isWeb) return;
+  options.enableNativeCrashHandling = false;
+  options.enableAutoNativeBreadcrumbs = false;
+  options.enableWatchdogTerminationTracking = false;
+  options.enableAppHangTracking = false;
 }
 
 /// Whether the Dart SDK may start. Where the host app starts the native SDK

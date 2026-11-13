@@ -1486,10 +1486,10 @@ class S {
     );
   }
 
-  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.`
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.`
   String get privacy_crash {
     return Intl.message(
-      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.',
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.',
       name: 'privacy_crash',
       desc: '',
       args: [],

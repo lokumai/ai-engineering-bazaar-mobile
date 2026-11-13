@@ -45,6 +45,9 @@ tmp/
 # Symbolication related
 app.*.symbols
 
+# The Sentry DSN of release builds: --dart-define-from-file=sentry_dsn.json (README, Privacy)
+sentry_dsn.json
+
 # Obfuscation related
 app.*.map.json
 

@@ -9,7 +9,8 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 - Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
 - A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
-- The iOS privacy manifest: the app tracks nothing and collects nothing.
+- The iOS privacy manifest: the app tracks nothing and collects crash data only, linked to no one.
+- Crash reports to Sentry in a release built with the DSN (`sentry_dsn.json`, kept out of git). On iOS the native SDK records nothing of its own, so every report is scrubbed on the device, and Sentry keeps no IP address; Privacy and legal says so.
 - On iOS a tap on the status bar takes the page in front back to its top, a module included.
 - On an iPad or another tablet the pages keep a phone's measure in the middle of the screen, and the app turns to landscape.
 - The word count beside the minutes, under a module's title, in a level page card's Length, in the catalog's rows and in Home's modules after the next one, in the reader's language, as the web page prints it (web D128).

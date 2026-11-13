@@ -271,7 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("باز کردن در وب"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برنامه پیش از خروج گزارش از دستگاه، جزئیات شخصی آن را می‌پوشاند.",
+      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برنامه پیش از خروج گزارش از دستگاه، جزئیات شخصی آن را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",

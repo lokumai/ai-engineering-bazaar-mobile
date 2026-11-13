@@ -751,7 +751,7 @@
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
-  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device.",
+  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. The app masks personal details in the report before it leaves the device, and Sentry keeps no IP address.",
   "@privacy_crash": {},
   "privacy_contact": "For any question about personal data, write to us.",
   "@privacy_contact": {},
