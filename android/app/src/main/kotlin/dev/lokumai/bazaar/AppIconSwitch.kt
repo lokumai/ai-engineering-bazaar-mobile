@@ -19,6 +19,7 @@ object AppIconSwitch {
         "cream" to "LauncherCream",
         "noir" to "LauncherNoir",
         "ink" to "LauncherInk",
+        "nightGold" to "LauncherNightGold",
     )
 
     /**

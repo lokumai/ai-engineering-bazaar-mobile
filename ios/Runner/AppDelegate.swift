@@ -10,6 +10,7 @@ import UIKit
     "cream": "AppIconCream",
     "noir": "AppIconNoir",
     "ink": "AppIconInk",
+    "nightGold": "AppIconNightGold",
   ]
 
   override func application(
