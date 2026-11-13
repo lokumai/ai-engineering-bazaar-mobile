@@ -16,8 +16,10 @@ import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 /// The content repository over the bundled snapshot and the downloaded object store (spec 3.4.1).
 ///
 /// The store lives at `<cacheRoot>/content/`, where `cacheRoot` is what `cacheDirectory` returned: `objects/<sha256>`,
-/// `indexes/<contentVersion>.json`, `current` (the current `contentVersion`) and `corrupt` (the marker a mismatched
-/// object leaves for the next start). `cacheDirectory` is resolved once, at the start of [open], so the repository
+/// `indexes/<contentVersion>.json`, `current` (the current `contentVersion`), `pending` (the `contentVersion` a refresh
+/// is downloading, until it becomes current) and `corrupt` (the marker a mismatched object leaves for the next start).
+/// The objects of a pending refresh outlive a restart, so a refresh cut off by closing the app goes on where it stopped
+/// rather than downloading them again. `cacheDirectory` is resolved once, at the start of [open], so the repository
 /// can be built synchronously; every other method throws a [StateError] until [open] has completed. [refresh] fetches
 /// newer content from the site through `http`.
 ///
@@ -58,9 +60,10 @@ final class FileContentRepository implements IContentRepository {
       await _discard(store, 'corrupt marker');
       return (bundledIndex, bundled, null);
     }
+    final pending = await _pending(store, bundledIndex);
     final currentFile = File('${store.path}/current');
     if (!await currentFile.exists()) {
-      if (await store.exists()) await _discard(store, 'no current pointer');
+      await _discardBut(store, pending, 'no current pointer');
       return (bundledIndex, bundled, null);
     }
 
@@ -75,21 +78,65 @@ final class FileContentRepository implements IContentRepository {
     }
 
     if (!cacheIndex.publishedAtInstant.isAfter(bundledIndex.publishedAtInstant)) {
-      await _discard(store, 'not newer than the bundle');
+      await _discardBut(store, pending, 'not newer than the bundle');
       return (bundledIndex, bundled, null);
     }
 
     final referenced = {...cacheIndex.files.values, ...cacheIndex.images.values};
     for (final sha256 in referenced.difference(bundledObjects)) {
       if (!await File('${store.path}/objects/$sha256').exists()) {
-        await _discard(store, 'missing object');
+        await _discardBut(store, pending, 'missing object');
         return (bundledIndex, bundled, null);
       }
     }
 
-    await _deleteEntries(Directory('${store.path}/indexes'), keep: {'${cacheIndex.contentVersion}.json'});
-    await _deleteEntries(Directory('${store.path}/objects'), keep: referenced);
+    // A pending refresh no later than the current content has nothing left to bring.
+    final going = pending != null && pending.publishedAtInstant.isAfter(cacheIndex.publishedAtInstant) ? pending : null;
+    if (going == null) await _deletePending(store);
+    await _deleteEntries(
+      Directory('${store.path}/indexes'),
+      keep: {'${cacheIndex.contentVersion}.json', if (going != null) '${going.contentVersion}.json'},
+    );
+    await _deleteEntries(Directory('${store.path}/objects'), keep: {...referenced, ...?_objectsOf(going)});
     return (cacheIndex, ContentOrigin.downloaded, null);
+  }
+
+  /// The index of the refresh `pending` names, when it is readable and later than the bundle; null otherwise.
+  Future<BundleIndex?> _pending(Directory store, BundleIndex bundledIndex) async {
+    final file = File('${store.path}/pending');
+    try {
+      if (!await file.exists()) return null;
+      final index = await _readCacheIndex(store, await file.readAsString());
+      return index.publishedAtInstant.isAfter(bundledIndex.publishedAtInstant) ? index : null;
+    } on Object catch (error) {
+      if (error is! FileSystemException && error is! FormatException && error is! ContentFormatException) rethrow;
+      _log.warn('pending content index unreadable: {}', [error]);
+      return null;
+    }
+  }
+
+  static Set<String>? _objectsOf(BundleIndex? index) =>
+      index == null ? null : {...index.files.values, ...index.images.values};
+
+  /// Deletes the cache but for [pending]'s pointer, index and objects, so its refresh goes on where it stopped.
+  Future<void> _discardBut(Directory store, BundleIndex? pending, String reason) async {
+    if (pending == null) {
+      await _discard(store, reason);
+      return;
+    }
+    _log.warn('content cache discarded, the pending refresh kept: {}', [reason]);
+    await _deleteEntries(store, keep: {'pending', 'indexes', 'objects'});
+    await _deleteEntries(Directory('${store.path}/indexes'), keep: {'${pending.contentVersion}.json'});
+    await _deleteEntries(Directory('${store.path}/objects'), keep: _objectsOf(pending)!);
+  }
+
+  Future<void> _deletePending(Directory store) async {
+    try {
+      final file = File('${store.path}/pending');
+      if (await file.exists()) await file.delete();
+    } on FileSystemException catch (error) {
+      _log.warn('pending pointer not deleted: {}', [error]);
+    }
   }
 
   /// Parses `indexes/<current>.json`; a pointer that is not a content version is unreadable.
@@ -160,6 +207,10 @@ final class FileContentRepository implements IContentRepository {
     }
 
     final store = opened.store.path;
+    // The index and the pointer go first, so a start before the refresh ends keeps what it downloaded.
+    await Directory('$store/indexes').create(recursive: true);
+    await _writeAndRename(File('$store/indexes/${index.contentVersion}.json'), indexBytes);
+    await _writeAndRename(File('$store/pending'), utf8.encode(index.contentVersion));
     final pathOf = <String, String>{};
     for (final MapEntry(key: sitePath, value: sha256Name) in [...index.files.entries, ...index.images.entries]) {
       pathOf.putIfAbsent(sha256Name, () => sitePath);
@@ -174,9 +225,8 @@ final class FileContentRepository implements IContentRepository {
       await _writeAndRename(object, bytes);
     }
 
-    await Directory('$store/indexes').create(recursive: true);
-    await _writeAndRename(File('$store/indexes/${index.contentVersion}.json'), indexBytes);
     await _writeAndRename(File('$store/current'), utf8.encode(index.contentVersion));
+    await _deletePending(opened.store);
 
     _opened = _Opened(
       store: opened.store,

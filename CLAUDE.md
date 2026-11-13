@@ -244,7 +244,7 @@ The record is the web's, byte for byte; `lib/shared/record` ports the web's code
 ## Object store
 
 - The bundled snapshot is `assets/content/index.json`, `assets/content/api_index.json` and `assets/content/objects/<sha256>`.
-- Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json` and the `current` pointer.
+- Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json`, the `current` pointer and the `pending` pointer of a refresh under way. A start keeps the pending refresh's index and objects, so a refresh cut off by closing the app goes on where it stopped.
 - Every object is checked against its sha256 on every read.
 - A refresh adopts only a strictly later `publishedAt` and never leaves a mixed set; a cache not later than the bundled snapshot is deleted at startup.
 - A sha256 mismatch on a downloaded object is `RefreshFailed(checksum)`, retried at the next cold start (A25).

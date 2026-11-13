@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
+import 'package:crypto/crypto.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
@@ -144,14 +145,76 @@ void main() {
     expect(File('$content/objects/${refreshedSha(published)}').existsSync(), isFalse);
   });
 
-  test('storage: the index cannot be written, and the downloaded object stays in objects/', () async {
-    final repository = await opened(serving(published));
+  test('storage: the index cannot be written, and nothing is downloaded before it', () async {
+    final requested = <Uri>[];
+    final repository = await opened(serving(published, requested: requested));
     Directory(content).createSync(recursive: true);
     File('$content/indexes').writeAsStringSync('');
 
     expect(await repository.refresh(), const ContentRefreshFailed(code: ContentErrorCode.storage));
-    expect(File('$content/objects/${refreshedSha(published)}').existsSync(), isTrue);
+    expect(requested.map((url) => url.path), ['/api/index.json', '/api/v1/index.json']);
+    expect(File('$content/objects/${refreshedSha(published)}').existsSync(), isFalse);
     expect(File('$content/current').existsSync(), isFalse);
+  });
+
+  group('a refresh cut off goes on where it stopped (review B4)', () {
+    test('what it downloaded outlives a restart, and the next refresh fetches none of it again', () async {
+      final first = await opened(serving(published));
+      Directory('$content/current.tmp/x').createSync(recursive: true); // the last step fails, as a killed app would
+      expect(await first.refresh(), const ContentRefreshFailed(code: ContentErrorCode.storage));
+      expect(File('$content/pending').readAsStringSync(), publishedContentVersion);
+
+      final requested = <Uri>[];
+      final restarted = fixtureRepository(cacheRoot, site: serving(published, requested: requested));
+      expect((await restarted.open()).origin, ContentOrigin.bundled, reason: 'the old content until the new is whole');
+      expect(File('$content/objects/${refreshedSha(published)}').existsSync(), isTrue);
+      expect(Directory('$content/current.tmp').existsSync(), isFalse, reason: 'the rest of the cache is cleared');
+
+      expect(await restarted.refresh(), ContentUpdated(index: publishedIndex()));
+      expect(requested.map((url) => url.path), ['/api/index.json', '/api/v1/index.json']);
+      expect(File('$content/pending').existsSync(), isFalse);
+      expect(await moduleTitle(restarted), 'Refreshed Module');
+    });
+
+    test('a pending refresh is kept beside a downloaded current, and dropped once it is no later', () async {
+      final repository = await opened(serving(published));
+      expect(await repository.refresh(), ContentUpdated(index: publishedIndex()));
+
+      // A later refresh that stopped after one object of its own.
+      final extra = utf8.encode('{"extra": true}');
+      final extraSha = sha256.convert(extra).toString();
+      void pendAt(String publishedAt) {
+        final index = jsonDecode(utf8.decode(published['api/v1/index.json']!)) as Map<String, Object?>;
+        final files = {...index['files']! as Map<String, Object?>, 'api/v1/extra.json': extraSha};
+        File('$content/indexes/${'3' * 64}.json').writeAsStringSync(
+          jsonEncode({...index, 'contentVersion': '3' * 64, 'publishedAt': publishedAt, 'files': files}),
+        );
+        File('$content/pending').writeAsStringSync('3' * 64);
+        File('$content/objects/$extraSha').writeAsBytesSync(extra);
+      }
+
+      pendAt('2026-03-01T00:00:00.000Z');
+      expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.downloaded);
+      expect(File('$content/objects/$extraSha').existsSync(), isTrue);
+      expect(File('$content/objects/${refreshedSha(published)}').existsSync(), isTrue);
+      expect(File('$content/pending').existsSync(), isTrue);
+
+      pendAt('2026-01-15T00:00:00.000Z'); // earlier than the current content
+      expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.downloaded);
+      expect(File('$content/objects/$extraSha').existsSync(), isFalse);
+      expect(File('$content/pending').existsSync(), isFalse);
+      expect(File('$content/indexes/${'3' * 64}.json').existsSync(), isFalse);
+    });
+
+    test('an unreadable pending pointer leaves the start as before', () async {
+      final first = await opened(serving(published));
+      Directory('$content/current.tmp/x').createSync(recursive: true);
+      expect(await first.refresh(), const ContentRefreshFailed(code: ContentErrorCode.storage));
+      File('$content/pending').writeAsStringSync('not a content version');
+
+      expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.bundled);
+      expect(Directory(content).existsSync(), isFalse);
+    });
   });
 
   test('refresh before open() throws StateError', () {
