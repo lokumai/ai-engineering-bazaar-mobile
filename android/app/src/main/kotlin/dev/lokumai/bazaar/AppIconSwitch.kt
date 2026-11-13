@@ -1,8 +1,10 @@
 package dev.lokumai.bazaar
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 
 /**
  * The app icon the reader chose in Settings (lib/shared/app_icon/): one launcher entry (`activity-alias` in the
@@ -23,6 +25,26 @@ object AppIconSwitch {
         "nightSea" to "LauncherNightSea",
     )
 
+    /** Each icon's ground: the launch screen's colour and the window's behind the app until its first frame. */
+    val grounds = mapOf(
+        "dark" to R.color.bazaar_page,
+        "cream" to R.color.ic_launcher_cream_background,
+        "noir" to R.color.ic_launcher_noir_background,
+        "ink" to R.color.ic_launcher_ink_background,
+        "nightGold" to R.color.ic_launcher_night_gold_background,
+        "nightSea" to R.color.ic_launcher_night_sea_background,
+    )
+
+    /** Each icon's launch screen on Android 13 and later (values-v31/styles.xml), on its ground. */
+    val launchThemes = mapOf(
+        "dark" to R.style.LaunchTheme,
+        "cream" to R.style.LaunchTheme_Cream,
+        "noir" to R.style.LaunchTheme_Noir,
+        "ink" to R.style.LaunchTheme_Ink,
+        "nightGold" to R.style.LaunchTheme_NightGold,
+        "nightSea" to R.style.LaunchTheme_NightSea,
+    )
+
     /**
      * The launcher entries to turn on (true) or off (false) so that only [chosen]'s is on, given the ones on now
      * ([enabled]); nothing for an entry already right, so a launch with the same icon changes nothing.
@@ -34,8 +56,23 @@ object AppIconSwitch {
             .associateWith { it == target }
     }
 
-    /** Makes [chosen]'s launcher entry the only one enabled. */
-    fun apply(context: Context, chosen: String) {
+    /** The icon whose launcher entry is enabled: the default when none is, which the manifest never leaves. */
+    fun current(context: Context): String {
+        val pm = context.packageManager
+        return aliases.entries.firstOrNull { (_, alias) -> isEnabled(pm, component(context, alias), alias) }?.key
+            ?: aliases.keys.first()
+    }
+
+    /**
+     * Makes [chosen]'s launcher entry the only one enabled, and on Android 13 and later its launch screen the one the
+     * next launch shows (the system keeps it; earlier versions show the default's dark one, then the window turns to
+     * the icon's ground, [MainActivity.onCreate]).
+     */
+    fun apply(activity: Activity, chosen: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity.splashScreen.setSplashScreenTheme(launchThemes.getValue(chosen))
+        }
+        val context: Context = activity
         val pm = context.packageManager
         val enabled = aliases.values.filterTo(mutableSetOf()) { isEnabled(pm, component(context, it), it) }
         // The chosen entry goes on before the others go off, so there is always one in the launcher.

@@ -45,9 +45,30 @@ void main() {
     }
   });
 
+  test('every other icon has its launch screen on its ground on Android, which AppIconSwitch.kt names', () {
+    final styles = File('android/app/src/main/res/values-v31/styles.xml').readAsStringSync();
+    final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
+    for (final icon in others) {
+      final ground = '@color/ic_launcher_${snake(icon.name)}_background';
+      final style = RegExp(
+        '<style name="LaunchTheme.${pascal(icon.name)}">(.*?)</style>',
+        dotAll: true,
+      ).firstMatch(styles);
+      expect(style, isNotNull, reason: icon.name);
+      expect(style![1], contains('<item name="android:windowSplashScreenBackground">$ground</item>'));
+      expect(style[1], contains('<item name="android:windowBackground">$ground</item>'));
+      expect(kotlin, contains('"${icon.name}" to R.style.LaunchTheme_${pascal(icon.name)},'), reason: icon.name);
+      expect(
+        kotlin,
+        contains('"${icon.name}" to R.color.ic_launcher_${snake(icon.name)}_background,'),
+        reason: icon.name,
+      );
+    }
+  });
+
   test('AppIconSwitch.kt names the icons as the Dart side does, Dark first', () {
     final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
-    final pairs = RegExp(r'"(\w+)" to "(\w+)"').allMatches(kotlin).map((m) => (m[1], m[2])).toList();
+    final pairs = RegExp(r'"(\w+)" to "(Launcher\w+)"').allMatches(kotlin).map((m) => (m[1], m[2])).toList();
 
     expect(pairs, [for (final icon in BazaarIcon.values) (icon.name, 'Launcher${pascal(icon.name)}')]);
   });

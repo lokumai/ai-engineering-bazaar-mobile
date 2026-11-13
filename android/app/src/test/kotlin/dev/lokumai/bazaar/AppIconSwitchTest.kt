@@ -25,4 +25,10 @@ class AppIconSwitchTest {
             AppIconSwitch.changes(setOf("LauncherCream", "LauncherInk"), "dark"),
         )
     }
+
+    @Test
+    fun everyIconHasAGroundAndALaunchScreen() {
+        assertEquals(AppIconSwitch.aliases.keys, AppIconSwitch.grounds.keys)
+        assertEquals(AppIconSwitch.aliases.keys, AppIconSwitch.launchThemes.keys)
+    }
 }

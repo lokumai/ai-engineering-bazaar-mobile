@@ -1,5 +1,7 @@
 package dev.lokumai.bazaar
 
+import android.graphics.drawable.ColorDrawable
+import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -8,6 +10,13 @@ import io.sentry.Sentry
 class MainActivity : FlutterActivity() {
     /** The app icon chosen on the Dart side and not yet put in the launcher (AppIconSwitch). */
     private var chosenIcon: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Until Flutter's first frame the window shows; it takes the chosen icon's ground, where the opening starts.
+        val ground = AppIconSwitch.grounds.getValue(AppIconSwitch.current(this))
+        window.setBackgroundDrawable(ColorDrawable(getColor(ground)))
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
