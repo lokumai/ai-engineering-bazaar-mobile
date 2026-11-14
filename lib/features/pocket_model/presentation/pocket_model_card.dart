@@ -3,9 +3,11 @@ import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
-import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart' show cold;
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
@@ -368,7 +370,6 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     final model = state.model;
     final bloc = context.read<PocketModelBloc>();
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat('0.00', language);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -421,7 +422,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                           width: _stage.width * 0.5,
                           child: Align(
                             alignment: AlignmentDirectional.topStart,
-                            child: _SpeechBubble(key: ValueKey(state.beat), speech: speech),
+                            child: SpeechBubble(key: ValueKey(state.beat), speech: speech),
                           ),
                         ),
                     ],
@@ -436,48 +437,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  _LevelBadge(level: model.level),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: TweenAnimationBuilder<double>(
-                            tween: Tween(end: model.progress),
-                            duration: _reduced ? Duration.zero : const Duration(milliseconds: 400),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, value, _) => LinearProgressIndicator(
-                              value: value,
-                              minHeight: 7,
-                              backgroundColor: colors.line,
-                              color: colors.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          [
-                            s.pocket_tokens(model.tokens),
-                            if (model.toNext case final next?)
-                              s.pocket_to_next(next, model.level + 1)
-                            else
-                              s.pocket_top,
-                          ].join(' · '),
-                          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (model.tokens > 0) ...[
-                    const SizedBox(width: AppSpacing.md),
-                    _LossCurve(curve: model.curve(), label: s.pocket_loss(number.format(model.loss))),
-                  ],
-                ],
-              ),
+              TrainingPanel(model: model),
               const SizedBox(height: AppSpacing.md),
               AnimatedSwitcher(
                 duration: _reduced ? Duration.zero : const Duration(milliseconds: 220),
@@ -555,192 +515,6 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           ),
         ),
       ],
-    );
-  }
-}
-
-class _LevelBadge extends StatelessWidget {
-  const _LevelBadge({required this.level});
-
-  final int level;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.bazaarColors;
-    return AnimatedSwitcher(
-      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 360),
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
-        child: child,
-      ),
-      child: DecoratedBox(
-        key: ValueKey(level),
-        decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: Text(
-            S.of(context).pocket_level(level),
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.onPrimary),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The training curve, falling, with the loss now under it.
-class _LossCurve extends StatelessWidget {
-  const _LossCurve({required this.curve, required this.label});
-
-  final List<double> curve;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.bazaarColors;
-    return Semantics(
-      label: label,
-      excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SizedBox(
-            width: 76,
-            height: 26,
-            child: CustomPaint(painter: _CurvePainter(curve, colors.primary, colors.line)),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted)),
-        ],
-      ),
-    );
-  }
-}
-
-class _CurvePainter extends CustomPainter {
-  _CurvePainter(this.curve, this.colour, this.grid);
-
-  final List<double> curve;
-  final Color colour;
-  final Color grid;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), Paint()..color = grid);
-    if (curve.length < 2) return;
-    final top = curve.reduce(math.max);
-    final bottom = curve.reduce(math.min);
-    final span = math.max(0.01, top - bottom);
-    Offset at(int i) =>
-        Offset(i / (curve.length - 1) * size.width, 2 + (1 - (curve[i] - bottom) / span) * (size.height - 6));
-    final line = Path()..moveTo(at(0).dx, at(0).dy);
-    for (var i = 1; i < curve.length; i++) {
-      line.lineTo(at(i).dx, at(i).dy);
-    }
-    final fill = Path.from(line)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    canvas
-      ..drawPath(fill, Paint()..color = colour.withValues(alpha: 0.12))
-      ..drawPath(
-        line,
-        Paint()
-          ..color = colour
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.8
-          ..strokeJoin = StrokeJoin.round,
-      )
-      ..drawCircle(at(curve.length - 1), 3, Paint()..color = colour);
-  }
-
-  @override
-  bool shouldRepaint(_CurvePainter old) => old.curve != curve || old.colour != colour || old.grid != grid;
-}
-
-/// What the model said, streamed a token at a time as a model writes, with a caret while it writes.
-class _SpeechBubble extends StatefulWidget {
-  const _SpeechBubble({super.key, required this.speech});
-
-  final Babble speech;
-
-  @override
-  State<_SpeechBubble> createState() => _SpeechBubbleState();
-}
-
-class _SpeechBubbleState extends State<_SpeechBubble> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this);
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_controller.isAnimating || _controller.value > 0) return;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _controller.value = 1;
-    } else {
-      _controller
-        ..duration = Duration(milliseconds: 160 + widget.speech.tokens.length * 110)
-        ..forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final theme = Theme.of(context);
-    final colors = context.bazaarColors;
-    final odd = widget.speech.hallucinating;
-    final edge = odd ? RobotColors.eyeOdd : colors.lineStrong;
-    final tokens = widget.speech.tokens;
-    return Semantics(
-      liveRegion: true,
-      label: s.pocket_says(tokens.join(' ')),
-      excludeSemantics: true,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          final shown = (tokens.length * _controller.value).ceil().clamp(0, tokens.length);
-          final writing = _controller.value < 1;
-          return ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 300),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surfaceRaised,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: edge, width: odd ? 1.6 : 1),
-                boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2))],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (odd)
-                      Text(
-                        s.pocket_hallucinating,
-                        style: theme.textTheme.labelSmall?.copyWith(color: RobotColors.eyeOdd),
-                      ),
-                    Text(
-                      '${tokens.take(shown).join(' ')}${writing ? ' |' : ''}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceTitle,
-                        fontStyle: odd ? FontStyle.italic : FontStyle.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }

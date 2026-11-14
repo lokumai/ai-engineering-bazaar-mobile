@@ -1035,6 +1035,18 @@
       }
     }
   },
+  "pocket_level_word": "level",
+  "@pocket_level_word": {
+    "description": "The small word under the level number in its ring."
+  },
+  "pocket_loss_title": "Training loss",
+  "@pocket_loss_title": {
+    "description": "The heading of the pocket model's training curve."
+  },
+  "pocket_loss_empty": "The curve starts with the first feed.",
+  "@pocket_loss_empty": {
+    "description": "In the training curve's place before the model is fed."
+  },
   "pocket_status_newborn": "New: it knows no words yet. Feed it some tokens.",
   "@pocket_status_newborn": {},
   "pocket_status_content": "Content, and ready to learn.",

@@ -2074,6 +2074,36 @@ class S {
     );
   }
 
+  /// `level`
+  String get pocket_level_word {
+    return Intl.message(
+      'level',
+      name: 'pocket_level_word',
+      desc: 'The small word under the level number in its ring.',
+      args: [],
+    );
+  }
+
+  /// `Training loss`
+  String get pocket_loss_title {
+    return Intl.message(
+      'Training loss',
+      name: 'pocket_loss_title',
+      desc: 'The heading of the pocket model\'s training curve.',
+      args: [],
+    );
+  }
+
+  /// `The curve starts with the first feed.`
+  String get pocket_loss_empty {
+    return Intl.message(
+      'The curve starts with the first feed.',
+      name: 'pocket_loss_empty',
+      desc: 'In the training curve\'s place before the model is fed.',
+      args: [],
+    );
+  }
+
   /// `New: it knows no words yet. Feed it some tokens.`
   String get pocket_status_newborn {
     return Intl.message(

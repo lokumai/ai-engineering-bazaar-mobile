@@ -8,6 +8,8 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_m
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,8 @@ Future<void> _rest(WidgetTester tester) async {
 
 final _stage = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter);
 
+final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is LossChartPainter);
+
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
@@ -65,6 +69,9 @@ void main() {
   testWidgets('a feed trains it: tokens, the eating face, and the loss curve', (tester) async {
     final store = MemoryPocketModelStore();
     await _pump(tester, store: store);
+    expect(find.text('Training loss'), findsOneWidget);
+    expect(find.text('The curve starts with the first feed.'), findsOneWidget);
+    expect(_chart, findsNothing);
 
     await tester.tap(find.byKey(const ValueKey('pocket-feed')));
     await tester.pump();
@@ -73,7 +80,8 @@ void main() {
     expect(find.textContaining('16 to level 1'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.eating);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.token), hasLength(5));
-    expect(find.textContaining('loss '), findsOneWidget);
+    expect(find.text('The curve starts with the first feed.'), findsNothing);
+    expect(_chart, findsOneWidget);
     expect(store.kept?.tokens, 8);
     await _rest(tester);
   });
@@ -97,7 +105,9 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('pocket-ask')));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.textContaining('more'), findsNothing, reason: 'the bubble pops out first');
+    await tester.pump(const Duration(milliseconds: 120));
     expect(find.textContaining('more |'), findsOneWidget, reason: 'the first token, and the caret');
 
     await tester.pump(const Duration(seconds: 2));
@@ -214,6 +224,45 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     expect(find.textContaining(RegExp('[؀-ۿ]')), findsWidgets);
     await _rest(tester);
+  });
+
+  testWidgets('its words are in a speech bubble whose tail points at the robot', (tester) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+
+    final bubble = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.decoration is ShapeDecoration &&
+          (widget.decoration! as ShapeDecoration).shape is SpeechBubbleBorder,
+    );
+    expect(bubble, findsOneWidget);
+    final rect = tester.getRect(bubble);
+    final stage = tester.getRect(_stage);
+    final robot = stage.topLeft + PocketRobotPainter.seat(stage.size);
+    expect(rect.right, lessThan(robot.dx), reason: 'beside the robot, not over it');
+    expect(rect.bottom, lessThan(robot.dy), reason: 'up by its head');
+    await _rest(tester);
+  });
+
+  test('the bubble\'s tail reaches out of its end side, toward the speaker', () {
+    const rect = Rect.fromLTWH(0, 0, 160, 44);
+    const border = SpeechBubbleBorder();
+    final ltr = border.getOuterPath(rect, textDirection: TextDirection.ltr).getBounds();
+    final rtl = border.getOuterPath(rect, textDirection: TextDirection.rtl).getBounds();
+    expect(ltr.right, closeTo(rect.right, 0.5));
+    expect(rtl.left, closeTo(rect.left, 0.5));
+    final body = border.getOuterPath(rect, textDirection: TextDirection.ltr);
+    expect(body.contains(Offset(rect.right - 1, 4)), isFalse, reason: 'the tail is low, by the bottom');
+    expect(body.contains(Offset(rect.right - 3, rect.bottom - 3)), isTrue);
+  });
+
+  test('the loss chart marks each level reached', () {
+    expect(LossChartPainter.marks(10), isEmpty);
+    expect(LossChartPainter.marks(100), [24, 80]);
+    expect(LossChartPainter.marks(5000), PocketModel.levels.skip(1).toList());
   });
 
   testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {
