@@ -7,10 +7,27 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 /// no body, has none.
 ///
 /// The model only counts which word follows which in them; it shows none of the module's facts as facts.
-List<List<String>> sentencesOf(ModuleDoc doc) {
+List<List<String>> sentencesOf(ModuleDoc doc) => textOf(doc).sentences;
+
+/// A module's text as the pocket model reads it: its [sentences], and the index of the first sentence of each of its
+/// [sections], in order, the first always 0 (plan 9.10). A section is what stands under one of its headings, so it
+/// keeps to one narrow subject; its quiz is a section of its own.
+typedef ModuleText = ({List<List<String>> sentences, List<int> sections});
+
+/// [sentences] as one section.
+ModuleText oneSection(List<List<String>> sentences) => (sentences: sentences, sections: const [0]);
+
+/// [doc]'s text ([sentencesOf]) and where its sections start. A heading starts a section once the one before it has
+/// [shortestSection] sentences; a shorter one runs on under the next heading.
+ModuleText textOf(ModuleDoc doc) {
   final body = doc.body;
-  if (body == null) return const [];
+  if (body == null) return (sentences: const [], sections: const [0]);
   final sentences = <List<String>>[];
+  final sections = [0];
+  void section() {
+    if (sentences.length - sections.last >= shortestSection) sections.add(sentences.length);
+  }
+
   void prose(String text) {
     for (final part in text.split(_sentenceEnd)) {
       final words = wordsOf(part, doc.lang);
@@ -24,7 +41,10 @@ List<List<String>> sentencesOf(ModuleDoc doc) {
 
   void visit(Block block) {
     switch (block) {
-      case ParagraphBlock(:final inlines) || HeadingBlock(:final inlines):
+      case HeadingBlock(:final inlines):
+        section();
+        prose(_inlineText(inlines));
+      case ParagraphBlock(:final inlines):
         prose(_inlineText(inlines));
       case ListBlock(:final items):
         for (final item in items) {
@@ -40,12 +60,18 @@ List<List<String>> sentencesOf(ModuleDoc doc) {
   }
 
   body.forEach(visit);
+  section();
   for (final item in doc.quiz ?? const <QuizItem>[]) {
     prose(_withoutCode(item.question));
     if (item.answer >= 0 && item.answer < item.options.length) prose(_withoutCode(item.options[item.answer]));
   }
-  return sentences;
+  // A last section too short to keep to runs on from the one before it.
+  if (sections.length > 1 && sentences.length - sections.last < shortestSection) sections.removeLast();
+  return (sentences: sentences, sections: sections);
 }
+
+/// The fewest sentences a section has.
+const shortestSection = 4;
 
 /// The words of [text] in [language], lower case (Turkish dotted and dotless i kept apart), with the marks between
 /// them taken out; a word's own apostrophe, hyphen or zero-width non-joiner stays.

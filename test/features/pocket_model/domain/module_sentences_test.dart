@@ -88,6 +88,52 @@ void main() {
       ]);
     });
 
+    test('a heading starts a section once the one before has four sentences, and the quiz is a section of its own', () {
+      ParagraphBlock four(String word) =>
+          ParagraphBlock(inlines: _text(List.generate(4, (i) => '$word $word number $i.').join(' ')), lead: false);
+      HeadingBlock heading(String text) => HeadingBlock(depth: 2, id: text, mark: null, inlines: _text(text));
+      final doc = testDoc(
+        body: [
+          four('alpha'),
+          heading('A short one here'),
+          ParagraphBlock(inlines: _text('Only one sentence here.'), lead: false),
+          heading('Then the beta part'),
+          four('beta'),
+        ],
+        quiz: const [
+          QuizItem(
+            question: 'What comes first in alpha?',
+            options: ['No', 'The alpha comes first'],
+            answer: 1,
+            explain: '',
+          ),
+          QuizItem(
+            question: 'What comes then in beta?',
+            options: ['The beta comes then', 'No'],
+            answer: 0,
+            explain: '',
+          ),
+        ],
+      );
+      final text = textOf(doc);
+      expect(text.sentences, sentencesOf(doc));
+      // alpha's four; the short section runs on under the beta heading; the quiz's four.
+      expect(text.sections, [0, 4, 11]);
+      expect(text.sentences[4], ['a', 'short', 'one', 'here']);
+      expect(text.sentences[11], ['what', 'comes', 'first', 'in', 'alpha']);
+    });
+
+    test('a quiz too short for a section runs on from the last one, and a module without headings is one section', () {
+      final doc = testDoc(
+        body: [ParagraphBlock(inlines: _text('One two three. Four five six.'), lead: false)],
+        quiz: const [
+          QuizItem(question: 'Is this the one?', options: ['Yes it is the one'], answer: 0, explain: ''),
+        ],
+      );
+      expect(textOf(doc).sections, [0]);
+      expect(textOf(testDoc()).sections, [0]);
+    });
+
     test('a planned module has no prose', () {
       expect(sentencesOf(testDoc()), isEmpty);
     });
