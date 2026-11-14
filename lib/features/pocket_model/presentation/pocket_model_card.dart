@@ -504,8 +504,6 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         return s.pocket_status_recovered;
       case PocketAction.levelUp:
         return s.pocket_status_level_up(state.model.level);
-      case PocketAction.fed || PocketAction.studied when state.read.isNotEmpty:
-        return s.pocket_status_read(state.read.join(' '));
       default:
     }
     if (state.speech?.hallucinating ?? false) return s.pocket_status_hallucinating;

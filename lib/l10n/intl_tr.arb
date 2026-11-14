@@ -293,7 +293,6 @@
   "pocket_tokens": "{count} token",
   "pocket_to_next": "Seviye {level} için {count}",
   "pocket_known": "{count} kelime biliyor",
-  "pocket_status_read": "Okudu: {words}",
   "pocket_top": "Tam eğitildi",
   "pocket_loss": "kayıp {value}",
   "pocket_level_word": "seviye",

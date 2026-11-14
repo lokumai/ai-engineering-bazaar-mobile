@@ -1033,15 +1033,6 @@
       }
     }
   },
-  "pocket_status_read": "Read: {words}",
-  "@pocket_status_read": {
-    "description": "The status line after a feed: the words the pocket model just read, as they stand in its text.",
-    "placeholders": {
-      "words": {
-        "type": "String"
-      }
-    }
-  },
   "pocket_top": "Fully trained",
   "@pocket_top": {},
   "pocket_loss": "loss {value}",

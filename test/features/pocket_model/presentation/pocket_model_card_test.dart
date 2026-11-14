@@ -135,7 +135,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(store.kept?.readings.single.key, 'alpha/first');
-    expect(find.text('Read: a transformer stacks attention layers'), findsOneWidget);
+    expect(find.textContaining('Read:'), findsNothing, reason: 'no line lists the words it read');
     expect(find.byKey(const ValueKey('pocket-read')), findsNothing);
     expect(find.text('Finish a module, and it can read it too.'), findsOneWidget);
     expect(find.byKey(const ValueKey('pocket-assistant-badge')), findsNothing);
@@ -174,7 +174,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.textContaining('8 tokens'), findsOneWidget);
     expect(find.textContaining('knows 8 words'), findsOneWidget);
-    expect(find.text('Read: a model reads tokens and predicts the next'), findsOneWidget);
+    expect(find.textContaining('Read:'), findsNothing, reason: 'no line lists the words it ate');
     expect(_frame(tester).face, RobotFace.eating);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.token), hasLength(5));
     expect(find.text('The curve starts with the first feed.'), findsNothing);

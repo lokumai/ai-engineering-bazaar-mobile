@@ -293,7 +293,6 @@
   "pocket_tokens": "{count} توکن",
   "pocket_to_next": "{count} تا سطح {level}",
   "pocket_known": "{count} واژه می‌داند",
-  "pocket_status_read": "خواند: {words}",
   "pocket_top": "کاملاً آموزش‌دیده",
   "pocket_loss": "خطا {value}",
   "pocket_level_word": "سطح",

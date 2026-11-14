@@ -2071,16 +2071,6 @@ class S {
     );
   }
 
-  /// `Read: {words}`
-  String pocket_status_read(String words) {
-    return Intl.message(
-      'Read: $words',
-      name: 'pocket_status_read',
-      desc: 'The status line after a feed: the words the pocket model just read, as they stand in its text.',
-      args: [words],
-    );
-  }
-
   /// `Fully trained`
   String get pocket_top {
     return Intl.message('Fully trained', name: 'pocket_top', desc: '', args: []);
