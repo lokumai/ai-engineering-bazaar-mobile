@@ -89,6 +89,7 @@ lib/
     storage/flags/file_flag_store.dart          the app's own flags under Application Support/flags/ (Welcome seen)
     storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
+    app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
                                                 word rules (search_text.dart)
@@ -100,6 +101,11 @@ lib/
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
+    app_icon/                                   BazaarIcon (the six app icons and their colours), AppIconCubit, its store and
+                                                switch ports: the icon on the home screen and the opening's colours;
+                                                presentation/: AppIconRow and AppIconChoices, which Settings and Welcome show
+    theme/                                      ThemeChoiceCubit (light or dark; the phone's until chosen), IThemeStore, appearance_name.dart:
+                                                the choice kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
@@ -118,9 +124,9 @@ lib/
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
     quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
                                                 module's quiz at `/quiz/<level>/<module>`
-    settings/                                   track, language, the data (DataBloc, data line, quarantine notice, dialogs),
+    settings/                                   track, language, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
-    welcome/                                    the opening (WelcomeSplash), WelcomeBloc, its store port and the
+    welcome/                                    the opening (WelcomeSting, the agent), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step

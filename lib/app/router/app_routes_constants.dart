@@ -14,6 +14,9 @@ class ApplicationRoutesConstants {
   /// The story of the Bazaar, from Settings (web D115, D125).
   static const about = '/settings/about';
 
+  /// The app icon's choice, from Settings.
+  static const appIcon = '/settings/app-icon';
+
   /// How the bazaar works, from Settings; Welcome's guide before About took its place.
   static const guide = '/settings/guide';
 

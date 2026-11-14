@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
@@ -9,6 +11,8 @@ import 'package:ai_engineering_bazaar/infrastructure/content/file_content_reposi
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
+import 'package:flutter/material.dart' show ThemeMode;
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -122,6 +126,95 @@ void main() {
     expect(await store.chosen(), 'tr');
     expect(File('${root.path}/flags/language-fa').existsSync(), isFalse, reason: 'one language at a time');
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createThemeStore keeps the choice as one flag under the support directory', () async {
+    final root = Directory.systemTemp.createTempSync('theme_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createThemeStore();
+    expect(store, isA<FlagThemeStore>());
+    expect(await store.chosen(), isNull);
+
+    await store.choose(ThemeMode.dark);
+    expect(await dependencies.createThemeStore().chosen(), ThemeMode.dark, reason: 'kept for the next start');
+
+    await store.choose(ThemeMode.light);
+    expect(await store.chosen(), ThemeMode.light);
+    expect(File('${root.path}/flags/theme-dark').existsSync(), isFalse, reason: 'one choice at a time');
+
+    await store.choose(ThemeMode.system);
+    expect(await store.chosen(), isNull, reason: 'the phone is no flag at all');
+    expect(File('${root.path}/flags/theme-light').existsSync(), isFalse);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createAppIconStore keeps one chosen app icon as a file flag, apart from the record', () async {
+    final root = Directory.systemTemp.createTempSync('app_icon_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createAppIconStore();
+    expect(store, isA<FlagAppIconStore>());
+    expect(await store.chosen(), isNull);
+
+    await store.choose(BazaarIcon.noir);
+    expect(await dependencies.createAppIconStore().chosen(), BazaarIcon.noir, reason: 'kept for the next start');
+
+    await store.choose(BazaarIcon.nightSea);
+    expect(await store.chosen(), BazaarIcon.nightSea);
+    expect(File('${root.path}/flags/app-icon-noir').existsSync(), isFalse, reason: 'one choice at a time');
+    expect(File('${root.path}/flags/app-icon-nightSea').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createAppIconSwitch names the icon on the native channel', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(AppIconChannel.name),
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel(AppIconChannel.name),
+        null,
+      ),
+    );
+
+    await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.nightGold);
+
+    expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'nightGold')]);
+  });
+
+  test('a failed icon change is logged, never thrown', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(AppIconChannel.name),
+      (call) async => throw PlatformException(code: 'not-changed'),
+    );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel(AppIconChannel.name),
+        null,
+      ),
+    );
+
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
+    // No channel at all, as on a desktop or in a test: nothing happens.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(AppIconChannel.name),
+      null,
+    );
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
   });
 
   test('createQuizScoreStore keeps the scores in one file under the support directory (plan 1W)', () async {

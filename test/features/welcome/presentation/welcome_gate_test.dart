@@ -10,6 +10,10 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_choices.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
@@ -65,7 +69,6 @@ Widget _gate(
   TargetPlatform platform = TargetPlatform.android,
   bool reducedMotion = false,
   TrackCubit? track,
-  ValueChanged<Track>? onFinished,
   bool story = true,
 }) => RepositoryProvider<IWelcomeStore>.value(
   value: store,
@@ -74,6 +77,8 @@ Widget _gate(
       BlocProvider<ContentBloc>.value(value: _content(story: story)),
       if (track != null) BlocProvider<TrackCubit>.value(value: track) else BlocProvider(create: (_) => TrackCubit()),
       BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+      BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
+      BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
     ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -89,20 +94,19 @@ Widget _gate(
       builder: (context, child) => reducedMotion
           ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
           : child!,
-      home: WelcomeGate(story: _story, onFinished: onFinished, child: _app),
+      home: WelcomeGate(story: _story, child: _app),
     ),
   ),
 );
 
 void main() {
-  testWidgets('the first launch asks the language and the track, then tells the story, then opens the app (plan 3.5)', (
+  testWidgets('the first launch asks the language and the track; the story button tells it, then the app opens (3.5)', (
     tester,
   ) async {
     final store = _MemoryWelcomeStore();
     final track = TrackCubit();
     addTearDown(track.close);
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(store, track: track, onFinished: finished.add));
+    await tester.pumpWidget(_gate(store, track: track));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsNothing);
@@ -116,31 +120,45 @@ void main() {
     await tester.tap(everyone);
     await tester.pumpAndSettle();
     expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
-    final start = find.byKey(const Key('welcome-start'));
-    expect(find.descendant(of: start, matching: find.text('On to the story')), findsOneWidget);
-    await tester.ensureVisible(start);
+    final start = find.byKey(WelcomeTrackView.startKey);
+    final ourStory = find.byKey(WelcomeTrackView.storyKey);
+    expect(find.descendant(of: start, matching: find.text('Start learning')), findsOneWidget);
+    expect(find.descendant(of: ourStory, matching: find.text('Our story')), findsOneWidget);
+    expect(tester.getTopLeft(start).dy, lessThan(tester.getTopLeft(ourStory).dy), reason: 'Start learning first');
+    await tester.ensureVisible(ourStory);
     await tester.pumpAndSettle();
-    await tester.tap(start);
+    await tester.tap(ourStory);
     await tester.pumpAndSettle();
 
     expect(find.text('the story'), findsOneWidget);
     expect(track.state, Track.everyone, reason: 'the track is kept as soon as it is chosen');
     expect(store.wasSeen, isFalse, reason: 'not before the story is read or skipped');
-    expect(finished, isEmpty);
     await tester.tap(find.byKey(_storyDoneKey));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
-    expect(finished, [Track.everyone], reason: 'the app lands on that catalog (plan 1T)');
+  });
+
+  testWidgets('Start learning opens the app at once, with no story (the owner, 2026-11-15)', (tester) async {
+    final store = _MemoryWelcomeStore();
+    await tester.pumpWidget(_gate(store));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.startKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(WelcomeTrackView.startKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('the story'), findsNothing);
+    expect(find.text('the app'), findsOneWidget);
+    expect(store.wasSeen, isTrue);
   });
 
   testWidgets('a later launch opens the app directly', (tester) async {
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true), onFinished: finished.add));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true)));
     await tester.pumpAndSettle();
 
-    expect(finished, isEmpty, reason: 'it stays where the app opens, Home (plan 1T)');
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeTrackView), findsNothing);
   });
@@ -156,6 +174,87 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('the track step has the App icon row under the appearance; it opens the six in place, Done keeps one', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+    final appIcon = tester.element(find.byType(WelcomeTrackView)).read<AppIconCubit>();
+
+    final row = find.byKey(WelcomeTrackView.appIconKey);
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
+    expect(
+      find.descendant(of: row, matching: find.text('Noir')),
+      findsNothing,
+      reason: 'the name is not written',
+    );
+    expect(
+      tester.getTopLeft(row).dy,
+      greaterThan(tester.getBottomLeft(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))).dy),
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('welcome-start')), findsNothing, reason: 'the six stand in place of the step');
+    for (final icon in BazaarIcon.values) {
+      expect(find.byKey(appIconChoiceKey(icon)), findsOneWidget, reason: icon.name);
+    }
+    await tester.tap(find.byKey(appIconChoiceKey(BazaarIcon.nightSea)));
+    await tester.pumpAndSettle();
+    expect(appIcon.state.icon, BazaarIcon.nightSea);
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appIconDoneKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(WelcomeTrackView.appIconDoneKey));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(WelcomeTrackView.appIconKey),
+        matching: find.image(AssetImage(BazaarIcon.nightSea.asset)),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the arrow and the system back close the six and keep the step', (tester) async {
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(WelcomeTrackView.appIconKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+
+    await tester.tap(find.byKey(WelcomeTrackView.appIconKey));
+    await tester.pumpAndSettle();
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('welcome-start')), findsOneWidget);
+    expect(find.byType(WelcomeTrackView), findsOneWidget);
+  });
+
+  testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
+    await tester.pumpAndSettle();
+
+    final theme = tester.element(find.byType(WelcomeTrackView)).read<ThemeChoiceCubit>();
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Phone'), findsNothing);
+    expect(
+      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.pump();
+
+    expect(theme.state, ThemeMode.light);
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {
@@ -184,19 +283,18 @@ void main() {
     tester,
   ) async {
     final store = _MemoryWelcomeStore();
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(store, onFinished: finished.add, story: false));
+    await tester.pumpWidget(_gate(store, story: false));
     await tester.pumpAndSettle();
-    expect(find.text('Start reading'), findsOneWidget, reason: 'no story to go on to');
+    expect(find.text('Start learning'), findsOneWidget);
+    expect(find.byKey(WelcomeTrackView.storyKey), findsNothing, reason: 'no story to go on to');
     await tester.ensureVisible(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Start reading'), findsNothing, reason: 'tapped: the app is open');
+    expect(find.text('Start learning'), findsNothing, reason: 'tapped: the app is open');
     expect(find.text('the story'), findsNothing);
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
-    expect(finished, [Track.engineers]);
   });
 }

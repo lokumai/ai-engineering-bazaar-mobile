@@ -49,13 +49,13 @@ void main() {
 
   final store = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
-    'choosing the track tells the story; reading it opens the app and records it once (plan 1L, 3.5)',
+    'the story button tells the story; reading it opens the app and records it once (plan 1L, 3.5)',
     build: () => WelcomeBloc(store: store),
     act: (bloc) => bloc
       ..add(const WelcomeStarted(story: true))
       ..add(const WelcomeStoryRead())
-      ..add(const WelcomeTrackChosen(Track.everyone))
-      ..add(const WelcomeTrackChosen(Track.engineers))
+      ..add(const WelcomeTrackChosen(Track.everyone, story: true))
+      ..add(const WelcomeTrackChosen(Track.engineers, story: true))
       ..add(const WelcomeStoryRead())
       ..add(const WelcomeStoryRead()),
     expect: () => [
@@ -69,13 +69,24 @@ void main() {
     },
   );
 
+  final started = _MemoryWelcomeStore();
+  blocTest<WelcomeBloc, WelcomeState>(
+    'Start learning opens the app at once and records it, though there is a story (the owner, 2026-11-15)',
+    build: () => WelcomeBloc(store: started),
+    act: (bloc) => bloc
+      ..add(const WelcomeStarted(story: true))
+      ..add(const WelcomeTrackChosen(Track.everyone)),
+    expect: () => [const WelcomeChoosingTrack(story: true), const WelcomeDone(chosen: Track.everyone)],
+    verify: (_) => expect(started.writes, 1),
+  );
+
   final noStory = _MemoryWelcomeStore();
   blocTest<WelcomeBloc, WelcomeState>(
     'without a story, choosing the track opens the app and records it (web D125)',
     build: () => WelcomeBloc(store: noStory),
     act: (bloc) => bloc
       ..add(const WelcomeStarted())
-      ..add(const WelcomeTrackChosen(Track.engineers)),
+      ..add(const WelcomeTrackChosen(Track.engineers, story: true)),
     expect: () => [const WelcomeChoosingTrack(), const WelcomeDone(chosen: Track.engineers)],
     verify: (_) => expect(noStory.writes, 1),
   );
@@ -88,7 +99,7 @@ void main() {
       ..add(const WelcomeStoryRead())
       ..add(const WelcomeTrackChosen(Track.engineers))
       ..add(const WelcomeStarted(story: true))
-      ..add(const WelcomeTrackChosen(Track.engineers)),
+      ..add(const WelcomeTrackChosen(Track.engineers, story: true)),
     expect: () => [const WelcomeChoosingTrack(story: true), const WelcomeTellingStory(track: Track.engineers)],
     verify: (_) => expect(notYet.writes, 0),
   );

@@ -3,6 +3,7 @@ library;
 
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
@@ -20,7 +21,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/about/presentation/pages/about_welcome_step.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_track_view.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -67,6 +69,12 @@ class _FirstLaunchDependencies extends _SmokeDependencies {
 
   @override
   ILanguageStore createLanguageStore() => FlagLanguageStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: () async => dir));
+
+  @override
+  IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: () async => dir));
 }
 
 /// Lets real file I/O finish, which does not complete under the fake clock: a short real wait and a frame, repeated
@@ -95,13 +103,13 @@ void main() {
   });
 
   testWidgets(
-    'the first launch plays the gate, asks the track, tells the story and lands on its catalog; the next launch opens Home in that track',
+    'the first launch plays the gate, asks the track, tells the story and lands on Home; the next launch opens Home in that track',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
       addTearDown(() => dir.deleteSync(recursive: true));
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isNotEmpty, what: 'the gate');
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isNotEmpty, what: 'the opening');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty, what: 'the opening giving way');
       expect(find.byType(HomePage), findsNothing);
       // The language and the track first, then the story (plan 3.5).
       final everyone = find.byKey(WelcomeTrackView.optionKey(Track.everyone));
@@ -110,7 +118,7 @@ void main() {
       await tester.pump();
       await tester.tap(everyone);
       await tester.pump();
-      final toStory = find.byKey(const Key('welcome-start'));
+      final toStory = find.byKey(WelcomeTrackView.storyKey);
       await tester.ensureVisible(toStory);
       await tester.pump();
       await tester.tap(toStory);
@@ -125,8 +133,9 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
       }
       await tester.tap(intro);
-      await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog (plan 1T)');
-      expect(find.byType(HomePage), findsNothing);
+      // Home, as every later launch opens, not the catalog (the owner, 2026-11-15).
+      await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+      expect(find.byType(CatalogPage), findsNothing);
       await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
       await _drain(tester, () => File('${dir.path}/flags/track-chosen').existsSync(), what: 'the chosen track');
       expect(File('${dir.path}/flags/track-everyone').existsSync(), isTrue);
@@ -134,7 +143,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
       await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home after a restart');
-      await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+      await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty, what: 'the opening giving way');
       expect(find.byType(WelcomeTrackView), findsNothing);
       await _drain(
         tester,
@@ -143,6 +152,24 @@ void main() {
       );
     },
   );
+
+  testWidgets('Start learning on the first launch opens Home at once (the owner, 2026-11-15)', (tester) async {
+    final dir = Directory.systemTemp.createTempSync('bazaar_welcome_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    await tester.pumpWidget(App(dependencies: _FirstLaunchDependencies(dir)));
+    await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isNotEmpty, what: 'the opening');
+    await _drain(tester, () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty, what: 'the opening giving way');
+    final start = find.byKey(WelcomeTrackView.startKey);
+    await _drain(tester, () => start.evaluate().isNotEmpty, what: 'the first step');
+    await tester.ensureVisible(start);
+    await tester.pump();
+    await tester.tap(start);
+
+    await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
+    expect(find.byType(CatalogPage), findsNothing);
+    expect(find.byType(AboutWelcomeStep), findsNothing, reason: 'no story');
+    await _drain(tester, () => File('${dir.path}/flags/welcome-2-seen').existsSync(), what: 'the Welcome flag');
+  });
 
   testWidgets(
     'completing a module survives a restart',
@@ -158,7 +185,11 @@ void main() {
 
       Future<void> openFirst() async {
         await _drain(tester, () => find.byType(HomePage).evaluate().isNotEmpty, what: 'Home');
-        await _drain(tester, () => find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty, what: 'the gate giving way');
+        await _drain(
+          tester,
+          () => find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty,
+          what: 'the opening giving way',
+        );
         await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.byTooltip('Catalog')));
         await tester.pump();
         await _drain(tester, () => find.byType(CatalogPage).evaluate().isNotEmpty, what: 'the catalog');

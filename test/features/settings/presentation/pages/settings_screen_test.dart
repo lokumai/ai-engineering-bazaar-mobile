@@ -2,6 +2,9 @@
 library;
 
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
@@ -11,6 +14,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -67,6 +71,7 @@ GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
         path: '/settings',
         builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
       ),
+      GoRoute(path: '/settings/app-icon', builder: (_, _) => const Text('app icon page')),
     ],
   );
   addTearDown(router.dispose);
@@ -129,6 +134,68 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('the App icon row under the appearance shows the icon in use, unnamed, and opens its page', (
+    tester,
+  ) async {
+    final appIcon = AppIconCubit(store: const _KeptIcon(BazaarIcon.noir))..load();
+    addTearDown(appIcon.close);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), appIcon: appIcon));
+    await tester.pump();
+
+    final row = find.byKey(const Key('settings-app-icon'));
+    expect(find.descendant(of: row, matching: find.text('App icon')), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.image(AssetImage(BazaarIcon.noir.asset))), findsOneWidget);
+    expect(
+      find.descendant(of: row, matching: find.text('Noir')),
+      findsNothing,
+      reason: 'the picture says which',
+    );
+    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(52, 52));
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
+    expect(
+      tester.getTopLeft(row).dy,
+      greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy),
+      reason: 'under the appearance',
+    );
+
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+
+    expect(find.text('app icon page'), findsOneWidget);
+  });
+
+  testWidgets('the appearance is Light or Dark, with Dark selected until one is chosen, whatever the phone', (
+    tester,
+  ) async {
+    final themeChoice = ThemeChoiceCubit();
+    addTearDown(themeChoice.close);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), themeChoice: themeChoice));
+    await tester.pump();
+
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Light'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(settingsAppearanceKey(ThemeMode.dark)), matching: find.text('Dark')),
+      findsOneWidget,
+    );
+    expect(find.text('Phone'), findsNothing);
+    expect(
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.dark))),
+      isSemantics(isSelected: true, isButton: true),
+    );
+    expect(themeChoice.state, ThemeMode.dark, reason: 'dark until a tap, though the phone is light');
+
+    await tester.tap(find.byKey(settingsAppearanceKey(ThemeMode.light)));
+    await tester.pump();
+    expect(themeChoice.state, ThemeMode.light);
+    expect(
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.light))),
+      isSemantics(isSelected: true, isButton: true),
+    );
   });
 
   testWidgets('shows no heading, only the tab names the page, and the content status', (tester) async {
@@ -352,4 +419,17 @@ final class _TrackStore implements ITrackStore {
 
   @override
   Future<void> choose(Track track) async => kept = track;
+}
+
+/// A store that holds [icon] as the chosen app icon.
+final class _KeptIcon implements IAppIconStore {
+  const _KeptIcon(this.icon);
+
+  final BazaarIcon icon;
+
+  @override
+  Future<BazaarIcon?> chosen() async => icon;
+
+  @override
+  Future<void> choose(BazaarIcon icon) async {}
 }

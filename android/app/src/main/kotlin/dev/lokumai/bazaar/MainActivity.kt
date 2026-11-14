@@ -1,11 +1,23 @@
 package dev.lokumai.bazaar
 
+import android.graphics.drawable.ColorDrawable
+import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import io.sentry.Sentry
 
 class MainActivity : FlutterActivity() {
+    /** The app icon chosen on the Dart side and not yet put in the launcher (AppIconSwitch). */
+    private var chosenIcon: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Until Flutter's first frame the window shows; it takes the chosen icon's ground, where the opening starts.
+        val ground = AppIconSwitch.grounds.getValue(AppIconSwitch.current(this))
+        window.setBackgroundDrawable(ColorDrawable(getColor(ground)))
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // nativeSdkReady (lib/infrastructure/analytics/native_sentry_start.dart) asks whether MainApplication started
@@ -17,5 +29,27 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // lib/infrastructure/app_icon/app_icon_channel.dart names the icon the reader chose; it reaches the launcher
+        // when the app goes to the background.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, AppIconSwitch.CHANNEL)
+            .setMethodCallHandler { call, result ->
+                val icon = call.arguments as? String
+                when {
+                    call.method != "choose" -> result.notImplemented()
+                    icon == null || icon !in AppIconSwitch.aliases -> result.error("unknown-icon", icon, null)
+                    else -> {
+                        chosenIcon = icon
+                        result.success(null)
+                    }
+                }
+            }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        chosenIcon?.let {
+            AppIconSwitch.apply(this, it)
+            chosenIcon = null
+        }
     }
 }

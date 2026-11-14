@@ -7,6 +7,8 @@ import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +49,8 @@ Widget _screen({required bool dark}) {
         BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
         BlocProvider<TrackCubit>(create: (_) => TrackCubit()),
         BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
+        BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
+        BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
         BlocProvider<QuizScoresBloc>(create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())),
         BlocProvider<ReadingPlacesBloc>(create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())),
       ],

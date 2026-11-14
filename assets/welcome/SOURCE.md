@@ -5,7 +5,6 @@ The opening's and Welcome's pictures come from the web repo (lokumai/ai-engineer
 | File | Source |
 | --- | --- |
 | `cast_mihri.webp`, `cast_dariush.webp`, `cast_bit.webp`, `cast_mei.webp`, `cast_piri.webp` | `cast-<id>-tile.html`, the front view of each person |
-| `lamp_left.webp`, `lamp_right.webp` | the two hanging lamps of the team's mobile mockup, [Bazaar Mobil Taslak](https://claude.ai/artifact/4YZcwzuafAdcpsfGwWryp4), its Welcome screen |
 
 Each SVG was drawn with its `defs.html` in headless Chrome and saved as WebP, since the app's SVG renderer does not draw their patterns and clip paths: each person at 110 x 200 at scale 3, the lamps at 80 x 154 and 80 x 112 at scale 4.
 

@@ -9,7 +9,7 @@ import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_splash.dart';
+import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -107,7 +107,7 @@ Future<void> pumpUntilShown(WidgetTester tester, {Duration timeout = const Durat
   final stopwatch = Stopwatch()..start();
   while (stopwatch.elapsed < timeout) {
     await tester.pump(const Duration(milliseconds: 100));
-    if (find.byType(Navigator).evaluate().isNotEmpty && find.byKey(WelcomeSplash.sceneKey).evaluate().isEmpty) return;
+    if (find.byType(Navigator).evaluate().isNotEmpty && find.byKey(WelcomeSting.sceneKey).evaluate().isEmpty) return;
   }
   fail('timed out after $timeout waiting for the pages of the router under the opening');
 }

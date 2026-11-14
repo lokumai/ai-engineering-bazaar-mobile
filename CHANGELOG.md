@@ -7,6 +7,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- App icon in Settings, under Appearance: six colourings of the striped agent, shown as pictures: Noir (the default), Ink, Night gold, Night sea, Dark and Cream. The chosen one becomes the icon on the home screen (on Android once the app is left; on iOS the phone confirms it) and the opening plays in its colours, on its ground; the launch screen takes its ground too (on Android 13 and later and on iOS, from the launch after the change). Welcome's first step has the App icon row as well.
+- Welcome's first step ends in Start learning, which opens the app, with the story button under it; the first launch opens Home, as every launch does.
+- Appearance in Settings and on Welcome's first step: Light or Dark. The app opens dark until the reader chooses, whatever the phone's setting, and keeps the choice on the device.
 - Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
 - A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
 - The iOS privacy manifest: the app tracks nothing, and lists what a release with the Sentry DSN sends, linked to no one.
@@ -24,7 +27,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
 - The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is coming soon until the web's timeline reaches the content bundle.
-- The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch after the language and the track are chosen, its last button Start learning, and in Settings under About, beside How the bazaar works.
+- The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch from the story button under Start learning, its last button Start learning, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
 - A bundled snapshot of the site's content bundle under `assets/content/`, so the course opens offline on the first launch. It is the bundle of 2026-11-13 (`22bbb6fa`), with the web's WebP images, Key Terms, the story of the Bazaar, a quiz on both tracks and module titles in every language.
@@ -49,6 +52,10 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The opening is the striped secret agent: it stands still in the middle of the screen, then the camera flies into it and its stripes rush past as ribbons onto the app, 1.45 s, on the page colour of the theme.
+- The app icon is the striped secret agent on the dark page colour, one icon for every phone theme.
+- The launch screens are the dark page colour whatever the phone's theme.
+- Welcome's first step fits a phone with no scrolling; the line under its title is gone.
 - The Caravan tab says the Caravan is coming soon, over a scene of a caravan walking in at dusk, instead of under maintenance.
 - A picture in a module is decoded at the size it is drawn, which takes less memory and opens a module faster; it looks the same, and full screen still shows it whole.
 - The back arrow in the bar goes to the page the page was opened from, Home, Quiz, a level or another module, as Android's back and the iOS edge swipe do; it no longer goes to the catalog.
@@ -78,6 +85,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Removed
 
+- The bazaar gate opening, with its lamps, its people on the threshold and its walk through the arch.
 - The web, macOS, Linux and Windows platforms.
 - Sonar.
 - Login, users, accounts, OIDC and the mock API.

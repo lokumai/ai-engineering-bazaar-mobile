@@ -1,12 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ draws its own launch screen: the navy of the opening animation, with no icon. -->
-    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+    <!-- Android 12+ draws its own launch screen: the dark page colour of the opening animation, with no icon. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@drawable/launch_background</item>
-        <item name="android:windowSplashScreenBackground">@color/bazaar_navy</item>
+        <item name="android:windowSplashScreenBackground">@color/bazaar_page</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
     </style>
-    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">@color/bazaar_navy</item>
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/bazaar_page</item>
+    </style>
+    <!-- The launch screen of each app icon the reader can choose (lib/shared/app_icon/), on its ground: Android 13 and
+         later show it from the next launch once AppIconSwitch sets it. Dark, the default, is LaunchTheme. -->
+    <style name="LaunchTheme.Cream">
+        <item name="android:windowBackground">@color/ic_launcher_cream_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_cream_background</item>
+    </style>
+    <style name="LaunchTheme.Noir">
+        <item name="android:windowBackground">@color/ic_launcher_noir_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_noir_background</item>
+    </style>
+    <style name="LaunchTheme.Ink">
+        <item name="android:windowBackground">@color/ic_launcher_ink_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_ink_background</item>
+    </style>
+    <style name="LaunchTheme.NightGold">
+        <item name="android:windowBackground">@color/ic_launcher_night_gold_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_night_gold_background</item>
+    </style>
+    <style name="LaunchTheme.NightSea">
+        <item name="android:windowBackground">@color/ic_launcher_night_sea_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_night_sea_background</item>
     </style>
 </resources>

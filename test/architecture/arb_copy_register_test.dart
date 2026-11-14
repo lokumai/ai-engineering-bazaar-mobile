@@ -55,11 +55,18 @@ void main() {
   test('no message in intl_en.arb breaks the copy register', () {
     final offences = [
       for (final MapEntry(:key, :value) in messages.entries)
-        for (final offence in _offences(value)) '$key: $offence',
+        if (!_ownerWords.containsKey(key))
+          for (final offence in _offences(value)) '$key: $offence',
     ];
     expect(offences, isEmpty, reason: 'say it the web way (tests/unit/copy-register.test.ts in the web repo)');
   });
 }
+
+/// Messages the owner chose in words the register bans, each with the decision: they are not scanned. Keep it short.
+const _ownerWords = {
+  // Welcome's button to the story of the Bazaar (plan 1BD).
+  'welcome_to_story': 'Our story: the owner, 2026-11-15',
+};
 
 /// `BANS`, `copy-register.test.ts:181-238`. Every pattern but the exclamation mark is case-insensitive, as on the web.
 final _bans = <({String name, RegExp pattern, String why})>[

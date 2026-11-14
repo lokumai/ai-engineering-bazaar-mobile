@@ -30,6 +30,7 @@ void main() {
 
       expect(sources.map((file) => file.path).toSet(), {
         for (final name in [
+          'AppIconSwitch',
           'MainActivity',
           'MainApplication',
           'NativeScrubPatterns',
@@ -37,7 +38,8 @@ void main() {
           'NativeSentryScrubber',
         ])
           '$kotlinMain/$name.kt',
-        for (final name in ['NativeSentryScrubberTest', 'NativeSentryTest']) '$kotlinTest/$name.kt',
+        for (final name in ['AppIconSwitchTest', 'NativeSentryScrubberTest', 'NativeSentryTest'])
+          '$kotlinTest/$name.kt',
       });
       for (final source in sources) {
         expect(source.readAsLinesSync().first, 'package dev.lokumai.bazaar', reason: source.path);

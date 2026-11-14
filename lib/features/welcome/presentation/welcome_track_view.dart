@@ -1,11 +1,15 @@
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_art.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_choices.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
+import 'package:ai_engineering_bazaar/shared/theme/appearance_name.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 
 import 'dart:async';
@@ -17,28 +21,65 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Welcome's second screen (plan 1L, 1S): the reader chooses the language and a track once, with the web's line for
-/// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at
-/// once; Start reading hands the track to [onChosen].
+/// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at once;
+/// Start learning hands the track to [onChosen] and opens the app, the story button (when there is one) hands it on to
+/// the story (the owner, 2026-11-15).
 class WelcomeTrackView extends StatefulWidget {
   const WelcomeTrackView({super.key, required this.initial, this.story = false, required this.onChosen});
 
-  /// Whether the story follows; its button then says so.
+  /// Whether there is a story to tell; the story button then stands under Start learning.
   final bool story;
 
   /// The track chosen when the screen opens.
   final Track initial;
-  final ValueChanged<Track> onChosen;
+
+  /// Called with the track chosen, and whether the reader asked for the story.
+  final void Function(Track track, {required bool story}) onChosen;
+
+  static const startKey = Key('welcome-start');
+
+  static const storyKey = Key('welcome-story');
 
   static Key optionKey(Track track) => ValueKey('welcome-track-${track.id}');
 
   static Key languageKey(String language) => ValueKey('welcome-language-$language');
 
+  static Key appearanceKey(ThemeMode mode) => ValueKey('welcome-appearance-${mode.name}');
+
+  static const appIconKey = Key('welcome-app-icon');
+
+  static const appIconDoneKey = Key('welcome-app-icon-done');
+
   @override
   State<WelcomeTrackView> createState() => _WelcomeTrackViewState();
 }
 
-class _WelcomeTrackViewState extends State<WelcomeTrackView> {
+class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBindingObserver {
   late Track _track = widget.initial;
+
+  /// Whether the six app icons stand in place of the step. Welcome sits above the app's router, so they open here
+  /// rather than as Settings' page.
+  bool _choosingIcon = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// The system's back closes the icons and keeps the step; on the step itself it does what it did before.
+  @override
+  Future<bool> didPopRoute() async {
+    if (!_choosingIcon) return false;
+    setState(() => _choosingIcon = false);
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,82 +100,175 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
           children: [
             const BazaarBar(),
             const LatticeBand(thin: true),
-            Expanded(
-              child: ReadableWidth(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 20,
-                    children: [
-                      ExcludeSemantics(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          spacing: 4,
-                          children: [
-                            for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
-                              Image(image: AssetImage(art), height: 96, filterQuality: FilterQuality.medium),
-                          ],
-                        ),
-                      ),
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          s.welcome_track_title,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium?.copyWith(color: colors.onSurfaceTitle),
-                        ),
-                      ),
-                      Text(
-                        s.welcome_track_lede,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
-                      ),
-                      // The language first: choosing one turns this screen into it at once (plan 1S).
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: 8,
-                        children: [
-                          Text(s.settings_language, style: theme.textTheme.titleSmall),
-                          BazaarSegmentedControl<String>(
-                            semanticLabel: s.settings_language,
-                            selected: context.watch<LanguageCubit>().state,
-                            onSelected: (language) => unawaited(context.read<LanguageCubit>().choose(language)),
-                            segments: [
-                              for (final language in LanguageCubit.supported)
-                                BazaarSegment(
-                                  value: language,
-                                  label: LanguageCubit.names[language]!,
-                                  key: WelcomeTrackView.languageKey(language),
-                                ),
+            if (_choosingIcon)
+              Expanded(child: _IconChoice(onDone: () => setState(() => _choosingIcon = false)))
+            else
+              Expanded(
+                child: ReadableWidth(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      // Tight enough that the whole step fits a phone with no scrolling (the owner, 2026-11-14).
+                      spacing: 12,
+                      children: [
+                        ExcludeSemantics(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: 4,
+                            children: [
+                              for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
+                                Image(image: AssetImage(art), height: 80, filterQuality: FilterQuality.medium),
                             ],
                           ),
-                        ],
-                      ),
-                      for (final info in index.tracks)
-                        _TrackOption(
-                          key: WelcomeTrackView.optionKey(info.track),
-                          title: trackName(s, info.track),
-                          body: switch (info.track) {
-                            Track.engineers => s.welcome_track_engineers,
-                            Track.everyone => s.welcome_track_everyone,
-                          },
-                          selected: _track == info.track,
-                          onTap: () => setState(() => _track = info.track),
                         ),
-                      const SizedBox(height: 4),
-                      FilledButton.icon(
-                        key: const Key('welcome-start'),
-                        onPressed: () => widget.onChosen(_track),
-                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                        icon: const Icon(Icons.arrow_forward),
-                        iconAlignment: IconAlignment.end,
-                        label: Text(widget.story ? s.welcome_to_story : s.welcome_start),
-                      ),
-                    ],
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            s.welcome_track_title,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineMedium?.copyWith(color: colors.onSurfaceTitle),
+                          ),
+                        ),
+                        // The language first: choosing one turns this screen into it at once (plan 1S).
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 8,
+                          children: [
+                            Text(s.settings_language, style: theme.textTheme.titleSmall),
+                            BazaarSegmentedControl<String>(
+                              semanticLabel: s.settings_language,
+                              selected: context.watch<LanguageCubit>().state,
+                              onSelected: (language) => unawaited(context.read<LanguageCubit>().choose(language)),
+                              segments: [
+                                for (final language in LanguageCubit.supported)
+                                  BazaarSegment(
+                                    value: language,
+                                    label: LanguageCubit.names[language]!,
+                                    key: WelcomeTrackView.languageKey(language),
+                                  ),
+                              ],
+                            ),
+                            Text(s.settings_appearance, style: theme.textTheme.titleSmall),
+                            BazaarSegmentedControl<ThemeMode>(
+                              semanticLabel: s.settings_appearance,
+                              selected: context.watch<ThemeChoiceCubit>().state,
+                              onSelected: (mode) => unawaited(context.read<ThemeChoiceCubit>().choose(mode)),
+                              segments: [
+                                for (final mode in ThemeChoiceCubit.modes)
+                                  BazaarSegment(
+                                    value: mode,
+                                    label: appearanceName(s, mode),
+                                    key: WelcomeTrackView.appearanceKey(mode),
+                                  ),
+                              ],
+                            ),
+                            // The app icon too, as Settings has it; the six open over this step (the owner, 2026-11-14).
+                            AppIconRow(
+                              key: WelcomeTrackView.appIconKey,
+                              picture: 40,
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                              onTap: () => setState(() => _choosingIcon = true),
+                            ),
+                          ],
+                        ),
+                        for (final info in index.tracks)
+                          _TrackOption(
+                            key: WelcomeTrackView.optionKey(info.track),
+                            title: trackName(s, info.track),
+                            body: switch (info.track) {
+                              Track.engineers => s.welcome_track_engineers,
+                              Track.everyone => s.welcome_track_everyone,
+                            },
+                            selected: _track == info.track,
+                            onTap: () => setState(() => _track = info.track),
+                          ),
+                        // Start learning first; the story button under it (the owner, 2026-11-15).
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 6,
+                          children: [
+                            FilledButton.icon(
+                              key: WelcomeTrackView.startKey,
+                              onPressed: () => widget.onChosen(_track, story: false),
+                              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                              icon: const Icon(Icons.arrow_forward),
+                              iconAlignment: IconAlignment.end,
+                              label: Text(s.welcome_start),
+                            ),
+                            if (widget.story)
+                              OutlinedButton(
+                                key: WelcomeTrackView.storyKey,
+                                onPressed: () => widget.onChosen(_track, story: true),
+                                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                                child: Text(s.welcome_to_story),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The six app icons in place of the step, with a way back to it.
+class _IconChoice extends StatelessWidget {
+  const _IconChoice({required this.onDone});
+
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final theme = Theme.of(context);
+    final note = switch (theme.platform) {
+      TargetPlatform.iOS || TargetPlatform.macOS => s.app_icon_note_ios,
+      _ => s.app_icon_note_android,
+    };
+    return ReadableWidth(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 24, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 16,
+          children: [
+            Row(
+              spacing: 4,
+              children: [
+                BackButton(onPressed: onDone),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      s.settings_app_icon,
+                      style: theme.textTheme.headlineSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Padding(padding: EdgeInsetsDirectional.only(start: 8), child: AppIconChoices()),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8),
+              child: Text(
+                note,
+                style: theme.textTheme.bodyMedium?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8, top: 4),
+              child: FilledButton(
+                key: WelcomeTrackView.appIconDoneKey,
+                onPressed: onDone,
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                child: Text(s.welcome_app_icon_done),
               ),
             ),
           ],

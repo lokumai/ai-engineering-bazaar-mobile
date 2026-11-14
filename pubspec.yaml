@@ -64,13 +64,17 @@ flutter:
     - assets/fonts/OFL.txt
     - assets/fonts/OFL-Fraunces.txt
     - assets/brand/lokum_logo.webp
+    - assets/app_icon/dark.png
+    - assets/app_icon/cream.png
+    - assets/app_icon/noir.png
+    - assets/app_icon/ink.png
+    - assets/app_icon/nightGold.png
+    - assets/app_icon/nightSea.png
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
     - assets/welcome/cast_bit.webp
     - assets/welcome/cast_mei.webp
     - assets/welcome/cast_piri.webp
-    - assets/welcome/lamp_left.webp
-    - assets/welcome/lamp_right.webp
     - assets/about/grain.png
     - assets/about/scene_1.webp
     - assets/about/scene_1_still.webp

@@ -33,21 +33,21 @@
   "@caravan_soon_body": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
-  "welcome_track_lede": "Choose your language and one of the two versions of every module. You can change both any time in Settings.",
-  "@welcome_track_lede": {},
-  "welcome_track_engineers": "The technical modules: how each part works, with the code and the numbers behind it.",
+  "welcome_track_engineers": "The technical modules: how each part works, with the code and numbers.",
   "@welcome_track_engineers": {
-    "description": "The web's line for the For Engineers track, src/app/page.tsx."
+    "description": "The web's line for the For Engineers track (src/app/page.tsx), a little shorter so it takes two lines on a phone, as the other track's does (the owner, 2026-11-15)."
   },
   "welcome_track_everyone": "The same modules in plain words, for readers with no technical background.",
   "@welcome_track_everyone": {
     "description": "The web's line for the For Everyone track, src/app/page.tsx."
   },
-  "welcome_start": "Start reading",
-  "@welcome_start": {},
-  "welcome_to_story": "On to the story",
+  "welcome_start": "Start learning",
+  "@welcome_start": {
+    "description": "Welcome's first step: the main button, which opens the app on Home with the language and the track chosen (the owner, 2026-11-15)."
+  },
+  "welcome_to_story": "Our story",
   "@welcome_to_story": {
-    "description": "Welcome's choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5)."
+    "description": "Welcome's first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5). The owner's words, kept though the copy register bans the first person (the owner, 2026-11-15)."
   },
   "home_up_next": "Up next",
   "@home_up_next": {},
@@ -681,6 +681,62 @@
   "settings_language": "Language",
   "@settings_language": {
     "description": "Settings' language setting (plan 1Q)."
+  },
+  "settings_appearance": "Appearance",
+  "@settings_appearance": {
+    "description": "The label of the setting that chooses the look of the app, in Settings and on Welcome's first step."
+  },
+  "appearance_light": "Light",
+  "@appearance_light": {
+    "description": "Appearance choice: the app is always light."
+  },
+  "appearance_dark": "Dark",
+  "@appearance_dark": {
+    "description": "Appearance choice: the app is always dark."
+  },
+  "settings_app_icon": "App icon",
+  "@settings_app_icon": {
+    "description": "Settings' row that opens the page to choose the app's icon on the home screen, and that page's title."
+  },
+  "app_icon_dark": "Dark",
+  "@app_icon_dark": {
+    "description": "App icon choice: the striped agent on the dark ground, the default."
+  },
+  "app_icon_cream": "Cream",
+  "@app_icon_cream": {
+    "description": "App icon choice: the striped agent on a cream ground."
+  },
+  "app_icon_noir": "Noir",
+  "@app_icon_noir": {
+    "description": "App icon choice: cream stripes on the dark ground, like a black and white film."
+  },
+  "app_icon_ink": "Ink",
+  "@app_icon_ink": {
+    "description": "App icon choice: dark stripes on a cream ground."
+  },
+  "app_icon_night_gold": "Night gold",
+  "@app_icon_night_gold": {
+    "description": "App icon choice: gold stripes on the dark ground."
+  },
+  "app_icon_night_sea": "Night sea",
+  "@app_icon_night_sea": {
+    "description": "App icon choice: teal, gold and cream stripes on a deep green ground."
+  },
+  "app_icon_default": "Default",
+  "@app_icon_default": {
+    "description": "Under the default app icon's name on the app icon page."
+  },
+  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.",
+  "@app_icon_note_android": {
+    "description": "The note on the app icon page on Android: when the icon changes, and what some launchers do."
+  },
+  "app_icon_note_ios": "The phone confirms the new icon with a message.",
+  "@app_icon_note_ios": {
+    "description": "The note on the app icon page on iOS, where the system tells of every icon change."
+  },
+  "welcome_app_icon_done": "Done",
+  "@welcome_app_icon_done": {
+    "description": "The button under the six app icons on Welcome's first step: back to the step, the icon kept."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {

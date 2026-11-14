@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -12,6 +13,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/theme/appearance_name.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +34,8 @@ import 'package:go_router/go_router.dart';
 Key settingsLanguageKey(String language) => ValueKey('settings-language-$language');
 
 /// The key of [track]'s segment in the track setting.
+Key settingsAppearanceKey(ThemeMode mode) => ValueKey('settings-appearance-${mode.name}');
+
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
 
 class SettingsScreen extends StatelessWidget {
@@ -112,6 +117,21 @@ class _SettingsView extends StatelessWidget {
                       key: settingsLanguageKey(language),
                     ),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(s.settings_appearance, style: theme.textTheme.titleSmall),
+              BazaarSegmentedControl<ThemeMode>(
+                semanticLabel: s.settings_appearance,
+                selected: context.watch<ThemeChoiceCubit>().state,
+                onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
+                segments: [
+                  for (final mode in ThemeChoiceCubit.modes)
+                    BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
+                ],
+              ),
+              AppIconRow(
+                key: const Key('settings-app-icon'),
+                onTap: () => context.push(ApplicationRoutesConstants.appIcon),
               ),
             ],
           ),

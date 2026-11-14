@@ -207,6 +207,7 @@ The `Device tests` workflow (`.github/workflows/device_tests.yml`) runs them on 
 `test/architecture/` holds the meta-tests that fail the build when a rule is broken:
 
 - `android_manifest_test`: the main manifest declares `INTERNET`, and OS backup and device transfer include the record directory (`files/record/`) and nothing else.
+- `app_icon_choices_test`: the app icons the reader can choose match on both native sides: one Android launcher entry per icon (only Dark enabled) with its adaptive layers and ground, the names in `AppIconSwitch.kt`, an iOS alternate icon per icon included in every build, the names in `AppDelegate.swift`, and each icon's bundled picture.
 - `app_identity_test`: application id `dev.lokumai.bazaar`, launcher label "Bazaar", the Kotlin package and the native Sentry channel named after the id on both sides.
 - `arb_copy_register_test`: every message of `intl_en.arb` follows the web's copy register (A12).
 - `arb_keys_used_test`: every message of the template ARB is read by some file under `lib/`.

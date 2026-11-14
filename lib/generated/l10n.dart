@@ -133,22 +133,12 @@ class S {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
   }
 
-  /// `Choose your language and one of the two versions of every module. You can change both any time in Settings.`
-  String get welcome_track_lede {
-    return Intl.message(
-      'Choose your language and one of the two versions of every module. You can change both any time in Settings.',
-      name: 'welcome_track_lede',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The technical modules: how each part works, with the code and the numbers behind it.`
+  /// `The technical modules: how each part works, with the code and numbers.`
   String get welcome_track_engineers {
     return Intl.message(
-      'The technical modules: how each part works, with the code and the numbers behind it.',
+      'The technical modules: how each part works, with the code and numbers.',
       name: 'welcome_track_engineers',
-      desc: 'The web\'s line for the For Engineers track, src/app/page.tsx.',
+      desc: 'The web\'s line for the For Engineers track (src/app/page.tsx), a little shorter so it takes two lines on a phone, as the other track\'s does (the owner, 2026-11-15).',
       args: [],
     );
   }
@@ -163,17 +153,22 @@ class S {
     );
   }
 
-  /// `Start reading`
+  /// `Start learning`
   String get welcome_start {
-    return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
+    return Intl.message(
+      'Start learning',
+      name: 'welcome_start',
+      desc: 'Welcome\'s first step: the main button, which opens the app on Home with the language and the track chosen (the owner, 2026-11-15).',
+      args: [],
+    );
   }
 
-  /// `On to the story`
+  /// `Our story`
   String get welcome_to_story {
     return Intl.message(
-      'On to the story',
+      'Our story',
       name: 'welcome_to_story',
-      desc: 'Welcome\'s choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5).',
+      desc: 'Welcome\'s first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5). The owner\'s words, kept though the copy register bans the first person (the owner, 2026-11-15).',
       args: [],
     );
   }
@@ -1317,6 +1312,141 @@ class S {
       'Language',
       name: 'settings_language',
       desc: 'Settings\' language setting (plan 1Q).',
+      args: [],
+    );
+  }
+
+  /// `Appearance`
+  String get settings_appearance {
+    return Intl.message(
+      'Appearance',
+      name: 'settings_appearance',
+      desc: 'The label of the setting that chooses the look of the app, in Settings and on Welcome\'s first step.',
+      args: [],
+    );
+  }
+
+  /// `Light`
+  String get appearance_light {
+    return Intl.message(
+      'Light',
+      name: 'appearance_light',
+      desc: 'Appearance choice: the app is always light.',
+      args: [],
+    );
+  }
+
+  /// `Dark`
+  String get appearance_dark {
+    return Intl.message('Dark', name: 'appearance_dark', desc: 'Appearance choice: the app is always dark.', args: []);
+  }
+
+  /// `App icon`
+  String get settings_app_icon {
+    return Intl.message(
+      'App icon',
+      name: 'settings_app_icon',
+      desc: 'Settings\' row that opens the page to choose the app\'s icon on the home screen, and that page\'s title.',
+      args: [],
+    );
+  }
+
+  /// `Dark`
+  String get app_icon_dark {
+    return Intl.message(
+      'Dark',
+      name: 'app_icon_dark',
+      desc: 'App icon choice: the striped agent on the dark ground, the default.',
+      args: [],
+    );
+  }
+
+  /// `Cream`
+  String get app_icon_cream {
+    return Intl.message(
+      'Cream',
+      name: 'app_icon_cream',
+      desc: 'App icon choice: the striped agent on a cream ground.',
+      args: [],
+    );
+  }
+
+  /// `Noir`
+  String get app_icon_noir {
+    return Intl.message(
+      'Noir',
+      name: 'app_icon_noir',
+      desc: 'App icon choice: cream stripes on the dark ground, like a black and white film.',
+      args: [],
+    );
+  }
+
+  /// `Ink`
+  String get app_icon_ink {
+    return Intl.message(
+      'Ink',
+      name: 'app_icon_ink',
+      desc: 'App icon choice: dark stripes on a cream ground.',
+      args: [],
+    );
+  }
+
+  /// `Night gold`
+  String get app_icon_night_gold {
+    return Intl.message(
+      'Night gold',
+      name: 'app_icon_night_gold',
+      desc: 'App icon choice: gold stripes on the dark ground.',
+      args: [],
+    );
+  }
+
+  /// `Night sea`
+  String get app_icon_night_sea {
+    return Intl.message(
+      'Night sea',
+      name: 'app_icon_night_sea',
+      desc: 'App icon choice: teal, gold and cream stripes on a deep green ground.',
+      args: [],
+    );
+  }
+
+  /// `Default`
+  String get app_icon_default {
+    return Intl.message(
+      'Default',
+      name: 'app_icon_default',
+      desc: 'Under the default app icon\'s name on the app icon page.',
+      args: [],
+    );
+  }
+
+  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.`
+  String get app_icon_note_android {
+    return Intl.message(
+      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.',
+      name: 'app_icon_note_android',
+      desc: 'The note on the app icon page on Android: when the icon changes, and what some launchers do.',
+      args: [],
+    );
+  }
+
+  /// `The phone confirms the new icon with a message.`
+  String get app_icon_note_ios {
+    return Intl.message(
+      'The phone confirms the new icon with a message.',
+      name: 'app_icon_note_ios',
+      desc: 'The note on the app icon page on iOS, where the system tells of every icon change.',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get welcome_app_icon_done {
+    return Intl.message(
+      'Done',
+      name: 'welcome_app_icon_done',
+      desc: 'The button under the six app icons on Welcome\'s first step: back to the step, the icon kept.',
       args: [],
     );
   }

@@ -9,7 +9,7 @@
     <application
         android:label="Bazaar"
         android:name=".MainApplication"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_noir"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
@@ -36,11 +36,82 @@
               android:name="flutter_deeplinking_enabled"
               android:value="false"
               />
+        </activity>
+        <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
+             Exactly one is enabled: Noir, the default, until the reader chooses another, and then the one chosen
+             (AppIconSwitch.kt, when the app goes to the background). -->
+        <activity-alias
+            android:name=".LauncherNoir"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_noir"
+            android:roundIcon="@mipmap/ic_launcher_noir"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherInk"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_ink"
+            android:roundIcon="@mipmap/ic_launcher_ink"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherNightGold"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_night_gold"
+            android:roundIcon="@mipmap/ic_launcher_night_gold"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherNightSea"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_night_sea"
+            android:roundIcon="@mipmap/ic_launcher_night_sea"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_cream"
+            android:roundIcon="@mipmap/ic_launcher_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
