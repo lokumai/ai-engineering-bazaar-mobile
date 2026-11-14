@@ -81,7 +81,7 @@ class _RobotState extends State<_Robot> {
   Widget build(BuildContext context) => const SizedBox.expand(key: _robotKey);
 }
 
-const _greeting = Duration(milliseconds: 1200);
+const _greeting = Duration(milliseconds: 850);
 const _robotKey = Key('the robot');
 final _robot = find.byKey(_robotKey);
 
@@ -91,6 +91,7 @@ Widget _splash({
   AppIconCubit? appIcon,
   bool reducedMotion = false,
   Duration? greeting = _greeting,
+  ThemeMode themeMode = ThemeMode.light,
 }) => MultiBlocProvider(
   providers: [
     if (appIcon != null)
@@ -103,6 +104,8 @@ Widget _splash({
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),
+    darkTheme: bazaarTheme(brightness: Brightness.dark, platform: TargetPlatform.android),
+    themeMode: themeMode,
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -146,7 +149,7 @@ void main() {
     await _frames(tester, _greeting - const Duration(milliseconds: 100));
     expect(_scene, findsOneWidget, reason: 'the app is ready, but the robot is still greeting');
 
-    await _frames(tester, const Duration(milliseconds: 100) + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, const Duration(milliseconds: 100) + WelcomeSting.leave + const Duration(milliseconds: 100));
     expect(_scene, findsNothing);
     expect(find.text('the app'), findsOneWidget);
   });
@@ -163,7 +166,7 @@ void main() {
     expect(_scene, findsOneWidget);
 
     states.add(_ready);
-    await _frames(tester, WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, WelcomeSting.leave + const Duration(milliseconds: 100));
     expect(_scene, findsNothing);
   });
 
@@ -175,7 +178,7 @@ void main() {
       initialState: const ContentBroken(code: ContentErrorCode.bundledIndexUnreadable),
     );
     await tester.pumpWidget(_splash(content: content, record: loadingRecordBloc()));
-    await _frames(tester, _greeting + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
   });
@@ -186,7 +189,7 @@ void main() {
     await _frames(tester, WelcomeSting.longest - const Duration(milliseconds: 100));
     expect(_scene, findsOneWidget);
 
-    await _frames(tester, const Duration(milliseconds: 100) + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, const Duration(milliseconds: 100) + WelcomeSting.leave + const Duration(milliseconds: 100));
     expect(_scene, findsNothing);
   });
 
@@ -223,7 +226,7 @@ void main() {
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 0);
 
-    await _frames(tester, _greeting + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
     await tester.tapAt(const Offset(200, 300));
     expect(taps, 1);
   });
@@ -258,7 +261,7 @@ void main() {
     final appIcon = AppIconCubit(store: store)..load();
     addTearDown(appIcon.close);
     await tester.pumpWidget(_splash(appIcon: appIcon));
-    await _frames(tester, _greeting + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
 
     expect(_scene, findsOneWidget);
     expect(_robot, findsNothing);
@@ -268,18 +271,54 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(_robot, findsOneWidget);
-    await _frames(tester, _greeting + WelcomeSting.fade + const Duration(milliseconds: 100));
+    await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
 
     expect(_scene, findsNothing);
   });
 
-  testWidgets('stands on the ground of the chosen icon', (tester) async {
-    final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.tvDark))..load();
-    addTearDown(appIcon.close);
-    await tester.pumpWidget(_splash(appIcon: appIcon));
-    await tester.pump();
+  for (final (mode, brightness) in [(ThemeMode.light, Brightness.light), (ThemeMode.dark, Brightness.dark)]) {
+    testWidgets(
+      'stands on the ground the reader reads on, ${brightness.name}, whatever the icon (the owner, 2026-11-14)',
+      (tester) async {
+        final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.tvDark))..load();
+        addTearDown(appIcon.close);
+        await tester.pumpWidget(_splash(appIcon: appIcon, themeMode: mode));
+        await tester.pump();
+        expect(
+          tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
+          BazaarIcon.tvDark.ground,
+          reason: 'it starts in the launch screen colour',
+        );
+        await _frames(tester, WelcomeSting.tint + const Duration(milliseconds: 32));
 
-    expect(tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color, BazaarIcon.tvDark.ground);
-    await _frames(tester, _greeting + WelcomeSting.fade + const Duration(milliseconds: 100));
+        final ground = bazaarTheme(brightness: brightness, platform: TargetPlatform.android).scaffoldBackgroundColor;
+        expect(tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color, ground);
+        await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
+      },
+    );
+  }
+
+  testWidgets('the app opens out of a circle where the robot stood, as the robot shrinks away, in about a second', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_splash());
+    await tester.pump();
+    await _frames(tester, _greeting + const Duration(milliseconds: 32));
+    await _frames(tester, WelcomeSting.leave * 0.6);
+
+    expect(_scene, findsOneWidget, reason: 'still leaving');
+    final clip = tester.widget<ClipPath>(find.descendant(of: _scene, matching: find.byType(ClipPath)).first);
+    final size = tester.getSize(_scene);
+    final path = clip.clipper!.getClip(size);
+    expect(path.contains(size.center(Offset.zero)), isFalse, reason: 'the middle is open onto the app');
+    expect(path.contains(const Offset(2, 2)), isTrue, reason: 'the corners still covered');
+    final scales = tester
+        .widgetList<Transform>(find.ancestor(of: _robot, matching: find.byType(Transform)))
+        .map((transform) => transform.transform.storage[0]);
+    expect(scales.any((scale) => scale < 0.5), isTrue, reason: 'the robot is shrinking away');
+
+    await _frames(tester, WelcomeSting.leave * 0.5);
+    expect(_scene, findsNothing);
+    expect(_greeting + WelcomeSting.leave, lessThan(const Duration(milliseconds: 1400)));
   });
 }
