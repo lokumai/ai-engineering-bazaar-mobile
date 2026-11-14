@@ -51,14 +51,19 @@ final class TinyLm {
   /// The add-k smoothing of the loss, so a word never read still has a chance.
   static const _k = 0.5;
 
-  /// The longest thing it says.
-  static const longest = 12;
+  /// The longest thing it says: long enough that most of what it writes ends of itself, as a sentence does, rather
+  /// than being cut (plan 9.10).
+  static const longest = 18;
 
   /// What it counted of everything it read.
   final _Counts _all = _Counts();
 
   /// What it counted of each module it read, by the module's key: a topic it can keep to while it writes.
   final Map<String, _Counts> _topics = {};
+
+  /// What it counted of each section of each module it read, by the module's key: the narrower subject a sentence
+  /// keeps to (plan 9.10).
+  final Map<String, List<_Counts>> _sections = {};
 
   int _trained = 0;
   String _a = _start;
@@ -77,23 +82,28 @@ final class TinyLm {
   /// Reads a module's [sentences] (`module_sentences.dart`), each ending in [end], all but every tenth, which it holds
   /// out to measure its loss on, as a training run keeps a test set from each source; returns the tokens read.
   /// [holdOut] false reads them without holding the tenth out again, for a curve that held them out first.
-  /// With a [topic] (the module's key), it also counts the module apart, as a topic to keep to ([write]).
-  int read(List<List<String>> sentences, {bool holdOut = true, String? topic}) {
-    final (taught, tested) = splitOut(sentences);
+  /// With a [topic] (the module's key), it also counts the module apart, as a topic to keep to ([write]), and each of
+  /// its [sections] (the index of each section's first sentence, `module_sentences.dart`) apart within it.
+  int read(List<List<String>> sentences, {bool holdOut = true, String? topic, List<int> sections = const [0]}) {
+    final (_, tested) = splitOut(sentences);
     if (holdOut) _tested.addAll(tested);
-    for (final sentence in [...taught, ...tested]) {
-      for (final word in sentence) {
-        _words.add(word);
-      }
+    for (final sentence in sentences) {
+      _words.addAll(sentence);
     }
     var count = 0;
     final own = topic == null ? null : (_topics[topic] ??= _Counts());
-    for (final sentence in taught) {
+    final parts = topic == null ? null : (_sections[topic] = [for (final _ in sections) _Counts()]);
+    // The taught sentences in their order, with the section each stands in.
+    for (final (i, sentence) in sentences.indexed) {
+      if (i % 10 == 9) continue;
+      final part = parts?[_sectionAt(sections, i)];
+      if (sentence.length >= 3) part?.openings.add((sentence[0], sentence[1]));
       var a = _start;
       var b = _start;
       for (final word in [...sentence, end]) {
         _all.add(a, b, word);
         own?.add(a, b, word);
+        part?.add(a, b, word);
         a = b;
         b = word;
         count++;
@@ -101,6 +111,15 @@ final class TinyLm {
     }
     _read += count;
     return count;
+  }
+
+  /// The section of [sections] that sentence [index] stands in.
+  static int _sectionAt(List<int> sections, int index) {
+    var at = 0;
+    for (final (i, start) in sections.indexed) {
+      if (start <= index) at = i;
+    }
+    return at;
   }
 
   /// The words it has read at least once.
@@ -173,18 +192,28 @@ final class TinyLm {
     return _all.chance(a, b, word, alone, backoff);
   }
 
-  /// The chance of [word] after [a] and [b] keeping to [topic]: half what followed them in the module, half what
-  /// followed them in everything it read, so it writes of the module in the words of all it read.
-  double _topicChance(_Counts? topic, String a, String b, String word, double backoff) {
+  /// The chance of [word] after [a] and [b] keeping to [keep]'s module and section: [topicShare] of it what followed
+  /// them in the module (more in the section than in the rest of the module), the rest what followed them in
+  /// everything it read, so it writes of the section in the words of all it read.
+  double _topicChance(_Keep? keep, String a, String b, String word, double backoff) {
     final all = chance(a, b, word, backoff: backoff);
-    if (topic == null) return all;
-    final total = _all.total;
-    final alone = total == 0 ? 0.0 : (_all.once[word] ?? 0) / total;
-    return _topicShare * topic.chance(a, b, word, alone, backoff) + (1 - _topicShare) * all;
+    if (keep == null) return all;
+    // Each passes down to how often the word came in it, not in all it read, so a word of another subject gets its
+    // chance only from the rest.
+    final module = keep.module.chance(a, b, word, keep.module.alone(word), backoff);
+    final section = keep.section == null
+        ? module
+        : keep.section!.chance(a, b, word, keep.section!.alone(word), backoff);
+    final topic = _sectionShare * section + (1 - _sectionShare) * module;
+    return keep.share * topic + (1 - keep.share) * all;
   }
 
-  /// How much of a word's chance a topic decides.
-  static const _topicShare = 0.5;
+  /// How much of a word's chance its topic decides, by the modules it read: half with one; more with each it reads
+  /// after, up to four fifths, so that all it read, as it grows, does not drown the one it speaks of (plan 9.10).
+  static double topicShare(int modules) => math.min(0.8, 0.5 + 0.05 * math.max(0, modules - 1));
+
+  /// How much of a topic's share its section decides, the rest the whole module's.
+  static const _sectionShare = 0.6;
 
   /// The mean surprise on the sentences it never reads, in nats.
   double loss() {
@@ -223,9 +252,11 @@ final class TinyLm {
   /// words, which a sentence needs; and an answer the same as a recent one is written again, up to three times. Cold,
   /// it takes its likeliest words regardless, every time.
   ///
-  /// With a [topic], a module it read, it keeps to the module: half of each word's chance is what followed in the
-  /// module. With [thoughts] above one it writes that many sentences and says the one it judges best ([judge]): the
-  /// one that reads most smoothly to it and keeps most to the topic; hot, it judges loosely, cold, it says the best.
+  /// With a [topic], a module it read, each sentence keeps to one of its sections, drawn by its length: [topicShare] of
+  /// each word's chance is what followed in the module and the section, and most often it starts as one of the
+  /// section's sentences starts, as a large model continues a prompt (plan 9.10). With [thoughts] above one it writes
+  /// that many sentences and says the one it judges best ([judge]): the one that reads most smoothly to it, keeps most
+  /// to the topic and ends of itself; hot, it judges loosely, cold, it says the best.
   Babble write({
     required double temperature,
     required math.Random random,
@@ -237,24 +268,44 @@ final class TinyLm {
     final penalise = temperature >= cold && recent.isNotEmpty;
     final common = penalise ? _commonest(_common) : const <String>{};
     final avoid = penalise ? {for (final said in recent) ...said}.difference(common) : const <String>{};
-    final keep = topic == null ? null : _topics[topic];
-    final drafts = <Babble>[];
+    final module = topic == null ? null : _topics[topic];
+    final share = topicShare(_topics.length);
+    final drafts = <_Draft>[];
     for (var i = 0; i < math.max(1, thoughts); i++) {
+      final keep = module == null ? null : _Keep(module, _drawSection(topic!, random), share);
       var written = _write(temperature, random, avoid, keep);
-      for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.tokens)); tries++) {
+      for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.babble.tokens)); tries++) {
         written = _write(temperature, random, avoid, keep);
       }
       drafts.add(written);
     }
-    if (drafts.length == 1) return drafts.single;
+    if (drafts.length == 1) return drafts.single.babble;
     final fresh = [
       for (final draft in drafts)
-        if (!recent.any((said) => _same(said, draft.tokens))) draft,
+        if (!recent.any((said) => _same(said, draft.babble.tokens))) draft,
     ];
     final pool = fresh.isEmpty ? drafts : fresh;
     // A judgement is a log chance: raised back to a chance, the temperature picks among them as among words.
-    final scores = [for (final draft in pool) math.exp(_judgeTemper * judge(draft.tokens, topic: topic))];
-    return pool[_pick(scores, temperature, random)];
+    final scores = [
+      for (final draft in pool)
+        math.exp(_judgeTemper * _judge(draft.babble.tokens, draft.keep, finished: draft.finished)),
+    ];
+    return pool[_pick(scores, temperature, random)].babble;
+  }
+
+  /// A section of [topic] to keep to, drawn by its length, or null when it was read without sections.
+  _Counts? _drawSection(String topic, math.Random random) {
+    final parts = _sections[topic];
+    if (parts == null || parts.isEmpty) return null;
+    final sizes = [for (final part in parts) part.total.toDouble()];
+    final size = sizes.fold(0.0, (a, b) => a + b);
+    if (size <= 0) return null;
+    var at = random.nextDouble() * size;
+    for (final (i, part) in parts.indexed) {
+      at -= sizes[i];
+      if (at <= 0) return part;
+    }
+    return parts.last;
   }
 
   /// How sharply its judgement picks among its drafts.
@@ -262,10 +313,14 @@ final class TinyLm {
 
   /// How it judges a sentence it wrote: the mean log chance of its words and its end (how smoothly it reads, to what
   /// it read), and, with a [topic], a share for the words that mark the topic; a sentence of fewer than four words is
-  /// judged a little lower.
-  double judge(List<String> tokens, {String? topic}) {
+  /// judged a little lower, and one cut at [longest] words before it ended ([finished] false) lower still.
+  double judge(List<String> tokens, {String? topic, bool finished = true}) {
+    final module = topic == null ? null : _topics[topic];
+    return _judge(tokens, module == null ? null : _Keep(module, null, topicShare(_topics.length)), finished: finished);
+  }
+
+  double _judge(List<String> tokens, _Keep? keep, {required bool finished}) {
     if (tokens.isEmpty) return double.negativeInfinity;
-    final keep = topic == null ? null : _topics[topic];
     var sum = 0.0;
     var a = _start;
     var b = _start;
@@ -276,12 +331,16 @@ final class TinyLm {
     }
     var score = sum / (tokens.length + 1);
     if (keep != null) {
-      final marks = _keywords(keep);
+      final marks = _keywords(keep.module);
       score += _topicWeight * tokens.where(marks.contains).length / tokens.length;
     }
     if (tokens.length < 4) score -= 0.5;
+    if (!finished) score -= _unfinished;
     return score;
   }
+
+  /// How much lower a sentence cut before its end is judged: below most that end, so it says one that ends.
+  static const _unfinished = 1.0;
 
   /// How much a sentence's keeping to its topic counts beside how smoothly it reads.
   static const _topicWeight = 1.5;
@@ -304,11 +363,20 @@ final class TinyLm {
   /// each, up to twenty. The more of the course it read, the more it thinks before it speaks.
   static int thoughtsFor(int modules) => math.min(20, 1 + 3 * modules);
 
-  Babble _write(double temperature, math.Random random, Set<String> avoid, _Counts? keep) {
+  _Draft _write(double temperature, math.Random random, Set<String> avoid, _Keep? keep) {
     final said = <String>[];
     var hallucinating = false;
     var a = _start;
     var b = _start;
+    // Most often it starts as a sentence of the section starts, its first two words, and goes on in its own words.
+    final openings = keep?.section?.openings ?? const [];
+    if (openings.isNotEmpty && random.nextDouble() < _opened) {
+      final (first, second) = openings[random.nextInt(openings.length)];
+      said.addAll([first, second]);
+      a = first;
+      b = second;
+    }
+    var finished = false;
     while (said.length < longest) {
       // The words worth weighing: what followed the last words, here or in the topic, and its commonest words, through
       // which a hot model makes up a join; the rest are too unlikely to matter.
@@ -316,7 +384,8 @@ final class TinyLm {
         for (final word in <String>{
           ...?_all.after2['$a $b']?.keys,
           ...?_all.after1[b]?.keys,
-          ...?keep?.after1[b]?.keys,
+          ...?keep?.module.after1[b]?.keys,
+          ...?keep?.section?.after1[b]?.keys,
           ..._head(),
         })
           if (!(word == end && said.isEmpty)) word,
@@ -326,15 +395,21 @@ final class TinyLm {
           _topicChance(keep, a, b, word, _writingBackoff) / (avoid.contains(word) ? _penalty : 1),
       ];
       final word = options[_pick(chances, temperature, random)];
-      if (word == end) break;
+      if (word == end) {
+        finished = true;
+        break;
+      }
       // A pair it never read is a join it made up.
       if ((_all.after1[b]?[word] ?? 0) == 0) hallucinating = true;
       said.add(word);
       a = b;
       b = word;
     }
-    return (tokens: said, hallucinating: hallucinating);
+    return (babble: (tokens: said, hallucinating: hallucinating), keep: keep, finished: finished);
   }
+
+  /// How often a sentence on a topic starts as one of its section's does.
+  static const _opened = 0.7;
 
   /// Its two hundred commonest words, counted again only when it has read on.
   Set<String> _head() {
@@ -422,6 +497,18 @@ final class TinyLm {
   }
 }
 
+/// A sentence it wrote, with what it kept to and whether it ended of itself before [TinyLm.longest] words.
+typedef _Draft = ({Babble babble, _Keep? keep, bool finished});
+
+/// What a sentence keeps to: a module, maybe one of its sections, and the [share] of each word's chance they decide.
+final class _Keep {
+  const _Keep(this.module, this.section, this.share);
+
+  final _Counts module;
+  final _Counts? section;
+  final double share;
+}
+
 /// What a model counted of some text: how often each word came, and which word followed one word and which two.
 final class _Counts {
   final Map<String, int> once = {};
@@ -434,6 +521,9 @@ final class _Counts {
   /// The words that mark this text as a topic, once counted; counted again after it reads on.
   Set<String>? keywords;
 
+  /// The first two words of each of its sentences of three words or more: where a sentence on it can start.
+  final List<(String, String)> openings = [];
+
   void add(String a, String b, String word) {
     once[word] = (once[word] ?? 0) + 1;
     total++;
@@ -444,6 +534,9 @@ final class _Counts {
     after2Total[two] = (after2Total[two] ?? 0) + 1;
     keywords = null;
   }
+
+  /// How often [word] came in this text, as a share of its words.
+  double alone(String word) => total == 0 ? 0.0 : (once[word] ?? 0) / total;
 
   /// The chance of [word] after [a] and [b] (Witten-Bell smoothing): what followed the two words, the rest of the
   /// chance going to what followed [b] alone, and the rest of that to [alone], each in the measure of how many

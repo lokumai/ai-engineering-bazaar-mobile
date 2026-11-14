@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/module_sentences.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
@@ -191,17 +192,17 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// Its language model, which has read as many tokens as [PocketModelReady.model] was fed, and its modules.
   TinyLm? _lm;
 
-  /// The modules' sentences read so far, by language and key, so a curve does not read them again.
-  final Map<(String, String), List<List<String>>> _sentences = {};
+  /// The modules' texts read so far, by language and key, so a curve does not read them again.
+  final Map<(String, String), ModuleText> _read = {};
 
   /// What it said last, a few answers back, for its repetition penalty.
   final List<List<String>> _recent = [];
 
-  Future<List<List<String>>?> _load(String key, String language) async {
-    final kept = _sentences[(language, key)];
+  Future<ModuleText?> _load(String key, String language) async {
+    final kept = _read[(language, key)];
     if (kept != null) return kept;
-    final read = await _texts?.sentences(key, language);
-    if (read != null) _sentences[(language, key)] = read;
+    final read = await _texts?.text(key, language);
+    if (read != null) _read[(language, key)] = read;
     return read;
   }
 
@@ -211,10 +212,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     final lm = TinyLm.trained(language, model.tokens);
     final readings = <(int, List<List<String>>)>[];
     for (final reading in model.readings) {
-      final sentences = await _load(reading.key, language);
-      if (sentences == null) continue;
-      lm.read(sentences, topic: reading.key);
-      readings.add((reading.at, sentences));
+      final text = await _load(reading.key, language);
+      if (text == null) continue;
+      lm.read(text.sentences, topic: reading.key, sections: text.sections);
+      readings.add((reading.at, text.sentences));
     }
     return (lm, TinyLm.curve(language, model.tokens, readings: readings));
   }
@@ -225,7 +226,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     model.tokens,
     readings: [
       for (final reading in model.readings)
-        if (_sentences[(language, reading.key)] case final sentences?) (reading.at, sentences),
+        if (_read[(language, reading.key)] case final text?) (reading.at, text.sentences),
     ],
   );
 
@@ -309,9 +310,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       case PocketModelModuleRead(:final key):
         if (ready.model.hasRead(key)) return;
         final lm = _lm!;
-        final sentences = await _load(key, lm.language);
-        if (sentences == null) return;
-        final count = lm.read(sentences, topic: key);
+        final text = await _load(key, lm.language);
+        if (text == null) return;
+        final sentences = text.sentences;
+        final count = lm.read(sentences, topic: key, sections: text.sections);
         final model = ready.model.readAt(key, count, now);
         await _store.save(model);
         emit(

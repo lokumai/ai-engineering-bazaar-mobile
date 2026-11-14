@@ -8,9 +8,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 
 /// Where the pocket model reads a course module (plan 9.6).
 abstract interface class IPocketTexts {
-  /// The sentences of the module [key] in [language] (in English where it is not translated), or null when it cannot
-  /// be read: no such module, a planned one, or a storage error.
-  Future<List<List<String>>?> sentences(String key, String language);
+  /// The text of the module [key] in [language] (in English where it is not translated), its sentences and where its
+  /// sections start, or null when it cannot be read: no such module, a planned one, or a storage error.
+  Future<ModuleText?> text(String key, String language);
 }
 
 /// Reads a module's document from the course on this device, once the content is ready; For Engineers' document, or
@@ -23,7 +23,7 @@ final class ContentPocketTexts implements IPocketTexts {
   static final _log = AppLogger.getLogger('ContentPocketTexts');
 
   @override
-  Future<List<List<String>>?> sentences(String key, String language) async {
+  Future<ModuleText?> text(String key, String language) async {
     try {
       final state = _content.state is ContentReady
           ? _content.state
@@ -35,8 +35,8 @@ final class ContentPocketTexts implements IPocketTexts {
         final docs = module.tracks[track]?.docs;
         final path = docs?[language] ?? docs?['en'];
         if (path == null) continue;
-        final read = sentencesOf(await _repository.readModuleDoc(path));
-        if (read.isNotEmpty) return read;
+        final read = textOf(await _repository.readModuleDoc(path));
+        if (read.sentences.isNotEmpty) return read;
       }
       return null;
     } on Object catch (error) {
@@ -47,12 +47,15 @@ final class ContentPocketTexts implements IPocketTexts {
   }
 }
 
-/// Modules for tests: [texts] by key.
+/// Modules for tests: [texts] by key, each one section.
 final class MemoryPocketTexts implements IPocketTexts {
   const MemoryPocketTexts(this.texts);
 
   final Map<String, List<List<String>>> texts;
 
   @override
-  Future<List<List<String>>?> sentences(String key, String language) async => texts[key];
+  Future<ModuleText?> text(String key, String language) async => switch (texts[key]) {
+    final sentences? => oneSection(sentences),
+    null => null,
+  };
 }

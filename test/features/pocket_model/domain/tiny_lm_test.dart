@@ -295,5 +295,52 @@ void main() {
 
       expect(mean(10), greaterThan(mean(1)));
     });
+
+    test('the more modules it read, the more of a word\'s chance its topic decides, at most four fifths', () {
+      expect(
+        [
+          for (final n in [0, 1, 2, 4, 7, 20]) TinyLm.topicShare(n),
+        ],
+        [0.5, 0.5, 0.55, 0.65, 0.8, 0.8],
+      );
+    });
+
+    // One module of two sections far apart: the stars, then the bread.
+    final both = [...stars, ...bread];
+
+
+    test('most sentences on a topic start as one of its sentences starts', () {
+      final model = TinyLm.trained('en', 400)..read(both, topic: 'mixed/both', sections: [0, stars.length]);
+      final (taught, _) = TinyLm.splitOut(both);
+      final openings = {for (final s in taught) '${s[0]} ${s[1]}'};
+      var opened = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final said = model.write(temperature: 1.2, random: math.Random(seed), topic: 'mixed/both').tokens;
+        if (said.length >= 2 && openings.contains('${said[0]} ${said[1]}')) opened++;
+      }
+      expect(opened, greaterThan(24));
+    });
+
+    test('a sentence cut before its end is judged lower than the same words ended', () {
+      final model = TinyLm.trained('en', 400)..read(bread, topic: 'kitchen/bread');
+      final words = 'the dough rises slowly overnight in a warm kitchen'.split(' ');
+      expect(
+        model.judge(words, topic: 'kitchen/bread', finished: false),
+        lessThan(model.judge(words, topic: 'kitchen/bread') - 0.9),
+      );
+    });
+
+    test('it says up to eighteen words, so most of what it says ends of itself', () {
+      expect(TinyLm.longest, 18);
+      final model = TinyLm.trained('en', 1600)
+        ..read(stars, topic: 'sky/stars')
+        ..read(bread, topic: 'kitchen/bread');
+      var cut = 0;
+      for (var seed = 0; seed < 30; seed++) {
+        final said = model.write(temperature: 1.0, random: math.Random(seed), topic: 'sky/stars', thoughts: 7);
+        if (said.tokens.length == TinyLm.longest) cut++;
+      }
+      expect(cut, lessThan(3));
+    });
   });
 }
