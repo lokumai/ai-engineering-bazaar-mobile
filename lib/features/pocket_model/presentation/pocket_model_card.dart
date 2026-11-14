@@ -607,7 +607,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                           child: Align(
                             alignment: AlignmentDirectional.topStart,
                             child: SpeechBubble(
-                              key: ValueKey(state.beat),
+                              // A new answer is a new bubble; a pet or a feed beside it leaves it as it is.
+                              key: ObjectKey(speech.tokens),
                               speech: speech,
                               // It thinks first when asked; overfit, it blurts.
                               delay: state.action == PocketAction.spoke && !_reduced

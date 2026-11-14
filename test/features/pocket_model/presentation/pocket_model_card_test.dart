@@ -214,6 +214,26 @@ void main() {
     await _rest(tester);
   });
 
+  testWidgets('a pet while it has spoken leaves its words as they stand, not written again', (tester) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(-400, 0));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    final said = TinyLm.trained('en', 2000).write(temperature: 0, random: math.Random()).tokens.join(' ');
+    for (var i = 0; i < 40; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text(said), findsOneWidget);
+
+    final stage = tester.getRect(_stage);
+    await tester.tapAt(stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text(said), findsOneWidget, reason: 'the whole answer still there, with no caret');
+    await _rest(tester);
+  });
+
   testWidgets('asked, it streams what it says a token at a time', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
     await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(-400, 0));
