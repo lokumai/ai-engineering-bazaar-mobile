@@ -14,6 +14,7 @@ import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
@@ -93,6 +94,11 @@ class AppScope extends StatelessWidget {
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+          // The pocket model, shared by its button in the shell's corner and the sheet it opens (plan 9.4).
+          BlocProvider<PocketModelBloc>(
+            create: (context) =>
+                PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
+          ),
           BlocProvider<LanguageCubit>(
             lazy: false,
             create: (context) => LanguageCubit(

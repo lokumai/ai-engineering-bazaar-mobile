@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
-import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart' show cold;
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
@@ -20,25 +20,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
-/// Home's pocket model (plan 9.2): a tiny model to play with when bored, under Your path. The reader feeds it tokens
+/// The pocket model (plan 9.2, 9.4): a tiny model to play with when bored, in the sheet its button opens
+/// (`pocket_assistant.dart`), over the app's [PocketModelBloc]. The reader feeds it tokens
 /// and its language model reads them, a few words of its text at a time: its level rises, its loss on text it never
 /// read falls, and what it writes goes from noise to the words it read to sentences of its own. Its temperature makes
 /// it repeat itself when cold and hallucinate when hot; fed too fast it overfits; left for hours it grows hungry and
 /// falls asleep. A tap pets it, and its eyes follow the finger.
 ///
 /// It is drawn by one painter and moves only for a few seconds after the reader touches it; otherwise it only blinks
-/// now and then, so Home costs nothing while read. Under reduced motion nothing flies and nothing moves.
+/// now and then, so the open sheet costs nothing while read. Under reduced motion nothing flies and nothing moves.
 class PocketModelCard extends StatelessWidget {
   const PocketModelCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      // The language follows from the view's dependencies: a create may not listen to the locale.
-      create: (context) => PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
-      child: const _PocketModelView(),
-    );
-  }
+  Widget build(BuildContext context) => const _PocketModelView();
 }
 
 class _PocketModelView extends StatefulWidget {
@@ -86,6 +81,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   @override
   void initState() {
     super.initState();
+    if (context.read<PocketModelBloc>().state case PocketModelReady(:final known)) _known = known;
     _scheduleBlink();
   }
 
@@ -355,7 +351,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         life: 1.2,
         from: _mouth + Offset(side * 0.05, -0.02),
         to: _mouth + Offset(side * 0.12, -0.3),
-        label: '</s>',
+        label: TinyLm.end,
       ),
     );
   }
@@ -661,11 +657,15 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                 children: [
                   Text(s.pocket_temperature, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                   const Spacer(),
+                  // The bead's colour in a dot beside the value, which is set in the text's colour to be read.
+                  DecoratedBox(
+                    decoration: BoxDecoration(color: beadColour(state.temperature), shape: BoxShape.circle),
+                    child: const SizedBox.square(dimension: 10),
+                  ),
+                  const SizedBox(width: 6),
                   Text(
                     NumberFormat('0.0', language).format(state.temperature),
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: beadColour(state.temperature).withValues(alpha: 1),
-                    ),
+                    style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface),
                   ),
                 ],
               ),

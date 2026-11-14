@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
@@ -21,13 +20,14 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../support/accessibility.dart';
 import '../../../support/bazaar_app_harness.dart';
 
-/// Home's pocket model (plan 9.2), under Your path.
+/// The pocket model (plan 9.2, 9.4), in the sheet its round button opens from Home.
 
 Future<void> _pump(
   WidgetTester tester, {
   MemoryPocketModelStore? store,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
+  bool open = true,
 }) async {
   tester.view.physicalSize = const Size(393, 2400);
   tester.view.devicePixelRatio = 1;
@@ -40,6 +40,11 @@ Future<void> _pump(
   );
   await tester.pump();
   await tester.pump();
+  if (open) {
+    await tester.tap(find.byKey(const ValueKey('pocket-assistant')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+  }
 }
 
 /// Lets the stage settle: the robot rests after its lively seconds.
@@ -56,17 +61,51 @@ final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widge
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('sits on Home under Your path and over the offline note', (tester) async {
-    await _pump(tester);
+  testWidgets('its round button sits on Home, the catalog and Quiz, never on a module, and opens it', (tester) async {
+    await _pump(tester, open: false);
+    final button = find.byKey(const ValueKey('pocket-assistant'));
+    expect(button, findsOneWidget);
+    expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
+    expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
+    for (final (label, shows) in [('Catalog', true), ('Quiz', true), ('Settings', false), ('Home', true)]) {
+      await tester.tap(find.text(label).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(button, shows ? findsOneWidget : findsNothing, reason: label);
+    }
+
+    await tester.tap(button);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byType(PocketModelCard), findsOneWidget);
     expect(find.text('Pocket model'), findsOneWidget);
-    final path = tester.getRect(find.byType(HomePath));
-    final toy = tester.getRect(find.byType(PocketModelCard));
-    final note = tester.getRect(find.byType(HomeOfflineNote));
-    expect(toy.top, greaterThan(path.bottom));
-    expect(note.top, greaterThan(toy.bottom));
     expect(find.text('New: it knows no words yet. Feed it some tokens.'), findsOneWidget);
     await _rest(tester);
+  });
+
+  testWidgets('the end of a page scrolls clear of its button', (tester) async {
+    await _pump(tester, open: false);
+    tester.view.physicalSize = const Size(393, 700);
+    await tester.pump();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -4000));
+    await tester.pump(const Duration(milliseconds: 500));
+    final note = tester.getRect(find.byType(HomeOfflineNote));
+    final button = tester.getRect(find.byKey(const ValueKey('pocket-assistant')));
+    expect(note.bottom, lessThanOrEqualTo(button.top));
+  });
+
+  testWidgets('its button shows its mood, and a screen reader hears its level', (tester) async {
+    final yesterday = clock.now().subtract(const Duration(days: 1));
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: yesterday)), open: false);
+    final semantics = tester.ensureSemantics();
+    await tester.pump();
+    final head = tester.widget<CustomPaint>(
+      find.descendant(of: find.byKey(const ValueKey('pocket-assistant')), matching: find.byType(CustomPaint)).last,
+    );
+    expect((head.painter! as RobotHeadPainter).face, RobotFace.asleep);
+    expect(find.bySemanticsLabel('Pocket model, Level 2'), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('a feed trains it: tokens, the eating face, and the loss curve', (tester) async {

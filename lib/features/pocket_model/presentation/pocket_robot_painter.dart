@@ -728,3 +728,45 @@ class PocketRobotPainter extends CustomPainter {
   @override
   bool shouldRepaint(PocketRobotPainter old) => old.frame != frame;
 }
+
+/// The robot's head and fez alone, still, in the middle of its box: the face of the assistant button.
+class RobotHeadPainter extends CustomPainter {
+  RobotHeadPainter({required this.face, this.temperature = 0.8});
+
+  final RobotFace face;
+  final double temperature;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final frame = RobotFrame(
+      time: 0,
+      face: face,
+      look: Offset.zero,
+      blink: 0,
+      hop: 0,
+      temperature: temperature,
+      level: 0,
+      particles: const [],
+      alive: false,
+      mirrored: false,
+    );
+    final robot = PocketRobotPainter(frame: () => frame, repaint: const AlwaysStoppedAnimation(0));
+    // The head and its fez stand in a box about 100 wide and 96 high, from the fez's top to the head's foot.
+    final s = math.min(size.width / 100, size.height / 96);
+    canvas
+      ..save()
+      ..translate(size.width / 2 - 2 * s, size.height / 2 + 46 * s)
+      ..scale(s);
+    final head = RRect.fromLTRBR(-44, -62, 44, 0, const Radius.circular(20));
+    canvas
+      ..drawRRect(head, Paint()..color = RobotColors.rim)
+      ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
+    robot
+      .._face(canvas, frame)
+      .._fez(canvas, frame);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(RobotHeadPainter old) => old.face != face || old.temperature != temperature;
+}

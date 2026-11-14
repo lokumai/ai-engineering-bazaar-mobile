@@ -11,7 +11,7 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
-import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
@@ -67,12 +67,12 @@ class AppRouterFactory {
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
             child: DevConsoleShortcut(
-              child: BazaarShell(location: state.uri.path, child: child),
+              // The pocket model's round button, in the corner of Home, the catalog and the Quiz tab (plan 9.4).
+              child: BazaarShell(location: state.uri.path, assistant: const PocketAssistantButton(), child: child),
             ),
           ),
           routes: [
-            // Home, with the pocket model to play with under Your path (plan 9.2).
-            _page('home', BazaarPaths.home, const HomePage(toy: PocketModelCard())),
+            _page('home', BazaarPaths.home, const HomePage()),
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
             _pageOf('level', '/sheets/:level', (state) => _level(state, Track.engineers)),

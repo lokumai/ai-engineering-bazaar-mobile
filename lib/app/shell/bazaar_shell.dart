@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
@@ -42,12 +43,27 @@ import 'package:go_router/go_router.dart';
 ///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).
+///
+/// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
+/// navigation on the first page of Home, the catalog and the Quiz tab; never over a level's page, a module or the
+/// Caravan's stage, and it goes with the navigation when a page folds it away.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child});
+  const BazaarShell({super.key, required this.location, required this.child, this.assistant});
 
   /// The path of the page [child] shows.
   final String location;
   final Widget child;
+
+  /// The round button in the corner of some tabs' first pages.
+  final Widget? assistant;
+
+  /// The pages that show the [assistant]: the first pages of Home, the catalog on either track and the Quiz tab.
+  static const Set<String> assistantPages = {
+    BazaarPaths.home,
+    BazaarPaths.catalogEngineers,
+    BazaarPaths.catalogEveryone,
+    BazaarPaths.quizzes,
+  };
 
   /// The navigation's height: under Material's 80, the icons and their small names.
   static const double navHeight = 62;
@@ -256,12 +272,15 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     // The system back on the first page of a tab other than Home goes Home, as Android apps with a navigation bar do,
     // rather than leaving the app; on Home's first page it leaves.
     final atTabRoot = !pushed && _selectedIndex != 0;
+    final assistantShown =
+        widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
     return PopScope(
       canPop: !atTabRoot,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && atTabRoot) _onDestinationSelected(0);
       },
       child: Scaffold(
+        floatingActionButton: assistantShown ? widget.assistant : null,
         body: Column(
           children: [
             // The status strip stays; the bar and the band fold up with the navigation while a module is read.
@@ -297,9 +316,13 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 child: MediaQuery.removePadding(
                   context: context,
                   removeTop: true,
-                  child: KeyedSubtree(
-                    key: _pageKey,
-                    child: ReadableWidth(child: widget.child),
+                  child: FloatingRoom(
+                    // The button's height and its gap from the navigation, so a page's end scrolls clear of it.
+                    room: assistantShown ? 76 : 0,
+                    child: KeyedSubtree(
+                      key: _pageKey,
+                      child: ReadableWidth(child: widget.child),
+                    ),
                   ),
                 ),
               ),

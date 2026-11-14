@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
@@ -150,6 +151,10 @@ Widget bazaarTestApp({
           BlocProvider<CaravanCubit>.value(value: caravan)
         else
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+        BlocProvider<PocketModelBloc>(
+          create: (context) =>
+              PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
+        ),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
         else
