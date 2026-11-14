@@ -1,5 +1,4 @@
-import 'dart:math' as math;
-
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:equatable/equatable.dart';
 
 /// How the pocket model feels, from how long ago it was fed.
@@ -17,9 +16,9 @@ enum PocketMood {
   asleep,
 }
 
-/// The pocket model on Home (plan 9.2): a tiny model the reader trains with tokens when bored. It is a toy that borrows
-/// the course's ideas, not a model: the tokens it was fed decide its level and the loss its training curve shows, and
-/// both are arithmetic over one count.
+/// The pocket model on Home (plan 9.2): a tiny model the reader trains with tokens when bored. The tokens it was fed
+/// decide its level here, and how much of its text its language model ([TinyLm]) has read, which follows from the
+/// count alone.
 ///
 /// It keeps three facts, which the device stores apart from the record: the tokens fed, when it was last fed, and how
 /// many times in a row it was fed within [overfitWindow] (a burst), which makes it overfit.
@@ -73,21 +72,6 @@ final class PocketModel extends Equatable {
     final next = level + 1 < levels.length ? levels[level + 1] : null;
     if (next == null) return 1;
     return (tokens - levels[level]) / (next - levels[level]);
-  }
-
-  /// The loss after [tokens] of training: it falls fast, then slowly, with a little noise, as a training curve does.
-  static double lossAt(int tokens) {
-    final noise = math.sin(tokens * 12.9898) * 0.04;
-    return math.max(0.08, 3.2 * math.exp(-tokens / 260) + 0.14 + noise * math.exp(-tokens / 900));
-  }
-
-  /// Its loss now.
-  double get loss => lossAt(tokens);
-
-  /// The training curve, [points] losses from the first token to now; empty before the first feed.
-  List<double> curve({int points = 24}) {
-    if (tokens == 0) return const [];
-    return [for (var i = 0; i < points; i++) lossAt((tokens * i / (points - 1)).round())];
   }
 
   /// Whether it is overfit at [now]: fed [overfitFeeds] times in a burst, less than [overfitRest] ago.

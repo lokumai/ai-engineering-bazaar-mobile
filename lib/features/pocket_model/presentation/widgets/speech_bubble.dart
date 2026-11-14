@@ -91,6 +91,9 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
                         ),
                       Text(
                         '${tokens.take(shown).join(' ')}${_controller.value < 1 ? ' |' : ''}',
+                        // Held to five lines, so the longest sentence stays by the robot's head.
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colors.onSurfaceTitle,
                           fontStyle: odd ? FontStyle.italic : FontStyle.normal,

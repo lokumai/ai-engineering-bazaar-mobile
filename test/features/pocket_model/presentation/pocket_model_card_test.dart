@@ -1,11 +1,14 @@
 @Tags(['widget'])
 library;
 
+import 'dart:math' as math;
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
@@ -77,7 +80,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.textContaining('8 tokens'), findsOneWidget);
-    expect(find.textContaining('16 to level 1'), findsOneWidget);
+    expect(find.textContaining('knows 8 words'), findsOneWidget);
+    expect(find.text('Read: a model reads tokens and predicts the next'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.eating);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.token), hasLength(5));
     expect(find.text('The curve starts with the first feed.'), findsNothing);
@@ -92,7 +96,6 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pocket-feed')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Level 1'), findsOneWidget);
     expect(find.text('Level 1: it can say more now.'), findsOneWidget);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.confetti), isNotEmpty);
     await _rest(tester);
@@ -105,13 +108,15 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('pocket-ask')));
     await tester.pump();
+    // Cold, it writes its likeliest sentence, the one its language model writes from what it read.
+    final said = TinyLm.trained('en', 2000).write(temperature: 0, random: math.Random()).tokens;
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.textContaining('more'), findsNothing, reason: 'the bubble pops out first');
+    expect(find.textContaining('${said.first} |'), findsNothing, reason: 'the bubble pops out first');
     await tester.pump(const Duration(milliseconds: 120));
-    expect(find.textContaining('more |'), findsOneWidget, reason: 'the first token, and the caret');
+    expect(find.textContaining('${said.first} |'), findsOneWidget, reason: 'the first token, and the caret');
 
-    await tester.pump(const Duration(seconds: 2));
-    expect(find.text('more tokens more wisdom'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text(said.join(' ')), findsOneWidget);
     expect(find.text('Cold: it says its likeliest words, every time.'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.cold);
     await _rest(tester);
@@ -122,9 +127,12 @@ void main() {
     await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(400, 0));
     await tester.pump();
 
-    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 3));
+    // Hot, it joins words it never read together nearly every time; it is asked until it does.
+    for (var i = 0; i < 6 && find.text('hallucinating').evaluate().isEmpty; i++) {
+      await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 3));
+    }
     expect(find.text('hallucinating'), findsOneWidget);
     expect(find.text('Too hot: it hallucinates. Turn the temperature down.'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.hallucinating);
@@ -263,6 +271,32 @@ void main() {
     expect(LossChartPainter.marks(10), isEmpty);
     expect(LossChartPainter.marks(100), [24, 80]);
     expect(LossChartPainter.marks(5000), PocketModel.levels.skip(1).toList());
+  });
+
+  testWidgets('Start over asks, then starts it again at level 0; Keep it keeps it', (tester) async {
+    final store = MemoryPocketModelStore(PocketModel(tokens: 400, lastFed: clock.now()));
+    await _pump(tester, store: store);
+    final reset = find.byKey(const ValueKey('pocket-reset'));
+
+    await tester.ensureVisible(reset);
+    await tester.tap(reset);
+    await tester.pumpAndSettle();
+    expect(find.text('Start the pocket model over?'), findsOneWidget);
+    await tester.tap(find.text('Keep it'));
+    await tester.pumpAndSettle();
+    expect(store.kept?.tokens, 400, reason: 'kept as it was');
+    expect(find.textContaining('400 tokens'), findsOneWidget);
+
+    await tester.tap(reset);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('pocket-reset-confirm')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(store.kept, PocketModel.fresh);
+    expect(find.textContaining('0 tokens'), findsOneWidget);
+    expect(find.text('The curve starts with the first feed.'), findsOneWidget);
+    expect(reset, findsNothing, reason: 'a fresh model has nothing to forget');
+    await _rest(tester);
   });
 
   testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {

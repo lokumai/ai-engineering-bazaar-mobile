@@ -292,6 +292,8 @@
   "pocket_level": "Seviye {level}",
   "pocket_tokens": "{count} token",
   "pocket_to_next": "Seviye {level} için {count}",
+  "pocket_known": "{count} kelime biliyor",
+  "pocket_status_read": "Okudu: {words}",
   "pocket_top": "Tam eğitildi",
   "pocket_loss": "kayıp {value}",
   "pocket_level_word": "seviye",
@@ -308,5 +310,9 @@
   "pocket_status_level_up": "Seviye {level}: artık daha çok şey söyleyebiliyor.",
   "pocket_hallucinating": "halüsinasyon",
   "pocket_stage_label": "Cep modeli, seviye {level}. Sevmek için dokun.",
-  "pocket_says": "Diyor ki: {words}"
+  "pocket_says": "Diyor ki: {words}",
+  "pocket_reset": "Baştan başlat",
+  "pocket_reset_title": "Cep modeli baştan başlasın mı?",
+  "pocket_reset_body": "Okuduğu bütün tokenları unutur ve seviye 0'dan yeniden başlar. Kurs ve ilerlemen olduğu gibi kalır.",
+  "pocket_reset_keep": "Kalsın"
 }

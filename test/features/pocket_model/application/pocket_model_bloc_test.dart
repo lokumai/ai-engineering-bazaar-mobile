@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,6 +30,8 @@ void main() {
     run(MemoryPocketModelStore(), (async, bloc) {
       expect(ready(bloc).model, PocketModel.fresh);
       expect(ready(bloc).awake, isTrue);
+      expect(ready(bloc).known, 0);
+      expect(ready(bloc).curve, [(tokens: 0, loss: TinyLm('en').loss())]);
     });
   });
 
@@ -44,7 +47,7 @@ void main() {
     });
   });
 
-  test('a feed adds tokens and keeps them', () {
+  test('a feed adds tokens and keeps them, and its model reads that many of its text', () {
     final store = MemoryPocketModelStore();
     run(store, (async, bloc) {
       bloc.add(const PocketModelFed());
@@ -52,6 +55,22 @@ void main() {
       expect(ready(bloc).model.tokens, PocketModel.feedTokens);
       expect(ready(bloc).action, PocketAction.fed);
       expect(store.kept?.tokens, PocketModel.feedTokens);
+      final first = TinyLm('en').train(PocketModel.feedTokens);
+      expect(ready(bloc).read, first);
+      expect(ready(bloc).known, TinyLm.trained('en', PocketModel.feedTokens).known);
+      expect(ready(bloc).curve.last, (tokens: 8, loss: TinyLm.trained('en', 8).loss()));
+
+      bloc.add(const PocketModelFed());
+      async.flushMicrotasks();
+      expect(ready(bloc).read, TinyLm.trained('en', 8).train(PocketModel.feedTokens), reason: 'it reads on');
+    });
+  });
+
+  test('a kept count rebuilds the model that read it', () {
+    run(MemoryPocketModelStore(const PocketModel(tokens: 400)), (async, bloc) {
+      expect(ready(bloc).known, TinyLm.trained('en', 400).known);
+      expect(ready(bloc).curve.last.loss, TinyLm.trained('en', 400).loss());
+      expect(ready(bloc).read, isEmpty);
     });
   });
 
@@ -71,7 +90,7 @@ void main() {
         async.elapse(const Duration(milliseconds: 300));
       }
       expect(ready(bloc).action, PocketAction.overfit);
-      expect(ready(bloc).speech?.tokens.toSet(), {'tokens'});
+      expect(ready(bloc).speech?.tokens.toSet(), {TinyLm.trained('en', ready(bloc).model.tokens).favourite});
       final tokens = ready(bloc).model.tokens;
 
       bloc.add(const PocketModelFed());
@@ -86,14 +105,19 @@ void main() {
     });
   });
 
-  test('asked, it speaks in the language set, and each answer is a new beat', () {
+  test('asked, it writes in the language set, and each answer is a new beat', () {
     run(MemoryPocketModelStore(const PocketModel(tokens: 400)), (async, bloc) {
       bloc
-        ..language = 'tr'
+        ..add(const PocketModelLanguageSet('tr'))
         ..add(const PocketModelTemperatureSet(0.1))
         ..add(const PocketModelAsked());
       async.flushMicrotasks();
-      expect(ready(bloc).speech?.tokens.join(' '), 'daha çok token daha çok bilgelik');
+      expect(ready(bloc).known, TinyLm.trained('tr', 400).known, reason: 'it read as much of the Turkish text');
+      expect(
+        ready(bloc).speech?.tokens,
+        TinyLm.trained('tr', 400).write(temperature: 0.1, random: math.Random(1)).tokens,
+        reason: 'cold, its likeliest Turkish sentence',
+      );
       final beat = ready(bloc).beat;
       bloc.add(const PocketModelAsked());
       async.flushMicrotasks();
@@ -110,6 +134,23 @@ void main() {
       bloc.add(const PocketModelTemperatureSet(-1));
       async.flushMicrotasks();
       expect(ready(bloc).temperature, 0);
+    });
+  });
+
+  test('started over, it forgets what it read and keeps level 0, awake', () {
+    final store = MemoryPocketModelStore(PocketModel(tokens: 900, lastFed: noon.subtract(const Duration(days: 1))));
+    run(store, (async, bloc) {
+      bloc.add(const PocketModelReset());
+      async.flushMicrotasks();
+      expect(ready(bloc).model, PocketModel.fresh);
+      expect(ready(bloc).awake, isTrue);
+      expect(ready(bloc).known, 0);
+      expect(ready(bloc).curve, hasLength(1));
+      expect(store.kept, PocketModel.fresh);
+
+      bloc.add(const PocketModelFed());
+      async.flushMicrotasks();
+      expect(ready(bloc).read, TinyLm('en').train(PocketModel.feedTokens), reason: 'it reads its text from the top');
     });
   });
 

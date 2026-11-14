@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
 import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
@@ -16,9 +17,24 @@ sealed class PocketModelEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Reads the kept model.
+/// Reads the kept model, which reads and speaks [language].
 final class PocketModelStarted extends PocketModelEvent {
-  const PocketModelStarted();
+  const PocketModelStarted({this.language = 'en'});
+
+  final String language;
+
+  @override
+  List<Object?> get props => [language];
+}
+
+/// The app's language changed: the model reads and speaks this one, and has read as much of its text.
+final class PocketModelLanguageSet extends PocketModelEvent {
+  const PocketModelLanguageSet(this.language);
+
+  final String language;
+
+  @override
+  List<Object?> get props => [language];
 }
 
 /// The reader fed it tokens.
@@ -29,6 +45,11 @@ final class PocketModelFed extends PocketModelEvent {
 /// The reader asked it to speak.
 final class PocketModelAsked extends PocketModelEvent {
   const PocketModelAsked();
+}
+
+/// The reader asked to start it over: it forgets what it read and starts again at level 0.
+final class PocketModelReset extends PocketModelEvent {
+  const PocketModelReset();
 }
 
 /// The reader tapped it.
@@ -73,6 +94,9 @@ final class PocketModelReady extends PocketModelState {
   const PocketModelReady({
     required this.model,
     required this.awake,
+    this.curve = const [],
+    this.known = 0,
+    this.read = const [],
     this.temperature = 0.8,
     this.speech,
     this.action = PocketAction.none,
@@ -80,6 +104,15 @@ final class PocketModelReady extends PocketModelState {
   });
 
   final PocketModel model;
+
+  /// Its training curve, from the first token to now, measured on text it never read.
+  final List<LossPoint> curve;
+
+  /// The words it has read at least once.
+  final int known;
+
+  /// The words the last feed read, for the card to show.
+  final List<String> read;
 
   /// Whether it is awake: a model asleep stays so until the reader wakes it.
   final bool awake;
@@ -94,6 +127,9 @@ final class PocketModelReady extends PocketModelState {
 
   PocketModelReady copyWith({
     PocketModel? model,
+    List<LossPoint>? curve,
+    int? known,
+    List<String>? read,
     bool? awake,
     double? temperature,
     Babble? speech,
@@ -101,6 +137,9 @@ final class PocketModelReady extends PocketModelState {
     bool clearSpeech = false,
   }) => PocketModelReady(
     model: model ?? this.model,
+    curve: curve ?? this.curve,
+    known: known ?? this.known,
+    read: read ?? this.read,
     awake: awake ?? this.awake,
     temperature: temperature ?? this.temperature,
     speech: clearSpeech ? null : speech ?? this.speech,
@@ -109,11 +148,12 @@ final class PocketModelReady extends PocketModelState {
   );
 
   @override
-  List<Object?> get props => [model, awake, temperature, speech, action, beat];
+  List<Object?> get props => [model, curve, known, read, awake, temperature, speech, action, beat];
 }
 
-/// The pocket model on Home (plan 9.2): it keeps the model on the device, and turns the reader's taps into tokens,
-/// speech and moods.
+/// The pocket model on Home (plan 9.2): it keeps the model on the device, and turns the reader's taps into tokens its
+/// language model ([TinyLm]) reads, sentences it writes, and moods. The language model is rebuilt from the kept count
+/// at the start and when the app's language changes, and reads on with each feed.
 ///
 /// A model found asleep (not fed for hours) wakes on the first tap of any kind. Fed too fast it overfits: it learns
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
@@ -129,21 +169,57 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   final math.Random _random;
   Timer? _rest;
 
-  /// The language it speaks; the card sets it from the app's.
-  String language = 'en';
+  /// Its language model, which has read as many tokens as [PocketModelReady.model] was fed.
+  TinyLm? _lm;
 
   Future<void> _on(PocketModelEvent event, Emitter<PocketModelState> emit) async {
     final now = clock.now();
     switch (event) {
-      case PocketModelStarted():
+      case PocketModelStarted(:final language):
         final model = await _store.load() ?? PocketModel.fresh;
-        emit(PocketModelReady(model: model, awake: model.moodAt(now) != PocketMood.asleep));
+        final lm = _lm = TinyLm.trained(language, model.tokens);
+        emit(
+          PocketModelReady(
+            model: model,
+            curve: TinyLm.curve(language, model.tokens),
+            known: lm.known,
+            awake: model.moodAt(now) != PocketMood.asleep,
+          ),
+        );
         return;
       case _ when state is! PocketModelReady:
         return;
       default:
     }
     final ready = state as PocketModelReady;
+    if (event case PocketModelLanguageSet(:final language)) {
+      if (_lm?.language == language) return;
+      final lm = _lm = TinyLm.trained(language, ready.model.tokens);
+      emit(
+        ready.copyWith(
+          curve: TinyLm.curve(language, ready.model.tokens),
+          known: lm.known,
+          read: const [],
+          clearSpeech: true,
+        ),
+      );
+      return;
+    }
+    if (event is PocketModelReset) {
+      _rest?.cancel();
+      await _store.save(PocketModel.fresh);
+      final lm = _lm = TinyLm(_lm?.language ?? 'en');
+      emit(
+        PocketModelReady(
+          model: PocketModel.fresh,
+          curve: TinyLm.curve(lm.language, 0),
+          awake: true,
+          temperature: ready.temperature,
+          beat: ready.beat + 1,
+        ),
+      );
+      return;
+    }
     if (!ready.awake && event is! PocketModelTemperatureSet && event is! _PocketModelRecovered) {
       emit(ready.copyWith(awake: true, action: PocketAction.woke, clearSpeech: true));
       return;
@@ -153,6 +229,8 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final wasOverfit = ready.model.overfitAt(now);
         final model = ready.model.fedAt(now);
         await _store.save(model);
+        final lm = _lm!;
+        final read = model.tokens > lm.trained ? lm.train(model.tokens - lm.trained) : const <String>[];
         final overfit = model.overfitAt(now);
         if (overfit) _restIn(PocketModel.overfitRest);
         final action = switch (()) {
@@ -164,15 +242,18 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         emit(
           ready.copyWith(
             model: model,
+            curve: model.tokens == ready.model.tokens ? null : TinyLm.curve(lm.language, model.tokens),
+            known: lm.known,
+            read: read,
             action: action,
-            speech: overfit ? _say(model, ready.temperature, overfit: true) : null,
+            speech: overfit ? _say(ready.temperature, overfit: true) : null,
             clearSpeech: !overfit,
           ),
         );
       case PocketModelAsked():
         emit(
           ready.copyWith(
-            speech: _say(ready.model, ready.temperature, overfit: ready.model.overfitAt(now)),
+            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now)),
             action: PocketAction.spoke,
           ),
         );
@@ -185,12 +266,19 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final model = ready.model.rested();
         await _store.save(model);
         emit(ready.copyWith(model: model, action: PocketAction.recovered, clearSpeech: true));
-      case PocketModelStarted():
+      case PocketModelStarted() || PocketModelLanguageSet() || PocketModelReset():
     }
   }
 
-  Babble _say(PocketModel model, double temperature, {required bool overfit}) =>
-      babble(language: language, level: model.level, temperature: temperature, overfit: overfit, random: _random);
+  /// What it says: overfit, the word it read most, again and again; otherwise what its language model writes.
+  Babble _say(double temperature, {required bool overfit}) {
+    final lm = _lm!;
+    final word = lm.favourite;
+    if (overfit && word != null) {
+      return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
+    }
+    return lm.write(temperature: temperature, random: _random);
+  }
 
   void _restIn(Duration rest) {
     _rest?.cancel();

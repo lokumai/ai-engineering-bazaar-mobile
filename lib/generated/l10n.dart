@@ -2059,6 +2059,28 @@ class S {
     );
   }
 
+  /// `{count, plural, =1{knows 1 word} other{knows {count} words}}`
+  String pocket_known(int count) {
+    return Intl.plural(
+      count,
+      one: 'knows 1 word',
+      other: 'knows $count words',
+      name: 'pocket_known',
+      desc: 'How many words the pocket model has read, after its tokens.',
+      args: [count],
+    );
+  }
+
+  /// `Read: {words}`
+  String pocket_status_read(String words) {
+    return Intl.message(
+      'Read: $words',
+      name: 'pocket_status_read',
+      desc: 'The status line after a feed: the words the pocket model just read, as they stand in its text.',
+      args: [words],
+    );
+  }
+
   /// `Fully trained`
   String get pocket_top {
     return Intl.message('Fully trained', name: 'pocket_top', desc: '', args: []);
@@ -2192,6 +2214,41 @@ class S {
   /// `It says: {words}`
   String pocket_says(String words) {
     return Intl.message('It says: $words', name: 'pocket_says', desc: '', args: [words]);
+  }
+
+  /// `Start over`
+  String get pocket_reset {
+    return Intl.message(
+      'Start over',
+      name: 'pocket_reset',
+      desc: 'The button that starts the pocket model again at level 0.',
+      args: [],
+    );
+  }
+
+  /// `Start the pocket model over?`
+  String get pocket_reset_title {
+    return Intl.message('Start the pocket model over?', name: 'pocket_reset_title', desc: '', args: []);
+  }
+
+  /// `It forgets every token it read and starts again at level 0. The course and its progress stay as they are.`
+  String get pocket_reset_body {
+    return Intl.message(
+      'It forgets every token it read and starts again at level 0. The course and its progress stay as they are.',
+      name: 'pocket_reset_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep it`
+  String get pocket_reset_keep {
+    return Intl.message(
+      'Keep it',
+      name: 'pocket_reset_keep',
+      desc: 'Closes the start-over dialog and keeps the pocket model as it is.',
+      args: [],
+    );
   }
 }
 

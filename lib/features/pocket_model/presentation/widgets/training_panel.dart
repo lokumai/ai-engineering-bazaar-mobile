@@ -2,18 +2,25 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
-/// How the pocket model's training stands: its level in a ring that fills toward the next, the tokens it was fed, the
-/// road of levels, and its training loss as a chart that grows with every feed.
+/// How the pocket model's training stands: its level in a ring that fills toward the next, its training loss beside it as
+/// a small chart that grows with every feed, and under them the tokens it was fed and the words it knows.
 class TrainingPanel extends StatelessWidget {
-  const TrainingPanel({super.key, required this.model});
+  const TrainingPanel({super.key, required this.model, required this.curve, required this.known});
 
   final PocketModel model;
+
+  /// Its training curve, measured on text it never read.
+  final List<LossPoint> curve;
+
+  /// The words it has read.
+  final int known;
 
   @override
   Widget build(BuildContext context) {
@@ -27,33 +34,24 @@ class TrainingPanel extends StatelessWidget {
       children: [
         Row(
           children: [
-            _LevelRing(level: model.level, progress: model.progress, reduced: reduced),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.pocket_level(model.level),
-                    style: displayFace(theme.textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      s.pocket_tokens(model.tokens),
-                      if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_top,
-                    ].join(' · '),
-                    style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _LevelRoad(level: model.level, reduced: reduced),
-                ],
-              ),
+            Semantics(
+              container: true,
+              label: [
+                s.pocket_level(model.level),
+                if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_top,
+              ].join(', '),
+              excludeSemantics: true,
+              child: _LevelRing(level: model.level, progress: model.progress, reduced: reduced),
             ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: LossChart(curve: curve)),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
-        LossChart(tokens: model.tokens),
+        const SizedBox(height: 6),
+        Text(
+          [s.pocket_tokens(model.tokens), s.pocket_known(known)].join(' · '),
+          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+        ),
       ],
     );
   }
@@ -72,7 +70,7 @@ class _LevelRing extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     return SizedBox.square(
-      dimension: 66,
+      dimension: 76,
       child: TweenAnimationBuilder<double>(
         tween: Tween(end: progress),
         duration: reduced ? Duration.zero : const Duration(milliseconds: 600),
@@ -155,47 +153,13 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.progress != progress || old.colour != colour || old.track != track;
 }
 
-/// The road of levels, one pip for each after the first: the ones reached filled, the next one waiting.
-class _LevelRoad extends StatelessWidget {
-  const _LevelRoad({required this.level, required this.reduced});
-
-  final int level;
-  final bool reduced;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.bazaarColors;
-    return ExcludeSemantics(
-      child: Row(
-        spacing: 4,
-        children: [
-          for (var i = 1; i < PocketModel.levels.length; i++)
-            Expanded(
-              child: AnimatedContainer(
-                duration: reduced ? Duration.zero : Duration(milliseconds: 260 + 40 * i),
-                curve: Curves.easeOutCubic,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: i <= level ? colors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(
-                    color: i <= level ? colors.primary : (i == level + 1 ? colors.lineStrong : colors.line),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 /// The training loss as a chart, as a training run draws it: the curve from the first token to now, falling, with a
 /// mark where each level was reached and the loss now in a pill. It grows with each feed.
 class LossChart extends StatelessWidget {
-  const LossChart({super.key, required this.tokens});
+  const LossChart({super.key, required this.curve});
 
-  final int tokens;
+  /// The curve the model's training drew, from the first token to now.
+  final List<LossPoint> curve;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +168,8 @@ class LossChart extends StatelessWidget {
     final colors = context.bazaarColors;
     final reduced = MediaQuery.disableAnimationsOf(context);
     final language = Localizations.localeOf(context).languageCode;
-    final loss = NumberFormat('0.00', language).format(PocketModel.lossAt(tokens));
+    final tokens = curve.isEmpty ? 0 : curve.last.tokens;
+    final loss = curve.isEmpty ? '' : NumberFormat('0.00', language).format(curve.last.loss);
     return Semantics(
       container: true,
       label: tokens > 0 ? '${s.pocket_loss_title}, ${s.pocket_loss(loss)}' : s.pocket_loss_title,
@@ -216,18 +181,20 @@ class LossChart extends StatelessWidget {
           border: Border.all(color: colors.line),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          padding: const EdgeInsets.fromLTRB(10, 7, 10, 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
-                  Icon(Icons.show_chart, size: 16, color: colors.onSurfaceMuted),
-                  const SizedBox(width: 6),
+                  Icon(Icons.show_chart, size: 14, color: colors.onSurfaceMuted),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       s.pocket_loss_title,
-                      style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurface),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                     ),
                   ),
                   if (tokens > 0)
@@ -237,7 +204,7 @@ class LossChart extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -247,22 +214,23 @@ class LossChart extends StatelessWidget {
                               color: colors.primary,
                             ),
                             const SizedBox(width: 3),
-                            Text(loss, style: theme.textTheme.labelMedium?.copyWith(color: colors.primary)),
+                            Text(loss, style: theme.textTheme.labelSmall?.copyWith(color: colors.primary)),
                           ],
                         ),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: 4),
               SizedBox(
-                height: 76,
+                height: 40,
                 child: tokens == 0
                     ? Center(
                         child: Text(
                           s.pocket_loss_empty,
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface),
+                          maxLines: 2,
+                          style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                         ),
                       )
                     : TweenAnimationBuilder<double>(
@@ -272,6 +240,7 @@ class LossChart extends StatelessWidget {
                         builder: (context, value, _) => CustomPaint(
                           size: Size.infinite,
                           painter: LossChartPainter(
+                            curve: curve,
                             tokens: value,
                             colour: colors.primary,
                             grid: colors.line,
@@ -289,9 +258,11 @@ class LossChart extends StatelessWidget {
   }
 }
 
-/// Draws the loss from the first token to [tokens]; the levels reached on the way are marked on the curve.
+/// Draws the [curve] from the first token to [tokens], which runs to the curve's last point as the chart grows; the
+/// levels reached on the way are marked on it.
 class LossChartPainter extends CustomPainter {
   LossChartPainter({
+    required this.curve,
     required this.tokens,
     required this.colour,
     required this.grid,
@@ -299,6 +270,7 @@ class LossChartPainter extends CustomPainter {
     this.mirrored = false,
   });
 
+  final List<LossPoint> curve;
   final double tokens;
   final Color colour;
   final Color grid;
@@ -307,7 +279,18 @@ class LossChartPainter extends CustomPainter {
   /// A right-to-left language reads time from the right, so the curve runs from the right.
   final bool mirrored;
 
-  static const _points = 40;
+  /// The loss at [at] tokens, between the curve's points.
+  static double lossAt(List<LossPoint> curve, double at) {
+    if (at <= curve.first.tokens) return curve.first.loss;
+    for (var i = 1; i < curve.length; i++) {
+      final (a, b) = (curve[i - 1], curve[i]);
+      if (at <= b.tokens) {
+        final span = b.tokens - a.tokens;
+        return span == 0 ? b.loss : a.loss + (b.loss - a.loss) * (at - a.tokens) / span;
+      }
+    }
+    return curve.last.loss;
+  }
 
   /// The levels reached by [tokens], whose places the chart marks.
   static List<int> marks(double tokens) => [
@@ -317,22 +300,23 @@ class LossChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (tokens <= 0 || size.isEmpty) return;
+    if (tokens <= 0 || curve.length < 2 || size.isEmpty) return;
     if (mirrored) {
       canvas
         ..save()
         ..translate(size.width, 0)
         ..scale(-1, 1);
     }
-    const top = 6.0;
+    const top = 5.0;
     final bottom = size.height - 4;
-    final highest = PocketModel.lossAt(0);
-    final lowest = math.min(PocketModel.lossAt(tokens.round()), highest - 0.01);
+    final highest = curve.map((p) => p.loss).reduce(math.max);
+    final lowest = math.min(curve.map((p) => p.loss).reduce(math.min), highest - 0.01);
     double yOf(double loss) => top + (1 - (loss - lowest) / (highest - lowest)) * (bottom - top);
     // Room at the ends for the beads.
-    const inset = 9.0;
-    double xOf(double at) => inset + at / tokens * (size.width - 2 * inset);
-    Offset point(double at) => Offset(xOf(at), yOf(PocketModel.lossAt(at.round())));
+    const inset = 7.0;
+    // Time runs on a square-root scale, as training charts stretch their start: most of the fall comes early.
+    double xOf(double at) => inset + math.sqrt(at / tokens) * (size.width - 2 * inset);
+    Offset point(double at) => Offset(xOf(at), yOf(lossAt(curve, at)));
 
     // The grid: three dashed rules.
     final rule = Paint()
@@ -346,8 +330,13 @@ class LossChartPainter extends CustomPainter {
     }
 
     final line = Path();
-    for (var i = 0; i < _points; i++) {
-      final p = point(tokens * i / (_points - 1));
+    final along = [
+      for (final p in curve)
+        if (p.tokens < tokens) p.tokens.toDouble(),
+      tokens,
+    ];
+    for (final (i, at) in along.indexed) {
+      final p = point(at);
       i == 0 ? line.moveTo(p.dx, p.dy) : line.lineTo(p.dx, p.dy);
     }
     final fill = Path.from(line)
@@ -383,19 +372,24 @@ class LossChartPainter extends CustomPainter {
         canvas.drawLine(Offset(p.dx, y), Offset(p.dx, math.min(y + 2, bottom)), tick);
       }
       canvas
-        ..drawCircle(p, 3.6, Paint()..color = colour)
-        ..drawCircle(p, 1.6, Paint()..color = grid);
+        ..drawCircle(p, 2.8, Paint()..color = colour)
+        ..drawCircle(p, 1.2, Paint()..color = grid);
     }
 
     // Now: a bead in a soft halo.
     final now = point(tokens);
     canvas
-      ..drawCircle(now, 9, Paint()..color = colour.withValues(alpha: 0.16))
-      ..drawCircle(now, 4.2, Paint()..color = colour);
+      ..drawCircle(now, 7, Paint()..color = colour.withValues(alpha: 0.18))
+      ..drawCircle(now, 3.4, Paint()..color = colour);
     if (mirrored) canvas.restore();
   }
 
   @override
   bool shouldRepaint(LossChartPainter old) =>
-      old.tokens != tokens || old.colour != colour || old.grid != grid || old.mark != mark || old.mirrored != mirrored;
+      old.curve != curve ||
+      old.tokens != tokens ||
+      old.colour != colour ||
+      old.grid != grid ||
+      old.mark != mark ||
+      old.mirrored != mirrored;
 }

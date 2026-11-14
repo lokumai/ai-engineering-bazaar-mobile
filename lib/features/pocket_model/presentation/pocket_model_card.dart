@@ -21,9 +21,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
 /// Home's pocket model (plan 9.2): a tiny model to play with when bored, under Your path. The reader feeds it tokens
-/// and it trains: its level rises, its loss falls, and what it says goes from letters to words to phrases. Its
-/// temperature makes it repeat itself when cold and hallucinate when hot; fed too fast it overfits; left for hours it
-/// grows hungry and falls asleep. A tap pets it, and its eyes follow the finger.
+/// and its language model reads them, a few words of its text at a time: its level rises, its loss on text it never
+/// read falls, and what it writes goes from noise to the words it read to sentences of its own. Its temperature makes
+/// it repeat itself when cold and hallucinate when hot; fed too fast it overfits; left for hours it grows hungry and
+/// falls asleep. A tap pets it, and its eyes follow the finger.
 ///
 /// It is drawn by one painter and moves only for a few seconds after the reader touches it; otherwise it only blinks
 /// now and then, so Home costs nothing while read. Under reduced motion nothing flies and nothing moves.
@@ -33,6 +34,7 @@ class PocketModelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
+      // The language follows from the view's dependencies: a create may not listen to the locale.
       create: (context) => PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
       child: const _PocketModelView(),
     );
@@ -80,7 +82,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<PocketModelBloc>().language = Localizations.localeOf(context).languageCode;
+    context.read<PocketModelBloc>().add(PocketModelLanguageSet(Localizations.localeOf(context).languageCode));
   }
 
   @override
@@ -167,14 +169,14 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       case PocketAction.fed:
         HapticFeedback.lightImpact();
         _eatAt = _time;
-        if (!reduced) _throwTokens();
+        if (!reduced) _throwTokens(state.read);
       case PocketAction.levelUp:
         HapticFeedback.mediumImpact();
         _eatAt = _time;
         _joyAt = _time + 0.6;
         _hopAt = _time + 0.6;
         if (!reduced) {
-          _throwTokens();
+          _throwTokens(state.read);
           _confetti();
         }
       case PocketAction.overfit || PocketAction.refused:
@@ -201,7 +203,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     _ => 'tokenabcdz',
   };
 
-  void _throwTokens() {
+  /// Throws the first letters of the words it read into its mouth; letters at random when it read none.
+  void _throwTokens(List<String> read) {
     const palette = [Color(0xffddb46a), Color(0xff63b2ab), Color(0xffc9c6e4), Color(0xffe6dac6), Color(0xffc9785f)];
     final mouth = _mouth;
     for (var i = 0; i < 5; i++) {
@@ -212,7 +215,9 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           life: 0.7,
           from: Offset(0.08 + _random.nextDouble() * 0.12, 0.98),
           to: mouth,
-          label: _alphabet[_random.nextInt(_alphabet.length)],
+          label: i < read.length && read[i].isNotEmpty
+              ? String.fromCharCode(read[i].runes.first)
+              : _alphabet[_random.nextInt(_alphabet.length)],
           color: palette[i % palette.length],
           spin: (_random.nextDouble() - 0.5) * 6,
         ),
@@ -320,6 +325,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         return s.pocket_status_recovered;
       case PocketAction.levelUp:
         return s.pocket_status_level_up(state.model.level);
+      case PocketAction.fed when state.read.isNotEmpty:
+        return s.pocket_status_read(state.read.join(' '));
       default:
     }
     if (state.speech?.hallucinating ?? false) return s.pocket_status_hallucinating;
@@ -419,7 +426,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                         PositionedDirectional(
                           top: 14,
                           start: 12,
-                          width: _stage.width * 0.5,
+                          width: _stage.width * 0.56,
                           child: Align(
                             alignment: AlignmentDirectional.topStart,
                             child: SpeechBubble(key: ValueKey(state.beat), speech: speech),
@@ -437,7 +444,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TrainingPanel(model: model),
+              TrainingPanel(model: model, curve: state.curve, known: state.known),
               const SizedBox(height: AppSpacing.md),
               AnimatedSwitcher(
                 duration: _reduced ? Duration.zero : const Duration(milliseconds: 220),
@@ -511,10 +518,46 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                   Icon(Icons.local_fire_department_outlined, size: 20, color: beadColour(2)),
                 ],
               ),
+              if (model.tokens > 0)
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton.icon(
+                    key: const ValueKey('pocket-reset'),
+                    onPressed: () async {
+                      if (await _askToStartOver(context)) bloc.add(const PocketModelReset());
+                    },
+                    icon: const Icon(Icons.restart_alt, size: 18),
+                    label: Text(s.pocket_reset),
+                  ),
+                ),
             ],
           ),
         ),
       ],
     );
   }
+}
+
+/// Asks before the model starts over; true for Start over, false when the dialog closes any other way.
+Future<bool> _askToStartOver(BuildContext context) async {
+  final reset = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final s = S.of(context);
+      return AlertDialog(
+        scrollable: true,
+        title: Text(s.pocket_reset_title),
+        content: Text(s.pocket_reset_body),
+        actions: [
+          TextButton(
+            key: const ValueKey('pocket-reset-confirm'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(s.pocket_reset),
+          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(s.pocket_reset_keep)),
+        ],
+      );
+    },
+  );
+  return reset ?? false;
 }

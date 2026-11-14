@@ -292,6 +292,8 @@
   "pocket_level": "سطح {level}",
   "pocket_tokens": "{count} توکن",
   "pocket_to_next": "{count} تا سطح {level}",
+  "pocket_known": "{count} واژه می‌داند",
+  "pocket_status_read": "خواند: {words}",
   "pocket_top": "کاملاً آموزش‌دیده",
   "pocket_loss": "خطا {value}",
   "pocket_level_word": "سطح",
@@ -308,5 +310,9 @@
   "pocket_status_level_up": "سطح {level}: حالا می‌تواند بیشتر بگوید.",
   "pocket_hallucinating": "توهم",
   "pocket_stage_label": "مدل جیبی، سطح {level}. برای نوازش ضربه بزنید.",
-  "pocket_says": "می‌گوید: {words}"
+  "pocket_says": "می‌گوید: {words}",
+  "pocket_reset": "شروع از نو",
+  "pocket_reset_title": "مدل جیبی از نو شروع شود؟",
+  "pocket_reset_body": "همه توکن‌هایی را که خوانده فراموش می‌کند و دوباره از سطح 0 شروع می‌کند. دوره و پیشرفتت همان‌طور می‌ماند.",
+  "pocket_reset_keep": "بماند"
 }

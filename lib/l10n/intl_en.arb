@@ -1024,6 +1024,24 @@
       }
     }
   },
+  "pocket_known": "{count, plural, =1{knows 1 word} other{knows {count} words}}",
+  "@pocket_known": {
+    "description": "How many words the pocket model has read, after its tokens.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_status_read": "Read: {words}",
+  "@pocket_status_read": {
+    "description": "The status line after a feed: the words the pocket model just read, as they stand in its text.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
   "pocket_top": "Fully trained",
   "@pocket_top": {},
   "pocket_loss": "loss {value}",
@@ -1090,5 +1108,17 @@
         "type": "String"
       }
     }
+  },
+  "pocket_reset": "Start over",
+  "@pocket_reset": {
+    "description": "The button that starts the pocket model again at level 0."
+  },
+  "pocket_reset_title": "Start the pocket model over?",
+  "@pocket_reset_title": {},
+  "pocket_reset_body": "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
+  "@pocket_reset_body": {},
+  "pocket_reset_keep": "Keep it",
+  "@pocket_reset_keep": {
+    "description": "Closes the start-over dialog and keeps the pocket model as it is."
   }
 }
