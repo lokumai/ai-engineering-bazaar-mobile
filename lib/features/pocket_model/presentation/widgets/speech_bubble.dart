@@ -25,7 +25,11 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
   late final AnimationController _controller = AnimationController(vsync: this);
 
   /// How long the bubble takes to pop out, before the first token.
-  static const _pop = 180;
+  static const _pop = 140;
+
+  /// How long each token takes to come, in milliseconds: quick, so the answer does not keep the reader waiting (the
+  /// owner, 2026-11-14).
+  static const _perToken = 60;
 
   @override
   void didChangeDependencies() {
@@ -35,7 +39,7 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
       _controller.value = 1;
     } else {
       _controller
-        ..duration = widget.delay + Duration(milliseconds: _pop + widget.speech.tokens.length * 110)
+        ..duration = widget.delay + Duration(milliseconds: _pop + widget.speech.tokens.length * _perToken)
         ..forward();
     }
   }

@@ -2004,11 +2004,6 @@ class S {
     return Intl.message('Level $level', name: 'pocket_level', desc: '', args: [level]);
   }
 
-  /// `{count, plural, =1{1 token} other{{count} tokens}}`
-  String pocket_tokens(int count) {
-    return Intl.plural(count, one: '1 token', other: '$count tokens', name: 'pocket_tokens', desc: '', args: [count]);
-  }
-
   /// `{count} to level {level}`
   String pocket_to_next(int count, int level) {
     return Intl.message(
@@ -2026,18 +2021,6 @@ class S {
       name: 'pocket_next_module',
       desc: 'Said of the level ring once feeds take the model no higher: only a module read does.',
       args: [level],
-    );
-  }
-
-  /// `{count, plural, =1{knows 1 word} other{knows {count} words}}`
-  String pocket_known(int count) {
-    return Intl.plural(
-      count,
-      one: 'knows 1 word',
-      other: 'knows $count words',
-      name: 'pocket_known',
-      desc: 'How many words the pocket model has read, after its tokens.',
-      args: [count],
     );
   }
 
@@ -2224,6 +2207,46 @@ class S {
       'Keep it',
       name: 'pocket_reset_keep',
       desc: 'Closes the start-over dialog and keeps the pocket model as it is.',
+      args: [],
+    );
+  }
+
+  /// `What it learnt`
+  String get pocket_stats_title {
+    return Intl.message(
+      'What it learnt',
+      name: 'pocket_stats_title',
+      desc: 'The heading, at the foot of the apprentice\'s sheet, over what it has read and learnt.',
+      args: [],
+    );
+  }
+
+  /// `modules read`
+  String get pocket_stat_modules {
+    return Intl.message(
+      'modules read',
+      name: 'pocket_stat_modules',
+      desc: 'Under a number: the course modules the apprentice has read.',
+      args: [],
+    );
+  }
+
+  /// `words known`
+  String get pocket_stat_words {
+    return Intl.message(
+      'words known',
+      name: 'pocket_stat_words',
+      desc: 'Under a number: the words the apprentice knows.',
+      args: [],
+    );
+  }
+
+  /// `tokens eaten`
+  String get pocket_stat_tokens {
+    return Intl.message(
+      'tokens eaten',
+      name: 'pocket_stat_tokens',
+      desc: 'Under a number: the tokens the apprentice was fed and read.',
       args: [],
     );
   }

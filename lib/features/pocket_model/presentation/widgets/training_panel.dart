@@ -9,50 +9,36 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
-/// How the pocket model's training stands: its level in a ring that fills toward the next, its training loss beside it as
-/// a small chart that grows with every feed, and under them the tokens it was fed and the words it knows.
+/// How the pocket model's training stands: its level in a ring that fills toward the next, and its training loss beside
+/// it as a small chart that grows with every feed. What it has read is counted further down ([PocketStats]), not here
+/// (the owner, 2026-11-14).
 class TrainingPanel extends StatelessWidget {
-  const TrainingPanel({super.key, required this.model, required this.curve, required this.known});
+  const TrainingPanel({super.key, required this.model, required this.curve});
 
   final PocketModel model;
 
   /// Its training curve, measured on text it never read.
   final List<LossPoint> curve;
 
-  /// The words it has read.
-  final int known;
-
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final theme = Theme.of(context);
-    final colors = context.bazaarColors;
     final reduced = MediaQuery.disableAnimationsOf(context);
     final next = model.toNext;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
       children: [
-        Row(
-          children: [
-            Semantics(
-              container: true,
-              label: [
-                s.pocket_level(model.level),
-                if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_next_module(model.level + 1),
-              ].join(', '),
-              excludeSemantics: true,
-              child: _LevelRing(level: model.level, progress: model.progress, reduced: reduced),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: LossChart(curve: curve, marks: model.levelMarks),
-            ),
-          ],
+        Semantics(
+          container: true,
+          label: [
+            s.pocket_level(model.level),
+            if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_next_module(model.level + 1),
+          ].join(', '),
+          excludeSemantics: true,
+          child: _LevelRing(level: model.level, progress: model.progress, reduced: reduced),
         ),
-        const SizedBox(height: 6),
-        Text(
-          [s.pocket_tokens(model.tokens), s.pocket_known(known)].join(' · '),
-          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: LossChart(curve: curve, marks: model.levelMarks),
         ),
       ],
     );

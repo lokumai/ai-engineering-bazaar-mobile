@@ -49,7 +49,7 @@ abstract final class RobotTricks {
     RobotTrick.fezFly => 1.5,
     RobotTrick.starEyes => 1.4,
     RobotTrick.tasselSpin => 1.2,
-    RobotTrick.thinking => 0.7,
+    RobotTrick.thinking => 0.35,
     RobotTrick.glitch => 1.6,
     RobotTrick.yawn => 1.5,
     RobotTrick.wave => 1.3,
@@ -199,7 +199,7 @@ class PocketRobotPainter extends CustomPainter {
   /// Where the robot sits in a stage of [size]: the middle of its feet, past the middle toward the end side, so what it
   /// says has the start side; [centred], in the middle, where it says nothing (the wardrobe, the opening).
   static Offset seat(Size size, {bool mirrored = false, bool centred = false}) =>
-      Offset(size.width * (centred ? 0.5 : (mirrored ? 0.34 : 0.66)), size.height - 30);
+      Offset(size.width * (centred ? 0.5 : (mirrored ? 0.28 : 0.72)), size.height - 30);
 
   /// The robot's scale in a stage of [size]: the same in every outfit, since a tall hat is drawn smaller instead
   /// ([hatScale]), so the robot itself never shrinks (the owner, 2026-11-14).
@@ -508,7 +508,7 @@ class PocketRobotPainter extends CustomPainter {
     if (thinkingAt != null) {
       // Three dots in turn, as a model's reply waits.
       for (var i = 0; i < 3; i++) {
-        final beat = math.sin((thinkingAt * 3 - i * 0.33) * 2 * math.pi);
+        final beat = math.sin((thinkingAt * 2 - i * 0.33) * 2 * math.pi);
         canvas.drawCircle(
           mouth + Offset((i - 1) * 7.0, -beat.clamp(0, 1) * 2),
           2.2,

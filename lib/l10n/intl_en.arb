@@ -1000,14 +1000,6 @@
       }
     }
   },
-  "pocket_tokens": "{count, plural, =1{1 token} other{{count} tokens}}",
-  "@pocket_tokens": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "pocket_to_next": "{count} to level {level}",
   "@pocket_to_next": {
     "description": "The tokens still to feed before the next level.",
@@ -1025,15 +1017,6 @@
     "description": "Said of the level ring once feeds take the model no higher: only a module read does.",
     "placeholders": {
       "level": {
-        "type": "int"
-      }
-    }
-  },
-  "pocket_known": "{count, plural, =1{knows 1 word} other{knows {count} words}}",
-  "@pocket_known": {
-    "description": "How many words the pocket model has read, after its tokens.",
-    "placeholders": {
-      "count": {
         "type": "int"
       }
     }
@@ -1121,6 +1104,22 @@
   "pocket_reset_keep": "Keep it",
   "@pocket_reset_keep": {
     "description": "Closes the start-over dialog and keeps the pocket model as it is."
+  },
+  "pocket_stats_title": "What it learnt",
+  "@pocket_stats_title": {
+    "description": "The heading, at the foot of the apprentice's sheet, over what it has read and learnt."
+  },
+  "pocket_stat_modules": "modules read",
+  "@pocket_stat_modules": {
+    "description": "Under a number: the course modules the apprentice has read."
+  },
+  "pocket_stat_words": "words known",
+  "@pocket_stat_words": {
+    "description": "Under a number: the words the apprentice knows."
+  },
+  "pocket_stat_tokens": "tokens eaten",
+  "@pocket_stat_tokens": {
+    "description": "Under a number: the tokens the apprentice was fed and read."
   },
   "settings_customize": "Customize",
   "@settings_customize": {

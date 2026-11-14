@@ -73,6 +73,10 @@ Future<void> _rest(WidgetTester tester) async {
   }
 }
 
+/// The count [label] at the foot of the sheet, as a screen reader hears it.
+Finder _stat(String label) =>
+    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == label);
+
 final _stage = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter);
 
 final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is LossChartPainter);
@@ -218,8 +222,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pocket-feed')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.textContaining('8 tokens'), findsOneWidget);
-    expect(find.textContaining('knows 8 words'), findsOneWidget);
+    expect(_stat('8 tokens eaten'), findsOneWidget, reason: 'counted at the foot of the sheet');
+    expect(_stat('8 words known'), findsOneWidget);
+    expect(find.textContaining('8 tokens'), findsNothing, reason: 'not under its level (the owner, 2026-11-14)');
     expect(find.textContaining('Read:'), findsNothing, reason: 'no line lists the words it ate');
     expect(_frame(tester).face, RobotFace.eating);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.token), hasLength(5));
@@ -263,6 +268,24 @@ void main() {
     await _rest(tester);
   });
 
+  testWidgets('what it says stands beside its face, and its hat has room above it (the owner, 2026-11-14)', (
+    tester,
+  ) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+
+    final stage = tester.getRect(_stage);
+    final eyes = stage.topLeft + PocketRobotPainter.seat(stage.size);
+    final bubble = tester.getRect(find.byType(SpeechBubble));
+    expect(bubble.width, greaterThan(100), reason: 'it said something');
+    expect(bubble.right, lessThan(eyes.dx - 30 * PocketRobotPainter.scaleOf(stage.size)), reason: 'clear of its eyes');
+    final card = tester.getRect(find.ancestor(of: _stage, matching: find.byType(ClipRRect)).first);
+    expect(stage.top - card.top, greaterThanOrEqualTo(40), reason: 'room over its stage for a hat in the air');
+    await _rest(tester);
+  });
+
   testWidgets('asked, it streams what it says a token at a time', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
     await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(-400, 0));
@@ -280,9 +303,9 @@ void main() {
       findsNothing,
       reason: 'nothing said while it thinks',
     );
-    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('${said.first} |'), findsNothing, reason: 'the bubble pops out first');
-    await tester.pump(const Duration(milliseconds: 120));
+    await tester.pump(const Duration(milliseconds: 130));
     expect(find.textContaining('${said.first} |'), findsOneWidget, reason: 'the first token, and the caret');
 
     await tester.pump(const Duration(seconds: 3));
@@ -387,7 +410,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
     expect(_frame(tester).particles, isEmpty);
-    expect(find.textContaining('8 tokens'), findsOneWidget);
+    expect(_stat('8 tokens eaten'), findsOneWidget);
     await tester.pumpAndSettle();
     expect(tester.hasRunningAnimations, isFalse);
   });
@@ -508,7 +531,7 @@ void main() {
     await tester.tap(find.text('Keep it'));
     await tester.pumpAndSettle();
     expect(store.kept?.tokens, 400, reason: 'kept as it was');
-    expect(find.textContaining('400 tokens'), findsOneWidget);
+    expect(_stat('400 tokens eaten'), findsOneWidget);
 
     await tester.tap(reset);
     await tester.pumpAndSettle();
@@ -516,7 +539,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(store.kept, PocketModel.fresh);
-    expect(find.textContaining('0 tokens'), findsOneWidget);
+    expect(_stat('0 tokens eaten'), findsOneWidget);
     expect(find.text('The curve starts with the first feed.'), findsOneWidget);
     expect(reset, findsNothing, reason: 'a fresh model has nothing to forget');
     await _rest(tester);

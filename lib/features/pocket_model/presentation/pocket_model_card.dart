@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/pocket_stats.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -53,6 +54,10 @@ class _PocketModelView extends StatefulWidget {
 class _PocketModelViewState extends State<_PocketModelView> with SingleTickerProviderStateMixin {
   /// How long the robot stays lively after a touch.
   static const double _lively = 8;
+
+  /// The stage's height, and the room over the robot's own stage for a hat in the air.
+  static const double _stageHeight = 290;
+  static const double _headroom = 46;
 
   late final Ticker _ticker = createTicker(_tick);
   final ValueNotifier<int> _frame = ValueNotifier(0);
@@ -526,8 +531,11 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
             const SizedBox(height: AppSpacing.md),
             if (ready == null)
               const SizedBox(height: 380)
-            else
+            else ...[
               BazaarCard(padding: EdgeInsets.zero, child: _content(context, ready)),
+              const SizedBox(height: AppSpacing.xl),
+              PocketStats(model: ready.model, known: ready.known),
+            ],
           ],
         );
       },
@@ -549,7 +557,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           child: SizedBox(
-            height: 230,
+            height: _stageHeight,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -560,10 +568,14 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
               ),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  _stage = constraints.biggest;
+                  // The robot stands in the stage below the headroom, so a hat that hops or flies stays in sight
+                  // (the owner, 2026-11-14).
+                  _stage = Size(constraints.maxWidth, constraints.maxHeight - _headroom);
                   return Stack(
+                    clipBehavior: Clip.none,
                     children: [
                       Positioned.fill(
+                        top: _headroom,
                         child: Semantics(
                           container: true,
                           button: true,
@@ -589,10 +601,11 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                         ),
                       ),
                       if (state.speech case final speech? when state.awake)
+                        // Beside its head, not over its face (the owner, 2026-11-14).
                         PositionedDirectional(
-                          top: 14,
-                          start: 12,
-                          width: _stage.width * 0.56,
+                          top: 12,
+                          start: 10,
+                          width: _stage.width * 0.5,
                           child: Align(
                             alignment: AlignmentDirectional.topStart,
                             child: SpeechBubble(
@@ -618,7 +631,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TrainingPanel(model: model, curve: state.curve, known: state.known),
+              TrainingPanel(model: model, curve: state.curve),
               const SizedBox(height: AppSpacing.md),
               if (_status(s, state, now) case final status?) ...[
                 AnimatedSwitcher(
