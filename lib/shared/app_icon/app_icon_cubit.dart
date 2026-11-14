@@ -17,7 +17,7 @@ final class AppIconUnread extends AppIconState {
   const AppIconUnread();
 
   @override
-  BazaarIcon get icon => BazaarIcon.dark;
+  BazaarIcon get icon => BazaarIcon.defaultIcon;
 
   @override
   List<Object?> get props => const [];
@@ -34,9 +34,9 @@ final class AppIconKnown extends AppIconState {
   List<Object?> get props => [icon];
 }
 
-/// The app's icon on the home screen, which the reader chooses in Settings (the owner, 2026-11-14); [BazaarIcon.dark]
-/// until they do. The choice is kept by the [IAppIconStore], on this device and never in the record, and put on the
-/// home screen by the [IAppIconSwitch], which each launch names it to again.
+/// The app's icon on the home screen, which the reader chooses in Settings (the owner, 2026-11-14);
+/// [BazaarIcon.defaultIcon] until they do. The choice is kept by the [IAppIconStore], on this device and never in the
+/// record, and put on the home screen by the [IAppIconSwitch], which each launch names it to again.
 ///
 /// The boot reads the kept choice before the app's first frame and passes it as [initial], so the opening starts in
 /// its colours; without it the cubit starts unread and [load] reads it.
@@ -54,7 +54,7 @@ final class AppIconCubit extends Cubit<AppIconState> {
   /// [initial] icon there is nothing to read.
   Future<void> load() async {
     if (state case AppIconKnown(:final icon)) return _queue(() => _iconSwitch.choose(icon));
-    final icon = await _store.chosen() ?? BazaarIcon.dark;
+    final icon = await _store.chosen() ?? BazaarIcon.defaultIcon;
     if (isClosed || state is AppIconKnown) return;
     emit(AppIconKnown(icon));
     await _queue(() => _iconSwitch.choose(icon));

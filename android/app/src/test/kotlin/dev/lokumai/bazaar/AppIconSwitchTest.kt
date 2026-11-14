@@ -27,6 +27,11 @@ class AppIconSwitchTest {
     }
 
     @Test
+    fun noirIsTheDefaultTheManifestEnables() {
+        assertEquals("noir", AppIconSwitch.aliases.keys.first())
+    }
+
+    @Test
     fun everyIconHasAGroundAndALaunchScreen() {
         assertEquals(AppIconSwitch.aliases.keys, AppIconSwitch.grounds.keys)
         assertEquals(AppIconSwitch.aliases.keys, AppIconSwitch.launchThemes.keys)

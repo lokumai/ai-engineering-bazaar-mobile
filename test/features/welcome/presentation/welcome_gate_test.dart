@@ -172,9 +172,9 @@ void main() {
     final appIcon = tester.element(find.byType(WelcomeTrackView)).read<AppIconCubit>();
 
     final row = find.byKey(WelcomeTrackView.appIconKey);
-    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Dark', isButton: true));
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
     expect(
-      find.descendant(of: row, matching: find.text('Dark')),
+      find.descendant(of: row, matching: find.text('Noir')),
       findsNothing,
       reason: 'the name is not written',
     );

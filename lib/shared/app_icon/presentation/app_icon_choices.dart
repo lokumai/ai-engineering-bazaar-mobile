@@ -61,7 +61,7 @@ class _Choice extends StatelessWidget {
       container: true,
       button: true,
       selected: selected,
-      label: icon == BazaarIcon.dark ? '$name, ${s.app_icon_default}' : name,
+      label: icon == BazaarIcon.defaultIcon ? '$name, ${s.app_icon_default}' : name,
       onTap: onTap,
       excludeSemantics: true,
       child: InkWell(

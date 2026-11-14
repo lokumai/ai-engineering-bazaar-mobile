@@ -4,24 +4,24 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Each app icon's name on the Dart side (lib/shared/app_icon/) and its alternate icon in the asset catalog; the
-  /// default, dark, is the primary icon (nil).
+  /// default, noir, is the primary icon (nil).
   static let appIcons: [String: String?] = [
-    "dark": nil,
-    "cream": "AppIconCream",
-    "noir": "AppIconNoir",
+    "noir": nil,
     "ink": "AppIconInk",
     "nightGold": "AppIconNightGold",
     "nightSea": "AppIconNightSea",
+    "dark": "AppIconDark",
+    "cream": "AppIconCream",
   ]
 
   /// The ground of each icon, as lib/shared/app_icon/bazaar_icon.dart paints it: the opening starts on it.
   static let grounds: [String: UInt32] = [
-    "dark": 0x1d1f27,
-    "cream": 0xfdfbf7,
     "noir": 0x1d1f27,
     "ink": 0xfdfbf7,
     "nightGold": 0x1d1f27,
     "nightSea": 0x16302f,
+    "dark": 0x1d1f27,
+    "cream": 0xfdfbf7,
   ]
 
   override func application(

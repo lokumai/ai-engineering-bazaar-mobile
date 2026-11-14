@@ -17,32 +17,32 @@ object AppIconSwitch {
 
     /** Each icon's name on the Dart side and its launcher entry; the first is the manifest's enabled default. */
     val aliases = linkedMapOf(
-        "dark" to "LauncherDark",
-        "cream" to "LauncherCream",
         "noir" to "LauncherNoir",
         "ink" to "LauncherInk",
         "nightGold" to "LauncherNightGold",
         "nightSea" to "LauncherNightSea",
+        "dark" to "LauncherDark",
+        "cream" to "LauncherCream",
     )
 
     /** Each icon's ground: the launch screen's colour and the window's behind the app until its first frame. */
     val grounds = mapOf(
-        "dark" to R.color.bazaar_page,
-        "cream" to R.color.ic_launcher_cream_background,
         "noir" to R.color.ic_launcher_noir_background,
         "ink" to R.color.ic_launcher_ink_background,
         "nightGold" to R.color.ic_launcher_night_gold_background,
         "nightSea" to R.color.ic_launcher_night_sea_background,
+        "dark" to R.color.bazaar_page,
+        "cream" to R.color.ic_launcher_cream_background,
     )
 
     /** Each icon's launch screen on Android 13 and later (values-v31/styles.xml), on its ground. */
     val launchThemes = mapOf(
-        "dark" to R.style.LaunchTheme,
-        "cream" to R.style.LaunchTheme_Cream,
         "noir" to R.style.LaunchTheme_Noir,
         "ink" to R.style.LaunchTheme_Ink,
         "nightGold" to R.style.LaunchTheme_NightGold,
         "nightSea" to R.style.LaunchTheme_NightSea,
+        "dark" to R.style.LaunchTheme,
+        "cream" to R.style.LaunchTheme_Cream,
     )
 
     /**

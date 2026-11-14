@@ -100,7 +100,7 @@ class _WelcomeStingState extends State<WelcomeSting> with TickerProviderStateMix
         if (mounted && _flight.status == AnimationStatus.dismissed) unawaited(_flight.forward());
       });
     }
-    final ground = (icon ?? BazaarIcon.dark).ground;
+    final ground = (icon ?? BazaarIcon.defaultIcon).ground;
     final dark = ThemeData.estimateBrightnessForColor(ground) == Brightness.dark;
     return Stack(
       fit: StackFit.expand,
@@ -302,7 +302,7 @@ class StingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final icon = this.icon;
     if (icon == null) {
-      canvas.drawRect(Offset.zero & size, Paint()..color = BazaarIcon.dark.ground);
+      canvas.drawRect(Offset.zero & size, Paint()..color = BazaarIcon.defaultIcon.ground);
       return;
     }
     final f = flight.value;

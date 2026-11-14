@@ -46,7 +46,7 @@ void main() {
     addTearDown(cubit.close);
 
     expect(cubit.state, const AppIconUnread());
-    expect(cubit.state.icon, BazaarIcon.dark);
+    expect(cubit.state.icon, BazaarIcon.noir, reason: 'Noir, the default (the owner, 2026-11-15)');
   });
 
   test('load makes the kept icon current and names it to the phone again', () async {
@@ -79,7 +79,19 @@ void main() {
 
     await cubit.load();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.dark));
+    expect(cubit.state, const AppIconKnown(BazaarIcon.noir));
+  });
+
+  test('the icons stand in the order of the choice, Noir, the default, first (the owner, 2026-11-15)', () {
+    expect(BazaarIcon.values, [
+      BazaarIcon.noir,
+      BazaarIcon.ink,
+      BazaarIcon.nightGold,
+      BazaarIcon.nightSea,
+      BazaarIcon.dark,
+      BazaarIcon.cream,
+    ]);
+    expect(BazaarIcon.defaultIcon, BazaarIcon.noir);
   });
 
   test('choose makes the icon current at once, keeps it and puts it on the home screen', () async {

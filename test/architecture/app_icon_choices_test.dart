@@ -10,22 +10,32 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   String pascal(String name) => name[0].toUpperCase() + name.substring(1);
   String snake(String name) => name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
+  // On Android Dark keeps the first launcher resources (ic_launcher); every other icon has its own.
   final others = BazaarIcon.values.where((icon) => icon != BazaarIcon.dark);
+  // On iOS the default is the primary icon, AppIcon; every other icon is an alternate.
+  final alternates = BazaarIcon.values.where((icon) => icon != BazaarIcon.defaultIcon);
+  String androidResource(BazaarIcon icon) =>
+      icon == BazaarIcon.dark ? 'ic_launcher' : 'ic_launcher_${snake(icon.name)}';
   String iosName(BazaarIcon icon) => 'AppIcon${pascal(icon.name)}';
 
-  test('the Android manifest has one launcher entry per icon, only Dark enabled, each with its own icon', () {
+  test('the Android manifest has one launcher entry per icon in the order of the choice, only Noir enabled, each its own icon', () {
     final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
     final aliases = RegExp(r'<activity-alias\s+([^>]*)>').allMatches(manifest).map((m) => m[1]!).toList();
 
     expect(aliases, hasLength(BazaarIcon.values.length));
     for (final (i, icon) in BazaarIcon.values.indexed) {
       final alias = aliases[i];
-      final resource = icon == BazaarIcon.dark ? 'ic_launcher' : 'ic_launcher_${snake(icon.name)}';
+      final resource = androidResource(icon);
       expect(alias, contains('android:name=".Launcher${pascal(icon.name)}"'), reason: icon.name);
       expect(alias, contains('android:icon="@mipmap/$resource"'), reason: icon.name);
-      expect(alias, contains('android:enabled="${icon == BazaarIcon.dark}"'), reason: icon.name);
+      expect(alias, contains('android:enabled="${icon == BazaarIcon.defaultIcon}"'), reason: icon.name);
       expect(File('android/app/src/main/res/mipmap-anydpi-v26/$resource.xml').existsSync(), isTrue, reason: resource);
     }
+    // The system shows the default's icon for the app itself, in its settings and lists.
+    expect(
+      RegExp(r'<application\s[^>]*android:icon="@mipmap/(\w+)"').firstMatch(manifest)![1],
+      androidResource(BazaarIcon.defaultIcon),
+    );
     // Only the entries launch the app, so exactly one icon is in the launcher.
     expect(RegExp('android.intent.category.LAUNCHER').allMatches(manifest), hasLength(BazaarIcon.values.length));
   });
@@ -67,39 +77,50 @@ void main() {
     }
   });
 
-  test('AppIconSwitch.kt names the icons as the Dart side does, Dark first', () {
+  test('AppIconSwitch.kt names the icons as the Dart side does, Noir, the default, first', () {
     final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
     final pairs = RegExp(r'"(\w+)" to "(Launcher\w+)"').allMatches(kotlin).map((m) => (m[1], m[2])).toList();
 
     expect(pairs, [for (final icon in BazaarIcon.values) (icon.name, 'Launcher${pascal(icon.name)}')]);
   });
 
-  test('iOS has an alternate icon per other icon, included in every build, named as AppDelegate.swift names it', () {
-    final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
-    final names = [for (final icon in others) iosName(icon)];
-    final included = RegExp(r'ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "([^"]+)";').allMatches(project);
+  test(
+    'iOS has Noir as its primary icon and an alternate per other icon, in every build, as AppDelegate.swift names them',
+    () {
+      final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      final names = [for (final icon in alternates) iosName(icon)];
+      final included = RegExp(r'ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "([^"]+)";').allMatches(project);
 
-    expect(included, hasLength(3), reason: 'Debug, Release and Profile');
-    for (final match in included) {
-      expect(match[1]!.split(' '), names);
-    }
-    for (final name in names) {
-      final set = 'ios/Runner/Assets.xcassets/$name.appiconset';
-      expect(File('$set/$name.png').existsSync(), isTrue, reason: name);
-      // Its own picture in dark mode too: without one iOS darkens a light icon itself, and Cream then looked like
-      // the default on an iPhone in dark mode (the owner, 2026-11-14).
-      expect(File('$set/${name}Dark.png').readAsBytesSync(), File('$set/$name.png').readAsBytesSync(), reason: name);
-      expect(
-        RegExp(r'"appearance": "luminosity",\s*"value": "dark"\s*\}\s*\],\s*"filename": "' + name + r'Dark\.png"')
-            .hasMatch(File('$set/Contents.json').readAsStringSync()),
-        isTrue,
-        reason: name,
-      );
-    }
-    final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
-    final pairs = RegExp(r'"(\w+)": (nil|"(\w+)")').allMatches(swift).map((m) => (m[1], m[3])).toList();
-    expect(pairs, [for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.dark ? null : iosName(icon))]);
-  });
+      expect(included, hasLength(3), reason: 'Debug, Release and Profile');
+      for (final match in included) {
+        expect(match[1]!.split(' '), names);
+      }
+      final noir = 'ios/Runner/Assets.xcassets/AppIcon${pascal(BazaarIcon.defaultIcon.name)}.appiconset';
+      expect(Directory(noir).existsSync(), isFalse, reason: 'the default is the primary icon, not an alternate');
+      for (final name in ['AppIcon', ...names]) {
+        final set = 'ios/Runner/Assets.xcassets/$name.appiconset';
+        expect(File('$set/$name.png').existsSync(), isTrue, reason: name);
+        // Its own picture in dark mode too: without one iOS darkens a light icon itself, and Cream then looked like
+        // the default on an iPhone in dark mode (the owner, 2026-11-14).
+        expect(
+          File('$set/${name}DarkMode.png').readAsBytesSync(),
+          File('$set/$name.png').readAsBytesSync(),
+          reason: name,
+        );
+        expect(
+          RegExp(r'"appearance": "luminosity",\s*"value": "dark"\s*\}\s*\],\s*"filename": "' + name + r'DarkMode\.png"')
+              .hasMatch(File('$set/Contents.json').readAsStringSync()),
+          isTrue,
+          reason: name,
+        );
+      }
+      final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+      final pairs = RegExp(r'"(\w+)": (nil|"(\w+)")').allMatches(swift).map((m) => (m[1], m[3])).toList();
+      expect(pairs, [
+        for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.defaultIcon ? null : iosName(icon)),
+      ]);
+    },
+  );
 
   test('AppDelegate.swift paints the launch picture in the ground of each icon, as the Dart side has it', () {
     final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();

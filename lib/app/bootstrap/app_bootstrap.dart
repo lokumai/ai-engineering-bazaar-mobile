@@ -64,7 +64,7 @@ class AppBootstrap {
 
     // The chosen app icon, read before the first frame, so the opening starts in its colours rather than the
     // default's (a few flag files; a file not read counts as no choice).
-    final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.dark;
+    final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.defaultIcon;
 
     log.info('Starting app with env: {}', [config.environment.name]);
 

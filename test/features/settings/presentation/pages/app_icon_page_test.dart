@@ -42,7 +42,7 @@ Future<AppIconCubit> _pump(
 Matcher _selected(bool selected) => isSemantics(isSelected: selected, isButton: true);
 
 void main() {
-  testWidgets('shows the six icons as pictures, named only to a screen reader, Dark the default and in use', (
+  testWidgets('shows the six icons as pictures, named only to a screen reader, Noir the default and in use', (
     tester,
   ) async {
     await _pump(tester);
@@ -59,19 +59,26 @@ void main() {
     for (final name in ['Dark', 'Cream', 'Noir', 'Ink', 'Night gold', 'Night sea', 'Default']) {
       expect(find.text(name), findsNothing, reason: name);
     }
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Dark, Default'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), isSemantics(label: 'Night sea'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), _selected(true));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(false));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), isSemantics(label: 'Noir, Default'));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Dark'));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(true));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), _selected(false));
   });
 
-  testWidgets('stands the six in two rows of three', (tester) async {
+  testWidgets('stands the six in two rows of three: Noir, Ink, Night gold; Night sea, Dark, Cream', (tester) async {
     await _pump(tester);
 
-    double top(BazaarIcon icon) => tester.getTopLeft(find.byKey(appIconChoiceKey(icon))).dy;
-    expect({top(BazaarIcon.dark), top(BazaarIcon.cream), top(BazaarIcon.noir)}, hasLength(1));
-    expect({top(BazaarIcon.ink), top(BazaarIcon.nightGold), top(BazaarIcon.nightSea)}, hasLength(1));
-    expect(top(BazaarIcon.ink), greaterThan(top(BazaarIcon.dark)));
+    Offset at(BazaarIcon icon) => tester.getTopLeft(find.byKey(appIconChoiceKey(icon)));
+    final rows = [
+      [BazaarIcon.noir, BazaarIcon.ink, BazaarIcon.nightGold],
+      [BazaarIcon.nightSea, BazaarIcon.dark, BazaarIcon.cream],
+    ];
+    for (final row in rows) {
+      expect({for (final icon in row) at(icon).dy}, hasLength(1), reason: '$row');
+      expect(at(row[0]).dx, lessThan(at(row[1]).dx));
+      expect(at(row[1]).dx, lessThan(at(row[2]).dx));
+    }
+    expect(at(BazaarIcon.nightSea).dy, greaterThan(at(BazaarIcon.noir).dy));
   });
 
   testWidgets('a tap makes that icon the app icon and marks it', (tester) async {
@@ -85,7 +92,7 @@ void main() {
     expect(cubit.state, const AppIconKnown(BazaarIcon.nightSea));
     expect(iconSwitch.asked, [BazaarIcon.nightSea]);
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), _selected(true));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), _selected(false));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(false));
   });
 
   testWidgets('says on Android that the icon changes once the app is left, and on iOS that the phone confirms it', (
@@ -103,7 +110,7 @@ void main() {
 
     expect(find.text('App ikonu'), findsOneWidget);
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), isSemantics(label: 'Gece denizi'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Koyu, Varsayılan'));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), isSemantics(label: 'Noir, Varsayılan'));
   });
 
   testWidgets('the page meets the platform guidelines', (tester) async {
