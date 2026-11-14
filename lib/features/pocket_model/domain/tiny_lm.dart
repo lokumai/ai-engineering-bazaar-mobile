@@ -65,6 +65,9 @@ final class TinyLm {
   /// keeps to (plan 9.10).
   final Map<String, List<_Counts>> _sections = {};
 
+  /// Every run of [_run] words of the modules it read, joined by spaces: what it would say word for word.
+  final Set<String> _runs = {};
+
   int _trained = 0;
   String _a = _start;
   String _b = _start;
@@ -98,6 +101,9 @@ final class TinyLm {
       if (i % 10 == 9) continue;
       final part = parts?[_sectionAt(sections, i)];
       if (sentence.length >= 3) part?.openings.add((sentence[0], sentence[1]));
+      for (var at = 0; at + _run <= sentence.length; at++) {
+        _runs.add(sentence.sublist(at, at + _run).join(' '));
+      }
       var a = _start;
       var b = _start;
       for (final word in [...sentence, end]) {
@@ -336,8 +342,41 @@ final class TinyLm {
     }
     if (tokens.length < 4) score -= 0.5;
     if (!finished) score -= _unfinished;
+    final copy = copied(tokens);
+    score -= _copyWeight * math.max(0, copy - _copyRun);
+    // All of it, word for word, as a module has it: what it read, not what it says.
+    if (copy > 0 && copy == tokens.length) score -= _wholeCopy;
     return score;
   }
+
+  /// The most words of [tokens] in a row that stand so in a module it read, from [_run] up; 0 when no run of [_run]
+  /// does.
+  int copied(List<String> tokens) {
+    var longest = 0;
+    var run = 0;
+    for (var at = 0; at + _run <= tokens.length; at++) {
+      run = _runs.contains(tokens.sublist(at, at + _run).join(' ')) ? (run == 0 ? _run : run + 1) : 0;
+      longest = math.max(longest, run);
+    }
+    return longest;
+  }
+
+  /// The words in a row a copied run counts in: four, so three words of a phrase it read come together freely.
+  static const _run = 4;
+
+  /// The most words in a row it says as a module says them before it is pushed to join them to something else, and
+  /// a sentence it judges is marked down for each word copied past them (the owner, 2026-11-14: it said the module's
+  /// sentences nearly word for word).
+  static const _copyRun = 6;
+
+  /// How much less likely a word is that would copy on past [_copyRun].
+  static const _copyPenalty = 8.0;
+
+  /// How much lower a sentence is judged for each word it copied past [_copyRun].
+  static const _copyWeight = 0.4;
+
+  /// How much lower a sentence is judged that a module has word for word, all of it.
+  static const _wholeCopy = 1.5;
 
   /// How much lower a sentence cut before its end is judged: below most that end, so it says one that ends.
   static const _unfinished = 1.0;
@@ -377,6 +416,8 @@ final class TinyLm {
       b = second;
     }
     var finished = false;
+    // How many words in a row, to the last, stand so in a module it read.
+    var copying = 0;
     while (said.length < longest) {
       // The words worth weighing: what followed the last words, here or in the topic, and its commonest words, through
       // which a hot model makes up a join; the rest are too unlikely to matter.
@@ -390,11 +431,18 @@ final class TinyLm {
         })
           if (!(word == end && said.isEmpty)) word,
       ];
+      // Past [_copyRun] words of a module word for word, the word that copies on is much less likely, so it joins
+      // what it read into a sentence of its own.
+      final last = said.length >= _run - 1 ? said.sublist(said.length - _run + 1).join(' ') : null;
+      bool copiesOn(String word) => last != null && _runs.contains('$last $word');
       final chances = [
         for (final word in options)
-          _topicChance(keep, a, b, word, _writingBackoff) / (avoid.contains(word) ? _penalty : 1),
+          _topicChance(keep, a, b, word, _writingBackoff) /
+              (avoid.contains(word) ? _penalty : 1) /
+              (copying >= _copyRun && copiesOn(word) ? _copyPenalty : 1),
       ];
       final word = options[_pick(chances, temperature, random)];
+      copying = copiesOn(word) ? (copying == 0 ? _run : copying + 1) : 0;
       if (word == end) {
         finished = true;
         break;

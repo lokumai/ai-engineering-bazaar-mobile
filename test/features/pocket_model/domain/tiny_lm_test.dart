@@ -329,6 +329,30 @@ void main() {
       );
     });
 
+    test('it says few of the modules\' sentences word for word, and copies no long run of one (the owner)', () {
+      final model = TinyLm.trained('en', 1600)
+        ..read(stars, topic: 'sky/stars')
+        ..read(bread, topic: 'kitchen/bread');
+      final read = [
+        for (final s in [...stars, ...bread]) s.join(' '),
+      ];
+      var whole = 0;
+      var longRuns = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final said = model.write(temperature: 0.8, random: math.Random(seed), topic: 'sky/stars', thoughts: 10).tokens;
+        if (said.length >= 4 && read.any((sentence) => sentence.contains(said.join(' ')))) whole++;
+        if (model.copied(said) > 7) longRuns++;
+      }
+      expect(whole, lessThan(12), reason: '35 of 40 before it was pushed off a copy');
+      expect(longRuns, lessThan(4));
+    });
+
+    test('a run of a module word for word counts from four words', () {
+      final model = TinyLm.trained('en', 400)..read(bread, topic: 'kitchen/bread');
+      expect(model.copied('the dough rises slowly overnight'.split(' ')), 5);
+      expect(model.copied('the dough rises fast'.split(' ')), 0);
+    });
+
     test('it says up to eighteen words, so most of what it says ends of itself', () {
       expect(TinyLm.longest, 18);
       final model = TinyLm.trained('en', 1600)
