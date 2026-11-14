@@ -4,11 +4,11 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
-import 'package:ai_engineering_bazaar/features/pocket_model/presentation/outfit_names.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart' show cold;
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -386,22 +386,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     );
   }
 
-  void _sparkle(int count, {required Offset around, double after = 0}) {
-    for (var i = 0; i < count; i++) {
-      final a = _random.nextDouble() * 2 * math.pi;
-      final at = around + Offset(math.cos(a) * 0.1, math.sin(a) * 0.12);
-      _particles.add(
-        Particle(
-          kind: ParticleKind.star,
-          born: _time + after + i * 0.1,
-          life: 0.8,
-          from: at,
-          to: at + const Offset(0, -0.05),
-          color: const Color(0xffffd88a),
-        ),
-      );
-    }
-  }
+  void _sparkle(int count, {required Offset around, double after = 0}) =>
+      _particles.addAll(RobotMoves.sparkles(count, around, _time + after, _random));
 
   void _frost({double after = 0}) {
     final side = _mirrored ? 1.0 : -1.0;
@@ -419,30 +405,9 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     }
   }
 
-  Offset get _mouth {
-    if (_stage == Size.zero) return const Offset(0.5, 0.5);
-    final seat = PocketRobotPainter.seat(_stage, mirrored: _mirrored);
-    final s = PocketRobotPainter.scaleOf(_stage);
-    final at = seat - Offset(0, 96 * s);
-    return Offset(at.dx / _stage.width, at.dy / _stage.height);
-  }
+  Offset get _mouth => RobotMoves.mouth(_stage, mirrored: _mirrored);
 
-  void _hearts() {
-    final head = _mouth - const Offset(0, 0.2);
-    for (var i = 0; i < 4; i++) {
-      _particles.add(
-        Particle(
-          kind: ParticleKind.heart,
-          born: _time + i * 0.12,
-          life: 1.3,
-          from: head + Offset((i - 1.5) * 0.06, 0),
-          to: head + Offset((i - 1.5) * 0.1, -0.35),
-          color: const Color(0xffe0607a),
-          spin: i.toDouble(),
-        ),
-      );
-    }
-  }
+  void _hearts() => _particles.addAll(RobotMoves.hearts(_mouth - const Offset(0, 0.2), _time));
 
   void _confetti() {
     const palette = [Color(0xffddb46a), Color(0xff2f8c86), Color(0xffb3262e), Color(0xff7a4a86), Color(0xff63b2ab)];
@@ -519,14 +484,9 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     if (!state.awake) return s.pocket_status_asleep;
     if (state.model.overfitAt(now)) return s.pocket_status_overfit;
     switch (state.action) {
+      // A new level says nothing here: its ring and the wardrobe show it (the owner, 2026-11-14).
       case PocketAction.recovered:
         return s.pocket_status_recovered;
-      case PocketAction.levelUp:
-        final unlocked = RobotOutfit.unlockedAt(state.model.level);
-        if (unlocked.isNotEmpty) {
-          return s.pocket_status_unlocked(state.model.level, unlocked.map((part) => outfitName(s, part)).join(', '));
-        }
-        return s.pocket_status_level_up(state.model.level);
       default:
     }
     if (state.speech?.hallucinating ?? false) return s.pocket_status_hallucinating;

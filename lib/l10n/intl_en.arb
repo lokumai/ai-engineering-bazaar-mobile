@@ -811,8 +811,12 @@
   "@app_icon_name": {
     "description": "An app icon's name: the robot's wardrobe part it shows, and its ground.",
     "placeholders": {
-      "robot": {"type": "String"},
-      "ground": {"type": "String"}
+      "robot": {
+        "type": "String"
+      },
+      "ground": {
+        "type": "String"
+      }
     }
   },
   "app_icon_default": "Default",
@@ -1016,6 +1020,15 @@
       }
     }
   },
+  "pocket_next_module": "read a module for level {level}",
+  "@pocket_next_module": {
+    "description": "Said of the level ring once feeds take the model no higher: only a module read does.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "pocket_known": "{count, plural, =1{knows 1 word} other{knows {count} words}}",
   "@pocket_known": {
     "description": "How many words the pocket model has read, after its tokens.",
@@ -1025,8 +1038,6 @@
       }
     }
   },
-  "pocket_top": "Fully trained",
-  "@pocket_top": {},
   "pocket_loss": "loss {value}",
   "@pocket_loss": {
     "description": "The training loss, as a model's training prints it, small.",
@@ -1062,14 +1073,6 @@
   "@pocket_status_hallucinating": {},
   "pocket_status_cold": "Cold: it says its likeliest words, every time.",
   "@pocket_status_cold": {},
-  "pocket_status_level_up": "Level {level}: it can say more now.",
-  "@pocket_status_level_up": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
   "pocket_hallucinating": "hallucinating",
   "@pocket_hallucinating": {
     "description": "The tag on a speech bubble said while too hot."
@@ -1125,7 +1128,15 @@
   },
   "settings_pocket_button": "Pocket model",
   "@settings_pocket_button": {
-    "description": "The switch that shows or hides the pocket model's round button on Home."
+    "description": "The title of the choice, on or off, that shows or hides the pocket model's round button on Home."
+  },
+  "settings_on": "On",
+  "@settings_on": {
+    "description": "The segment that shows the pocket model's button."
+  },
+  "settings_off": "Off",
+  "@settings_off": {
+    "description": "The segment that hides the pocket model's button."
   },
   "settings_robot": "Wardrobe",
   "@settings_robot": {
@@ -1259,18 +1270,6 @@
         "type": "String"
       },
       "body": {
-        "type": "String"
-      }
-    }
-  },
-  "pocket_status_unlocked": "Level {level}. New in its wardrobe: {items}.",
-  "@pocket_status_unlocked": {
-    "description": "The status line when a level unlocks something to wear.",
-    "placeholders": {
-      "level": {
-        "type": "int"
-      },
-      "items": {
         "type": "String"
       }
     }

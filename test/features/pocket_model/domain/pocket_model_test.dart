@@ -18,13 +18,37 @@ void main() {
       expect(fed.moodAt(noon), PocketMood.content);
     });
 
-    test('the level follows the tokens, and progress runs to the next', () {
+    test('the level follows the tokens fed, and progress runs to the next, until feeds take it no higher', () {
       expect(const PocketModel(tokens: 23).level, 0);
       expect(const PocketModel(tokens: 24).level, 1);
       expect(const PocketModel(tokens: 52).progress, closeTo(0.5, 1e-9));
-      expect(const PocketModel(tokens: 50000).level, PocketModel.levels.length - 1);
+      expect(const PocketModel(tokens: 50000).level, PocketModel.feedLevels);
       expect(const PocketModel(tokens: 50000).toNext, isNull);
       expect(const PocketModel(tokens: 50000).progress, 1);
+    });
+
+    test('each module read is one level, however long it is (the owner, 2026-11-14)', () {
+      var model = PocketModel(tokens: 100, lastFed: noon);
+      expect(model.level, 2);
+      model = model.readAt('alpha/first', 3000, noon);
+      expect(model.level, 3, reason: 'a module of three thousand tokens, not seven levels');
+      model = model.readAt('alpha/second', 200, noon);
+      expect(model.level, 4);
+      expect(model.toNext, 80, reason: 'feeds still take it on to their own next level');
+      expect(PocketModel(tokens: 5000, readings: model.readings).level, PocketModel.feedLevels + 2);
+    });
+
+    test('marks where on its curve each level was reached: its feeds among its modules, and each module', () {
+      final model = PocketModel(
+        tokens: 100,
+        readings: const [
+          PocketReading(key: 'alpha/first', at: 40, tokens: 1000),
+          PocketReading(key: 'alpha/second', at: 100, tokens: 500),
+        ],
+      );
+      // 24 fed; the first module read at 40, ending at 1040; 80 fed at 1080; the second module at 1100, to 1600.
+      expect(model.levelMarks, [24, 1040, 1080, 1600]);
+      expect(model.levelMarks, hasLength(model.level));
     });
 
     test('a module it read counts toward its level, and is remembered as read', () {
@@ -34,7 +58,7 @@ void main() {
       ).readAt('alpha/first', 2000, noon.add(const Duration(hours: 5)));
       expect(model.tokens, 100, reason: 'its own text stays where it was');
       expect(model.total, 2100);
-      expect(model.level, 7);
+      expect(model.level, 3, reason: 'two levels fed, one read');
       expect(model.hasRead('alpha/first'), isTrue);
       expect(model.hasRead('alpha/second'), isFalse);
       expect(model.readings.single, const PocketReading(key: 'alpha/first', at: 100, tokens: 2000));

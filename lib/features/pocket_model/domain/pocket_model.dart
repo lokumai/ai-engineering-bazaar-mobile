@@ -31,7 +31,7 @@ final class PocketReading extends Equatable {
 }
 
 /// The pocket model (plan 9.2): a tiny model the reader trains with tokens when bored. The tokens it was fed and the
-/// tokens of the modules it read decide its level here; its language model ([TinyLm]) follows from the count of its
+/// modules it read decide its level here, each module one level whatever its length ([level]); its language model ([TinyLm]) follows from the count of its
 /// own text read and the modules it read.
 ///
 /// It keeps four facts, which the device stores apart from the record: the tokens fed, the modules read, when it was
@@ -45,11 +45,10 @@ final class PocketModel extends Equatable {
   /// The tokens one feed gives.
   static const int feedTokens = 8;
 
-  /// The tokens each level starts at, from level 0. Feeds alone reach the first eight; the course's modules, a few
-  /// thousand tokens each, take it on.
-  static const List<int> levels = [0, 24, 80, 180, 360, 640, 1000, 1600, 3000, 6000, 10000, 16000, 25000, 40000];
+  /// The tokens fed that each level feeds give starts at, from level 0: feeds alone reach level [feedLevels].
+  static const List<int> levels = [0, 24, 80, 180, 360, 640, 1000, 1600];
 
-  /// The level feeds alone are made for: its text is longer than this.
+  /// The highest level feeds alone reach; its text is longer than the tokens it starts at.
   static const int feedLevels = 7;
 
   /// Feeds this close together count toward a burst.
@@ -80,23 +79,49 @@ final class PocketModel extends Equatable {
   /// The moments of the feeds in the current burst, the latest last.
   final List<DateTime> burst;
 
-  /// The level its [total] reaches, from 0.
-  int get level {
+  /// Its level, from 0: the level its feeds reach ([fedLevel]) and one for each module it read (the owner, 2026-11-14:
+  /// a module of a few thousand tokens had made it jump seven levels at once).
+  int get level => fedLevel + readings.length;
+
+  /// The level its feeds alone reach, from 0 to [feedLevels].
+  int get fedLevel {
     var reached = 0;
     for (var i = 0; i < levels.length; i++) {
-      if (total >= levels[i]) reached = i;
+      if (tokens >= levels[i]) reached = i;
     }
     return reached;
   }
 
-  /// The tokens to the next level, or null at the top.
-  int? get toNext => level + 1 < levels.length ? levels[level + 1] - total : null;
+  /// The tokens to feed to the next level, or null when feeds take it no higher and only a module does.
+  int? get toNext => fedLevel < feedLevels ? levels[fedLevel + 1] - tokens : null;
 
-  /// How far it is from this level to the next, 0 to 1; 1 at the top.
+  /// How far its feeds are from this level to the next, 0 to 1; 1 once feeds take it no higher.
   double get progress {
-    final next = level + 1 < levels.length ? levels[level + 1] : null;
-    if (next == null) return 1;
-    return (total - levels[level]) / (next - levels[level]);
+    if (fedLevel >= feedLevels) return 1;
+    return (tokens - levels[fedLevel]) / (levels[fedLevel + 1] - levels[fedLevel]);
+  }
+
+  /// Where on its training curve it reached each level, in tokens of everything it took in ([total]), in order: each
+  /// level its feeds reached, among the modules it read, and the end of each module.
+  List<int> get levelMarks {
+    final marks = <int>[];
+    var read = 0;
+    var next = 0;
+    void readUpTo(int fed) {
+      while (next < readings.length && readings[next].at < fed) {
+        read += readings[next].tokens;
+        marks.add(readings[next].at + read);
+        next++;
+      }
+    }
+
+    for (final start in levels.skip(1)) {
+      if (start > tokens) break;
+      readUpTo(start);
+      marks.add(start + read);
+    }
+    readUpTo(tokens + 1);
+    return marks;
   }
 
   /// Whether it read the module [key].

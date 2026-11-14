@@ -2019,6 +2019,16 @@ class S {
     );
   }
 
+  /// `read a module for level {level}`
+  String pocket_next_module(int level) {
+    return Intl.message(
+      'read a module for level $level',
+      name: 'pocket_next_module',
+      desc: 'Said of the level ring once feeds take the model no higher: only a module read does.',
+      args: [level],
+    );
+  }
+
   /// `{count, plural, =1{knows 1 word} other{knows {count} words}}`
   String pocket_known(int count) {
     return Intl.plural(
@@ -2029,11 +2039,6 @@ class S {
       desc: 'How many words the pocket model has read, after its tokens.',
       args: [count],
     );
-  }
-
-  /// `Fully trained`
-  String get pocket_top {
-    return Intl.message('Fully trained', name: 'pocket_top', desc: '', args: []);
   }
 
   /// `loss {value}`
@@ -2129,11 +2134,6 @@ class S {
       desc: '',
       args: [],
     );
-  }
-
-  /// `Level {level}: it can say more now.`
-  String pocket_status_level_up(int level) {
-    return Intl.message('Level $level: it can say more now.', name: 'pocket_status_level_up', desc: '', args: [level]);
   }
 
   /// `hallucinating`
@@ -2243,7 +2243,27 @@ class S {
     return Intl.message(
       'Pocket model',
       name: 'settings_pocket_button',
-      desc: 'The switch that shows or hides the pocket model\'s round button on Home.',
+      desc: 'The title of the choice, on or off, that shows or hides the pocket model\'s round button on Home.',
+      args: [],
+    );
+  }
+
+  /// `On`
+  String get settings_on {
+    return Intl.message(
+      'On',
+      name: 'settings_on',
+      desc: 'The segment that shows the pocket model\'s button.',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get settings_off {
+    return Intl.message(
+      'Off',
+      name: 'settings_off',
+      desc: 'The segment that hides the pocket model\'s button.',
       args: [],
     );
   }
@@ -2435,16 +2455,6 @@ class S {
       name: 'wardrobe_preview',
       desc: 'The wardrobe\'s picture of the robot, for a screen reader.',
       args: [hat, head, body],
-    );
-  }
-
-  /// `Level {level}. New in its wardrobe: {items}.`
-  String pocket_status_unlocked(int level, String items) {
-    return Intl.message(
-      'Level $level. New in its wardrobe: $items.',
-      name: 'pocket_status_unlocked',
-      desc: 'The status line when a level unlocks something to wear.',
-      args: [level, items],
     );
   }
 }

@@ -289,8 +289,8 @@
   "pocket_level": "سطح {level}",
   "pocket_tokens": "{count} توکن",
   "pocket_to_next": "{count} تا سطح {level}",
+  "pocket_next_module": "برای سطح {level} یک درس بخوان",
   "pocket_known": "{count} واژه می‌داند",
-  "pocket_top": "کاملاً آموزش‌دیده",
   "pocket_loss": "خطا {value}",
   "pocket_level_word": "سطح",
   "pocket_loss_title": "خطای آموزش",
@@ -302,7 +302,6 @@
   "pocket_status_recovered": "استراحت کرد و دوباره آمادهٔ یادگیری است.",
   "pocket_status_hallucinating": "زیادی داغ: توهم می‌زند. دما را پایین بیاورید.",
   "pocket_status_cold": "سرد: هر بار محتمل‌ترین واژه‌ها را می‌گوید.",
-  "pocket_status_level_up": "سطح {level}: حالا می‌تواند بیشتر بگوید.",
   "pocket_hallucinating": "توهم",
   "pocket_stage_label": "مدل جیبی، سطح {level}. برای نوازش ضربه بزنید.",
   "pocket_says": "می‌گوید: {words}",
@@ -315,6 +314,8 @@
   "pocket_reset_keep": "بماند",
   "settings_customize": "شخصی‌سازی",
   "settings_pocket_button": "مدل جیبی",
+  "settings_on": "روشن",
+  "settings_off": "خاموش",
   "settings_robot": "کمد لباس",
   "wardrobe_hat": "کلاه",
   "wardrobe_head": "سر",
@@ -342,6 +343,5 @@
   "outfit_body_astronaut": "لباس فضایی",
   "wardrobe_item_worn": "{name}، پوشیده",
   "wardrobe_item_locked": "{name}، در سطح {level} باز می‌شود",
-  "wardrobe_preview": "ربات: {hat}، {head}، {body}",
-  "pocket_status_unlocked": "سطح {level}. تازه در کمدش: {items}."
+  "wardrobe_preview": "ربات: {hat}، {head}، {body}"
 }

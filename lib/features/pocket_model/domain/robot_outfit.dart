@@ -107,7 +107,7 @@ final class RobotOutfit extends Equatable {
     body: body.level <= level ? body : RobotBody.classic,
   );
 
-  /// The parts that unlock exactly at [level], to say so when the model reaches it.
+  /// The parts that unlock exactly at [level].
   static List<Enum> unlockedAt(int level) => [
     for (final hat in RobotHat.values)
       if (hat.level == level && level > 0) hat,

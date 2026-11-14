@@ -229,13 +229,16 @@ void main() {
     await _rest(tester);
   });
 
-  testWidgets('the feed that reaches a level throws confetti and shows the new level', (tester) async {
+  testWidgets('the feed that reaches a level throws confetti, its ring says so, and no line under it', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 20, lastFed: clock.now())));
 
     await tester.tap(find.byKey(const ValueKey('pocket-feed')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Level 1. New in its wardrobe: Embroidered vest.'), findsOneWidget);
+    // The owner, 2026-11-14: the line meant nothing beside the ring and the wardrobe.
+    expect(find.textContaining('Level 1'), findsNothing);
+    expect(find.textContaining('wardrobe'), findsNothing);
+    expect(find.text('1'), findsOneWidget, reason: "the ring's level");
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.confetti), isNotEmpty);
     await _rest(tester);
   });
@@ -439,10 +442,9 @@ void main() {
     expect(body.contains(Offset(rect.right - 3, rect.bottom - 3)), isTrue);
   });
 
-  test('the loss chart marks each level reached', () {
-    expect(LossChartPainter.marks(10), isEmpty);
-    expect(LossChartPainter.marks(100), [24, 80]);
-    expect(LossChartPainter.marks(50000), PocketModel.levels.skip(1).toList());
+  test('the loss chart marks the levels reached so far', () {
+    expect(LossChartPainter.reached([24, 80, 3080], 10), isEmpty);
+    expect(LossChartPainter.reached([24, 80, 3080], 100), [24, 80]);
   });
 
   testWidgets('three pets in a row send its fez flying', (tester) async {

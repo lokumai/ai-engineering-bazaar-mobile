@@ -38,13 +38,15 @@ class TrainingPanel extends StatelessWidget {
               container: true,
               label: [
                 s.pocket_level(model.level),
-                if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_top,
+                if (next != null) s.pocket_to_next(next, model.level + 1) else s.pocket_next_module(model.level + 1),
               ].join(', '),
               excludeSemantics: true,
               child: _LevelRing(level: model.level, progress: model.progress, reduced: reduced),
             ),
             const SizedBox(width: AppSpacing.md),
-            Expanded(child: LossChart(curve: curve)),
+            Expanded(
+              child: LossChart(curve: curve, marks: model.levelMarks),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -156,10 +158,13 @@ class _RingPainter extends CustomPainter {
 /// The training loss as a chart, as a training run draws it: the curve from the first token to now, falling, with a
 /// mark where each level was reached and the loss now in a pill. It grows with each feed.
 class LossChart extends StatelessWidget {
-  const LossChart({super.key, required this.curve});
+  const LossChart({super.key, required this.curve, this.marks = const []});
 
   /// The curve the model's training drew, from the first token to now.
   final List<LossPoint> curve;
+
+  /// Where on it each level was reached, in tokens ([PocketModel.levelMarks]).
+  final List<int> marks;
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +246,7 @@ class LossChart extends StatelessWidget {
                           size: Size.infinite,
                           painter: LossChartPainter(
                             curve: curve,
+                            marks: marks,
                             tokens: value,
                             colour: colors.primary,
                             grid: colors.line,
@@ -264,6 +270,7 @@ class LossChartPainter extends CustomPainter {
   LossChartPainter({
     required this.curve,
     required this.tokens,
+    this.marks = const [],
     required this.colour,
     required this.grid,
     required this.mark,
@@ -292,9 +299,12 @@ class LossChartPainter extends CustomPainter {
     return curve.last.loss;
   }
 
-  /// The levels reached by [tokens], whose places the chart marks.
-  static List<int> marks(double tokens) => [
-    for (final at in PocketModel.levels.skip(1))
+  /// Where each level was reached, in tokens ([PocketModel.levelMarks]); those up to [tokens] are marked.
+  final List<int> marks;
+
+  /// The places of [marks] reached by [tokens], which the chart marks.
+  static List<int> reached(List<int> marks, double tokens) => [
+    for (final at in marks)
       if (at <= tokens) at,
   ];
 
@@ -366,7 +376,7 @@ class LossChartPainter extends CustomPainter {
     final tick = Paint()
       ..color = mark.withValues(alpha: 0.5)
       ..strokeWidth = 1;
-    for (final at in marks(tokens)) {
+    for (final at in reached(marks, tokens)) {
       final p = point(at.toDouble());
       for (var y = p.dy + 5; y < bottom; y += 5) {
         canvas.drawLine(Offset(p.dx, y), Offset(p.dx, math.min(y + 2, bottom)), tick);
@@ -387,6 +397,7 @@ class LossChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(LossChartPainter old) =>
       old.curve != curve ||
+      old.marks != marks ||
       old.tokens != tokens ||
       old.colour != colour ||
       old.grid != grid ||

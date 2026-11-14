@@ -289,8 +289,8 @@
   "pocket_level": "Seviye {level}",
   "pocket_tokens": "{count} token",
   "pocket_to_next": "Seviye {level} için {count}",
+  "pocket_next_module": "Seviye {level} için bir modül okut",
   "pocket_known": "{count} kelime biliyor",
-  "pocket_top": "Tam eğitildi",
   "pocket_loss": "kayıp {value}",
   "pocket_level_word": "seviye",
   "pocket_loss_title": "Eğitim kaybı",
@@ -302,7 +302,6 @@
   "pocket_status_recovered": "Dinlendi, yeniden öğrenmeye hazır.",
   "pocket_status_hallucinating": "Fazla sıcak: halüsinasyon görüyor. Sıcaklığı düşür.",
   "pocket_status_cold": "Soğuk: her seferinde en olası sözcükleri söylüyor.",
-  "pocket_status_level_up": "Seviye {level}: artık daha çok şey söyleyebiliyor.",
   "pocket_hallucinating": "halüsinasyon",
   "pocket_stage_label": "Cep modeli, seviye {level}. Sevmek için dokun.",
   "pocket_says": "Diyor ki: {words}",
@@ -315,6 +314,8 @@
   "pocket_reset_keep": "Kalsın",
   "settings_customize": "Kişiselleştir",
   "settings_pocket_button": "Cep modeli",
+  "settings_on": "Açık",
+  "settings_off": "Kapalı",
   "settings_robot": "Gardırop",
   "wardrobe_hat": "Şapka",
   "wardrobe_head": "Kafa",
@@ -342,6 +343,5 @@
   "outfit_body_astronaut": "Uzay giysisi",
   "wardrobe_item_worn": "{name}, giyili",
   "wardrobe_item_locked": "{name}, {level}. seviyede açılır",
-  "wardrobe_preview": "Robot: {hat}, {head}, {body}",
-  "pocket_status_unlocked": "Seviye {level}. Gardırobunda yeni: {items}."
+  "wardrobe_preview": "Robot: {hat}, {head}, {body}"
 }

@@ -8,8 +8,10 @@ void main() {
     expect([RobotHat.fez.level, RobotHead.classic.level, RobotBody.classic.level], [0, 0, 0]);
   });
 
-  test('every level from 1 to the last unlocks something to wear, and nothing waits past the last', () {
-    final last = PocketModel.levels.length - 1;
+  test('every level from 1 to 13 unlocks something to wear, and nothing waits past it', () {
+    // Feeds reach the first levels, a module a level after them: thirteen are a few modules in.
+    const last = 13;
+    expect(last, greaterThan(PocketModel.feedLevels));
     for (var level = 1; level <= last; level++) {
       expect(RobotOutfit.unlockedAt(level), isNotEmpty, reason: 'level $level');
     }
