@@ -1,9 +1,9 @@
 import 'dart:ui' show Color;
 
 /// The robots the app icons show (plan 9.10): the pocket model's robot, its head and hat as its round button draws
-/// them, in one of its hats on its own screen, or in its fez on another of its heads. Each unlocks at the level of the
-/// pocket model its wardrobe part unlocks at (`robot_outfit.dart`; `app_icon_robots_test` keeps the two in step), in
-/// the order they unlock.
+/// them, in one of its hats on its own screen, or another of its heads in another hat. Each unlocks at the level of
+/// the pocket model both its wardrobe parts are unlocked at (`robot_outfit.dart`; `app_icon_outfit_test` keeps the two
+/// in step), in the order they unlock.
 enum AppIconRobot {
   fez(0),
   antenna(0),
@@ -23,14 +23,14 @@ enum AppIconRobot {
   /// The level of the pocket model that unlocks it.
   final int level;
 
-  /// Whether it is one of the robot's heads, in its fez, rather than one of its hats on its own screen.
+  /// Whether it is another of the robot's heads, rather than one of its hats on its own screen.
   final bool head;
 }
 
 /// The ground behind an app icon's robot: the app's two page colours.
 enum AppIconGround {
-  dark(_dark),
-  cream(_cream);
+  cream(_cream),
+  dark(_dark);
 
   const AppIconGround(this.colour);
 
@@ -38,42 +38,42 @@ enum AppIconGround {
 }
 
 /// The app icons the reader can choose in Settings (the owner, 2026-11-14): each robot of [AppIconRobot] on each
-/// ground of [AppIconGround], unlocked as the robot's wardrobe part is. [defaultIcon], the fez on the dark ground, is
-/// the one a new install has. The opening plays in the chosen one's ground.
+/// ground of [AppIconGround], unlocked as the robot's wardrobe part is. [defaultIcon], the fez on the cream ground, is
+/// the one a new install has. The opening plays on the chosen one's ground.
 ///
 /// The native sides name each by its [name]: an `activity-alias` per icon in the Android manifest (`AppIconSwitch.kt`)
 /// and an alternate icon per icon in the iOS asset catalog (`AppDelegate.swift`); `app_icon_choices_test` keeps the
 /// three in step. `tool/render_app_icons.dart` draws every picture of them.
 enum BazaarIcon {
-  fezDark(AppIconRobot.fez, AppIconGround.dark),
   fezCream(AppIconRobot.fez, AppIconGround.cream),
-  antennaDark(AppIconRobot.antenna, AppIconGround.dark),
+  fezDark(AppIconRobot.fez, AppIconGround.dark),
   antennaCream(AppIconRobot.antenna, AppIconGround.cream),
-  beanieDark(AppIconRobot.beanie, AppIconGround.dark),
+  antennaDark(AppIconRobot.antenna, AppIconGround.dark),
   beanieCream(AppIconRobot.beanie, AppIconGround.cream),
-  domeDark(AppIconRobot.dome, AppIconGround.dark),
+  beanieDark(AppIconRobot.beanie, AppIconGround.dark),
   domeCream(AppIconRobot.dome, AppIconGround.cream),
-  mortarboardDark(AppIconRobot.mortarboard, AppIconGround.dark),
+  domeDark(AppIconRobot.dome, AppIconGround.dark),
   mortarboardCream(AppIconRobot.mortarboard, AppIconGround.cream),
-  tvDark(AppIconRobot.tv, AppIconGround.dark),
+  mortarboardDark(AppIconRobot.mortarboard, AppIconGround.dark),
   tvCream(AppIconRobot.tv, AppIconGround.cream),
-  turbanDark(AppIconRobot.turban, AppIconGround.dark),
+  tvDark(AppIconRobot.tv, AppIconGround.dark),
   turbanCream(AppIconRobot.turban, AppIconGround.cream),
-  earsDark(AppIconRobot.ears, AppIconGround.dark),
+  turbanDark(AppIconRobot.turban, AppIconGround.dark),
   earsCream(AppIconRobot.ears, AppIconGround.cream),
-  wizardDark(AppIconRobot.wizard, AppIconGround.dark),
+  earsDark(AppIconRobot.ears, AppIconGround.dark),
   wizardCream(AppIconRobot.wizard, AppIconGround.cream),
-  topHatDark(AppIconRobot.topHat, AppIconGround.dark),
+  wizardDark(AppIconRobot.wizard, AppIconGround.dark),
   topHatCream(AppIconRobot.topHat, AppIconGround.cream),
-  visorDark(AppIconRobot.visor, AppIconGround.dark),
+  topHatDark(AppIconRobot.topHat, AppIconGround.dark),
   visorCream(AppIconRobot.visor, AppIconGround.cream),
-  crownDark(AppIconRobot.crown, AppIconGround.dark),
-  crownCream(AppIconRobot.crown, AppIconGround.cream);
+  visorDark(AppIconRobot.visor, AppIconGround.dark),
+  crownCream(AppIconRobot.crown, AppIconGround.cream),
+  crownDark(AppIconRobot.crown, AppIconGround.dark);
 
   const BazaarIcon(this.robot, this.backdrop);
 
   /// The icon a new install has, until the reader chooses another: the home screen icon the stores and the system show.
-  static const defaultIcon = fezDark;
+  static const defaultIcon = fezCream;
 
   /// The robot it shows.
   final AppIconRobot robot;
@@ -87,12 +87,6 @@ enum BazaarIcon {
   /// The colour behind the robot, which the opening starts on.
   Color get ground => backdrop.colour;
 
-  /// The colours of the opening's stripes, in the order teal, gold and brick, on this ground.
-  (Color, Color, Color) get stripes => (_teal, _gold, _brick);
-
-  /// The colour of the opening's tie.
-  Color get tie => _brick;
-
   /// The icon of [robot] on [backdrop].
   static BazaarIcon of(AppIconRobot robot, AppIconGround backdrop) =>
       values.firstWhere((icon) => icon.robot == robot && icon.backdrop == backdrop);
@@ -101,9 +95,6 @@ enum BazaarIcon {
   String get asset => 'assets/app_icon/$name.png';
 }
 
-/// The colours of `mark.svg`, and the dark and cream page colours.
-const _teal = Color(0xff2f8c86);
-const _gold = Color(0xffc8a078);
-const _brick = Color(0xffa0503c);
+/// The dark and cream page colours.
 const _dark = Color(0xff1d1f27);
 const _cream = Color(0xfffdfbf7);

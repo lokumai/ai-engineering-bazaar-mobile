@@ -42,12 +42,12 @@ class AppIconChoices extends StatelessWidget {
           selected: ground,
           onSelected: (chosen) => context.read<AppIconCubit>().choose(BazaarIcon.of(current.robot, chosen)),
           segments: [
-            BazaarSegment(value: AppIconGround.dark, label: s.app_icon_dark, key: appIconGroundKey(AppIconGround.dark)),
             BazaarSegment(
               value: AppIconGround.cream,
               label: s.app_icon_cream,
               key: appIconGroundKey(AppIconGround.cream),
             ),
+            BazaarSegment(value: AppIconGround.dark, label: s.app_icon_dark, key: appIconGroundKey(AppIconGround.dark)),
           ],
         ),
         LayoutBuilder(

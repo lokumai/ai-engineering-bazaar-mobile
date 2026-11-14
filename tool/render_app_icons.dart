@@ -20,10 +20,10 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The share of the side the head's box takes on a whole icon, which the phone rounds itself.
-const _whole = 0.82;
+const _whole = 0.84;
 
 /// The share on Android's adaptive foreground, whose mask may be a circle 66 of its 108 units across.
-const _adaptive = 0.5;
+const _adaptive = 0.55;
 
 const _densities = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0, 'xxhdpi': 3.0, 'xxxhdpi': 4.0};
 

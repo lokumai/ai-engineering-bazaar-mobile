@@ -72,14 +72,19 @@ void main() {
   test('every icon has its launch screen on its ground on Android, which AppIconSwitch.kt names', () {
     final styles = File('android/app/src/main/res/values-v31/styles.xml').readAsStringSync();
     expect(
-      RegExp('<style name="LaunchTheme.Cream">(.*?)</style>', dotAll: true).firstMatch(styles)![1],
+      RegExp('<style name="LaunchTheme" [^>]*>(.*?)</style>', dotAll: true).firstMatch(styles)![1],
       contains('<item name="android:windowSplashScreenBackground">@color/ic_launcher_cream_background</item>'),
+      reason: "the manifest's launch screen, the default's, on cream",
+    );
+    expect(
+      RegExp('<style name="LaunchTheme.Dark">(.*?)</style>', dotAll: true).firstMatch(styles)![1],
+      contains('<item name="android:windowSplashScreenBackground">@color/bazaar_page</item>'),
     );
     final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
     for (final icon in BazaarIcon.values) {
       final (theme, colour) = switch (icon.backdrop) {
-        AppIconGround.dark => ('LaunchTheme', 'bazaar_page'),
-        AppIconGround.cream => ('LaunchTheme_Cream', 'ic_launcher_cream_background'),
+        AppIconGround.dark => ('LaunchTheme_Dark', 'bazaar_page'),
+        AppIconGround.cream => ('LaunchTheme', 'ic_launcher_cream_background'),
       };
       expect(kotlin, contains('"${icon.name}" to R.style.$theme,'), reason: icon.name);
       expect(kotlin, contains('"${icon.name}" to R.color.$colour,'), reason: icon.name);
@@ -137,8 +142,8 @@ void main() {
     ]);
   });
 
-  // Flutter shows the launch screen, dark for every icon, until its first frame: the app's screen shows the ground of
-  // the icon last named instead, or a non-dark icon flashes dark on opening (the owner, 2026-11-15).
+  // Flutter shows the launch screen, cream for every icon, until its first frame: the app's screen shows the ground of
+  // the icon last named instead, or an icon on another ground flashes on opening (the owner, 2026-11-15).
   test('the iOS app screen is BazaarViewController, which shows the kept ground until the first frame', () {
     final storyboard = File('ios/Runner/Base.lproj/Main.storyboard').readAsStringSync();
     expect(storyboard, contains('customClass="BazaarViewController" customModule="Runner"'));

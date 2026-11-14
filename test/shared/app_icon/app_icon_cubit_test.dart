@@ -47,7 +47,7 @@ void main() {
     addTearDown(cubit.close);
 
     expect(cubit.state, const AppIconUnread());
-    expect(cubit.state.icon, BazaarIcon.fezDark, reason: 'the fez on dark, the default');
+    expect(cubit.state.icon, BazaarIcon.fezCream, reason: 'the fez on cream, the default');
   });
 
   test('load makes the kept icon current and names it to the phone again', () async {
@@ -80,15 +80,15 @@ void main() {
 
     await cubit.load();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.fezDark));
+    expect(cubit.state, const AppIconKnown(BazaarIcon.fezCream));
   });
 
-  test('every robot on dark and then on cream, in the order they unlock; the fez on dark the default (plan 9.10)', () {
+  test('every robot on cream and then on dark, in the order they unlock; the fez on cream the default (the owner, 2026-11-14)', () {
     expect(BazaarIcon.values, [
       for (final robot in AppIconRobot.values)
         for (final ground in AppIconGround.values) BazaarIcon.of(robot, ground),
     ]);
-    expect(BazaarIcon.defaultIcon, BazaarIcon.fezDark);
+    expect(BazaarIcon.defaultIcon, BazaarIcon.fezCream);
     expect(BazaarIcon.fezCream.ground, const Color(0xfffdfbf7));
     expect(BazaarIcon.crownDark.ground, const Color(0xff1d1f27));
   });

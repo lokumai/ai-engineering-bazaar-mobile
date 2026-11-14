@@ -4,60 +4,60 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Each app icon's name on the Dart side (lib/shared/app_icon/) and its alternate icon in the asset catalog; the
-  /// default, fezDark, is the primary icon (nil).
+  /// default, fezCream, is the primary icon (nil).
   static let appIcons: [String: String?] = [
-    "fezDark": nil,
-    "fezCream": "AppIconFezCream",
-    "antennaDark": "AppIconAntennaDark",
+    "fezCream": nil,
+    "fezDark": "AppIconFezDark",
     "antennaCream": "AppIconAntennaCream",
-    "beanieDark": "AppIconBeanieDark",
+    "antennaDark": "AppIconAntennaDark",
     "beanieCream": "AppIconBeanieCream",
-    "domeDark": "AppIconDomeDark",
+    "beanieDark": "AppIconBeanieDark",
     "domeCream": "AppIconDomeCream",
-    "mortarboardDark": "AppIconMortarboardDark",
+    "domeDark": "AppIconDomeDark",
     "mortarboardCream": "AppIconMortarboardCream",
-    "tvDark": "AppIconTvDark",
+    "mortarboardDark": "AppIconMortarboardDark",
     "tvCream": "AppIconTvCream",
-    "turbanDark": "AppIconTurbanDark",
+    "tvDark": "AppIconTvDark",
     "turbanCream": "AppIconTurbanCream",
-    "earsDark": "AppIconEarsDark",
+    "turbanDark": "AppIconTurbanDark",
     "earsCream": "AppIconEarsCream",
-    "wizardDark": "AppIconWizardDark",
+    "earsDark": "AppIconEarsDark",
     "wizardCream": "AppIconWizardCream",
-    "topHatDark": "AppIconTopHatDark",
+    "wizardDark": "AppIconWizardDark",
     "topHatCream": "AppIconTopHatCream",
-    "visorDark": "AppIconVisorDark",
+    "topHatDark": "AppIconTopHatDark",
     "visorCream": "AppIconVisorCream",
-    "crownDark": "AppIconCrownDark",
+    "visorDark": "AppIconVisorDark",
     "crownCream": "AppIconCrownCream",
+    "crownDark": "AppIconCrownDark",
   ]
 
   /// The ground of each icon, as lib/shared/app_icon/bazaar_icon.dart paints it: the opening starts on it.
   static let grounds: [String: UInt32] = [
-    "fezDark": 0x1d1f27,
     "fezCream": 0xfdfbf7,
-    "antennaDark": 0x1d1f27,
+    "fezDark": 0x1d1f27,
     "antennaCream": 0xfdfbf7,
-    "beanieDark": 0x1d1f27,
+    "antennaDark": 0x1d1f27,
     "beanieCream": 0xfdfbf7,
-    "domeDark": 0x1d1f27,
+    "beanieDark": 0x1d1f27,
     "domeCream": 0xfdfbf7,
-    "mortarboardDark": 0x1d1f27,
+    "domeDark": 0x1d1f27,
     "mortarboardCream": 0xfdfbf7,
-    "tvDark": 0x1d1f27,
+    "mortarboardDark": 0x1d1f27,
     "tvCream": 0xfdfbf7,
-    "turbanDark": 0x1d1f27,
+    "tvDark": 0x1d1f27,
     "turbanCream": 0xfdfbf7,
-    "earsDark": 0x1d1f27,
+    "turbanDark": 0x1d1f27,
     "earsCream": 0xfdfbf7,
-    "wizardDark": 0x1d1f27,
+    "earsDark": 0x1d1f27,
     "wizardCream": 0xfdfbf7,
-    "topHatDark": 0x1d1f27,
+    "wizardDark": 0x1d1f27,
     "topHatCream": 0xfdfbf7,
-    "visorDark": 0x1d1f27,
+    "topHatDark": 0x1d1f27,
     "visorCream": 0xfdfbf7,
-    "crownDark": 0x1d1f27,
+    "visorDark": 0x1d1f27,
     "crownCream": 0xfdfbf7,
+    "crownDark": 0x1d1f27,
   ]
 
   override func application(
@@ -95,9 +95,9 @@ import UIKit
 }
 
 /// iOS opens an app on a picture of its launch screen that it keeps in the app's Library/SplashBoard, and the launch
-/// screen is one for every icon (the dark ground). Repainting those pictures in the chosen icon's ground lets the app
+/// screen is one for every icon (the default's cream ground). Repainting those pictures in the chosen icon's ground lets the app
 /// open on that ground from the next launch (the owner, 2026-11-14). The folder is not documented: when it is missing
-/// or a picture cannot be read, nothing changes and the app opens on the dark ground as before. iOS draws the pictures
+/// or a picture cannot be read, nothing changes and the app opens on the cream ground as before. iOS draws the pictures
 /// again after an update, and the next launch paints them again.
 enum LaunchPicture {
   /// Where the ground of the icon last named is kept, for [BazaarViewController] on the next launch.
@@ -150,7 +150,7 @@ enum LaunchPicture {
 }
 
 /// The app's screen (Main.storyboard). Until Flutter draws its first frame it shows the launch screen once more, which
-/// is dark for every icon; that left a dark flash between the launch picture and the opening for a non-dark icon (the
+/// is cream for every icon; that left a flash between the launch picture and the opening for an icon on another ground (the
 /// owner, 2026-11-15). It shows the ground of the icon last named instead.
 class BazaarViewController: FlutterViewController {
   override func awakeFromNib() {

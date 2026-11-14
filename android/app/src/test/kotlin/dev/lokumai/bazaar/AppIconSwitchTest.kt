@@ -27,8 +27,11 @@ class AppIconSwitchTest {
     }
 
     @Test
-    fun theFezOnTheDarkGroundIsTheDefaultTheManifestEnables() {
-        assertEquals("fezDark", AppIconSwitch.aliases.keys.first())
+    fun theFezOnTheCreamGroundIsTheDefaultTheManifestEnables() {
+        assertEquals("fezCream", AppIconSwitch.aliases.keys.first())
+        // The manifest's launch screen is the default's, cream; the icons on the dark ground have a dark one.
+        assertEquals(R.style.LaunchTheme, AppIconSwitch.launchThemes["fezCream"])
+        assertEquals(R.style.LaunchTheme_Dark, AppIconSwitch.launchThemes["fezDark"])
     }
 
     @Test

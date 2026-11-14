@@ -56,26 +56,26 @@ Finder _picture(AppIconRobot robot, BazaarIcon icon) =>
     find.descendant(of: find.byKey(appIconChoiceKey(robot)), matching: find.image(AssetImage(icon.asset)));
 
 void main() {
-  testWidgets('the ground above, then every robot of the wardrobe on it; the fez on dark the default and in use', (
+  testWidgets('the ground above, then every robot of the wardrobe on it; the fez on cream the default and in use', (
     tester,
   ) async {
     await _pump(tester, level: 20);
 
-    final ground = tester.getRect(find.byKey(appIconGroundKey(AppIconGround.dark)));
+    final ground = tester.getRect(find.byKey(appIconGroundKey(AppIconGround.cream)));
     for (final robot in AppIconRobot.values) {
-      expect(_picture(robot, BazaarIcon.of(robot, AppIconGround.dark)), findsOneWidget, reason: robot.name);
+      expect(_picture(robot, BazaarIcon.of(robot, AppIconGround.cream)), findsOneWidget, reason: robot.name);
       expect(tester.getTopLeft(find.byKey(appIconChoiceKey(robot))).dy, greaterThan(ground.bottom));
     }
-    expect(tester.getSemantics(find.byKey(appIconGroundKey(AppIconGround.dark))), isSemantics(isSelected: true));
+    expect(tester.getSemantics(find.byKey(appIconGroundKey(AppIconGround.cream))), isSemantics(isSelected: true));
     // No names under the pictures (the owner, 2026-11-14); a screen reader hears them.
     expect(find.text('Fez'), findsNothing);
     expect(
       tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))),
-      isSemantics(label: 'Fez, Dark, Default'),
+      isSemantics(label: 'Fez, Cream, Default'),
     );
     expect(
       tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.wizard))),
-      isSemantics(label: "Wizard's hat, Dark"),
+      isSemantics(label: "Wizard's hat, Cream"),
     );
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))), _selected(true));
     expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.wizard))), _selected(false));
@@ -120,7 +120,7 @@ void main() {
 
     expect(
       tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.dome))),
-      isSemantics(label: 'Round head, Dark, unlocks at level 3'),
+      isSemantics(label: 'Round head, Cream, unlocks at level 3'),
     );
     expect(
       find.descendant(of: find.byKey(appIconChoiceKey(AppIconRobot.dome)), matching: find.text('Level 3')),
@@ -133,11 +133,11 @@ void main() {
     );
     await tester.tap(find.byKey(appIconChoiceKey(AppIconRobot.dome)));
     await tester.pumpAndSettle();
-    expect(cubit.state.icon, BazaarIcon.fezDark, reason: 'a locked icon cannot be chosen');
+    expect(cubit.state.icon, BazaarIcon.fezCream, reason: 'a locked icon cannot be chosen');
 
     await tester.tap(find.byKey(appIconChoiceKey(AppIconRobot.beanie)));
     await tester.pumpAndSettle();
-    expect(cubit.state.icon, BazaarIcon.beanieDark);
+    expect(cubit.state.icon, BazaarIcon.beanieCream);
   });
 
   testWidgets('says on Android that the icon changes once the app is left, and on iOS that the phone confirms it', (
@@ -154,10 +154,10 @@ void main() {
     await _pump(tester, locale: const Locale('tr'), level: 20);
 
     expect(find.text('App ikonu'), findsOneWidget);
-    expect(find.text('Krem'), findsOneWidget);
+    expect(find.text('Koyu'), findsOneWidget);
     expect(
       tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))),
-      isSemantics(label: 'Fes, Koyu, Varsayılan'),
+      isSemantics(label: 'Fes, Krem, Varsayılan'),
     );
   });
 

@@ -27,7 +27,7 @@ class RobotIconPainter extends CustomPainter {
     canvas
       ..save()
       ..translate(box.left, box.top);
-    RobotHeadPainter(face: RobotFace.happy, outfit: outfit).paint(canvas, box.size);
+    RobotHeadPainter(face: RobotFace.happy, outfit: outfit, tight: true).paint(canvas, box.size);
     canvas.restore();
   }
 

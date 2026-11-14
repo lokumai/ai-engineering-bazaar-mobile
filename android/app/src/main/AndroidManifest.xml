@@ -38,10 +38,10 @@
               />
         </activity>
         <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
-             Exactly one is enabled: the fez on the dark ground, the default, until the reader chooses another, and
+             Exactly one is enabled: the fez on the cream ground, the default, until the reader chooses another, and
              then the one chosen (AppIconSwitch.kt, when the app goes to the background). -->
         <activity-alias
-            android:name=".LauncherFezDark"
+            android:name=".LauncherFezCream"
             android:targetActivity=".MainActivity"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher"
@@ -53,22 +53,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherFezCream"
+            android:name=".LauncherFezDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_fez_cream"
-            android:roundIcon="@mipmap/ic_launcher_fez_cream"
-            android:enabled="false"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity-alias>
-        <activity-alias
-            android:name=".LauncherAntennaDark"
-            android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_antenna_dark"
-            android:roundIcon="@mipmap/ic_launcher_antenna_dark"
+            android:icon="@mipmap/ic_launcher_fez_dark"
+            android:roundIcon="@mipmap/ic_launcher_fez_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -89,10 +77,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherBeanieDark"
+            android:name=".LauncherAntennaDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_beanie_dark"
-            android:roundIcon="@mipmap/ic_launcher_beanie_dark"
+            android:icon="@mipmap/ic_launcher_antenna_dark"
+            android:roundIcon="@mipmap/ic_launcher_antenna_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -113,10 +101,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherDomeDark"
+            android:name=".LauncherBeanieDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_dome_dark"
-            android:roundIcon="@mipmap/ic_launcher_dome_dark"
+            android:icon="@mipmap/ic_launcher_beanie_dark"
+            android:roundIcon="@mipmap/ic_launcher_beanie_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -137,10 +125,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherMortarboardDark"
+            android:name=".LauncherDomeDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_mortarboard_dark"
-            android:roundIcon="@mipmap/ic_launcher_mortarboard_dark"
+            android:icon="@mipmap/ic_launcher_dome_dark"
+            android:roundIcon="@mipmap/ic_launcher_dome_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -161,10 +149,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherTvDark"
+            android:name=".LauncherMortarboardDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_tv_dark"
-            android:roundIcon="@mipmap/ic_launcher_tv_dark"
+            android:icon="@mipmap/ic_launcher_mortarboard_dark"
+            android:roundIcon="@mipmap/ic_launcher_mortarboard_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -185,10 +173,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherTurbanDark"
+            android:name=".LauncherTvDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_turban_dark"
-            android:roundIcon="@mipmap/ic_launcher_turban_dark"
+            android:icon="@mipmap/ic_launcher_tv_dark"
+            android:roundIcon="@mipmap/ic_launcher_tv_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -209,10 +197,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherEarsDark"
+            android:name=".LauncherTurbanDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_ears_dark"
-            android:roundIcon="@mipmap/ic_launcher_ears_dark"
+            android:icon="@mipmap/ic_launcher_turban_dark"
+            android:roundIcon="@mipmap/ic_launcher_turban_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -233,10 +221,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherWizardDark"
+            android:name=".LauncherEarsDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_wizard_dark"
-            android:roundIcon="@mipmap/ic_launcher_wizard_dark"
+            android:icon="@mipmap/ic_launcher_ears_dark"
+            android:roundIcon="@mipmap/ic_launcher_ears_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -257,10 +245,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherTopHatDark"
+            android:name=".LauncherWizardDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_top_hat_dark"
-            android:roundIcon="@mipmap/ic_launcher_top_hat_dark"
+            android:icon="@mipmap/ic_launcher_wizard_dark"
+            android:roundIcon="@mipmap/ic_launcher_wizard_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -281,10 +269,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherVisorDark"
+            android:name=".LauncherTopHatDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_visor_dark"
-            android:roundIcon="@mipmap/ic_launcher_visor_dark"
+            android:icon="@mipmap/ic_launcher_top_hat_dark"
+            android:roundIcon="@mipmap/ic_launcher_top_hat_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -305,10 +293,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherCrownDark"
+            android:name=".LauncherVisorDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_crown_dark"
-            android:roundIcon="@mipmap/ic_launcher_crown_dark"
+            android:icon="@mipmap/ic_launcher_visor_dark"
+            android:roundIcon="@mipmap/ic_launcher_visor_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -321,6 +309,18 @@
             android:targetActivity=".MainActivity"
             android:icon="@mipmap/ic_launcher_crown_cream"
             android:roundIcon="@mipmap/ic_launcher_crown_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherCrownDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_crown_dark"
+            android:roundIcon="@mipmap/ic_launcher_crown_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
