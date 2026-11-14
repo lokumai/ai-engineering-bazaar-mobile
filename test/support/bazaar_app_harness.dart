@@ -29,6 +29,7 @@ import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -121,6 +122,7 @@ Widget bazaarTestApp({
   IPocketTexts? pocketTexts,
   RobotOutfitCubit? robotOutfit,
   PocketButtonCubit? pocketButton,
+  RobotLevelCubit? robotLevel,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -160,6 +162,7 @@ Widget bazaarTestApp({
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
         BlocProvider<RobotOutfitCubit>(create: (_) => robotOutfit ?? RobotOutfitCubit(store: MemoryRobotOutfitStore())),
         BlocProvider<PocketButtonCubit>(create: (_) => pocketButton ?? PocketButtonCubit()),
+        BlocProvider<RobotLevelCubit>(create: (_) => robotLevel ?? RobotLevelCubit()),
         BlocProvider<PocketModelBloc>(
           create: (context) =>
               PocketModelBloc(store: context.read<IPocketModelStore>(), texts: pocketTexts)

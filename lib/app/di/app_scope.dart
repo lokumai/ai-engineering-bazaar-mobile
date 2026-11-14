@@ -17,6 +17,7 @@ import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
@@ -101,16 +102,35 @@ class AppScope extends StatelessWidget {
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+          // The pocket model's level, which unlocks the app icons as its wardrobe (plan 9.10): read from its store,
+          // then told by the model, without starting the model itself.
+          BlocProvider<RobotLevelCubit>(
+            lazy: false,
+            create: (context) {
+              final store = context.read<IPocketModelStore>();
+              return RobotLevelCubit(read: () async => (await store.load())?.level ?? 0)..load();
+            },
+          ),
           // The pocket model, shared by its button in the shell's corner and the sheet it opens (plan 9.4).
           BlocProvider<PocketModelBloc>(
-            create: (context) => PocketModelBloc(
-              store: context.read<IPocketModelStore>(),
-              // It reads the modules the reader finished from the course on this device (plan 9.6).
-              texts: ContentPocketTexts(
-                repository: context.read<IContentRepository>(),
-                content: context.read<ContentBloc>(),
-              ),
-            )..add(const PocketModelStarted()),
+            create: (context) {
+              final level = context.read<RobotLevelCubit>();
+              final bloc = PocketModelBloc(
+                store: context.read<IPocketModelStore>(),
+                // It reads the modules the reader finished from the course on this device (plan 9.6).
+                texts: ContentPocketTexts(
+                  repository: context.read<IContentRepository>(),
+                  content: context.read<ContentBloc>(),
+                ),
+              )..add(const PocketModelStarted());
+              // Its stream ends when it closes, and the listening with it.
+              bloc.stream.listen((state) {
+                if (state case PocketModelReady(:final model) when model.level != level.state) {
+                  level.reached(model.level);
+                }
+              });
+              return bloc;
+            },
           ),
           // The robot's outfit, which its button, its sheet and its wardrobe wear (plan 9.9).
           BlocProvider<RobotOutfitCubit>(
