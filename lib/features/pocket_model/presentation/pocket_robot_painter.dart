@@ -39,6 +39,21 @@ enum RobotTrick {
 
   /// Hello: it raises its arm and waves, as the app opens (the owner, 2026-11-14).
   wave,
+
+  /// Pet or hello: it spins round once on the spot, with a little hop.
+  twirl,
+
+  /// Pet, fed or hello: three small hops, squashing as it lands.
+  bounce,
+
+  /// Pet, fed or hello: hearts for eyes, and blushing.
+  heartEyes,
+
+  /// Idle: both arms up, a long stretch, eyes shut.
+  stretch,
+
+  /// Idle or hello: it hums, eyes shut and swaying, notes rising.
+  hum,
 }
 
 /// How long each trick runs, in seconds.
@@ -53,6 +68,11 @@ abstract final class RobotTricks {
     RobotTrick.glitch => 1.6,
     RobotTrick.yawn => 1.5,
     RobotTrick.wave => 1.3,
+    RobotTrick.twirl => 0.8,
+    RobotTrick.bounce => 0.9,
+    RobotTrick.heartEyes => 1.3,
+    RobotTrick.stretch => 1.4,
+    RobotTrick.hum => 1.8,
   };
 }
 
@@ -73,7 +93,11 @@ final class RobotFrame {
     this.trickTime = 0,
     this.outfit = RobotOutfit.initial,
     this.hatRoom = PocketRobotPainter.hatRoom,
+    this.talking = false,
   });
+
+  /// Whether its words are coming out now: its mouth opens and closes with them.
+  final bool talking;
 
   /// What it wears: its hat, the shape of its head and its body (plan 9.9).
   final RobotOutfit outfit;
@@ -117,7 +141,7 @@ final class RobotFrame {
 
 /// What flies on the stage: the tokens it eats, hearts, confetti, sparks, the crumbs it drops, the stars of a new word,
 /// its frosty breath when cold, and the bubble of a burp.
-enum ParticleKind { token, heart, confetti, spark, crumb, star, frost, burp }
+enum ParticleKind { token, heart, confetti, spark, crumb, star, frost, burp, note }
 
 /// One thing flying: born at [born] seconds on the stage's clock, living [life] seconds.
 final class Particle {
@@ -167,6 +191,9 @@ abstract final class RobotColors {
   static const fezDark = Color(0xff7d3a2b);
   static const belly = Color(0xff2f8c86);
   static const cheek = Color(0x66ff8a8a);
+
+  /// Its eyes when they are hearts, and the hearts it sends up.
+  static const heart = Color(0xffe0607a);
   static const rugA = Color(0xff8e1f26);
   static const rugB = Color(0xffc8a078);
   static const rugC = Color(0xff2f8c86);
@@ -231,8 +258,21 @@ class PocketRobotPainter extends CustomPainter {
     final wiggleAt = f.trickAt(RobotTrick.wiggle);
     final wiggle = wiggleAt == null ? 0.0 : math.sin(wiggleAt * 2 * math.pi * 3.5) * 0.09 * (1 - wiggleAt);
     final yawnAt = f.trickAt(RobotTrick.yawn);
-    final stretch = yawnAt == null ? 1.0 : 1 + 0.05 * math.sin(math.pi * yawnAt);
-    final lift = f.hop * 26 * s;
+    final stretchAt = f.trickAt(RobotTrick.stretch);
+    final bounceAt = f.trickAt(RobotTrick.bounce);
+    final twirlAt = f.trickAt(RobotTrick.twirl);
+    final humAt = f.trickAt(RobotTrick.hum);
+    // Taller as it yawns or stretches; three hops, each squashing it as it lands.
+    final stretch =
+        (yawnAt == null ? 1.0 : 1 + 0.05 * math.sin(math.pi * yawnAt)) *
+        (stretchAt == null ? 1.0 : 1 + 0.07 * math.sin(math.pi * stretchAt)) *
+        (bounceAt == null ? 1.0 : 1 - 0.07 * math.cos(bounceAt * 3 * math.pi).abs() * (1 - bounceAt));
+    final hops = bounceAt == null ? 0.0 : math.sin(bounceAt * 3 * math.pi).abs() * (1 - bounceAt * 0.5) * 18;
+    final spinHop = twirlAt == null ? 0.0 : math.sin(math.pi * twirlAt) * 12;
+    final lift = (f.hop * 26 + hops + spinHop) * s;
+    // A twirl turns it round once: seen from the front, it narrows to its edge and widens again, back first.
+    final turn = twirlAt == null ? 1.0 : math.cos(2 * math.pi * Curves.easeInOut.transform(twirlAt));
+    final hum = humAt == null ? 0.0 : math.sin(humAt * 2 * math.pi * 2) * 0.06 * math.sin(math.pi * humAt);
 
     // The shadow shrinks as it hops.
     if (rug) {
@@ -245,8 +285,8 @@ class PocketRobotPainter extends CustomPainter {
     canvas
       ..save()
       ..translate(feet.dx, feet.dy - lift)
-      ..rotate(sway + wiggle)
-      ..scale(s, s * stretch);
+      ..rotate(sway + wiggle + hum)
+      ..scale(s * (turn.abs() < 0.08 ? (turn < 0 ? -0.08 : 0.08) : turn), s * stretch);
     if (f.mirrored) canvas.scale(-1, 1);
     _body(canvas, f, breathe);
     canvas.restore();
@@ -320,13 +360,20 @@ class PocketRobotPainter extends CustomPainter {
     // Up in the first fifth, waving, and down in the last.
     final raised = helloAt == null ? 0.0 : Curves.easeInOut.transform(math.min(1, math.min(helloAt, 1 - helloAt) * 5));
     final hello = helloAt == null ? 0.0 : raised * (2.1 + math.sin(helloAt * 2 * math.pi * 3) * 0.35);
+    // Stretching, both arms go up over its head and come down again.
+    final stretchAt = f.trickAt(RobotTrick.stretch);
+    final up = stretchAt == null
+        ? 0.0
+        : 2.5 * Curves.easeInOut.transform(math.min(1, math.min(stretchAt, 1 - stretchAt) * 3));
+    // Talking, its end-side arm moves a little, as one explains.
+    final explain = f.talking ? 0.35 + math.sin(f.time * 2 * math.pi / 0.9) * 0.2 : 0.0;
     final look = _BodyLook.of(f.outfit.body);
     final arm = Paint()..color = look.arm;
     for (final side in [-1.0, 1.0]) {
       canvas
         ..save()
         ..translate(side * 37, -60)
-        ..rotate(-side * (0.45 + (side > 0 ? (helloAt == null ? wave : hello) : 0)));
+        ..rotate(-side * (0.45 + up + (side > 0 ? (helloAt == null ? wave + explain : hello) : 0)));
       if (f.outfit.body == RobotBody.kaftan) {
         // A wide sleeve.
         canvas.drawPath(
@@ -401,6 +448,10 @@ class PocketRobotPainter extends CustomPainter {
     final gaping = f.trickAt(RobotTrick.fezFly) != null;
     final thinkingAt = f.trickAt(RobotTrick.thinking);
     final yawnAt = f.trickAt(RobotTrick.yawn);
+    final hearty = f.trickAt(RobotTrick.heartEyes) != null;
+    final humming = f.trickAt(RobotTrick.hum) != null;
+    // Eyes shut in content: humming or stretching.
+    final content = humming || f.trickAt(RobotTrick.stretch) != null;
     final eye = Paint()..color = glowColour;
     final line = Paint()
       ..color = glowColour
@@ -429,6 +480,26 @@ class PocketRobotPainter extends CustomPainter {
       }
       if (starry) {
         canvas.drawPath(_star(centre, 9, 4), eye);
+        continue;
+      }
+      if (hearty && tint == null) {
+        // Hearts that beat.
+        _heart(
+          canvas,
+          centre + const Offset(0, 1),
+          8 + math.sin(f.time * 2 * math.pi * 2.5).abs() * 1.6,
+          RobotColors.heart,
+        );
+        continue;
+      }
+      if (content) {
+        canvas.drawArc(
+          Rect.fromCenter(center: centre + const Offset(0, 3), width: 14, height: 12),
+          math.pi + 0.3,
+          math.pi - 0.6,
+          false,
+          line,
+        );
         continue;
       }
       if (yawnAt != null) {
@@ -481,7 +552,7 @@ class PocketRobotPainter extends CustomPainter {
       }
     }
     // Cheeks when happy, and when it blushes.
-    if (tint == null && (f.face == RobotFace.happy || f.trickAt(RobotTrick.wiggle) != null)) {
+    if (tint == null && (f.face == RobotFace.happy || f.trickAt(RobotTrick.wiggle) != null || hearty)) {
       for (final side in [-1.0, 1.0]) {
         canvas.drawOval(
           Rect.fromCenter(center: Offset(side * 27, -22), width: 10, height: 6),
@@ -503,6 +574,20 @@ class PocketRobotPainter extends CustomPainter {
     if (yawnAt != null) {
       final open = 3 + 11 * math.sin(math.pi * yawnAt);
       canvas.drawOval(Rect.fromCenter(center: mouth, width: 11, height: open), Paint()..color = glowColour);
+      return;
+    }
+    if (humming) {
+      // A small round mouth, humming.
+      canvas.drawCircle(mouth, 2.6 + math.sin(f.time * 2 * math.pi * 2) * 0.6, Paint()..color = glowColour);
+      return;
+    }
+    if (f.talking && f.face != RobotFace.asleep) {
+      // Its mouth opens and closes as its words come out, now wide, now narrow.
+      final open = 2 + 6 * math.sin(f.time * 2 * math.pi / 0.22).abs() * (0.6 + 0.4 * math.sin(f.time * 7.3).abs());
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromCenter(center: mouth, width: 12, height: open), const Radius.circular(4)),
+        Paint()..color = glowColour,
+      );
       return;
     }
     if (thinkingAt != null) {
@@ -1249,6 +1334,11 @@ class PocketRobotPainter extends CustomPainter {
             );
           final end = _letter(p.label, 8.5, RobotColors.ink);
           end.paint(canvas, pos - Offset(end.width / 2, end.height / 2));
+        case ParticleKind.note:
+          // A note of its humming, drifting up and side to side, fading.
+          final pos = Offset.lerp(from, to, Curves.easeOut.transform(t))! + Offset(math.sin(t * 7 + p.spin) * 6, 0);
+          final alpha = (t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85).clamp(0.0, 1.0);
+          _note(canvas, pos, p.color.withValues(alpha: alpha));
       }
     }
   }
@@ -1268,6 +1358,31 @@ class PocketRobotPainter extends CustomPainter {
   static Offset _quad(Offset a, Offset b, Offset c, double t) {
     final u = 1 - t;
     return a * (u * u) + b * (2 * u * t) + c * (t * t);
+  }
+
+  /// A quaver at [c]: its head, its stem and its flag.
+  static void _note(Canvas canvas, Offset c, Color colour) {
+    final paint = Paint()..color = colour;
+    canvas
+      ..save()
+      ..translate(c.dx, c.dy)
+      ..rotate(-0.35)
+      ..drawOval(Rect.fromCenter(center: Offset.zero, width: 8, height: 6), paint)
+      ..restore()
+      ..drawLine(
+        c + const Offset(3.2, -1),
+        c + const Offset(3.2, -13),
+        paint
+          ..strokeWidth = 1.6
+          ..strokeCap = StrokeCap.round,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(c.dx + 3.2, c.dy - 13)
+          ..quadraticBezierTo(c.dx + 9, c.dy - 10, c.dx + 7.5, c.dy - 5)
+          ..quadraticBezierTo(c.dx + 7, c.dy - 8.5, c.dx + 3.2, c.dy - 9.5),
+        Paint()..color = colour,
+      );
   }
 
   static void _heart(Canvas canvas, Offset c, double r, Color colour) {

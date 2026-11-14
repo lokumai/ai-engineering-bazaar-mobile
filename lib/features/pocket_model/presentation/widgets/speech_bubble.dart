@@ -12,6 +12,10 @@ import 'package:flutter/material.dart';
 class SpeechBubble extends StatefulWidget {
   const SpeechBubble({super.key, required this.speech, this.delay = Duration.zero});
 
+  /// How long it takes to pop out, and each token to come after: the robot's mouth moves while they do.
+  static const pop = Duration(milliseconds: _SpeechBubbleState._pop);
+  static const perToken = Duration(milliseconds: _SpeechBubbleState._perToken);
+
   final Babble speech;
 
   /// How long it waits before it pops out, while the robot thinks.

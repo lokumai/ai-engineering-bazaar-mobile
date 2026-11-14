@@ -42,6 +42,20 @@ abstract final class RobotMoves {
         ),
   ];
 
+  /// Five notes of a hum rising from beside its [mouth], one after another from [time].
+  static List<Particle> notes(Offset mouth, double time, math.Random random, {bool mirrored = false}) => [
+    for (var i = 0; i < 5; i++)
+      Particle(
+        kind: ParticleKind.note,
+        born: time + 0.15 + i * 0.28,
+        life: 1.1,
+        from: mouth + Offset((mirrored ? -1 : 1) * 0.06, -0.04),
+        to: mouth + Offset((mirrored ? -1 : 1) * (0.12 + random.nextDouble() * 0.1), -0.3 - random.nextDouble() * 0.08),
+        color: const [Color(0xff7a4a86), Color(0xff2f8c86), Color(0xffc9785f)][i % 3],
+        spin: i * 1.7,
+      ),
+  ];
+
   /// Where its mouth is on a stage of [size], as a fraction of it.
   static Offset mouth(Size size, {bool mirrored = false, bool centred = false}) {
     if (size.isEmpty) return const Offset(0.5, 0.5);
@@ -51,12 +65,13 @@ abstract final class RobotMoves {
   }
 }
 
-/// The greetings the robot opens the app with (the owner, 2026-11-14): one at random each time, each short.
-enum RobotHello { wave, hearts, starEyes, hatHop, wiggle }
+/// The greetings the robot opens the app with (the owner, 2026-11-14): one at random each time, each short, and most of
+/// them sweet.
+enum RobotHello { wave, hearts, starEyes, hatHop, wiggle, twirl, bounce, heartEyes, hum }
 
 /// The robot alone in the middle of a stage, in what it wears at the pocket model's level: the wardrobe's robot and the
 /// app's opening (plan 9.10). It blinks now and then and breathes for a while after a touch; a tap on it pets it as
-/// the pocket model's sheet does: one of five turns at random, and three pets in a row send its hat flying.
+/// the pocket model's sheet does: one of eight turns at random, and three pets in a row send its hat flying.
 ///
 /// With [hello] it greets as it appears, one of [RobotHello] at random, and calls [onHello] when it is done. Under
 /// reduced motion it stands still, and [onHello] comes on the first frame.
@@ -75,8 +90,11 @@ class RobotStage extends StatefulWidget {
   /// Draws its turns; a test passes a seeded one.
   final math.Random? random;
 
-  /// How long a greeting lasts, at most.
-  static const helloLength = Duration(milliseconds: 1500);
+  /// How long a greeting lasts, at most: the opening is about a second in all (the owner, 2026-11-14).
+  static const helloLength = Duration(milliseconds: 850);
+
+  /// How much faster than its own clock a greeting plays, so a turn made for a pet fits in [helloLength].
+  static const helloPace = 1.6;
 
   @override
   State<RobotStage> createState() => RobotStageState();
@@ -88,6 +106,9 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
   late final math.Random _random = widget.random ?? math.Random();
   Timer? _blinker;
   Timer? _greeted;
+
+  /// Whether it is greeting now, its clock running faster.
+  bool _greeting = false;
 
   double _time = 0;
   Duration _lastElapsed = Duration.zero;
@@ -115,8 +136,10 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
           widget.onHello?.call();
           return;
         }
+        _greeting = true;
         greet(RobotHello.values[_random.nextInt(RobotHello.values.length)]);
         _greeted = Timer(RobotStage.helloLength, () {
+          _greeting = false;
           if (mounted) widget.onHello?.call();
         });
       });
@@ -158,7 +181,7 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
   void _tick(Duration elapsed) {
     final dt = (elapsed - _lastElapsed).inMicroseconds / 1e6;
     _lastElapsed = elapsed;
-    _time += dt.clamp(0, 0.1);
+    _time += dt.clamp(0, 0.1) * (_greeting ? RobotStage.helloPace : 1);
     _particles.removeWhere((p) => _time > p.born + p.life);
     final busy =
         _time < _activeUntil ||
@@ -178,7 +201,8 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
 
   Offset get _mouth => RobotMoves.mouth(_stage, centred: true);
 
-  /// Plays [hello]: it waves, sends up hearts, gets stars for eyes, hops its hat or wiggles, smiling.
+  /// Plays [hello]: it waves, sends up hearts, gets stars or hearts for eyes, hops its hat, wiggles, spins, bounces or
+  /// hums, smiling.
   void greet(RobotHello hello) {
     if (_reduced) return;
     _joyAt = _time;
@@ -196,11 +220,22 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
         _trick(RobotTrick.fezHop);
       case RobotHello.wiggle:
         _trick(RobotTrick.wiggle);
+      case RobotHello.twirl:
+        _trick(RobotTrick.twirl);
+      case RobotHello.bounce:
+        _trick(RobotTrick.bounce);
+      case RobotHello.heartEyes:
+        _trick(RobotTrick.heartEyes);
+        _particles.addAll(RobotMoves.hearts(_mouth - const Offset(0, 0.2), _time));
+      case RobotHello.hum:
+        _joyAt = null;
+        _trick(RobotTrick.hum);
+        _particles.addAll(RobotMoves.notes(_mouth, _time - 0.1, _random));
     }
     _wake();
   }
 
-  /// A pet: one of five turns at random, as on the pocket model's sheet; three in a row send its hat flying.
+  /// A pet: one of eight turns at random, as on the pocket model's sheet; three in a row send its hat flying.
   void pet() {
     HapticFeedback.selectionClick();
     _pets
@@ -219,7 +254,7 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
       _wake();
       return;
     }
-    switch (_random.nextInt(5)) {
+    switch (_random.nextInt(8)) {
       case 0:
         _hopAt = _time;
         _particles.addAll(RobotMoves.hearts(_mouth - const Offset(0, 0.2), _time));
@@ -231,8 +266,15 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
         _joyAt = null;
         _trick(RobotTrick.starEyes);
         _particles.addAll(RobotMoves.sparkles(4, _mouth - const Offset(0, 0.12), _time, _random));
-      default:
+      case 4:
         _trick(_outfit.hat.tassel ? RobotTrick.tasselSpin : RobotTrick.wiggle);
+      case 5:
+        _trick(RobotTrick.twirl);
+      case 6:
+        _trick(RobotTrick.bounce);
+      default:
+        _trick(RobotTrick.heartEyes);
+        _particles.addAll(RobotMoves.hearts(_mouth - const Offset(0, 0.2), _time));
     }
     _wake();
   }

@@ -27,11 +27,20 @@ Future<Rect> _painted(CustomPainter painter, Size size) async {
   return Rect.fromLTRB(left, top, right, bottom);
 }
 
-PocketRobotPainter _robot(RobotOutfit outfit) => PocketRobotPainter(
+PocketRobotPainter _robot(
+  RobotOutfit outfit, {
+  RobotTrick? trick,
+  double trickTime = 0,
+  bool talking = false,
+  double time = 0,
+}) => PocketRobotPainter(
   rug: false,
   repaint: const AlwaysStoppedAnimation(0),
   frame: () => RobotFrame(
-    time: 0,
+    time: time,
+    trick: trick,
+    trickTime: trickTime,
+    talking: talking,
     face: RobotFace.calm,
     look: Offset.zero,
     blink: 0,
@@ -91,5 +100,45 @@ void main() {
     );
     expect(wizard.bottom, fez.bottom);
     expect(wizard.left, closeTo(fez.left, 1));
+  });
+
+  test('its new turns show: a twirl narrows it, a bounce lifts it, hearts for eyes (the owner, 2026-11-14)', () async {
+    const outfit = RobotOutfit();
+    final still = await _painted(_robot(outfit), _stage);
+    final edgeOn = await _painted(
+      _robot(outfit, trick: RobotTrick.twirl, trickTime: RobotTricks.length(RobotTrick.twirl) * 0.39),
+      _stage,
+    );
+    expect(edgeOn.width, lessThan(still.width * 0.5), reason: 'a quarter of the way round it is side on');
+    final up = await _painted(
+      _robot(outfit, trick: RobotTrick.bounce, trickTime: RobotTricks.length(RobotTrick.bounce) / 6),
+      _stage,
+    );
+    expect(up.bottom, lessThan(still.bottom - 8), reason: 'in the air');
+
+    Future<int> pink(PocketRobotPainter painter) async {
+      final recorder = ui.PictureRecorder();
+      painter.paint(Canvas(recorder), _stage);
+      final image = await recorder.endRecording().toImage(_stage.width.toInt(), _stage.height.toInt());
+      final bytes = (await image.toByteData())!;
+      var count = 0;
+      for (var i = 0; i < bytes.lengthInBytes; i += 4) {
+        final (r, g, b) = (bytes.getUint8(i), bytes.getUint8(i + 1), bytes.getUint8(i + 2));
+        if (r > 200 && g < 120 && b > 90 && b < 150) count++;
+      }
+      return count;
+    }
+
+    expect(await pink(_robot(outfit)), lessThan(5));
+    expect(await pink(_robot(outfit, trick: RobotTrick.heartEyes, trickTime: 0.3)), greaterThan(40));
+  });
+
+  test('talking, its mouth opens and closes', () async {
+    // The mouth's box differs between two moments of talking, and from its calm smile.
+    Future<Rect> at(double time, {bool talking = true}) =>
+        _painted(_robot(const RobotOutfit(), talking: talking, time: time), _stage);
+    final calm = await at(0.055, talking: false);
+    final open = await at(0.055);
+    expect(open, isNot(calm), reason: 'not its smile');
   });
 }

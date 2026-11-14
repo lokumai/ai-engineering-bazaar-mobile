@@ -303,13 +303,27 @@ void main() {
       findsNothing,
       reason: 'nothing said while it thinks',
     );
-    await tester.pump(const Duration(milliseconds: 300));
+    // In frames as short as a phone's, so the stage's clock keeps up with the bubble's.
+    Future<void> frames(int milliseconds) async {
+      for (var i = 0; i < milliseconds ~/ 10; i++) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+    }
+
+    await frames(200);
+    expect(_frame(tester).talking, isFalse, reason: 'its mouth still while it thinks');
+    await frames(100);
     expect(find.textContaining('${said.first} |'), findsNothing, reason: 'the bubble pops out first');
-    await tester.pump(const Duration(milliseconds: 130));
+    await frames(130);
     expect(find.textContaining('${said.first} |'), findsOneWidget, reason: 'the first token, and the caret');
+    expect(_frame(tester).talking, isTrue, reason: 'its mouth moves as its words come out (the owner, 2026-11-14)');
 
     await tester.pump(const Duration(seconds: 3));
     expect(find.text(said.join(' ')), findsOneWidget);
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(_frame(tester).talking, isFalse, reason: 'done talking once its words are out');
     expect(find.text('Cold: it says its likeliest words, every time.'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.cold);
     await _rest(tester);
@@ -364,7 +378,7 @@ void main() {
     await _rest(tester);
   });
 
-  testWidgets('a tap on the robot pets it: one of its five turns', (tester) async {
+  testWidgets('a tap on the robot pets it: one of its eight turns', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: clock.now())));
     final semantics = tester.ensureSemantics();
     await tester.pump();
@@ -377,7 +391,15 @@ void main() {
     final hearts = frame.particles.any((p) => p.kind == ParticleKind.heart);
     expect(
       hearts ||
-          {RobotTrick.wiggle, RobotTrick.fezHop, RobotTrick.starEyes, RobotTrick.tasselSpin}.contains(frame.trick),
+          {
+            RobotTrick.wiggle,
+            RobotTrick.fezHop,
+            RobotTrick.starEyes,
+            RobotTrick.tasselSpin,
+            RobotTrick.twirl,
+            RobotTrick.bounce,
+            RobotTrick.heartEyes,
+          }.contains(frame.trick),
       isTrue,
     );
     semantics.dispose();

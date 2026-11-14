@@ -78,6 +78,10 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   /// When it was last petted, to catch three pets in a row.
   final List<double> _pets = [];
 
+  /// When its words come out of its bubble, on the stage's clock: its mouth moves with them.
+  double _talkFrom = 0;
+  double _talkUntil = 0;
+
   /// The words it knew at the last feed, to see a feed teach it new ones.
   int? _known;
   Timer? _glance;
@@ -124,10 +128,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       final state = context.read<PocketModelBloc>().state;
       if (!_reduced && state is PocketModelReady && state.awake) {
         _blinkAt = _time;
-        // Now and then, when nothing else is going on, it yawns or looks about.
-        if (_activeTrick == null && _particles.isEmpty && _random.nextDouble() < 0.2) {
-          _random.nextBool() ? _trick(RobotTrick.yawn) : _lookAbout();
-        }
+        // Now and then, when nothing else is going on, it yawns, looks about, stretches or hums.
+        if (_activeTrick == null && _particles.isEmpty && _random.nextDouble() < 0.25) _idle();
         _wake(lively: false);
       }
       _scheduleBlink();
@@ -159,6 +161,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         (_blinkAt != null && _time - _blinkAt! < 0.2) ||
         (_hopAt != null && _time - _hopAt! < 0.6) ||
         _tricks.any((t) => _time < t.$2 + RobotTricks.length(t.$1)) ||
+        _time < _talkUntil ||
         (_look - _lookTarget).distance > 0.01;
     _frame.value++;
     if (!busy) _ticker.stop();
@@ -238,8 +241,10 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         _eatAt = _time;
         _joyAt = _time + 0.9;
         if (!reduced) {
-          _eat(state, learnt);
+          _eat(state, learnt, after: false);
           _throwTokens(state.read.skip(5).toList(), swirl: true);
+          // Then it spins round, pleased.
+          _trick(RobotTrick.twirl, after: 1.0);
         }
       case PocketAction.spoke:
         if (!reduced) _speak(state);
@@ -267,7 +272,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       ..add((trick, _time + after));
   }
 
-  /// A pet: one of five turns at random; three pets in a row send its fez flying.
+  /// A pet: one of eight turns at random; three pets in a row send its fez flying.
   void _pet() {
     _pets
       ..removeWhere((at) => _time - at > 1.5)
@@ -279,7 +284,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       _trick(RobotTrick.fezFly);
       return;
     }
-    switch (_random.nextInt(5)) {
+    switch (_random.nextInt(8)) {
       case 0:
         _hopAt = _time;
         _hearts();
@@ -291,23 +296,57 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         _joyAt = null;
         _trick(RobotTrick.starEyes);
         _sparkle(4, around: _mouth - const Offset(0, 0.12));
-      default:
+      case 4:
         // A hat with no tassel blushes instead.
         _trick(_outfit.hat.tassel ? RobotTrick.tasselSpin : RobotTrick.wiggle);
+      case 5:
+        _trick(RobotTrick.twirl);
+      case 6:
+        _trick(RobotTrick.bounce);
+      default:
+        _trick(RobotTrick.heartEyes);
+        _hearts();
     }
   }
 
-  /// A feed: the tokens arc or whirl in, it chews and drops crumbs, now and then burps, and new words sparkle.
-  void _eat(PocketModelReady state, int learnt) {
+  /// Something it does by itself when nothing else is going on: a yawn, a look about, a stretch or a hum.
+  void _idle() {
+    switch (_random.nextInt(4)) {
+      case 0:
+        _trick(RobotTrick.yawn);
+      case 1:
+        _lookAbout();
+      case 2:
+        _trick(RobotTrick.stretch);
+      default:
+        _trick(RobotTrick.hum);
+        _particles.addAll(RobotMoves.notes(_mouth, _time, _random, mirrored: _mirrored));
+    }
+  }
+
+  /// A feed: the tokens arc or whirl in, it chews and drops crumbs, and new words sparkle. Then, now and then, it
+  /// burps, hops about or makes heart eyes, pleased with the meal; [after] false leaves the after to the caller.
+  void _eat(PocketModelReady state, int learnt, {bool after = true}) {
     _throwTokens(state.read, swirl: _random.nextDouble() < 0.4);
     _crumbs();
-    if (_random.nextDouble() < 0.2) _burp();
     if (learnt > 0) _sparkle(math.min(learnt, 5), around: _mouth - const Offset(0, 0.1), after: 0.6);
+    if (!after) return;
+    final pleased = _random.nextDouble();
+    if (pleased < 0.2) {
+      _burp();
+    } else if (pleased < 0.4) {
+      _trick(RobotTrick.bounce, after: 0.9);
+    } else if (pleased < 0.55) {
+      _trick(RobotTrick.heartEyes, after: 0.9);
+    }
   }
 
   /// Asked: it thinks first; then, hot, its face flickers, and cold, its breath frosts.
   void _speak(PocketModelReady state) {
     _trick(RobotTrick.thinking);
+    final words = state.speech?.tokens.length ?? 0;
+    _talkFrom = _time + RobotTricks.length(RobotTrick.thinking) + SpeechBubble.pop.inMilliseconds / 1000;
+    _talkUntil = _talkFrom + words * SpeechBubble.perToken.inMilliseconds / 1000;
     if (state.speech?.hallucinating ?? false) {
       _trick(RobotTrick.glitch, after: RobotTricks.length(RobotTrick.thinking));
     } else if (state.temperature < cold) {
@@ -481,6 +520,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       trick: _activeTrickAt?.$1,
       trickTime: _activeTrickAt == null ? 0 : _time - _activeTrickAt!.$2,
       outfit: _outfit,
+      talking: !_reduced && _time >= _talkFrom && _time < _talkUntil,
     );
   }
 

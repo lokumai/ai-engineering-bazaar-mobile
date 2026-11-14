@@ -59,6 +59,35 @@ void main() {
     stage.greet(RobotHello.starEyes);
     await tester.pump(const Duration(milliseconds: 100));
     expect(_frame(tester).trick, RobotTrick.starEyes);
+
+    // The sweet ones (the owner, 2026-11-14).
+    for (final (hello, trick) in [
+      (RobotHello.twirl, RobotTrick.twirl),
+      (RobotHello.bounce, RobotTrick.bounce),
+      (RobotHello.heartEyes, RobotTrick.heartEyes),
+      (RobotHello.hum, RobotTrick.hum),
+    ]) {
+      stage.greet(hello);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(_frame(tester).trick, trick, reason: '$hello');
+    }
+    expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.note), isNotEmpty, reason: 'it hums notes');
+    await tester.pump(const Duration(seconds: 10));
+  });
+
+  testWidgets('a greeting is short: done in under a second, its turn played faster to fit', (tester) async {
+    expect(RobotStage.helloLength, lessThan(const Duration(seconds: 1)));
+    var done = 0;
+    await _pump(tester, RobotStage(hello: true, onHello: () => done++, random: math.Random(3)));
+    await tester.pump();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    final greeting = _frame(tester);
+    // Half a second in, its clock has run on faster than the wall's.
+    expect(greeting.time, greaterThan(0.5 * 1.3));
+    await tester.pump(RobotStage.helloLength);
+    expect(done, 1);
     await tester.pump(const Duration(seconds: 10));
   });
 
