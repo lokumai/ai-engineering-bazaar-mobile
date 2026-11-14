@@ -349,9 +349,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Token yedir"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("halüsinasyon"),
     "pocket_known": m29,
-    "pocket_lede": MessageLookupByLibrary.simpleMessage(
-      "Mola verdiğinde eğitebileceğin minik bir model: ona token yedir, konuşmayı öğrensin.",
-    ),
+    "pocket_lede": MessageLookupByLibrary.simpleMessage("Oyuncak bir model: okudukça öğrenir, saçmalayabilir de."),
     "pocket_level": m30,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("seviye"),
     "pocket_loss": m31,

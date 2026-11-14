@@ -350,7 +350,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
     "pocket_known": m29,
     "pocket_lede": MessageLookupByLibrary.simpleMessage(
-      "مدلی کوچک برای وقت استراحت: به آن توکن بدهید تا حرف زدن یاد بگیرد.",
+      "یک مدل اسباب‌بازی: از هر چه بخواند یاد می‌گیرد و ممکن است پرت‌وپلا بگوید.",
     ),
     "pocket_level": m30,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("سطح"),

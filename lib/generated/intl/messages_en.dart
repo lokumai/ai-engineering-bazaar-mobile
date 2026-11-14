@@ -349,7 +349,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("hallucinating"),
     "pocket_known": m29,
     "pocket_lede": MessageLookupByLibrary.simpleMessage(
-      "A tiny model to train when you need a break: feed it tokens and it learns to talk.",
+      "A toy model: it learns from what it reads, and it can talk nonsense.",
     ),
     "pocket_level": m30,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("level"),

@@ -285,7 +285,7 @@
   "reader_failed": "Bu modül bu cihazda okunamadı. Yeniden dene ya da uygulamayı yeniden başlat.",
   "reader_retry": "Yeniden dene",
   "pocket_title": "Cep modeli",
-  "pocket_lede": "Mola verdiğinde eğitebileceğin minik bir model: ona token yedir, konuşmayı öğrensin.",
+  "pocket_lede": "Oyuncak bir model: okudukça öğrenir, saçmalayabilir de.",
   "pocket_feed": "Token yedir",
   "pocket_ask": "Konuştur",
   "pocket_temperature": "Sıcaklık",

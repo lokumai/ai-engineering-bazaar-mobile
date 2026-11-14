@@ -2014,10 +2014,10 @@ class S {
     );
   }
 
-  /// `A tiny model to train when you need a break: feed it tokens and it learns to talk.`
+  /// `A toy model: it learns from what it reads, and it can talk nonsense.`
   String get pocket_lede {
     return Intl.message(
-      'A tiny model to train when you need a break: feed it tokens and it learns to talk.',
+      'A toy model: it learns from what it reads, and it can talk nonsense.',
       name: 'pocket_lede',
       desc: '',
       args: [],

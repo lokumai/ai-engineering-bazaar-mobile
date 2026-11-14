@@ -988,7 +988,7 @@
   "@pocket_title": {
     "description": "Home's toy under Your path (plan 9.2): a tiny model the reader trains with tokens."
   },
-  "pocket_lede": "A tiny model to train when you need a break: feed it tokens and it learns to talk.",
+  "pocket_lede": "A toy model: it learns from what it reads, and it can talk nonsense.",
   "@pocket_lede": {},
   "pocket_feed": "Feed tokens",
   "@pocket_feed": {},
