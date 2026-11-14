@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
@@ -129,7 +130,7 @@ void main() {
         () => AppBootstrap.run(
           const AppBootstrapConfig(environment: Environment.prod),
           sentry: sentry,
-          dependencies: (config) => _IconDependencies(BazaarIcon.nightSea, appConfig: config),
+          dependencies: (config) => _IconDependencies(BazaarIcon.tvCream, appConfig: config),
         ),
       );
       FlutterError.onError = flutterErrorHandler;
@@ -137,13 +138,13 @@ void main() {
       Bloc.observer = observer;
       await sentry.runners.single();
 
-      expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.nightSea);
-      final sting = find.descendant(of: find.byKey(WelcomeSting.sceneKey), matching: find.byType(CustomPaint));
+      expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.tvCream);
       expect(
-        tester.widget<CustomPaint>(sting).painter,
-        isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.nightSea),
+        tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
+        BazaarIcon.tvCream.ground,
         reason: 'the first frame',
       );
+      expect(find.descendant(of: find.byKey(WelcomeSting.sceneKey), matching: find.byType(RobotStage)), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     });
 

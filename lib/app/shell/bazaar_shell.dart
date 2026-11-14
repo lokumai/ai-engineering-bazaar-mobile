@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/caravan_icon.dart';
+import 'package:ai_engineering_bazaar/app/shell/floating_dock.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -11,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
@@ -42,12 +44,27 @@ import 'package:go_router/go_router.dart';
 ///
 /// Opening a page of a track remembers that track, as the web remembers the last track page opened
 /// (`src/lib/tracks.ts:77-114`).
+///
+/// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
+/// navigation on Home's first page only; never over the catalog, the Quiz tab, a level's page, a module or the
+/// Caravan's stage, and it goes with the navigation when a page folds it away. The reader can drag it or throw it
+/// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child});
+  const BazaarShell({super.key, required this.location, required this.child, this.assistant});
 
   /// The path of the page [child] shows.
   final String location;
   final Widget child;
+
+  /// The round button in the corner of some tabs' first pages.
+  final Widget? assistant;
+
+  /// The pages that show the [assistant]: Home's first page only; elsewhere it would only distract (the owner,
+  /// 2026-11-14).
+  static const Set<String> assistantPages = {BazaarPaths.home};
+
+  /// The [assistant]'s width and height.
+  static const double assistantSize = 58;
 
   /// The navigation's height: under Material's 80, the icons and their small names.
   static const double navHeight = 62;
@@ -57,6 +74,9 @@ class BazaarShell extends StatefulWidget {
 }
 
 class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
+  /// Where the reader left the assistant's button; null is its start corner.
+  Offset? _assistantAt;
+
   /// The scroll distance in one direction that hides or shows the navigation, so a trembling finger does neither.
   static const double _travel = 24;
 
@@ -208,8 +228,12 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     final kept = _stacks[index];
     if (index != _selectedIndex) TabSwitch.begin();
     // The open tab goes back to its first page; another opens its own pages again, unless they are of the track the
-    // reader left since (Settings changes the track).
-    if (index == _selectedIndex || kept == null || (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
+    // reader left since (Settings changes the track). Settings always opens on its own first page: it is where things
+    // are set, not a place to come back to (the owner, 2026-11-14).
+    if (index == _selectedIndex ||
+        index == 4 ||
+        kept == null ||
+        (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
       _stacks.remove(index);
       router.go(target);
     } else {
@@ -256,6 +280,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     // The system back on the first page of a tab other than Home goes Home, as Android apps with a navigation bar do,
     // rather than leaving the app; on Home's first page it leaves.
     final atTabRoot = !pushed && _selectedIndex != 0;
+    final assistantShown =
+        widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
     return PopScope(
       canPop: !atTabRoot,
       onPopInvokedWithResult: (didPop, _) {
@@ -297,9 +323,26 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 child: MediaQuery.removePadding(
                   context: context,
                   removeTop: true,
-                  child: KeyedSubtree(
-                    key: _pageKey,
-                    child: ReadableWidth(child: widget.child),
+                  child: Stack(
+                    children: [
+                      FloatingRoom(
+                        // The button's height and its gap from the page's foot, so a page's end scrolls clear of it.
+                        room: assistantShown ? 76 : 0,
+                        child: KeyedSubtree(
+                          key: _pageKey,
+                          child: ReadableWidth(child: widget.child),
+                        ),
+                      ),
+                      if (assistantShown)
+                        Positioned.fill(
+                          child: FloatingDock(
+                            size: BazaarShell.assistantSize,
+                            at: _assistantAt,
+                            onRest: (at) => _assistantAt = at,
+                            child: widget.assistant!,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

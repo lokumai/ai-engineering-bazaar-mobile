@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The dark page colour (BazaarColors.dark.surface), the ground of the launch screen and of the icon in every
-         phone theme: the app opens dark until the reader chooses (owner, 2026-11-13). -->
+    <!-- The dark page colour (BazaarColors.dark.surface), the ground of the launch screen and of the default icon in
+         every phone theme: the app opens dark until the reader chooses (owner, 2026-11-13). -->
     <color name="bazaar_page">#1D1F27</color>
     <color name="ic_launcher_background">#1D1F27</color>
-    <!-- The grounds of the other app icons the reader can choose in Settings (lib/shared/app_icon/). -->
+    <!-- The cream page colour, the ground of the app icons on cream (lib/shared/app_icon/). -->
     <color name="ic_launcher_cream_background">#FDFBF7</color>
-    <color name="ic_launcher_noir_background">#1D1F27</color>
-    <color name="ic_launcher_ink_background">#FDFBF7</color>
-    <color name="ic_launcher_night_gold_background">#1D1F27</color>
-    <color name="ic_launcher_night_sea_background">#16302F</color>
 </resources>

@@ -108,23 +108,175 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Coming soon`
-  String get caravan_soon {
-    return Intl.message('Coming soon', name: 'caravan_soon', desc: '', args: []);
-  }
-
-  /// `The Caravan is on its way`
-  String get caravan_soon_title {
-    return Intl.message('The Caravan is on its way', name: 'caravan_soon_title', desc: '', args: []);
-  }
-
-  /// `A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.`
-  String get caravan_soon_body {
+  /// `Content is coming soon. Until then these trends are sample data.`
+  String get caravan_sample_notice {
     return Intl.message(
-      'A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.',
-      name: 'caravan_soon_body',
+      'Content is coming soon. Until then these trends are sample data.',
+      name: 'caravan_sample_notice',
+      desc: 'The notice over the Caravan while it draws the web\'s sample trends, as the web\'s notice says (web CaravanPage.tsx).',
+      args: [],
+    );
+  }
+
+  /// `The caravan at {title}`
+  String caravan_stage_label(String title) {
+    return Intl.message(
+      'The caravan at $title',
+      name: 'caravan_stage_label',
+      desc: 'The stage\'s name for a screen reader: the caravan at the chosen trend.',
+      args: [title],
+    );
+  }
+
+  /// `Stop {index} of {count}`
+  String caravan_stop_of(int index, int count) {
+    return Intl.message('Stop $index of $count', name: 'caravan_stop_of', desc: '', args: [index, count]);
+  }
+
+  /// `Previous stop`
+  String get caravan_previous {
+    return Intl.message('Previous stop', name: 'caravan_previous', desc: '', args: []);
+  }
+
+  /// `Next stop`
+  String get caravan_next {
+    return Intl.message('Next stop', name: 'caravan_next', desc: '', args: []);
+  }
+
+  /// `Tour the road`
+  String get caravan_tour {
+    return Intl.message(
+      'Tour the road',
+      name: 'caravan_tour',
+      desc: 'The button that walks the caravan from stop to stop on its own.',
+      args: [],
+    );
+  }
+
+  /// `Stop the tour`
+  String get caravan_tour_stop {
+    return Intl.message('Stop the tour', name: 'caravan_tour_stop', desc: '', args: []);
+  }
+
+  /// `Where the caravan is`
+  String get caravan_strip_label {
+    return Intl.message(
+      'Where the caravan is',
+      name: 'caravan_strip_label',
+      desc: 'The strip under the stage, a slider over the stops.',
+      args: [],
+    );
+  }
+
+  /// `Swipe the card, drag the road or tap a stall to travel.`
+  String get caravan_hint {
+    return Intl.message(
+      'Swipe the card, drag the road or tap a stall to travel.',
+      name: 'caravan_hint',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `{start} to {end}`
+  String caravan_period(String start, String end) {
+    return Intl.message(
+      '$start to $end',
+      name: 'caravan_period',
+      desc: 'When a trend was on the road, its first and last month.',
+      args: [start, end],
+    );
+  }
+
+  /// `{start} to now`
+  String caravan_period_open(String start) {
+    return Intl.message(
+      '$start to now',
+      name: 'caravan_period_open',
+      desc: 'When a trend still on the road started.',
+      args: [start],
+    );
+  }
+
+  /// `Strength`
+  String get caravan_strength {
+    return Intl.message('Strength', name: 'caravan_strength', desc: '', args: []);
+  }
+
+  /// `Strength {level} of 5`
+  String caravan_strength_of(int level) {
+    return Intl.message('Strength $level of 5', name: 'caravan_strength_of', desc: '', args: [level]);
+  }
+
+  /// `In the course`
+  String get caravan_in_course {
+    return Intl.message(
+      'In the course',
+      name: 'caravan_in_course',
+      desc: 'The modules of the course on a trend\'s subject.',
+      args: [],
+    );
+  }
+
+  /// `To read`
+  String get caravan_reading {
+    return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
+  }
+
+  /// `Sample article`
+  String get caravan_sample_articles {
+    return Intl.message('Sample article', name: 'caravan_sample_articles', desc: '', args: []);
+  }
+
+  /// `Sample video`
+  String get caravan_sample_videos {
+    return Intl.message('Sample video', name: 'caravan_sample_videos', desc: '', args: []);
+  }
+
+  /// `Sample tool`
+  String get caravan_sample_tools {
+    return Intl.message('Sample tool', name: 'caravan_sample_tools', desc: '', args: []);
+  }
+
+  /// `Sample repository`
+  String get caravan_sample_repositories {
+    return Intl.message('Sample repository', name: 'caravan_sample_repositories', desc: '', args: []);
+  }
+
+  /// `Sample`
+  String get caravan_sample_badge {
+    return Intl.message('Sample', name: 'caravan_sample_badge', desc: '', args: []);
+  }
+
+  /// `All trends`
+  String get caravan_all_trends {
+    return Intl.message('All trends', name: 'caravan_all_trends', desc: '', args: []);
+  }
+
+  /// `Search the trends`
+  String get caravan_search {
+    return Intl.message('Search the trends', name: 'caravan_search', desc: '', args: []);
+  }
+
+  /// `All years`
+  String get caravan_all_years {
+    return Intl.message('All years', name: 'caravan_all_years', desc: '', args: []);
+  }
+
+  /// `No trend matches.`
+  String get caravan_no_trend {
+    return Intl.message('No trend matches.', name: 'caravan_no_trend', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{1 trend} other{{count} trends}}`
+  String caravan_trend_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 trend',
+      other: '$count trends',
+      name: 'caravan_trend_count',
+      desc: '',
+      args: [count],
     );
   }
 
@@ -1353,12 +1505,7 @@ class S {
 
   /// `Dark`
   String get app_icon_dark {
-    return Intl.message(
-      'Dark',
-      name: 'app_icon_dark',
-      desc: 'App icon choice: the striped agent on the dark ground, the default.',
-      args: [],
-    );
+    return Intl.message('Dark', name: 'app_icon_dark', desc: 'An app icon\'s ground: the dark page colour.', args: []);
   }
 
   /// `Cream`
@@ -1366,48 +1513,28 @@ class S {
     return Intl.message(
       'Cream',
       name: 'app_icon_cream',
-      desc: 'App icon choice: the striped agent on a cream ground.',
+      desc: 'An app icon\'s ground: the cream page colour.',
       args: [],
     );
   }
 
-  /// `Noir`
-  String get app_icon_noir {
+  /// `Ground`
+  String get app_icon_ground {
     return Intl.message(
-      'Noir',
-      name: 'app_icon_noir',
-      desc: 'App icon choice: cream stripes on the dark ground, like a black and white film.',
+      'Ground',
+      name: 'app_icon_ground',
+      desc: 'The choice above the app icons of their ground, dark or cream; a screen reader hears it.',
       args: [],
     );
   }
 
-  /// `Ink`
-  String get app_icon_ink {
+  /// `{robot}, {ground}`
+  String app_icon_name(String robot, String ground) {
     return Intl.message(
-      'Ink',
-      name: 'app_icon_ink',
-      desc: 'App icon choice: dark stripes on a cream ground.',
-      args: [],
-    );
-  }
-
-  /// `Night gold`
-  String get app_icon_night_gold {
-    return Intl.message(
-      'Night gold',
-      name: 'app_icon_night_gold',
-      desc: 'App icon choice: gold stripes on the dark ground.',
-      args: [],
-    );
-  }
-
-  /// `Night sea`
-  String get app_icon_night_sea {
-    return Intl.message(
-      'Night sea',
-      name: 'app_icon_night_sea',
-      desc: 'App icon choice: teal, gold and cream stripes on a deep green ground.',
-      args: [],
+      '$robot, $ground',
+      name: 'app_icon_name',
+      desc: 'An app icon\'s name: the robot\'s wardrobe part it shows, and its ground.',
+      args: [robot, ground],
     );
   }
 
@@ -1421,10 +1548,10 @@ class S {
     );
   }
 
-  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.`
+  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.`
   String get app_icon_note_android {
     return Intl.message(
-      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.',
+      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.',
       name: 'app_icon_note_android',
       desc: 'The note on the app icon page on Android: when the icon changes, and what some launchers do.',
       args: [],
@@ -1437,16 +1564,6 @@ class S {
       'The phone confirms the new icon with a message.',
       name: 'app_icon_note_ios',
       desc: 'The note on the app icon page on iOS, where the system tells of every icon change.',
-      args: [],
-    );
-  }
-
-  /// `Done`
-  String get welcome_app_icon_done {
-    return Intl.message(
-      'Done',
-      name: 'welcome_app_icon_done',
-      desc: 'The button under the six app icons on Welcome\'s first step: back to the step, the icon kept.',
       args: [],
     );
   }
@@ -1850,6 +1967,518 @@ class S {
   /// `Try again`
   String get reader_retry {
     return Intl.message('Try again', name: 'reader_retry', desc: '', args: []);
+  }
+
+  /// `Apprentice`
+  String get pocket_title {
+    return Intl.message(
+      'Apprentice',
+      name: 'pocket_title',
+      desc: 'Home\'s toy under Your path (plan 9.2): a tiny model the reader trains with tokens.',
+      args: [],
+    );
+  }
+
+  /// `A toy model that can talk nonsense.`
+  String get pocket_lede {
+    return Intl.message('A toy model that can talk nonsense.', name: 'pocket_lede', desc: '', args: []);
+  }
+
+  /// `Feed tokens`
+  String get pocket_feed {
+    return Intl.message('Feed tokens', name: 'pocket_feed', desc: '', args: []);
+  }
+
+  /// `Chat`
+  String get pocket_ask {
+    return Intl.message('Chat', name: 'pocket_ask', desc: '', args: []);
+  }
+
+  /// `Temperature`
+  String get pocket_temperature {
+    return Intl.message('Temperature', name: 'pocket_temperature', desc: '', args: []);
+  }
+
+  /// `Level {level}`
+  String pocket_level(int level) {
+    return Intl.message('Level $level', name: 'pocket_level', desc: '', args: [level]);
+  }
+
+  /// `{count} to level {level}`
+  String pocket_to_next(int count, int level) {
+    return Intl.message(
+      '$count to level $level',
+      name: 'pocket_to_next',
+      desc: 'The tokens still to feed before the next level.',
+      args: [count, level],
+    );
+  }
+
+  /// `read a module for level {level}`
+  String pocket_next_module(int level) {
+    return Intl.message(
+      'read a module for level $level',
+      name: 'pocket_next_module',
+      desc: 'Said of the level ring once feeds take the model no higher: only a module read does.',
+      args: [level],
+    );
+  }
+
+  /// `loss {value}`
+  String pocket_loss(String value) {
+    return Intl.message(
+      'loss $value',
+      name: 'pocket_loss',
+      desc: 'The training loss, as a model\'s training prints it, small.',
+      args: [value],
+    );
+  }
+
+  /// `level`
+  String get pocket_level_word {
+    return Intl.message(
+      'level',
+      name: 'pocket_level_word',
+      desc: 'The small word under the level number in its ring.',
+      args: [],
+    );
+  }
+
+  /// `Training loss`
+  String get pocket_loss_title {
+    return Intl.message(
+      'Training loss',
+      name: 'pocket_loss_title',
+      desc: 'The heading of the pocket model\'s training curve.',
+      args: [],
+    );
+  }
+
+  /// `The curve starts with the first feed.`
+  String get pocket_loss_empty {
+    return Intl.message(
+      'The curve starts with the first feed.',
+      name: 'pocket_loss_empty',
+      desc: 'In the training curve\'s place before the model is fed.',
+      args: [],
+    );
+  }
+
+  /// `New: it knows no words yet. Feed it some tokens.`
+  String get pocket_status_newborn {
+    return Intl.message(
+      'New: it knows no words yet. Feed it some tokens.',
+      name: 'pocket_status_newborn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hungry: not fed for hours.`
+  String get pocket_status_hungry {
+    return Intl.message('Hungry: not fed for hours.', name: 'pocket_status_hungry', desc: '', args: []);
+  }
+
+  /// `Asleep. Tap it to wake it.`
+  String get pocket_status_asleep {
+    return Intl.message('Asleep. Tap it to wake it.', name: 'pocket_status_asleep', desc: '', args: []);
+  }
+
+  /// `Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.`
+  String get pocket_status_overfit {
+    return Intl.message(
+      'Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.',
+      name: 'pocket_status_overfit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rested, and ready to learn again.`
+  String get pocket_status_recovered {
+    return Intl.message('Rested, and ready to learn again.', name: 'pocket_status_recovered', desc: '', args: []);
+  }
+
+  /// `Too hot: it hallucinates. Turn the temperature down.`
+  String get pocket_status_hallucinating {
+    return Intl.message(
+      'Too hot: it hallucinates. Turn the temperature down.',
+      name: 'pocket_status_hallucinating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cold: it says its likeliest words, every time.`
+  String get pocket_status_cold {
+    return Intl.message(
+      'Cold: it says its likeliest words, every time.',
+      name: 'pocket_status_cold',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `hallucinating`
+  String get pocket_hallucinating {
+    return Intl.message(
+      'hallucinating',
+      name: 'pocket_hallucinating',
+      desc: 'The tag on a speech bubble said while too hot.',
+      args: [],
+    );
+  }
+
+  /// `Apprentice, level {level}. Tap to pet it.`
+  String pocket_stage_label(int level) {
+    return Intl.message(
+      'Apprentice, level $level. Tap to pet it.',
+      name: 'pocket_stage_label',
+      desc: '',
+      args: [level],
+    );
+  }
+
+  /// `It says: {words}`
+  String pocket_says(String words) {
+    return Intl.message('It says: $words', name: 'pocket_says', desc: '', args: [words]);
+  }
+
+  /// `Read a module you finished`
+  String get pocket_read_module {
+    return Intl.message(
+      'Read a module you finished',
+      name: 'pocket_read_module',
+      desc: 'The pocket model\'s button that gives it a course module the reader completed to read.',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 finished module waiting} other{{count} finished modules waiting}}`
+  String pocket_read_waiting(int count) {
+    return Intl.plural(
+      count,
+      one: '1 finished module waiting',
+      other: '$count finished modules waiting',
+      name: 'pocket_read_waiting',
+      desc: 'Under the read button, and on the round button for a screen reader: the completed modules the pocket model has not read.',
+      args: [count],
+    );
+  }
+
+  /// `Finish a module, and it can read it too.`
+  String get pocket_read_none {
+    return Intl.message(
+      'Finish a module, and it can read it too.',
+      name: 'pocket_read_none',
+      desc: 'In the read button\'s place when no completed module is left for the pocket model to read.',
+      args: [],
+    );
+  }
+
+  /// `Start over`
+  String get pocket_reset {
+    return Intl.message(
+      'Start over',
+      name: 'pocket_reset',
+      desc: 'The button that starts the pocket model again at level 0.',
+      args: [],
+    );
+  }
+
+  /// `Start the apprentice over?`
+  String get pocket_reset_title {
+    return Intl.message('Start the apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
+  }
+
+  /// `It forgets every token it read and starts again at level 0. The course and its progress stay as they are.`
+  String get pocket_reset_body {
+    return Intl.message(
+      'It forgets every token it read and starts again at level 0. The course and its progress stay as they are.',
+      name: 'pocket_reset_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep it`
+  String get pocket_reset_keep {
+    return Intl.message(
+      'Keep it',
+      name: 'pocket_reset_keep',
+      desc: 'Closes the start-over dialog and keeps the pocket model as it is.',
+      args: [],
+    );
+  }
+
+  /// `What it learnt`
+  String get pocket_stats_title {
+    return Intl.message(
+      'What it learnt',
+      name: 'pocket_stats_title',
+      desc: 'The heading, at the foot of the apprentice\'s sheet, over what it has read and learnt.',
+      args: [],
+    );
+  }
+
+  /// `modules read`
+  String get pocket_stat_modules {
+    return Intl.message(
+      'modules read',
+      name: 'pocket_stat_modules',
+      desc: 'Under a number: the course modules the apprentice has read.',
+      args: [],
+    );
+  }
+
+  /// `words known`
+  String get pocket_stat_words {
+    return Intl.message(
+      'words known',
+      name: 'pocket_stat_words',
+      desc: 'Under a number: the words the apprentice knows.',
+      args: [],
+    );
+  }
+
+  /// `tokens eaten`
+  String get pocket_stat_tokens {
+    return Intl.message(
+      'tokens eaten',
+      name: 'pocket_stat_tokens',
+      desc: 'Under a number: the tokens the apprentice was fed and read.',
+      args: [],
+    );
+  }
+
+  /// `Customize`
+  String get settings_customize {
+    return Intl.message(
+      'Customize',
+      name: 'settings_customize',
+      desc: 'Settings\' section for the app icon, the pocket model\'s button and the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Apprentice`
+  String get settings_pocket_button {
+    return Intl.message(
+      'Apprentice',
+      name: 'settings_pocket_button',
+      desc: 'The title of the choice, on or off, that shows or hides the pocket model\'s round button on Home.',
+      args: [],
+    );
+  }
+
+  /// `On`
+  String get settings_on {
+    return Intl.message(
+      'On',
+      name: 'settings_on',
+      desc: 'The segment that shows the pocket model\'s button.',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get settings_off {
+    return Intl.message(
+      'Off',
+      name: 'settings_off',
+      desc: 'The segment that hides the pocket model\'s button.',
+      args: [],
+    );
+  }
+
+  /// `Wardrobe`
+  String get settings_robot {
+    return Intl.message(
+      'Wardrobe',
+      name: 'settings_robot',
+      desc: 'The row in Settings that opens the robot\'s wardrobe, and the wardrobe\'s title.',
+      args: [],
+    );
+  }
+
+  /// `Hat`
+  String get wardrobe_hat {
+    return Intl.message('Hat', name: 'wardrobe_hat', desc: 'The wardrobe\'s tab of hats.', args: []);
+  }
+
+  /// `Head`
+  String get wardrobe_head {
+    return Intl.message('Head', name: 'wardrobe_head', desc: 'The wardrobe\'s tab of heads.', args: []);
+  }
+
+  /// `Body`
+  String get wardrobe_body {
+    return Intl.message('Body', name: 'wardrobe_body', desc: 'The wardrobe\'s tab of bodies.', args: []);
+  }
+
+  /// `Each level of the apprentice unlocks something new to wear.`
+  String get wardrobe_note {
+    return Intl.message(
+      'Each level of the apprentice unlocks something new to wear.',
+      name: 'wardrobe_note',
+      desc: 'Under the wardrobe\'s choices.',
+      args: [],
+    );
+  }
+
+  /// `Fez`
+  String get outfit_hat_fez {
+    return Intl.message('Fez', name: 'outfit_hat_fez', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Antenna`
+  String get outfit_hat_antenna {
+    return Intl.message('Antenna', name: 'outfit_hat_antenna', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Beanie`
+  String get outfit_hat_beanie {
+    return Intl.message('Beanie', name: 'outfit_hat_beanie', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Graduation cap`
+  String get outfit_hat_mortarboard {
+    return Intl.message(
+      'Graduation cap',
+      name: 'outfit_hat_mortarboard',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Turban`
+  String get outfit_hat_turban {
+    return Intl.message('Turban', name: 'outfit_hat_turban', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Wizard's hat`
+  String get outfit_hat_wizard {
+    return Intl.message('Wizard\'s hat', name: 'outfit_hat_wizard', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Top hat`
+  String get outfit_hat_top_hat {
+    return Intl.message('Top hat', name: 'outfit_hat_top_hat', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Crown`
+  String get outfit_hat_crown {
+    return Intl.message('Crown', name: 'outfit_hat_crown', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Classic screen`
+  String get outfit_head_classic {
+    return Intl.message(
+      'Classic screen',
+      name: 'outfit_head_classic',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Round head`
+  String get outfit_head_dome {
+    return Intl.message('Round head', name: 'outfit_head_dome', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Old television`
+  String get outfit_head_tv {
+    return Intl.message('Old television', name: 'outfit_head_tv', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Cat ears`
+  String get outfit_head_ears {
+    return Intl.message('Cat ears', name: 'outfit_head_ears', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Space helmet`
+  String get outfit_head_visor {
+    return Intl.message('Space helmet', name: 'outfit_head_visor', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Classic`
+  String get outfit_body_classic {
+    return Intl.message('Classic', name: 'outfit_body_classic', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Embroidered vest`
+  String get outfit_body_vest {
+    return Intl.message(
+      'Embroidered vest',
+      name: 'outfit_body_vest',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Hoodie`
+  String get outfit_body_hoodie {
+    return Intl.message('Hoodie', name: 'outfit_body_hoodie', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Lab coat`
+  String get outfit_body_lab_coat {
+    return Intl.message('Lab coat', name: 'outfit_body_lab_coat', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Kaftan`
+  String get outfit_body_kaftan {
+    return Intl.message('Kaftan', name: 'outfit_body_kaftan', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Suit and bow tie`
+  String get outfit_body_suit {
+    return Intl.message(
+      'Suit and bow tie',
+      name: 'outfit_body_suit',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Space suit`
+  String get outfit_body_astronaut {
+    return Intl.message(
+      'Space suit',
+      name: 'outfit_body_astronaut',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `{name}, worn`
+  String wardrobe_item_worn(String name) {
+    return Intl.message(
+      '$name, worn',
+      name: 'wardrobe_item_worn',
+      desc: 'A wardrobe choice the robot wears, for a screen reader.',
+      args: [name],
+    );
+  }
+
+  /// `{name}, unlocks at level {level}`
+  String wardrobe_item_locked(String name, int level) {
+    return Intl.message(
+      '$name, unlocks at level $level',
+      name: 'wardrobe_item_locked',
+      desc: 'A wardrobe choice not unlocked yet, for a screen reader.',
+      args: [name, level],
+    );
+  }
+
+  /// `The robot: {hat}, {head}, {body}`
+  String wardrobe_preview(String hat, String head, String body) {
+    return Intl.message(
+      'The robot: $hat, $head, $body',
+      name: 'wardrobe_preview',
+      desc: 'The wardrobe\'s picture of the robot, for a screen reader.',
+      args: [hat, head, body],
+    );
   }
 }
 

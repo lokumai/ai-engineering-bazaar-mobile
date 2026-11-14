@@ -8,27 +8,30 @@ class AppIconSwitchTest {
     @Test
     fun turnsTheChosenEntryOnAndTheEnabledOneOff() {
         assertEquals(
-            mapOf("LauncherDark" to false, "LauncherNoir" to true),
-            AppIconSwitch.changes(setOf("LauncherDark"), "noir"),
+            mapOf("LauncherFezDark" to false, "LauncherWizardCream" to true),
+            AppIconSwitch.changes(setOf("LauncherFezDark"), "wizardCream"),
         )
     }
 
     @Test
     fun changesNothingWhenTheChosenEntryIsTheOnlyOneOn() {
-        assertEquals(emptyMap<String, Boolean>(), AppIconSwitch.changes(setOf("LauncherNightSea"), "nightSea"))
+        assertEquals(emptyMap<String, Boolean>(), AppIconSwitch.changes(setOf("LauncherTvCream"), "tvCream"))
     }
 
     @Test
     fun turnsOffEveryOtherEntryThatIsOn() {
         assertEquals(
-            mapOf("LauncherDark" to true, "LauncherCream" to false, "LauncherInk" to false),
-            AppIconSwitch.changes(setOf("LauncherCream", "LauncherInk"), "dark"),
+            mapOf("LauncherFezDark" to true, "LauncherFezCream" to false, "LauncherCrownDark" to false),
+            AppIconSwitch.changes(setOf("LauncherFezCream", "LauncherCrownDark"), "fezDark"),
         )
     }
 
     @Test
-    fun noirIsTheDefaultTheManifestEnables() {
-        assertEquals("noir", AppIconSwitch.aliases.keys.first())
+    fun theFezOnTheCreamGroundIsTheDefaultTheManifestEnables() {
+        assertEquals("fezCream", AppIconSwitch.aliases.keys.first())
+        // The manifest's launch screen is the default's, cream; the icons on the dark ground have a dark one.
+        assertEquals(R.style.LaunchTheme, AppIconSwitch.launchThemes["fezCream"])
+        assertEquals(R.style.LaunchTheme_Dark, AppIconSwitch.launchThemes["fezDark"])
     }
 
     @Test

@@ -1,4 +1,5 @@
 import 'package:alchemist/alchemist.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -51,6 +52,7 @@ Widget _screen({required bool dark}) {
         BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()),
         BlocProvider<ThemeChoiceCubit>(create: (_) => ThemeChoiceCubit()),
         BlocProvider<AppIconCubit>(create: (_) => AppIconCubit()..load()),
+        BlocProvider<PocketButtonCubit>(create: (_) => PocketButtonCubit()),
         BlocProvider<QuizScoresBloc>(create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())),
         BlocProvider<ReadingPlacesBloc>(create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())),
       ],

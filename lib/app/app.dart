@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -64,8 +65,10 @@ class _AppState extends State<App> {
             routerConfig: _router,
             // The router shows only once the content and the record are ready (spec 3.7), behind Welcome on the first
             // launch (plan Phase 1I).
-            // The agent's opening plays over the app as it opens (plan 1Y; the owner, 2026-11-13).
+            // The robot's opening plays over the app as it opens (plan 1Y, 9.10).
             builder: (context, child) => WelcomeSting(
+              // The robot in what the reader dressed it in greets them (plan 9.10).
+              robot: (onDone) => RobotStage(hello: true, onHello: onDone),
               child: AppGate(
                 child: WelcomeGate(
                   // The second step is the story of the Bazaar, a feature of its own (plan 3.5).

@@ -9,7 +9,7 @@
     <application
         android:label="Bazaar"
         android:name=".MainApplication"
-        android:icon="@mipmap/ic_launcher_noir"
+        android:icon="@mipmap/ic_launcher"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
@@ -38,13 +38,13 @@
               />
         </activity>
         <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
-             Exactly one is enabled: Noir, the default, until the reader chooses another, and then the one chosen
-             (AppIconSwitch.kt, when the app goes to the background). -->
+             Exactly one is enabled: the fez on the cream ground, the default, until the reader chooses another, and
+             then the one chosen (AppIconSwitch.kt, when the app goes to the background). -->
         <activity-alias
-            android:name=".LauncherNoir"
+            android:name=".LauncherFezCream"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_noir"
-            android:roundIcon="@mipmap/ic_launcher_noir"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -53,10 +53,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherInk"
+            android:name=".LauncherFezDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_ink"
-            android:roundIcon="@mipmap/ic_launcher_ink"
+            android:icon="@mipmap/ic_launcher_fez_dark"
+            android:roundIcon="@mipmap/ic_launcher_fez_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -65,10 +65,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherNightGold"
+            android:name=".LauncherAntennaCream"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_night_gold"
-            android:roundIcon="@mipmap/ic_launcher_night_gold"
+            android:icon="@mipmap/ic_launcher_antenna_cream"
+            android:roundIcon="@mipmap/ic_launcher_antenna_cream"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -77,10 +77,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherNightSea"
+            android:name=".LauncherAntennaDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_night_sea"
-            android:roundIcon="@mipmap/ic_launcher_night_sea"
+            android:icon="@mipmap/ic_launcher_antenna_dark"
+            android:roundIcon="@mipmap/ic_launcher_antenna_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -89,10 +89,10 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherDark"
+            android:name=".LauncherBeanieCream"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_beanie_cream"
+            android:roundIcon="@mipmap/ic_launcher_beanie_cream"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -101,10 +101,226 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name=".LauncherCream"
+            android:name=".LauncherBeanieDark"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_cream"
-            android:roundIcon="@mipmap/ic_launcher_cream"
+            android:icon="@mipmap/ic_launcher_beanie_dark"
+            android:roundIcon="@mipmap/ic_launcher_beanie_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherDomeCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_dome_cream"
+            android:roundIcon="@mipmap/ic_launcher_dome_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherDomeDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_dome_dark"
+            android:roundIcon="@mipmap/ic_launcher_dome_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherMortarboardCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_mortarboard_cream"
+            android:roundIcon="@mipmap/ic_launcher_mortarboard_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherMortarboardDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_mortarboard_dark"
+            android:roundIcon="@mipmap/ic_launcher_mortarboard_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTvCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_tv_cream"
+            android:roundIcon="@mipmap/ic_launcher_tv_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTvDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_tv_dark"
+            android:roundIcon="@mipmap/ic_launcher_tv_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTurbanCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_turban_cream"
+            android:roundIcon="@mipmap/ic_launcher_turban_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTurbanDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_turban_dark"
+            android:roundIcon="@mipmap/ic_launcher_turban_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherEarsCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_ears_cream"
+            android:roundIcon="@mipmap/ic_launcher_ears_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherEarsDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_ears_dark"
+            android:roundIcon="@mipmap/ic_launcher_ears_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherWizardCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_wizard_cream"
+            android:roundIcon="@mipmap/ic_launcher_wizard_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherWizardDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_wizard_dark"
+            android:roundIcon="@mipmap/ic_launcher_wizard_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTopHatCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_top_hat_cream"
+            android:roundIcon="@mipmap/ic_launcher_top_hat_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherTopHatDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_top_hat_dark"
+            android:roundIcon="@mipmap/ic_launcher_top_hat_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherVisorCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_visor_cream"
+            android:roundIcon="@mipmap/ic_launcher_visor_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherVisorDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_visor_dark"
+            android:roundIcon="@mipmap/ic_launcher_visor_dark"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherCrownCream"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_crown_cream"
+            android:roundIcon="@mipmap/ic_launcher_crown_cream"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherCrownDark"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_crown_dark"
+            android:roundIcon="@mipmap/ic_launcher_crown_dark"
             android:enabled="false"
             android:exported="true">
             <intent-filter>

@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
@@ -38,8 +39,11 @@ Key settingsAppearanceKey(ThemeMode mode) => ValueKey('settings-appearance-${mod
 
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
 
+/// The key of the pocket model's button's [shown] segment.
+Key settingsPocketKey({required bool shown}) => ValueKey('settings-pocket-${shown ? 'on' : 'off'}');
+
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key, this.openDevConsole, this.feedback = false});
+  const SettingsScreen({super.key, this.openDevConsole, this.feedback = false, this.wardrobePicture});
 
   /// Opens the developer console (Decision A6); the router passes it in debug builds only, since a feature imports
   /// nothing from `app/`. Null hides the entry.
@@ -48,11 +52,20 @@ class SettingsScreen extends StatelessWidget {
   /// Whether Report a problem is shown: in a build that sends crash reports, since it sends through Sentry too.
   final bool feedback;
 
+  /// The robot's picture beside the Wardrobe row, at a side (plan 9.10); the router passes the pocket model's, since a
+  /// feature imports no other feature. Null leaves the row without one.
+  final Widget Function(double side)? wardrobePicture;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: switch (context.watch<ContentBloc>().state) {
-        ContentReady ready => _SettingsView(ready: ready, openDevConsole: openDevConsole, feedback: feedback),
+        ContentReady ready => _SettingsView(
+          ready: ready,
+          openDevConsole: openDevConsole,
+          feedback: feedback,
+          wardrobePicture: wardrobePicture,
+        ),
         ContentLoading() || ContentBroken() => const SizedBox.shrink(),
       },
     );
@@ -60,11 +73,17 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class _SettingsView extends StatelessWidget {
-  const _SettingsView({required this.ready, required this.openDevConsole, required this.feedback});
+  const _SettingsView({
+    required this.ready,
+    required this.openDevConsole,
+    required this.feedback,
+    required this.wardrobePicture,
+  });
 
   final ContentReady ready;
   final void Function(BuildContext context)? openDevConsole;
   final bool feedback;
+  final Widget Function(double side)? wardrobePicture;
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +148,37 @@ class _SettingsView extends StatelessWidget {
                     BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
                 ],
               ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
+          SectionRule(title: s.settings_customize),
+          const SizedBox(height: AppSpacing.md),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.sm,
+            children: [
+              // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
+              Text(s.settings_pocket_button, style: theme.textTheme.titleSmall),
+              BazaarSegmentedControl<bool>(
+                key: const Key('settings-pocket-button'),
+                semanticLabel: s.settings_pocket_button,
+                selected: context.watch<PocketButtonCubit>().state,
+                onSelected: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
+                segments: [
+                  BazaarSegment(value: true, label: s.settings_on, key: settingsPocketKey(shown: true)),
+                  BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
               AppIconRow(
                 key: const Key('settings-app-icon'),
                 onTap: () => context.push(ApplicationRoutesConstants.appIcon),
+              ),
+              _WardrobeRow(
+                key: const Key('settings-robot'),
+                picture: wardrobePicture,
+                onTap: () => context.push(ApplicationRoutesConstants.robot),
               ),
             ],
           ),
@@ -256,6 +303,38 @@ class _Action extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: OutlinedButton(onPressed: onPressed, child: Text(label)),
+    );
+  }
+}
+
+/// The Wardrobe row (plan 9.10), in the App icon row's style: the robot in what it wears as a picture, the row's
+/// name and an arrow.
+class _WardrobeRow extends StatelessWidget {
+  const _WardrobeRow({super.key, required this.picture, required this.onTap});
+
+  final Widget Function(double side)? picture;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    final picture = this.picture;
+    return BazaarRow(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      child: Row(
+        spacing: AppSpacing.md,
+        children: [
+          if (picture != null) ExcludeSemantics(child: picture(52)),
+          Expanded(
+            child: Text(
+              S.of(context).settings_robot,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colors.onSurfaceTitle),
+            ),
+          ),
+          ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
+        ],
+      ),
     );
   }
 }

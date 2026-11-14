@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- The cream choice of the app icon (assets/brand/app_icon/choices/); the monochrome layer is the default's. -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_cream_background" />
-    <foreground android:drawable="@mipmap/ic_launcher_cream_foreground" />
-    <monochrome android:drawable="@mipmap/ic_launcher_monochrome" />
-</adaptive-icon>

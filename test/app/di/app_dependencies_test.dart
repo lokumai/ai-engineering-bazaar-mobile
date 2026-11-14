@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.d
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -13,6 +14,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart'
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -165,13 +167,13 @@ void main() {
     expect(store, isA<FlagAppIconStore>());
     expect(await store.chosen(), isNull);
 
-    await store.choose(BazaarIcon.noir);
-    expect(await dependencies.createAppIconStore().chosen(), BazaarIcon.noir, reason: 'kept for the next start');
+    await store.choose(BazaarIcon.fezDark);
+    expect(await dependencies.createAppIconStore().chosen(), BazaarIcon.fezDark, reason: 'kept for the next start');
 
-    await store.choose(BazaarIcon.nightSea);
-    expect(await store.chosen(), BazaarIcon.nightSea);
-    expect(File('${root.path}/flags/app-icon-noir').existsSync(), isFalse, reason: 'one choice at a time');
-    expect(File('${root.path}/flags/app-icon-nightSea').existsSync(), isTrue);
+    await store.choose(BazaarIcon.tvCream);
+    expect(await store.chosen(), BazaarIcon.tvCream);
+    expect(File('${root.path}/flags/app-icon-fezDark').existsSync(), isFalse, reason: 'one choice at a time');
+    expect(File('${root.path}/flags/app-icon-tvCream').existsSync(), isTrue);
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
@@ -191,9 +193,9 @@ void main() {
       ),
     );
 
-    await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.nightGold);
+    await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.beanieDark);
 
-    expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'nightGold')]);
+    expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'beanieDark')]);
   });
 
   test('a failed icon change is logged, never thrown', () async {
@@ -208,13 +210,13 @@ void main() {
       ),
     );
 
-    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
     // No channel at all, as on a desktop or in a test: nothing happens.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel(AppIconChannel.name),
       null,
     );
-    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
   });
 
   test('createQuizScoreStore keeps the scores in one file under the support directory (plan 1W)', () async {
@@ -237,6 +239,52 @@ void main() {
 
     await store.save(const {});
     expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
+  });
+
+  test('the robot outfit is one file under the support directory, the hidden button one flag (plan 9.9)', () async {
+    final root = Directory.systemTemp.createTempSync('robot_outfit_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final outfits = dependencies.createRobotOutfitStore();
+    expect(await outfits.load(), isNull);
+    const outfit = RobotOutfit(hat: RobotHat.crown, body: RobotBody.suit);
+    await outfits.save(outfit);
+    expect(await dependencies.createRobotOutfitStore().load(), outfit, reason: 'kept for the next start');
+    expect(File('${root.path}/toy/outfit.json').existsSync(), isTrue);
+
+    final button = dependencies.createPocketButtonStore();
+    expect(await button.hidden(), isFalse);
+    await button.hide(hidden: true);
+    expect(await dependencies.createPocketButtonStore().hidden(), isTrue);
+    await button.hide(hidden: false);
+    expect(await button.hidden(), isFalse);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createPocketModelStore keeps the pocket model in one file under the support directory (plan 9.2)', () async {
+    final root = Directory.systemTemp.createTempSync('pocket_model_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createPocketModelStore();
+    expect(store, isA<FilePocketModelStore>());
+    expect(await store.load(), isNull);
+
+    final model = PocketModel(tokens: 64, lastFed: DateTime.utc(2026, 11, 14, 3));
+    await store.save(model);
+    expect(await dependencies.createPocketModelStore().load(), model, reason: 'kept for the next start');
+    expect(File('${root.path}/toy/pocket_model.json').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+
+    File('${root.path}/toy/pocket_model.json').writeAsStringSync('not json');
+    expect(await store.load(), isNull, reason: 'a file it cannot read starts a fresh model');
   });
 
   test('createReadingPlaceStore keeps the places in one file under the support directory (plan 1BA)', () async {

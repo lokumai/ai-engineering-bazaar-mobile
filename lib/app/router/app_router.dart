@@ -11,6 +11,11 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
@@ -22,6 +27,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {
@@ -66,7 +72,15 @@ class AppRouterFactory {
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
             child: DevConsoleShortcut(
-              child: BazaarShell(location: state.uri.path, child: child),
+              // The pocket model's round button, in the corner of Home (plan 9.4, 9.9).
+              // The reader can hide it in Settings (plan 9.9).
+              child: BlocBuilder<PocketButtonCubit, bool>(
+                builder: (context, shown) => BazaarShell(
+                  location: state.uri.path,
+                  assistant: shown ? const PocketAssistantButton() : null,
+                  child: child,
+                ),
+              ),
             ),
           ),
           routes: [
@@ -79,13 +93,18 @@ class AppRouterFactory {
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
             _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
-            // The Caravan tab, under maintenance until the bundle carries the web's timeline (plan 3.1).
+            // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
             ...GuideFeatureRoutes.routes(),
+            ...PocketModelFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
               crashReports: crashReports,
+              // The robot in its outfit beside Settings' Wardrobe row (plan 9.10).
+              wardrobePicture: (side) => Builder(
+                builder: (context) => RobotPortrait(size: side, ground: context.bazaarColors.surfaceRaised),
+              ),
             ),
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),

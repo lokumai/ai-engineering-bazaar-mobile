@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The launch screen: the dark page colour the opening animation starts on, so the start reads as one piece. -->
+<!-- The launch screen: the cream ground of the default app icon, where the opening starts, so the start reads as one piece. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/bazaar_page" />
+    <item android:drawable="@color/ic_launcher_cream_background" />
 </layer-list>
