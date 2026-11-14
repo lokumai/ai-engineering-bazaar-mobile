@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/module_sentences.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/content_builders.dart';
@@ -63,7 +64,7 @@ void main() {
     });
 
     test('a sentence of fewer than three words is left out, and a long one is cut', () {
-      final long = List.generate(30, (i) => 'w$i').join(' ');
+      final long = List.generate(30, (i) => 'w${String.fromCharCode(97 + i % 26)}').join(' ');
       final doc = testDoc(body: [ParagraphBlock(inlines: _text('Too short. $long'), lead: false)]);
       final sentences = sentencesOf(doc);
       expect(sentences.map((sentence) => sentence.length), [24, 6]);
@@ -132,6 +133,53 @@ void main() {
       );
       expect(textOf(doc).sections, [0]);
       expect(textOf(testDoc()).sections, [0]);
+    });
+
+    test('an aside is left out: a link out, a lead into what it does not read, a figure, the course itself', () {
+      ParagraphBlock paragraph(List<Inline> inlines) => ParagraphBlock(inlines: inlines, lead: false);
+      final doc = testDoc(
+        body: [
+          paragraph([
+            ..._text('Attention weighs every token. We come back to it in '),
+            const LinkInline(
+              target: ModuleTarget(key: 'alpha/second', track: Track.engineers, lang: 'en', fragment: null),
+              inlines: [TextInline(text: 'Another Part')],
+            ),
+            ..._text('. Read the docs at '),
+            const LinkInline(
+              target: ExternalTarget(url: 'https://example.com'),
+              inlines: [TextInline(text: 'the site')],
+            ),
+            ..._text('. See '),
+            const LinkInline(
+              target: AnchorTarget(id: 'why'),
+              inlines: [TextInline(text: 'the part on why')],
+            ),
+            ..._text(' here.'),
+          ]),
+          paragraph(_text('Models come in three rough sizes:')),
+          paragraph(_text('The figure above shows two turns. This module is about training. A model reads tokens.')),
+          paragraph(_text('Recall at 5 is 2 / 2 = 1.0 here.')),
+        ],
+      );
+      expect(sentencesOf(doc), [
+        ['attention', 'weighs', 'every', 'token'],
+        ['see', 'the', 'part', 'on', 'why', 'here'],
+        ['a', 'model', 'reads', 'tokens'],
+      ]);
+    });
+
+    test('an aside in Turkish and in Persian', () {
+      expect(isAside('Yukarıdaki şekilde iki turn var.', 'tr'), isTrue);
+      expect(isAside('Bu modül parametrelerin nereden geldiğini anlatıyor.', 'tr'), isTrue);
+      expect(isAside('Model bunu en olası şekilde tahmin eder.', 'tr'), isFalse, reason: 'şekilde, in a manner');
+      expect(
+        isAside(
+          '\u0634\u06a9\u0644 \u0628\u0627\u0644\u0627 \u062f\u0648 \u0646\u0648\u0628\u062a \u0631\u0648 \u0646\u0634\u0648\u0646 \u0645\u06cc\u200c\u062f\u0647.',
+          'fa',
+        ),
+        isTrue,
+      );
     });
 
     test('a planned module has no prose', () {

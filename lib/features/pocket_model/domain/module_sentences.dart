@@ -2,7 +2,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 
 /// A course module's prose as the pocket model reads it (plan 9.6): sentences of lower-case words, each ending where
 /// the module's sentence ends. Its prose is its paragraphs, headings, lists, quotes and callouts; its code, tables,
-/// images and diagrams are left out, as a reader's eye passes over them. After the prose come its quiz's questions,
+/// images and diagrams are left out, as a reader's eye passes over them. A sentence that means nothing without what is
+/// left out, or that speaks of the course rather than of its subject, is left out too ([isAside]). After the prose come its quiz's questions,
 /// each followed by its right answer as a sentence of its own; the wrong options are never read. A planned module, with
 /// no body, has none.
 ///
@@ -30,11 +31,14 @@ ModuleText textOf(ModuleDoc doc) {
 
   void prose(String text) {
     for (final part in text.split(_sentenceEnd)) {
+      if (isAside(part, doc.lang)) continue;
       final words = wordsOf(part, doc.lang);
       // A sentence too short to teach a pair is left out; a long one is cut, as the model's own are short.
       for (var at = 0; at < words.length; at += _longest) {
         final piece = words.sublist(at, (at + _longest).clamp(0, words.length));
-        if (piece.length >= 3) sentences.add(piece);
+        // A row of numbers, as a worked sum or a score, is not a sentence to learn from.
+        final numbers = piece.where((word) => word.contains(_digit)).length;
+        if (piece.length >= 3 && numbers * 3 <= piece.length) sentences.add(piece);
       }
     }
   }
@@ -85,6 +89,42 @@ List<String> wordsOf(String text, String language) {
 
 const _longest = 24;
 
+final _digit = RegExp(r'\p{N}', unicode: true);
+
+/// Whether the sentence [text] in [language] is an aside the robot does not learn from (the owner, 2026-11-14): one
+/// that points to another module or out of the course (a link), one that leads into a list, a table, a picture or
+/// code it does not read (it ends in a colon), or one that speaks of a figure, of what stands above or below it, or of
+/// the course itself ("this module", "we said earlier").
+bool isAside(String text, String language) {
+  final sentence = text.trim();
+  if (sentence.contains(_link) || sentence.endsWith(':') || sentence.endsWith('\uff1a')) return true;
+  final lower = language == 'tr'
+      ? sentence.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase()
+      : sentence.toLowerCase();
+  return (_asides[language] ?? _asides['en']!).hasMatch(lower);
+}
+
+/// What a link's words are marked with, so the sentence it stands in is known for an aside.
+const _link = '\u0001';
+
+/// The words of an aside, by language: a figure or a diagram, what stands above or below, and the course speaking of
+/// itself. Each was checked against the course's own sentences, so a word that also means something else ("şekilde",
+/// in a manner; "بالا", high) is matched only in the phrase that points.
+final Map<String, RegExp> _asides = {
+  'en': RegExp(
+    r'\b(figure|diagram|above|below|this module|next module|previous module|this series|this course|earlier|'
+    r'we (said|saw|covered|described|looked at|learned)|you learned)\b',
+  ),
+  'tr': RegExp(
+    r'(yukarıda|aşağıda|diyagram|şekil \d|bu modül|sonraki modül|önceki modül|seride|serideki|daha önce '
+    r'(anlat|gör|söyle|bahset)|demiştik|görmüştük|tablodaki|tabloda)',
+  ),
+  'fa': RegExp(
+    r'(شکل بالا|شکل زیر|نمودار|جدول بالا|بالاتر|پایین\u200cتر|این درس|این مجموعه|درس بعدی|درس قبلی|'
+    r'گفتیم|دیدیم)',
+  ),
+};
+
 final _sentenceEnd = RegExp(r'(?<=[.!?\u061f\u2026])\s+|\n+');
 
 /// Anything that is not a letter, a digit, an apostrophe, a hyphen or a zero-width non-joiner.
@@ -106,7 +146,9 @@ String _inline(Inline inline) => switch (inline) {
   StrongInline(:final inlines) ||
   EmphasisInline(:final inlines) ||
   DeleteInline(:final inlines) => _inlineText(inlines),
-  LinkInline(:final inlines) => _inlineText(inlines),
+  // A link's words are marked: the sentence points elsewhere ([isAside]); a link within the page is read.
+  LinkInline(:final target, :final inlines) =>
+    target is AnchorTarget ? _inlineText(inlines) : '$_link${_inlineText(inlines)}',
   // Inline code is a name in code, not a word of the prose.
   _ => ' ',
 };
