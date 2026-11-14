@@ -8,6 +8,48 @@ import 'package:flutter/rendering.dart';
 /// The face the robot shows.
 enum RobotFace { calm, happy, eating, hungry, asleep, overfit, hallucinating, cold }
 
+/// A short turn the robot plays on top of its face: one of several, so a tap or a feed does not do the same thing
+/// every time. Each runs for [RobotTricks.length] seconds.
+enum RobotTrick {
+  /// Pet: it blushes and wiggles side to side.
+  wiggle,
+
+  /// Pet: its fez hops off its head, turns once, and lands.
+  fezHop,
+
+  /// Petted three times fast: its fez flies high, spinning, and falls back on, while it gapes.
+  fezFly,
+
+  /// Pet: stars for eyes.
+  starEyes,
+
+  /// Pet: the tassel's bead swings round and round.
+  tasselSpin,
+
+  /// Asked: it thinks before it speaks, dots on its screen, eyes up, the bead blinking.
+  thinking,
+
+  /// Speaking hot: its face flickers like a bad signal.
+  glitch,
+
+  /// Idle: a yawn.
+  yawn,
+}
+
+/// How long each trick runs, in seconds.
+abstract final class RobotTricks {
+  static double length(RobotTrick trick) => switch (trick) {
+    RobotTrick.wiggle => 0.9,
+    RobotTrick.fezHop => 0.8,
+    RobotTrick.fezFly => 1.5,
+    RobotTrick.starEyes => 1.4,
+    RobotTrick.tasselSpin => 1.2,
+    RobotTrick.thinking => 0.7,
+    RobotTrick.glitch => 1.6,
+    RobotTrick.yawn => 1.5,
+  };
+}
+
 /// One moment of the pocket model's stage, as the painter draws it.
 final class RobotFrame {
   const RobotFrame({
@@ -21,7 +63,20 @@ final class RobotFrame {
     required this.particles,
     required this.alive,
     required this.mirrored,
+    this.trick,
+    this.trickTime = 0,
   });
+
+  /// The trick it is playing, if any, and how many seconds into it.
+  final RobotTrick? trick;
+  final double trickTime;
+
+  /// How far into its trick it is, 0 to 1, or null when it plays none.
+  double? trickAt(RobotTrick which) {
+    if (trick != which) return null;
+    final t = trickTime / RobotTricks.length(which);
+    return t < 0 || t > 1 ? null : t;
+  }
 
   /// Seconds on the stage's clock.
   final double time;
@@ -46,8 +101,9 @@ final class RobotFrame {
   final bool mirrored;
 }
 
-/// What flies on the stage.
-enum ParticleKind { token, heart, confetti, spark }
+/// What flies on the stage: the tokens it eats, hearts, confetti, sparks, the crumbs it drops, the stars of a new word,
+/// its frosty breath when cold, and the bubble of a burp.
+enum ParticleKind { token, heart, confetti, spark, crumb, star, frost, burp }
 
 /// One thing flying: born at [born] seconds on the stage's clock, living [life] seconds.
 final class Particle {
@@ -60,6 +116,7 @@ final class Particle {
     this.label = '',
     this.color = const Color(0xffddb46a),
     this.spin = 0,
+    this.swirl = 0,
   });
 
   final ParticleKind kind;
@@ -72,6 +129,9 @@ final class Particle {
   final String label;
   final Color color;
   final double spin;
+
+  /// A token that spirals into the mouth instead of arcing: the whirl's first radius, as a fraction of the stage's width.
+  final double swirl;
 
   /// How far along its life it is at [time], or null when not yet born or gone.
   double? at(double time) {
@@ -141,6 +201,10 @@ class PocketRobotPainter extends CustomPainter {
     _rug(canvas, size, feet, s);
     final breathe = f.alive ? math.sin(f.time * 2 * math.pi / 2.6) : 0.0;
     final sway = f.alive && f.face != RobotFace.asleep ? math.sin(f.time * 2 * math.pi / 3.4) * 0.03 : 0.0;
+    final wiggleAt = f.trickAt(RobotTrick.wiggle);
+    final wiggle = wiggleAt == null ? 0.0 : math.sin(wiggleAt * 2 * math.pi * 3.5) * 0.09 * (1 - wiggleAt);
+    final yawnAt = f.trickAt(RobotTrick.yawn);
+    final stretch = yawnAt == null ? 1.0 : 1 + 0.05 * math.sin(math.pi * yawnAt);
     final lift = f.hop * 26 * s;
 
     // The shadow shrinks as it hops.
@@ -152,8 +216,8 @@ class PocketRobotPainter extends CustomPainter {
     canvas
       ..save()
       ..translate(feet.dx, feet.dy - lift)
-      ..rotate(sway)
-      ..scale(s);
+      ..rotate(sway + wiggle)
+      ..scale(s, s * stretch);
     if (f.mirrored) canvas.scale(-1, 1);
     _body(canvas, f, breathe);
     canvas.restore();
@@ -252,32 +316,94 @@ class PocketRobotPainter extends CustomPainter {
     canvas
       ..drawRRect(head, Paint()..color = RobotColors.rim)
       ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
-    _face(canvas, f);
+    if (f.trickAt(RobotTrick.glitch) != null) {
+      // A bad signal: the face jumps now and then, and splits into two ghosts, magenta and cyan.
+      final jump = math.sin(f.time * 23) > 0.3 ? 1.0 : 0.0;
+      final jitter = Offset(math.sin(f.time * 91) * 2.6, math.sin(f.time * 57) * 1.2) * jump;
+      canvas
+        ..save()
+        ..clipRRect(head.deflate(4))
+        ..save()
+        ..translate(2.6 + jitter.dx, jitter.dy);
+      _face(canvas, f, tint: const Color(0x88ff4fd8));
+      canvas
+        ..restore()
+        ..save()
+        ..translate(-2.6 + jitter.dx, jitter.dy);
+      _face(canvas, f, tint: const Color(0x884fe8ff));
+      canvas
+        ..restore()
+        ..save()
+        ..translate(jitter.dx, 0);
+      _face(canvas, f);
+      canvas
+        ..restore()
+        ..restore();
+    } else {
+      _face(canvas, f);
+    }
     _fez(canvas, f);
     canvas.restore();
   }
 
-  void _face(Canvas canvas, RobotFrame f) {
-    final glowColour = switch (f.face) {
-      RobotFace.happy || RobotFace.eating => RobotColors.eyeWarm,
-      RobotFace.hallucinating => RobotColors.eyeOdd,
-      RobotFace.cold => beadColour(0),
-      _ => RobotColors.eye,
-    };
+  /// The face on the screen; [tint] draws it in one colour, for the ghosts of a glitch.
+  void _face(Canvas canvas, RobotFrame f, {Color? tint}) {
+    final starry = f.trickAt(RobotTrick.starEyes) != null;
+    final glowColour =
+        tint ??
+        (starry
+            ? RobotColors.eyeWarm
+            : switch (f.face) {
+                RobotFace.happy || RobotFace.eating => RobotColors.eyeWarm,
+                RobotFace.hallucinating => RobotColors.eyeOdd,
+                RobotFace.cold => beadColour(0),
+                _ => RobotColors.eye,
+              });
+    final gaping = f.trickAt(RobotTrick.fezFly) != null;
+    final thinkingAt = f.trickAt(RobotTrick.thinking);
+    final yawnAt = f.trickAt(RobotTrick.yawn);
     final eye = Paint()..color = glowColour;
     final line = Paint()
       ..color = glowColour
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.2
       ..strokeCap = StrokeCap.round;
-    final look = Offset(f.look.dx.clamp(-1, 1) * 6, f.look.dy.clamp(-1, 1) * 4);
+    // Thinking, it looks up and away; otherwise where the finger is.
+    final look = thinkingAt != null
+        ? const Offset(5, -4)
+        : Offset(f.look.dx.clamp(-1, 1) * 6, f.look.dy.clamp(-1, 1) * 4);
     // The screen's glow.
-    canvas.drawRRect(
-      RRect.fromLTRBR(-34, -52, 34, -10, const Radius.circular(12)),
-      Paint()..color = glowColour.withValues(alpha: 0.06),
-    );
+    if (tint == null) {
+      canvas.drawRRect(
+        RRect.fromLTRBR(-34, -52, 34, -10, const Radius.circular(12)),
+        Paint()..color = glowColour.withValues(alpha: 0.06),
+      );
+    }
     for (final side in [-1.0, 1.0]) {
       final centre = Offset(side * 16, -34) + look;
+      if (gaping) {
+        // Round eyes: its fez is gone.
+        canvas
+          ..drawCircle(centre, 7.5, eye)
+          ..drawCircle(centre, 3, Paint()..color = RobotColors.head);
+        continue;
+      }
+      if (starry) {
+        canvas.drawPath(_star(centre, 9, 4), eye);
+        continue;
+      }
+      if (yawnAt != null) {
+        // Half shut, then a squeeze at the yawn's widest.
+        final shut = 0.55 + 0.4 * math.sin(math.pi * yawnAt);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromCenter(center: centre, width: 10, height: 14 * (1 - shut)),
+            const Radius.circular(5),
+          ),
+          eye,
+        );
+        continue;
+      }
       switch (f.face) {
         case RobotFace.asleep:
           canvas.drawArc(Rect.fromCenter(center: centre, width: 14, height: 9), 0.2, math.pi - 0.4, false, line);
@@ -315,8 +441,8 @@ class PocketRobotPainter extends CustomPainter {
           }
       }
     }
-    // Cheeks when happy.
-    if (f.face == RobotFace.happy) {
+    // Cheeks when happy, and when it blushes.
+    if (tint == null && (f.face == RobotFace.happy || f.trickAt(RobotTrick.wiggle) != null)) {
       for (final side in [-1.0, 1.0]) {
         canvas.drawOval(
           Rect.fromCenter(center: Offset(side * 27, -22), width: 10, height: 6),
@@ -331,6 +457,27 @@ class PocketRobotPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.6
       ..strokeCap = StrokeCap.round;
+    if (gaping) {
+      canvas.drawOval(Rect.fromCenter(center: mouth, width: 9, height: 10), Paint()..color = glowColour);
+      return;
+    }
+    if (yawnAt != null) {
+      final open = 3 + 11 * math.sin(math.pi * yawnAt);
+      canvas.drawOval(Rect.fromCenter(center: mouth, width: 11, height: open), Paint()..color = glowColour);
+      return;
+    }
+    if (thinkingAt != null) {
+      // Three dots in turn, as a model's reply waits.
+      for (var i = 0; i < 3; i++) {
+        final beat = math.sin((thinkingAt * 3 - i * 0.33) * 2 * math.pi);
+        canvas.drawCircle(
+          mouth + Offset((i - 1) * 7.0, -beat.clamp(0, 1) * 2),
+          2.2,
+          Paint()..color = glowColour.withValues(alpha: 0.35 + 0.65 * beat.clamp(0, 1)),
+        );
+      }
+      return;
+    }
     switch (f.face) {
       case RobotFace.eating:
         final open = 4 + 3 * math.sin(f.time * 2 * math.pi / 0.28).abs();
@@ -372,10 +519,25 @@ class PocketRobotPainter extends CustomPainter {
 
   void _fez(Canvas canvas, RobotFrame f) {
     // The fez sits tilted on the head; its tassel ends in the bead, which glows in the temperature's colour.
+    // A hop turns it once in the air; a flight sends it high, spinning, and drops it back on.
+    var lift = 0.0;
+    var turn = 0.0;
+    var drift = 0.0;
+    if (f.trickAt(RobotTrick.fezHop) case final t?) {
+      lift = math.sin(math.pi * t) * 24;
+      turn = t * 2 * math.pi;
+    }
+    if (f.trickAt(RobotTrick.fezFly) case final t?) {
+      lift = 4 * 70 * t * (1 - t);
+      turn = t * 4 * math.pi;
+      drift = math.sin(t * math.pi) * 16;
+    }
     canvas
       ..save()
-      ..translate(10, -60)
-      ..rotate(0.16);
+      ..translate(10 + drift, -60 - lift)
+      ..translate(0, -10)
+      ..rotate(0.16 + turn)
+      ..translate(0, 10);
     final fez = Path()
       ..moveTo(-16, 2)
       ..lineTo(-12, -22)
@@ -395,17 +557,28 @@ class PocketRobotPainter extends CustomPainter {
         Paint()..color = RobotColors.fezDark,
       );
     final swing = f.alive ? math.sin(f.time * 2 * math.pi / 1.6) * 3 : 0.0;
-    final bead = Offset(19 + swing, -2);
+    var bead = Offset(19 + swing, -2);
+    var bend = const Offset(14, -26);
+    if (f.trickAt(RobotTrick.tasselSpin) case final t?) {
+      // The bead swings round the fez's top, twice, on a taut cord.
+      final a = 0.71 + t * 4 * math.pi;
+      bead = const Offset(0, -24) + Offset(math.sin(a), math.cos(a)) * 27;
+      bend = Offset.lerp(const Offset(0, -24), bead, 0.5)!;
+    }
     canvas.drawPath(
       Path()
         ..moveTo(0, -24)
-        ..quadraticBezierTo(14, -26, bead.dx, bead.dy - 4),
+        ..quadraticBezierTo(bend.dx, bend.dy, bead.dx, bead.dy - 4),
       Paint()
         ..color = RobotColors.ink
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6,
     );
-    final colour = beadColour(f.temperature);
+    // Thinking, the bead blinks.
+    final thinking = f.trickAt(RobotTrick.thinking) != null;
+    final colour = thinking && math.sin(f.time * 2 * math.pi * 4) < 0
+        ? beadColour(f.temperature).withValues(alpha: 0.35)
+        : beadColour(f.temperature);
     final pulse = f.alive ? 0.5 + 0.5 * math.sin(f.time * 2 * math.pi / 1.4) : 0.6;
     canvas
       ..drawCircle(
@@ -426,10 +599,17 @@ class PocketRobotPainter extends CustomPainter {
       final to = Offset(p.to.dx * size.width, p.to.dy * size.height);
       switch (p.kind) {
         case ParticleKind.token:
-          // An arc into the robot's mouth, shrinking as it is swallowed.
+          // An arc into the robot's mouth, or a whirl that closes on it, shrinking as it is swallowed.
           final e = Curves.easeInCubic.transform(t);
-          final control = Offset((from.dx + to.dx) / 2, math.min(from.dy, to.dy) - size.height * 0.45);
-          final pos = _quad(from, control, to, e);
+          final Offset pos;
+          if (p.swirl > 0) {
+            final a = p.spin + (1 - e) * 3 * math.pi;
+            final r = p.swirl * size.width * (1 - e);
+            pos = to + Offset(math.cos(a) * r, math.sin(a) * r * 0.6);
+          } else {
+            final control = Offset((from.dx + to.dx) / 2, math.min(from.dy, to.dy) - size.height * 0.45);
+            pos = _quad(from, control, to, e);
+          }
           final scale = t < 0.85 ? 1.0 : 1 - (t - 0.85) / 0.15;
           canvas
             ..save()
@@ -471,8 +651,53 @@ class PocketRobotPainter extends CustomPainter {
         case ParticleKind.spark:
           final pos = Offset.lerp(from, to, t)!;
           canvas.drawCircle(pos, 2.4 * (1 - t), Paint()..color = p.color.withValues(alpha: 1 - t));
+        case ParticleKind.crumb:
+          // Off the chin and down.
+          final pos = Offset.lerp(from, to, t)! + Offset(0, t * t * size.height * 0.25);
+          canvas.drawRect(
+            Rect.fromCenter(center: pos, width: 3.2, height: 3.2),
+            Paint()..color = p.color.withValues(alpha: (1 - t * t).clamp(0, 1)),
+          );
+        case ParticleKind.star:
+          // A sparkle that swells and fades: a new word.
+          final pos = Offset.lerp(from, to, t)!;
+          final r = 7 * math.sin(math.pi * t);
+          canvas.drawPath(_star(pos, r, r * 0.3, points: 4), Paint()..color = p.color.withValues(alpha: 1 - t * 0.5));
+        case ParticleKind.frost:
+          // A puff of cold breath, widening as it drifts.
+          final pos = Offset.lerp(from, to, Curves.easeOut.transform(t))!;
+          canvas.drawCircle(pos, 3 + 9 * t, Paint()..color = p.color.withValues(alpha: 0.8 * (1 - t)));
+        case ParticleKind.burp:
+          // A small bubble with the end of a sentence in it, rising and popping.
+          final pos = Offset.lerp(from, to, Curves.easeOut.transform(t))!;
+          final alpha = t < 0.85 ? 1.0 : 1 - (t - 0.85) / 0.15;
+          final r = 13 + 3 * t;
+          canvas
+            ..drawCircle(pos, r, Paint()..color = const Color(0xfffdfbf7).withValues(alpha: 0.9 * alpha))
+            ..drawCircle(
+              pos,
+              r,
+              Paint()
+                ..color = RobotColors.ink.withValues(alpha: 0.5 * alpha)
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 1.2,
+            );
+          final end = _letter(p.label, 8.5, RobotColors.ink);
+          end.paint(canvas, pos - Offset(end.width / 2, end.height / 2));
       }
     }
+  }
+
+  /// A star of [points] points round [c], its tips at [outer] and its notches at [inner].
+  static Path _star(Offset c, double outer, double inner, {int points = 5}) {
+    final path = Path();
+    for (var i = 0; i < points * 2; i++) {
+      final r = i.isEven ? outer : inner;
+      final a = -math.pi / 2 + i * math.pi / points;
+      final at = c + Offset(math.cos(a) * r, math.sin(a) * r);
+      i == 0 ? path.moveTo(at.dx, at.dy) : path.lineTo(at.dx, at.dy);
+    }
+    return path..close();
   }
 
   static Offset _quad(Offset a, Offset b, Offset c, double t) {

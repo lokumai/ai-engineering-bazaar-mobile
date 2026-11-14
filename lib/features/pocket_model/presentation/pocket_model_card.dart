@@ -64,6 +64,16 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   double? _hopAt;
   double? _eatAt;
   double? _joyAt;
+
+  /// The tricks to play, each from its start on the stage's clock; the latest started one shows.
+  final List<(RobotTrick, double)> _tricks = [];
+
+  /// When it was last petted, to catch three pets in a row.
+  final List<double> _pets = [];
+
+  /// The words it knew at the last feed, to see a feed teach it new ones.
+  int? _known;
+  Timer? _glance;
   Offset _look = Offset.zero;
   Offset _lookTarget = Offset.zero;
   final List<Particle> _particles = [];
@@ -88,6 +98,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   @override
   void dispose() {
     _blinker?.cancel();
+    _glance?.cancel();
     _ticker.dispose();
     _frame.dispose();
     super.dispose();
@@ -102,6 +113,10 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       final state = context.read<PocketModelBloc>().state;
       if (!_reduced && state is PocketModelReady && state.awake) {
         _blinkAt = _time;
+        // Now and then, when nothing else is going on, it yawns or looks about.
+        if (_activeTrick == null && _particles.isEmpty && _random.nextDouble() < 0.2) {
+          _random.nextBool() ? _trick(RobotTrick.yawn) : _lookAbout();
+        }
         _wake(lively: false);
       }
       _scheduleBlink();
@@ -131,7 +146,9 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         _time < _activeUntil ||
         _particles.isNotEmpty ||
         (_blinkAt != null && _time - _blinkAt! < 0.2) ||
-        (_hopAt != null && _time - _hopAt! < 0.6);
+        (_hopAt != null && _time - _hopAt! < 0.6) ||
+        _tricks.any((t) => _time < t.$2 + RobotTricks.length(t.$1)) ||
+        (_look - _lookTarget).distance > 0.01;
     _frame.value++;
     if (!busy) _ticker.stop();
   }
@@ -165,18 +182,20 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   /// Plays the model's latest action once: what flies, the hop, the face, the tick under the finger.
   void _play(PocketModelReady state) {
     final reduced = _reduced;
+    final learnt = _known == null ? 0 : state.known - _known!;
+    _known = state.known;
     switch (state.action) {
       case PocketAction.fed:
         HapticFeedback.lightImpact();
         _eatAt = _time;
-        if (!reduced) _throwTokens(state.read);
+        if (!reduced) _eat(state, learnt);
       case PocketAction.levelUp:
         HapticFeedback.mediumImpact();
         _eatAt = _time;
         _joyAt = _time + 0.6;
         _hopAt = _time + 0.6;
         if (!reduced) {
-          _throwTokens(state.read);
+          _eat(state, learnt);
           _confetti();
         }
       case PocketAction.overfit || PocketAction.refused:
@@ -185,17 +204,101 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       case PocketAction.petted:
         HapticFeedback.selectionClick();
         _joyAt = _time;
-        _hopAt = _time;
-        if (!reduced) _hearts();
+        if (!reduced) _pet();
       case PocketAction.woke:
         HapticFeedback.selectionClick();
         _joyAt = _time;
         _hopAt = _time;
       case PocketAction.recovered:
         _joyAt = _time;
-      case PocketAction.spoke || PocketAction.none:
+      case PocketAction.spoke:
+        if (!reduced) _speak(state);
+      case PocketAction.none:
     }
     _wake();
+  }
+
+  /// The trick showing now: the latest started that has not ended.
+  RobotTrick? get _activeTrick => _activeTrickAt?.$1;
+
+  (RobotTrick, double)? get _activeTrickAt {
+    (RobotTrick, double)? showing;
+    for (final t in _tricks) {
+      if (_time >= t.$2 && _time < t.$2 + RobotTricks.length(t.$1) && (showing == null || t.$2 >= showing.$2)) {
+        showing = t;
+      }
+    }
+    return showing;
+  }
+
+  void _trick(RobotTrick trick, {double after = 0}) {
+    _tricks
+      ..removeWhere((t) => _time > t.$2 + RobotTricks.length(t.$1))
+      ..add((trick, _time + after));
+  }
+
+  /// A pet: one of five turns at random; three pets in a row send its fez flying.
+  void _pet() {
+    _pets
+      ..removeWhere((at) => _time - at > 1.5)
+      ..add(_time);
+    if (_pets.length >= 3) {
+      _pets.clear();
+      _hopAt = _time;
+      _joyAt = null;
+      _trick(RobotTrick.fezFly);
+      return;
+    }
+    switch (_random.nextInt(5)) {
+      case 0:
+        _hopAt = _time;
+        _hearts();
+      case 1:
+        _trick(RobotTrick.wiggle);
+      case 2:
+        _trick(RobotTrick.fezHop);
+      case 3:
+        _joyAt = null;
+        _trick(RobotTrick.starEyes);
+        _sparkle(4, around: _mouth - const Offset(0, 0.12));
+      default:
+        _trick(RobotTrick.tasselSpin);
+    }
+  }
+
+  /// A feed: the tokens arc or whirl in, it chews and drops crumbs, now and then burps, and new words sparkle.
+  void _eat(PocketModelReady state, int learnt) {
+    _throwTokens(state.read, swirl: _random.nextDouble() < 0.4);
+    _crumbs();
+    if (_random.nextDouble() < 0.2) _burp();
+    if (learnt > 0) _sparkle(math.min(learnt, 5), around: _mouth - const Offset(0, 0.1), after: 0.6);
+  }
+
+  /// Asked: it thinks first; then, hot, its face flickers, and cold, its breath frosts.
+  void _speak(PocketModelReady state) {
+    _trick(RobotTrick.thinking);
+    if (state.speech?.hallucinating ?? false) {
+      _trick(RobotTrick.glitch, after: RobotTricks.length(RobotTrick.thinking));
+    } else if (state.temperature < cold) {
+      _frost(after: RobotTricks.length(RobotTrick.thinking));
+    }
+  }
+
+  /// Looks to one side, then the other, then ahead again.
+  void _lookAbout() {
+    final side = _random.nextBool() ? 1.0 : -1.0;
+    _lookTarget = Offset(side * 0.9, -0.2);
+    _glance?.cancel();
+    _glance = Timer(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      _lookTarget = Offset(-side * 0.9, -0.1);
+      _wake(lively: false);
+      _glance = Timer(const Duration(milliseconds: 900), () {
+        if (!mounted) return;
+        _lookTarget = Offset.zero;
+        _wake(lively: false);
+      });
+    });
   }
 
   String get _alphabet => switch (Localizations.localeOf(context).languageCode) {
@@ -204,7 +307,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   };
 
   /// Throws the first letters of the words it read into its mouth; letters at random when it read none.
-  void _throwTokens(List<String> read) {
+  void _throwTokens(List<String> read, {bool swirl = false}) {
     const palette = [Color(0xffddb46a), Color(0xff63b2ab), Color(0xffc9c6e4), Color(0xffe6dac6), Color(0xffc9785f)];
     final mouth = _mouth;
     for (var i = 0; i < 5; i++) {
@@ -219,7 +322,72 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
               ? String.fromCharCode(read[i].runes.first)
               : _alphabet[_random.nextInt(_alphabet.length)],
           color: palette[i % palette.length],
-          spin: (_random.nextDouble() - 0.5) * 6,
+          spin: swirl ? i * 2 * math.pi / 5 : (_random.nextDouble() - 0.5) * 6,
+          swirl: swirl ? 0.22 : 0,
+        ),
+      );
+    }
+  }
+
+  void _crumbs() {
+    const palette = [Color(0xffddb46a), Color(0xffc8a078), Color(0xffe6dac6)];
+    final mouth = _mouth + const Offset(0, 0.04);
+    for (var i = 0; i < 6; i++) {
+      _particles.add(
+        Particle(
+          kind: ParticleKind.crumb,
+          born: _time + 0.75 + i * 0.05,
+          life: 0.7,
+          from: mouth,
+          to: mouth + Offset((_random.nextDouble() - 0.5) * 0.14, 0.02),
+          color: palette[i % palette.length],
+        ),
+      );
+    }
+  }
+
+  void _burp() {
+    final side = _mirrored ? 1.0 : -1.0;
+    _particles.add(
+      Particle(
+        kind: ParticleKind.burp,
+        born: _time + 1.1,
+        life: 1.2,
+        from: _mouth + Offset(side * 0.05, -0.02),
+        to: _mouth + Offset(side * 0.12, -0.3),
+        label: '</s>',
+      ),
+    );
+  }
+
+  void _sparkle(int count, {required Offset around, double after = 0}) {
+    for (var i = 0; i < count; i++) {
+      final a = _random.nextDouble() * 2 * math.pi;
+      final at = around + Offset(math.cos(a) * 0.1, math.sin(a) * 0.12);
+      _particles.add(
+        Particle(
+          kind: ParticleKind.star,
+          born: _time + after + i * 0.1,
+          life: 0.8,
+          from: at,
+          to: at + const Offset(0, -0.05),
+          color: const Color(0xffffd88a),
+        ),
+      );
+    }
+  }
+
+  void _frost({double after = 0}) {
+    final side = _mirrored ? 1.0 : -1.0;
+    for (var i = 0; i < 4; i++) {
+      _particles.add(
+        Particle(
+          kind: ParticleKind.frost,
+          born: _time + after + i * 0.25,
+          life: 1.2,
+          from: _mouth + Offset(side * 0.02, 0),
+          to: _mouth + Offset(side * (0.16 + i * 0.03), -0.06 - i * 0.02),
+          color: const Color(0xffa9cdea),
         ),
       );
     }
@@ -314,6 +482,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       particles: List.unmodifiable(_particles),
       alive: !_reduced && _time < _activeUntil,
       mirrored: _mirrored,
+      trick: _activeTrickAt?.$1,
+      trickTime: _activeTrickAt == null ? 0 : _time - _activeTrickAt!.$2,
     );
   }
 
@@ -429,7 +599,14 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                           width: _stage.width * 0.56,
                           child: Align(
                             alignment: AlignmentDirectional.topStart,
-                            child: SpeechBubble(key: ValueKey(state.beat), speech: speech),
+                            child: SpeechBubble(
+                              key: ValueKey(state.beat),
+                              speech: speech,
+                              // It thinks first when asked; overfit, it blurts.
+                              delay: state.action == PocketAction.spoke && !_reduced
+                                  ? Duration(milliseconds: (RobotTricks.length(RobotTrick.thinking) * 1000).round())
+                                  : Duration.zero,
+                            ),
                           ),
                         ),
                     ],

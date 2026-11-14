@@ -10,9 +10,12 @@ import 'package:flutter/material.dart';
 /// What the model said, in a speech bubble whose tail points at the robot on its end side. It pops out of its tail,
 /// then the words stream a token at a time as a model writes, with a caret while it writes.
 class SpeechBubble extends StatefulWidget {
-  const SpeechBubble({super.key, required this.speech});
+  const SpeechBubble({super.key, required this.speech, this.delay = Duration.zero});
 
   final Babble speech;
+
+  /// How long it waits before it pops out, while the robot thinks.
+  final Duration delay;
 
   @override
   State<SpeechBubble> createState() => _SpeechBubbleState();
@@ -32,7 +35,7 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
       _controller.value = 1;
     } else {
       _controller
-        ..duration = Duration(milliseconds: _pop + widget.speech.tokens.length * 110)
+        ..duration = widget.delay + Duration(milliseconds: _pop + widget.speech.tokens.length * 110)
         ..forward();
     }
   }
@@ -57,8 +60,10 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          final total = _controller.duration?.inMilliseconds ?? _pop;
-          final elapsed = _controller.value * total;
+          final wait = widget.delay.inMilliseconds;
+          final total = (_controller.duration?.inMilliseconds ?? _pop) - wait;
+          final elapsed = _controller.value * (total + wait) - wait;
+          if (elapsed < 0) return const SizedBox.shrink();
           final pop = Curves.easeOutBack.transform((elapsed / _pop).clamp(0.0, 1.0));
           final writing = (elapsed - _pop) / math.max(1, total - _pop);
           final shown = _controller.value >= 1

@@ -111,6 +111,14 @@ void main() {
     // Cold, it writes its likeliest sentence, the one its language model writes from what it read.
     final said = TinyLm.trained('en', 2000).write(temperature: 0, random: math.Random()).tokens;
     await tester.pump(const Duration(milliseconds: 100));
+    expect(_frame(tester).trick, RobotTrick.thinking, reason: 'it thinks before it speaks');
+    expect(find.byType(SpeechBubble), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(SpeechBubble), matching: find.byType(Text)),
+      findsNothing,
+      reason: 'nothing said while it thinks',
+    );
+    await tester.pump(const Duration(milliseconds: 700));
     expect(find.textContaining('${said.first} |'), findsNothing, reason: 'the bubble pops out first');
     await tester.pump(const Duration(milliseconds: 120));
     expect(find.textContaining('${said.first} |'), findsOneWidget, reason: 'the first token, and the caret');
@@ -171,7 +179,7 @@ void main() {
     await _rest(tester);
   });
 
-  testWidgets('a tap on the robot pets it: hearts and a happy face', (tester) async {
+  testWidgets('a tap on the robot pets it: one of its five turns', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: clock.now())));
     final semantics = tester.ensureSemantics();
     await tester.pump();
@@ -180,8 +188,13 @@ void main() {
     await tester.tapAt(stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.heart), isNotEmpty);
-    expect(_frame(tester).face, RobotFace.happy);
+    final frame = _frame(tester);
+    final hearts = frame.particles.any((p) => p.kind == ParticleKind.heart);
+    expect(
+      hearts ||
+          {RobotTrick.wiggle, RobotTrick.fezHop, RobotTrick.starEyes, RobotTrick.tasselSpin}.contains(frame.trick),
+      isTrue,
+    );
     semantics.dispose();
     await _rest(tester);
   });
@@ -271,6 +284,52 @@ void main() {
     expect(LossChartPainter.marks(10), isEmpty);
     expect(LossChartPainter.marks(100), [24, 80]);
     expect(LossChartPainter.marks(5000), PocketModel.levels.skip(1).toList());
+  });
+
+  testWidgets('three pets in a row send its fez flying', (tester) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: clock.now())));
+    final stage = tester.getRect(_stage);
+    final robot = stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60);
+    for (var i = 0; i < 3; i++) {
+      await tester.tapAt(robot);
+      await tester.pump(const Duration(milliseconds: 150));
+    }
+    expect(_frame(tester).trick, RobotTrick.fezFly);
+    await _rest(tester);
+  });
+
+  testWidgets('a feed is chewed: crumbs fall, and the new words it learnt sparkle', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('pocket-feed')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    final kinds = _frame(tester).particles.map((p) => p.kind).toSet();
+    expect(kinds, containsAll({ParticleKind.token, ParticleKind.crumb}));
+    expect(kinds, contains(ParticleKind.star), reason: 'its first words');
+    await _rest(tester);
+  });
+
+  testWidgets('hot, its face flickers after it thinks; cold, its breath frosts', (tester) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(-400, 0));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.frost), isNotEmpty);
+    await _rest(tester);
+
+    await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(400, 0));
+    await tester.pump();
+    for (var i = 0; i < 6; i++) {
+      await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 900));
+      if (_frame(tester).trick == RobotTrick.glitch) break;
+      await tester.pump(const Duration(seconds: 3));
+    }
+    expect(_frame(tester).trick, RobotTrick.glitch);
+    await _rest(tester);
   });
 
   testWidgets('Start over asks, then starts it again at level 0; Keep it keeps it', (tester) async {
