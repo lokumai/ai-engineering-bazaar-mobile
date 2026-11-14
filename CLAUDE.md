@@ -127,7 +127,7 @@ lib/
                                                 module's quiz at `/quiz/<level>/<module>`
     settings/                                   track, language, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
-    welcome/                                    the opening (WelcomeSting, the agent), WelcomeBloc, its store port and the
+    welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step
