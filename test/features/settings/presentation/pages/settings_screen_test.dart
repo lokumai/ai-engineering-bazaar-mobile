@@ -12,6 +12,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
@@ -72,6 +74,7 @@ GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
         builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
       ),
       GoRoute(path: '/settings/app-icon', builder: (_, _) => const Text('app icon page')),
+      GoRoute(path: '/settings/robot', builder: (_, _) => const Text('wardrobe page')),
     ],
   );
   addTearDown(router.dispose);
@@ -134,6 +137,32 @@ void main() {
     await tester.pump();
 
     expect(language.state, 'tr');
+  });
+
+  testWidgets('Customize, under Reading: the app icon, the pocket button switch and the robot wardrobe', (
+    tester,
+  ) async {
+    final store = MemoryPocketButtonStore();
+    final button = PocketButtonCubit(store: store);
+    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), pocketButton: button));
+    await tester.pump();
+
+    final customize = tester.getTopLeft(find.text('Customize')).dy;
+    expect(customize, greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy));
+    expect(tester.getTopLeft(find.byKey(const Key('settings-app-icon'))).dy, greaterThan(customize));
+    expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
+
+    final toggle = find.byKey(const Key('settings-pocket-button'));
+    expect(find.text('Pocket model button'), findsOneWidget);
+    await tester.tap(toggle);
+    await tester.pump();
+    expect(button.state, isFalse);
+    expect(store.kept, isTrue, reason: 'hidden, and kept so');
+
+    await tester.ensureVisible(find.byKey(const Key('settings-robot')));
+    await tester.tap(find.byKey(const Key('settings-robot')));
+    await tester.pumpAndSettle();
+    expect(find.text('wardrobe page'), findsOneWidget);
   });
 
   testWidgets('the App icon row under the appearance shows the icon in use, unnamed, and opens its page', (

@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/outfit_names.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart' show cold;
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
@@ -77,6 +80,9 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   Offset _lookTarget = Offset.zero;
   final List<Particle> _particles = [];
   Size _stage = Size.zero;
+
+  /// What the robot wears at its level (plan 9.9).
+  RobotOutfit _outfit = RobotOutfit.initial;
 
   bool get _reduced => MediaQuery.disableAnimationsOf(context);
 
@@ -158,7 +164,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   void _onPointer(Offset local) {
     if (_stage == Size.zero) return;
     final seat = PocketRobotPainter.seat(_stage, mirrored: _mirrored);
-    final s = PocketRobotPainter.scaleOf(_stage);
+    final s = PocketRobotPainter.scaleOf(_stage, _outfit);
     final eyes = seat - Offset(0, 112 * s);
     final mirror = _mirrored ? -1.0 : 1.0;
     _lookTarget = Offset(
@@ -174,7 +180,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   }
 
   void _onTap(TapUpDetails details) {
-    if (PocketRobotPainter.hits(_stage, details.localPosition, mirrored: _mirrored)) {
+    if (PocketRobotPainter.hits(_stage, details.localPosition, mirrored: _mirrored, outfit: _outfit)) {
       context.read<PocketModelBloc>().add(const PocketModelPetted());
     }
   }
@@ -204,7 +210,17 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       case PocketAction.petted:
         HapticFeedback.selectionClick();
         _joyAt = _time;
-        if (!reduced) _pet();
+        // Two or three quick pets while it has spoken close its bubble.
+        if (state.speech != null && _pets.where((at) => _time - at < 1.5).isNotEmpty) {
+          context.read<PocketModelBloc>().add(const PocketModelHushed());
+        }
+        if (reduced) {
+          _pets
+            ..removeWhere((at) => _time - at > 1.5)
+            ..add(_time);
+        } else {
+          _pet();
+        }
       case PocketAction.woke:
         HapticFeedback.selectionClick();
         _joyAt = _time;
@@ -271,7 +287,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         _trick(RobotTrick.starEyes);
         _sparkle(4, around: _mouth - const Offset(0, 0.12));
       default:
-        _trick(RobotTrick.tasselSpin);
+        // A hat with no tassel blushes instead.
+        _trick(_outfit.hat.tassel ? RobotTrick.tasselSpin : RobotTrick.wiggle);
     }
   }
 
@@ -405,7 +422,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   Offset get _mouth {
     if (_stage == Size.zero) return const Offset(0.5, 0.5);
     final seat = PocketRobotPainter.seat(_stage, mirrored: _mirrored);
-    final s = PocketRobotPainter.scaleOf(_stage);
+    final s = PocketRobotPainter.scaleOf(_stage, _outfit);
     final at = seat - Offset(0, 96 * s);
     return Offset(at.dx / _stage.width, at.dy / _stage.height);
   }
@@ -493,16 +510,22 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       mirrored: _mirrored,
       trick: _activeTrickAt?.$1,
       trickTime: _activeTrickAt == null ? 0 : _time - _activeTrickAt!.$2,
+      outfit: _outfit,
     );
   }
 
-  String _status(S s, PocketModelReady state, DateTime now) {
+  /// The line under its training, or null when there is nothing to say: content, it says nothing.
+  String? _status(S s, PocketModelReady state, DateTime now) {
     if (!state.awake) return s.pocket_status_asleep;
     if (state.model.overfitAt(now)) return s.pocket_status_overfit;
     switch (state.action) {
       case PocketAction.recovered:
         return s.pocket_status_recovered;
       case PocketAction.levelUp:
+        final unlocked = RobotOutfit.unlockedAt(state.model.level);
+        if (unlocked.isNotEmpty) {
+          return s.pocket_status_unlocked(state.model.level, unlocked.map((part) => outfitName(s, part)).join(', '));
+        }
         return s.pocket_status_level_up(state.model.level);
       default:
     }
@@ -511,7 +534,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     return switch (state.model.moodAt(now)) {
       PocketMood.newborn => s.pocket_status_newborn,
       PocketMood.hungry => s.pocket_status_hungry,
-      PocketMood.asleep || PocketMood.content => s.pocket_status_content,
+      PocketMood.asleep || PocketMood.content => null,
     };
   }
 
@@ -534,7 +557,12 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           children: [
             SectionRule(title: s.pocket_title),
             const SizedBox(height: AppSpacing.sm),
-            Text(s.pocket_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
+            Text(
+              s.pocket_lede,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
+            ),
             const SizedBox(height: AppSpacing.md),
             if (ready == null)
               const SizedBox(height: 380)
@@ -547,6 +575,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   }
 
   Widget _content(BuildContext context, PocketModelReady state) {
+    _outfit = context.watch<RobotOutfitCubit>().state.within(state.model.level);
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
@@ -631,18 +660,17 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
             children: [
               TrainingPanel(model: model, curve: state.curve, known: state.known),
               const SizedBox(height: AppSpacing.md),
-              AnimatedSwitcher(
-                duration: _reduced ? Duration.zero : const Duration(milliseconds: 220),
-                child: Semantics(
-                  key: ValueKey(_status(s, state, now)),
-                  liveRegion: true,
-                  child: Text(
-                    _status(s, state, now),
-                    style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface),
+              if (_status(s, state, now) case final status?) ...[
+                AnimatedSwitcher(
+                  duration: _reduced ? Duration.zero : const Duration(milliseconds: 220),
+                  child: Semantics(
+                    key: ValueKey(status),
+                    liveRegion: true,
+                    child: Text(status, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface)),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.md),
+              ],
               Row(
                 spacing: AppSpacing.sm,
                 children: [
@@ -709,7 +737,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                   Icon(Icons.local_fire_department_outlined, size: 20, color: beadColour(2)),
                 ],
               ),
-              if (model.tokens > 0)
+              // A model that read only modules can start over too.
+              if (model.total > 0)
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton.icon(

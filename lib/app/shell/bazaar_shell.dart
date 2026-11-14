@@ -46,7 +46,7 @@ import 'package:go_router/go_router.dart';
 /// (`src/lib/tracks.ts:77-114`).
 ///
 /// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
-/// navigation on the first page of Home, the catalog and the Quiz tab; never over a level's page, a module or the
+/// navigation on Home's first page only; never over the catalog, the Quiz tab, a level's page, a module or the
 /// Caravan's stage, and it goes with the navigation when a page folds it away. The reader can drag it or throw it
 /// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
 class BazaarShell extends StatefulWidget {
@@ -59,13 +59,9 @@ class BazaarShell extends StatefulWidget {
   /// The round button in the corner of some tabs' first pages.
   final Widget? assistant;
 
-  /// The pages that show the [assistant]: the first pages of Home, the catalog on either track and the Quiz tab.
-  static const Set<String> assistantPages = {
-    BazaarPaths.home,
-    BazaarPaths.catalogEngineers,
-    BazaarPaths.catalogEveryone,
-    BazaarPaths.quizzes,
-  };
+  /// The pages that show the [assistant]: Home's first page only; elsewhere it would only distract (the owner,
+  /// 2026-11-14).
+  static const Set<String> assistantPages = {BazaarPaths.home};
 
   /// The [assistant]'s width and height.
   static const double assistantSize = 58;

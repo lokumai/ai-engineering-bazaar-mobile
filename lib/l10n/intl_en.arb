@@ -988,7 +988,7 @@
   "@pocket_title": {
     "description": "Home's toy under Your path (plan 9.2): a tiny model the reader trains with tokens."
   },
-  "pocket_lede": "A toy model: it learns from what it reads, and it can talk nonsense.",
+  "pocket_lede": "A toy model that can talk nonsense.",
   "@pocket_lede": {},
   "pocket_feed": "Feed tokens",
   "@pocket_feed": {},
@@ -1058,8 +1058,6 @@
   },
   "pocket_status_newborn": "New: it knows no words yet. Feed it some tokens.",
   "@pocket_status_newborn": {},
-  "pocket_status_content": "Content, and ready to learn.",
-  "@pocket_status_content": {},
   "pocket_status_hungry": "Hungry: not fed for hours.",
   "@pocket_status_hungry": {},
   "pocket_status_asleep": "Asleep. Tap it to wake it.",
@@ -1128,5 +1126,165 @@
   "pocket_reset_keep": "Keep it",
   "@pocket_reset_keep": {
     "description": "Closes the start-over dialog and keeps the pocket model as it is."
+  },
+  "settings_customize": "Customize",
+  "@settings_customize": {
+    "description": "Settings' section for the app icon, the pocket model's button and the robot's wardrobe."
+  },
+  "settings_pocket_button": "Pocket model button",
+  "@settings_pocket_button": {
+    "description": "The switch that shows or hides the pocket model's round button."
+  },
+  "settings_pocket_button_note": "Its round button on Home.",
+  "@settings_pocket_button_note": {
+    "description": "Under the switch: where the button shows."
+  },
+  "settings_robot": "Robot's wardrobe",
+  "@settings_robot": {
+    "description": "The row in Settings that opens the robot's wardrobe, and the wardrobe's title."
+  },
+  "wardrobe_hat": "Hat",
+  "@wardrobe_hat": {
+    "description": "The wardrobe's tab of hats."
+  },
+  "wardrobe_head": "Head",
+  "@wardrobe_head": {
+    "description": "The wardrobe's tab of heads."
+  },
+  "wardrobe_body": "Body",
+  "@wardrobe_body": {
+    "description": "The wardrobe's tab of bodies."
+  },
+  "wardrobe_note": "Each level of the pocket model unlocks something new to wear.",
+  "@wardrobe_note": {
+    "description": "Under the wardrobe's choices."
+  },
+  "outfit_hat_fez": "Fez",
+  "@outfit_hat_fez": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_antenna": "Antenna",
+  "@outfit_hat_antenna": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_beanie": "Beanie",
+  "@outfit_hat_beanie": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_mortarboard": "Graduation cap",
+  "@outfit_hat_mortarboard": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_turban": "Turban",
+  "@outfit_hat_turban": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_wizard": "Wizard's hat",
+  "@outfit_hat_wizard": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_top_hat": "Top hat",
+  "@outfit_hat_top_hat": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_hat_crown": "Crown",
+  "@outfit_hat_crown": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_head_classic": "Classic screen",
+  "@outfit_head_classic": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_head_dome": "Round head",
+  "@outfit_head_dome": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_head_tv": "Old television",
+  "@outfit_head_tv": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_head_ears": "Cat ears",
+  "@outfit_head_ears": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_head_visor": "Space helmet",
+  "@outfit_head_visor": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_classic": "Classic",
+  "@outfit_body_classic": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_vest": "Embroidered vest",
+  "@outfit_body_vest": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_hoodie": "Hoodie",
+  "@outfit_body_hoodie": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_lab_coat": "Lab coat",
+  "@outfit_body_lab_coat": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_kaftan": "Kaftan",
+  "@outfit_body_kaftan": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_suit": "Suit and bow tie",
+  "@outfit_body_suit": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "outfit_body_astronaut": "Space suit",
+  "@outfit_body_astronaut": {
+    "description": "A name in the robot's wardrobe."
+  },
+  "wardrobe_item_worn": "{name}, worn",
+  "@wardrobe_item_worn": {
+    "description": "A wardrobe choice the robot wears, for a screen reader.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wardrobe_item_locked": "{name}, unlocks at level {level}",
+  "@wardrobe_item_locked": {
+    "description": "A wardrobe choice not unlocked yet, for a screen reader.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "wardrobe_preview": "The robot: {hat}, {head}, {body}",
+  "@wardrobe_preview": {
+    "description": "The wardrobe's picture of the robot, for a screen reader.",
+    "placeholders": {
+      "hat": {
+        "type": "String"
+      },
+      "head": {
+        "type": "String"
+      },
+      "body": {
+        "type": "String"
+      }
+    }
+  },
+  "pocket_status_unlocked": "Level {level}. New in its wardrobe: {items}.",
+  "@pocket_status_unlocked": {
+    "description": "The status line when a level unlocks something to wear.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "items": {
+        "type": "String"
+      }
+    }
   }
 }

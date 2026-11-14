@@ -17,6 +17,11 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,6 +38,7 @@ Future<void> _pump(
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
   bool open = true,
+  RobotOutfitCubit? outfit,
 }) async {
   tester.view.physicalSize = const Size(393, 2400);
   tester.view.devicePixelRatio = 1;
@@ -46,6 +52,7 @@ Future<void> _pump(
       pocketStore: store ?? MemoryPocketModelStore(),
       record: record == null ? null : readyRecordBloc(record),
       pocketTexts: texts,
+      robotOutfit: outfit,
       platform: platform,
       locale: locale,
     ),
@@ -73,14 +80,14 @@ final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widge
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('its round button sits on Home, the catalog and Quiz, never on a module, and opens it', (tester) async {
+  testWidgets('its round button sits on Home only, not on the catalog, Quiz or a module, and opens it', (tester) async {
     await _pump(tester, open: false);
     final button = find.byKey(const ValueKey('pocket-assistant'));
     expect(button, findsOneWidget);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
     expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
-    for (final (label, shows) in [('Catalog', true), ('Quiz', true), ('Settings', false), ('Home', true)]) {
+    for (final (label, shows) in [('Catalog', false), ('Quiz', false), ('Settings', false), ('Home', true)]) {
       await tester.tap(find.text(label).last);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -114,6 +121,25 @@ void main() {
     expect(tester.getRect(button), moved);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'a drag is not a tap');
     await _rest(tester);
+  });
+
+  testWidgets('hidden in Settings, its button is on no page', (tester) async {
+    tester.view.physicalSize = const Size(393, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final router = AppRouterFactory(initialLocation: '/').create();
+    addTearDown(router.dispose);
+    final button = PocketButtonCubit(store: MemoryPocketButtonStore(kept: true));
+    await button.load();
+    await tester.pumpWidget(bazaarTestApp(router: router, pocketButton: button));
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey('pocket-assistant')), findsNothing);
+
+    await button.show(shown: true);
+    await tester.pump();
+    expect(find.byKey(const ValueKey('pocket-assistant')), findsOneWidget);
   });
 
   testWidgets('the end of a page scrolls clear of its button', (tester) async {
@@ -209,7 +235,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pocket-feed')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Level 1: it can say more now.'), findsOneWidget);
+    expect(find.text('Level 1. New in its wardrobe: Embroidered vest.'), findsOneWidget);
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.confetti), isNotEmpty);
     await _rest(tester);
   });
@@ -491,6 +517,81 @@ void main() {
     expect(find.textContaining('0 tokens'), findsOneWidget);
     expect(find.text('The curve starts with the first feed.'), findsOneWidget);
     expect(reset, findsNothing, reason: 'a fresh model has nothing to forget');
+    await _rest(tester);
+  });
+
+  testWidgets('a model that read only modules, never fed, can start over too', (tester) async {
+    const module = [
+      ['a', 'transformer', 'stacks', 'attention', 'layers'],
+    ];
+    await _pump(
+      tester,
+      store: MemoryPocketModelStore(
+        PocketModel(
+          tokens: 0,
+          readings: const [PocketReading(key: 'alpha/first', at: 0, tokens: 6)],
+          lastFed: clock.now(),
+        ),
+      ),
+      texts: const MemoryPocketTexts({'alpha/first': module}),
+    );
+    expect(find.byKey(const ValueKey('pocket-reset')), findsOneWidget);
+    await _rest(tester);
+  });
+
+  testWidgets('closing the sheet takes its last words away; two quick pets do too', (tester) async {
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())), open: false);
+    Future<void> open() async {
+      await tester.tap(find.byKey(const ValueKey('pocket-assistant')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+    }
+
+    Future<void> ask() async {
+      await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    await open();
+    await ask();
+    expect(find.byType(SpeechBubble), findsOneWidget);
+    Navigator.of(tester.element(find.byType(PocketModelCard))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await open();
+    expect(find.byType(SpeechBubble), findsNothing, reason: 'the sheet opens again without the old bubble');
+
+    await ask();
+    expect(find.byType(SpeechBubble), findsOneWidget);
+    final stage = tester.getRect(_stage);
+    final robot = stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60);
+    await tester.tapAt(robot);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.byType(SpeechBubble), findsOneWidget, reason: 'one pet leaves it');
+    await tester.tapAt(robot);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(SpeechBubble), findsNothing, reason: 'a second pet closes it');
+    await _rest(tester);
+  });
+
+  testWidgets('it wears its outfit, a part above its level as its first, and its content says nothing', (tester) async {
+    final outfit = RobotOutfitCubit(
+      store: MemoryRobotOutfitStore(
+        const RobotOutfit(hat: RobotHat.beanie, head: RobotHead.visor, body: RobotBody.vest),
+      ),
+    );
+    await outfit.load();
+    await _pump(
+      tester,
+      store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: clock.now())),
+      outfit: outfit,
+    );
+    expect(_frame(tester).outfit, const RobotOutfit(hat: RobotHat.beanie, body: RobotBody.vest));
+    expect(find.text('Content, and ready to learn.'), findsNothing);
+    expect(find.text('A toy model that can talk nonsense.'), findsOneWidget);
     await _rest(tester);
   });
 

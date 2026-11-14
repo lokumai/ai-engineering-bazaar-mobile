@@ -2014,14 +2014,9 @@ class S {
     );
   }
 
-  /// `A toy model: it learns from what it reads, and it can talk nonsense.`
+  /// `A toy model that can talk nonsense.`
   String get pocket_lede {
-    return Intl.message(
-      'A toy model: it learns from what it reads, and it can talk nonsense.',
-      name: 'pocket_lede',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('A toy model that can talk nonsense.', name: 'pocket_lede', desc: '', args: []);
   }
 
   /// `Feed tokens`
@@ -2124,11 +2119,6 @@ class S {
       desc: '',
       args: [],
     );
-  }
-
-  /// `Content, and ready to learn.`
-  String get pocket_status_content {
-    return Intl.message('Content, and ready to learn.', name: 'pocket_status_content', desc: '', args: []);
   }
 
   /// `Hungry: not fed for hours.`
@@ -2270,6 +2260,236 @@ class S {
       name: 'pocket_reset_keep',
       desc: 'Closes the start-over dialog and keeps the pocket model as it is.',
       args: [],
+    );
+  }
+
+  /// `Customize`
+  String get settings_customize {
+    return Intl.message(
+      'Customize',
+      name: 'settings_customize',
+      desc: 'Settings\' section for the app icon, the pocket model\'s button and the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Pocket model button`
+  String get settings_pocket_button {
+    return Intl.message(
+      'Pocket model button',
+      name: 'settings_pocket_button',
+      desc: 'The switch that shows or hides the pocket model\'s round button.',
+      args: [],
+    );
+  }
+
+  /// `Its round button on Home.`
+  String get settings_pocket_button_note {
+    return Intl.message(
+      'Its round button on Home.',
+      name: 'settings_pocket_button_note',
+      desc: 'Under the switch: where the button shows.',
+      args: [],
+    );
+  }
+
+  /// `Robot's wardrobe`
+  String get settings_robot {
+    return Intl.message(
+      'Robot\'s wardrobe',
+      name: 'settings_robot',
+      desc: 'The row in Settings that opens the robot\'s wardrobe, and the wardrobe\'s title.',
+      args: [],
+    );
+  }
+
+  /// `Hat`
+  String get wardrobe_hat {
+    return Intl.message('Hat', name: 'wardrobe_hat', desc: 'The wardrobe\'s tab of hats.', args: []);
+  }
+
+  /// `Head`
+  String get wardrobe_head {
+    return Intl.message('Head', name: 'wardrobe_head', desc: 'The wardrobe\'s tab of heads.', args: []);
+  }
+
+  /// `Body`
+  String get wardrobe_body {
+    return Intl.message('Body', name: 'wardrobe_body', desc: 'The wardrobe\'s tab of bodies.', args: []);
+  }
+
+  /// `Each level of the pocket model unlocks something new to wear.`
+  String get wardrobe_note {
+    return Intl.message(
+      'Each level of the pocket model unlocks something new to wear.',
+      name: 'wardrobe_note',
+      desc: 'Under the wardrobe\'s choices.',
+      args: [],
+    );
+  }
+
+  /// `Fez`
+  String get outfit_hat_fez {
+    return Intl.message('Fez', name: 'outfit_hat_fez', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Antenna`
+  String get outfit_hat_antenna {
+    return Intl.message('Antenna', name: 'outfit_hat_antenna', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Beanie`
+  String get outfit_hat_beanie {
+    return Intl.message('Beanie', name: 'outfit_hat_beanie', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Graduation cap`
+  String get outfit_hat_mortarboard {
+    return Intl.message(
+      'Graduation cap',
+      name: 'outfit_hat_mortarboard',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Turban`
+  String get outfit_hat_turban {
+    return Intl.message('Turban', name: 'outfit_hat_turban', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Wizard's hat`
+  String get outfit_hat_wizard {
+    return Intl.message('Wizard\'s hat', name: 'outfit_hat_wizard', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Top hat`
+  String get outfit_hat_top_hat {
+    return Intl.message('Top hat', name: 'outfit_hat_top_hat', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Crown`
+  String get outfit_hat_crown {
+    return Intl.message('Crown', name: 'outfit_hat_crown', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Classic screen`
+  String get outfit_head_classic {
+    return Intl.message(
+      'Classic screen',
+      name: 'outfit_head_classic',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Round head`
+  String get outfit_head_dome {
+    return Intl.message('Round head', name: 'outfit_head_dome', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Old television`
+  String get outfit_head_tv {
+    return Intl.message('Old television', name: 'outfit_head_tv', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Cat ears`
+  String get outfit_head_ears {
+    return Intl.message('Cat ears', name: 'outfit_head_ears', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Space helmet`
+  String get outfit_head_visor {
+    return Intl.message('Space helmet', name: 'outfit_head_visor', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Classic`
+  String get outfit_body_classic {
+    return Intl.message('Classic', name: 'outfit_body_classic', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Embroidered vest`
+  String get outfit_body_vest {
+    return Intl.message(
+      'Embroidered vest',
+      name: 'outfit_body_vest',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Hoodie`
+  String get outfit_body_hoodie {
+    return Intl.message('Hoodie', name: 'outfit_body_hoodie', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Lab coat`
+  String get outfit_body_lab_coat {
+    return Intl.message('Lab coat', name: 'outfit_body_lab_coat', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Kaftan`
+  String get outfit_body_kaftan {
+    return Intl.message('Kaftan', name: 'outfit_body_kaftan', desc: 'A name in the robot\'s wardrobe.', args: []);
+  }
+
+  /// `Suit and bow tie`
+  String get outfit_body_suit {
+    return Intl.message(
+      'Suit and bow tie',
+      name: 'outfit_body_suit',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `Space suit`
+  String get outfit_body_astronaut {
+    return Intl.message(
+      'Space suit',
+      name: 'outfit_body_astronaut',
+      desc: 'A name in the robot\'s wardrobe.',
+      args: [],
+    );
+  }
+
+  /// `{name}, worn`
+  String wardrobe_item_worn(String name) {
+    return Intl.message(
+      '$name, worn',
+      name: 'wardrobe_item_worn',
+      desc: 'A wardrobe choice the robot wears, for a screen reader.',
+      args: [name],
+    );
+  }
+
+  /// `{name}, unlocks at level {level}`
+  String wardrobe_item_locked(String name, int level) {
+    return Intl.message(
+      '$name, unlocks at level $level',
+      name: 'wardrobe_item_locked',
+      desc: 'A wardrobe choice not unlocked yet, for a screen reader.',
+      args: [name, level],
+    );
+  }
+
+  /// `The robot: {hat}, {head}, {body}`
+  String wardrobe_preview(String hat, String head, String body) {
+    return Intl.message(
+      'The robot: $hat, $head, $body',
+      name: 'wardrobe_preview',
+      desc: 'The wardrobe\'s picture of the robot, for a screen reader.',
+      args: [hat, head, body],
+    );
+  }
+
+  /// `Level {level}. New in its wardrobe: {items}.`
+  String pocket_status_unlocked(int level, String items) {
+    return Intl.message(
+      'Level $level. New in its wardrobe: $items.',
+      name: 'pocket_status_unlocked',
+      desc: 'The status line when a level unlocks something to wear.',
+      args: [level, items],
     );
   }
 }

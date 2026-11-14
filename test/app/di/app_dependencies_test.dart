@@ -14,6 +14,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart'
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/content_fixture.dart';
@@ -238,6 +239,30 @@ void main() {
 
     await store.save(const {});
     expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
+  });
+
+  test('the robot outfit is one file under the support directory, the hidden button one flag (plan 9.9)', () async {
+    final root = Directory.systemTemp.createTempSync('robot_outfit_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final outfits = dependencies.createRobotOutfitStore();
+    expect(await outfits.load(), isNull);
+    const outfit = RobotOutfit(hat: RobotHat.crown, body: RobotBody.suit);
+    await outfits.save(outfit);
+    expect(await dependencies.createRobotOutfitStore().load(), outfit, reason: 'kept for the next start');
+    expect(File('${root.path}/toy/outfit.json').existsSync(), isTrue);
+
+    final button = dependencies.createPocketButtonStore();
+    expect(await button.hidden(), isFalse);
+    await button.hide(hidden: true);
+    expect(await dependencies.createPocketButtonStore().hidden(), isTrue);
+    await button.hide(hidden: false);
+    expect(await button.hidden(), isFalse);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
   test('createPocketModelStore keeps the pocket model in one file under the support directory (plan 9.2)', () async {

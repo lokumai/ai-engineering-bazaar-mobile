@@ -12,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
@@ -35,6 +37,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
@@ -86,6 +89,9 @@ class AppDependencies {
   /// The chosen app icon, as file flags under [supportDirectory]`/flags/`, apart from the record.
   IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: supportDirectory));
 
+  /// Whether the pocket model's round button is hidden, as a file flag under [supportDirectory]`/flags/` (plan 9.9).
+  IPocketButtonStore createPocketButtonStore() => FlagPocketButtonStore(FileFlagStore(baseDirectory: supportDirectory));
+
   /// Puts the chosen app icon on the home screen, over the native channel.
   IAppIconSwitch createAppIconSwitch() => const ChannelAppIconSwitch(AppIconChannel());
 
@@ -102,6 +108,10 @@ class AppDependencies {
   /// (plan 9.2).
   IPocketModelStore createPocketModelStore() =>
       FilePocketModelStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'));
+
+  /// The robot's outfit, as one file under [supportDirectory]`/toy/outfit.json`, apart from the record (plan 9.9).
+  IRobotOutfitStore createRobotOutfitStore() =>
+      FileRobotOutfitStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/outfit.json'));
 
   /// Report a problem's sender, over Sentry's user feedback; Settings shows the page only when Sentry is on.
   IFeedbackSender createFeedbackSender() => const SentryFeedbackSender();
@@ -232,6 +242,37 @@ final class FlagLanguageStore implements ILanguageStore {
     }
     await _flags.set(_flag(language));
   }
+}
+
+/// The pocket button's port over the app's file flags: `pocket-button-hidden` set when the reader hid it.
+final class FlagPocketButtonStore implements IPocketButtonStore {
+  const FlagPocketButtonStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _flag = 'pocket-button-hidden';
+
+  @override
+  Future<bool> hidden() => _flags.isSet(_flag);
+
+  @override
+  Future<void> hide({required bool hidden}) => hidden ? _flags.set(_flag) : _flags.clear(_flag);
+}
+
+/// The robot's outfit in one text file.
+final class FileRobotOutfitStore implements IRobotOutfitStore {
+  const FileRobotOutfitStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<RobotOutfit?> load() async {
+    final text = await _file.read();
+    return text == null ? null : decodeRobotOutfit(text);
+  }
+
+  @override
+  Future<void> save(RobotOutfit outfit) => _file.write(encodeRobotOutfit(outfit));
 }
 
 /// The theme cubit's port over the app's file flags: `theme-light` or `theme-dark`, at most one set. No flag set means

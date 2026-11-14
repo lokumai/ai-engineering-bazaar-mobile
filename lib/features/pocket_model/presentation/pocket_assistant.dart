@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
@@ -79,7 +80,12 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                         dimension: PocketAssistantButton.size,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(9, 8, 9, 10),
-                          child: CustomPaint(painter: RobotHeadPainter(face: _faceOf(state))),
+                          child: CustomPaint(
+                            painter: RobotHeadPainter(
+                              face: _faceOf(state),
+                              outfit: context.watch<RobotOutfitCubit>().state.within(level),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -142,18 +148,23 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
   }
 }
 
-/// Opens the pocket model in a sheet over the whole app, its stage, its training and its buttons.
-Future<void> showPocketModelSheet(BuildContext context) {
+/// Opens the pocket model in a sheet over the whole app, its stage, its training and its buttons. Closed, it forgets
+/// what it last said, so the sheet opens again without the old bubble.
+Future<void> showPocketModelSheet(BuildContext context) async {
   final bloc = context.read<PocketModelBloc>();
-  return showModalBottomSheet<void>(
+  final outfit = context.read<RobotOutfitCubit>();
+  await showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,
     backgroundColor: context.bazaarColors.surface,
-    builder: (context) => BlocProvider.value(
-      value: bloc,
+    builder: (context) => MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: bloc),
+        BlocProvider.value(value: outfit),
+      ],
       child: DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.92,
@@ -168,4 +179,5 @@ Future<void> showPocketModelSheet(BuildContext context) {
       ),
     ),
   );
+  if (!bloc.isClosed) bloc.add(const PocketModelHushed());
 }

@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
@@ -129,9 +130,38 @@ class _SettingsView extends StatelessWidget {
                     BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
                 ],
               ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          // The app's icon, the pocket model's button and its robot's wardrobe (plan 9.9).
+          SectionRule(title: s.settings_customize),
+          const SizedBox(height: AppSpacing.md),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.sm,
+            children: [
               AppIconRow(
                 key: const Key('settings-app-icon'),
                 onTap: () => context.push(ApplicationRoutesConstants.appIcon),
+              ),
+              SwitchListTile.adaptive(
+                key: const Key('settings-pocket-button'),
+                contentPadding: EdgeInsets.zero,
+                value: context.watch<PocketButtonCubit>().state,
+                onChanged: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
+                title: Text(
+                  s.settings_pocket_button,
+                  style: theme.textTheme.bodyLarge?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                ),
+                subtitle: Text(
+                  s.settings_pocket_button_note,
+                  style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+                ),
+              ),
+              _Page(
+                key: const Key('settings-robot'),
+                label: s.settings_robot,
+                onTap: () => context.push(ApplicationRoutesConstants.robot),
               ),
             ],
           ),
@@ -262,7 +292,7 @@ class _Action extends StatelessWidget {
 
 /// A page that About opens: its name and an arrow, one row straight on the page, the whole row the button.
 class _Page extends StatelessWidget {
-  const _Page({required this.label, required this.onTap});
+  const _Page({super.key, required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;

@@ -15,6 +15,10 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
@@ -63,6 +67,8 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
+        RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
+        RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -105,6 +111,15 @@ class AppScope extends StatelessWidget {
                 content: context.read<ContentBloc>(),
               ),
             )..add(const PocketModelStarted()),
+          ),
+          // The robot's outfit, which its button, its sheet and its wardrobe wear (plan 9.9).
+          BlocProvider<RobotOutfitCubit>(
+            create: (context) => RobotOutfitCubit(store: context.read<IRobotOutfitStore>())..load(),
+          ),
+          // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
+          BlocProvider<PocketButtonCubit>(
+            lazy: false,
+            create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),
           ),
           BlocProvider<LanguageCubit>(
             lazy: false,

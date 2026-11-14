@@ -63,6 +63,11 @@ final class PocketModelModuleRead extends PocketModelEvent {
   List<Object?> get props => [key];
 }
 
+/// The reader closed the sheet, or petted it fast while it had spoken: its words go.
+final class PocketModelHushed extends PocketModelEvent {
+  const PocketModelHushed();
+}
+
 /// The reader tapped it.
 final class PocketModelPetted extends PocketModelEvent {
   const PocketModelPetted();
@@ -321,6 +326,8 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         );
       case PocketModelPetted():
         emit(ready.copyWith(action: PocketAction.petted));
+      case PocketModelHushed():
+        if (ready.speech != null) emit(ready.copyWith(clearSpeech: true));
       case PocketModelTemperatureSet(:final temperature):
         emit(ready.copyWith(temperature: temperature.clamp(0, 2).toDouble()));
       case _PocketModelRecovered():

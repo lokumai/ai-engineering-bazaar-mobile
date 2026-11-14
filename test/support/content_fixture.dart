@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -127,6 +129,12 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IPocketModelStore createPocketModelStore() => MemoryPocketModelStore();
+
+  @override
+  IRobotOutfitStore createRobotOutfitStore() => MemoryRobotOutfitStore();
+
+  @override
+  IPocketButtonStore createPocketButtonStore() => MemoryPocketButtonStore();
 
   @override
   IFeedbackSender createFeedbackSender() => MockFeedbackSender();

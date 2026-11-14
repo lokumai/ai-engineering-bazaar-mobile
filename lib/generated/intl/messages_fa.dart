@@ -94,41 +94,49 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(level) => "سطح ${level}: حالا می‌تواند بیشتر بگوید.";
 
-  static String m36(count, level) => "${count} تا سطح ${level}";
+  static String m36(level, items) => "سطح ${level}. تازه در کمدش: ${items}.";
 
-  static String m37(count) => "${count} توکن";
+  static String m37(count, level) => "${count} تا سطح ${level}";
 
-  static String m38(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
+  static String m38(count) => "${count} توکن";
 
-  static String m39(taken, total) => "${taken} از ${total} آزمون حل شده";
+  static String m39(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
 
-  static String m40(index, count) => "پرسش ${index} از ${count}";
+  static String m40(taken, total) => "${taken} از ${total} آزمون حل شده";
 
-  static String m41(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
+  static String m41(index, count) => "پرسش ${index} از ${count}";
 
-  static String m42(score, total) => "${score} از ${total}";
+  static String m42(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
 
-  static String m43(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
+  static String m43(score, total) => "${score} از ${total}";
 
-  static String m44(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
+  static String m44(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
 
-  static String m45(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
+  static String m45(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
 
-  static String m46(date) => "تکمیل‌شده در ${date}";
+  static String m46(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
 
-  static String m47(position, total) => "مورد ${position} از ${total}";
+  static String m47(date) => "تکمیل‌شده در ${date}";
 
-  static String m48(minutes) => "${minutes} دقیقه";
+  static String m48(position, total) => "مورد ${position} از ${total}";
 
-  static String m49(number, count) => "درس ${number} از ${count}";
+  static String m49(minutes) => "${minutes} دقیقه";
 
-  static String m50(label) => "${label} · برنامه‌ریزی‌شده";
+  static String m50(number, count) => "درس ${number} از ${count}";
 
-  static String m51(hash, date) => "ویرایش ${hash} · ${date}";
+  static String m51(label) => "${label} · برنامه‌ریزی‌شده";
 
-  static String m52(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
+  static String m52(hash, date) => "ویرایش ${hash} · ${date}";
 
-  static String m53(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
+  static String m53(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
+
+  static String m54(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
+
+  static String m55(name, level) => "${name}، در سطح ${level} باز می‌شود";
+
+  static String m56(name) => "${name}، پوشیده";
+
+  static String m57(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -345,13 +353,31 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("چنین درسی وجود ندارد"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("باز کردن در وب"),
+    "outfit_body_astronaut": MessageLookupByLibrary.simpleMessage("لباس فضایی"),
+    "outfit_body_classic": MessageLookupByLibrary.simpleMessage("کلاسیک"),
+    "outfit_body_hoodie": MessageLookupByLibrary.simpleMessage("هودی"),
+    "outfit_body_kaftan": MessageLookupByLibrary.simpleMessage("قبا"),
+    "outfit_body_lab_coat": MessageLookupByLibrary.simpleMessage("روپوش آزمایشگاه"),
+    "outfit_body_suit": MessageLookupByLibrary.simpleMessage("کت‌وشلوار و پاپیون"),
+    "outfit_body_vest": MessageLookupByLibrary.simpleMessage("جلیقهٔ گلدوزی‌شده"),
+    "outfit_hat_antenna": MessageLookupByLibrary.simpleMessage("آنتن"),
+    "outfit_hat_beanie": MessageLookupByLibrary.simpleMessage("کلاه بافتنی"),
+    "outfit_hat_crown": MessageLookupByLibrary.simpleMessage("تاج"),
+    "outfit_hat_fez": MessageLookupByLibrary.simpleMessage("فینه"),
+    "outfit_hat_mortarboard": MessageLookupByLibrary.simpleMessage("کلاه فارغ‌التحصیلی"),
+    "outfit_hat_top_hat": MessageLookupByLibrary.simpleMessage("کلاه سیلندری"),
+    "outfit_hat_turban": MessageLookupByLibrary.simpleMessage("دستار"),
+    "outfit_hat_wizard": MessageLookupByLibrary.simpleMessage("کلاه جادوگر"),
+    "outfit_head_classic": MessageLookupByLibrary.simpleMessage("صفحهٔ کلاسیک"),
+    "outfit_head_dome": MessageLookupByLibrary.simpleMessage("سر گرد"),
+    "outfit_head_ears": MessageLookupByLibrary.simpleMessage("گوش گربه"),
+    "outfit_head_tv": MessageLookupByLibrary.simpleMessage("تلویزیون قدیمی"),
+    "outfit_head_visor": MessageLookupByLibrary.simpleMessage("کلاه فضانوردی"),
     "pocket_ask": MessageLookupByLibrary.simpleMessage("از آن بپرس"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("توکن بده"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
     "pocket_known": m29,
-    "pocket_lede": MessageLookupByLibrary.simpleMessage(
-      "یک مدل اسباب‌بازی: از هر چه بخواند یاد می‌گیرد و ممکن است پرت‌وپلا بگوید.",
-    ),
+    "pocket_lede": MessageLookupByLibrary.simpleMessage("مدلی اسباب‌بازی که شاید پرت بگوید."),
     "pocket_level": m30,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("سطح"),
     "pocket_loss": m31,
@@ -370,7 +396,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_stage_label": m34,
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("خواب است. برای بیدار کردن ضربه بزنید."),
     "pocket_status_cold": MessageLookupByLibrary.simpleMessage("سرد: هر بار محتمل‌ترین واژه‌ها را می‌گوید."),
-    "pocket_status_content": MessageLookupByLibrary.simpleMessage("سرحال و آمادهٔ یادگیری."),
     "pocket_status_hallucinating": MessageLookupByLibrary.simpleMessage(
       "زیادی داغ: توهم می‌زند. دما را پایین بیاورید.",
     ),
@@ -383,10 +408,11 @@ class MessageLookup extends MessageLookupByLibrary {
       "بیش‌برازش: توکن‌ها را از بر کرده و تکرارشان می‌کند. بگذارید چند ثانیه استراحت کند.",
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("استراحت کرد و دوباره آمادهٔ یادگیری است."),
+    "pocket_status_unlocked": m36,
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("مدل جیبی"),
-    "pocket_to_next": m36,
-    "pocket_tokens": m37,
+    "pocket_to_next": m37,
+    "pocket_tokens": m38,
     "pocket_top": MessageLookupByLibrary.simpleMessage("کاملاً آموزش‌دیده"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
@@ -439,30 +465,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("بازگشت به پرسش‌ها"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("درست است."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("تمام"),
-    "quiz_list_count": m38,
-    "quiz_list_taken": m39,
+    "quiz_list_count": m39,
+    "quiz_list_taken": m40,
     "quiz_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
-    "quiz_progress": m40,
+    "quiz_progress": m41,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage("، درست"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage("، نادرست"),
-    "quiz_score_before": m41,
-    "quiz_score_count": m42,
-    "quiz_score_line": m43,
+    "quiz_score_before": m42,
+    "quiz_score_count": m43,
+    "quiz_score_line": m44,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
-    "quiz_subtitle": m44,
+    "quiz_subtitle": m45,
     "quiz_title": MessageLookupByLibrary.simpleMessage("پرسش‌های این درس"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "این آزمون باز نشد. آن را ببندید و بعداً دوباره امتحان کنید.",
     ),
-    "quiz_wrong": m45,
+    "quiz_wrong": m46,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("بخشی نوشته شده"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("فقط برنامهٔ بخش‌ها"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("پیش از شروع"),
     "reader_close": MessageLookupByLibrary.simpleMessage("بستن"),
-    "reader_completed_on": m46,
+    "reader_completed_on": m47,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("تکمیل درس"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("فهرست مطالب"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("پایان دوره"),
@@ -471,27 +497,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("حذف نشانه‌های جستجو"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("مورد بعدی"),
-    "reader_find_position": m47,
+    "reader_find_position": m48,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("مورد قبلی"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("علامت زدن این درس به‌عنوان تکمیل‌شده"),
-    "reader_minutes": m48,
-    "reader_module_of": m49,
+    "reader_minutes": m49,
+    "reader_module_of": m50,
     "reader_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("نسخهٔ «برای همه»ی این درس برنامه‌ریزی شده است."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("آنچه خواهید توانست انجام دهید"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("در این صفحه"),
-    "reader_pager_planned": m50,
+    "reader_pager_planned": m51,
     "reader_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("خواندن نسخهٔ «برای مهندسان»"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("دوباره تلاش کنید"),
-    "reader_revision": m51,
+    "reader_revision": m52,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("مورد"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("برنامهٔ بخش‌ها"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("بخش‌ها"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("دیدن آنچه «برای همه» نوشته شده است"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("آغاز دوره"),
-    "record_not_saved": m52,
+    "record_not_saved": m53,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("حجم سابقه بیشتر از حدی است که برنامه می‌نویسد"),
@@ -508,15 +534,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_check_for_updates": MessageLookupByLibrary.simpleMessage("بررسی به‌روزرسانی‌ها"),
     "settings_content": MessageLookupByLibrary.simpleMessage("محتوا"),
     "settings_content_version": MessageLookupByLibrary.simpleMessage("نسخه"),
+    "settings_customize": MessageLookupByLibrary.simpleMessage("شخصی‌سازی"),
     "settings_data": MessageLookupByLibrary.simpleMessage("پیشرفت شما"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("کنسول توسعه‌دهنده"),
     "settings_language": MessageLookupByLibrary.simpleMessage("زبان"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("مجوزها"),
+    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("دکمهٔ مدل جیبی"),
+    "settings_pocket_button_note": MessageLookupByLibrary.simpleMessage("دکمهٔ گرد آن در خانه."),
     "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("حریم خصوصی و اطلاعات حقوقی"),
     "settings_published": MessageLookupByLibrary.simpleMessage("انتشار"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("خواندن"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("در حال بررسی به‌روزرسانی‌ها"),
-    "settings_refresh_failed": m53,
+    "settings_refresh_failed": m54,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("از زمان باز شدن برنامه بررسی نشده است"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "محتوای جدیدتر به نسخهٔ جدیدتری از برنامه نیاز دارد. برای دریافت آن، برنامه را به‌روزرسانی کنید.",
@@ -535,6 +564,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_reason_stored": MessageLookupByLibrary.simpleMessage("محتوای ذخیره‌شده خوانده نشد"),
     "settings_refresh_up_to_date": MessageLookupByLibrary.simpleMessage("به‌روز است"),
     "settings_refresh_updated": MessageLookupByLibrary.simpleMessage("به آخرین محتوا به‌روزرسانی شد"),
+    "settings_robot": MessageLookupByLibrary.simpleMessage("کمد ربات"),
     "settings_source": MessageLookupByLibrary.simpleMessage("منبع"),
     "settings_source_bundled": MessageLookupByLibrary.simpleMessage("همراه برنامه"),
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
@@ -542,6 +572,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
+    "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
+    "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
+    "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
+    "wardrobe_item_locked": m55,
+    "wardrobe_item_worn": m56,
+    "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح مدل جیبی چیز تازه‌ای برای پوشیدن باز می‌کند."),
+    "wardrobe_preview": m57,
     "welcome_app_icon_done": MessageLookupByLibrary.simpleMessage("تمام"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),

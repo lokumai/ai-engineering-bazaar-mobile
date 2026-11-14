@@ -12,6 +12,8 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalo
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
@@ -23,6 +25,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouterFactory {
@@ -67,8 +70,15 @@ class AppRouterFactory {
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
             child: DevConsoleShortcut(
-              // The pocket model's round button, in the corner of Home, the catalog and the Quiz tab (plan 9.4).
-              child: BazaarShell(location: state.uri.path, assistant: const PocketAssistantButton(), child: child),
+              // The pocket model's round button, in the corner of Home (plan 9.4, 9.9).
+              // The reader can hide it in Settings (plan 9.9).
+              child: BlocBuilder<PocketButtonCubit, bool>(
+                builder: (context, shown) => BazaarShell(
+                  location: state.uri.path,
+                  assistant: shown ? const PocketAssistantButton() : null,
+                  child: child,
+                ),
+              ),
             ),
           ),
           routes: [
@@ -85,6 +95,7 @@ class AppRouterFactory {
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
             ...GuideFeatureRoutes.routes(),
+            ...PocketModelFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
               crashReports: crashReports,

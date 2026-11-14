@@ -5,6 +5,8 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
+
 /// The face the robot shows.
 enum RobotFace { calm, happy, eating, hungry, asleep, overfit, hallucinating, cold }
 
@@ -65,7 +67,11 @@ final class RobotFrame {
     required this.mirrored,
     this.trick,
     this.trickTime = 0,
+    this.outfit = RobotOutfit.initial,
   });
+
+  /// What it wears: its hat, the shape of its head and its body (plan 9.9).
+  final RobotOutfit outfit;
 
   /// The trick it is playing, if any, and how many seconds into it.
   final RobotTrick? trick;
@@ -171,22 +177,28 @@ Color beadColour(double temperature) {
 
 /// Paints the pocket model on its rug, its face, the bead of its fez and whatever flies around it.
 class PocketRobotPainter extends CustomPainter {
-  PocketRobotPainter({required this.frame, required Listenable super.repaint});
+  PocketRobotPainter({required this.frame, required Listenable super.repaint, this.rug = true});
 
   /// Reads the moment to draw; called on every paint.
   final RobotFrame Function() frame;
+
+  /// Whether it sits on its rug, with its shadow; a wardrobe's small picture of a body has neither.
+  final bool rug;
 
   /// Where the robot sits in a stage of [size]: the middle of its feet, past the middle toward the end side, so what it
   /// says has the start side.
   static Offset seat(Size size, {bool mirrored = false}) =>
       Offset(size.width * (mirrored ? 0.34 : 0.66), size.height - 30);
 
-  /// The robot's scale in a stage of [size].
-  static double scaleOf(Size size) => (size.height / 220).clamp(0.7, 1.3);
+  /// The robot's scale in a stage of [size]: a little smaller in a tall hat or a helmet, so its top stays in the stage.
+  static double scaleOf(Size size, [RobotOutfit outfit = RobotOutfit.initial]) {
+    final reach = 140 + _hatSeat(outfit.head) + hatHeight(outfit.hat);
+    return (size.height / 220 * math.min(1, 170 / reach)).clamp(0.6, 1.3);
+  }
 
   /// Whether [point] is on the robot in a stage of [size].
-  static bool hits(Size size, Offset point, {bool mirrored = false}) {
-    final s = scaleOf(size);
+  static bool hits(Size size, Offset point, {bool mirrored = false, RobotOutfit outfit = RobotOutfit.initial}) {
+    final s = scaleOf(size, outfit);
     final feet = seat(size, mirrored: mirrored);
     return Rect.fromLTRB(feet.dx - 62 * s, feet.dy - 150 * s, feet.dx + 62 * s, feet.dy + 6).contains(point);
   }
@@ -196,9 +208,9 @@ class PocketRobotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final f = frame();
-    final s = scaleOf(size);
+    final s = scaleOf(size, f.outfit);
     final feet = seat(size, mirrored: f.mirrored);
-    _rug(canvas, size, feet, s);
+    if (rug) _rug(canvas, size, feet, s);
     final breathe = f.alive ? math.sin(f.time * 2 * math.pi / 2.6) : 0.0;
     final sway = f.alive && f.face != RobotFace.asleep ? math.sin(f.time * 2 * math.pi / 3.4) * 0.03 : 0.0;
     final wiggleAt = f.trickAt(RobotTrick.wiggle);
@@ -208,10 +220,12 @@ class PocketRobotPainter extends CustomPainter {
     final lift = f.hop * 26 * s;
 
     // The shadow shrinks as it hops.
-    canvas.drawOval(
-      Rect.fromCenter(center: feet + Offset(0, 4 * s), width: (78 - f.hop * 26) * s, height: 12 * s),
-      Paint()..color = const Color(0x33000000),
-    );
+    if (rug) {
+      canvas.drawOval(
+        Rect.fromCenter(center: feet + Offset(0, 4 * s), width: (78 - f.hop * 26) * s, height: 12 * s),
+        Paint()..color = const Color(0x33000000),
+      );
+    }
 
     canvas
       ..save()
@@ -274,37 +288,45 @@ class PocketRobotPainter extends CustomPainter {
       ..drawRRect(RRect.fromLTRBR(-30, -10, -8, 2, const Radius.circular(6)), foot)
       ..drawRRect(RRect.fromLTRBR(8, -10, 30, 2, const Radius.circular(6)), foot);
 
+    // A hood hangs behind the head.
+    if (f.outfit.body == RobotBody.hoodie) _hood(canvas, breathe);
+
     // Body, breathing.
     final grow = 1 + breathe * 0.015;
     canvas
       ..save()
       ..scale(grow, 1 / grow);
-    final body = RRect.fromLTRBR(-36, -74, 36, -6, const Radius.circular(18));
-    canvas
-      ..drawRRect(
-        body,
-        Paint()
-          ..shader = ui.Gradient.linear(const Offset(0, -74), const Offset(0, -6), const [
-            RobotColors.bodyLight,
-            RobotColors.body,
-          ]),
-      )
-      // The belly: its level, in a teal plate.
-      ..drawRRect(RRect.fromLTRBR(-18, -54, 18, -24, const Radius.circular(8)), Paint()..color = RobotColors.belly);
-    final level = _letter('${f.level}', 17, const Color(0xfffdfbf7));
-    level.paint(canvas, Offset(-level.width / 2, -39 - level.height / 2));
+    _torso(canvas, f);
     canvas.restore();
 
     // Arms: they wave when it is happy.
     final wave = happy ? math.sin(f.time * 2 * math.pi / 0.5) * 0.5 : 0.0;
-    final arm = Paint()..color = RobotColors.bodyLight;
+    final look = _BodyLook.of(f.outfit.body);
+    final arm = Paint()..color = look.arm;
     for (final side in [-1.0, 1.0]) {
       canvas
         ..save()
         ..translate(side * 37, -60)
-        ..rotate(-side * (0.45 + (side > 0 ? wave : 0)))
-        ..drawRRect(RRect.fromLTRBR(-6, 0, 6, 28, const Radius.circular(6)), arm)
-        ..drawCircle(const Offset(0, 30), 6.5, Paint()..color = RobotColors.head)
+        ..rotate(-side * (0.45 + (side > 0 ? wave : 0)));
+      if (f.outfit.body == RobotBody.kaftan) {
+        // A wide sleeve.
+        canvas.drawPath(
+          Path()
+            ..moveTo(-6, 0)
+            ..lineTo(6, 0)
+            ..lineTo(10, 24)
+            ..quadraticBezierTo(0, 28, -10, 24)
+            ..close(),
+          arm,
+        );
+      } else {
+        canvas.drawRRect(RRect.fromLTRBR(-6, 0, 6, 28, const Radius.circular(6)), arm);
+      }
+      if (look.cuff case final cuff?) {
+        canvas.drawRect(const Rect.fromLTRB(-6, 19, 6, 23), Paint()..color = cuff);
+      }
+      canvas
+        ..drawCircle(const Offset(0, 30), 6.5, Paint()..color = look.hand)
         ..restore();
     }
 
@@ -312,17 +334,14 @@ class PocketRobotPainter extends CustomPainter {
     canvas
       ..save()
       ..translate(0, -78 + breathe * 1.2);
-    final head = RRect.fromLTRBR(-44, -62, 44, 0, const Radius.circular(20));
-    canvas
-      ..drawRRect(head, Paint()..color = RobotColors.rim)
-      ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
+    final head = _head(canvas, f.outfit.head);
     if (f.trickAt(RobotTrick.glitch) != null) {
       // A bad signal: the face jumps now and then, and splits into two ghosts, magenta and cyan.
       final jump = math.sin(f.time * 23) > 0.3 ? 1.0 : 0.0;
       final jitter = Offset(math.sin(f.time * 91) * 2.6, math.sin(f.time * 57) * 1.2) * jump;
       canvas
         ..save()
-        ..clipRRect(head.deflate(4))
+        ..clipRRect(head)
         ..save()
         ..translate(2.6 + jitter.dx, jitter.dy);
       _face(canvas, f, tint: const Color(0x88ff4fd8));
@@ -342,7 +361,8 @@ class PocketRobotPainter extends CustomPainter {
     } else {
       _face(canvas, f);
     }
-    _fez(canvas, f);
+    if (f.outfit.head == RobotHead.visor) _glass(canvas);
+    _hat(canvas, f);
     canvas.restore();
   }
 
@@ -517,9 +537,113 @@ class PocketRobotPainter extends CustomPainter {
     }
   }
 
-  void _fez(Canvas canvas, RobotFrame f) {
-    // The fez sits tilted on the head; its tassel ends in the bead, which glows in the temperature's colour.
-    // A hop turns it once in the air; a flight sends it high, spinning, and drops it back on.
+  /// The head's outline for [shape], drawn with its rim; returns the screen, where the face goes.
+  static RRect _head(Canvas canvas, RobotHead shape) {
+    switch (shape) {
+      case RobotHead.dome:
+        final head = RRect.fromLTRBXY(-44, -62, 44, 0, 40, 30);
+        canvas
+          ..drawRRect(head, Paint()..color = RobotColors.rim)
+          ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
+        return head.deflate(4);
+      case RobotHead.tv:
+        // A wooden case, a curved glass screen, two knobs on its side.
+        final caseBox = RRect.fromLTRBR(-48, -63, 48, 1, const Radius.circular(7));
+        canvas
+          ..drawRRect(caseBox, Paint()..color = const Color(0xff6e4630))
+          ..drawRRect(caseBox.deflate(2.5), Paint()..color = const Color(0xff8a5a3a));
+        final screen = RRect.fromLTRBR(-40, -57, 36, -5, const Radius.circular(12));
+        canvas
+          ..drawRRect(screen.inflate(2), Paint()..color = const Color(0xff2a2a30))
+          ..drawRRect(screen, Paint()..color = RobotColors.head);
+        for (final y in [-44.0, -28.0]) {
+          canvas
+            ..drawCircle(Offset(42, y), 3.6, Paint()..color = const Color(0xffd9c9a8))
+            ..drawLine(
+              Offset(42, y),
+              Offset(42, y - 3),
+              Paint()
+                ..color = const Color(0xff4a3020)
+                ..strokeWidth = 1.2,
+            );
+        }
+        return screen;
+      case RobotHead.ears:
+        for (final side in [-1.0, 1.0]) {
+          final ear = Path()
+            ..moveTo(side * 40, -46)
+            ..lineTo(side * 38, -78)
+            ..lineTo(side * 14, -60)
+            ..close();
+          final inner = Path()
+            ..moveTo(side * 35, -52)
+            ..lineTo(side * 34.5, -71)
+            ..lineTo(side * 21, -61)
+            ..close();
+          canvas
+            ..drawPath(ear, Paint()..color = RobotColors.rim)
+            ..drawPath(inner, Paint()..color = const Color(0xffe89aa8));
+        }
+        final head = RRect.fromLTRBR(-44, -62, 44, 0, const Radius.circular(20));
+        canvas
+          ..drawRRect(head, Paint()..color = RobotColors.rim)
+          ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
+        return head.deflate(4);
+      case RobotHead.classic || RobotHead.visor:
+        final head = RRect.fromLTRBR(-44, -62, 44, 0, const Radius.circular(20));
+        canvas
+          ..drawRRect(head, Paint()..color = RobotColors.rim)
+          ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
+        return head.deflate(4);
+    }
+  }
+
+  /// A space helmet's glass round the head, with a collar at its foot.
+  static void _glass(Canvas canvas) {
+    const centre = Offset(0, -31);
+    canvas
+      ..drawCircle(centre, 56, Paint()..color = const Color(0x1fbfe8ff))
+      ..drawCircle(
+        centre,
+        56,
+        Paint()
+          ..color = const Color(0x99dff4ff)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.6,
+      )
+      ..drawArc(
+        Rect.fromCircle(center: centre, radius: 47),
+        math.pi * 1.08,
+        math.pi * 0.42,
+        false,
+        Paint()
+          ..color = const Color(0xb3ffffff)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4
+          ..strokeCap = StrokeCap.round,
+      )
+      ..drawRRect(RRect.fromLTRBR(-30, 18, 30, 26, const Radius.circular(4)), Paint()..color = const Color(0xffcfd2d6));
+  }
+
+  /// How far above the head's top [hat] sits on [head]: on a helmet, on its glass.
+  static double _hatSeat(RobotHead head) => head == RobotHead.visor ? 27 : 0;
+
+  /// How far [hat] reaches above its seat, with its bead's glow.
+  static double hatHeight(RobotHat hat) => switch (hat) {
+    RobotHat.fez => 30,
+    RobotHat.antenna => 36,
+    RobotHat.beanie => 42,
+    RobotHat.mortarboard => 28,
+    RobotHat.turban => 44,
+    RobotHat.wizard => 76,
+    RobotHat.topHat => 50,
+    RobotHat.crown => 34,
+  };
+
+  void _hat(Canvas canvas, RobotFrame f) {
+    // The hat sits on the head, the fez tilted; its bead glows in the temperature's colour. A hop turns it once in the
+    // air; a flight sends it high, spinning, and drops it back on.
+    final hat = f.outfit.hat;
     var lift = 0.0;
     var turn = 0.0;
     var drift = 0.0;
@@ -532,63 +656,469 @@ class PocketRobotPainter extends CustomPainter {
       turn = t * 4 * math.pi;
       drift = math.sin(t * math.pi) * 16;
     }
+    final (dx, tilt) = switch (hat) {
+      RobotHat.fez => (10.0, 0.16),
+      RobotHat.antenna => (0.0, 0.0),
+      RobotHat.beanie => (0.0, 0.05),
+      RobotHat.mortarboard => (0.0, -0.06),
+      RobotHat.turban => (0.0, 0.0),
+      RobotHat.wizard => (2.0, -0.08),
+      RobotHat.topHat => (6.0, 0.1),
+      RobotHat.crown => (0.0, 0.06),
+    };
     canvas
       ..save()
-      ..translate(10 + drift, -60 - lift)
+      ..translate(dx + drift, -60 - lift - _hatSeat(f.outfit.head))
       ..translate(0, -10)
-      ..rotate(0.16 + turn)
+      ..rotate(tilt + turn)
       ..translate(0, 10);
-    final fez = Path()
-      ..moveTo(-16, 2)
-      ..lineTo(-12, -22)
-      ..quadraticBezierTo(0, -26, 12, -22)
-      ..lineTo(16, 2)
-      ..quadraticBezierTo(0, 6, -16, 2)
-      ..close();
-    canvas
-      ..drawPath(fez, Paint()..color = RobotColors.fez)
-      ..drawPath(
-        Path()
-          ..moveTo(-15, -4)
-          ..quadraticBezierTo(0, 0, 15, -4)
-          ..lineTo(15.5, 0)
-          ..quadraticBezierTo(0, 4, -15.5, 0)
-          ..close(),
-        Paint()..color = RobotColors.fezDark,
-      );
     final swing = f.alive ? math.sin(f.time * 2 * math.pi / 1.6) * 3 : 0.0;
-    var bead = Offset(19 + swing, -2);
-    var bend = const Offset(14, -26);
+    switch (hat) {
+      case RobotHat.fez:
+        canvas
+          ..drawPath(
+            Path()
+              ..moveTo(-16, 2)
+              ..lineTo(-12, -22)
+              ..quadraticBezierTo(0, -26, 12, -22)
+              ..lineTo(16, 2)
+              ..quadraticBezierTo(0, 6, -16, 2)
+              ..close(),
+            Paint()..color = RobotColors.fez,
+          )
+          ..drawPath(
+            Path()
+              ..moveTo(-15, -4)
+              ..quadraticBezierTo(0, 0, 15, -4)
+              ..lineTo(15.5, 0)
+              ..quadraticBezierTo(0, 4, -15.5, 0)
+              ..close(),
+            Paint()..color = RobotColors.fezDark,
+          );
+        _tassel(canvas, f, from: const Offset(0, -24), rest: Offset(19 + swing, -2), bend: const Offset(14, -26));
+      case RobotHat.antenna:
+        // A springy stalk, swaying, its bead at the tip.
+        final tip = Offset(swing * 1.4, -26);
+        canvas
+          ..drawRRect(RRect.fromLTRBR(-8, -3, 8, 3, const Radius.circular(3)), Paint()..color = RobotColors.rim)
+          ..drawPath(
+            Path()
+              ..moveTo(0, -2)
+              ..quadraticBezierTo(tip.dx * 0.2, -14, tip.dx, tip.dy),
+            Paint()
+              ..color = const Color(0xff8a8e9a)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.6
+              ..strokeCap = StrokeCap.round,
+          );
+        _bead(canvas, f, tip, radius: 5);
+      case RobotHat.beanie:
+        const knit = Color(0xffc9893a);
+        const band = Color(0xffa86e2a);
+        canvas.drawPath(
+          Path()
+            ..moveTo(-42, 4)
+            ..cubicTo(-42, -28, 42, -28, 42, 4)
+            ..close(),
+          Paint()..color = knit,
+        );
+        final rib = Paint()
+          ..color = band.withValues(alpha: 0.55)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.4;
+        for (var x = -30.0; x <= 30; x += 10) {
+          canvas.drawLine(Offset(x, -1), Offset(x * 0.55, -16 + (x.abs() / 30) * 6), rib);
+        }
+        canvas.drawRRect(RRect.fromLTRBR(-43, -4, 43, 6, const Radius.circular(4)), Paint()..color = band);
+        for (var x = -38.0; x <= 38; x += 5) {
+          canvas.drawLine(Offset(x, -3), Offset(x, 5), rib);
+        }
+        _bead(canvas, f, const Offset(0, -24), radius: 7.5, glow: 0.8);
+      case RobotHat.mortarboard:
+        const ink = Color(0xff1f2030);
+        canvas
+          ..drawPath(
+            Path()
+              ..moveTo(-24, 4)
+              ..lineTo(-22, -8)
+              ..lineTo(22, -8)
+              ..lineTo(24, 4)
+              ..quadraticBezierTo(0, 8, -24, 4)
+              ..close(),
+            Paint()..color = ink,
+          )
+          ..drawPath(
+            Path()
+              ..moveTo(-40, -12)
+              ..lineTo(0, -24)
+              ..lineTo(40, -12)
+              ..lineTo(0, -1)
+              ..close(),
+            Paint()..color = const Color(0xff2c2e42),
+          )
+          ..drawCircle(const Offset(0, -12), 2.4, Paint()..color = const Color(0xffddb46a));
+        _tassel(
+          canvas,
+          f,
+          from: const Offset(0, -12),
+          rest: Offset(37 + swing * 0.6, 12),
+          bend: const Offset(36, -10),
+          cord: const Color(0xffddb46a),
+        );
+      case RobotHat.turban:
+        const cloth = Color(0xfff0e6d2);
+        const fold = Color(0xffcdbf9f);
+        canvas
+          ..drawOval(Rect.fromCenter(center: const Offset(0, -20), width: 66, height: 30), Paint()..color = cloth)
+          ..drawOval(Rect.fromCenter(center: const Offset(0, -6), width: 94, height: 26), Paint()..color = cloth);
+        final wrap = Paint()
+          ..color = fold
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..strokeCap = StrokeCap.round;
+        for (var i = 0; i < 4; i++) {
+          canvas.drawArc(
+            Rect.fromCenter(center: Offset(-6.0 + i * 4, -10 - i * 5), width: 80 - i * 12, height: 18),
+            math.pi * 0.05,
+            math.pi * 0.8,
+            false,
+            wrap,
+          );
+        }
+        // A plume over the jewel.
+        canvas.drawPath(
+          Path()
+            ..moveTo(0, -12)
+            ..quadraticBezierTo(-10, -30, 6 + swing, -40)
+            ..quadraticBezierTo(4, -24, 3, -12)
+            ..close(),
+          Paint()..color = RobotColors.belly,
+        );
+        _bead(canvas, f, const Offset(0, -9), radius: 5.2);
+      case RobotHat.wizard:
+        const cloth = Color(0xff2a3a8a);
+        canvas
+          ..drawOval(Rect.fromCenter(center: const Offset(0, 2), width: 100, height: 14), Paint()..color = cloth)
+          ..drawPath(
+            Path()
+              ..moveTo(-32, 2)
+              ..quadraticBezierTo(-12, -30, 6, -60)
+              ..quadraticBezierTo(14, -66, 20 + swing, -62)
+              ..quadraticBezierTo(14, -52, 12, -46)
+              ..quadraticBezierTo(18, -20, 32, 2)
+              ..close(),
+            Paint()..color = const Color(0xff33479e),
+          )
+          ..drawRect(const Rect.fromLTRB(-30, -6, 30, 0), Paint()..color = const Color(0xffddb46a));
+        for (final (at, r) in [
+          (const Offset(-10, -20), 3.0),
+          (const Offset(8, -34), 2.4),
+          (const Offset(14, -12), 2.0),
+        ]) {
+          canvas.drawPath(_star(at, r * 1.6, r * 0.6), Paint()..color = const Color(0xffffe7a6));
+        }
+        _bead(canvas, f, Offset(21 + swing, -62), radius: 4.6, star: true);
+      case RobotHat.topHat:
+        const silk = Color(0xff16161c);
+        canvas
+          ..drawOval(Rect.fromCenter(center: const Offset(0, 2), width: 84, height: 12), Paint()..color = silk)
+          ..drawRRect(RRect.fromLTRBR(-24, -46, 24, 2, const Radius.circular(3)), Paint()..color = silk)
+          ..drawOval(
+            Rect.fromCenter(center: const Offset(0, -46), width: 48, height: 8),
+            Paint()..color = const Color(0xff2a2a34),
+          )
+          ..drawRect(const Rect.fromLTRB(-24, -12, 24, -3), Paint()..color = const Color(0xff8e1f26))
+          ..drawLine(
+            const Offset(-18, -42),
+            const Offset(-18, -16),
+            Paint()
+              ..color = const Color(0x22ffffff)
+              ..strokeWidth = 3,
+          );
+        _bead(canvas, f, const Offset(13, -7.5), radius: 4);
+      case RobotHat.crown:
+        const gold = Color(0xffe2b23c);
+        const shade = Color(0xffb8862a);
+        final crown = Path()..moveTo(-34, 4);
+        const points = [(-34.0, -24.0), (-17.0, -12.0), (0.0, -30.0), (17.0, -12.0), (34.0, -24.0)];
+        crown.lineTo(-34, -24);
+        for (var i = 1; i < points.length; i++) {
+          final (x, y) = points[i];
+          final (px, _) = points[i - 1];
+          crown
+            ..lineTo((x + px) / 2, -8)
+            ..lineTo(x, y);
+        }
+        crown
+          ..lineTo(34, 4)
+          ..close();
+        canvas
+          ..drawPath(crown, Paint()..color = gold)
+          ..drawRect(const Rect.fromLTRB(-34, -4, 34, 4), Paint()..color = shade);
+        for (final (x, y) in points) {
+          canvas.drawCircle(Offset(x, y - 2), 3, Paint()..color = x == 0 ? const Color(0xfffdfbf7) : RobotColors.rugA);
+        }
+        _bead(canvas, f, const Offset(0, -8), radius: 5);
+    }
+    canvas.restore();
+  }
+
+  /// A cord from [from] to the bead, which hangs at [rest] through [bend]; a spin swings it round [from] on a taut
+  /// cord.
+  void _tassel(
+    Canvas canvas,
+    RobotFrame f, {
+    required Offset from,
+    required Offset rest,
+    required Offset bend,
+    Color cord = RobotColors.ink,
+  }) {
+    var bead = rest;
+    var through = bend;
     if (f.trickAt(RobotTrick.tasselSpin) case final t?) {
-      // The bead swings round the fez's top, twice, on a taut cord.
-      final a = 0.71 + t * 4 * math.pi;
-      bead = const Offset(0, -24) + Offset(math.sin(a), math.cos(a)) * 27;
-      bend = Offset.lerp(const Offset(0, -24), bead, 0.5)!;
+      final reach = (rest - from).distance;
+      final start = math.atan2(rest.dx - from.dx, rest.dy - from.dy);
+      final a = start + t * 4 * math.pi;
+      bead = from + Offset(math.sin(a), math.cos(a)) * reach;
+      through = Offset.lerp(from, bead, 0.5)!;
     }
     canvas.drawPath(
       Path()
-        ..moveTo(0, -24)
-        ..quadraticBezierTo(bend.dx, bend.dy, bead.dx, bead.dy - 4),
+        ..moveTo(from.dx, from.dy)
+        ..quadraticBezierTo(through.dx, through.dy, bead.dx, bead.dy - 4),
       Paint()
-        ..color = RobotColors.ink
+        ..color = cord
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6,
     );
-    // Thinking, the bead blinks.
+    _bead(canvas, f, bead);
+  }
+
+  /// The bead at [at], glowing in the temperature's colour; it blinks while the robot thinks. [star] makes it a star.
+  void _bead(Canvas canvas, RobotFrame f, Offset at, {double radius = 4.6, double glow = 1, bool star = false}) {
     final thinking = f.trickAt(RobotTrick.thinking) != null;
     final colour = thinking && math.sin(f.time * 2 * math.pi * 4) < 0
         ? beadColour(f.temperature).withValues(alpha: 0.35)
         : beadColour(f.temperature);
     final pulse = f.alive ? 0.5 + 0.5 * math.sin(f.time * 2 * math.pi / 1.4) : 0.6;
-    canvas
-      ..drawCircle(
-        bead,
-        11 + pulse * 3,
-        Paint()..shader = ui.Gradient.radial(bead, 14, [colour.withValues(alpha: 0.55), colour.withValues(alpha: 0)]),
-      )
-      ..drawCircle(bead, 4.6, Paint()..color = colour)
-      ..drawCircle(bead - const Offset(1.4, 1.4), 1.4, Paint()..color = const Color(0xbbffffff))
-      ..restore();
+    final halo = (radius * 2.4 + pulse * 3) * glow;
+    canvas.drawCircle(
+      at,
+      halo,
+      Paint()..shader = ui.Gradient.radial(at, halo, [colour.withValues(alpha: 0.55), colour.withValues(alpha: 0)]),
+    );
+    if (star) {
+      canvas.drawPath(_star(at, radius * 1.7, radius * 0.7), Paint()..color = colour);
+    } else {
+      canvas
+        ..drawCircle(at, radius, Paint()..color = colour)
+        ..drawCircle(at - Offset(radius * 0.3, radius * 0.3), radius * 0.3, Paint()..color = const Color(0xbbffffff));
+    }
+  }
+
+  /// A hood behind the head, at the neck.
+  static void _hood(Canvas canvas, double breathe) {
+    final look = _BodyLook.of(RobotBody.hoodie);
+    canvas.drawPath(
+      Path()
+        ..moveTo(-40, -66)
+        ..quadraticBezierTo(-50, -100 + breathe, -30, -118)
+        ..lineTo(30, -118)
+        ..quadraticBezierTo(50, -100 + breathe, 40, -66)
+        ..close(),
+      Paint()..color = look.dark,
+    );
+  }
+
+  /// The body for its outfit, its feet at the origin: its level on a plate at the chest.
+  void _torso(Canvas canvas, RobotFrame f) {
+    final body = f.outfit.body;
+    final look = _BodyLook.of(body);
+    final shell = RRect.fromLTRBR(-36, -74, 36, -6, const Radius.circular(18));
+    final fill = Paint()
+      ..shader = ui.Gradient.linear(const Offset(0, -74), const Offset(0, -6), [look.light, look.dark]);
+    var plate = RRect.fromLTRBR(-18, -54, 18, -24, const Radius.circular(8));
+    var plateColour = RobotColors.belly;
+    var levelColour = const Color(0xfffdfbf7);
+    switch (body) {
+      case RobotBody.classic:
+        canvas.drawRRect(shell, fill);
+      case RobotBody.vest:
+        canvas.drawRRect(shell, fill);
+        // Two embroidered panels, open over the plate.
+        final panel = Paint()..color = RobotColors.fez;
+        final trim = Paint()
+          ..color = const Color(0xffddb46a)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6;
+        for (final side in [-1.0, 1.0]) {
+          final path = Path()
+            ..moveTo(side * 36, -60)
+            ..lineTo(side * 22, -72)
+            ..lineTo(side * 20, -58)
+            ..lineTo(side * 21, -14)
+            ..lineTo(side * 36, -14)
+            ..close();
+          canvas
+            ..save()
+            ..clipRRect(shell)
+            ..drawPath(path, panel)
+            ..drawPath(path, trim)
+            ..restore();
+          for (var y = -48.0; y <= -22; y += 9) {
+            canvas.drawPath(_star(Offset(side * 29, y), 2.6, 1.1, points: 4), Paint()..color = const Color(0xffddb46a));
+          }
+        }
+      case RobotBody.hoodie:
+        canvas.drawRRect(shell, fill);
+        // A front pocket and the hood's cords.
+        canvas.drawRRect(RRect.fromLTRBR(-24, -24, 24, -9, const Radius.circular(6)), Paint()..color = look.dark);
+        final string = Paint()
+          ..color = const Color(0xfff4f1ea)
+          ..strokeWidth = 1.8
+          ..strokeCap = StrokeCap.round;
+        canvas
+          ..drawLine(const Offset(-7, -72), const Offset(-9, -58), string)
+          ..drawLine(const Offset(7, -72), const Offset(9, -58), string);
+        plate = RRect.fromLTRBR(-14, -54, 14, -30, const Radius.circular(7));
+      case RobotBody.labCoat:
+        // A white coat over its navy body, open at the front.
+        canvas
+          ..drawRRect(shell, Paint()..color = RobotColors.body)
+          ..save()
+          ..clipRRect(shell);
+        for (final side in [-1.0, 1.0]) {
+          canvas
+            ..drawPath(
+              Path()
+                ..moveTo(side * 40, -76)
+                ..lineTo(side * 10, -76)
+                ..lineTo(side * 20, -50)
+                ..lineTo(side * 19, -4)
+                ..lineTo(side * 40, -4)
+                ..close(),
+              fill,
+            )
+            // The lapel.
+            ..drawPath(
+              Path()
+                ..moveTo(side * 10, -76)
+                ..lineTo(side * 20, -50)
+                ..lineTo(side * 25, -66)
+                ..close(),
+              Paint()..color = look.dark,
+            );
+        }
+        canvas
+          ..restore()
+          // A pocket with a pen.
+          ..drawRect(const Rect.fromLTRB(-33, -40, -23, -30), Paint()..color = look.dark)
+          ..drawLine(
+            const Offset(-26, -44),
+            const Offset(-26, -34),
+            Paint()
+              ..color = RobotColors.rugA
+              ..strokeWidth = 2.2
+              ..strokeCap = StrokeCap.round,
+          );
+        plate = RRect.fromLTRBR(-12, -50, 12, -28, const Radius.circular(6));
+      case RobotBody.kaftan:
+        // A long robe, wider at the hem, with a gold trim and a sash.
+        final robe = Path()
+          ..moveTo(-30, -74)
+          ..lineTo(30, -74)
+          ..quadraticBezierTo(38, -72, 38, -62)
+          ..lineTo(46, -2)
+          ..quadraticBezierTo(0, 4, -46, -2)
+          ..lineTo(-38, -62)
+          ..quadraticBezierTo(-38, -72, -30, -74)
+          ..close();
+        canvas
+          ..drawPath(robe, fill)
+          ..drawPath(
+            robe,
+            Paint()
+              ..color = const Color(0xffddb46a)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2,
+          )
+          ..drawLine(
+            const Offset(0, -74),
+            const Offset(0, -2),
+            Paint()
+              ..color = const Color(0xffddb46a)
+              ..strokeWidth = 1.6,
+          )
+          ..drawRect(const Rect.fromLTRB(-40, -22, 40, -15), Paint()..color = const Color(0xffddb46a));
+        plate = RRect.fromLTRBR(-15, -56, 15, -30, const Radius.circular(7));
+      case RobotBody.suit:
+        canvas.drawRRect(shell, fill);
+        // A white shirt in the jacket's V, and a bow tie.
+        canvas
+          ..save()
+          ..clipRRect(shell)
+          ..drawPath(
+            Path()
+              ..moveTo(-16, -76)
+              ..lineTo(16, -76)
+              ..lineTo(0, -56)
+              ..close(),
+            Paint()..color = const Color(0xfff4f1ea),
+          )
+          ..restore();
+        final bow = Paint()..color = RobotColors.rugA;
+        canvas
+          ..drawPath(
+            Path()
+              ..moveTo(0, -70)
+              ..lineTo(-10, -76)
+              ..lineTo(-10, -64)
+              ..close(),
+            bow,
+          )
+          ..drawPath(
+            Path()
+              ..moveTo(0, -70)
+              ..lineTo(10, -76)
+              ..lineTo(10, -64)
+              ..close(),
+            bow,
+          )
+          ..drawCircle(const Offset(0, -70), 2.6, bow);
+        for (final y in [-30.0, -18.0]) {
+          canvas.drawCircle(Offset(0, y), 1.8, Paint()..color = const Color(0xff9a9ea8));
+        }
+        plate = RRect.fromLTRBR(14, -52, 30, -42, const Radius.circular(3));
+        plateColour = const Color(0xffddb46a);
+        levelColour = RobotColors.ink;
+      case RobotBody.astronaut:
+        canvas.drawRRect(shell, fill);
+        // Its suit's seams, a belt and a panel of buttons with its level.
+        final seam = Paint()
+          ..color = look.dark
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.4;
+        canvas
+          ..drawRRect(
+            RRect.fromLTRBR(-36, -18, 36, -10, const Radius.circular(3)),
+            Paint()..color = const Color(0xff9a9ea8),
+          )
+          ..drawLine(const Offset(-26, -70), const Offset(-26, -20), seam)
+          ..drawLine(const Offset(26, -70), const Offset(26, -20), seam);
+        plate = RRect.fromLTRBR(-18, -58, 18, -26, const Radius.circular(5));
+        plateColour = const Color(0xff3a3d46);
+        for (final (x, colour) in [
+          (-10.0, RobotColors.rugA),
+          (0.0, const Color(0xffddb46a)),
+          (10.0, RobotColors.belly),
+        ]) {
+          canvas.drawCircle(Offset(x, -21.5), 2, Paint()..color = colour);
+        }
+    }
+    canvas.drawRRect(plate, Paint()..color = plateColour);
+    final size = plate.height < 16 ? 8.0 : 17.0;
+    final level = _letter('${f.level}', size, levelColour);
+    level.paint(canvas, plate.center - Offset(level.width / 2, level.height / 2));
   }
 
   void _particles(Canvas canvas, Size size, RobotFrame f) {
@@ -729,12 +1259,62 @@ class PocketRobotPainter extends CustomPainter {
   bool shouldRepaint(PocketRobotPainter old) => old.frame != frame;
 }
 
-/// The robot's head and fez alone, still, in the middle of its box: the face of the assistant button.
+/// The colours of a body: its gradient, its arms, its hands, and a cuff when its sleeves have one.
+final class _BodyLook {
+  const _BodyLook({
+    required this.light,
+    required this.dark,
+    required this.arm,
+    this.hand = RobotColors.head,
+    this.cuff,
+  });
+
+  final Color light;
+  final Color dark;
+  final Color arm;
+  final Color hand;
+  final Color? cuff;
+
+  static _BodyLook of(RobotBody body) => switch (body) {
+    RobotBody.classic ||
+    RobotBody.vest => const _BodyLook(light: RobotColors.bodyLight, dark: RobotColors.body, arm: RobotColors.bodyLight),
+    RobotBody.hoodie => const _BodyLook(light: Color(0xff6b8a78), dark: Color(0xff4a6656), arm: Color(0xff5f7d6b)),
+    RobotBody.labCoat => const _BodyLook(
+      light: Color(0xfff6f3ec),
+      dark: Color(0xffd6d1c4),
+      arm: Color(0xffeae6dc),
+      cuff: Color(0xffd6d1c4),
+    ),
+    RobotBody.kaftan => const _BodyLook(
+      light: Color(0xff7a4589),
+      dark: Color(0xff4f2a5c),
+      arm: Color(0xff6a3a78),
+      cuff: Color(0xffddb46a),
+    ),
+    RobotBody.suit => const _BodyLook(
+      light: Color(0xff464a55),
+      dark: Color(0xff272a31),
+      arm: Color(0xff3c3f49),
+      cuff: Color(0xfff4f1ea),
+    ),
+    RobotBody.astronaut => const _BodyLook(
+      light: Color(0xfff2f2ee),
+      dark: Color(0xffc9ccd1),
+      arm: Color(0xffe6e7e4),
+      hand: Color(0xffe0703c),
+      cuff: Color(0xffe0703c),
+    ),
+  };
+}
+
+/// The robot's head and hat alone, still, in the middle of its box: the face of the assistant button, and a picture of
+/// a hat or a head in the wardrobe.
 class RobotHeadPainter extends CustomPainter {
-  RobotHeadPainter({required this.face, this.temperature = 0.8});
+  RobotHeadPainter({required this.face, this.temperature = 0.8, this.outfit = RobotOutfit.initial});
 
   final RobotFace face;
   final double temperature;
+  final RobotOutfit outfit;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -749,24 +1329,27 @@ class RobotHeadPainter extends CustomPainter {
       particles: const [],
       alive: false,
       mirrored: false,
+      outfit: outfit,
     );
     final robot = PocketRobotPainter(frame: () => frame, repaint: const AlwaysStoppedAnimation(0));
-    // The head and its fez stand in a box about 100 wide and 96 high, from the fez's top to the head's foot.
-    final s = math.min(size.width / 100, size.height / 96);
+    // The head and its hat stand in a box from the hat's top to the head's foot, a helmet's glass the widest.
+    final visor = outfit.head == RobotHead.visor;
+    final top = 62 + PocketRobotPainter._hatSeat(outfit.head) + PocketRobotPainter.hatHeight(outfit.hat);
+    final bottom = visor ? 26.0 : 0.0;
+    final width = visor ? 116.0 : 100.0;
+    final s = math.min(size.width / width, size.height / (top + bottom));
     canvas
       ..save()
-      ..translate(size.width / 2 - 2 * s, size.height / 2 + 46 * s)
+      ..translate(size.width / 2 - 2 * s, size.height / 2 + (top - bottom) / 2 * s)
       ..scale(s);
-    final head = RRect.fromLTRBR(-44, -62, 44, 0, const Radius.circular(20));
-    canvas
-      ..drawRRect(head, Paint()..color = RobotColors.rim)
-      ..drawRRect(head.deflate(4), Paint()..color = RobotColors.head);
-    robot
-      .._face(canvas, frame)
-      .._fez(canvas, frame);
+    PocketRobotPainter._head(canvas, outfit.head);
+    robot._face(canvas, frame);
+    if (visor) PocketRobotPainter._glass(canvas);
+    robot._hat(canvas, frame);
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(RobotHeadPainter old) => old.face != face || old.temperature != temperature;
+  bool shouldRepaint(RobotHeadPainter old) =>
+      old.face != face || old.temperature != temperature || old.outfit != outfit;
 }
