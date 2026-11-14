@@ -155,7 +155,7 @@ void main() {
       expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
 
       // At the top of Customize, its name over two segments, as Reading's choices (the owner, 2026-11-14).
-      final title = tester.getTopLeft(find.text('Pocket model')).dy;
+      final title = tester.getTopLeft(find.text('Apprentice')).dy;
       expect(title, greaterThan(customize));
       final choice = find.byKey(const Key('settings-pocket-button'));
       expect(tester.getTopLeft(choice).dy, greaterThan(title));

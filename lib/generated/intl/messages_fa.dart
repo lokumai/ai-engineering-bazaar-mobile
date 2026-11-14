@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(words) => "می‌گوید: ${words}";
 
-  static String m36(level) => "مدل جیبی، سطح ${level}. برای نوازش ضربه بزنید.";
+  static String m36(level) => "شاگرد، سطح ${level}. برای نوازش ضربه بزنید.";
 
   static String m37(count, level) => "${count} تا سطح ${level}";
 
@@ -371,7 +371,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("گوش گربه"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("تلویزیون قدیمی"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("کلاه فضانوردی"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("از آن بپرس"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("گفتگو"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("توکن بده"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
     "pocket_known": m30,
@@ -390,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "همه توکن‌هایی را که خوانده فراموش می‌کند و دوباره از سطح 0 شروع می‌کند. دوره و پیشرفتت همان‌طور می‌ماند.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("بماند"),
-    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("مدل جیبی از نو شروع شود؟"),
+    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("شاگرد از نو شروع شود؟"),
     "pocket_says": m35,
     "pocket_stage_label": m36,
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("خواب است. برای بیدار کردن ضربه بزنید."),
@@ -407,7 +407,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("استراحت کرد و دوباره آمادهٔ یادگیری است."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
-    "pocket_title": MessageLookupByLibrary.simpleMessage("مدل جیبی"),
+    "pocket_title": MessageLookupByLibrary.simpleMessage("شاگرد"),
     "pocket_to_next": m37,
     "pocket_tokens": m38,
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
@@ -537,7 +537,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_licences": MessageLookupByLibrary.simpleMessage("مجوزها"),
     "settings_off": MessageLookupByLibrary.simpleMessage("خاموش"),
     "settings_on": MessageLookupByLibrary.simpleMessage("روشن"),
-    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("مدل جیبی"),
+    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("شاگرد"),
     "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("حریم خصوصی و اطلاعات حقوقی"),
     "settings_published": MessageLookupByLibrary.simpleMessage("انتشار"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("خواندن"),
@@ -574,7 +574,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
     "wardrobe_item_locked": m55,
     "wardrobe_item_worn": m56,
-    "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح مدل جیبی چیز تازه‌ای برای پوشیدن باز می‌کند."),
+    "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
     "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),

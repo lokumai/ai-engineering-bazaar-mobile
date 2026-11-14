@@ -98,7 +98,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(PocketModelCard), findsOneWidget);
-    expect(find.text('Pocket model'), findsOneWidget);
+    expect(find.text('Apprentice'), findsOneWidget);
     expect(find.text('New: it knows no words yet. Feed it some tokens.'), findsOneWidget);
     await _rest(tester);
   });
@@ -204,7 +204,7 @@ void main() {
       find.descendant(of: find.byKey(const ValueKey('pocket-assistant')), matching: find.byType(CustomPaint)).last,
     );
     expect((head.painter! as RobotHeadPainter).face, RobotFace.asleep);
-    expect(find.bySemanticsLabel('Pocket model, Level 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('Apprentice, Level 2'), findsOneWidget);
     semantics.dispose();
   });
 
@@ -345,7 +345,7 @@ void main() {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: clock.now())));
     final semantics = tester.ensureSemantics();
     await tester.pump();
-    expect(find.bySemanticsLabel('Pocket model, level 2. Tap to pet it.'), findsOneWidget);
+    expect(find.bySemanticsLabel('Apprentice, level 2. Tap to pet it.'), findsOneWidget);
     final stage = tester.getRect(_stage);
     await tester.tapAt(stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60));
     await tester.pump();
@@ -504,7 +504,7 @@ void main() {
     await tester.ensureVisible(reset);
     await tester.tap(reset);
     await tester.pumpAndSettle();
-    expect(find.text('Start the pocket model over?'), findsOneWidget);
+    expect(find.text('Start the apprentice over?'), findsOneWidget);
     await tester.tap(find.text('Keep it'));
     await tester.pumpAndSettle();
     expect(store.kept?.tokens, 400, reason: 'kept as it was');

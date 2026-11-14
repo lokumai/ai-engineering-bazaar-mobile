@@ -1969,10 +1969,10 @@ class S {
     return Intl.message('Try again', name: 'reader_retry', desc: '', args: []);
   }
 
-  /// `Pocket model`
+  /// `Apprentice`
   String get pocket_title {
     return Intl.message(
-      'Pocket model',
+      'Apprentice',
       name: 'pocket_title',
       desc: 'Home\'s toy under Your path (plan 9.2): a tiny model the reader trains with tokens.',
       args: [],
@@ -1989,9 +1989,9 @@ class S {
     return Intl.message('Feed tokens', name: 'pocket_feed', desc: '', args: []);
   }
 
-  /// `Ask it`
+  /// `Chat`
   String get pocket_ask {
-    return Intl.message('Ask it', name: 'pocket_ask', desc: '', args: []);
+    return Intl.message('Chat', name: 'pocket_ask', desc: '', args: []);
   }
 
   /// `Temperature`
@@ -2146,10 +2146,10 @@ class S {
     );
   }
 
-  /// `Pocket model, level {level}. Tap to pet it.`
+  /// `Apprentice, level {level}. Tap to pet it.`
   String pocket_stage_label(int level) {
     return Intl.message(
-      'Pocket model, level $level. Tap to pet it.',
+      'Apprentice, level $level. Tap to pet it.',
       name: 'pocket_stage_label',
       desc: '',
       args: [level],
@@ -2203,9 +2203,9 @@ class S {
     );
   }
 
-  /// `Start the pocket model over?`
+  /// `Start the apprentice over?`
   String get pocket_reset_title {
-    return Intl.message('Start the pocket model over?', name: 'pocket_reset_title', desc: '', args: []);
+    return Intl.message('Start the apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
   }
 
   /// `It forgets every token it read and starts again at level 0. The course and its progress stay as they are.`
@@ -2238,10 +2238,10 @@ class S {
     );
   }
 
-  /// `Pocket model`
+  /// `Apprentice`
   String get settings_pocket_button {
     return Intl.message(
-      'Pocket model',
+      'Apprentice',
       name: 'settings_pocket_button',
       desc: 'The title of the choice, on or off, that shows or hides the pocket model\'s round button on Home.',
       args: [],
@@ -2293,10 +2293,10 @@ class S {
     return Intl.message('Body', name: 'wardrobe_body', desc: 'The wardrobe\'s tab of bodies.', args: []);
   }
 
-  /// `Each level of the pocket model unlocks something new to wear.`
+  /// `Each level of the apprentice unlocks something new to wear.`
   String get wardrobe_note {
     return Intl.message(
-      'Each level of the pocket model unlocks something new to wear.',
+      'Each level of the apprentice unlocks something new to wear.',
       name: 'wardrobe_note',
       desc: 'Under the wardrobe\'s choices.',
       args: [],

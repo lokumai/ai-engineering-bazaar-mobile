@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(words) => "Diyor ki: ${words}";
 
-  static String m36(level) => "Cep modeli, seviye ${level}. Sevmek için dokun.";
+  static String m36(level) => "Çırak, seviye ${level}. Sevmek için dokun.";
 
   static String m37(count, level) => "Seviye ${level} için ${count}";
 
@@ -371,7 +371,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("Kedi kulakları"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("Eski televizyon"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("Uzay kaskı"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("Konuştur"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("Sohbet et"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Token yedir"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("halüsinasyon"),
     "pocket_known": m30,
@@ -390,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar. Kurs ve ilerlemen olduğu gibi kalır.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Kalsın"),
-    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Cep modeli baştan başlasın mı?"),
+    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Çırak baştan başlasın mı?"),
     "pocket_says": m35,
     "pocket_stage_label": m36,
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("Uyuyor. Uyandırmak için dokun."),
@@ -407,7 +407,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("Dinlendi, yeniden öğrenmeye hazır."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Sıcaklık"),
-    "pocket_title": MessageLookupByLibrary.simpleMessage("Cep modeli"),
+    "pocket_title": MessageLookupByLibrary.simpleMessage("Çırak"),
     "pocket_to_next": m37,
     "pocket_tokens": m38,
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
@@ -537,7 +537,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_licences": MessageLookupByLibrary.simpleMessage("Lisanslar"),
     "settings_off": MessageLookupByLibrary.simpleMessage("Kapalı"),
     "settings_on": MessageLookupByLibrary.simpleMessage("Açık"),
-    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("Cep modeli"),
+    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("Çırak"),
     "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("Gizlilik ve yasal bilgiler"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Yayın tarihi"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Okuma"),
@@ -572,7 +572,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
     "wardrobe_item_locked": m55,
     "wardrobe_item_worn": m56,
-    "wardrobe_note": MessageLookupByLibrary.simpleMessage("Cep modelinin her seviyesi giyecek yeni bir şey açar."),
+    "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
     "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),

@@ -980,7 +980,7 @@
   "@reader_failed": {},
   "reader_retry": "Try again",
   "@reader_retry": {},
-  "pocket_title": "Pocket model",
+  "pocket_title": "Apprentice",
   "@pocket_title": {
     "description": "Home's toy under Your path (plan 9.2): a tiny model the reader trains with tokens."
   },
@@ -988,7 +988,7 @@
   "@pocket_lede": {},
   "pocket_feed": "Feed tokens",
   "@pocket_feed": {},
-  "pocket_ask": "Ask it",
+  "pocket_ask": "Chat",
   "@pocket_ask": {},
   "pocket_temperature": "Temperature",
   "@pocket_temperature": {},
@@ -1077,7 +1077,7 @@
   "@pocket_hallucinating": {
     "description": "The tag on a speech bubble said while too hot."
   },
-  "pocket_stage_label": "Pocket model, level {level}. Tap to pet it.",
+  "pocket_stage_label": "Apprentice, level {level}. Tap to pet it.",
   "@pocket_stage_label": {
     "placeholders": {
       "level": {
@@ -1114,7 +1114,7 @@
   "@pocket_reset": {
     "description": "The button that starts the pocket model again at level 0."
   },
-  "pocket_reset_title": "Start the pocket model over?",
+  "pocket_reset_title": "Start the apprentice over?",
   "@pocket_reset_title": {},
   "pocket_reset_body": "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
   "@pocket_reset_body": {},
@@ -1126,7 +1126,7 @@
   "@settings_customize": {
     "description": "Settings' section for the app icon, the pocket model's button and the robot's wardrobe."
   },
-  "settings_pocket_button": "Pocket model",
+  "settings_pocket_button": "Apprentice",
   "@settings_pocket_button": {
     "description": "The title of the choice, on or off, that shows or hides the pocket model's round button on Home."
   },
@@ -1154,7 +1154,7 @@
   "@wardrobe_body": {
     "description": "The wardrobe's tab of bodies."
   },
-  "wardrobe_note": "Each level of the pocket model unlocks something new to wear.",
+  "wardrobe_note": "Each level of the apprentice unlocks something new to wear.",
   "@wardrobe_note": {
     "description": "Under the wardrobe's choices."
   },

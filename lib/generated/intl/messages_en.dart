@@ -95,7 +95,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(words) => "It says: ${words}";
 
-  static String m36(level) => "Pocket model, level ${level}. Tap to pet it.";
+  static String m36(level) => "Apprentice, level ${level}. Tap to pet it.";
 
   static String m37(count, level) => "${count} to level ${level}";
 
@@ -370,7 +370,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("Cat ears"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("Old television"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("Space helmet"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("Ask it"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("Chat"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Feed tokens"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("hallucinating"),
     "pocket_known": m30,
@@ -389,7 +389,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
-    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the pocket model over?"),
+    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the apprentice over?"),
     "pocket_says": m35,
     "pocket_stage_label": m36,
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("Asleep. Tap it to wake it."),
@@ -404,7 +404,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("Rested, and ready to learn again."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
-    "pocket_title": MessageLookupByLibrary.simpleMessage("Pocket model"),
+    "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
     "pocket_to_next": m37,
     "pocket_tokens": m38,
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
@@ -534,7 +534,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
     "settings_off": MessageLookupByLibrary.simpleMessage("Off"),
     "settings_on": MessageLookupByLibrary.simpleMessage("On"),
-    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("Pocket model"),
+    "settings_pocket_button": MessageLookupByLibrary.simpleMessage("Apprentice"),
     "settings_privacy_legal": MessageLookupByLibrary.simpleMessage("Privacy and legal"),
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
@@ -570,7 +570,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_item_locked": m55,
     "wardrobe_item_worn": m56,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
-      "Each level of the pocket model unlocks something new to wear.",
+      "Each level of the apprentice unlocks something new to wear.",
     ),
     "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
