@@ -164,7 +164,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   void _onPointer(Offset local) {
     if (_stage == Size.zero) return;
     final seat = PocketRobotPainter.seat(_stage, mirrored: _mirrored);
-    final s = PocketRobotPainter.scaleOf(_stage, _outfit);
+    final s = PocketRobotPainter.scaleOf(_stage);
     final eyes = seat - Offset(0, 112 * s);
     final mirror = _mirrored ? -1.0 : 1.0;
     _lookTarget = Offset(
@@ -422,7 +422,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   Offset get _mouth {
     if (_stage == Size.zero) return const Offset(0.5, 0.5);
     final seat = PocketRobotPainter.seat(_stage, mirrored: _mirrored);
-    final s = PocketRobotPainter.scaleOf(_stage, _outfit);
+    final s = PocketRobotPainter.scaleOf(_stage);
     final at = seat - Offset(0, 96 * s);
     return Offset(at.dx / _stage.width, at.dy / _stage.height);
   }

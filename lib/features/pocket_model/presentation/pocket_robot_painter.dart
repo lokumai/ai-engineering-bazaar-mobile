@@ -190,15 +190,13 @@ class PocketRobotPainter extends CustomPainter {
   static Offset seat(Size size, {bool mirrored = false}) =>
       Offset(size.width * (mirrored ? 0.34 : 0.66), size.height - 30);
 
-  /// The robot's scale in a stage of [size]: a little smaller in a tall hat or a helmet, so its top stays in the stage.
-  static double scaleOf(Size size, [RobotOutfit outfit = RobotOutfit.initial]) {
-    final reach = 140 + _hatSeat(outfit.head) + hatHeight(outfit.hat);
-    return (size.height / 220 * math.min(1, 170 / reach)).clamp(0.6, 1.3);
-  }
+  /// The robot's scale in a stage of [size]: the same in every outfit, since a tall hat is drawn smaller instead
+  /// ([hatScale]), so the robot itself never shrinks (the owner, 2026-11-14).
+  static double scaleOf(Size size) => (size.height / 220).clamp(0.6, 1.3);
 
   /// Whether [point] is on the robot in a stage of [size].
   static bool hits(Size size, Offset point, {bool mirrored = false, RobotOutfit outfit = RobotOutfit.initial}) {
-    final s = scaleOf(size, outfit);
+    final s = scaleOf(size);
     final feet = seat(size, mirrored: mirrored);
     return Rect.fromLTRB(feet.dx - 62 * s, feet.dy - 150 * s, feet.dx + 62 * s, feet.dy + 6).contains(point);
   }
@@ -208,7 +206,7 @@ class PocketRobotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final f = frame();
-    final s = scaleOf(size, f.outfit);
+    final s = scaleOf(size);
     final feet = seat(size, mirrored: f.mirrored);
     if (rug) _rug(canvas, size, feet, s);
     final breathe = f.alive ? math.sin(f.time * 2 * math.pi / 2.6) : 0.0;
@@ -599,20 +597,20 @@ class PocketRobotPainter extends CustomPainter {
   }
 
   /// A space helmet's glass round the head, with a collar at its foot.
-  static void _glass(Canvas canvas) {
-    const centre = Offset(0, -31);
+  static void _glass(Canvas canvas, {bool collar = true}) {
+    // An oval close round the head, so it adds little above it and the robot keeps its size in it.
+    final glass = Rect.fromCenter(center: const Offset(0, -31), width: 108, height: 84);
     canvas
-      ..drawCircle(centre, 56, Paint()..color = const Color(0x1fbfe8ff))
-      ..drawCircle(
-        centre,
-        56,
+      ..drawOval(glass, Paint()..color = const Color(0x1fbfe8ff))
+      ..drawOval(
+        glass,
         Paint()
           ..color = const Color(0x99dff4ff)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.6,
       )
       ..drawArc(
-        Rect.fromCircle(center: centre, radius: 47),
+        glass.deflate(9),
         math.pi * 1.08,
         math.pi * 0.42,
         false,
@@ -621,12 +619,23 @@ class PocketRobotPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 4
           ..strokeCap = StrokeCap.round,
-      )
-      ..drawRRect(RRect.fromLTRBR(-30, 18, 30, 26, const Radius.circular(4)), Paint()..color = const Color(0xffcfd2d6));
+      );
+    if (collar) {
+      canvas.drawRRect(
+        RRect.fromLTRBR(-30, 12, 30, 20, const Radius.circular(4)),
+        Paint()..color = const Color(0xffcfd2d6),
+      );
+    }
   }
 
   /// How far above the head's top [hat] sits on [head]: on a helmet, on its glass.
-  static double _hatSeat(RobotHead head) => head == RobotHead.visor ? 27 : 0;
+  static double _hatSeat(RobotHead head) => head == RobotHead.visor ? 12 : 0;
+
+  /// How far above the head's top any hat reaches, with its seat: a hat that would reach higher is drawn smaller.
+  static const hatRoom = 44.0;
+
+  /// The scale [hat] is drawn at on [head], so it reaches no higher than [hatRoom].
+  static double hatScale(RobotHead head, RobotHat hat) => math.min(1, (hatRoom - _hatSeat(head)) / hatHeight(hat));
 
   /// How far [hat] reaches above its seat, with its bead's glow.
   static double hatHeight(RobotHat hat) => switch (hat) {
@@ -671,7 +680,8 @@ class PocketRobotPainter extends CustomPainter {
       ..translate(dx + drift, -60 - lift - _hatSeat(f.outfit.head))
       ..translate(0, -10)
       ..rotate(tilt + turn)
-      ..translate(0, 10);
+      ..translate(0, 10)
+      ..scale(hatScale(f.outfit.head, hat));
     final swing = f.alive ? math.sin(f.time * 2 * math.pi / 1.6) * 3 : 0.0;
     switch (hat) {
       case RobotHat.fez:
@@ -1332,11 +1342,12 @@ class RobotHeadPainter extends CustomPainter {
       outfit: outfit,
     );
     final robot = PocketRobotPainter(frame: () => frame, repaint: const AlwaysStoppedAnimation(0));
-    // The head and its hat stand in a box from the hat's top to the head's foot, a helmet's glass the widest.
+    // The head and its hat stand in the same box in every outfit, from the highest a hat reaches to the head's foot,
+    // as wide as a helmet's glass, so the head is the same size whatever it wears.
     final visor = outfit.head == RobotHead.visor;
-    final top = 62 + PocketRobotPainter._hatSeat(outfit.head) + PocketRobotPainter.hatHeight(outfit.hat);
-    final bottom = visor ? 26.0 : 0.0;
-    final width = visor ? 116.0 : 100.0;
+    const top = 62 + PocketRobotPainter.hatRoom;
+    const bottom = 12.0;
+    const width = 112.0;
     final s = math.min(size.width / width, size.height / (top + bottom));
     canvas
       ..save()
@@ -1344,7 +1355,7 @@ class RobotHeadPainter extends CustomPainter {
       ..scale(s);
     PocketRobotPainter._head(canvas, outfit.head);
     robot._face(canvas, frame);
-    if (visor) PocketRobotPainter._glass(canvas);
+    if (visor) PocketRobotPainter._glass(canvas, collar: false);
     robot._hat(canvas, frame);
     canvas.restore();
   }
