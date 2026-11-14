@@ -36,6 +36,9 @@ enum RobotTrick {
 
   /// Idle: a yawn.
   yawn,
+
+  /// Hello: it raises its arm and waves, as the app opens (the owner, 2026-11-14).
+  wave,
 }
 
 /// How long each trick runs, in seconds.
@@ -49,6 +52,7 @@ abstract final class RobotTricks {
     RobotTrick.thinking => 0.7,
     RobotTrick.glitch => 1.6,
     RobotTrick.yawn => 1.5,
+    RobotTrick.wave => 1.3,
   };
 }
 
@@ -68,10 +72,14 @@ final class RobotFrame {
     this.trick,
     this.trickTime = 0,
     this.outfit = RobotOutfit.initial,
+    this.hatRoom = PocketRobotPainter.hatRoom,
   });
 
   /// What it wears: its hat, the shape of its head and its body (plan 9.9).
   final RobotOutfit outfit;
+
+  /// How far above its head its hat may reach ([PocketRobotPainter.hatScale]).
+  final double hatRoom;
 
   /// The trick it is playing, if any, and how many seconds into it.
   final RobotTrick? trick;
@@ -177,7 +185,7 @@ Color beadColour(double temperature) {
 
 /// Paints the pocket model on its rug, its face, the bead of its fez and whatever flies around it.
 class PocketRobotPainter extends CustomPainter {
-  PocketRobotPainter({required this.frame, required Listenable super.repaint, this.rug = true});
+  PocketRobotPainter({required this.frame, required Listenable super.repaint, this.rug = true, this.centred = false});
 
   /// Reads the moment to draw; called on every paint.
   final RobotFrame Function() frame;
@@ -185,19 +193,28 @@ class PocketRobotPainter extends CustomPainter {
   /// Whether it sits on its rug, with its shadow; a wardrobe's small picture of a body has neither.
   final bool rug;
 
+  /// Whether it stands in the middle of the stage, as where it says nothing ([seat]).
+  final bool centred;
+
   /// Where the robot sits in a stage of [size]: the middle of its feet, past the middle toward the end side, so what it
-  /// says has the start side.
-  static Offset seat(Size size, {bool mirrored = false}) =>
-      Offset(size.width * (mirrored ? 0.34 : 0.66), size.height - 30);
+  /// says has the start side; [centred], in the middle, where it says nothing (the wardrobe, the opening).
+  static Offset seat(Size size, {bool mirrored = false, bool centred = false}) =>
+      Offset(size.width * (centred ? 0.5 : (mirrored ? 0.34 : 0.66)), size.height - 30);
 
   /// The robot's scale in a stage of [size]: the same in every outfit, since a tall hat is drawn smaller instead
   /// ([hatScale]), so the robot itself never shrinks (the owner, 2026-11-14).
   static double scaleOf(Size size) => (size.height / 220).clamp(0.6, 1.3);
 
   /// Whether [point] is on the robot in a stage of [size].
-  static bool hits(Size size, Offset point, {bool mirrored = false, RobotOutfit outfit = RobotOutfit.initial}) {
+  static bool hits(
+    Size size,
+    Offset point, {
+    bool mirrored = false,
+    bool centred = false,
+    RobotOutfit outfit = RobotOutfit.initial,
+  }) {
     final s = scaleOf(size);
-    final feet = seat(size, mirrored: mirrored);
+    final feet = seat(size, mirrored: mirrored, centred: centred);
     return Rect.fromLTRB(feet.dx - 62 * s, feet.dy - 150 * s, feet.dx + 62 * s, feet.dy + 6).contains(point);
   }
 
@@ -207,7 +224,7 @@ class PocketRobotPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final f = frame();
     final s = scaleOf(size);
-    final feet = seat(size, mirrored: f.mirrored);
+    final feet = seat(size, mirrored: f.mirrored, centred: centred);
     if (rug) _rug(canvas, size, feet, s);
     final breathe = f.alive ? math.sin(f.time * 2 * math.pi / 2.6) : 0.0;
     final sway = f.alive && f.face != RobotFace.asleep ? math.sin(f.time * 2 * math.pi / 3.4) * 0.03 : 0.0;
@@ -297,15 +314,19 @@ class PocketRobotPainter extends CustomPainter {
     _torso(canvas, f);
     canvas.restore();
 
-    // Arms: they wave when it is happy.
+    // Arms: they wave when it is happy; saying hello, its end-side arm rises over its head and waves.
     final wave = happy ? math.sin(f.time * 2 * math.pi / 0.5) * 0.5 : 0.0;
+    final helloAt = f.trickAt(RobotTrick.wave);
+    // Up in the first fifth, waving, and down in the last.
+    final raised = helloAt == null ? 0.0 : Curves.easeInOut.transform(math.min(1, math.min(helloAt, 1 - helloAt) * 5));
+    final hello = helloAt == null ? 0.0 : raised * (2.1 + math.sin(helloAt * 2 * math.pi * 3) * 0.35);
     final look = _BodyLook.of(f.outfit.body);
     final arm = Paint()..color = look.arm;
     for (final side in [-1.0, 1.0]) {
       canvas
         ..save()
         ..translate(side * 37, -60)
-        ..rotate(-side * (0.45 + (side > 0 ? wave : 0)));
+        ..rotate(-side * (0.45 + (side > 0 ? (helloAt == null ? wave : hello) : 0)));
       if (f.outfit.body == RobotBody.kaftan) {
         // A wide sleeve.
         canvas.drawPath(
@@ -634,8 +655,12 @@ class PocketRobotPainter extends CustomPainter {
   /// How far above the head's top any hat reaches, with its seat: a hat that would reach higher is drawn smaller.
   static const hatRoom = 44.0;
 
-  /// The scale [hat] is drawn at on [head], so it reaches no higher than [hatRoom].
-  static double hatScale(RobotHead head, RobotHat hat) => math.min(1, (hatRoom - _hatSeat(head)) / hatHeight(hat));
+  /// The scale [hat] is drawn at on [head], so it reaches no higher than [room].
+  static double hatScale(RobotHead head, RobotHat hat, {double room = hatRoom}) =>
+      math.min(1, (room - _hatSeat(head)) / hatHeight(hat));
+
+  /// The room for a hat on an app icon, where the head stands alone and a tall hat may stand taller.
+  static const iconHatRoom = 56.0;
 
   /// How far [hat] reaches above its seat, with its bead's glow.
   static double hatHeight(RobotHat hat) => switch (hat) {
@@ -681,7 +706,7 @@ class PocketRobotPainter extends CustomPainter {
       ..translate(0, -10)
       ..rotate(tilt + turn)
       ..translate(0, 10)
-      ..scale(hatScale(f.outfit.head, hat));
+      ..scale(hatScale(f.outfit.head, hat, room: f.hatRoom));
     final swing = f.alive ? math.sin(f.time * 2 * math.pi / 1.6) * 3 : 0.0;
     switch (hat) {
       case RobotHat.fez:
@@ -1320,11 +1345,16 @@ final class _BodyLook {
 /// The robot's head and hat alone, still, in the middle of its box: the face of the assistant button, and a picture of
 /// a hat or a head in the wardrobe.
 class RobotHeadPainter extends CustomPainter {
-  RobotHeadPainter({required this.face, this.temperature = 0.8, this.outfit = RobotOutfit.initial});
+  RobotHeadPainter({required this.face, this.temperature = 0.8, this.outfit = RobotOutfit.initial, this.tight = false});
 
   final RobotFace face;
   final double temperature;
   final RobotOutfit outfit;
+
+  /// Whether its box reaches only as high as its own hat does, so it fills the picture whatever it wears: an app icon
+  /// (the owner, 2026-11-14: the head had looked small on the home screen). Otherwise the box has room for the tallest
+  /// hat, so heads side by side are the same size.
+  final bool tight;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1340,12 +1370,18 @@ class RobotHeadPainter extends CustomPainter {
       alive: false,
       mirrored: false,
       outfit: outfit,
+      hatRoom: tight ? PocketRobotPainter.iconHatRoom : PocketRobotPainter.hatRoom,
     );
     final robot = PocketRobotPainter(frame: () => frame, repaint: const AlwaysStoppedAnimation(0));
     // The head and its hat stand in the same box in every outfit, from the highest a hat reaches to the head's foot,
     // as wide as a helmet's glass, so the head is the same size whatever it wears.
     final visor = outfit.head == RobotHead.visor;
-    const top = 62 + PocketRobotPainter.hatRoom;
+    final top = tight
+        ? 62 +
+              PocketRobotPainter._hatSeat(outfit.head) +
+              PocketRobotPainter.hatHeight(outfit.hat) *
+                  PocketRobotPainter.hatScale(outfit.head, outfit.hat, room: frame.hatRoom)
+        : 62 + PocketRobotPainter.hatRoom;
     const bottom = 12.0;
     const width = 112.0;
     final s = math.min(size.width / width, size.height / (top + bottom));
@@ -1362,5 +1398,5 @@ class RobotHeadPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(RobotHeadPainter old) =>
-      old.face != face || old.temperature != temperature || old.outfit != outfit;
+      old.face != face || old.temperature != temperature || old.outfit != outfit || old.tight != tight;
 }

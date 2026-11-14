@@ -82,7 +82,12 @@ void main() {
     final outfit = await _pump(tester, tokens: 640);
     await tester.tap(find.byKey(const ValueKey('wardrobe-bodies')));
     await tester.pump();
-    expect(find.text('Lab coat'), findsOneWidget);
+    // No names under the pictures (the owner, 2026-11-14): a screen reader still hears each.
+    expect(
+      find.descendant(of: find.byKey(const ValueKey('wardrobe-labCoat-body')), matching: find.byType(Text)),
+      findsNothing,
+    );
+    expect(tester.getSemantics(find.byKey(const ValueKey('wardrobe-labCoat-body'))), isSemantics(label: 'Lab coat'));
     await tester.tap(find.byKey(const ValueKey('wardrobe-labCoat-body')));
     await tester.pump();
     expect(outfit.state.body, RobotBody.labCoat);
@@ -115,7 +120,34 @@ void main() {
     }
   });
 
-  testWidgets('every box in a row is as tall as the others, though a name takes two lines', (tester) async {
+  testWidgets('the robot stands in the middle, as each body does in its box, and a tap on it pets it', (tester) async {
+    await _pump(tester, tokens: 640);
+    final stage = find.byKey(const ValueKey('wardrobe-robot'));
+    PocketRobotPainter painterIn(Finder finder) =>
+        tester.widget<CustomPaint>(find.descendant(of: finder, matching: find.byType(CustomPaint))).painter!
+            as PocketRobotPainter;
+    expect(painterIn(stage).centred, isTrue);
+    final rect = tester.getRect(stage);
+    expect(PocketRobotPainter.seat(rect.size, centred: true).dx, rect.width / 2);
+
+    expect(_robot(tester).face, RobotFace.calm);
+    await tester.tapAt(rect.topLeft + PocketRobotPainter.seat(rect.size, centred: true) - const Offset(0, 60));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    final petted = _robot(tester);
+    expect(
+      petted.face == RobotFace.happy || petted.trick != null || petted.particles.isNotEmpty,
+      isTrue,
+      reason: 'a turn of the pocket model sheet',
+    );
+
+    await tester.tap(find.byKey(const ValueKey('wardrobe-bodies')));
+    await tester.pump();
+    expect(painterIn(find.byKey(const ValueKey('wardrobe-vest-body'))).centred, isTrue);
+    await tester.pump(const Duration(seconds: 10));
+  });
+
+  testWidgets('every box in a row is as tall as the others', (tester) async {
     await _pump(tester, tokens: 100000);
     for (final tab in ['wardrobe-hats', 'wardrobe-heads', 'wardrobe-bodies']) {
       await tester.tap(find.byKey(ValueKey(tab)));

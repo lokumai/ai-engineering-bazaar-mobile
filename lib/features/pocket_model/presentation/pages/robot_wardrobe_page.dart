@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_ou
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/outfit_names.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
@@ -15,9 +16,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The parts of the wardrobe, each a tab.
 enum _Kind { hat, head, body }
 
-/// The robot's wardrobe (plan 9.9), from Settings' Customize: the robot on its rug at the top, in what it wears, and
-/// under it its hats, heads and bodies, a tab each. A part the pocket model has not reached the level of is shown
-/// locked, with its level; a tap on any other puts it on.
+/// The robot's wardrobe (plan 9.9), from Settings' Customize: the robot on its rug at the top, in the middle, in what
+/// it wears, and a tap pets it as on the pocket model's sheet ([RobotStage]); under it its hats, heads and bodies, a
+/// tab each, as pictures with no names under them (the owner, 2026-11-14: the picture says it). A part the pocket
+/// model has not reached the level of is shown locked, with its level; a tap on any other puts it on.
 class RobotWardrobePage extends StatefulWidget {
   const RobotWardrobePage({super.key});
 
@@ -25,26 +27,8 @@ class RobotWardrobePage extends StatefulWidget {
   State<RobotWardrobePage> createState() => _RobotWardrobePageState();
 }
 
-class _RobotWardrobePageState extends State<RobotWardrobePage> with SingleTickerProviderStateMixin {
-  late final AnimationController _clock = AnimationController(vsync: this, duration: const Duration(seconds: 60));
+class _RobotWardrobePageState extends State<RobotWardrobePage> {
   _Kind _kind = _Kind.hat;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // It breathes and its bead pulses, unless motion is reduced.
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _clock.stop();
-    } else if (!_clock.isAnimating) {
-      _clock.repeat();
-    }
-  }
-
-  @override
-  void dispose() {
-    _clock.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,24 +63,7 @@ class _RobotWardrobePageState extends State<RobotWardrobePage> with SingleTicker
                 child: SizedBox(
                   key: const ValueKey('wardrobe-robot'),
                   height: 250,
-                  child: CustomPaint(
-                    painter: PocketRobotPainter(
-                      repaint: _clock,
-                      frame: () => RobotFrame(
-                        time: _clock.value * 60,
-                        face: RobotFace.calm,
-                        look: Offset.zero,
-                        blink: 0,
-                        hop: 0,
-                        temperature: temperature,
-                        level: level,
-                        particles: const [],
-                        alive: _clock.isAnimating,
-                        mirrored: false,
-                        outfit: worn,
-                      ),
-                    ),
-                  ),
+                  child: RobotStage(outfit: worn),
                 ),
               ),
             ),
@@ -144,8 +111,8 @@ class _RobotWardrobePageState extends State<RobotWardrobePage> with SingleTicker
   }
 }
 
-/// One hat, head or body: a picture of the robot in it, its name, a ring when it is worn, a lock and its level when
-/// the model has not reached it.
+/// One hat, head or body: a picture of the robot in it, a ring when it is worn, a lock and its level when the model
+/// has not reached it. Its name is for a screen reader only.
 class _Choice extends StatelessWidget {
   const _Choice({super.key, required this.part, required this.worn, required this.level, required this.temperature});
 
@@ -173,6 +140,7 @@ class _Choice extends StatelessWidget {
     final picture = part is RobotBody
         ? PocketRobotPainter(
             rug: false,
+            centred: true,
             repaint: const AlwaysStoppedAnimation(0),
             frame: () => RobotFrame(
               time: 0,
@@ -247,18 +215,6 @@ class _Choice extends StatelessWidget {
                           ),
                         ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                // One line, so every box is as tall as the others (the owner, 2026-11-14).
-                Text(
-                  name,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: locked ? colors.onSurfaceMuted : colors.onSurfaceTitle,
                   ),
                 ),
               ],
