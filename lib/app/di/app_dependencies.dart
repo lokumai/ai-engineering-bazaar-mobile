@@ -11,6 +11,8 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
@@ -96,6 +98,11 @@ class AppDependencies {
   IReadingPlaceStore createReadingPlaceStore() =>
       FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
 
+  /// Home's pocket model, as one file under [supportDirectory]`/toy/pocket_model.json`, apart from the record
+  /// (plan 9.2).
+  IPocketModelStore createPocketModelStore() =>
+      FilePocketModelStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'));
+
   /// Report a problem's sender, over Sentry's user feedback; Settings shows the page only when Sentry is on.
   IFeedbackSender createFeedbackSender() => const SentryFeedbackSender();
 }
@@ -123,6 +130,22 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
   @override
   Future<void> save(Map<String, ReadingPlace> places) =>
       places.isEmpty ? _file.delete() : _file.write(encodeReadingPlaces(places));
+}
+
+/// The pocket model's port over one text file of the app's own.
+final class FilePocketModelStore implements IPocketModelStore {
+  const FilePocketModelStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<PocketModel?> load() async {
+    final text = await _file.read();
+    return text == null ? null : decodePocketModel(text);
+  }
+
+  @override
+  Future<void> save(PocketModel model) => _file.write(encodePocketModel(model));
 }
 
 /// The quiz scores' port over one text file of the app's own.

@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -123,6 +124,9 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IReadingPlaceStore createReadingPlaceStore() => MemoryReadingPlaceStore();
+
+  @override
+  IPocketModelStore createPocketModelStore() => MemoryPocketModelStore();
 
   @override
   IFeedbackSender createFeedbackSender() => MockFeedbackSender();

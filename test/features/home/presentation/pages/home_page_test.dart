@@ -93,8 +93,10 @@ void main() {
     expect(find.text('Fourth Module', skipOffstage: false), findsOneWidget);
     expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
     expect(find.byType(CompletionDial), findsNothing);
-    expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
+    // The offline note closes the page, under the pocket model (plan 9.2).
+    await tester.scrollUntilVisible(find.text('The course is on this device'), 300);
+    expect(find.text('The course is on this device'), findsOneWidget);
   });
 
   testWidgets('module titles are in the chosen language, the English one where there is none (web D139)', (

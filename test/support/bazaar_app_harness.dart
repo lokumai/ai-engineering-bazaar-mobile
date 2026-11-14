@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
@@ -111,6 +112,7 @@ Widget bazaarTestApp({
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
   IFeedbackSender? feedbackSender,
+  IPocketModelStore? pocketStore,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -122,6 +124,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
+      RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
     ],
     child: MultiBlocProvider(
       providers: [

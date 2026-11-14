@@ -25,13 +25,17 @@ import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
 /// card (Continue reading when a module was left half read, plan 1BA), the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), the reader's path
-/// through the levels at a glance, and the offline note. Home says what to read now (plan 1P); the levels, their modules
+/// through the levels at a glance, the toy the router passes ([toy]), and the offline note. Home says what to read now (plan 1P); the levels, their modules
 /// and their completion in full live on the catalog (plan 1AB).
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.toy});
+
+  /// Something to play with when bored, under Your path and over the offline note (plan 9.2): the router passes the
+  /// pocket model's card, since Home may not import another feature. None when null.
+  final Widget? toy;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +122,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 14),
           HomePath(levels: overview.levels),
         ],
+        if (toy case final toy?) ...[const SizedBox(height: 28), toy],
         const SizedBox(height: 22),
         const Divider(height: 1, thickness: 0.5),
         const SizedBox(height: 4),

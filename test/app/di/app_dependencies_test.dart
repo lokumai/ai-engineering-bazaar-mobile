@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.d
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -237,6 +238,28 @@ void main() {
 
     await store.save(const {});
     expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
+  });
+
+  test('createPocketModelStore keeps the pocket model in one file under the support directory (plan 9.2)', () async {
+    final root = Directory.systemTemp.createTempSync('pocket_model_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createPocketModelStore();
+    expect(store, isA<FilePocketModelStore>());
+    expect(await store.load(), isNull);
+
+    final model = PocketModel(tokens: 64, lastFed: DateTime.utc(2026, 11, 14, 3));
+    await store.save(model);
+    expect(await dependencies.createPocketModelStore().load(), model, reason: 'kept for the next start');
+    expect(File('${root.path}/toy/pocket_model.json').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+
+    File('${root.path}/toy/pocket_model.json').writeAsStringSync('not json');
+    expect(await store.load(), isNull, reason: 'a file it cannot read starts a fresh model');
   });
 
   test('createReadingPlaceStore keeps the places in one file under the support directory (plan 1BA)', () async {
