@@ -228,8 +228,12 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     final kept = _stacks[index];
     if (index != _selectedIndex) TabSwitch.begin();
     // The open tab goes back to its first page; another opens its own pages again, unless they are of the track the
-    // reader left since (Settings changes the track).
-    if (index == _selectedIndex || kept == null || (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
+    // reader left since (Settings changes the track). Settings always opens on its own first page: it is where things
+    // are set, not a place to come back to (the owner, 2026-11-14).
+    if (index == _selectedIndex ||
+        index == 4 ||
+        kept == null ||
+        (index == 1 && BazaarPaths.trackOf(kept.top) != track)) {
       _stacks.remove(index);
       router.go(target);
     } else {

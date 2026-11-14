@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
@@ -503,6 +504,18 @@ void main() {
     expect(_path(router), '/courses/alpha/first');
     await _tap(tester, find.byType(BackButton));
     expect(_path(router), '/', reason: 'back where it was opened, Home (the owner, 2026-11-12)');
+  });
+
+  testWidgets('Settings opens on its first page again after another tab (the owner, 2026-11-14)', (tester) async {
+    final router = await _pumpAt(tester, ApplicationRoutesConstants.privacyLegal, TrackCubit());
+    expect(_path(router), ApplicationRoutesConstants.privacyLegal);
+
+    await tester.tap(_destination('Quiz'));
+    await tester.pumpAndSettle();
+    await tester.tap(_destination('Settings'));
+    await tester.pumpAndSettle();
+    expect(_path(router), BazaarPaths.settings, reason: 'not the page of Settings left for the Quiz tab');
+    expect(find.byType(BackButton), findsNothing);
   });
 
   group('another tab opens at once, with no transition (the owner, 2026-11-12)', () {
