@@ -96,6 +96,26 @@ void main() {
     await _rest(tester);
   });
 
+  testWidgets('the reader moves its button, and it stays there from tab to tab', (tester) async {
+    await _pump(tester, open: false);
+    final button = find.byKey(const ValueKey('pocket-assistant'));
+    final start = tester.getRect(button);
+    await tester.timedDrag(button, const Offset(-150, -200), const Duration(seconds: 2));
+    await tester.pump();
+    final moved = tester.getRect(button);
+    expect(moved.center.dx, lessThan(start.center.dx - 100));
+    expect(moved.center.dy, lessThan(start.center.dy - 100));
+
+    for (final label in ['Quiz', 'Home']) {
+      await tester.tap(find.text(label).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+    expect(tester.getRect(button), moved);
+    expect(find.byType(PocketModelCard), findsNothing, reason: 'a drag is not a tap');
+    await _rest(tester);
+  });
+
   testWidgets('the end of a page scrolls clear of its button', (tester) async {
     await _pump(tester, open: false);
     tester.view.physicalSize = const Size(393, 700);

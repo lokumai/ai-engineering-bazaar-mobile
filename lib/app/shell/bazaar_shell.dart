@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/caravan_icon.dart';
+import 'package:ai_engineering_bazaar/app/shell/floating_dock.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -46,7 +47,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
 /// navigation on the first page of Home, the catalog and the Quiz tab; never over a level's page, a module or the
-/// Caravan's stage, and it goes with the navigation when a page folds it away.
+/// Caravan's stage, and it goes with the navigation when a page folds it away. The reader can drag it or throw it
+/// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
 class BazaarShell extends StatefulWidget {
   const BazaarShell({super.key, required this.location, required this.child, this.assistant});
 
@@ -65,6 +67,9 @@ class BazaarShell extends StatefulWidget {
     BazaarPaths.quizzes,
   };
 
+  /// The [assistant]'s width and height.
+  static const double assistantSize = 58;
+
   /// The navigation's height: under Material's 80, the icons and their small names.
   static const double navHeight = 62;
 
@@ -73,6 +78,9 @@ class BazaarShell extends StatefulWidget {
 }
 
 class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
+  /// Where the reader left the assistant's button; null is its start corner.
+  Offset? _assistantAt;
+
   /// The scroll distance in one direction that hides or shows the navigation, so a trembling finger does neither.
   static const double _travel = 24;
 
@@ -280,7 +288,6 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
         if (!didPop && atTabRoot) _onDestinationSelected(0);
       },
       child: Scaffold(
-        floatingActionButton: assistantShown ? widget.assistant : null,
         body: Column(
           children: [
             // The status strip stays; the bar and the band fold up with the navigation while a module is read.
@@ -316,13 +323,26 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 child: MediaQuery.removePadding(
                   context: context,
                   removeTop: true,
-                  child: FloatingRoom(
-                    // The button's height and its gap from the navigation, so a page's end scrolls clear of it.
-                    room: assistantShown ? 76 : 0,
-                    child: KeyedSubtree(
-                      key: _pageKey,
-                      child: ReadableWidth(child: widget.child),
-                    ),
+                  child: Stack(
+                    children: [
+                      FloatingRoom(
+                        // The button's height and its gap from the page's foot, so a page's end scrolls clear of it.
+                        room: assistantShown ? 76 : 0,
+                        child: KeyedSubtree(
+                          key: _pageKey,
+                          child: ReadableWidth(child: widget.child),
+                        ),
+                      ),
+                      if (assistantShown)
+                        Positioned.fill(
+                          child: FloatingDock(
+                            size: BazaarShell.assistantSize,
+                            at: _assistantAt,
+                            onRest: (at) => _assistantAt = at,
+                            child: widget.assistant!,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
