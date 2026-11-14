@@ -9,6 +9,10 @@ void main() {
     expect(CaravanCubit().state, const CaravanResting(0));
   });
 
+  test('a tour rests under three seconds a stop: time to read a title, not to wait (the owner, 2026-11-14)', () {
+    expect(CaravanCubit().dwell, lessThan(const Duration(seconds: 3)));
+  });
+
   test('select, next and previous stay on the road', () {
     final cubit = CaravanCubit()..select(3, count: 5);
     expect(cubit.state, const CaravanResting(3));

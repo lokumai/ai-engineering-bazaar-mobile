@@ -30,7 +30,7 @@ final class CaravanTouring extends CaravanState {
 /// The road's length is passed with each call, since the road is drawn from the trends of the page's language. Any
 /// move the reader makes ends a tour. A `Cubit` because each call is atomic and the event stream adds nothing.
 final class CaravanCubit extends Cubit<CaravanState> {
-  CaravanCubit({this.dwell = const Duration(milliseconds: 4200)}) : super(const CaravanResting(0));
+  CaravanCubit({this.dwell = const Duration(milliseconds: 2600)}) : super(const CaravanResting(0));
 
   /// How long the tour stays at a stop: the walk there and time to read the title.
   final Duration dwell;
