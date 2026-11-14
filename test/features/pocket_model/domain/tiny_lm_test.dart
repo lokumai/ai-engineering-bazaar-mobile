@@ -308,7 +308,6 @@ void main() {
     // One module of two sections far apart: the stars, then the bread.
     final both = [...stars, ...bread];
 
-
     test('most sentences on a topic start as one of its sentences starts', () {
       final model = TinyLm.trained('en', 400)..read(both, topic: 'mixed/both', sections: [0, stars.length]);
       final (taught, _) = TinyLm.splitOut(both);

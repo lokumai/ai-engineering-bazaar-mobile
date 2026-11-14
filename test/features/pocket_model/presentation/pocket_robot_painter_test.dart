@@ -83,7 +83,10 @@ void main() {
   test('the head is the same size whatever hat it wears', () async {
     final fez = await _painted(RobotHeadPainter(face: RobotFace.calm), const Size.square(120));
     final wizard = await _painted(
-      RobotHeadPainter(face: RobotFace.calm, outfit: const RobotOutfit(hat: RobotHat.wizard)),
+      RobotHeadPainter(
+        face: RobotFace.calm,
+        outfit: const RobotOutfit(hat: RobotHat.wizard),
+      ),
       const Size.square(120),
     );
     expect(wizard.bottom, fez.bottom);
