@@ -25,12 +25,109 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_soon": "Coming soon",
-  "@caravan_soon": {},
-  "caravan_soon_title": "The Caravan is on its way",
-  "@caravan_soon_title": {},
-  "caravan_soon_body": "A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.",
-  "@caravan_soon_body": {},
+  "caravan_sample_notice": "Sample data: these trends are placeholders while the Caravan is being built.",
+  "@caravan_sample_notice": {
+    "description": "The notice over the Caravan while it draws the web's sample trends, as the web's notice says (web CaravanPage.tsx)."
+  },
+  "caravan_stage_label": "The caravan at {title}",
+  "@caravan_stage_label": {
+    "description": "The stage's name for a screen reader: the caravan at the chosen trend.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "caravan_stop_of": "Stop {index} of {count}",
+  "@caravan_stop_of": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "caravan_previous": "Previous stop",
+  "@caravan_previous": {},
+  "caravan_next": "Next stop",
+  "@caravan_next": {},
+  "caravan_tour": "Tour the road",
+  "@caravan_tour": {
+    "description": "The button that walks the caravan from stop to stop on its own."
+  },
+  "caravan_tour_stop": "Stop the tour",
+  "@caravan_tour_stop": {},
+  "caravan_strip_label": "Where the caravan is",
+  "@caravan_strip_label": {
+    "description": "The strip under the stage, a slider over the stops."
+  },
+  "caravan_hint": "Swipe the card, drag the road or tap a stall to travel.",
+  "@caravan_hint": {},
+  "caravan_period": "{start} to {end}",
+  "@caravan_period": {
+    "description": "When a trend was on the road, its first and last month.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "caravan_period_open": "{start} to now",
+  "@caravan_period_open": {
+    "description": "When a trend still on the road started.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      }
+    }
+  },
+  "caravan_strength": "Strength",
+  "@caravan_strength": {},
+  "caravan_strength_of": "Strength {level} of 5",
+  "@caravan_strength_of": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "caravan_in_course": "In the course",
+  "@caravan_in_course": {
+    "description": "The modules of the course on a trend's subject."
+  },
+  "caravan_reading": "To read",
+  "@caravan_reading": {},
+  "caravan_sample_articles": "Sample article",
+  "@caravan_sample_articles": {},
+  "caravan_sample_videos": "Sample video",
+  "@caravan_sample_videos": {},
+  "caravan_sample_tools": "Sample tool",
+  "@caravan_sample_tools": {},
+  "caravan_sample_repositories": "Sample repository",
+  "@caravan_sample_repositories": {},
+  "caravan_sample_badge": "Sample",
+  "@caravan_sample_badge": {},
+  "caravan_all_trends": "All trends",
+  "@caravan_all_trends": {},
+  "caravan_search": "Search the trends",
+  "@caravan_search": {},
+  "caravan_all_years": "All years",
+  "@caravan_all_years": {},
+  "caravan_no_trend": "No trend matches.",
+  "@caravan_no_trend": {},
+  "caravan_trend_count": "{count, plural, =1{1 trend} other{{count} trends}}",
+  "@caravan_trend_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
   "welcome_track_engineers": "The technical modules: how each part works, with the code and numbers.",

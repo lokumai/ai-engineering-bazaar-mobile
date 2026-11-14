@@ -28,77 +28,89 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(number) => "Table ${number}";
 
-  static String m4(minutes) => "${minutes} min";
+  static String m4(start, end) => "${start} to ${end}";
 
-  static String m5(title) => "Complete ${title}";
+  static String m5(start) => "${start} to now";
 
-  static String m6(approved, total) => "${approved}/${total}";
+  static String m6(title) => "The caravan at ${title}";
 
-  static String m7(count) => "${Intl.plural(count, one: '1 result', other: '${count} results')}";
+  static String m7(index, count) => "Stop ${index} of ${count}";
 
-  static String m8(query) => "Nothing found for “${query}”.";
+  static String m8(level) => "Strength ${level} of 5";
 
-  static String m9(count) => "the first ${count} shown";
+  static String m9(count) => "${Intl.plural(count, one: '1 trend', other: '${count} trends')}";
 
-  static String m10(day) => "Backed up ${day}";
+  static String m10(minutes) => "${minutes} min";
 
-  static String m11(seconds) =>
+  static String m11(title) => "Complete ${title}";
+
+  static String m12(approved, total) => "${approved}/${total}";
+
+  static String m13(count) => "${Intl.plural(count, one: '1 result', other: '${count} results')}";
+
+  static String m14(query) => "Nothing found for “${query}”.";
+
+  static String m15(count) => "the first ${count} shown";
+
+  static String m16(day) => "Backed up ${day}";
+
+  static String m17(seconds) =>
       "${Intl.plural(seconds, one: 'Reset. You can undo it for 1 second.', other: 'Reset. You can undo it for ${seconds} seconds.')}";
 
-  static String m12(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
+  static String m18(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
 
-  static String m13(hours) => "~${hours} h";
+  static String m19(hours) => "~${hours} h";
 
-  static String m14(hours, minutes) => "~${hours} h ${minutes} min";
+  static String m20(hours, minutes) => "~${hours} h ${minutes} min";
 
-  static String m15(minutes) => "~${minutes} min";
+  static String m21(minutes) => "~${minutes} min";
 
-  static String m16(url) => "Could not open ${url}";
+  static String m22(url) => "Could not open ${url}";
 
-  static String m17(count, first) =>
+  static String m23(count, first) =>
       "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
 
-  static String m18(percent) => "${percent} % read";
+  static String m24(percent) => "${percent} % read";
 
-  static String m19(minutes, words) => "${minutes} min · ${words} words";
+  static String m25(minutes, words) => "${minutes} min · ${words} words";
 
-  static String m20(approved, total) => "${approved}/${total} completed";
+  static String m26(approved, total) => "${approved}/${total} completed";
 
-  static String m21(total) => "--/${total} completed";
+  static String m27(total) => "--/${total} completed";
 
-  static String m22(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+  static String m28(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
-  static String m23(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+  static String m29(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
 
-  static String m24(taken, total) => "${taken} of ${total} taken";
+  static String m30(taken, total) => "${taken} of ${total} taken";
 
-  static String m25(index, count) => "Question ${index} of ${count}";
+  static String m31(index, count) => "Question ${index} of ${count}";
 
-  static String m26(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+  static String m32(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
 
-  static String m27(score, total) => "${score} of ${total}";
+  static String m33(score, total) => "${score} of ${total}";
 
-  static String m28(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
+  static String m34(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
 
-  static String m29(count) => "${count} questions on the main points of this module";
+  static String m35(count) => "${count} questions on the main points of this module";
 
-  static String m30(letter) => "Not this one. The answer is ${letter}.";
+  static String m36(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m31(date) => "Completed ${date}";
+  static String m37(date) => "Completed ${date}";
 
-  static String m32(position, total) => "Match ${position} of ${total}";
+  static String m38(position, total) => "Match ${position} of ${total}";
 
-  static String m33(minutes) => "${minutes} min";
+  static String m39(minutes) => "${minutes} min";
 
-  static String m34(number, count) => "MODULE ${number} OF ${count}";
+  static String m40(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m35(label) => "${label} · Planned";
+  static String m41(label) => "${label} · Planned";
 
-  static String m36(hash, date) => "Rev ${hash} · ${date}";
+  static String m42(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m37(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m43(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
-  static String m38(reason) => "The check for updates did not finish: ${reason}.";
+  static String m44(reason) => "The check for updates did not finish: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -130,24 +142,46 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_caption": m2,
     "block_table_region": m3,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
-    "caravan_soon": MessageLookupByLibrary.simpleMessage("Coming soon"),
-    "caravan_soon_body": MessageLookupByLibrary.simpleMessage(
-      "A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.",
+    "caravan_all_trends": MessageLookupByLibrary.simpleMessage("All trends"),
+    "caravan_all_years": MessageLookupByLibrary.simpleMessage("All years"),
+    "caravan_hint": MessageLookupByLibrary.simpleMessage("Swipe the card, drag the road or tap a stall to travel."),
+    "caravan_in_course": MessageLookupByLibrary.simpleMessage("In the course"),
+    "caravan_next": MessageLookupByLibrary.simpleMessage("Next stop"),
+    "caravan_no_trend": MessageLookupByLibrary.simpleMessage("No trend matches."),
+    "caravan_period": m4,
+    "caravan_period_open": m5,
+    "caravan_previous": MessageLookupByLibrary.simpleMessage("Previous stop"),
+    "caravan_reading": MessageLookupByLibrary.simpleMessage("To read"),
+    "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Sample article"),
+    "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Sample"),
+    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
+      "Sample data: these trends are placeholders while the Caravan is being built.",
     ),
-    "caravan_soon_title": MessageLookupByLibrary.simpleMessage("The Caravan is on its way"),
+    "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Sample repository"),
+    "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Sample tool"),
+    "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("Sample video"),
+    "caravan_search": MessageLookupByLibrary.simpleMessage("Search the trends"),
+    "caravan_stage_label": m6,
+    "caravan_stop_of": m7,
+    "caravan_strength": MessageLookupByLibrary.simpleMessage("Strength"),
+    "caravan_strength_of": m8,
+    "caravan_strip_label": MessageLookupByLibrary.simpleMessage("Where the caravan is"),
+    "caravan_tour": MessageLookupByLibrary.simpleMessage("Tour the road"),
+    "caravan_tour_stop": MessageLookupByLibrary.simpleMessage("Stop the tour"),
+    "caravan_trend_count": m9,
     "card_description": MessageLookupByLibrary.simpleMessage("Description"),
     "card_length": MessageLookupByLibrary.simpleMessage("Length"),
-    "card_length_minutes": m4,
+    "card_length_minutes": m10,
     "card_requires": MessageLookupByLibrary.simpleMessage("Requires"),
     "card_requires_nothing": MessageLookupByLibrary.simpleMessage("Nothing"),
-    "catalog_complete_module": m5,
+    "catalog_complete_module": m11,
     "catalog_filter_completed": MessageLookupByLibrary.simpleMessage("Completed"),
-    "catalog_level_dial": m6,
+    "catalog_level_dial": m12,
     "catalog_search_clear": MessageLookupByLibrary.simpleMessage("Clear the search"),
-    "catalog_search_count": m7,
+    "catalog_search_count": m13,
     "catalog_search_hint": MessageLookupByLibrary.simpleMessage("Search the modules"),
-    "catalog_search_none": m8,
-    "catalog_search_shown": m9,
+    "catalog_search_none": m14,
+    "catalog_search_shown": m15,
     "catalog_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "catalog_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
@@ -164,7 +198,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
     "data_back_up": MessageLookupByLibrary.simpleMessage("Back up"),
-    "data_backed_up": m10,
+    "data_backed_up": m16,
     "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
       "The backup file could not be written. Nothing was marked as backed up.",
     ),
@@ -173,7 +207,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_reset": MessageLookupByLibrary.simpleMessage("Reset"),
     "data_reset_closed": MessageLookupByLibrary.simpleMessage("Reset. The time to undo it has passed."),
-    "data_reset_counting": m11,
+    "data_reset_counting": m17,
     "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
       "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
     ),
@@ -196,12 +230,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
-    "data_tally_states": m12,
+    "data_tally_states": m18,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
-    "duration_hours": m13,
-    "duration_hours_minutes": m14,
-    "duration_minutes": m15,
+    "duration_hours": m19,
+    "duration_hours_minutes": m20,
+    "duration_minutes": m21,
     "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
       "A device backup may still hold an earlier copy of your progress.",
     ),
@@ -215,7 +249,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
-    "error_link_open_failed": m16,
+    "error_link_open_failed": m22,
     "feedback_failed": MessageLookupByLibrary.simpleMessage("The report was not sent. Try again later."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("What happened"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
@@ -229,7 +263,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
     ),
     "guide_complete_title": MessageLookupByLibrary.simpleMessage("Mark what you finish"),
-    "guide_levels": m17,
+    "guide_levels": m23,
     "guide_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
     "guide_modules": MessageLookupByLibrary.simpleMessage(
       "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
@@ -252,7 +286,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_practice": MessageLookupByLibrary.simpleMessage("Quizzes to practise"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage("Quizzes from the modules you completed."),
-    "home_read_percent": m18,
+    "home_read_percent": m24,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Open the image full screen"),
@@ -274,11 +308,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_owner": MessageLookupByLibrary.simpleMessage("Owner"),
     "legal_phone": MessageLookupByLibrary.simpleMessage("Phone"),
     "legal_title": MessageLookupByLibrary.simpleMessage("Legal"),
-    "length_minutes_words": m19,
-    "level_completed": m20,
-    "level_completed_pending": m21,
+    "length_minutes_words": m25,
+    "level_completed": m26,
+    "level_completed_pending": m27,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
-    "level_module_count": m22,
+    "level_module_count": m28,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("Caravan"),
@@ -342,30 +376,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m23,
-    "quiz_list_taken": m24,
+    "quiz_list_count": m29,
+    "quiz_list_taken": m30,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m25,
+    "quiz_progress": m31,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m26,
-    "quiz_score_count": m27,
-    "quiz_score_line": m28,
+    "quiz_score_before": m32,
+    "quiz_score_count": m33,
+    "quiz_score_line": m34,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m29,
+    "quiz_subtitle": m35,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "This quiz could not be opened. Close it and try again later.",
     ),
-    "quiz_wrong": m30,
+    "quiz_wrong": m36,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m31,
+    "reader_completed_on": m37,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
@@ -374,27 +408,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Stop marking the search"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Next match"),
-    "reader_find_position": m32,
+    "reader_find_position": m38,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("Previous match"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m33,
-    "reader_module_of": m34,
+    "reader_minutes": m39,
+    "reader_module_of": m40,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m35,
+    "reader_pager_planned": m41,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("Try again"),
-    "reader_revision": m36,
+    "reader_revision": m42,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m37,
+    "record_not_saved": m43,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -419,7 +453,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m38,
+    "settings_refresh_failed": m44,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",

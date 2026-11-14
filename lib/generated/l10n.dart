@@ -108,23 +108,175 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Coming soon`
-  String get caravan_soon {
-    return Intl.message('Coming soon', name: 'caravan_soon', desc: '', args: []);
-  }
-
-  /// `The Caravan is on its way`
-  String get caravan_soon_title {
-    return Intl.message('The Caravan is on its way', name: 'caravan_soon_title', desc: '', args: []);
-  }
-
-  /// `A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.`
-  String get caravan_soon_body {
+  /// `Sample data: these trends are placeholders while the Caravan is being built.`
+  String get caravan_sample_notice {
     return Intl.message(
-      'A timeline of what was trending in AI engineering, season by season. Until it arrives, the catalog is open.',
-      name: 'caravan_soon_body',
+      'Sample data: these trends are placeholders while the Caravan is being built.',
+      name: 'caravan_sample_notice',
+      desc: 'The notice over the Caravan while it draws the web\'s sample trends, as the web\'s notice says (web CaravanPage.tsx).',
+      args: [],
+    );
+  }
+
+  /// `The caravan at {title}`
+  String caravan_stage_label(String title) {
+    return Intl.message(
+      'The caravan at $title',
+      name: 'caravan_stage_label',
+      desc: 'The stage\'s name for a screen reader: the caravan at the chosen trend.',
+      args: [title],
+    );
+  }
+
+  /// `Stop {index} of {count}`
+  String caravan_stop_of(int index, int count) {
+    return Intl.message('Stop $index of $count', name: 'caravan_stop_of', desc: '', args: [index, count]);
+  }
+
+  /// `Previous stop`
+  String get caravan_previous {
+    return Intl.message('Previous stop', name: 'caravan_previous', desc: '', args: []);
+  }
+
+  /// `Next stop`
+  String get caravan_next {
+    return Intl.message('Next stop', name: 'caravan_next', desc: '', args: []);
+  }
+
+  /// `Tour the road`
+  String get caravan_tour {
+    return Intl.message(
+      'Tour the road',
+      name: 'caravan_tour',
+      desc: 'The button that walks the caravan from stop to stop on its own.',
+      args: [],
+    );
+  }
+
+  /// `Stop the tour`
+  String get caravan_tour_stop {
+    return Intl.message('Stop the tour', name: 'caravan_tour_stop', desc: '', args: []);
+  }
+
+  /// `Where the caravan is`
+  String get caravan_strip_label {
+    return Intl.message(
+      'Where the caravan is',
+      name: 'caravan_strip_label',
+      desc: 'The strip under the stage, a slider over the stops.',
+      args: [],
+    );
+  }
+
+  /// `Swipe the card, drag the road or tap a stall to travel.`
+  String get caravan_hint {
+    return Intl.message(
+      'Swipe the card, drag the road or tap a stall to travel.',
+      name: 'caravan_hint',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `{start} to {end}`
+  String caravan_period(String start, String end) {
+    return Intl.message(
+      '$start to $end',
+      name: 'caravan_period',
+      desc: 'When a trend was on the road, its first and last month.',
+      args: [start, end],
+    );
+  }
+
+  /// `{start} to now`
+  String caravan_period_open(String start) {
+    return Intl.message(
+      '$start to now',
+      name: 'caravan_period_open',
+      desc: 'When a trend still on the road started.',
+      args: [start],
+    );
+  }
+
+  /// `Strength`
+  String get caravan_strength {
+    return Intl.message('Strength', name: 'caravan_strength', desc: '', args: []);
+  }
+
+  /// `Strength {level} of 5`
+  String caravan_strength_of(int level) {
+    return Intl.message('Strength $level of 5', name: 'caravan_strength_of', desc: '', args: [level]);
+  }
+
+  /// `In the course`
+  String get caravan_in_course {
+    return Intl.message(
+      'In the course',
+      name: 'caravan_in_course',
+      desc: 'The modules of the course on a trend\'s subject.',
+      args: [],
+    );
+  }
+
+  /// `To read`
+  String get caravan_reading {
+    return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
+  }
+
+  /// `Sample article`
+  String get caravan_sample_articles {
+    return Intl.message('Sample article', name: 'caravan_sample_articles', desc: '', args: []);
+  }
+
+  /// `Sample video`
+  String get caravan_sample_videos {
+    return Intl.message('Sample video', name: 'caravan_sample_videos', desc: '', args: []);
+  }
+
+  /// `Sample tool`
+  String get caravan_sample_tools {
+    return Intl.message('Sample tool', name: 'caravan_sample_tools', desc: '', args: []);
+  }
+
+  /// `Sample repository`
+  String get caravan_sample_repositories {
+    return Intl.message('Sample repository', name: 'caravan_sample_repositories', desc: '', args: []);
+  }
+
+  /// `Sample`
+  String get caravan_sample_badge {
+    return Intl.message('Sample', name: 'caravan_sample_badge', desc: '', args: []);
+  }
+
+  /// `All trends`
+  String get caravan_all_trends {
+    return Intl.message('All trends', name: 'caravan_all_trends', desc: '', args: []);
+  }
+
+  /// `Search the trends`
+  String get caravan_search {
+    return Intl.message('Search the trends', name: 'caravan_search', desc: '', args: []);
+  }
+
+  /// `All years`
+  String get caravan_all_years {
+    return Intl.message('All years', name: 'caravan_all_years', desc: '', args: []);
+  }
+
+  /// `No trend matches.`
+  String get caravan_no_trend {
+    return Intl.message('No trend matches.', name: 'caravan_no_trend', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{1 trend} other{{count} trends}}`
+  String caravan_trend_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 trend',
+      other: '$count trends',
+      name: 'caravan_trend_count',
+      desc: '',
+      args: [count],
     );
   }
 
