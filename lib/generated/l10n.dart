@@ -2273,30 +2273,20 @@ class S {
     );
   }
 
-  /// `Pocket model button`
+  /// `Pocket model`
   String get settings_pocket_button {
     return Intl.message(
-      'Pocket model button',
+      'Pocket model',
       name: 'settings_pocket_button',
-      desc: 'The switch that shows or hides the pocket model\'s round button.',
+      desc: 'The switch that shows or hides the pocket model\'s round button on Home.',
       args: [],
     );
   }
 
-  /// `Its round button on Home.`
-  String get settings_pocket_button_note {
-    return Intl.message(
-      'Its round button on Home.',
-      name: 'settings_pocket_button_note',
-      desc: 'Under the switch: where the button shows.',
-      args: [],
-    );
-  }
-
-  /// `Robot's wardrobe`
+  /// `Wardrobe`
   String get settings_robot {
     return Intl.message(
-      'Robot\'s wardrobe',
+      'Wardrobe',
       name: 'settings_robot',
       desc: 'The row in Settings that opens the robot\'s wardrobe, and the wardrobe\'s title.',
       args: [],

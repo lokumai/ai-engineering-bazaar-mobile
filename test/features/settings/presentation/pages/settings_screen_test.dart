@@ -65,13 +65,13 @@ BundleIndex _publishedAt(DateTime instant) {
 }
 
 /// A router whose `/settings` builds [SettingsScreen] with [openDevConsole].
-GoRouter _router({void Function(BuildContext context)? openDevConsole}) {
+GoRouter _router({void Function(BuildContext context)? openDevConsole, Widget Function(double side)? wardrobePicture}) {
   final router = GoRouter(
     initialLocation: '/settings',
     routes: [
       GoRoute(
         path: '/settings',
-        builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole),
+        builder: (_, _) => SettingsScreen(openDevConsole: openDevConsole, wardrobePicture: wardrobePicture),
       ),
       GoRoute(path: '/settings/app-icon', builder: (_, _) => const Text('app icon page')),
       GoRoute(path: '/settings/robot', builder: (_, _) => const Text('wardrobe page')),
@@ -144,7 +144,10 @@ void main() {
   ) async {
     final store = MemoryPocketButtonStore();
     final button = PocketButtonCubit(store: store);
-    await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), pocketButton: button));
+    final router = _router(
+      wardrobePicture: (side) => SizedBox.square(key: const Key('robot-picture'), dimension: side),
+    );
+    await tester.pumpWidget(bazaarTestApp(router: router, content: _contentBloc(), pocketButton: button));
     await tester.pump();
 
     final customize = tester.getTopLeft(find.text('Customize')).dy;
@@ -153,13 +156,21 @@ void main() {
     expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
 
     final toggle = find.byKey(const Key('settings-pocket-button'));
-    expect(find.text('Pocket model button'), findsOneWidget);
+    // Only its name: no line under it (the owner, 2026-11-14).
+    expect(find.text('Pocket model'), findsOneWidget);
+    expect(find.text('Its round button on Home.'), findsNothing);
     await tester.tap(toggle);
     await tester.pump();
     expect(button.state, isFalse);
     expect(store.kept, isTrue, reason: 'hidden, and kept so');
 
-    await tester.ensureVisible(find.byKey(const Key('settings-robot')));
+    // The Wardrobe row as the App icon row: the robot's picture at the icon's side, then its name.
+    final wardrobe = find.byKey(const Key('settings-robot'));
+    await tester.ensureVisible(wardrobe);
+    expect(find.descendant(of: wardrobe, matching: find.text('Wardrobe')), findsOneWidget);
+    final picture = find.descendant(of: wardrobe, matching: find.byKey(const Key('robot-picture')));
+    expect(tester.getSize(picture), const Size.square(52));
+    expect(tester.getTopLeft(picture).dx, lessThan(tester.getTopLeft(find.text('Wardrobe')).dx));
     await tester.tap(find.byKey(const Key('settings-robot')));
     await tester.pumpAndSettle();
     expect(find.text('wardrobe page'), findsOneWidget);

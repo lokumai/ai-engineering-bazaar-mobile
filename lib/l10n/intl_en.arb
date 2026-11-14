@@ -1131,15 +1131,11 @@
   "@settings_customize": {
     "description": "Settings' section for the app icon, the pocket model's button and the robot's wardrobe."
   },
-  "settings_pocket_button": "Pocket model button",
+  "settings_pocket_button": "Pocket model",
   "@settings_pocket_button": {
-    "description": "The switch that shows or hides the pocket model's round button."
+    "description": "The switch that shows or hides the pocket model's round button on Home."
   },
-  "settings_pocket_button_note": "Its round button on Home.",
-  "@settings_pocket_button_note": {
-    "description": "Under the switch: where the button shows."
-  },
-  "settings_robot": "Robot's wardrobe",
+  "settings_robot": "Wardrobe",
   "@settings_robot": {
     "description": "The row in Settings that opens the robot's wardrobe, and the wardrobe's title."
   },

@@ -13,6 +13,8 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
@@ -99,6 +101,10 @@ class AppRouterFactory {
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
               crashReports: crashReports,
+              // The robot in its outfit beside Settings' Wardrobe row (plan 9.10).
+              wardrobePicture: (side) => Builder(
+                builder: (context) => RobotPortrait(size: side, ground: context.bazaarColors.surfaceRaised),
+              ),
             ),
             // The device spike's gallery (spec 3.6.4), in debug builds only.
             if (kDebugMode) _page('debugGallery', '/debug/gallery', const ContentGalleryPage()),
