@@ -106,7 +106,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBinding
               Expanded(
                 child: ReadableWidth(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       // Tight enough that the whole step fits a phone with no scrolling (the owner, 2026-11-14).
@@ -119,7 +119,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBinding
                             spacing: 4,
                             children: [
                               for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
-                                Image(image: AssetImage(art), height: 56, filterQuality: FilterQuality.medium),
+                                Image(image: AssetImage(art), height: 80, filterQuality: FilterQuality.medium),
                             ],
                           ),
                         ),

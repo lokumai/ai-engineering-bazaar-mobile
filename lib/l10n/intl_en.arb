@@ -33,9 +33,9 @@
   "@caravan_soon_body": {},
   "welcome_track_title": "How would you like to read?",
   "@welcome_track_title": {},
-  "welcome_track_engineers": "The technical modules: how each part works, with the code and the numbers behind it.",
+  "welcome_track_engineers": "The technical modules: how each part works, with the code and numbers.",
   "@welcome_track_engineers": {
-    "description": "The web's line for the For Engineers track, src/app/page.tsx."
+    "description": "The web's line for the For Engineers track (src/app/page.tsx), a little shorter so it takes two lines on a phone, as the other track's does (the owner, 2026-11-15)."
   },
   "welcome_track_everyone": "The same modules in plain words, for readers with no technical background.",
   "@welcome_track_everyone": {
@@ -45,9 +45,9 @@
   "@welcome_start": {
     "description": "Welcome's first step: the main button, which opens the app on Home with the language and the track chosen (the owner, 2026-11-15)."
   },
-  "welcome_to_story": "The Bazaar's story",
+  "welcome_to_story": "Our story",
   "@welcome_to_story": {
-    "description": "Welcome's first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5)."
+    "description": "Welcome's first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5). The owner's words, kept though the copy register bans the first person (the owner, 2026-11-15)."
   },
   "home_up_next": "Up next",
   "@home_up_next": {},

@@ -123,7 +123,7 @@ void main() {
     final start = find.byKey(WelcomeTrackView.startKey);
     final ourStory = find.byKey(WelcomeTrackView.storyKey);
     expect(find.descendant(of: start, matching: find.text('Start learning')), findsOneWidget);
-    expect(find.descendant(of: ourStory, matching: find.text("The Bazaar's story")), findsOneWidget);
+    expect(find.descendant(of: ourStory, matching: find.text('Our story')), findsOneWidget);
     expect(tester.getTopLeft(start).dy, lessThan(tester.getTopLeft(ourStory).dy), reason: 'Start learning first');
     await tester.ensureVisible(ourStory);
     await tester.pumpAndSettle();

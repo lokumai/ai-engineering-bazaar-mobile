@@ -133,12 +133,12 @@ class S {
     return Intl.message('How would you like to read?', name: 'welcome_track_title', desc: '', args: []);
   }
 
-  /// `The technical modules: how each part works, with the code and the numbers behind it.`
+  /// `The technical modules: how each part works, with the code and numbers.`
   String get welcome_track_engineers {
     return Intl.message(
-      'The technical modules: how each part works, with the code and the numbers behind it.',
+      'The technical modules: how each part works, with the code and numbers.',
       name: 'welcome_track_engineers',
-      desc: 'The web\'s line for the For Engineers track, src/app/page.tsx.',
+      desc: 'The web\'s line for the For Engineers track (src/app/page.tsx), a little shorter so it takes two lines on a phone, as the other track\'s does (the owner, 2026-11-15).',
       args: [],
     );
   }
@@ -163,12 +163,12 @@ class S {
     );
   }
 
-  /// `The Bazaar's story`
+  /// `Our story`
   String get welcome_to_story {
     return Intl.message(
-      'The Bazaar\'s story',
+      'Our story',
       name: 'welcome_to_story',
-      desc: 'Welcome\'s first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5).',
+      desc: 'Welcome\'s first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5). The owner\'s words, kept though the copy register bans the first person (the owner, 2026-11-15).',
       args: [],
     );
   }
