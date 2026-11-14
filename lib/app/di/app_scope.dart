@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -96,8 +97,14 @@ class AppScope extends StatelessWidget {
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
           // The pocket model, shared by its button in the shell's corner and the sheet it opens (plan 9.4).
           BlocProvider<PocketModelBloc>(
-            create: (context) =>
-                PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
+            create: (context) => PocketModelBloc(
+              store: context.read<IPocketModelStore>(),
+              // It reads the modules the reader finished from the course on this device (plan 9.6).
+              texts: ContentPocketTexts(
+                repository: context.read<IContentRepository>(),
+                content: context.read<ContentBloc>(),
+              ),
+            )..add(const PocketModelStarted()),
           ),
           BlocProvider<LanguageCubit>(
             lazy: false,

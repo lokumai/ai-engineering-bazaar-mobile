@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
@@ -52,6 +53,16 @@ final class PocketModelReset extends PocketModelEvent {
   const PocketModelReset();
 }
 
+/// The reader gave it the course module [key] to read (plan 9.6): one they finished.
+final class PocketModelModuleRead extends PocketModelEvent {
+  const PocketModelModuleRead(this.key);
+
+  final String key;
+
+  @override
+  List<Object?> get props => [key];
+}
+
 /// The reader tapped it.
 final class PocketModelPetted extends PocketModelEvent {
   const PocketModelPetted();
@@ -73,7 +84,7 @@ final class _PocketModelRecovered extends PocketModelEvent {
 }
 
 /// What the model last did, for the card to show once: [PocketModelReady.beat] counts each.
-enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted }
+enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied }
 
 sealed class PocketModelState extends Equatable {
   const PocketModelState();
@@ -159,32 +170,69 @@ final class PocketModelReady extends PocketModelState {
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
 /// Events run one at a time, so fast taps are counted in order and each is kept.
 final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
-  PocketModelBloc({required this._store, math.Random? random})
+  PocketModelBloc({required this._store, this._texts, math.Random? random})
     : _random = random ?? math.Random(),
       super(const PocketModelLoading()) {
     on<PocketModelEvent>(_on, transformer: EventTransformers.queue());
   }
 
   final IPocketModelStore _store;
+
+  /// Where it reads the course's modules; none in a test that gives it none.
+  final IPocketTexts? _texts;
   final math.Random _random;
   Timer? _rest;
 
-  /// Its language model, which has read as many tokens as [PocketModelReady.model] was fed.
+  /// Its language model, which has read as many tokens as [PocketModelReady.model] was fed, and its modules.
   TinyLm? _lm;
+
+  /// The modules' sentences read so far, by language and key, so a curve does not read them again.
+  final Map<(String, String), List<List<String>>> _sentences = {};
+
+  /// What it said last, a few answers back, for its repetition penalty.
+  final List<List<String>> _recent = [];
+
+  Future<List<List<String>>?> _load(String key, String language) async {
+    final kept = _sentences[(language, key)];
+    if (kept != null) return kept;
+    final read = await _texts?.sentences(key, language);
+    if (read != null) _sentences[(language, key)] = read;
+    return read;
+  }
+
+  /// The language model of [model] in [language]: its text read to the count, and each module it read that can still
+  /// be read; and its training curve.
+  Future<(TinyLm, List<LossPoint>)> _build(PocketModel model, String language) async {
+    final lm = TinyLm.trained(language, model.tokens);
+    final readings = <(int, List<List<String>>)>[];
+    for (final reading in model.readings) {
+      final sentences = await _load(reading.key, language);
+      if (sentences == null) continue;
+      lm.read(sentences);
+      readings.add((reading.at, sentences));
+    }
+    return (lm, TinyLm.curve(language, model.tokens, readings: readings));
+  }
+
+  /// The curve of [model] in [language], from the modules' sentences already read.
+  List<LossPoint> _curveOf(PocketModel model, String language) => TinyLm.curve(
+    language,
+    model.tokens,
+    readings: [
+      for (final reading in model.readings)
+        if (_sentences[(language, reading.key)] case final sentences?) (reading.at, sentences),
+    ],
+  );
 
   Future<void> _on(PocketModelEvent event, Emitter<PocketModelState> emit) async {
     final now = clock.now();
     switch (event) {
       case PocketModelStarted(:final language):
         final model = await _store.load() ?? PocketModel.fresh;
-        final lm = _lm = TinyLm.trained(language, model.tokens);
+        final (lm, curve) = await _build(model, language);
+        _lm = lm;
         emit(
-          PocketModelReady(
-            model: model,
-            curve: TinyLm.curve(language, model.tokens),
-            known: lm.known,
-            awake: model.moodAt(now) != PocketMood.asleep,
-          ),
+          PocketModelReady(model: model, curve: curve, known: lm.known, awake: model.moodAt(now) != PocketMood.asleep),
         );
         return;
       case _ when state is! PocketModelReady:
@@ -194,20 +242,16 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     final ready = state as PocketModelReady;
     if (event case PocketModelLanguageSet(:final language)) {
       if (_lm?.language == language) return;
-      final lm = _lm = TinyLm.trained(language, ready.model.tokens);
-      emit(
-        ready.copyWith(
-          curve: TinyLm.curve(language, ready.model.tokens),
-          known: lm.known,
-          read: const [],
-          clearSpeech: true,
-        ),
-      );
+      final (lm, curve) = await _build(ready.model, language);
+      _lm = lm;
+      _recent.clear();
+      emit(ready.copyWith(curve: curve, known: lm.known, read: const [], clearSpeech: true));
       return;
     }
     if (event is PocketModelReset) {
       _rest?.cancel();
       await _store.save(PocketModel.fresh);
+      _recent.clear();
       final lm = _lm = TinyLm(_lm?.language ?? 'en');
       emit(
         PocketModelReady(
@@ -242,7 +286,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         emit(
           ready.copyWith(
             model: model,
-            curve: model.tokens == ready.model.tokens ? null : TinyLm.curve(lm.language, model.tokens),
+            curve: model.tokens == ready.model.tokens ? null : _curveOf(model, lm.language),
             known: lm.known,
             read: read,
             action: action,
@@ -255,6 +299,24 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
           ready.copyWith(
             speech: _say(ready.temperature, overfit: ready.model.overfitAt(now)),
             action: PocketAction.spoke,
+          ),
+        );
+      case PocketModelModuleRead(:final key):
+        if (ready.model.hasRead(key)) return;
+        final lm = _lm!;
+        final sentences = await _load(key, lm.language);
+        if (sentences == null) return;
+        final count = lm.read(sentences);
+        final model = ready.model.readAt(key, count, now);
+        await _store.save(model);
+        emit(
+          ready.copyWith(
+            model: model,
+            curve: _curveOf(model, lm.language),
+            known: lm.known,
+            read: sentences.first,
+            action: model.level > ready.model.level ? PocketAction.levelUp : PocketAction.studied,
+            clearSpeech: true,
           ),
         );
       case PocketModelPetted():
@@ -277,7 +339,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     if (overfit && word != null) {
       return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
     }
-    return lm.write(temperature: temperature, random: _random);
+    final said = lm.write(temperature: temperature, random: _random, recent: _recent);
+    _recent.add(said.tokens);
+    if (_recent.length > 3) _recent.removeAt(0);
+    return said;
   }
 
   void _restIn(Duration rest) {

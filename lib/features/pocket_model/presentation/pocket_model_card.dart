@@ -13,6 +13,10 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/finished_modules.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -207,6 +211,15 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         _hopAt = _time;
       case PocketAction.recovered:
         _joyAt = _time;
+      case PocketAction.studied:
+        // A module read: a feast.
+        HapticFeedback.mediumImpact();
+        _eatAt = _time;
+        _joyAt = _time + 0.9;
+        if (!reduced) {
+          _eat(state, learnt);
+          _throwTokens(state.read.skip(5).toList(), swirl: true);
+        }
       case PocketAction.spoke:
         if (!reduced) _speak(state);
       case PocketAction.none:
@@ -491,7 +504,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         return s.pocket_status_recovered;
       case PocketAction.levelUp:
         return s.pocket_status_level_up(state.model.level);
-      case PocketAction.fed when state.read.isNotEmpty:
+      case PocketAction.fed || PocketAction.studied when state.read.isNotEmpty:
         return s.pocket_status_read(state.read.join(' '));
       default:
     }
@@ -653,6 +666,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
+              _ReadModule(model: model),
+              const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
                   Text(s.pocket_temperature, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
@@ -737,4 +752,57 @@ Future<bool> _askToStartOver(BuildContext context) async {
     },
   );
   return reset ?? false;
+}
+
+/// The modules the reader finished in the track they read that [model] has not read, from the course and the record;
+/// none until both are ready.
+List<String> finishedFor(BuildContext context, PocketModel model) {
+  final content = context.watch<ContentBloc>().state;
+  final record = context.watch<RecordBloc>().state;
+  final track = context.watch<TrackCubit>().state;
+  if (content is! ContentReady || record is! RecordReady) return const [];
+  return finishedUnread(index: content.index, record: record.record, track: track, model: model);
+}
+
+/// The way to give it a module the reader finished (plan 9.6): the next by number, and how many wait; or a line saying
+/// a finished module can be read.
+class _ReadModule extends StatelessWidget {
+  const _ReadModule({required this.model});
+
+  final PocketModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final theme = Theme.of(context);
+    final colors = context.bazaarColors;
+    final waiting = finishedFor(context, model);
+    if (waiting.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Text(
+          s.pocket_read_none,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          key: const ValueKey('pocket-read'),
+          onPressed: () => context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first)),
+          icon: const Icon(Icons.auto_stories_outlined),
+          label: Text(s.pocket_read_module, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          s.pocket_read_waiting(waiting.length),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+        ),
+      ],
+    );
+  }
 }

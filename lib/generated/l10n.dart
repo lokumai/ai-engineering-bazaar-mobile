@@ -2216,6 +2216,38 @@ class S {
     return Intl.message('It says: $words', name: 'pocket_says', desc: '', args: [words]);
   }
 
+  /// `Read a module you finished`
+  String get pocket_read_module {
+    return Intl.message(
+      'Read a module you finished',
+      name: 'pocket_read_module',
+      desc: 'The pocket model\'s button that gives it a course module the reader completed to read.',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 finished module waiting} other{{count} finished modules waiting}}`
+  String pocket_read_waiting(int count) {
+    return Intl.plural(
+      count,
+      one: '1 finished module waiting',
+      other: '$count finished modules waiting',
+      name: 'pocket_read_waiting',
+      desc: 'Under the read button, and on the round button for a screen reader: the completed modules the pocket model has not read.',
+      args: [count],
+    );
+  }
+
+  /// `Finish a module, and it can read it too.`
+  String get pocket_read_none {
+    return Intl.message(
+      'Finish a module, and it can read it too.',
+      name: 'pocket_read_none',
+      desc: 'In the read button\'s place when no completed module is left for the pocket model to read.',
+      args: [],
+    );
+  }
+
   /// `Start over`
   String get pocket_reset {
     return Intl.message(

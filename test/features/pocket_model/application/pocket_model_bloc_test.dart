@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:clock/clock.dart';
@@ -11,11 +12,22 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final noon = DateTime.utc(2026, 11, 14, 12);
 
+  const module = [
+    ['a', 'transformer', 'stacks', 'attention', 'layers'],
+    ['each', 'layer', 'refines', 'the', 'tokens'],
+  ];
+  const texts = MemoryPocketTexts({'alpha/first': module});
+
   /// Runs [body] in fake time starting at noon, with the bloc over [store].
-  void run(MemoryPocketModelStore store, void Function(FakeAsync async, PocketModelBloc bloc) body) {
+  void run(
+    MemoryPocketModelStore store,
+    void Function(FakeAsync async, PocketModelBloc bloc) body, {
+    IPocketTexts? pocketTexts = texts,
+  }) {
     fakeAsync((async) {
       withClock(async.getClock(noon), () {
-        final bloc = PocketModelBloc(store: store, random: math.Random(3))..add(const PocketModelStarted());
+        final bloc = PocketModelBloc(store: store, texts: pocketTexts, random: math.Random(3))
+          ..add(const PocketModelStarted());
         async.flushMicrotasks();
         body(async, bloc);
         bloc.close();
@@ -154,6 +166,80 @@ void main() {
     });
   });
 
+  group('a module the reader finished', () {
+    test('it reads it whole: its words, its tokens toward its level, kept with the model', () {
+      final store = MemoryPocketModelStore(PocketModel(tokens: 1590, lastFed: noon));
+      run(store, (async, bloc) {
+        final known = ready(bloc).known;
+        bloc.add(const PocketModelModuleRead('alpha/first'));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.total, 1602);
+        expect(ready(bloc).action, PocketAction.levelUp, reason: 'its tokens reached level 7');
+        expect(ready(bloc).known, greaterThan(known));
+        expect(ready(bloc).read, module.first);
+        expect(ready(bloc).curve.last.tokens, 1602);
+        expect(store.kept?.readings.single.key, 'alpha/first');
+
+        bloc.add(const PocketModelModuleRead('alpha/first'));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.total, 1602, reason: 'a module is read once');
+      });
+    });
+
+    test('a module it read is read again when it starts, so it knows its words', () {
+      final store = MemoryPocketModelStore(
+        PocketModel(
+          tokens: 40,
+          readings: const [PocketReading(key: 'alpha/first', at: 40, tokens: 12)],
+          lastFed: noon,
+        ),
+      );
+      run(store, (async, bloc) {
+        expect(ready(bloc).known, (TinyLm.trained('en', 40)..read(module)).known);
+        expect(ready(bloc).curve.last.tokens, 52);
+      });
+    });
+
+    test('one it cannot read is left alone', () {
+      run(MemoryPocketModelStore(), (async, bloc) {
+        bloc.add(const PocketModelModuleRead('beta/missing'));
+        async.flushMicrotasks();
+        expect(ready(bloc).model, PocketModel.fresh);
+      });
+      run(MemoryPocketModelStore(), pocketTexts: null, (async, bloc) {
+        bloc.add(const PocketModelModuleRead('alpha/first'));
+        async.flushMicrotasks();
+        expect(ready(bloc).model, PocketModel.fresh);
+      });
+    });
+
+    test('a feed after it draws the module in the curve', () {
+      run(MemoryPocketModelStore(), (async, bloc) {
+        bloc.add(const PocketModelModuleRead('alpha/first'));
+        async.flushMicrotasks();
+        bloc.add(const PocketModelFed());
+        async.flushMicrotasks();
+        expect(ready(bloc).curve.map((point) => point.tokens), contains(12));
+        expect(ready(bloc).curve.last.tokens, 20);
+      });
+    });
+  });
+
+  test('it does not say the same thing twice running', () {
+    run(MemoryPocketModelStore(PocketModel(tokens: 1600, lastFed: noon)), (async, bloc) {
+      bloc.add(const PocketModelTemperatureSet(0.6));
+      final said = <String>[];
+      for (var i = 0; i < 6; i++) {
+        bloc.add(const PocketModelAsked());
+        async.flushMicrotasks();
+        said.add(ready(bloc).speech!.tokens.join(' '));
+      }
+      for (var i = 1; i < said.length; i++) {
+        expect(said[i], isNot(said[i - 1]));
+      }
+    });
+  });
+
   test('a tap pets it', () {
     run(MemoryPocketModelStore(), (async, bloc) {
       bloc.add(const PocketModelPetted());
@@ -163,9 +249,15 @@ void main() {
   });
 
   group('the stored text', () {
-    test('keeps the tokens and the last feed', () {
+    test('keeps the tokens, the modules read and the last feed', () {
       final model = PocketModel(tokens: 88, lastFed: noon);
       expect(decodePocketModel(encodePocketModel(model)), model);
+      final reader = PocketModel(
+        tokens: 88,
+        readings: const [PocketReading(key: 'alpha/first', at: 40, tokens: 1200)],
+        lastFed: noon,
+      );
+      expect(decodePocketModel(encodePocketModel(reader)), reader);
       expect(decodePocketModel(encodePocketModel(PocketModel.fresh)), PocketModel.fresh);
     });
 
@@ -173,6 +265,15 @@ void main() {
       for (final text in ['', 'nope', '[]', '{"tokens": -1}', '{"tokens": "8"}']) {
         expect(decodePocketModel(text), isNull, reason: text);
       }
+    });
+
+    test('leaves out a module read that is not one, and keeps the rest', () {
+      final model = decodePocketModel(
+        '{"tokens": 8, "read": [{"key": "alpha/first", "at": 0, "tokens": 30}, {"key": 3}, "x", '
+        '{"key": "alpha/second", "at": -1, "tokens": 5}]}',
+      );
+      expect(model?.tokens, 8);
+      expect(model?.readings, const [PocketReading(key: 'alpha/first', at: 0, tokens: 30)]);
     });
   });
 }

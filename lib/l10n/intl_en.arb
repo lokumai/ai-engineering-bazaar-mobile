@@ -1109,6 +1109,23 @@
       }
     }
   },
+  "pocket_read_module": "Read a module you finished",
+  "@pocket_read_module": {
+    "description": "The pocket model's button that gives it a course module the reader completed to read."
+  },
+  "pocket_read_waiting": "{count, plural, =1{1 finished module waiting} other{{count} finished modules waiting}}",
+  "@pocket_read_waiting": {
+    "description": "Under the read button, and on the round button for a screen reader: the completed modules the pocket model has not read.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_read_none": "Finish a module, and it can read it too.",
+  "@pocket_read_none": {
+    "description": "In the read button's place when no completed module is left for the pocket model to read."
+  },
   "pocket_reset": "Start over",
   "@pocket_reset": {
     "description": "The button that starts the pocket model again at level 0."

@@ -12,6 +12,9 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +28,8 @@ import '../../../support/bazaar_app_harness.dart';
 Future<void> _pump(
   WidgetTester tester, {
   MemoryPocketModelStore? store,
+  RecordData? record,
+  IPocketTexts? texts,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
   bool open = true,
@@ -36,7 +41,14 @@ Future<void> _pump(
   final router = AppRouterFactory(initialLocation: '/').create();
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    bazaarTestApp(router: router, pocketStore: store ?? MemoryPocketModelStore(), platform: platform, locale: locale),
+    bazaarTestApp(
+      router: router,
+      pocketStore: store ?? MemoryPocketModelStore(),
+      record: record == null ? null : readyRecordBloc(record),
+      pocketTexts: texts,
+      platform: platform,
+      locale: locale,
+    ),
   );
   await tester.pump();
   await tester.pump();
@@ -93,6 +105,48 @@ void main() {
     final note = tester.getRect(find.byType(HomeOfflineNote));
     final button = tester.getRect(find.byKey(const ValueKey('pocket-assistant')));
     expect(note.bottom, lessThanOrEqualTo(button.top));
+  });
+
+  testWidgets('a module the reader finished: a badge on its button, and it reads it in the sheet', (tester) async {
+    const module = [
+      ['a', 'transformer', 'stacks', 'attention', 'layers'],
+      ['each', 'layer', 'refines', 'the', 'tokens'],
+    ];
+    final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: clock.now()));
+    await _pump(
+      tester,
+      store: store,
+      record: signOff(RecordData.empty, 'alpha/first', null, '2026-11-14T12:00:00.000Z'),
+      texts: const MemoryPocketTexts({'alpha/first': module}),
+      open: false,
+    );
+    expect(find.byKey(const ValueKey('pocket-assistant-badge')), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(const ValueKey('pocket-assistant-badge')), matching: find.text('1')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('pocket-assistant')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('1 finished module waiting'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('pocket-read')));
+    await tester.tap(find.byKey(const ValueKey('pocket-read')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(store.kept?.readings.single.key, 'alpha/first');
+    expect(find.text('Read: a transformer stacks attention layers'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pocket-read')), findsNothing);
+    expect(find.text('Finish a module, and it can read it too.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pocket-assistant-badge')), findsNothing);
+    await _rest(tester);
+  });
+
+  testWidgets('with no module finished, it says one can be read', (tester) async {
+    await _pump(tester);
+    expect(find.byKey(const ValueKey('pocket-read')), findsNothing);
+    expect(find.text('Finish a module, and it can read it too.'), findsOneWidget);
+    await _rest(tester);
   });
 
   testWidgets('its button shows its mood, and a screen reader hears its level', (tester) async {
@@ -322,7 +376,7 @@ void main() {
   test('the loss chart marks each level reached', () {
     expect(LossChartPainter.marks(10), isEmpty);
     expect(LossChartPainter.marks(100), [24, 80]);
-    expect(LossChartPainter.marks(5000), PocketModel.levels.skip(1).toList());
+    expect(LossChartPainter.marks(50000), PocketModel.levels.skip(1).toList());
   });
 
   testWidgets('three pets in a row send its fez flying', (tester) async {
@@ -363,7 +417,10 @@ void main() {
     for (var i = 0; i < 6; i++) {
       await tester.tap(find.byKey(const ValueKey('pocket-ask')));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 900));
+      // The stage's clock takes at most a tenth of a second a frame, so it is walked past the thinking.
+      for (var step = 0; step < 9; step++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       if (_frame(tester).trick == RobotTrick.glitch) break;
       await tester.pump(const Duration(seconds: 3));
     }

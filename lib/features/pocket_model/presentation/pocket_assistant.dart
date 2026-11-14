@@ -34,10 +34,18 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return BlocBuilder<PocketModelBloc, PocketModelState>(
-      buildWhen: (before, after) => _faceOf(before) != _faceOf(after) || _levelOf(before) != _levelOf(after),
       builder: (context, state) {
         final level = _levelOf(state);
-        final label = '${s.pocket_title}, ${s.pocket_level(level)}';
+        // The modules the reader finished that it has not read: a badge, and words for a screen reader.
+        final waiting = switch (state) {
+          PocketModelReady(:final model) => finishedFor(context, model).length,
+          PocketModelLoading() => 0,
+        };
+        final label = [
+          s.pocket_title,
+          s.pocket_level(level),
+          if (waiting > 0) s.pocket_read_waiting(waiting),
+        ].join(', ');
         return Semantics(
           button: true,
           label: label,
@@ -46,33 +54,67 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
           child: Tooltip(
             message: label,
             excludeFromSemantics: true,
-            child: Material(
-              key: const ValueKey('pocket-assistant'),
-              shape: const CircleBorder(),
-              elevation: 4,
-              shadowColor: const Color(0x66000000),
-              color: RobotColors.body,
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => showPocketModelSheet(context),
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [RobotColors.bodyLight, RobotColors.body],
-                    ),
-                  ),
-                  child: SizedBox.square(
-                    dimension: PocketAssistantButton.size,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(9, 8, 9, 10),
-                      child: CustomPaint(painter: RobotHeadPainter(face: _faceOf(state))),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Material(
+                  key: const ValueKey('pocket-assistant'),
+                  shape: const CircleBorder(),
+                  elevation: 4,
+                  shadowColor: const Color(0x66000000),
+                  color: RobotColors.body,
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => showPocketModelSheet(context),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [RobotColors.bodyLight, RobotColors.body],
+                        ),
+                      ),
+                      child: SizedBox.square(
+                        dimension: PocketAssistantButton.size,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(9, 8, 9, 10),
+                          child: CustomPaint(painter: RobotHeadPainter(face: _faceOf(state))),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                if (waiting > 0)
+                  PositionedDirectional(
+                    top: -2,
+                    end: -2,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        key: const ValueKey('pocket-assistant-badge'),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffddb46a),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: context.bazaarColors.surface, width: 2),
+                        ),
+                        child: SizedBox.square(
+                          dimension: 22,
+                          child: Center(
+                            child: Text(
+                              '$waiting',
+                              style: const TextStyle(
+                                color: RobotColors.ink,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                height: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         );

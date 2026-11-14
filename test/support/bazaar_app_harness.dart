@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
@@ -114,6 +115,7 @@ Widget bazaarTestApp({
   IRecordRepository? recordRepository,
   IFeedbackSender? feedbackSender,
   IPocketModelStore? pocketStore,
+  IPocketTexts? pocketTexts,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -153,7 +155,8 @@ Widget bazaarTestApp({
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
         BlocProvider<PocketModelBloc>(
           create: (context) =>
-              PocketModelBloc(store: context.read<IPocketModelStore>())..add(const PocketModelStarted()),
+              PocketModelBloc(store: context.read<IPocketModelStore>(), texts: pocketTexts)
+                ..add(const PocketModelStarted()),
         ),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
