@@ -43,7 +43,7 @@ import UIKit
         else {
           return result(FlutterError(code: "unknown-icon", message: call.arguments as? String, details: nil))
         }
-        LaunchPicture.paint(ground)
+        LaunchPicture.keep(ground)
         let app = UIApplication.shared
         // The system tells the reader of every change, so an icon already in place is left alone (each launch names
         // the chosen icon again).
@@ -64,6 +64,29 @@ import UIKit
 /// or a picture cannot be read, nothing changes and the app opens on the dark ground as before. iOS draws the pictures
 /// again after an update, and the next launch paints them again.
 enum LaunchPicture {
+  /// Where the ground of the icon last named is kept, for [BazaarViewController] on the next launch.
+  static let groundKey = "BazaarLaunchGround"
+
+  /// The ground of the icon last named, as a colour; nil before the Dart side first named one.
+  static var kept: UIColor? {
+    guard let ground = UserDefaults.standard.object(forKey: groundKey) as? Int else { return nil }
+    return colour(UInt32(ground))
+  }
+
+  /// Keeps [ground] for the next launch and repaints iOS's launch pictures in it.
+  static func keep(_ ground: UInt32) {
+    UserDefaults.standard.set(Int(ground), forKey: groundKey)
+    paint(ground)
+  }
+
+  static func colour(_ ground: UInt32) -> UIColor {
+    UIColor(
+      red: CGFloat((ground >> 16) & 0xff) / 255,
+      green: CGFloat((ground >> 8) & 0xff) / 255,
+      blue: CGFloat(ground & 0xff) / 255,
+      alpha: 1)
+  }
+
   static func paint(_ ground: UInt32) {
     DispatchQueue.global(qos: .utility).async {
       guard let library = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first,
@@ -72,11 +95,7 @@ enum LaunchPicture {
       let folder = library.appendingPathComponent("SplashBoard/Snapshots/\(bundle) - {DEFAULT GROUP}")
       guard let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)
       else { return }
-      let colour = UIColor(
-        red: CGFloat((ground >> 16) & 0xff) / 255,
-        green: CGFloat((ground >> 8) & 0xff) / 255,
-        blue: CGFloat(ground & 0xff) / 255,
-        alpha: 1)
+      let fill = colour(ground)
       for file in files {
         // Only the pictures iOS can read, each kept at its own size.
         guard let data = try? Data(contentsOf: file), let picture = UIImage(data: data)?.cgImage else { continue }
@@ -85,11 +104,24 @@ enum LaunchPicture {
         format.scale = 1
         format.opaque = true
         let painted = UIGraphicsImageRenderer(size: size, format: format).pngData { context in
-          colour.setFill()
+          fill.setFill()
           context.fill(CGRect(origin: .zero, size: size))
         }
         try? painted.write(to: file, options: .atomic)
       }
     }
+  }
+}
+
+/// The app's screen (Main.storyboard). Until Flutter draws its first frame it shows the launch screen once more, which
+/// is dark for every icon; that left a dark flash between the launch picture and the opening for a non-dark icon (the
+/// owner, 2026-11-15). It shows the ground of the icon last named instead.
+class BazaarViewController: FlutterViewController {
+  override func awakeFromNib() {
+    super.awakeFromNib()
+    guard let ground = LaunchPicture.kept else { return }
+    let splash = UIView()
+    splash.backgroundColor = ground
+    splashScreenView = splash
   }
 }

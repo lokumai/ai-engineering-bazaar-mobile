@@ -131,6 +131,17 @@ void main() {
     ]);
   });
 
+  // Flutter shows the launch screen, dark for every icon, until its first frame: the app's screen shows the ground of
+  // the icon last named instead, or a non-dark icon flashes dark on opening (the owner, 2026-11-15).
+  test('the iOS app screen is BazaarViewController, which shows the kept ground until the first frame', () {
+    final storyboard = File('ios/Runner/Base.lproj/Main.storyboard').readAsStringSync();
+    expect(storyboard, contains('customClass="BazaarViewController" customModule="Runner"'));
+    final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+    expect(swift, contains('class BazaarViewController: FlutterViewController {'));
+    expect(swift, contains('splashScreenView = splash'));
+    expect(swift, contains('LaunchPicture.keep(ground)'));
+  });
+
   test('every icon has its picture for the choice, bundled', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     for (final icon in BazaarIcon.values) {
