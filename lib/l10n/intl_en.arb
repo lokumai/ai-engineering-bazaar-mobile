@@ -41,11 +41,13 @@
   "@welcome_track_everyone": {
     "description": "The web's line for the For Everyone track, src/app/page.tsx."
   },
-  "welcome_start": "Start reading",
-  "@welcome_start": {},
-  "welcome_to_story": "On to the story",
+  "welcome_start": "Start learning",
+  "@welcome_start": {
+    "description": "Welcome's first step: the main button, which opens the app on Home with the language and the track chosen (the owner, 2026-11-15)."
+  },
+  "welcome_to_story": "The Bazaar's story",
   "@welcome_to_story": {
-    "description": "Welcome's choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5)."
+    "description": "Welcome's first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5)."
   },
   "home_up_next": "Up next",
   "@home_up_next": {},

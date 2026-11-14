@@ -444,9 +444,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "welcome_app_icon_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "welcome_start": MessageLookupByLibrary.simpleMessage("Start reading"),
+    "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
-    "welcome_to_story": MessageLookupByLibrary.simpleMessage("On to the story"),
+    "welcome_to_story": MessageLookupByLibrary.simpleMessage("The Bazaar\'s story"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "The technical modules: how each part works, with the code and the numbers behind it.",
     ),

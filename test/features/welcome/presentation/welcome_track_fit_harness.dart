@@ -77,7 +77,7 @@ Future<double> trackStepOverflow(WidgetTester tester, String locale) async {
         ],
         supportedLocales: S.delegate.supportedLocales,
         locale: Locale(locale),
-        home: WelcomeTrackView(initial: Track.engineers, onChosen: (_) {}),
+        home: WelcomeTrackView(initial: Track.engineers, story: true, onChosen: (_, {required story}) {}),
       ),
     ),
   );

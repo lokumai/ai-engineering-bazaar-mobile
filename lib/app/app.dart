@@ -14,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
@@ -71,8 +70,6 @@ class _AppState extends State<App> {
                 child: WelcomeGate(
                   // The second step is the story of the Bazaar, a feature of its own (plan 3.5).
                   story: (onDone) => AboutWelcomeStep(onDone: onDone),
-                  // The first launch lands on the catalog of the chosen track; every later one on Home (plan 1T).
-                  onFinished: (track) => _router.go(BazaarPaths.catalog(track)),
                   child: child!,
                 ),
               ),

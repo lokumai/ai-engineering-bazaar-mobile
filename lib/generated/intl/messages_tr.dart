@@ -444,9 +444,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "welcome_app_icon_done": MessageLookupByLibrary.simpleMessage("Tamam"),
-    "welcome_start": MessageLookupByLibrary.simpleMessage("Okumaya başla"),
+    "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
-    "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemize geç"),
+    "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),
     "welcome_track_engineers": MessageLookupByLibrary.simpleMessage(
       "Teknik modüller: her parçanın nasıl çalıştığı, arkasındaki kod ve sayılarla.",
     ),

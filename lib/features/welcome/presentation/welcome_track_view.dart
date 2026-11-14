@@ -21,17 +21,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Welcome's second screen (plan 1L, 1S): the reader chooses the language and a track once, with the web's line for
-/// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at
-/// once; Start reading hands the track to [onChosen].
+/// each track (web `src/app/page.tsx`, the two stalls); Settings changes both later. The language takes effect at once;
+/// Start learning hands the track to [onChosen] and opens the app, the story button (when there is one) hands it on to
+/// the story (the owner, 2026-11-15).
 class WelcomeTrackView extends StatefulWidget {
   const WelcomeTrackView({super.key, required this.initial, this.story = false, required this.onChosen});
 
-  /// Whether the story follows; its button then says so.
+  /// Whether there is a story to tell; the story button then stands under Start learning.
   final bool story;
 
   /// The track chosen when the screen opens.
   final Track initial;
-  final ValueChanged<Track> onChosen;
+
+  /// Called with the track chosen, and whether the reader asked for the story.
+  final void Function(Track track, {required bool story}) onChosen;
+
+  static const startKey = Key('welcome-start');
+
+  static const storyKey = Key('welcome-story');
 
   static Key optionKey(Track track) => ValueKey('welcome-track-${track.id}');
 
@@ -99,11 +106,11 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBinding
               Expanded(
                 child: ReadableWidth(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       // Tight enough that the whole step fits a phone with no scrolling (the owner, 2026-11-14).
-                      spacing: 16,
+                      spacing: 12,
                       children: [
                         ExcludeSemantics(
                           child: Row(
@@ -112,7 +119,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBinding
                             spacing: 4,
                             children: [
                               for (final art in [WelcomeArt.cast[1], WelcomeArt.cast[3]])
-                                Image(image: AssetImage(art), height: 64, filterQuality: FilterQuality.medium),
+                                Image(image: AssetImage(art), height: 56, filterQuality: FilterQuality.medium),
                             ],
                           ),
                         ),
@@ -177,14 +184,27 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> with WidgetsBinding
                             selected: _track == info.track,
                             onTap: () => setState(() => _track = info.track),
                           ),
-                        const SizedBox(height: 4),
-                        FilledButton.icon(
-                          key: const Key('welcome-start'),
-                          onPressed: () => widget.onChosen(_track),
-                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                          icon: const Icon(Icons.arrow_forward),
-                          iconAlignment: IconAlignment.end,
-                          label: Text(widget.story ? s.welcome_to_story : s.welcome_start),
+                        // Start learning first; the story button under it (the owner, 2026-11-15).
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 6,
+                          children: [
+                            FilledButton.icon(
+                              key: WelcomeTrackView.startKey,
+                              onPressed: () => widget.onChosen(_track, story: false),
+                              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                              icon: const Icon(Icons.arrow_forward),
+                              iconAlignment: IconAlignment.end,
+                              label: Text(s.welcome_start),
+                            ),
+                            if (widget.story)
+                              OutlinedButton(
+                                key: WelcomeTrackView.storyKey,
+                                onPressed: () => widget.onChosen(_track, story: true),
+                                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                                child: Text(s.welcome_to_story),
+                              ),
+                          ],
                         ),
                       ],
                     ),

@@ -153,17 +153,22 @@ class S {
     );
   }
 
-  /// `Start reading`
+  /// `Start learning`
   String get welcome_start {
-    return Intl.message('Start reading', name: 'welcome_start', desc: '', args: []);
+    return Intl.message(
+      'Start learning',
+      name: 'welcome_start',
+      desc: 'Welcome\'s first step: the main button, which opens the app on Home with the language and the track chosen (the owner, 2026-11-15).',
+      args: [],
+    );
   }
 
-  /// `On to the story`
+  /// `The Bazaar's story`
   String get welcome_to_story {
     return Intl.message(
-      'On to the story',
+      'The Bazaar\'s story',
       name: 'welcome_to_story',
-      desc: 'Welcome\'s choice of the language and the track: the button on to the story of the Bazaar, when there is one (plan 3.5).',
+      desc: 'Welcome\'s first step: the button under Start learning, to the story of the Bazaar, when there is one (plan 3.5).',
       args: [],
     );
   }

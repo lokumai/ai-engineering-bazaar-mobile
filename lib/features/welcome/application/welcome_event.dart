@@ -23,12 +23,14 @@ final class WelcomeStoryRead extends WelcomeEvent {
   const WelcomeStoryRead();
 }
 
-/// The language and [track] were chosen: the story follows when there is one, else Welcome is done.
+/// The language and [track] were chosen: the story follows when the reader asked for it ([story]) and there is one,
+/// else Welcome is done.
 final class WelcomeTrackChosen extends WelcomeEvent {
-  const WelcomeTrackChosen(this.track);
+  const WelcomeTrackChosen(this.track, {this.story = false});
 
   final Track track;
+  final bool story;
 
   @override
-  List<Object?> get props => [track];
+  List<Object?> get props => [track, story];
 }

@@ -69,7 +69,6 @@ Widget _gate(
   TargetPlatform platform = TargetPlatform.android,
   bool reducedMotion = false,
   TrackCubit? track,
-  ValueChanged<Track>? onFinished,
   bool story = true,
 }) => RepositoryProvider<IWelcomeStore>.value(
   value: store,
@@ -95,20 +94,19 @@ Widget _gate(
       builder: (context, child) => reducedMotion
           ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
           : child!,
-      home: WelcomeGate(story: _story, onFinished: onFinished, child: _app),
+      home: WelcomeGate(story: _story, child: _app),
     ),
   ),
 );
 
 void main() {
-  testWidgets('the first launch asks the language and the track, then tells the story, then opens the app (plan 3.5)', (
+  testWidgets('the first launch asks the language and the track; the story button tells it, then the app opens (3.5)', (
     tester,
   ) async {
     final store = _MemoryWelcomeStore();
     final track = TrackCubit();
     addTearDown(track.close);
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(store, track: track, onFinished: finished.add));
+    await tester.pumpWidget(_gate(store, track: track));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsNothing);
@@ -122,31 +120,45 @@ void main() {
     await tester.tap(everyone);
     await tester.pumpAndSettle();
     expect(tester.getSemantics(everyone), isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true));
-    final start = find.byKey(const Key('welcome-start'));
-    expect(find.descendant(of: start, matching: find.text('On to the story')), findsOneWidget);
-    await tester.ensureVisible(start);
+    final start = find.byKey(WelcomeTrackView.startKey);
+    final ourStory = find.byKey(WelcomeTrackView.storyKey);
+    expect(find.descendant(of: start, matching: find.text('Start learning')), findsOneWidget);
+    expect(find.descendant(of: ourStory, matching: find.text("The Bazaar's story")), findsOneWidget);
+    expect(tester.getTopLeft(start).dy, lessThan(tester.getTopLeft(ourStory).dy), reason: 'Start learning first');
+    await tester.ensureVisible(ourStory);
     await tester.pumpAndSettle();
-    await tester.tap(start);
+    await tester.tap(ourStory);
     await tester.pumpAndSettle();
 
     expect(find.text('the story'), findsOneWidget);
     expect(track.state, Track.everyone, reason: 'the track is kept as soon as it is chosen');
     expect(store.wasSeen, isFalse, reason: 'not before the story is read or skipped');
-    expect(finished, isEmpty);
     await tester.tap(find.byKey(_storyDoneKey));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
-    expect(finished, [Track.everyone], reason: 'the app lands on that catalog (plan 1T)');
+  });
+
+  testWidgets('Start learning opens the app at once, with no story (the owner, 2026-11-15)', (tester) async {
+    final store = _MemoryWelcomeStore();
+    await tester.pumpWidget(_gate(store));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.startKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(WelcomeTrackView.startKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('the story'), findsNothing);
+    expect(find.text('the app'), findsOneWidget);
+    expect(store.wasSeen, isTrue);
   });
 
   testWidgets('a later launch opens the app directly', (tester) async {
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true), onFinished: finished.add));
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true)));
     await tester.pumpAndSettle();
 
-    expect(finished, isEmpty, reason: 'it stays where the app opens, Home (plan 1T)');
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeTrackView), findsNothing);
   });
@@ -271,19 +283,18 @@ void main() {
     tester,
   ) async {
     final store = _MemoryWelcomeStore();
-    final finished = <Track>[];
-    await tester.pumpWidget(_gate(store, onFinished: finished.add, story: false));
+    await tester.pumpWidget(_gate(store, story: false));
     await tester.pumpAndSettle();
-    expect(find.text('Start reading'), findsOneWidget, reason: 'no story to go on to');
+    expect(find.text('Start learning'), findsOneWidget);
+    expect(find.byKey(WelcomeTrackView.storyKey), findsNothing, reason: 'no story to go on to');
     await tester.ensureVisible(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('welcome-start')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Start reading'), findsNothing, reason: 'tapped: the app is open');
+    expect(find.text('Start learning'), findsNothing, reason: 'tapped: the app is open');
     expect(find.text('the story'), findsNothing);
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
-    expect(finished, [Track.engineers]);
   });
 }
