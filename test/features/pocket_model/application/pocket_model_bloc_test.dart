@@ -200,6 +200,27 @@ void main() {
       });
     });
 
+    test('asked, it speaks of a module it read, even one small beside all its own text', () {
+      final store = MemoryPocketModelStore(
+        PocketModel(
+          tokens: 1600,
+          readings: const [PocketReading(key: 'alpha/first', at: 1600, tokens: 12)],
+          lastFed: noon,
+        ),
+      );
+      run(store, (async, bloc) {
+        bloc.add(const PocketModelTemperatureSet(0.6));
+        final words = {'transformer', 'stacks', 'attention', 'layers', 'layer', 'refines'};
+        var onTopic = 0;
+        for (var i = 0; i < 10; i++) {
+          bloc.add(const PocketModelAsked());
+          async.flushMicrotasks();
+          if (ready(bloc).speech!.tokens.any(words.contains)) onTopic++;
+        }
+        expect(onTopic, greaterThanOrEqualTo(7));
+      });
+    });
+
     test('one it cannot read is left alone', () {
       run(MemoryPocketModelStore(), (async, bloc) {
         bloc.add(const PocketModelModuleRead('beta/missing'));

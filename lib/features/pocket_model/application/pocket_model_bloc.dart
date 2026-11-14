@@ -208,7 +208,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     for (final reading in model.readings) {
       final sentences = await _load(reading.key, language);
       if (sentences == null) continue;
-      lm.read(sentences);
+      lm.read(sentences, topic: reading.key);
       readings.add((reading.at, sentences));
     }
     return (lm, TinyLm.curve(language, model.tokens, readings: readings));
@@ -306,7 +306,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final lm = _lm!;
         final sentences = await _load(key, lm.language);
         if (sentences == null) return;
-        final count = lm.read(sentences);
+        final count = lm.read(sentences, topic: key);
         final model = ready.model.readAt(key, count, now);
         await _store.save(model);
         emit(
@@ -332,14 +332,28 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     }
   }
 
-  /// What it says: overfit, the word it read most, again and again; otherwise what its language model writes.
+  /// What it says: overfit, the word it read most, again and again; otherwise what its language model writes. Once it
+  /// has read modules, it speaks of one of them (the last read a third of the time, else any), and thinks over more
+  /// sentences the more it read ([TinyLm.thoughtsFor]).
   Babble _say(double temperature, {required bool overfit}) {
     final lm = _lm!;
     final word = lm.favourite;
     if (overfit && word != null) {
       return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
     }
-    final said = lm.write(temperature: temperature, random: _random, recent: _recent);
+    final topics = lm.topics;
+    final topic = topics.isEmpty
+        ? null
+        : _random.nextInt(3) == 0
+        ? topics.last
+        : topics[_random.nextInt(topics.length)];
+    final said = lm.write(
+      temperature: temperature,
+      random: _random,
+      recent: _recent,
+      topic: topic,
+      thoughts: TinyLm.thoughtsFor(topics.length),
+    );
     _recent.add(said.tokens);
     if (_recent.length > 3) _recent.removeAt(0);
     return said;

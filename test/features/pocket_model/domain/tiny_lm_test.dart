@@ -225,4 +225,75 @@ void main() {
       expect(TinyLm('en').favourite, isNull);
     });
   });
+
+  group('the more modules it read, the more it thinks, and on topic', () {
+    List<List<String>> module(String text) => [for (final line in text.split('. ')) line.split(' ')];
+    final stars = module(
+      'stars burn hydrogen deep inside their cores. a telescope gathers starlight from distant galaxies. '
+      'astronomers measure stars by their brightness and colour. a galaxy holds billions of stars and planets. '
+      'planets orbit stars along elliptical paths. light from distant galaxies travels for millions of years',
+    );
+    final bread = module(
+      'bakers knead dough until gluten forms. yeast ferments sugar and releases carbon dioxide. '
+      'the dough rises slowly overnight in a warm kitchen. bakers shape loaves before baking them hot. '
+      'a crust forms when the oven browns the dough. flour water salt and yeast make bread',
+    );
+
+    test('it thinks over one sentence before any module, three more for each, at most twenty', () {
+      expect(
+        [
+          for (final n in [0, 1, 2, 6, 7, 40]) TinyLm.thoughtsFor(n),
+        ],
+        [1, 4, 7, 19, 20, 20],
+      );
+    });
+
+    test('a module it reads with its key is a topic; read without one, none', () {
+      final model = TinyLm.trained('en', 400)
+        ..read(stars, topic: 'sky/stars')
+        ..read(bread);
+      expect(model.topics, ['sky/stars']);
+    });
+
+    test('asked to keep to a topic, it speaks of that module, not of another it read', () {
+      final model = TinyLm.trained('en', 400)
+        ..read(stars, topic: 'sky/stars')
+        ..read(bread, topic: 'kitchen/bread');
+      final starWords = {for (final s in stars) ...s};
+      final breadWords = {for (final s in bread) ...s}.difference(starWords);
+      var onStars = 0;
+      var onBread = 0;
+      for (var seed = 0; seed < 30; seed++) {
+        final said = model
+            .write(temperature: 0.8, random: math.Random(seed), topic: 'sky/stars', thoughts: TinyLm.thoughtsFor(2))
+            .tokens;
+        onStars += said.where((w) => starWords.contains(w) && w.length > 3).length;
+        onBread += said.where((w) => breadWords.contains(w) && w.length > 3).length;
+      }
+      expect(onStars, greaterThan(onBread * 4));
+    });
+
+    test('it judges a sentence it read smoother than the same words shuffled', () {
+      final model = TinyLm.trained('en', 400)..read(bread, topic: 'kitchen/bread');
+      final read = 'the dough rises slowly overnight in a warm kitchen'.split(' ');
+      final shuffled = 'kitchen warm a in overnight slowly rises dough the'.split(' ');
+      expect(model.judge(read, topic: 'kitchen/bread'), greaterThan(model.judge(shuffled, topic: 'kitchen/bread')));
+    });
+
+    test('with more thoughts, what it says reads smoother to it than what it says at once', () {
+      final model = TinyLm.trained('en', 1600)
+        ..read(stars, topic: 'sky/stars')
+        ..read(bread, topic: 'kitchen/bread');
+      double mean(int thoughts) {
+        var sum = 0.0;
+        for (var seed = 0; seed < 30; seed++) {
+          final said = model.write(temperature: 1.0, random: math.Random(seed), topic: 'sky/stars', thoughts: thoughts);
+          sum += model.judge(said.tokens, topic: 'sky/stars');
+        }
+        return sum / 30;
+      }
+
+      expect(mean(10), greaterThan(mean(1)));
+    });
+  });
 }

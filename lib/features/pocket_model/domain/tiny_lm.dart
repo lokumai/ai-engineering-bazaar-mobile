@@ -54,12 +54,12 @@ final class TinyLm {
   /// The longest thing it says.
   static const longest = 12;
 
-  final Map<String, int> _once = {};
-  final Map<String, Map<String, int>> _after1 = {};
-  final Map<String, Map<String, int>> _after2 = {};
-  final Map<String, int> _after1Total = {};
-  final Map<String, int> _after2Total = {};
-  int _total = 0;
+  /// What it counted of everything it read.
+  final _Counts _all = _Counts();
+
+  /// What it counted of each module it read, by the module's key: a topic it can keep to while it writes.
+  final Map<String, _Counts> _topics = {};
+
   int _trained = 0;
   String _a = _start;
   String _b = _start;
@@ -77,7 +77,8 @@ final class TinyLm {
   /// Reads a module's [sentences] (`module_sentences.dart`), each ending in [end], all but every tenth, which it holds
   /// out to measure its loss on, as a training run keeps a test set from each source; returns the tokens read.
   /// [holdOut] false reads them without holding the tenth out again, for a curve that held them out first.
-  int read(List<List<String>> sentences, {bool holdOut = true}) {
+  /// With a [topic] (the module's key), it also counts the module apart, as a topic to keep to ([write]).
+  int read(List<List<String>> sentences, {bool holdOut = true, String? topic}) {
     final (taught, tested) = splitOut(sentences);
     if (holdOut) _tested.addAll(tested);
     for (final sentence in [...taught, ...tested]) {
@@ -86,11 +87,13 @@ final class TinyLm {
       }
     }
     var count = 0;
+    final own = topic == null ? null : (_topics[topic] ??= _Counts());
     for (final sentence in taught) {
       var a = _start;
       var b = _start;
       for (final word in [...sentence, end]) {
-        _count(a, b, word);
+        _all.add(a, b, word);
+        own?.add(a, b, word);
         a = b;
         b = word;
         count++;
@@ -101,7 +104,10 @@ final class TinyLm {
   }
 
   /// The words it has read at least once.
-  int get known => _once.length - (_once.containsKey(end) ? 1 : 0);
+  int get known => _all.once.length - (_all.once.containsKey(end) ? 1 : 0);
+
+  /// The modules it read and can keep to as topics, by key, in the order it read them.
+  List<String> get topics => [..._topics.keys];
 
   /// The sentences of the modules it read that it holds out, to measure its loss on with its own held-out ones.
   final List<List<String>> _tested = [];
@@ -137,7 +143,7 @@ final class TinyLm {
     final read = <String>[];
     for (var i = 0; i < count; i++) {
       final word = _stream[_trained % _stream.length];
-      _count(_a, _b, word);
+      _all.add(_a, _b, word);
       if (word == end) {
         _a = _start;
         _b = _start;
@@ -156,32 +162,29 @@ final class TinyLm {
     if (tokens > _trained) train(tokens - _trained);
   }
 
-  void _count(String a, String b, String word) {
-    _once[word] = (_once[word] ?? 0) + 1;
-    _total++;
-    (_after1[b] ??= {})[word] = (_after1[b]![word] ?? 0) + 1;
-    _after1Total[b] = (_after1Total[b] ?? 0) + 1;
-    final two = '$a $b';
-    (_after2[two] ??= {})[word] = (_after2[two]![word] ?? 0) + 1;
-    _after2Total[two] = (_after2Total[two] ?? 0) + 1;
-  }
-
   /// The chance of [word] after [a] and [b] (Witten-Bell smoothing): what followed the two words, the rest of the
   /// chance going to what followed [b] alone, and the rest of that to how often the word came at all, each in the
   /// measure of how many different words followed. [smooth] gives a word never read a small chance, as the loss needs;
   /// [backoff] scales the chance passed down, so a model writing keeps closer to what it read.
   double chance(String a, String b, String word, {bool smooth = false, double backoff = 1}) {
-    final once = _once[word] ?? 0;
-    final alone = smooth ? (once + _k) / (_total + _k * _words.length) : (_total == 0 ? 0.0 : once / _total);
-    final one = _blend(_after1[b], _after1Total[b], word, alone, backoff);
-    return _blend(_after2['$a $b'], _after2Total['$a $b'], word, one, backoff);
+    final once = _all.once[word] ?? 0;
+    final total = _all.total;
+    final alone = smooth ? (once + _k) / (total + _k * _words.length) : (total == 0 ? 0.0 : once / total);
+    return _all.chance(a, b, word, alone, backoff);
   }
 
-  static double _blend(Map<String, int>? next, int? total, String word, double lower, double backoff) {
-    if (next == null || total == null) return lower;
-    final kinds = next.length * backoff;
-    return ((next[word] ?? 0) + kinds * lower) / (total + kinds);
+  /// The chance of [word] after [a] and [b] keeping to [topic]: half what followed them in the module, half what
+  /// followed them in everything it read, so it writes of the module in the words of all it read.
+  double _topicChance(_Counts? topic, String a, String b, String word, double backoff) {
+    final all = chance(a, b, word, backoff: backoff);
+    if (topic == null) return all;
+    final total = _all.total;
+    final alone = total == 0 ? 0.0 : (_all.once[word] ?? 0) / total;
+    return _topicShare * topic.chance(a, b, word, alone, backoff) + (1 - _topicShare) * all;
   }
+
+  /// How much of a word's chance a topic decides.
+  static const _topicShare = 0.5;
 
   /// The mean surprise on the sentences it never reads, in nats.
   double loss() {
@@ -204,7 +207,7 @@ final class TinyLm {
   String? get favourite {
     String? best;
     var most = 0;
-    for (final MapEntry(:key, :value) in _once.entries) {
+    for (final MapEntry(:key, :value) in _all.once.entries) {
       if (key != end && value > most) {
         best = key;
         most = value;
@@ -219,43 +222,131 @@ final class TinyLm {
   /// Words of its [recent] answers are less likely (a repetition penalty, as large models have), all but its commonest
   /// words, which a sentence needs; and an answer the same as a recent one is written again, up to three times. Cold,
   /// it takes its likeliest words regardless, every time.
-  Babble write({required double temperature, required math.Random random, List<List<String>> recent = const []}) {
+  ///
+  /// With a [topic], a module it read, it keeps to the module: half of each word's chance is what followed in the
+  /// module. With [thoughts] above one it writes that many sentences and says the one it judges best ([judge]): the
+  /// one that reads most smoothly to it and keeps most to the topic; hot, it judges loosely, cold, it says the best.
+  Babble write({
+    required double temperature,
+    required math.Random random,
+    List<List<String>> recent = const [],
+    String? topic,
+    int thoughts = 1,
+  }) {
     if (known == 0) return (tokens: noise(language, random), hallucinating: false);
     final penalise = temperature >= cold && recent.isNotEmpty;
     final common = penalise ? _commonest(_common) : const <String>{};
     final avoid = penalise ? {for (final said in recent) ...said}.difference(common) : const <String>{};
-    var written = _write(temperature, random, avoid);
-    for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.tokens)); tries++) {
-      written = _write(temperature, random, avoid);
+    final keep = topic == null ? null : _topics[topic];
+    final drafts = <Babble>[];
+    for (var i = 0; i < math.max(1, thoughts); i++) {
+      var written = _write(temperature, random, avoid, keep);
+      for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.tokens)); tries++) {
+        written = _write(temperature, random, avoid, keep);
+      }
+      drafts.add(written);
     }
-    return written;
+    if (drafts.length == 1) return drafts.single;
+    final fresh = [
+      for (final draft in drafts)
+        if (!recent.any((said) => _same(said, draft.tokens))) draft,
+    ];
+    final pool = fresh.isEmpty ? drafts : fresh;
+    // A judgement is a log chance: raised back to a chance, the temperature picks among them as among words.
+    final scores = [for (final draft in pool) math.exp(_judgeTemper * judge(draft.tokens, topic: topic))];
+    return pool[_pick(scores, temperature, random)];
   }
 
-  Babble _write(double temperature, math.Random random, Set<String> avoid) {
-    final words = [..._once.keys];
+  /// How sharply its judgement picks among its drafts.
+  static const _judgeTemper = 2.0;
+
+  /// How it judges a sentence it wrote: the mean log chance of its words and its end (how smoothly it reads, to what
+  /// it read), and, with a [topic], a share for the words that mark the topic; a sentence of fewer than four words is
+  /// judged a little lower.
+  double judge(List<String> tokens, {String? topic}) {
+    if (tokens.isEmpty) return double.negativeInfinity;
+    final keep = topic == null ? null : _topics[topic];
+    var sum = 0.0;
+    var a = _start;
+    var b = _start;
+    for (final word in [...tokens, end]) {
+      sum += math.log(math.max(1e-9, _topicChance(keep, a, b, word, 1)));
+      a = b;
+      b = word;
+    }
+    var score = sum / (tokens.length + 1);
+    if (keep != null) {
+      final marks = _keywords(keep);
+      score += _topicWeight * tokens.where(marks.contains).length / tokens.length;
+    }
+    if (tokens.length < 4) score -= 0.5;
+    return score;
+  }
+
+  /// How much a sentence's keeping to its topic counts beside how smoothly it reads.
+  static const _topicWeight = 1.5;
+
+  /// The words that mark [topic]: those it read in the module far more often than elsewhere, not short and not among
+  /// its commonest.
+  Set<String> _keywords(_Counts topic) {
+    final kept = topic.keywords;
+    if (kept != null) return kept;
+    final common = _commonest(40);
+    final ranked = [
+      for (final MapEntry(:key, :value) in topic.once.entries)
+        if (key != end && key.length > 3 && !common.contains(key))
+          (key, value / (_all.once[key] ?? value) * math.log(1 + value)),
+    ]..sort((x, y) => y.$2.compareTo(x.$2));
+    return topic.keywords = {for (final (word, _) in ranked.take(40)) word};
+  }
+
+  /// How many sentences it writes to choose one from, by the modules it read: one before it read any, three more for
+  /// each, up to twenty. The more of the course it read, the more it thinks before it speaks.
+  static int thoughtsFor(int modules) => math.min(20, 1 + 3 * modules);
+
+  Babble _write(double temperature, math.Random random, Set<String> avoid, _Counts? keep) {
     final said = <String>[];
     var hallucinating = false;
     var a = _start;
     var b = _start;
     while (said.length < longest) {
+      // The words worth weighing: what followed the last words, here or in the topic, and its commonest words, through
+      // which a hot model makes up a join; the rest are too unlikely to matter.
       final options = [
-        for (final word in words)
+        for (final word in <String>{
+          ...?_all.after2['$a $b']?.keys,
+          ...?_all.after1[b]?.keys,
+          ...?keep?.after1[b]?.keys,
+          ..._head(),
+        })
           if (!(word == end && said.isEmpty)) word,
       ];
       final chances = [
         for (final word in options)
-          chance(a, b, word, backoff: _writingBackoff) / (avoid.contains(word) ? _penalty : 1),
+          _topicChance(keep, a, b, word, _writingBackoff) / (avoid.contains(word) ? _penalty : 1),
       ];
       final word = options[_pick(chances, temperature, random)];
       if (word == end) break;
       // A pair it never read is a join it made up.
-      if ((_after1[b]?[word] ?? 0) == 0) hallucinating = true;
+      if ((_all.after1[b]?[word] ?? 0) == 0) hallucinating = true;
       said.add(word);
       a = b;
       b = word;
     }
     return (tokens: said, hallucinating: hallucinating);
   }
+
+  /// Its two hundred commonest words, counted again only when it has read on.
+  Set<String> _head() {
+    if (_headAt != _all.total) {
+      _headAt = _all.total;
+      _headWords = _commonest(200);
+    }
+    return _headWords;
+  }
+
+  int _headAt = -1;
+  Set<String> _headWords = const {};
 
   /// How much less likely a word of a recent answer is.
   static const _penalty = 2.5;
@@ -264,7 +355,7 @@ final class TinyLm {
   static const _common = 12;
 
   Set<String> _commonest(int count) {
-    final ranked = _once.entries.where((entry) => entry.key != end).toList()
+    final ranked = _all.once.entries.where((entry) => entry.key != end).toList()
       ..sort((x, y) => y.value.compareTo(x.value));
     return {for (final entry in ranked.take(count)) entry.key};
   }
@@ -328,5 +419,43 @@ final class TinyLm {
       mark();
     }
     return drawn;
+  }
+}
+
+/// What a model counted of some text: how often each word came, and which word followed one word and which two.
+final class _Counts {
+  final Map<String, int> once = {};
+  final Map<String, Map<String, int>> after1 = {};
+  final Map<String, Map<String, int>> after2 = {};
+  final Map<String, int> after1Total = {};
+  final Map<String, int> after2Total = {};
+  int total = 0;
+
+  /// The words that mark this text as a topic, once counted; counted again after it reads on.
+  Set<String>? keywords;
+
+  void add(String a, String b, String word) {
+    once[word] = (once[word] ?? 0) + 1;
+    total++;
+    (after1[b] ??= {})[word] = (after1[b]![word] ?? 0) + 1;
+    after1Total[b] = (after1Total[b] ?? 0) + 1;
+    final two = '$a $b';
+    (after2[two] ??= {})[word] = (after2[two]![word] ?? 0) + 1;
+    after2Total[two] = (after2Total[two] ?? 0) + 1;
+    keywords = null;
+  }
+
+  /// The chance of [word] after [a] and [b] (Witten-Bell smoothing): what followed the two words, the rest of the
+  /// chance going to what followed [b] alone, and the rest of that to [alone], each in the measure of how many
+  /// different words followed; [backoff] scales the chance passed down.
+  double chance(String a, String b, String word, double alone, double backoff) {
+    final one = _blend(after1[b], after1Total[b], word, alone, backoff);
+    return _blend(after2['$a $b'], after2Total['$a $b'], word, one, backoff);
+  }
+
+  static double _blend(Map<String, int>? next, int? total, String word, double lower, double backoff) {
+    if (next == null || total == null) return lower;
+    final kinds = next.length * backoff;
+    return ((next[word] ?? 0) + kinds * lower) / (total + kinds);
   }
 }
