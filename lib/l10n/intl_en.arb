@@ -983,5 +983,100 @@
   "reader_failed": "This module could not be read on this device. Try again, or restart the app.",
   "@reader_failed": {},
   "reader_retry": "Try again",
-  "@reader_retry": {}
+  "@reader_retry": {},
+  "pocket_title": "Pocket model",
+  "@pocket_title": {
+    "description": "Home's toy under Your path (plan 9.2): a tiny model the reader trains with tokens."
+  },
+  "pocket_lede": "A tiny model to train when you need a break: feed it tokens and it learns to talk.",
+  "@pocket_lede": {},
+  "pocket_feed": "Feed tokens",
+  "@pocket_feed": {},
+  "pocket_ask": "Ask it",
+  "@pocket_ask": {},
+  "pocket_temperature": "Temperature",
+  "@pocket_temperature": {},
+  "pocket_level": "Level {level}",
+  "@pocket_level": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_tokens": "{count, plural, =1{1 token} other{{count} tokens}}",
+  "@pocket_tokens": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_to_next": "{count} to level {level}",
+  "@pocket_to_next": {
+    "description": "The tokens still to feed before the next level.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_top": "Fully trained",
+  "@pocket_top": {},
+  "pocket_loss": "loss {value}",
+  "@pocket_loss": {
+    "description": "The training loss, as a model's training prints it, small.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pocket_status_newborn": "New: it knows no words yet. Feed it some tokens.",
+  "@pocket_status_newborn": {},
+  "pocket_status_content": "Content, and ready to learn.",
+  "@pocket_status_content": {},
+  "pocket_status_hungry": "Hungry: not fed for hours.",
+  "@pocket_status_hungry": {},
+  "pocket_status_asleep": "Asleep. Tap it to wake it.",
+  "@pocket_status_asleep": {},
+  "pocket_status_overfit": "Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.",
+  "@pocket_status_overfit": {},
+  "pocket_status_recovered": "Rested, and ready to learn again.",
+  "@pocket_status_recovered": {},
+  "pocket_status_hallucinating": "Too hot: it hallucinates. Turn the temperature down.",
+  "@pocket_status_hallucinating": {},
+  "pocket_status_cold": "Cold: it says its likeliest words, every time.",
+  "@pocket_status_cold": {},
+  "pocket_status_level_up": "Level {level}: it can say more now.",
+  "@pocket_status_level_up": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_hallucinating": "hallucinating",
+  "@pocket_hallucinating": {
+    "description": "The tag on a speech bubble said while too hot."
+  },
+  "pocket_stage_label": "Pocket model, level {level}. Tap to pet it.",
+  "@pocket_stage_label": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "pocket_says": "It says: {words}",
+  "@pocket_says": {
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -2003,6 +2003,166 @@ class S {
   String get reader_retry {
     return Intl.message('Try again', name: 'reader_retry', desc: '', args: []);
   }
+
+  /// `Pocket model`
+  String get pocket_title {
+    return Intl.message(
+      'Pocket model',
+      name: 'pocket_title',
+      desc: 'Home\'s toy under Your path (plan 9.2): a tiny model the reader trains with tokens.',
+      args: [],
+    );
+  }
+
+  /// `A tiny model to train when you need a break: feed it tokens and it learns to talk.`
+  String get pocket_lede {
+    return Intl.message(
+      'A tiny model to train when you need a break: feed it tokens and it learns to talk.',
+      name: 'pocket_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Feed tokens`
+  String get pocket_feed {
+    return Intl.message('Feed tokens', name: 'pocket_feed', desc: '', args: []);
+  }
+
+  /// `Ask it`
+  String get pocket_ask {
+    return Intl.message('Ask it', name: 'pocket_ask', desc: '', args: []);
+  }
+
+  /// `Temperature`
+  String get pocket_temperature {
+    return Intl.message('Temperature', name: 'pocket_temperature', desc: '', args: []);
+  }
+
+  /// `Level {level}`
+  String pocket_level(int level) {
+    return Intl.message('Level $level', name: 'pocket_level', desc: '', args: [level]);
+  }
+
+  /// `{count, plural, =1{1 token} other{{count} tokens}}`
+  String pocket_tokens(int count) {
+    return Intl.plural(count, one: '1 token', other: '$count tokens', name: 'pocket_tokens', desc: '', args: [count]);
+  }
+
+  /// `{count} to level {level}`
+  String pocket_to_next(int count, int level) {
+    return Intl.message(
+      '$count to level $level',
+      name: 'pocket_to_next',
+      desc: 'The tokens still to feed before the next level.',
+      args: [count, level],
+    );
+  }
+
+  /// `Fully trained`
+  String get pocket_top {
+    return Intl.message('Fully trained', name: 'pocket_top', desc: '', args: []);
+  }
+
+  /// `loss {value}`
+  String pocket_loss(String value) {
+    return Intl.message(
+      'loss $value',
+      name: 'pocket_loss',
+      desc: 'The training loss, as a model\'s training prints it, small.',
+      args: [value],
+    );
+  }
+
+  /// `New: it knows no words yet. Feed it some tokens.`
+  String get pocket_status_newborn {
+    return Intl.message(
+      'New: it knows no words yet. Feed it some tokens.',
+      name: 'pocket_status_newborn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Content, and ready to learn.`
+  String get pocket_status_content {
+    return Intl.message('Content, and ready to learn.', name: 'pocket_status_content', desc: '', args: []);
+  }
+
+  /// `Hungry: not fed for hours.`
+  String get pocket_status_hungry {
+    return Intl.message('Hungry: not fed for hours.', name: 'pocket_status_hungry', desc: '', args: []);
+  }
+
+  /// `Asleep. Tap it to wake it.`
+  String get pocket_status_asleep {
+    return Intl.message('Asleep. Tap it to wake it.', name: 'pocket_status_asleep', desc: '', args: []);
+  }
+
+  /// `Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.`
+  String get pocket_status_overfit {
+    return Intl.message(
+      'Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.',
+      name: 'pocket_status_overfit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rested, and ready to learn again.`
+  String get pocket_status_recovered {
+    return Intl.message('Rested, and ready to learn again.', name: 'pocket_status_recovered', desc: '', args: []);
+  }
+
+  /// `Too hot: it hallucinates. Turn the temperature down.`
+  String get pocket_status_hallucinating {
+    return Intl.message(
+      'Too hot: it hallucinates. Turn the temperature down.',
+      name: 'pocket_status_hallucinating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cold: it says its likeliest words, every time.`
+  String get pocket_status_cold {
+    return Intl.message(
+      'Cold: it says its likeliest words, every time.',
+      name: 'pocket_status_cold',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Level {level}: it can say more now.`
+  String pocket_status_level_up(int level) {
+    return Intl.message('Level $level: it can say more now.', name: 'pocket_status_level_up', desc: '', args: [level]);
+  }
+
+  /// `hallucinating`
+  String get pocket_hallucinating {
+    return Intl.message(
+      'hallucinating',
+      name: 'pocket_hallucinating',
+      desc: 'The tag on a speech bubble said while too hot.',
+      args: [],
+    );
+  }
+
+  /// `Pocket model, level {level}. Tap to pet it.`
+  String pocket_stage_label(int level) {
+    return Intl.message(
+      'Pocket model, level $level. Tap to pet it.',
+      name: 'pocket_stage_label',
+      desc: '',
+      args: [level],
+    );
+  }
+
+  /// `It says: {words}`
+  String pocket_says(String words) {
+    return Intl.message('It says: $words', name: 'pocket_says', desc: '', args: [words]);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

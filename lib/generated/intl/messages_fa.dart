@@ -80,37 +80,51 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m28(count) => "${Intl.plural(count, one: '1 درس', other: '${count} درس')}";
 
-  static String m29(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
+  static String m29(level) => "سطح ${level}";
 
-  static String m30(taken, total) => "${taken} از ${total} آزمون حل شده";
+  static String m30(value) => "خطا ${value}";
 
-  static String m31(index, count) => "پرسش ${index} از ${count}";
+  static String m31(words) => "می‌گوید: ${words}";
 
-  static String m32(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
+  static String m32(level) => "مدل جیبی، سطح ${level}. برای نوازش ضربه بزنید.";
 
-  static String m33(score, total) => "${score} از ${total}";
+  static String m33(level) => "سطح ${level}: حالا می‌تواند بیشتر بگوید.";
 
-  static String m34(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
+  static String m34(count, level) => "${count} تا سطح ${level}";
 
-  static String m35(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
+  static String m35(count) => "${count} توکن";
 
-  static String m36(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
+  static String m36(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
 
-  static String m37(date) => "تکمیل‌شده در ${date}";
+  static String m37(taken, total) => "${taken} از ${total} آزمون حل شده";
 
-  static String m38(position, total) => "مورد ${position} از ${total}";
+  static String m38(index, count) => "پرسش ${index} از ${count}";
 
-  static String m39(minutes) => "${minutes} دقیقه";
+  static String m39(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
 
-  static String m40(number, count) => "درس ${number} از ${count}";
+  static String m40(score, total) => "${score} از ${total}";
 
-  static String m41(label) => "${label} · برنامه‌ریزی‌شده";
+  static String m41(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
 
-  static String m42(hash, date) => "ویرایش ${hash} · ${date}";
+  static String m42(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
 
-  static String m43(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
+  static String m43(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
 
-  static String m44(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
+  static String m44(date) => "تکمیل‌شده در ${date}";
+
+  static String m45(position, total) => "مورد ${position} از ${total}";
+
+  static String m46(minutes) => "${minutes} دقیقه";
+
+  static String m47(number, count) => "درس ${number} از ${count}";
+
+  static String m48(label) => "${label} · برنامه‌ریزی‌شده";
+
+  static String m49(hash, date) => "ویرایش ${hash} · ${date}";
+
+  static String m50(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
+
+  static String m51(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -327,6 +341,36 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "not_found_title": MessageLookupByLibrary.simpleMessage("چنین درسی وجود ندارد"),
     "open_on_the_web": MessageLookupByLibrary.simpleMessage("باز کردن در وب"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("از آن بپرس"),
+    "pocket_feed": MessageLookupByLibrary.simpleMessage("توکن بده"),
+    "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
+    "pocket_lede": MessageLookupByLibrary.simpleMessage(
+      "مدلی کوچک برای وقت استراحت: به آن توکن بدهید تا حرف زدن یاد بگیرد.",
+    ),
+    "pocket_level": m29,
+    "pocket_loss": m30,
+    "pocket_says": m31,
+    "pocket_stage_label": m32,
+    "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("خواب است. برای بیدار کردن ضربه بزنید."),
+    "pocket_status_cold": MessageLookupByLibrary.simpleMessage("سرد: هر بار محتمل‌ترین واژه‌ها را می‌گوید."),
+    "pocket_status_content": MessageLookupByLibrary.simpleMessage("سرحال و آمادهٔ یادگیری."),
+    "pocket_status_hallucinating": MessageLookupByLibrary.simpleMessage(
+      "زیادی داغ: توهم می‌زند. دما را پایین بیاورید.",
+    ),
+    "pocket_status_hungry": MessageLookupByLibrary.simpleMessage("گرسنه: ساعت‌هاست چیزی نخورده."),
+    "pocket_status_level_up": m33,
+    "pocket_status_newborn": MessageLookupByLibrary.simpleMessage(
+      "تازه: هنوز هیچ واژه‌ای نمی‌داند. کمی توکن به آن بدهید.",
+    ),
+    "pocket_status_overfit": MessageLookupByLibrary.simpleMessage(
+      "بیش‌برازش: توکن‌ها را از بر کرده و تکرارشان می‌کند. بگذارید چند ثانیه استراحت کند.",
+    ),
+    "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("استراحت کرد و دوباره آمادهٔ یادگیری است."),
+    "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
+    "pocket_title": MessageLookupByLibrary.simpleMessage("مدل جیبی"),
+    "pocket_to_next": m34,
+    "pocket_tokens": m35,
+    "pocket_top": MessageLookupByLibrary.simpleMessage("کاملاً آموزش‌دیده"),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، جزئیات شخصی را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
@@ -378,30 +422,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("بازگشت به پرسش‌ها"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("درست است."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("تمام"),
-    "quiz_list_count": m29,
-    "quiz_list_taken": m30,
+    "quiz_list_count": m36,
+    "quiz_list_taken": m37,
     "quiz_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
-    "quiz_progress": m31,
+    "quiz_progress": m38,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage("، درست"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage("، نادرست"),
-    "quiz_score_before": m32,
-    "quiz_score_count": m33,
-    "quiz_score_line": m34,
+    "quiz_score_before": m39,
+    "quiz_score_count": m40,
+    "quiz_score_line": m41,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
-    "quiz_subtitle": m35,
+    "quiz_subtitle": m42,
     "quiz_title": MessageLookupByLibrary.simpleMessage("پرسش‌های این درس"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "این آزمون باز نشد. آن را ببندید و بعداً دوباره امتحان کنید.",
     ),
-    "quiz_wrong": m36,
+    "quiz_wrong": m43,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("بخشی نوشته شده"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("فقط برنامهٔ بخش‌ها"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("پیش از شروع"),
     "reader_close": MessageLookupByLibrary.simpleMessage("بستن"),
-    "reader_completed_on": m37,
+    "reader_completed_on": m44,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("تکمیل درس"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("فهرست مطالب"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("پایان دوره"),
@@ -410,27 +454,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("حذف نشانه‌های جستجو"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("مورد بعدی"),
-    "reader_find_position": m38,
+    "reader_find_position": m45,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("مورد قبلی"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("علامت زدن این درس به‌عنوان تکمیل‌شده"),
-    "reader_minutes": m39,
-    "reader_module_of": m40,
+    "reader_minutes": m46,
+    "reader_module_of": m47,
     "reader_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("نسخهٔ «برای همه»ی این درس برنامه‌ریزی شده است."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("آنچه خواهید توانست انجام دهید"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("در این صفحه"),
-    "reader_pager_planned": m41,
+    "reader_pager_planned": m48,
     "reader_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("خواندن نسخهٔ «برای مهندسان»"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("دوباره تلاش کنید"),
-    "reader_revision": m42,
+    "reader_revision": m49,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("مورد"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("برنامهٔ بخش‌ها"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("بخش‌ها"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("دیدن آنچه «برای همه» نوشته شده است"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("آغاز دوره"),
-    "record_not_saved": m43,
+    "record_not_saved": m50,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("حجم سابقه بیشتر از حدی است که برنامه می‌نویسد"),
@@ -455,7 +499,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("انتشار"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("خواندن"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("در حال بررسی به‌روزرسانی‌ها"),
-    "settings_refresh_failed": m44,
+    "settings_refresh_failed": m51,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("از زمان باز شدن برنامه بررسی نشده است"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "محتوای جدیدتر به نسخهٔ جدیدتری از برنامه نیاز دارد. برای دریافت آن، برنامه را به‌روزرسانی کنید.",
