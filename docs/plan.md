@@ -353,4 +353,10 @@ A trial on `feature/caravan-and-toy`, from the app of PR #9 (the owner, 2026-11-
   - The round button starts in its corner, and the reader drags it anywhere over the page or throws it: it slides, bounces off the page's edges, keeping 62% of its speed, slows and comes to rest (`app/shell/floating_dock.dart`; with reduced motion it stays where the finger leaves it). The shell keeps where it rests from one of its pages to another, for the session; a tap still opens the sheet.
   - A module it reads now ends with its quiz: each question, then its right answer, as sentences of their own (never a wrong option, never a `code` span).
   - The status line no longer lists the words it just read ("Read: ..."); the tokens it eats still fly into its mouth.
+- [x] **9.8 It speaks of what it read, and thinks more the more it read** (the owner, 2026-11-14: "the more modules it reads, the smarter it should talk, and on the topic").
+  - It counts each module it reads apart as well, as a topic. Asked, once it has read a module, it speaks of one (the last read a third of the time, else any): half of each word's chance is what followed in that module, half what followed in everything it read.
+  - It writes several sentences and says the one it judges best: the mean log chance of its words (how smoothly it reads) plus a share for the words that mark the topic (those far more frequent in the module than elsewhere), a sentence under four words judged a little lower. It writes one before any module, three more for each module read, up to twenty; cold it says the best, warmer it picks among them more loosely. With twelve modules an answer takes about 40 ms on a laptop.
+  - Each word is weighed only among those that followed the last words (here or in the topic) and its two hundred commonest, so twenty sentences stay fast.
+  - The robot's speech bubble is a new one only for a new answer: a pet or a feed beside it no longer writes it again from the start.
+  - The line under its title is one short sentence: a toy model, which learns from what it reads and can talk nonsense.
 
