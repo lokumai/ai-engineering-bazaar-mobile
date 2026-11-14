@@ -69,6 +69,25 @@ void main() {
       expect(sentences.map((sentence) => sentence.length), [24, 6]);
     });
 
+    test("after the prose, each quiz question and its right answer, never a wrong one nor a question's code", () {
+      final doc = testDoc(
+        body: [ParagraphBlock(inlines: _text('The prose comes first here.'), lead: false)],
+        quiz: const [
+          QuizItem(
+            question: 'What does attention weigh in `layer.forward`?',
+            options: ['The colour of the screen', 'The other tokens of the sentence'],
+            answer: 1,
+            explain: 'It weighs every token against the others.',
+          ),
+        ],
+      );
+      expect(sentencesOf(doc), [
+        ['the', 'prose', 'comes', 'first', 'here'],
+        ['what', 'does', 'attention', 'weigh', 'in'],
+        ['the', 'other', 'tokens', 'of', 'the', 'sentence'],
+      ]);
+    });
+
     test('a planned module has no prose', () {
       expect(sentencesOf(testDoc()), isEmpty);
     });

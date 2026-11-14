@@ -2,7 +2,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 
 /// A course module's prose as the pocket model reads it (plan 9.6): sentences of lower-case words, each ending where
 /// the module's sentence ends. Its prose is its paragraphs, headings, lists, quotes and callouts; its code, tables,
-/// images and diagrams are left out, as a reader's eye passes over them. A planned module, with no body, has none.
+/// images and diagrams are left out, as a reader's eye passes over them. After the prose come its quiz's questions,
+/// each followed by its right answer as a sentence of its own; the wrong options are never read. A planned module, with
+/// no body, has none.
 ///
 /// The model only counts which word follows which in them; it shows none of the module's facts as facts.
 List<List<String>> sentencesOf(ModuleDoc doc) {
@@ -38,6 +40,10 @@ List<List<String>> sentencesOf(ModuleDoc doc) {
   }
 
   body.forEach(visit);
+  for (final item in doc.quiz ?? const <QuizItem>[]) {
+    prose(_withoutCode(item.question));
+    if (item.answer >= 0 && item.answer < item.options.length) prose(_withoutCode(item.options[item.answer]));
+  }
   return sentences;
 }
 
@@ -60,6 +66,11 @@ final _between = RegExp(r"[^\p{L}\p{N}\p{M}'\u2019\-\u200c]+", unicode: true);
 
 /// Apostrophes, hyphens and joiners at a word's ends.
 final _edges = RegExp(r"^['\u2019\-\u200c]+|['\u2019\-\u200c]+$");
+
+/// A quiz's plain text with its `code` spans taken out, as inline code is in the prose.
+String _withoutCode(String text) => text.replaceAll(_codeSpan, ' ');
+
+final _codeSpan = RegExp('`[^`]*`');
 
 String _inlineText(List<Inline> inlines) => inlines.map(_inline).join();
 
