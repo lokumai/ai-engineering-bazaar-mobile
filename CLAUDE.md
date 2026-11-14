@@ -101,9 +101,10 @@ lib/
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
-    app_icon/                                   BazaarIcon (the six app icons and their colours), AppIconCubit, its store and
+    app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen and the opening's colours;
-                                                presentation/: AppIconRow and AppIconChoices, which Settings and Welcome show
+                                                presentation/: AppIconRow and AppIconChoices, which Settings shows
+    robot_level/                                RobotLevelCubit: the pocket model's level, which unlocks the app icons
     theme/                                      ThemeChoiceCubit (light or dark; the phone's until chosen), IThemeStore, appearance_name.dart:
                                                 the choice kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
@@ -134,7 +135,8 @@ lib/
     caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
                                                 the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
-tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart
+tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart,
+                                                render_app_icons.dart (fvm flutter test tool/render_app_icons.dart)
 assets/content/                                 index.json, api_index.json, objects/<sha256> (the bundled snapshot, generated)
 assets/fonts/                                   Vazirmatn-Regular.ttf, Vazirmatn-Bold.ttf, OFL.txt; Fraunces.ttf, Fraunces-Italic.ttf, OFL-Fraunces.txt
 assets/brand/, assets/welcome/, assets/about/   the Lokum logo, the Welcome art and the story's scenes, each with its SOURCE.md
