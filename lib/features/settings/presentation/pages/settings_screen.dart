@@ -39,6 +39,9 @@ Key settingsAppearanceKey(ThemeMode mode) => ValueKey('settings-appearance-${mod
 
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
 
+/// The key of the pocket model's button's [shown] segment.
+Key settingsPocketKey({required bool shown}) => ValueKey('settings-pocket-${shown ? 'on' : 'off'}');
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, this.openDevConsole, this.feedback = false, this.wardrobePicture});
 
@@ -148,26 +151,29 @@ class _SettingsView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-          // The app's icon, the pocket model's button and its robot's wardrobe (plan 9.9).
+          // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
           SectionRule(title: s.settings_customize),
           const SizedBox(height: AppSpacing.md),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: AppSpacing.sm,
             children: [
+              // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
+              Text(s.settings_pocket_button, style: theme.textTheme.titleSmall),
+              BazaarSegmentedControl<bool>(
+                key: const Key('settings-pocket-button'),
+                semanticLabel: s.settings_pocket_button,
+                selected: context.watch<PocketButtonCubit>().state,
+                onSelected: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
+                segments: [
+                  BazaarSegment(value: true, label: s.settings_on, key: settingsPocketKey(shown: true)),
+                  BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
               AppIconRow(
                 key: const Key('settings-app-icon'),
                 onTap: () => context.push(ApplicationRoutesConstants.appIcon),
-              ),
-              SwitchListTile.adaptive(
-                key: const Key('settings-pocket-button'),
-                contentPadding: const EdgeInsetsDirectional.only(start: 4),
-                value: context.watch<PocketButtonCubit>().state,
-                onChanged: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
-                title: Text(
-                  s.settings_pocket_button,
-                  style: theme.textTheme.titleSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
-                ),
               ),
               _WardrobeRow(
                 key: const Key('settings-robot'),
