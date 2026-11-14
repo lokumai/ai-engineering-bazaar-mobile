@@ -5,6 +5,8 @@ import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow
 
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -74,6 +76,66 @@ void main() {
       for (var x = 0.0; x < road.length * geo.month; x += 50) {
         expect(geo.ground(x), lessThan(geo.walk(x)));
       }
+    });
+  });
+
+  group('the names over the stops', () {
+    // Wide, so several stops stand in view at once.
+    const size = Size(1200, 300);
+    final geo = StageGeometry(size, road);
+    final labels = [
+      for (final stop in road.stops) StopLabel(stop.trend.title, maxWidth: 300, textDirection: TextDirection.ltr),
+    ];
+    tearDownAll(() {
+      for (final label in labels) {
+        label.dispose();
+      }
+    });
+
+    ShadowStagePainter painter(int selected, double at) => ShadowStagePainter(
+      art: StageArt(geo, mirrored: false),
+      journey: CaravanJourney(at: at),
+      clock: ValueNotifier(0),
+      selected: selected,
+      labels: labels,
+      mirrored: false,
+      reduced: true,
+    );
+
+    test('only the chosen stop is named, never the ones the caravan passed', () {
+      final at = geo.cameraFor(road.stops[6].at);
+      expect((Canvas canvas) => painter(6, at).paint(canvas, size), paintsExactlyCountTimes(#drawParagraph, 1));
+    });
+
+    test('a chosen stop out of view is not named on the cloth\'s edge', () {
+      final at = geo.cameraFor(road.stops[0].at);
+      expect((Canvas canvas) => painter(road.stops.length - 1, at).paint(canvas, size), isNot(paints..paragraph()));
+    });
+
+    test('the name fades as its prop nears the edge and stays inside the cloth', () {
+      const box = Size(120, 22);
+      ({Rect rect, double opacity})? at(double x, {bool mirrored = false}) => stopLabelPlace(
+        shown: [(index: 2, x: x, top: 150)],
+        selected: 2,
+        box: box,
+        stage: const Size(393, 300),
+        mirrored: mirrored,
+      );
+      expect(at(200)!.opacity, 1);
+      expect(at(30)!.opacity, inExclusiveRange(0, 1));
+      expect(at(30)!.rect.left, greaterThanOrEqualTo(StageFrame.side));
+      expect(at(4), isNull);
+      expect(at(393 - 30, mirrored: true)!.opacity, at(30)!.opacity);
+      expect(
+        stopLabelPlace(
+          shown: [(index: 1, x: 200, top: 150)],
+          selected: 2,
+          box: box,
+          stage: const Size(393, 300),
+          mirrored: false,
+        ),
+        isNull,
+      );
     });
   });
 

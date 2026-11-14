@@ -295,6 +295,31 @@ final class StopLabel {
   void dispose() => painter.dispose();
 }
 
+/// Where the name of the [selected] stop stands over its prop, and how strongly it shows, among the props [shown] on a
+/// stage of [stage] size; null when its prop is out of view. Only the chosen stop is named: the names of the stops the
+/// caravan passed would stay on the cloth's edge while it walked on. A name is held inside the cloth, and fades out as
+/// its prop leaves the cloth, so it comes and goes with its prop.
+({Rect rect, double opacity})? stopLabelPlace({
+  required List<({int index, double x, double top})> shown,
+  required int selected,
+  required Size box,
+  required Size stage,
+  required bool mirrored,
+}) {
+  final stop = shown.where((stop) => stop.index == selected).firstOrNull;
+  if (stop == null) return null;
+  final x = mirrored ? stage.width - stop.x : stop.x;
+  const fade = 48.0;
+  final inner = math.min(x - StageFrame.side, stage.width - StageFrame.side - x);
+  final opacity = (inner / fade).clamp(0.0, 1.0);
+  if (opacity == 0) return null;
+  final low = StageFrame.side + 6;
+  final high = math.max(low, stage.width - StageFrame.side - 6 - box.width);
+  final left = (x - box.width / 2).clamp(low, high);
+  final top = math.max(StageFrame.valance + 2, stop.top - 8 - box.height);
+  return (rect: Rect.fromLTWH(left, top, box.width, box.height), opacity: opacity);
+}
+
 /// Paints the shadow play at the [journey]'s month: the theatre, the far hills, the road and its stops, the caravan
 /// walking at the start edge, and the chosen stop lit with its name over it.
 class ShadowStagePainter extends CustomPainter {
@@ -538,34 +563,24 @@ class ShadowStagePainter extends CustomPainter {
   }
 
   void _paintLabels(Canvas canvas, Size size, List<({int index, double x, double top})> shown) {
-    // The chosen stop's name first, then its neighbours' where they do not meet it.
-    final order = [...shown]..sort((a, b) => (b.index == selected ? 1 : 0) - (a.index == selected ? 1 : 0));
-    final placed = <Rect>[];
-    for (final stop in order) {
-      if (stop.index >= labels.length) continue;
-      final label = labels[stop.index];
-      final lit = stop.index == selected;
-      final box = label.size;
-      final x = mirrored ? size.width - stop.x : stop.x;
-      final left = (x - box.width / 2).clamp(StageFrame.side + 6, size.width - StageFrame.side - 6 - box.width);
-      final top = math.max(StageFrame.valance + 2, stop.top - 8 - box.height);
-      final r = Rect.fromLTWH(left, top, box.width, box.height);
-      if (placed.any((other) => other.inflate(4).overlaps(r))) continue;
-      placed.add(r);
-      final rr = RRect.fromRectAndRadius(r, const Radius.circular(4));
-      canvas.saveLayer(r.inflate(3), Paint()..color = Color.fromRGBO(0, 0, 0, lit ? 1 : 0.6));
-      canvas
-        ..drawRRect(rr, Paint()..color = TheatreColors.hide)
-        ..drawRRect(
-          rr,
-          Paint()
-            ..color = lit ? TheatreColors.lampLit : TheatreColors.gilt
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = lit ? 1.6 : 1,
-        );
-      label.painter.paint(canvas, Offset(r.left + 8, r.top + 3.5));
-      canvas.restore();
-    }
+    if (selected >= labels.length) return;
+    final label = labels[selected];
+    final place = stopLabelPlace(shown: shown, selected: selected, box: label.size, stage: size, mirrored: mirrored);
+    if (place == null) return;
+    final (:rect, :opacity) = place;
+    final rr = RRect.fromRectAndRadius(rect, const Radius.circular(4));
+    canvas.saveLayer(rect.inflate(3), Paint()..color = Color.fromRGBO(0, 0, 0, opacity));
+    canvas
+      ..drawRRect(rr, Paint()..color = TheatreColors.hide)
+      ..drawRRect(
+        rr,
+        Paint()
+          ..color = TheatreColors.lampLit
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6,
+      );
+    label.painter.paint(canvas, Offset(rect.left + 8, rect.top + 3.5));
+    canvas.restore();
   }
 
   @override
