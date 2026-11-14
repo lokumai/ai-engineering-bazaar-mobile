@@ -5,7 +5,6 @@ import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow
 
 import 'dart:ui';
 
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
