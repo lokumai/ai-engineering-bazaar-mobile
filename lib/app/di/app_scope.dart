@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
+import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
@@ -88,6 +89,8 @@ class AppScope extends StatelessWidget {
           // The words in the catalog's search, kept the same way.
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+          // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
+          BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
           BlocProvider<LanguageCubit>(
             lazy: false,
             create: (context) => LanguageCubit(

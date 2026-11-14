@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
+import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
@@ -105,6 +106,7 @@ Widget bazaarTestApp({
   AppIconCubit? appIcon,
   QuizScoresBloc? scores,
   ReadingPlacesBloc? places,
+  CaravanCubit? caravan,
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
@@ -141,6 +143,10 @@ Widget bazaarTestApp({
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+        if (caravan != null)
+          BlocProvider<CaravanCubit>.value(value: caravan)
+        else
+          BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
         else
