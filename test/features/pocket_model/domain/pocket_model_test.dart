@@ -22,9 +22,25 @@ void main() {
       expect(const PocketModel(tokens: 23).level, 0);
       expect(const PocketModel(tokens: 24).level, 1);
       expect(const PocketModel(tokens: 52).progress, closeTo(0.5, 1e-9));
-      expect(const PocketModel(tokens: 5000).level, PocketModel.levels.length - 1);
-      expect(const PocketModel(tokens: 5000).toNext, isNull);
-      expect(const PocketModel(tokens: 5000).progress, 1);
+      expect(const PocketModel(tokens: 50000).level, PocketModel.levels.length - 1);
+      expect(const PocketModel(tokens: 50000).toNext, isNull);
+      expect(const PocketModel(tokens: 50000).progress, 1);
+    });
+
+    test('a module it read counts toward its level, and is remembered as read', () {
+      final model = PocketModel(
+        tokens: 100,
+        lastFed: noon,
+      ).readAt('alpha/first', 2000, noon.add(const Duration(hours: 5)));
+      expect(model.tokens, 100, reason: 'its own text stays where it was');
+      expect(model.total, 2100);
+      expect(model.level, 7);
+      expect(model.hasRead('alpha/first'), isTrue);
+      expect(model.hasRead('alpha/second'), isFalse);
+      expect(model.readings.single, const PocketReading(key: 'alpha/first', at: 100, tokens: 2000));
+      expect(model.moodAt(noon.add(const Duration(hours: 5))), PocketMood.content, reason: 'a module feeds it');
+      expect(model.fedAt(noon.add(const Duration(hours: 6))).readings, model.readings);
+      expect(model.rested().readings, model.readings);
     });
 
     test('it grows hungry, then falls asleep', () {

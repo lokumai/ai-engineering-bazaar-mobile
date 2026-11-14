@@ -25,9 +25,16 @@ final class MemoryPocketModelStore implements IPocketModelStore {
   Future<void> save(PocketModel model) async => kept = model;
 }
 
-/// [model] as the stored text: its tokens and when it was last fed. A burst is not kept: it lasts seconds.
-String encodePocketModel(PocketModel model) =>
-    jsonEncode({'tokens': model.tokens, if (model.lastFed case final fed?) 'lastFed': fed.toUtc().toIso8601String()});
+/// [model] as the stored text: its tokens, the modules it read and when it was last fed. A burst is not kept: it lasts
+/// seconds.
+String encodePocketModel(PocketModel model) => jsonEncode({
+  'tokens': model.tokens,
+  if (model.readings.isNotEmpty)
+    'read': [
+      for (final reading in model.readings) {'key': reading.key, 'at': reading.at, 'tokens': reading.tokens},
+    ],
+  if (model.lastFed case final fed?) 'lastFed': fed.toUtc().toIso8601String(),
+});
 
 /// The model in [text], or null when it is not one: a toy's lost tokens are no reason to stop the app.
 PocketModel? decodePocketModel(String text) {
@@ -37,7 +44,19 @@ PocketModel? decodePocketModel(String text) {
     final tokens = json['tokens'];
     if (tokens is! int || tokens < 0) return null;
     final fed = json['lastFed'];
-    return PocketModel(tokens: tokens, lastFed: fed is String ? DateTime.tryParse(fed)?.toUtc() : null);
+    // A module read that is not one is left out; the rest of the model stands.
+    final read = json['read'];
+    return PocketModel(
+      tokens: tokens,
+      readings: [
+        if (read is List)
+          for (final reading in read)
+            if (reading case {'key': final String key, 'at': final int at, 'tokens': final int count}
+                when at >= 0 && count >= 0)
+              PocketReading(key: key, at: at, tokens: count),
+      ],
+      lastFed: fed is String ? DateTime.tryParse(fed)?.toUtc() : null,
+    );
   } on FormatException {
     return null;
   }

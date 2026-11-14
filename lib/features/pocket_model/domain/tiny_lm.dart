@@ -18,13 +18,17 @@ typedef LossPoint = ({int tokens, double loss});
 /// - Its loss is the mean surprise (negative log-likelihood, in nats) on [PocketCorpus.heldOut], sentences it never
 ///   reads: before it reads anything every word is as likely as any other, and the loss falls as it learns.
 ///
-/// Its state follows from the number of tokens it read, so a kept count rebuilds it.
+/// It can also read the course's modules the reader finished ([read]), holding out a tenth of each to measure its loss
+/// on, so a module it reads makes its loss fall as its own text does.
+///
+/// Its state follows from the number of tokens of its text it read and the modules it read, so a kept count and the
+/// modules' keys rebuild it.
 final class TinyLm {
   TinyLm(this.language)
     : _stream = [
         for (final sentence in PocketCorpus.training(language)) ...[...sentence.split(' '), end],
       ] {
-    _vocabulary = {..._stream, for (final sentence in PocketCorpus.heldOut(language)) ...sentence.split(' ')}.length;
+    _words.addAll({..._stream, for (final sentence in PocketCorpus.heldOut(language)) ...sentence.split(' ')});
   }
 
   /// A model that has read [tokens] tokens.
@@ -32,7 +36,9 @@ final class TinyLm {
 
   final String language;
   final List<String> _stream;
-  late final int _vocabulary;
+
+  /// Every word its loss gives a chance to: its text's, the held-out sentences', and those of the modules it read.
+  final Set<String> _words = {};
 
   /// The end of a sentence: a token the model learns to predict like any other, and stops at.
   static const end = '</s>';
@@ -58,11 +64,70 @@ final class TinyLm {
   String _a = _start;
   String _b = _start;
 
-  /// The tokens read so far.
+  /// The tokens of its own text read so far.
   int get trained => _trained;
+
+  /// The tokens of the course's modules it read ([read]).
+  int get readTokens => _read;
+  int _read = 0;
+
+  /// Every token it read, of its text and of the modules.
+  int get total => _trained + _read;
+
+  /// Reads a module's [sentences] (`module_sentences.dart`), each ending in [end], all but every tenth, which it holds
+  /// out to measure its loss on, as a training run keeps a test set from each source; returns the tokens read.
+  /// [holdOut] false reads them without holding the tenth out again, for a curve that held them out first.
+  int read(List<List<String>> sentences, {bool holdOut = true}) {
+    final (taught, tested) = splitOut(sentences);
+    if (holdOut) _tested.addAll(tested);
+    for (final sentence in [...taught, ...tested]) {
+      for (final word in sentence) {
+        _words.add(word);
+      }
+    }
+    var count = 0;
+    for (final sentence in taught) {
+      var a = _start;
+      var b = _start;
+      for (final word in [...sentence, end]) {
+        _count(a, b, word);
+        a = b;
+        b = word;
+        count++;
+      }
+    }
+    _read += count;
+    return count;
+  }
 
   /// The words it has read at least once.
   int get known => _once.length - (_once.containsKey(end) ? 1 : 0);
+
+  /// The sentences of the modules it read that it holds out, to measure its loss on with its own held-out ones.
+  final List<List<String>> _tested = [];
+
+  /// [sentences] parted into those a model reads and every tenth, which it holds out.
+  static (List<List<String>>, List<List<String>>) splitOut(List<List<String>> sentences) => (
+    [
+      for (final (i, sentence) in sentences.indexed)
+        if (i % 10 != 9) sentence,
+    ],
+    [
+      for (final (i, sentence) in sentences.indexed)
+        if (i % 10 == 9) sentence,
+    ],
+  );
+
+  /// Holds out the tenth of each of [modules] before reading any, so every point of a curve is measured on the same
+  /// sentences.
+  void holdOutAll(Iterable<List<List<String>>> modules) {
+    for (final module in modules) {
+      _tested.addAll(splitOut(module).$2);
+      for (final sentence in module) {
+        _words.addAll(sentence);
+      }
+    }
+  }
 
   /// The tokens of one pass over its text.
   int get epoch => _stream.length;
@@ -107,7 +172,7 @@ final class TinyLm {
   /// [backoff] scales the chance passed down, so a model writing keeps closer to what it read.
   double chance(String a, String b, String word, {bool smooth = false, double backoff = 1}) {
     final once = _once[word] ?? 0;
-    final alone = smooth ? (once + _k) / (_total + _k * _vocabulary) : (_total == 0 ? 0.0 : once / _total);
+    final alone = smooth ? (once + _k) / (_total + _k * _words.length) : (_total == 0 ? 0.0 : once / _total);
     final one = _blend(_after1[b], _after1Total[b], word, alone, backoff);
     return _blend(_after2['$a $b'], _after2Total['$a $b'], word, one, backoff);
   }
@@ -122,10 +187,10 @@ final class TinyLm {
   double loss() {
     var surprise = 0.0;
     var count = 0;
-    for (final sentence in PocketCorpus.heldOut(language)) {
+    for (final sentence in [for (final s in PocketCorpus.heldOut(language)) s.split(' '), ..._tested]) {
       var a = _start;
       var b = _start;
-      for (final word in [...sentence.split(' '), end]) {
+      for (final word in [...sentence, end]) {
         surprise -= math.log(chance(a, b, word, smooth: true));
         count++;
         a = b;
@@ -150,8 +215,23 @@ final class TinyLm {
 
   /// Writes a sentence at [temperature]. Before it has read anything it strings letters, as a model with random
   /// weights writes noise.
-  Babble write({required double temperature, required math.Random random}) {
+  ///
+  /// Words of its [recent] answers are less likely (a repetition penalty, as large models have), all but its commonest
+  /// words, which a sentence needs; and an answer the same as a recent one is written again, up to three times. Cold,
+  /// it takes its likeliest words regardless, every time.
+  Babble write({required double temperature, required math.Random random, List<List<String>> recent = const []}) {
     if (known == 0) return (tokens: noise(language, random), hallucinating: false);
+    final penalise = temperature >= cold && recent.isNotEmpty;
+    final common = penalise ? _commonest(_common) : const <String>{};
+    final avoid = penalise ? {for (final said in recent) ...said}.difference(common) : const <String>{};
+    var written = _write(temperature, random, avoid);
+    for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.tokens)); tries++) {
+      written = _write(temperature, random, avoid);
+    }
+    return written;
+  }
+
+  Babble _write(double temperature, math.Random random, Set<String> avoid) {
     final words = [..._once.keys];
     final said = <String>[];
     var hallucinating = false;
@@ -162,7 +242,10 @@ final class TinyLm {
         for (final word in words)
           if (!(word == end && said.isEmpty)) word,
       ];
-      final chances = [for (final word in options) chance(a, b, word, backoff: _writingBackoff)];
+      final chances = [
+        for (final word in options)
+          chance(a, b, word, backoff: _writingBackoff) / (avoid.contains(word) ? _penalty : 1),
+      ];
       final word = options[_pick(chances, temperature, random)];
       if (word == end) break;
       // A pair it never read is a join it made up.
@@ -172,6 +255,26 @@ final class TinyLm {
       b = word;
     }
     return (tokens: said, hallucinating: hallucinating);
+  }
+
+  /// How much less likely a word of a recent answer is.
+  static const _penalty = 2.5;
+
+  /// How many of its commonest words are never penalised.
+  static const _common = 12;
+
+  Set<String> _commonest(int count) {
+    final ranked = _once.entries.where((entry) => entry.key != end).toList()
+      ..sort((x, y) => y.value.compareTo(x.value));
+    return {for (final entry in ranked.take(count)) entry.key};
+  }
+
+  static bool _same(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   static int _pick(List<double> chances, double temperature, math.Random random) {
@@ -193,16 +296,37 @@ final class TinyLm {
     return shaped.length - 1;
   }
 
-  /// The training curve from the first token to [tokens]: the loss at [points] even steps, starting at none read.
-  static List<LossPoint> curve(String language, int tokens, {int points = 32}) {
-    final model = TinyLm(language);
-    if (tokens <= 0) return [(tokens: 0, loss: model.loss())];
-    return [
-      for (var i = 0; i < points; i++)
-        () {
-          model.trainTo((tokens * i / (points - 1)).round());
-          return (tokens: model.trained, loss: model.loss());
-        }(),
-    ];
+  /// The training curve from the first token to [tokens] of its text, the loss at [points] even steps from none
+  /// read, its x the tokens read in all. Each of [readings] (the tokens of its text read when it read a module, and the
+  /// module's sentences) is read at its place, with a point just before it and one just after.
+  static List<LossPoint> curve(
+    String language,
+    int tokens, {
+    List<(int, List<List<String>>)> readings = const [],
+    int points = 32,
+  }) {
+    final model = TinyLm(language)..holdOutAll(readings.map((reading) => reading.$2));
+    final pending = [...readings]..sort((a, b) => a.$1.compareTo(b.$1));
+    final drawn = <LossPoint>[(tokens: 0, loss: model.loss())];
+    void mark() {
+      final point = (tokens: model.total, loss: model.loss());
+      if (drawn.last.tokens == point.tokens) drawn.removeLast();
+      drawn.add(point);
+    }
+
+    if (tokens <= 0 && pending.isEmpty) return drawn;
+    for (var i = 1; i < points; i++) {
+      final to = (tokens * i / (points - 1)).round();
+      while (pending.isNotEmpty && pending.first.$1 <= to) {
+        final (at, sentences) = pending.removeAt(0);
+        model.trainTo(at);
+        mark();
+        model.read(sentences, holdOut: false);
+        mark();
+      }
+      model.trainTo(to);
+      mark();
+    }
+    return drawn;
   }
 }

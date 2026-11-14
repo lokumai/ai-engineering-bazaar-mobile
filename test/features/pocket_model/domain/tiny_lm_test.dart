@@ -11,7 +11,7 @@ void main() {
       test('in $language there is more than the top level reads, and nothing held out is read', () {
         final training = PocketCorpus.training(language);
         final heldOut = PocketCorpus.heldOut(language);
-        expect(TinyLm(language).epoch, greaterThan(PocketModel.levels.last));
+        expect(TinyLm(language).epoch, greaterThan(PocketModel.levels[PocketModel.feedLevels]));
         expect(heldOut.where(training.contains), isEmpty);
         for (final sentence in [...training, ...heldOut]) {
           expect(sentence, isNot(contains('  ')), reason: sentence);
@@ -76,7 +76,9 @@ void main() {
       }.length;
       expect(TinyLm('en').loss(), closeTo(math.log(vocabulary), 1e-9));
       // A new subject in the text can lift it a little for a while; over two levels it always falls.
-      final losses = [for (final level in PocketModel.levels) TinyLm.trained('en', level).loss()];
+      final losses = [
+        for (final level in PocketModel.levels.take(PocketModel.feedLevels + 1)) TinyLm.trained('en', level).loss(),
+      ];
       for (var i = 2; i < losses.length; i++) {
         expect(losses[i], lessThan(losses[i - 2]), reason: 'level $i');
       }
@@ -98,6 +100,74 @@ void main() {
       expect(curve.last.tokens, 800);
       expect(curve.last.loss, TinyLm.trained('en', 800).loss());
       expect(curve.first.loss, greaterThan(curve.last.loss));
+    });
+  });
+
+  group('a module it reads', () {
+    final module = [
+      ['a', 'transformer', 'stacks', 'attention', 'layers'],
+      ['each', 'layer', 'refines', 'the', 'tokens'],
+    ];
+
+    test('is read whole: its tokens, each sentence end too, and its new words', () {
+      final model = TinyLm.trained('en', 200);
+      final known = model.known;
+      expect(model.read(module), 12);
+      expect(model.readTokens, 12);
+      expect(model.total, 212);
+      expect(model.trained, 200, reason: 'its own text stays where it was');
+      expect(model.known, greaterThan(known));
+    });
+
+    test('its chances still add up to one with the module\'s words', () {
+      final model = TinyLm.trained('en', 200)..read(module);
+      final vocabulary = {
+        for (final s in [...PocketCorpus.training('en'), ...PocketCorpus.heldOut('en')]) ...s.split(' '),
+        for (final sentence in module) ...sentence,
+        TinyLm.end,
+      };
+      for (final (a, b) in [('<s>', '<s>'), ('each', 'layer'), ('the', 'model')]) {
+        final sum = vocabulary.fold(0.0, (sum, word) => sum + model.chance(a, b, word, smooth: true));
+        expect(sum, closeTo(1, 1e-9), reason: '$a $b');
+      }
+    });
+
+    test('it can write what the module taught it', () {
+      final model = TinyLm('en')..read(module);
+      expect(model.write(temperature: 0.1, random: math.Random(1)).tokens.first, anyOf('a', 'each'));
+    });
+
+    test('the curve reads it at its place, a point before and one after', () {
+      final curve = TinyLm.curve('en', 400, points: 5, readings: [(100, module)]);
+      final tokens = curve.map((point) => point.tokens).toList();
+      expect(tokens, [0, 100, 112, 212, 312, 412]);
+      expect(tokens, orderedEquals([...tokens]..sort()));
+      expect(curve.last.loss, (TinyLm.trained('en', 400)..read(module)).loss());
+    });
+
+    test('a module read before any feed is drawn too', () {
+      final curve = TinyLm.curve('en', 0, readings: [(0, module)]);
+      expect(curve.map((point) => point.tokens), [0, 12]);
+    });
+  });
+
+  group('its repetition penalty', () {
+    test('warm, it does not say the same sentence twice running, nor lean on a recent answer\'s words', () {
+      final model = TinyLm.trained('en', 1600);
+      final random = math.Random(5);
+      final recent = <List<String>>[];
+      for (var i = 0; i < 12; i++) {
+        final said = model.write(temperature: 0.6, random: random, recent: recent).tokens;
+        expect(recent.any((before) => before.join(' ') == said.join(' ')), isFalse, reason: said.join(' '));
+        recent.add(said);
+        if (recent.length > 3) recent.removeAt(0);
+      }
+    });
+
+    test('cold, it says its likeliest sentence regardless', () {
+      final model = TinyLm.trained('en', 1600);
+      final said = model.write(temperature: 0.1, random: math.Random(1)).tokens;
+      expect(model.write(temperature: 0.1, random: math.Random(1), recent: [said]).tokens, said);
     });
   });
 
