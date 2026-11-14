@@ -53,7 +53,7 @@ void main() {
     tester,
   ) async {
     final outfit = await _pump(tester);
-    expect(find.text("Robot's wardrobe"), findsOneWidget);
+    expect(find.text('Wardrobe'), findsOneWidget);
     expect(_robot(tester).outfit, RobotOutfit.initial);
     expect(
       tester.getSemantics(find.byKey(const ValueKey('wardrobe-fez-hat'))),
@@ -112,6 +112,23 @@ void main() {
       await tester.tap(find.byKey(ValueKey(tab)));
       await tester.pump();
       expect(tester.takeException(), isNull, reason: tab);
+    }
+  });
+
+  testWidgets('every box in a row is as tall as the others, though a name takes two lines', (tester) async {
+    await _pump(tester, tokens: 100000);
+    for (final tab in ['wardrobe-hats', 'wardrobe-heads', 'wardrobe-bodies']) {
+      await tester.tap(find.byKey(ValueKey(tab)));
+      await tester.pump();
+      final boxes = find.byType(InkWell).evaluate().map((e) => tester.getRect(find.byWidget(e.widget))).toList();
+      expect(boxes, isNotEmpty);
+      final byRow = <double, Set<double>>{};
+      for (final box in boxes) {
+        (byRow[box.top] ??= {}).add(box.height);
+      }
+      for (final heights in byRow.values) {
+        expect(heights, hasLength(1), reason: tab);
+      }
     }
   });
 }

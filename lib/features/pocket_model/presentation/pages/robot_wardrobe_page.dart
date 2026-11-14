@@ -112,28 +112,32 @@ class _RobotWardrobePageState extends State<RobotWardrobePage> with SingleTicker
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const columns = 3;
-                final width = (constraints.maxWidth - AppSpacing.md * (columns - 1)) / columns;
-                return Wrap(
-                  spacing: AppSpacing.md,
-                  runSpacing: AppSpacing.md,
-                  children: [
-                    for (final part in parts)
-                      SizedBox(
-                        width: width,
-                        child: _Choice(
-                          key: ValueKey('wardrobe-${part.name}-${_kind.name}'),
-                          part: part,
-                          worn: worn,
-                          level: level,
-                          temperature: temperature,
-                        ),
-                      ),
-                  ],
-                );
-              },
+            // Three to a row, every box in a row as tall as its tallest, whose name may take two lines.
+            Column(
+              spacing: AppSpacing.md,
+              children: [
+                for (var i = 0; i < parts.length; i += 3)
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: AppSpacing.md,
+                      children: [
+                        for (var j = i; j < i + 3; j++)
+                          Expanded(
+                            child: j < parts.length
+                                ? _Choice(
+                                    key: ValueKey('wardrobe-${parts[j].name}-${_kind.name}'),
+                                    part: parts[j],
+                                    worn: worn,
+                                    level: level,
+                                    temperature: temperature,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(s.wardrobe_note, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
