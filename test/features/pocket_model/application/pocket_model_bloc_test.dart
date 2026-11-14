@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_corpus.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:clock/clock.dart';
@@ -296,5 +297,31 @@ void main() {
       expect(model?.tokens, 8);
       expect(model?.readings, const [PocketReading(key: 'alpha/first', at: 0, tokens: 30)]);
     });
+  });
+
+  test('warm, it talks to the reader of its own now and then: after a module, it mostly thanks them (the owner)', () {
+    final thanks = {for (final (_, s) in PocketCorpus.chat('en')['thanks']!) s};
+    var thanked = 0;
+    for (var seed = 0; seed < 12; seed++) {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(PocketModel(tokens: 400, lastFed: noon)),
+            texts: texts,
+            random: math.Random(seed),
+          )..add(const PocketModelStarted());
+          async.flushMicrotasks();
+          bloc
+            ..add(const PocketModelModuleRead('alpha/first'))
+            ..add(const PocketModelAsked());
+          async.flushMicrotasks();
+          final said = ready(bloc).speech!.tokens.join(' ');
+          if (thanks.contains(said) || said.contains('thank')) thanked++;
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    }
+    expect(thanked, greaterThan(4));
   });
 }

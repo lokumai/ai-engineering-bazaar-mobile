@@ -80,7 +80,7 @@ const shortestSection = 4;
 /// The words of [text] in [language], lower case (Turkish dotted and dotless i kept apart), with the marks between
 /// them taken out; a word's own apostrophe, hyphen or zero-width non-joiner stays.
 List<String> wordsOf(String text, String language) {
-  final lower = language == 'tr' ? text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase() : text.toLowerCase();
+  final lower = _lower(text, language);
   return [
     for (final word in lower.split(_between))
       if (word.replaceAll(_edges, '') case final clean when clean.isNotEmpty) clean,
@@ -98,11 +98,22 @@ final _digit = RegExp(r'\p{N}', unicode: true);
 bool isAside(String text, String language) {
   final sentence = text.trim();
   if (sentence.contains(_link) || sentence.endsWith(':') || sentence.endsWith('\uff1a')) return true;
-  final lower = language == 'tr'
-      ? sentence.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase()
-      : sentence.toLowerCase();
-  return (_asides[language] ?? _asides['en']!).hasMatch(lower);
+  return (_asides[language] ?? _asides['en']!).hasMatch(_lower(sentence, language));
 }
+
+/// [text] in lower case. In Turkish an I is a dotless ı and an İ a dotted i, but not in a name in capitals from
+/// English (NVIDIA, AI, LLM), which stays as English has it: nvidia, not nvıdıa.
+String _lower(String text, String language) {
+  if (language != 'tr') return text.toLowerCase();
+  return text
+      .replaceAllMapped(_capitals, (match) => match[0]!.toLowerCase())
+      .replaceAll('I', 'ı')
+      .replaceAll('İ', 'i')
+      .toLowerCase();
+}
+
+/// Two or more capitals of the English alphabet together, a name or an abbreviation.
+final _capitals = RegExp(r'\b[A-Z]{2,}[A-Za-z]*');
 
 /// What a link's words are marked with, so the sentence it stands in is known for an aside.
 const _link = '\u0001';

@@ -193,6 +193,10 @@ void main() {
       expect(wordsOf('Işık', 'en'), isNot(['ışık']));
     });
 
+    test("a name in English capitals keeps English's i in Turkish: nvidia, not nvıdıa (the owner, 2026-11-14)", () {
+      expect(wordsOf("NVIDIA ve AI Studio, LLM'in IŞIĞI", 'tr'), ['nvidia', 've', 'ai', 'studio', "llm'in", 'ışığı']);
+    });
+
     test('a word keeps its own apostrophe, hyphen and joiner, and loses them at its ends', () {
       expect(wordsOf("the model's 'self-attention' layer", 'en'), ['the', "model's", 'self-attention', 'layer']);
       expect(wordsOf('\u0645\u06cc\u200c\u062e\u0648\u0627\u0646\u062f\u060c \u0645\u062f\u0644', 'fa'), [

@@ -414,9 +414,10 @@ void main() {
 
     await _rest(tester);
     expect(_frame(tester).alive, isFalse);
-    // Only a blink, a fifth of a second every few seconds, starts the clock again.
+    // Only a blink, a fifth of a second every few seconds, or now and then a turn of its own of under two seconds,
+    // starts the clock again.
     var still = false;
-    for (var i = 0; i < 4 && !still; i++) {
+    for (var i = 0; i < 40 && !still; i++) {
       still = !tester.hasRunningAnimations;
       await tester.pump(const Duration(milliseconds: 100));
     }

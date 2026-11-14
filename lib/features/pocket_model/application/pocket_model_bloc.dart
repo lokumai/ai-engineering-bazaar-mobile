@@ -209,7 +209,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// The language model of [model] in [language]: its text read to the count, and each module it read that can still
   /// be read; and its training curve.
   Future<(TinyLm, List<LossPoint>)> _build(PocketModel model, String language) async {
-    final lm = TinyLm.trained(language, model.tokens);
+    final lm = TinyLm.trained(language, model.tokens)..level = model.level;
     final readings = <(int, List<List<String>>)>[];
     for (final reading in model.readings) {
       final text = await _load(reading.key, language);
@@ -258,7 +258,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       _rest?.cancel();
       await _store.save(PocketModel.fresh);
       _recent.clear();
-      final lm = _lm = TinyLm(_lm?.language ?? 'en');
+      final lm = _lm = TinyLm(_lm?.language ?? 'en')..level = PocketModel.fresh.level;
       emit(
         PocketModelReady(
           model: PocketModel.fresh,
@@ -279,7 +279,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final wasOverfit = ready.model.overfitAt(now);
         final model = ready.model.fedAt(now);
         await _store.save(model);
-        final lm = _lm!;
+        final lm = _lm!..level = model.level;
         final read = model.tokens > lm.trained ? lm.train(model.tokens - lm.trained) : const <String>[];
         final overfit = model.overfitAt(now);
         if (overfit) _restIn(PocketModel.overfitRest);
@@ -303,7 +303,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       case PocketModelAsked():
         emit(
           ready.copyWith(
-            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now)),
+            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: _kindFor(ready, now)),
             action: PocketAction.spoke,
           ),
         );
@@ -315,6 +315,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final sentences = text.sentences;
         final count = lm.read(sentences, topic: key, sections: text.sections);
         final model = ready.model.readAt(key, count, now);
+        lm.level = model.level;
         await _store.save(model);
         emit(
           ready.copyWith(
@@ -341,14 +342,44 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     }
   }
 
-  /// What it says: overfit, the word it read most, again and again; otherwise what its language model writes. Once it
-  /// has read modules, it speaks of one of them (the last read a third of the time, else any), and thinks over more
-  /// sentences the more it read ([TinyLm.thoughtsFor]).
-  Babble _say(double temperature, {required bool overfit}) {
+  /// What it would say to the reader now, of its own talk (`corpus/chat.dart`): thanks just after a module, good
+  /// morning just awake, that it is hungry when it is, hello to start with; otherwise a question, a cheer, a word about
+  /// itself or the bazaar. Null leaves it to speak of what it read; cold, it always does, its likeliest sentence, so
+  /// the temperature shows what it does.
+  String? _kindFor(PocketModelReady ready, DateTime now) {
+    final lm = _lm!;
+    if (!lm.canTalk || ready.temperature < cold) return null;
+    final moment = switch (ready.action) {
+      PocketAction.studied || PocketAction.levelUp when ready.model.readings.isNotEmpty => 'thanks',
+      PocketAction.woke => 'woke',
+      _ when ready.model.moodAt(now) == PocketMood.hungry => 'hungry',
+      _ when _recent.isEmpty => 'hello',
+      _ => null,
+    };
+    // A moment is mostly answered; otherwise it talks now and then, more while it has read no module.
+    if (moment != null && _random.nextDouble() < 0.75) return moment;
+    if (_random.nextDouble() >= (lm.topics.isEmpty ? 0.5 : 0.3)) return null;
+    final kinds = [
+      for (final kind in const ['curious', 'cheer', 'self', 'bazaar', 'hello'])
+        if (lm.kinds.contains(kind)) kind,
+    ];
+    return kinds.isEmpty ? null : kinds[_random.nextInt(kinds.length)];
+  }
+
+  /// What it says: overfit, the word it read most, again and again; with a [kind], its own talk to the reader of that
+  /// kind ([TinyLm.talk]); otherwise what its language model writes. Once it has read modules, it speaks of one of
+  /// them (the last read a third of the time, else any), thinks over more sentences the more it read
+  /// ([TinyLm.thoughtsFor]), and from level 3 now and then tells it as one tells a friend ("did you know").
+  Babble _say(double temperature, {required bool overfit, String? kind}) {
     final lm = _lm!;
     final word = lm.favourite;
     if (overfit && word != null) {
       return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
+    }
+    if (kind != null) {
+      final said = lm.talk(kind, temperature: temperature, random: _random, recent: _recent);
+      _remember(said);
+      return said;
     }
     final topics = lm.topics;
     final topic = topics.isEmpty
@@ -362,10 +393,15 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       recent: _recent,
       topic: topic,
       thoughts: TinyLm.thoughtsFor(topics.length),
+      leadIn: topic != null && lm.level >= 3 && _random.nextDouble() < 0.3,
     );
+    _remember(said);
+    return said;
+  }
+
+  void _remember(Babble said) {
     _recent.add(said.tokens);
     if (_recent.length > 3) _recent.removeAt(0);
-    return said;
   }
 
   void _restIn(Duration rest) {

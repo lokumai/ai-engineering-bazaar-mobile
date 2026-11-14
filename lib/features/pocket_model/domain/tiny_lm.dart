@@ -260,28 +260,128 @@ final class TinyLm {
   ///
   /// With a [topic], a module it read, each sentence keeps to one of its sections, drawn by its length: [topicShare] of
   /// each word's chance is what followed in the module and the section, and most often it starts as one of the
-  /// section's sentences starts, as a large model continues a prompt (plan 9.10). With [thoughts] above one it writes
-  /// that many sentences and says the one it judges best ([judge]): the one that reads most smoothly to it, keeps most
-  /// to the topic and ends of itself; hot, it judges loosely, cold, it says the best.
+  /// section's sentences starts, as a large model continues a prompt (plan 9.10); a start that leans on what came
+  /// before it (this, it, but) is not taken. With [thoughts] above one it writes that many sentences and says the one it
+  /// judges best ([judge]): the one that reads most smoothly to it, keeps most to the topic and ends of itself; hot, it
+  /// judges loosely, cold, it says the best. With [leadIn] it puts one of [PocketCorpus.leadIns] before what it says,
+  /// as one tells a friend what one read (the owner, 2026-11-14).
   Babble write({
     required double temperature,
     required math.Random random,
     List<List<String>> recent = const [],
     String? topic,
     int thoughts = 1,
+    bool leadIn = false,
   }) {
     if (known == 0) return (tokens: noise(language, random), hallucinating: false);
+    final module = topic == null ? null : _topics[topic];
+    final share = topicShare(_topics.length);
+    final said = _compose(
+      temperature: temperature,
+      random: random,
+      recent: recent,
+      thoughts: thoughts,
+      keep: () => module == null ? null : _Keep(module, _drawSection(topic!, random), share),
+    );
+    if (!leadIn) return said;
+    final leads = PocketCorpus.leadIns(language);
+    return (
+      tokens: [...leads[random.nextInt(leads.length)].split(' '), ...said.tokens],
+      hallucinating: said.hallucinating,
+    );
+  }
+
+  /// Says something to the reader of the [kind] given ([PocketCorpus.chat]: hello, hungry, thanks, woke, self,
+  /// curious, cheer, bazaar), in the words of its own talk that its [level] reaches, joined as its language model
+  /// joins them; a kind its level does not reach yet gives way to one it does. [canTalk] says whether it can at all.
+  Babble talk(
+    String kind, {
+    required double temperature,
+    required math.Random random,
+    List<List<String>> recent = const [],
+    int thoughts = 3,
+  }) {
+    if (!canTalk) return write(temperature: temperature, random: random, recent: recent);
+    final section = _chat[kind] ?? _chat.values.elementAt(random.nextInt(_chat.length));
+    return _compose(
+      temperature: temperature,
+      random: random,
+      recent: recent,
+      thoughts: thoughts,
+      keep: () => _Keep(_chatAll, section, _talkShare),
+    );
+  }
+
+  /// How much of a word's chance its own talk decides when it talks: nearly all, so a word of the course slips in
+  /// only now and then.
+  static const _talkShare = 0.92;
+
+  /// Its level (`PocketModel.level`): the tiers of its own talk it can say ([tierAt]).
+  int get level => _level;
+  int _level = 0;
+  set level(int value) {
+    if (value == _level) return;
+    _level = value;
+    _chat.clear();
+    _chatAll = _Counts();
+    final tier = tierAt(value);
+    if (tier == 0) return;
+    for (final MapEntry(key: kind, value: sentences) in PocketCorpus.chat(language).entries) {
+      final counts = _Counts();
+      for (final (at, sentence) in sentences) {
+        if (at > tier) continue;
+        var a = _start;
+        var b = _start;
+        final words = sentence.split(' ');
+        if (words.length >= 3) counts.openings.add((words[0], words[1]));
+        for (final word in [...words, end]) {
+          counts.add(a, b, word);
+          _chatAll.add(a, b, word);
+          a = b;
+          b = word;
+        }
+      }
+      if (counts.total > 0) _chat[kind] = counts;
+    }
+  }
+
+  /// The highest tier of its own talk a robot of [level] can say: none at 0, a word or two from 1, short sentences
+  /// from 2, more from 4, the longest from 6. The reader is not told; they hear it grow.
+  static int tierAt(int level) => switch (level) {
+    <= 0 => 0,
+    1 => 1,
+    2 || 3 => 2,
+    4 || 5 => 3,
+    _ => 4,
+  };
+
+  /// Whether its level lets it talk to the reader at all.
+  bool get canTalk => _chat.isNotEmpty;
+
+  /// The kinds of its own talk its level reaches.
+  Iterable<String> get kinds => _chat.keys;
+
+  /// Its own talk, by kind, and all of it, at its level.
+  final Map<String, _Counts> _chat = {};
+  _Counts _chatAll = _Counts();
+
+  /// Writes [thoughts] drafts, each keeping to what [keep] gives, and says the one it judges best.
+  Babble _compose({
+    required double temperature,
+    required math.Random random,
+    required List<List<String>> recent,
+    required int thoughts,
+    required _Keep? Function() keep,
+  }) {
     final penalise = temperature >= cold && recent.isNotEmpty;
     final common = penalise ? _commonest(_common) : const <String>{};
     final avoid = penalise ? {for (final said in recent) ...said}.difference(common) : const <String>{};
-    final module = topic == null ? null : _topics[topic];
-    final share = topicShare(_topics.length);
     final drafts = <_Draft>[];
     for (var i = 0; i < math.max(1, thoughts); i++) {
-      final keep = module == null ? null : _Keep(module, _drawSection(topic!, random), share);
-      var written = _write(temperature, random, avoid, keep);
+      final kept = keep();
+      var written = _write(temperature, random, avoid, kept);
       for (var tries = 0; penalise && tries < 3 && recent.any((said) => _same(said, written.babble.tokens)); tries++) {
-        written = _write(temperature, random, avoid, keep);
+        written = _write(temperature, random, avoid, kept);
       }
       drafts.add(written);
     }
@@ -340,7 +440,10 @@ final class TinyLm {
       final marks = _keywords(keep.module);
       score += _topicWeight * tokens.where(marks.contains).length / tokens.length;
     }
-    if (tokens.length < 4) score -= 0.5;
+    // Short is how its own talk is; a sentence of a module that short is a scrap.
+    final talking = keep != null && keep.module == _chatAll;
+    if (!talking && tokens.length < 5) score -= 0.7;
+    if (_weakEnds[language]?.contains(tokens.last) ?? false) score -= _dangling;
     if (!finished) score -= _unfinished;
     final copy = copied(tokens);
     score -= _copyWeight * math.max(0, copy - _copyRun);
@@ -373,7 +476,7 @@ final class TinyLm {
   static const _copyPenalty = 8.0;
 
   /// How much lower a sentence is judged for each word it copied past [_copyRun].
-  static const _copyWeight = 0.4;
+  static const _copyWeight = 0.8;
 
   /// How much lower a sentence is judged that a module has word for word, all of it.
   static const _wholeCopy = 1.5;
@@ -410,7 +513,7 @@ final class TinyLm {
     // Most often it starts as a sentence of the section starts, its first two words, and goes on in its own words.
     final openings = keep?.section?.openings ?? const [];
     if (openings.isNotEmpty && random.nextDouble() < _opened) {
-      final (first, second) = openings[random.nextInt(openings.length)];
+      final (first, second) = _opening(openings, keep!, random);
       said.addAll([first, second]);
       a = first;
       b = second;
@@ -418,6 +521,7 @@ final class TinyLm {
     var finished = false;
     // How many words in a row, to the last, stand so in a module it read.
     var copying = 0;
+    final weak = _weakStarts[language] ?? const <String>{};
     while (said.length < longest) {
       // The words worth weighing: what followed the last words, here or in the topic, and its commonest words, through
       // which a hot model makes up a join; the rest are too unlikely to matter.
@@ -439,7 +543,11 @@ final class TinyLm {
         for (final word in options)
           _topicChance(keep, a, b, word, _writingBackoff) /
               (avoid.contains(word) ? _penalty : 1) /
-              (copying >= _copyRun && copiesOn(word) ? _copyPenalty : 1),
+              (copying >= _copyRun && copiesOn(word) ? _copyPenalty : 1) /
+              // Nor does it end a sentence that is all a module's, word for word: it goes on in its own words.
+              (word == end && copying > 0 && copying >= said.length ? _copyPenalty : 1) /
+              // Nor does it start with a word that leans on what came before it.
+              (said.isEmpty && weak.contains(word) ? _weakStart : 1),
       ];
       final word = options[_pick(chances, temperature, random)];
       copying = copiesOn(word) ? (copying == 0 ? _run : copying + 1) : 0;
@@ -448,7 +556,7 @@ final class TinyLm {
         break;
       }
       // A pair it never read is a join it made up.
-      if ((_all.after1[b]?[word] ?? 0) == 0) hallucinating = true;
+      if ((_all.after1[b]?[word] ?? 0) == 0 && (keep?.module.after1[b]?[word] ?? 0) == 0) hallucinating = true;
       said.add(word);
       a = b;
       b = word;
@@ -458,6 +566,170 @@ final class TinyLm {
 
   /// How often a sentence on a topic starts as one of its section's does.
   static const _opened = 0.7;
+
+  /// One of [openings] to start with: not one that leans on what came before it (this, it, but: the owner, 2026-11-14,
+  /// found its first words odd), and more often one with a word that marks the topic.
+  (String, String) _opening(List<(String, String)> openings, _Keep keep, math.Random random) {
+    final weak = _weakStarts[language] ?? const {};
+    final good = [
+      for (final opening in openings)
+        if (!weak.contains(opening.$1)) opening,
+    ];
+    final from = good.isEmpty ? openings : good;
+    final marks = keep.module == _chatAll ? const <String>{} : _keywords(keep.module);
+    final weights = [for (final (first, second) in from) marks.contains(first) || marks.contains(second) ? 3.0 : 1.0];
+    var at = random.nextDouble() * weights.fold(0.0, (a, b) => a + b);
+    for (final (i, weight) in weights.indexed) {
+      at -= weight;
+      if (at <= 0) return from[i];
+    }
+    return from.last;
+  }
+
+  /// The words a sentence does not start with on its own: they point back at what came before it.
+  static const _weakStarts = {
+    'en': {
+      'this',
+      'these',
+      'that',
+      'those',
+      'it',
+      'its',
+      "it's",
+      'they',
+      'their',
+      'them',
+      'here',
+      'there',
+      'so',
+      'but',
+      'and',
+      'or',
+      'also',
+      'then',
+      'now',
+      'which',
+      'such',
+      'both',
+      'another',
+      'other',
+      'same',
+      'above',
+      'below',
+      'instead',
+      'however',
+      'because',
+      'thus',
+      'hence',
+      'yet',
+      'still',
+      'otherwise',
+      'for',
+      'as',
+    },
+    'tr': {
+      'bu',
+      'bunu',
+      'bunun',
+      'bunlar',
+      'bunları',
+      'buna',
+      'bunda',
+      'şu',
+      'şunu',
+      'o',
+      'onu',
+      'onun',
+      'onlar',
+      'ona',
+      'ama',
+      've',
+      'veya',
+      'ya',
+      'da',
+      'de',
+      'ayrıca',
+      'sonra',
+      'şimdi',
+      'burada',
+      'orada',
+      'yani',
+      'çünkü',
+      'ancak',
+      'fakat',
+      'ise',
+      'böylece',
+      'öyle',
+      'böyle',
+      'yine',
+      'hem',
+    },
+    'fa': {
+      'این',
+      'آن',
+      'اینها',
+      'آنها',
+      'اینجا',
+      'آنجا',
+      'اما',
+      'و',
+      'یا',
+      'پس',
+      'سپس',
+      'همچنین',
+      'اکنون',
+      'حالا',
+      'یعنی',
+      'چون',
+      'زیرا',
+      'ولی',
+      'بنابراین',
+    },
+  };
+
+  /// The words a sentence does not end on: it would be cut off mid-thought.
+  static const _weakEnds = {
+    'en': {
+      'the',
+      'a',
+      'an',
+      'of',
+      'to',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'by',
+      'with',
+      'for',
+      'from',
+      'that',
+      'which',
+      'is',
+      'are',
+      'its',
+      'their',
+      'this',
+      'these',
+      'as',
+      'than',
+      'into',
+      'your',
+      'our',
+      'my',
+      'whose',
+    },
+    'tr': {'ve', 'ile', 'bir', 'bu', 'şu', 'için', 'gibi', 'ama', 'veya', 'ki', 'daha', 'en', 'hem', 'ya'},
+    'fa': {'و', 'از', 'به', 'با', 'در', 'که', 'این', 'آن', 'یک', 'برای', 'تا', 'یا', 'اما'},
+  };
+
+  /// How much less likely a first word is that leans on what came before ([_weakStarts]).
+  static const _weakStart = 20.0;
+
+  /// How much lower a sentence is judged that ends on a word that leads on ([_weakEnds]).
+  static const _dangling = 1.2;
 
   /// Its two hundred commonest words, counted again only when it has read on.
   Set<String> _head() {

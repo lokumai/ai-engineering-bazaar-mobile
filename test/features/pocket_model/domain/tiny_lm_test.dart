@@ -366,4 +366,84 @@ void main() {
       expect(cut, lessThan(3));
     });
   });
+
+  group('its own talk (the owner, 2026-11-14)', () {
+    final every = [
+      for (final sentences in PocketCorpus.chat('en').values)
+        for (final (_, s) in sentences) s,
+    ];
+
+    test('it grows with its level, unseen: none at 0, a word or two at 1, whole sentences later', () {
+      final model = TinyLm.trained('en', 400);
+      expect(model.canTalk, isFalse, reason: 'at level 0 it has no talk of its own');
+
+      model.level = 1;
+      expect(model.canTalk, isTrue);
+      for (var seed = 0; seed < 20; seed++) {
+        final said = model.talk('hello', temperature: 0.8, random: math.Random(seed)).tokens;
+        expect(said.length, lessThanOrEqualTo(2), reason: 'level 1: ${said.join(' ')}');
+      }
+
+      model.level = 7;
+      final longest = [
+        for (var seed = 0; seed < 20; seed++)
+          model.talk('hello', temperature: 0.8, random: math.Random(seed)).tokens.length,
+      ].reduce(math.max);
+      expect(longest, greaterThanOrEqualTo(5));
+    });
+
+    test('it says what it is asked to, in its own words: hunger when hungry, thanks after a module', () {
+      final model = TinyLm.trained('en', 400)..level = 4;
+      final hungry = {for (final (_, s) in PocketCorpus.chat('en')['hungry']!) ...s.split(' ')};
+      for (var seed = 0; seed < 10; seed++) {
+        final said = model.talk('hungry', temperature: 0.5, random: math.Random(seed)).tokens;
+        expect(said.where(hungry.contains).length, greaterThan(said.length / 2), reason: said.join(' '));
+      }
+    });
+
+    test('a kind its level does not reach yet gives way to one it does', () {
+      final model = TinyLm.trained('en', 400)..level = 1;
+      expect(model.kinds, isNot(contains('bazaar')));
+      final said = model.talk('bazaar', temperature: 0.8, random: math.Random(2)).tokens.join(' ');
+      expect(every, contains(said));
+    });
+
+    test('a sentence on a topic does not start with a word that leans on what came before', () {
+      final model = TinyLm.trained('en', 400)
+        ..read([
+          for (final s in [
+            'this is why bakers knead dough',
+            'it rises slowly overnight',
+            'but the crust forms in the oven',
+            'bakers knead dough until gluten forms',
+            'yeast ferments sugar in warm dough',
+          ])
+            s.split(' '),
+        ], topic: 'kitchen/bread');
+      for (var seed = 0; seed < 30; seed++) {
+        final said = model.write(temperature: 0.6, random: math.Random(seed), topic: 'kitchen/bread').tokens;
+        expect(['this', 'it', 'but'], isNot(contains(said.first)), reason: said.join(' '));
+      }
+    });
+
+    test('told as to a friend, what it read starts with a lead-in', () {
+      final model = TinyLm.trained('en', 400)
+        ..read([
+          for (final s in ['bakers knead dough until gluten forms']) s.split(' '),
+        ], topic: 'kitchen/bread');
+      final said = model.write(temperature: 0.6, random: math.Random(1), topic: 'kitchen/bread', leadIn: true).tokens;
+      expect(
+        PocketCorpus.leadIns('en').any((lead) => said.join(' ').startsWith('$lead ')),
+        isTrue,
+        reason: said.join(' '),
+      );
+    });
+
+    test('a sentence that ends on a word leading on is judged lower', () {
+      final model = TinyLm.trained('en', 1600);
+      final ended = 'a model reads tokens and predicts the next token'.split(' ');
+      final cut = 'a model reads tokens and predicts the next token of the'.split(' ');
+      expect(model.judge(cut), lessThan(model.judge(ended) - 1));
+    });
+  });
 }
