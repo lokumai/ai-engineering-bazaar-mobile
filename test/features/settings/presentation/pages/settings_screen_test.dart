@@ -179,21 +179,21 @@ void main() {
   testWidgets('the App icon row under the appearance shows the icon in use, unnamed, and opens its page', (
     tester,
   ) async {
-    final appIcon = AppIconCubit(store: const _KeptIcon(BazaarIcon.noir))..load();
+    final appIcon = AppIconCubit(store: const _KeptIcon(BazaarIcon.fezDark))..load();
     addTearDown(appIcon.close);
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), appIcon: appIcon));
     await tester.pump();
 
     final row = find.byKey(const Key('settings-app-icon'));
     expect(find.descendant(of: row, matching: find.text('App icon')), findsOneWidget);
-    expect(find.descendant(of: row, matching: find.image(AssetImage(BazaarIcon.noir.asset))), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.image(AssetImage(BazaarIcon.fezDark.asset))), findsOneWidget);
     expect(
-      find.descendant(of: row, matching: find.text('Noir')),
+      find.descendant(of: row, matching: find.text('Fez, Dark')),
       findsNothing,
       reason: 'the picture says which',
     );
     expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(52, 52));
-    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Noir', isButton: true));
+    expect(tester.getSemantics(row), isSemantics(label: 'App icon, Fez, Dark', isButton: true));
     expect(
       tester.getTopLeft(row).dy,
       greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy),

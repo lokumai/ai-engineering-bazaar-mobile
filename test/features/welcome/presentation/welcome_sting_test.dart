@@ -211,7 +211,7 @@ void main() {
     expect(_scene, findsOneWidget);
     final paint = find.descendant(of: _scene, matching: find.byType(CustomPaint));
     expect(tester.widget<CustomPaint>(paint).painter, isA<StingPainter>().having((p) => p.icon, 'icon', isNull));
-    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.dark.ground));
+    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.antennaDark.ground));
 
     store.read.complete(null);
     await tester.pump();
@@ -221,7 +221,7 @@ void main() {
   });
 
   testWidgets('plays in the colours of the chosen icon, on its ground', (tester) async {
-    final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.cream))..load();
+    final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.fezCream))..load();
     addTearDown(appIcon.close);
     await tester.pumpWidget(_splash(appIcon: appIcon));
     await tester.pump();
@@ -229,8 +229,8 @@ void main() {
     final paint = find.descendant(of: _scene, matching: find.byType(CustomPaint));
     expect(
       tester.widget<CustomPaint>(paint).painter,
-      isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.cream),
+      isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.fezCream),
     );
-    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.cream.ground));
+    expect(tester.renderObject(paint), paints..rect(color: BazaarIcon.fezCream.ground));
   });
 }

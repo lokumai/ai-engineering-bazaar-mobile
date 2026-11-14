@@ -167,13 +167,13 @@ void main() {
     expect(store, isA<FlagAppIconStore>());
     expect(await store.chosen(), isNull);
 
-    await store.choose(BazaarIcon.noir);
-    expect(await dependencies.createAppIconStore().chosen(), BazaarIcon.noir, reason: 'kept for the next start');
+    await store.choose(BazaarIcon.fezDark);
+    expect(await dependencies.createAppIconStore().chosen(), BazaarIcon.fezDark, reason: 'kept for the next start');
 
-    await store.choose(BazaarIcon.nightSea);
-    expect(await store.chosen(), BazaarIcon.nightSea);
-    expect(File('${root.path}/flags/app-icon-noir').existsSync(), isFalse, reason: 'one choice at a time');
-    expect(File('${root.path}/flags/app-icon-nightSea').existsSync(), isTrue);
+    await store.choose(BazaarIcon.tvCream);
+    expect(await store.chosen(), BazaarIcon.tvCream);
+    expect(File('${root.path}/flags/app-icon-fezDark').existsSync(), isFalse, reason: 'one choice at a time');
+    expect(File('${root.path}/flags/app-icon-tvCream').existsSync(), isTrue);
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
@@ -193,9 +193,9 @@ void main() {
       ),
     );
 
-    await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.nightGold);
+    await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.beanieDark);
 
-    expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'nightGold')]);
+    expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'beanieDark')]);
   });
 
   test('a failed icon change is logged, never thrown', () async {
@@ -210,13 +210,13 @@ void main() {
       ),
     );
 
-    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
     // No channel at all, as on a desktop or in a test: nothing happens.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel(AppIconChannel.name),
       null,
     );
-    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.ink), completes);
+    await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
   });
 
   test('createQuizScoreStore keeps the scores in one file under the support directory (plan 1W)', () async {

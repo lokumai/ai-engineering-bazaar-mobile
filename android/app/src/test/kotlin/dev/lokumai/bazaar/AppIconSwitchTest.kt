@@ -8,27 +8,27 @@ class AppIconSwitchTest {
     @Test
     fun turnsTheChosenEntryOnAndTheEnabledOneOff() {
         assertEquals(
-            mapOf("LauncherDark" to false, "LauncherNoir" to true),
-            AppIconSwitch.changes(setOf("LauncherDark"), "noir"),
+            mapOf("LauncherFezDark" to false, "LauncherWizardCream" to true),
+            AppIconSwitch.changes(setOf("LauncherFezDark"), "wizardCream"),
         )
     }
 
     @Test
     fun changesNothingWhenTheChosenEntryIsTheOnlyOneOn() {
-        assertEquals(emptyMap<String, Boolean>(), AppIconSwitch.changes(setOf("LauncherNightSea"), "nightSea"))
+        assertEquals(emptyMap<String, Boolean>(), AppIconSwitch.changes(setOf("LauncherTvCream"), "tvCream"))
     }
 
     @Test
     fun turnsOffEveryOtherEntryThatIsOn() {
         assertEquals(
-            mapOf("LauncherDark" to true, "LauncherCream" to false, "LauncherInk" to false),
-            AppIconSwitch.changes(setOf("LauncherCream", "LauncherInk"), "dark"),
+            mapOf("LauncherFezDark" to true, "LauncherFezCream" to false, "LauncherCrownDark" to false),
+            AppIconSwitch.changes(setOf("LauncherFezCream", "LauncherCrownDark"), "fezDark"),
         )
     }
 
     @Test
-    fun noirIsTheDefaultTheManifestEnables() {
-        assertEquals("noir", AppIconSwitch.aliases.keys.first())
+    fun theFezOnTheDarkGroundIsTheDefaultTheManifestEnables() {
+        assertEquals("fezDark", AppIconSwitch.aliases.keys.first())
     }
 
     @Test

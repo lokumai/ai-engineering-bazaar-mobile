@@ -129,7 +129,7 @@ void main() {
         () => AppBootstrap.run(
           const AppBootstrapConfig(environment: Environment.prod),
           sentry: sentry,
-          dependencies: (config) => _IconDependencies(BazaarIcon.nightSea, appConfig: config),
+          dependencies: (config) => _IconDependencies(BazaarIcon.tvCream, appConfig: config),
         ),
       );
       FlutterError.onError = flutterErrorHandler;
@@ -137,11 +137,11 @@ void main() {
       Bloc.observer = observer;
       await sentry.runners.single();
 
-      expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.nightSea);
+      expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.tvCream);
       final sting = find.descendant(of: find.byKey(WelcomeSting.sceneKey), matching: find.byType(CustomPaint));
       expect(
         tester.widget<CustomPaint>(sting).painter,
-        isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.nightSea),
+        isA<StingPainter>().having((p) => p.icon, 'icon', BazaarIcon.tvCream),
         reason: 'the first frame',
       );
       await tester.pumpWidget(const SizedBox());

@@ -4,24 +4,60 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Each app icon's name on the Dart side (lib/shared/app_icon/) and its alternate icon in the asset catalog; the
-  /// default, noir, is the primary icon (nil).
+  /// default, fezDark, is the primary icon (nil).
   static let appIcons: [String: String?] = [
-    "noir": nil,
-    "ink": "AppIconInk",
-    "nightGold": "AppIconNightGold",
-    "nightSea": "AppIconNightSea",
-    "dark": "AppIconDark",
-    "cream": "AppIconCream",
+    "fezDark": nil,
+    "fezCream": "AppIconFezCream",
+    "antennaDark": "AppIconAntennaDark",
+    "antennaCream": "AppIconAntennaCream",
+    "beanieDark": "AppIconBeanieDark",
+    "beanieCream": "AppIconBeanieCream",
+    "domeDark": "AppIconDomeDark",
+    "domeCream": "AppIconDomeCream",
+    "mortarboardDark": "AppIconMortarboardDark",
+    "mortarboardCream": "AppIconMortarboardCream",
+    "tvDark": "AppIconTvDark",
+    "tvCream": "AppIconTvCream",
+    "turbanDark": "AppIconTurbanDark",
+    "turbanCream": "AppIconTurbanCream",
+    "earsDark": "AppIconEarsDark",
+    "earsCream": "AppIconEarsCream",
+    "wizardDark": "AppIconWizardDark",
+    "wizardCream": "AppIconWizardCream",
+    "topHatDark": "AppIconTopHatDark",
+    "topHatCream": "AppIconTopHatCream",
+    "visorDark": "AppIconVisorDark",
+    "visorCream": "AppIconVisorCream",
+    "crownDark": "AppIconCrownDark",
+    "crownCream": "AppIconCrownCream",
   ]
 
   /// The ground of each icon, as lib/shared/app_icon/bazaar_icon.dart paints it: the opening starts on it.
   static let grounds: [String: UInt32] = [
-    "noir": 0x1d1f27,
-    "ink": 0xfdfbf7,
-    "nightGold": 0x1d1f27,
-    "nightSea": 0x16302f,
-    "dark": 0x1d1f27,
-    "cream": 0xfdfbf7,
+    "fezDark": 0x1d1f27,
+    "fezCream": 0xfdfbf7,
+    "antennaDark": 0x1d1f27,
+    "antennaCream": 0xfdfbf7,
+    "beanieDark": 0x1d1f27,
+    "beanieCream": 0xfdfbf7,
+    "domeDark": 0x1d1f27,
+    "domeCream": 0xfdfbf7,
+    "mortarboardDark": 0x1d1f27,
+    "mortarboardCream": 0xfdfbf7,
+    "tvDark": 0x1d1f27,
+    "tvCream": 0xfdfbf7,
+    "turbanDark": 0x1d1f27,
+    "turbanCream": 0xfdfbf7,
+    "earsDark": 0x1d1f27,
+    "earsCream": 0xfdfbf7,
+    "wizardDark": 0x1d1f27,
+    "wizardCream": 0xfdfbf7,
+    "topHatDark": 0x1d1f27,
+    "topHatCream": 0xfdfbf7,
+    "visorDark": 0x1d1f27,
+    "visorCream": 0xfdfbf7,
+    "crownDark": 0x1d1f27,
+    "crownCream": 0xfdfbf7,
   ]
 
   override func application(

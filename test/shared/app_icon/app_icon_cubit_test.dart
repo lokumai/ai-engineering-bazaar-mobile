@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show Color;
 
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
@@ -46,31 +47,31 @@ void main() {
     addTearDown(cubit.close);
 
     expect(cubit.state, const AppIconUnread());
-    expect(cubit.state.icon, BazaarIcon.noir, reason: 'Noir, the default (the owner, 2026-11-15)');
+    expect(cubit.state.icon, BazaarIcon.fezDark, reason: 'the fez on dark, the default');
   });
 
   test('load makes the kept icon current and names it to the phone again', () async {
     final iconSwitch = _Switch();
-    final cubit = AppIconCubit(store: _Store(BazaarIcon.ink), iconSwitch: iconSwitch);
+    final cubit = AppIconCubit(store: _Store(BazaarIcon.antennaCream), iconSwitch: iconSwitch);
     addTearDown(cubit.close);
 
     await cubit.load();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.ink));
-    expect(iconSwitch.asked, [BazaarIcon.ink]);
+    expect(cubit.state, const AppIconKnown(BazaarIcon.antennaCream));
+    expect(iconSwitch.asked, [BazaarIcon.antennaCream]);
   });
 
   test('an icon read at boot is current from the start, and load only names it to the phone', () async {
-    final store = _Store(BazaarIcon.noir);
+    final store = _Store(BazaarIcon.fezDark);
     final iconSwitch = _Switch();
-    final cubit = AppIconCubit(store: store, iconSwitch: iconSwitch, initial: BazaarIcon.cream);
+    final cubit = AppIconCubit(store: store, iconSwitch: iconSwitch, initial: BazaarIcon.fezCream);
     addTearDown(cubit.close);
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.cream));
+    expect(cubit.state, const AppIconKnown(BazaarIcon.fezCream));
     await cubit.load();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.cream));
-    expect(iconSwitch.asked, [BazaarIcon.cream]);
+    expect(cubit.state, const AppIconKnown(BazaarIcon.fezCream));
+    expect(iconSwitch.asked, [BazaarIcon.fezCream]);
   });
 
   test('with nothing kept, load settles on the default', () async {
@@ -79,19 +80,17 @@ void main() {
 
     await cubit.load();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.noir));
+    expect(cubit.state, const AppIconKnown(BazaarIcon.fezDark));
   });
 
-  test('the icons stand in the order of the choice, Noir, the default, first (the owner, 2026-11-15)', () {
+  test('every robot on dark and then on cream, in the order they unlock; the fez on dark the default (plan 9.10)', () {
     expect(BazaarIcon.values, [
-      BazaarIcon.noir,
-      BazaarIcon.ink,
-      BazaarIcon.nightGold,
-      BazaarIcon.nightSea,
-      BazaarIcon.dark,
-      BazaarIcon.cream,
+      for (final robot in AppIconRobot.values)
+        for (final ground in AppIconGround.values) BazaarIcon.of(robot, ground),
     ]);
-    expect(BazaarIcon.defaultIcon, BazaarIcon.noir);
+    expect(BazaarIcon.defaultIcon, BazaarIcon.fezDark);
+    expect(BazaarIcon.fezCream.ground, const Color(0xfffdfbf7));
+    expect(BazaarIcon.crownDark.ground, const Color(0xff1d1f27));
   });
 
   test('choose makes the icon current at once, keeps it and puts it on the home screen', () async {
@@ -100,23 +99,23 @@ void main() {
     final cubit = AppIconCubit(store: store, iconSwitch: iconSwitch);
     addTearDown(cubit.close);
 
-    final choosing = cubit.choose(BazaarIcon.noir);
-    expect(cubit.state, const AppIconKnown(BazaarIcon.noir));
+    final choosing = cubit.choose(BazaarIcon.fezDark);
+    expect(cubit.state, const AppIconKnown(BazaarIcon.fezDark));
     await choosing;
 
-    expect(store.kept, BazaarIcon.noir);
-    expect(iconSwitch.asked, [BazaarIcon.noir]);
+    expect(store.kept, BazaarIcon.fezDark);
+    expect(iconSwitch.asked, [BazaarIcon.fezDark]);
   });
 
   test('a choice made while the kept one is read is not overwritten by it', () async {
-    final cubit = AppIconCubit(store: _Store(BazaarIcon.cream));
+    final cubit = AppIconCubit(store: _Store(BazaarIcon.fezCream));
     addTearDown(cubit.close);
 
     final loading = cubit.load();
-    await cubit.choose(BazaarIcon.nightGold);
+    await cubit.choose(BazaarIcon.beanieDark);
     await loading;
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.nightGold));
+    expect(cubit.state, const AppIconKnown(BazaarIcon.beanieDark));
   });
 
   test('two quick choices reach the phone one after the other, in the order made', () async {
@@ -125,18 +124,18 @@ void main() {
     final cubit = AppIconCubit(store: store, iconSwitch: iconSwitch);
     addTearDown(cubit.close);
 
-    final first = cubit.choose(BazaarIcon.noir);
-    final second = cubit.choose(BazaarIcon.nightSea);
+    final first = cubit.choose(BazaarIcon.fezDark);
+    final second = cubit.choose(BazaarIcon.tvCream);
     await pumpEventQueue();
-    expect(iconSwitch.asked, [BazaarIcon.noir], reason: 'the second waits for the first');
+    expect(iconSwitch.asked, [BazaarIcon.fezDark], reason: 'the second waits for the first');
 
     iconSwitch.gates.first.complete();
     await pumpEventQueue();
-    expect(iconSwitch.asked, [BazaarIcon.noir, BazaarIcon.nightSea]);
+    expect(iconSwitch.asked, [BazaarIcon.fezDark, BazaarIcon.tvCream]);
     iconSwitch.gates.last.complete();
     await Future.wait([first, second]);
 
-    expect(store.writes, [BazaarIcon.noir, BazaarIcon.nightSea]);
-    expect(cubit.state, const AppIconKnown(BazaarIcon.nightSea));
+    expect(store.writes, [BazaarIcon.fezDark, BazaarIcon.tvCream]);
+    expect(cubit.state, const AppIconKnown(BazaarIcon.tvCream));
   });
 }

@@ -797,43 +797,35 @@
   },
   "app_icon_dark": "Dark",
   "@app_icon_dark": {
-    "description": "App icon choice: the striped agent on the dark ground, the default."
+    "description": "An app icon's ground: the dark page colour."
   },
   "app_icon_cream": "Cream",
   "@app_icon_cream": {
-    "description": "App icon choice: the striped agent on a cream ground."
+    "description": "An app icon's ground: the cream page colour."
   },
-  "app_icon_noir": "Noir",
-  "@app_icon_noir": {
-    "description": "App icon choice: cream stripes on the dark ground, like a black and white film."
+  "app_icon_ground": "Ground",
+  "@app_icon_ground": {
+    "description": "The choice above the app icons of their ground, dark or cream; a screen reader hears it."
   },
-  "app_icon_ink": "Ink",
-  "@app_icon_ink": {
-    "description": "App icon choice: dark stripes on a cream ground."
-  },
-  "app_icon_night_gold": "Night gold",
-  "@app_icon_night_gold": {
-    "description": "App icon choice: gold stripes on the dark ground."
-  },
-  "app_icon_night_sea": "Night sea",
-  "@app_icon_night_sea": {
-    "description": "App icon choice: teal, gold and cream stripes on a deep green ground."
+  "app_icon_name": "{robot}, {ground}",
+  "@app_icon_name": {
+    "description": "An app icon's name: the robot's wardrobe part it shows, and its ground.",
+    "placeholders": {
+      "robot": {"type": "String"},
+      "ground": {"type": "String"}
+    }
   },
   "app_icon_default": "Default",
   "@app_icon_default": {
     "description": "Under the default app icon's name on the app icon page."
   },
-  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows it in the new colours. With themed icons on, the phone draws every icon in its own colours.",
+  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.",
   "@app_icon_note_android": {
     "description": "The note on the app icon page on Android: when the icon changes, and what some launchers do."
   },
   "app_icon_note_ios": "The phone confirms the new icon with a message.",
   "@app_icon_note_ios": {
     "description": "The note on the app icon page on iOS, where the system tells of every icon change."
-  },
-  "welcome_app_icon_done": "Done",
-  "@welcome_app_icon_done": {
-    "description": "The button under the six app icons on Welcome's first step: back to the step, the icon kept."
   },
   "track_engineers": "For Engineers",
   "@track_engineers": {
