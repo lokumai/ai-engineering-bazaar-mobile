@@ -102,9 +102,10 @@ lib/
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
-                                                switch ports: the icon on the home screen and the opening's colours;
+                                                switch ports: the icon on the home screen and the launch screen's colour;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
-    robot_level/                                RobotLevelCubit: the pocket model's level, which unlocks the app icons
+    robot_level/                                RobotLevelCubit: the pocket model's level (the Apprentice, Çırak, in the app's
+                                                copy), which unlocks the app icons
     theme/                                      ThemeChoiceCubit (light or dark; the phone's until chosen), IThemeStore, appearance_name.dart:
                                                 the choice kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place

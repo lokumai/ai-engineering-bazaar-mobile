@@ -418,8 +418,9 @@ final class TinyLm {
   static const _judgeTemper = 2.0;
 
   /// How it judges a sentence it wrote: the mean log chance of its words and its end (how smoothly it reads, to what
-  /// it read), and, with a [topic], a share for the words that mark the topic; a sentence of fewer than four words is
-  /// judged a little lower, and one cut at [longest] words before it ended ([finished] false) lower still.
+  /// it read), and, with a [topic], a share for the words that mark the topic; a sentence of a module of fewer than five
+  /// words is judged a little lower, one that ends on a word leading on lower, and one cut at [longest] words before it
+  /// ended ([finished] false) lower still.
   double judge(List<String> tokens, {String? topic, bool finished = true}) {
     final module = topic == null ? null : _topics[topic];
     return _judge(tokens, module == null ? null : _Keep(module, null, topicShare(_topics.length)), finished: finished);
