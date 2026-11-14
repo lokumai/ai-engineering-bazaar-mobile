@@ -181,7 +181,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Örnek makale"),
     "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Örnek"),
     "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "Örnek veri: Kervan hazırlanırken bu trendler yer tutucu.",
+      "İçerik çok yakında. O zamana kadar bu trendler örnek veri.",
     ),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Örnek depo"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Örnek araç"),

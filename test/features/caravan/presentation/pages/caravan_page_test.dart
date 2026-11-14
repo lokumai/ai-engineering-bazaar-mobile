@@ -57,7 +57,7 @@ void main() {
     await _pump(tester);
 
     expect(find.descendant(of: find.byType(ListView), matching: find.text('Caravan')), findsOneWidget);
-    expect(find.text('Sample data: these trends are placeholders while the Caravan is being built.'), findsOneWidget);
+    expect(find.text('Content is coming soon. Until then these trends are sample data.'), findsOneWidget);
     expect(find.byType(CaravanStage), findsOneWidget);
     expect(find.byType(CaravanStrip), findsOneWidget);
     expect(find.text('Stop 1 of 22'), findsOneWidget);

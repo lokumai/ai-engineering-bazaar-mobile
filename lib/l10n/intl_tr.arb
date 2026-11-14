@@ -10,7 +10,7 @@
   "nav_quiz": "Quiz",
   "nav_settings": "Ayarlar",
   "nav_caravan": "Kervan",
-  "caravan_sample_notice": "Örnek veri: Kervan hazırlanırken bu trendler yer tutucu.",
+  "caravan_sample_notice": "İçerik çok yakında. O zamana kadar bu trendler örnek veri.",
   "caravan_stage_label": "Kervan {title} durağında",
   "caravan_stop_of": "Durak {index} / {count}",
   "caravan_previous": "Önceki durak",

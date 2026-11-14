@@ -25,7 +25,7 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_sample_notice": "Sample data: these trends are placeholders while the Caravan is being built.",
+  "caravan_sample_notice": "Content is coming soon. Until then these trends are sample data.",
   "@caravan_sample_notice": {
     "description": "The notice over the Caravan while it draws the web's sample trends, as the web's notice says (web CaravanPage.tsx)."
   },

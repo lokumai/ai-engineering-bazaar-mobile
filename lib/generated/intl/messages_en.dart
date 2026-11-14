@@ -180,7 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Sample article"),
     "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Sample"),
     "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "Sample data: these trends are placeholders while the Caravan is being built.",
+      "Content is coming soon. Until then these trends are sample data.",
     ),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Sample repository"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Sample tool"),

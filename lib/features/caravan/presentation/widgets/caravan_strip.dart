@@ -2,13 +2,12 @@ import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_road.dart';
 import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/caravan_journey.dart';
-import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow_art.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/material.dart';
 
 /// The whole road in one strip (the web's histogram strip, `scene/strip.ts`): each month a bar as tall as the trends
-/// on the road then, a dot for each stop, the chosen one lit, each year's name at its start, and the stretch the stage
-/// shows as a window.
+/// on the road then, each year's name at its start (no dot for each stop, the owner, 2026-11-14), and the stretch the
+/// stage shows as a window.
 ///
 /// A drag moves the caravan along the road under the finger and, on release, to the nearest stop; a tap goes to the
 /// stop nearest the spot. To a screen reader it is a slider over the stops, read as the chosen trend.
@@ -86,7 +85,6 @@ class CaravanStrip extends StatelessWidget {
                     painter: _StripPainter(
                       road: road,
                       journey: journey,
-                      selected: selected,
                       span: span,
                       mirrored: mirrored,
                       textStyle: Theme.of(context).textTheme.labelSmall,
@@ -106,7 +104,6 @@ class _StripPainter extends CustomPainter {
   _StripPainter({
     required this.road,
     required this.journey,
-    required this.selected,
     required this.span,
     required this.mirrored,
     required this.textStyle,
@@ -114,7 +111,6 @@ class _StripPainter extends CustomPainter {
 
   final CaravanRoad road;
   final CaravanJourney journey;
-  final int selected;
   final double span;
   final bool mirrored;
   final TextStyle? textStyle;
@@ -155,19 +151,6 @@ class _StripPainter extends CustomPainter {
         ..strokeWidth = 1.4
         ..strokeJoin = StrokeJoin.round,
     );
-    // A dot under each stop, the chosen one lit.
-    final dot = Paint()..color = BazaarFixedColors.onBarDim.withValues(alpha: 0.7);
-    for (final stop in road.stops) {
-      final x = stop.at / n * w;
-      if (stop.index == selected) continue;
-      canvas.drawCircle(Offset(x, base + 5), 1.8, dot);
-    }
-    if (selected >= 0 && selected < road.stops.length) {
-      final x = road.stops[selected].at / n * w;
-      canvas
-        ..drawCircle(Offset(x, base + 5), 5, Paint()..color = TheatreColors.lampLit.withValues(alpha: 0.3))
-        ..drawCircle(Offset(x, base + 5), 3, Paint()..color = TheatreColors.lampLit);
-    }
     // Each year's name at its start, with a hairline.
     final tick = Paint()
       ..color = BazaarFixedColors.onBarDim.withValues(alpha: 0.35)
@@ -222,7 +205,6 @@ class _StripPainter extends CustomPainter {
   @override
   bool shouldRepaint(_StripPainter old) =>
       old.road != road ||
-      old.selected != selected ||
       old.span != span ||
       old.mirrored != mirrored ||
       old.journey != journey ||

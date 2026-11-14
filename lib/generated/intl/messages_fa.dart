@@ -181,7 +181,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("مقالهٔ نمونه"),
     "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("نمونه"),
     "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "دادهٔ نمونه: تا ساخته شدن کاروان، این ترندها جای‌نگهدارند.",
+      "محتوا به‌زودی می‌آید. تا آن زمان این ترندها دادهٔ نمونه‌اند.",
     ),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("مخزن نمونه"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("ابزار نمونه"),

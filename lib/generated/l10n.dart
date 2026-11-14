@@ -108,10 +108,10 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Sample data: these trends are placeholders while the Caravan is being built.`
+  /// `Content is coming soon. Until then these trends are sample data.`
   String get caravan_sample_notice {
     return Intl.message(
-      'Sample data: these trends are placeholders while the Caravan is being built.',
+      'Content is coming soon. Until then these trends are sample data.',
       name: 'caravan_sample_notice',
       desc: 'The notice over the Caravan while it draws the web\'s sample trends, as the web\'s notice says (web CaravanPage.tsx).',
       args: [],
