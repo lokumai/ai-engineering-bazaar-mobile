@@ -90,6 +90,7 @@ lib/
     storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
+    theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
                                                 word rules (search_text.dart)
@@ -102,12 +103,13 @@ lib/
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
-                                                switch ports: the icon on the home screen and the launch screen's colour;
+                                                switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
     robot_level/                                RobotLevelCubit: the pocket model's level (the Apprentice, Çırak, in the app's
                                                 copy), which unlocks the app icons
-    theme/                                      ThemeChoiceCubit (light or dark; the phone's until chosen), IThemeStore, appearance_name.dart:
-                                                the choice kept on the device, never in the record
+    theme/                                      ThemeChoiceCubit (light or dark; dark until chosen), IThemeStore,
+                                                appearance_name.dart: the choice kept on the device, never in the
+                                                record; ILaunchGround: the look named to the phone for its launch screen
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features

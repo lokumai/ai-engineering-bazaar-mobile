@@ -56,6 +56,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 - The opening is the pocket model's robot in what it wears, on the ground of the light or dark look the reader chose: it pops up and waves, sends hearts, gets stars or hearts for eyes, hops its hat, wiggles, spins, bounces or hums, at random, then shrinks away as the app opens out of a circle where it stood, about a second in all. The launch screens are cream, the default icon's ground.
 - The Settings tab opens on Settings itself whenever it is tapped, not on the page of it left.
+- The launch screen and the app's first frames are on the page colour of the look the reader chose, light or dark, not on the app icon's ground; before a choice, dark, whatever the phone's theme.
 - The opening is the striped secret agent: it stands still in the middle of the screen, then the camera flies into it and its stripes rush past as ribbons onto the app, 1.45 s, on the page colour of the theme.
 - The app icon is the striped secret agent on the dark page colour, one icon for every phone theme.
 - The launch screens are the dark page colour whatever the phone's theme.
