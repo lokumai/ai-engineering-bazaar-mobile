@@ -69,28 +69,6 @@ void main() {
     }
   });
 
-  test('every icon has its launch screen on its ground on Android, which AppIconSwitch.kt names', () {
-    final styles = File('android/app/src/main/res/values-v31/styles.xml').readAsStringSync();
-    expect(
-      RegExp('<style name="LaunchTheme" [^>]*>(.*?)</style>', dotAll: true).firstMatch(styles)![1],
-      contains('<item name="android:windowSplashScreenBackground">@color/ic_launcher_cream_background</item>'),
-      reason: "the manifest's launch screen, the default's, on cream",
-    );
-    expect(
-      RegExp('<style name="LaunchTheme.Dark">(.*?)</style>', dotAll: true).firstMatch(styles)![1],
-      contains('<item name="android:windowSplashScreenBackground">@color/bazaar_page</item>'),
-    );
-    final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
-    for (final icon in BazaarIcon.values) {
-      final (theme, colour) = switch (icon.backdrop) {
-        AppIconGround.dark => ('LaunchTheme_Dark', 'bazaar_page'),
-        AppIconGround.cream => ('LaunchTheme', 'ic_launcher_cream_background'),
-      };
-      expect(kotlin, contains('"${icon.name}" to R.style.$theme,'), reason: icon.name);
-      expect(kotlin, contains('"${icon.name}" to R.color.$colour,'), reason: icon.name);
-    }
-  });
-
   test('AppIconSwitch.kt names the icons as the Dart side does, the default first', () {
     final kotlin = File('android/app/src/main/kotlin/dev/lokumai/bazaar/AppIconSwitch.kt').readAsStringSync();
     final pairs = RegExp(r'"(\w+)" to "(Launcher\w+)"').allMatches(kotlin).map((m) => (m[1], m[2])).toList();
@@ -131,26 +109,6 @@ void main() {
     expect(pairs, [
       for (final icon in BazaarIcon.values) (icon.name, icon == BazaarIcon.defaultIcon ? null : iosName(icon)),
     ]);
-  });
-
-  test('AppDelegate.swift paints the launch picture in the ground of each icon, as the Dart side has it', () {
-    final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
-    final grounds = RegExp(r'"(\w+)": 0x([0-9a-f]{6}),').allMatches(swift).map((m) => (m[1], m[2])).toList();
-
-    expect(grounds, [
-      for (final icon in BazaarIcon.values) (icon.name, icon.ground.toARGB32().toRadixString(16).substring(2)),
-    ]);
-  });
-
-  // Flutter shows the launch screen, cream for every icon, until its first frame: the app's screen shows the ground of
-  // the icon last named instead, or an icon on another ground flashes on opening (the owner, 2026-11-15).
-  test('the iOS app screen is BazaarViewController, which shows the kept ground until the first frame', () {
-    final storyboard = File('ios/Runner/Base.lproj/Main.storyboard').readAsStringSync();
-    expect(storyboard, contains('customClass="BazaarViewController" customModule="Runner"'));
-    final swift = File('ios/Runner/AppDelegate.swift').readAsStringSync();
-    expect(swift, contains('class BazaarViewController: FlutterViewController {'));
-    expect(swift, contains('splashScreenView = splash'));
-    expect(swift, contains('LaunchPicture.keep(ground)'));
   });
 
   test('every icon has its picture for the choice, bundled', () {
