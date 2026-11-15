@@ -35,6 +35,23 @@ final class _SlowStore implements IThemeStore {
   }
 }
 
+/// A launch ground that logs each look named to it.
+final class _Ground implements ILaunchGround {
+  final kept = <ThemeMode>[];
+
+  @override
+  Future<void> keep(ThemeMode mode) async => kept.add(mode);
+}
+
+/// A store that fails the test if it is read.
+final class _UnreadStore implements IThemeStore {
+  @override
+  Future<ThemeMode?> chosen() => fail('read again');
+
+  @override
+  Future<void> choose(ThemeMode mode) async {}
+}
+
 void main() {
   test('starts dark before anything is chosen', () => expect(ThemeChoiceCubit().state, ThemeMode.dark));
 
@@ -87,5 +104,54 @@ void main() {
     await last;
     expect(cubit.state, ThemeMode.dark);
     await cubit.close();
+  });
+
+  // The phone opens the next launch on the page colour of the look the reader reads in (the owner, 2026-11-15).
+  group('the launch ground', () {
+    test('load names the kept look', () async {
+      final ground = _Ground();
+      final cubit = ThemeChoiceCubit(store: _Store(ThemeMode.light), ground: ground);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(ground.kept, [ThemeMode.light]);
+    });
+
+    test('load names dark when nothing was chosen', () async {
+      final ground = _Ground();
+      final cubit = ThemeChoiceCubit(store: _Store(), ground: ground);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(ground.kept, [ThemeMode.dark]);
+    });
+
+    test('choose keeps the look, then names it', () async {
+      final ground = _Ground();
+      final store = _Store();
+      final cubit = ThemeChoiceCubit(store: store, ground: ground);
+      addTearDown(cubit.close);
+
+      await cubit.choose(ThemeMode.light);
+      await cubit.choose(ThemeMode.dark);
+
+      expect(ground.kept, [ThemeMode.light, ThemeMode.dark]);
+      expect(store.kept, ThemeMode.dark);
+    });
+  });
+
+  // The boot reads the look before the first frame, so the app's first frame is on its ground (the owner, 2026-11-15).
+  test('starts in the look the boot read, and load only names it', () async {
+    final ground = _Ground();
+    final cubit = ThemeChoiceCubit(store: _UnreadStore(), ground: ground, initial: ThemeMode.light);
+    addTearDown(cubit.close);
+    expect(cubit.state, ThemeMode.light);
+
+    await cubit.load();
+
+    expect(cubit.state, ThemeMode.light);
+    expect(ground.kept, [ThemeMode.light]);
   });
 }
