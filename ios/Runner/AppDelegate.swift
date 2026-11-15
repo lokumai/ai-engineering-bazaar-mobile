@@ -32,32 +32,11 @@ import UIKit
     "crownDark": "AppIconCrownDark",
   ]
 
-  /// The ground of each icon, as lib/shared/app_icon/bazaar_icon.dart paints it: the opening starts on it.
-  static let grounds: [String: UInt32] = [
-    "fezCream": 0xfdfbf7,
-    "fezDark": 0x1d1f27,
-    "antennaCream": 0xfdfbf7,
-    "antennaDark": 0x1d1f27,
-    "beanieCream": 0xfdfbf7,
-    "beanieDark": 0x1d1f27,
-    "domeCream": 0xfdfbf7,
-    "domeDark": 0x1d1f27,
-    "mortarboardCream": 0xfdfbf7,
-    "mortarboardDark": 0x1d1f27,
-    "tvCream": 0xfdfbf7,
-    "tvDark": 0x1d1f27,
-    "turbanCream": 0xfdfbf7,
-    "turbanDark": 0x1d1f27,
-    "earsCream": 0xfdfbf7,
-    "earsDark": 0x1d1f27,
-    "wizardCream": 0xfdfbf7,
-    "wizardDark": 0x1d1f27,
-    "topHatCream": 0xfdfbf7,
-    "topHatDark": 0x1d1f27,
-    "visorCream": 0xfdfbf7,
-    "visorDark": 0x1d1f27,
-    "crownCream": 0xfdfbf7,
-    "crownDark": 0x1d1f27,
+  /// The ground of each look the Dart side names (lib/infrastructure/theme/launch_ground_channel.dart): the page colour
+  /// of the light look and of the dark one, as lib/shared/design_system paints them. The app opens on it.
+  static let launchGrounds: [String: UInt32] = [
+    "light": 0xfdfbf7,
+    "dark": 0x1d1f27,
   ]
 
   override func application(
@@ -74,12 +53,9 @@ import UIKit
     FlutterMethodChannel(name: "dev.lokumai.bazaar/app_icon", binaryMessenger: registrar.messenger())
       .setMethodCallHandler { call, result in
         guard call.method == "choose" else { return result(FlutterMethodNotImplemented) }
-        guard let icon = call.arguments as? String, let name = AppDelegate.appIcons[icon],
-          let ground = AppDelegate.grounds[icon]
-        else {
+        guard let icon = call.arguments as? String, let name = AppDelegate.appIcons[icon] else {
           return result(FlutterError(code: "unknown-icon", message: call.arguments as? String, details: nil))
         }
-        LaunchPicture.keep(ground)
         let app = UIApplication.shared
         // The system tells the reader of every change, so an icon already in place is left alone (each launch names
         // the chosen icon again).
@@ -91,19 +67,31 @@ import UIKit
           result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
         }
       }
+    // lib/infrastructure/theme/launch_ground_channel.dart names the reader's look on every launch and every choice; the
+    // next launch opens on its page colour.
+    FlutterMethodChannel(name: "dev.lokumai.bazaar/launch_ground", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { call, result in
+        guard call.method == "keep" else { return result(FlutterMethodNotImplemented) }
+        guard let look = call.arguments as? String, let ground = AppDelegate.launchGrounds[look] else {
+          return result(FlutterError(code: "unknown-look", message: call.arguments as? String, details: nil))
+        }
+        LaunchPicture.keep(ground)
+        result(nil)
+      }
   }
 }
 
 /// iOS opens an app on a picture of its launch screen that it keeps in the app's Library/SplashBoard, and the launch
-/// screen is one for every icon (the default's cream ground). Repainting those pictures in the chosen icon's ground lets the app
-/// open on that ground from the next launch (the owner, 2026-11-14). The folder is not documented: when it is missing
-/// or a picture cannot be read, nothing changes and the app opens on the cream ground as before. iOS draws the pictures
+/// screen is one, on the dark ground the app opens in until the reader chooses. Repainting those pictures in the ground
+/// of the reader's look lets the app open on it from the next launch (the owner, 2026-11-14, 2026-11-15: the look, not
+/// the icon). The folder is not documented: when it is missing or a picture cannot be read, nothing changes and the app
+/// opens on the dark ground. iOS draws the pictures
 /// again after an update, and the next launch paints them again.
 enum LaunchPicture {
-  /// Where the ground of the icon last named is kept, for [BazaarViewController] on the next launch.
+  /// Where the ground of the look last named is kept, for [BazaarViewController] on the next launch.
   static let groundKey = "BazaarLaunchGround"
 
-  /// The ground of the icon last named, as a colour; nil before the Dart side first named one.
+  /// The ground of the look last named, as a colour; nil before the Dart side first named one.
   static var kept: UIColor? {
     guard let ground = UserDefaults.standard.object(forKey: groundKey) as? Int else { return nil }
     return colour(UInt32(ground))
@@ -150,8 +138,8 @@ enum LaunchPicture {
 }
 
 /// The app's screen (Main.storyboard). Until Flutter draws its first frame it shows the launch screen once more, which
-/// is cream for every icon; that left a flash between the launch picture and the opening for an icon on another ground (the
-/// owner, 2026-11-15). It shows the ground of the icon last named instead.
+/// is dark for every look; that left a flash between the launch picture and the opening for the light look (the owner,
+/// 2026-11-15). It shows the ground of the look last named instead.
 class BazaarViewController: FlutterViewController {
   override func awakeFromNib() {
     super.awakeFromNib()
