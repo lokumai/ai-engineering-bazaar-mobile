@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -217,6 +218,52 @@ void main() {
       null,
     );
     await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
+  });
+
+  // The next launch opens on the page colour of the look the reader reads in (the owner, 2026-11-15).
+  test('createLaunchGround names the look on the native channel, light or dark', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(LaunchGroundChannel.name),
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel(LaunchGroundChannel.name),
+        null,
+      ),
+    );
+
+    final ground = const AppDependencies().createLaunchGround();
+    await ground.keep(ThemeMode.light);
+    await ground.keep(ThemeMode.dark);
+    await ground.keep(ThemeMode.system);
+
+    expect(calls.map((call) => (call.method, call.arguments)), [('keep', 'light'), ('keep', 'dark'), ('keep', 'dark')]);
+  });
+
+  test('a launch ground not kept is logged, never thrown', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(LaunchGroundChannel.name),
+      (call) async => throw PlatformException(code: 'unknown-look'),
+    );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel(LaunchGroundChannel.name),
+        null,
+      ),
+    );
+
+    await expectLater(const AppDependencies().createLaunchGround().keep(ThemeMode.light), completes);
+    // No channel at all, as on a desktop or in a test: nothing happens.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(LaunchGroundChannel.name),
+      null,
+    );
+    await expectLater(const AppDependencies().createLaunchGround().keep(ThemeMode.light), completes);
   });
 
   test('createQuizScoreStore keeps the scores in one file under the support directory (plan 1W)', () async {

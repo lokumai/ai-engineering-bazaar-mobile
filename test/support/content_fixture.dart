@@ -116,6 +116,9 @@ class FixtureAppDependencies extends AppDependencies {
   IThemeStore createThemeStore() => const MemoryThemeStore();
 
   @override
+  ILaunchGround createLaunchGround() => const NoLaunchGround();
+
+  @override
   IAppIconStore createAppIconStore() => const MemoryAppIconStore();
 
   @override

@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/features/settings/application/feedback_sen
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
@@ -85,6 +86,9 @@ class AppDependencies {
 
   /// The chosen look (light or dark), as file flags under [supportDirectory]`/flags/`, apart from the record.
   IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// Names the chosen look to the phone, so the next launch opens on its page colour, over the native channel.
+  ILaunchGround createLaunchGround() => const ChannelLaunchGround(LaunchGroundChannel());
 
   /// The chosen app icon, as file flags under [supportDirectory]`/flags/`, apart from the record.
   IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: supportDirectory));
@@ -336,4 +340,14 @@ final class ChannelAppIconSwitch implements IAppIconSwitch {
 
   @override
   Future<void> choose(BazaarIcon icon) => _channel.choose(icon.name);
+}
+
+/// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.
+final class ChannelLaunchGround implements ILaunchGround {
+  const ChannelLaunchGround(this._channel);
+
+  final LaunchGroundChannel _channel;
+
+  @override
+  Future<void> keep(ThemeMode mode) => _channel.keep(dark: mode != ThemeMode.light);
 }
