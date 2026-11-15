@@ -254,9 +254,7 @@ void main() {
     expect(_scene, findsNothing);
   });
 
-  testWidgets('waits for the chosen icon: until it is read, only the default ground shows, and no robot', (
-    tester,
-  ) async {
+  testWidgets('waits for the chosen icon: until it is read, only the ground shows, and no robot', (tester) async {
     final store = _SlowStore();
     final appIcon = AppIconCubit(store: store)..load();
     addTearDown(appIcon.close);
@@ -265,7 +263,10 @@ void main() {
 
     expect(_scene, findsOneWidget);
     expect(_robot, findsNothing);
-    expect(tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color, BazaarIcon.fezCream.ground);
+    expect(
+      tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
+      bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android).scaffoldBackgroundColor,
+    );
 
     store.read.complete(null);
     await tester.pump();
@@ -278,21 +279,20 @@ void main() {
 
   for (final (mode, brightness) in [(ThemeMode.light, Brightness.light), (ThemeMode.dark, Brightness.dark)]) {
     testWidgets(
-      'stands on the ground the reader reads on, ${brightness.name}, whatever the icon (the owner, 2026-11-14)',
+      'stands on the ground the reader reads on, ${brightness.name}, from its first frame, whatever the icon (the owner, '
+      '2026-11-15)',
       (tester) async {
-        final appIcon = AppIconCubit(store: const _ChosenStore(BazaarIcon.tvDark))..load();
+        // The icon's ground is the other look's, so a frame on it would show.
+        final icon = brightness == Brightness.light ? BazaarIcon.tvDark : BazaarIcon.tvCream;
+        final appIcon = AppIconCubit(store: _ChosenStore(icon))..load();
         addTearDown(appIcon.close);
-        await tester.pumpWidget(_splash(appIcon: appIcon, themeMode: mode));
-        await tester.pump();
-        expect(
-          tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
-          BazaarIcon.tvDark.ground,
-          reason: 'it starts in the launch screen colour',
-        );
-        await _frames(tester, WelcomeSting.tint + const Duration(milliseconds: 32));
-
         final ground = bazaarTheme(brightness: brightness, platform: TargetPlatform.android).scaffoldBackgroundColor;
-        expect(tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color, ground);
+        expect(icon.ground, isNot(ground));
+        await tester.pumpWidget(_splash(appIcon: appIcon, themeMode: mode));
+        for (var frame = 0; frame < 12; frame++) {
+          expect(tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color, ground, reason: 'frame $frame');
+          await tester.pump(const Duration(milliseconds: 16));
+        }
         await _frames(tester, _greeting + WelcomeSting.leave + const Duration(milliseconds: 100));
       },
     );

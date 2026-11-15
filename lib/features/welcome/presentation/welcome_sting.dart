@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The opening while the app starts (plan 1Y, 9.10), on every launch, over the whole screen in front of [child]: the
 /// pocket model's robot, in what the reader dressed it in, pops up and greets them with a short turn picked at random,
 /// a wave, a few hearts, a spin, a hum (the owner, 2026-11-14: in place of the striped agent). It stands on the ground
-/// of the look the reader reads in, light or dark, all of it (the owner, 2026-11-14): the launch screen's colour turns
-/// to it as the opening starts. Until the reader's choices on this device are read ([AppIconCubit]), only the launch
-/// screen's colour shows. Once the robot has greeted ([robot] calls its `onDone`) and the content and the record have
+/// of the look the reader reads in, light or dark, all of it (the owner, 2026-11-14), from its first frame: the phone's
+/// launch screen is on that ground too (the theme cubit names it to the phone, the owner, 2026-11-15), so nothing
+/// changes colour as the app starts. Until the chosen icon is read ([AppIconCubit]), only the ground shows. Once the robot has greeted ([robot] calls its `onDone`) and the content and the record have
 /// settled, the opening gives way to the app in [leave]: the robot shrinks away with a little bounce and the app
 /// opens out of where it stood, in a growing circle. The whole is about a second.
 ///
@@ -31,9 +30,6 @@ class WelcomeSting extends StatefulWidget {
 
   /// How long the opening takes to give way to the app.
   static const leave = Duration(milliseconds: 420);
-
-  /// How long the launch screen's colour takes to turn to the reader's ground.
-  static const tint = Duration(milliseconds: 180);
 
   /// The longest the opening waits for the robot's greeting, should it never say it is done.
   static const longest = Duration(milliseconds: 1600);
@@ -77,14 +73,10 @@ class _WelcomeStingState extends State<WelcomeSting> with SingleTickerProviderSt
       (ContentReady(), RecordReady()) => true,
       _ => false,
     };
-    // Whether the reader's choices on this device are read; until then only the launch screen's colour shows.
+    // Whether the chosen icon is read, so the robot greets in its colours; until then only the ground shows.
     final read = switch (context.watch<AppIconCubit>().state) {
       AppIconKnown() => true,
       AppIconUnread() => false,
-    };
-    final launch = switch (context.watch<AppIconCubit>().state) {
-      AppIconKnown(:final icon) => icon.ground,
-      AppIconUnread() => BazaarIcon.defaultIcon.ground,
     };
     final still = MediaQuery.disableAnimationsOf(context);
     if (read) _waited ??= Timer(WelcomeSting.longest, _done);
@@ -94,8 +86,8 @@ class _WelcomeStingState extends State<WelcomeSting> with SingleTickerProviderSt
         if (mounted && _leave.status == AnimationStatus.dismissed) unawaited(_leave.forward());
       });
     }
-    // The ground the reader reads on.
-    final ground = read ? Theme.of(context).scaffoldBackgroundColor : launch;
+    // The ground the reader reads on, the launch screen's.
+    final ground = Theme.of(context).scaffoldBackgroundColor;
     final dark = ThemeData.estimateBrightnessForColor(ground) == Brightness.dark;
     return Stack(
       fit: StackFit.expand,
@@ -120,11 +112,9 @@ class _WelcomeStingState extends State<WelcomeSting> with SingleTickerProviderSt
                     final open = Curves.easeInCubic.transform(((t - 0.2) / 0.8).clamp(0.0, 1.0));
                     return ClipPath(
                       clipper: t == 0 ? null : _Iris(open),
-                      child: TweenAnimationBuilder<Color?>(
-                        tween: ColorTween(begin: launch, end: ground),
-                        duration: still ? Duration.zero : WelcomeSting.tint,
-                        builder: (context, colour, robot) =>
-                            ColoredBox(key: WelcomeSting.groundKey, color: colour ?? ground, child: robot),
+                      child: ColoredBox(
+                        key: WelcomeSting.groundKey,
+                        color: ground,
                         child: read ? child : const SizedBox.expand(),
                       ),
                     );
