@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The launch screen: the cream ground of the default app icon, where the opening starts, so the start reads as one piece. -->
+<!-- The launch screen before Android 12: the dark page colour, the look the app opens in until the reader chooses. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/ic_launcher_cream_background" />
+    <item android:drawable="@color/bazaar_page" />
 </layer-list>

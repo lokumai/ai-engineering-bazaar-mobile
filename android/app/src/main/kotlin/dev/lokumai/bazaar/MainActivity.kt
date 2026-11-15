@@ -13,9 +13,8 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Until Flutter's first frame the window shows; it takes the chosen icon's ground, where the opening starts.
-        val ground = AppIconSwitch.grounds.getValue(AppIconSwitch.current(this))
-        window.setBackgroundDrawable(ColorDrawable(getColor(ground)))
+        // Until Flutter's first frame the window shows; it takes the ground of the reader's look, where the opening starts.
+        window.setBackgroundDrawable(ColorDrawable(getColor(LaunchGround.ground(this))))
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -39,6 +38,23 @@ class MainActivity : FlutterActivity() {
                     icon == null || icon !in AppIconSwitch.aliases -> result.error("unknown-icon", icon, null)
                     else -> {
                         chosenIcon = icon
+                        result.success(null)
+                    }
+                }
+            }
+        handleLaunchGround(flutterEngine)
+    }
+
+    private fun handleLaunchGround(flutterEngine: FlutterEngine) {
+        // lib/infrastructure/theme/launch_ground_channel.dart names the reader's look on every launch and every choice.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LaunchGround.CHANNEL)
+            .setMethodCallHandler { call, result ->
+                val look = call.arguments as? String
+                when {
+                    call.method != "keep" -> result.notImplemented()
+                    look == null || look !in LaunchGround.grounds -> result.error("unknown-look", look, null)
+                    else -> {
+                        LaunchGround.apply(this, look)
                         result.success(null)
                     }
                 }

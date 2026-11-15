@@ -4,6 +4,7 @@
          every phone theme: the app opens dark until the reader chooses (owner, 2026-11-13). -->
     <color name="bazaar_page">#1D1F27</color>
     <color name="ic_launcher_background">#1D1F27</color>
-    <!-- The cream page colour, the ground of the app icons on cream (lib/shared/app_icon/). -->
+    <!-- The cream page colour: the ground of the app icons on cream (lib/shared/app_icon/) and of the light look's launch
+         screen (LaunchGround.kt). -->
     <color name="ic_launcher_cream_background">#FDFBF7</color>
 </resources>

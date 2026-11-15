@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 
 /**
  * The app icon the reader chose in Settings (lib/shared/app_icon/): one launcher entry (`activity-alias` in the
@@ -43,62 +42,6 @@ object AppIconSwitch {
         "crownDark" to "LauncherCrownDark",
     )
 
-    /** Each icon's ground: the launch screen's colour and the window's behind the app until its first frame. */
-    val grounds = mapOf(
-        "fezCream" to R.color.ic_launcher_cream_background,
-        "fezDark" to R.color.bazaar_page,
-        "antennaCream" to R.color.ic_launcher_cream_background,
-        "antennaDark" to R.color.bazaar_page,
-        "beanieCream" to R.color.ic_launcher_cream_background,
-        "beanieDark" to R.color.bazaar_page,
-        "domeCream" to R.color.ic_launcher_cream_background,
-        "domeDark" to R.color.bazaar_page,
-        "mortarboardCream" to R.color.ic_launcher_cream_background,
-        "mortarboardDark" to R.color.bazaar_page,
-        "tvCream" to R.color.ic_launcher_cream_background,
-        "tvDark" to R.color.bazaar_page,
-        "turbanCream" to R.color.ic_launcher_cream_background,
-        "turbanDark" to R.color.bazaar_page,
-        "earsCream" to R.color.ic_launcher_cream_background,
-        "earsDark" to R.color.bazaar_page,
-        "wizardCream" to R.color.ic_launcher_cream_background,
-        "wizardDark" to R.color.bazaar_page,
-        "topHatCream" to R.color.ic_launcher_cream_background,
-        "topHatDark" to R.color.bazaar_page,
-        "visorCream" to R.color.ic_launcher_cream_background,
-        "visorDark" to R.color.bazaar_page,
-        "crownCream" to R.color.ic_launcher_cream_background,
-        "crownDark" to R.color.bazaar_page,
-    )
-
-    /** Each icon's launch screen on Android 13 and later (values-v31/styles.xml), on its ground. */
-    val launchThemes = mapOf(
-        "fezCream" to R.style.LaunchTheme,
-        "fezDark" to R.style.LaunchTheme_Dark,
-        "antennaCream" to R.style.LaunchTheme,
-        "antennaDark" to R.style.LaunchTheme_Dark,
-        "beanieCream" to R.style.LaunchTheme,
-        "beanieDark" to R.style.LaunchTheme_Dark,
-        "domeCream" to R.style.LaunchTheme,
-        "domeDark" to R.style.LaunchTheme_Dark,
-        "mortarboardCream" to R.style.LaunchTheme,
-        "mortarboardDark" to R.style.LaunchTheme_Dark,
-        "tvCream" to R.style.LaunchTheme,
-        "tvDark" to R.style.LaunchTheme_Dark,
-        "turbanCream" to R.style.LaunchTheme,
-        "turbanDark" to R.style.LaunchTheme_Dark,
-        "earsCream" to R.style.LaunchTheme,
-        "earsDark" to R.style.LaunchTheme_Dark,
-        "wizardCream" to R.style.LaunchTheme,
-        "wizardDark" to R.style.LaunchTheme_Dark,
-        "topHatCream" to R.style.LaunchTheme,
-        "topHatDark" to R.style.LaunchTheme_Dark,
-        "visorCream" to R.style.LaunchTheme,
-        "visorDark" to R.style.LaunchTheme_Dark,
-        "crownCream" to R.style.LaunchTheme,
-        "crownDark" to R.style.LaunchTheme_Dark,
-    )
-
     /**
      * The launcher entries to turn on (true) or off (false) so that only [chosen]'s is on, given the ones on now
      * ([enabled]); nothing for an entry already right, so a launch with the same icon changes nothing.
@@ -118,14 +61,10 @@ object AppIconSwitch {
     }
 
     /**
-     * Makes [chosen]'s launcher entry the only one enabled, and on Android 13 and later its launch screen the one the
-     * next launch shows (the system keeps it; earlier versions show the default's cream one, then the window turns to
-     * the icon's ground, [MainActivity.onCreate]).
+     * Makes [chosen]'s launcher entry the only one enabled. The launch screen does not follow the icon but the reader's
+     * look ([LaunchGround]).
      */
     fun apply(activity: Activity, chosen: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity.splashScreen.setSplashScreenTheme(launchThemes.getValue(chosen))
-        }
         val context: Context = activity
         val pm = context.packageManager
         val enabled = aliases.values.filterTo(mutableSetOf()) { isEnabled(pm, component(context, it), it) }
