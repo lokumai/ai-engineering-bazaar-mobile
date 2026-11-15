@@ -18,12 +18,15 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
-  const App({super.key, this.dependencies = const AppDependencies(), this.appIcon});
+  const App({super.key, this.dependencies = const AppDependencies(), this.appIcon, this.themeMode});
 
   final AppDependencies dependencies;
 
   /// The app icon the boot read, so the opening starts in its colours; null when it was not read.
   final BazaarIcon? appIcon;
+
+  /// The look the boot read, so the first frame is already in it; null when it was not read.
+  final ThemeMode? themeMode;
 
   @override
   State<App> createState() => _AppState();
@@ -43,6 +46,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return AppScope(
       appIcon: widget.appIcon,
+      themeMode: widget.themeMode,
       dependencies: widget.dependencies,
       // The interface follows the chosen language (plan 1Q); Persian lays it out right to left.
       child: BlocBuilder<ThemeChoiceCubit, ThemeMode>(

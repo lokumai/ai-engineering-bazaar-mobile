@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -41,12 +42,15 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
 class AppScope extends StatelessWidget {
-  const AppScope({super.key, required this.dependencies, required this.child, this.appIcon});
+  const AppScope({super.key, required this.dependencies, required this.child, this.appIcon, this.themeMode});
 
   final AppDependencies dependencies;
 
   /// The app icon the boot read before the first frame; null when it was not read, and the cubit reads it.
   final BazaarIcon? appIcon;
+
+  /// The look the boot read before the first frame; null when it was not read, and the cubit reads it.
+  final ThemeMode? themeMode;
   final Widget child;
 
   @override
@@ -62,6 +66,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ITrackStore>(create: (_) => dependencies.createTrackStore()),
         RepositoryProvider<ILanguageStore>(create: (_) => dependencies.createLanguageStore()),
         RepositoryProvider<IThemeStore>(create: (_) => dependencies.createThemeStore()),
+        RepositoryProvider<ILaunchGround>(create: (_) => dependencies.createLaunchGround()),
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
@@ -150,7 +155,11 @@ class AppScope extends StatelessWidget {
           ),
           BlocProvider<ThemeChoiceCubit>(
             lazy: false,
-            create: (context) => ThemeChoiceCubit(store: context.read<IThemeStore>())..load(),
+            create: (context) => ThemeChoiceCubit(
+              store: context.read<IThemeStore>(),
+              ground: context.read<ILaunchGround>(),
+              initial: themeMode,
+            )..load(),
           ),
           // The opening waits for it, to play in the chosen icon's colours.
           BlocProvider<AppIconCubit>(

@@ -7,6 +7,8 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_s
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/bootstrap/app_bootstrap.dart';
@@ -55,6 +57,21 @@ class _IconDependencies extends FixtureAppDependencies {
 
   @override
   IAppIconStore createAppIconStore() => _KeptIcon(icon);
+
+  @override
+  IThemeStore createThemeStore() => const _KeptTheme(ThemeMode.dark);
+}
+
+final class _KeptTheme implements IThemeStore {
+  const _KeptTheme(this.mode);
+
+  final ThemeMode mode;
+
+  @override
+  Future<ThemeMode?> chosen() async => mode;
+
+  @override
+  Future<void> choose(ThemeMode mode) async {}
 }
 
 final class _KeptIcon implements IAppIconStore {
@@ -117,8 +134,9 @@ void main() {
       expect(built, [same(sentry.gated)]);
     });
 
-    // The opening starts in the chosen icon's colours from the app's first frame (the owner, 2026-11-14).
-    testWidgets('reads the chosen app icon before the first frame and hands it to the app', (tester) async {
+    // The opening starts in the chosen icon's colours from the app's first frame (the owner, 2026-11-14), on the page
+    // colour of the chosen look, as the launch screen was, not on the icon's ground (the owner, 2026-11-15).
+    testWidgets('reads the chosen app icon and look before the first frame and hands them to the app', (tester) async {
       final sentry = _RecordingSentryStart(
         const AppConfig(environment: Environment.prod, contentBaseUrl: testContentBaseUrl),
       );
@@ -139,10 +157,11 @@ void main() {
       await sentry.runners.single();
 
       expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.tvCream);
+      expect(tester.widget<App>(find.byType(App)).themeMode, ThemeMode.dark);
       expect(
         tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
-        BazaarIcon.tvCream.ground,
-        reason: 'the first frame',
+        bazaarTheme(brightness: Brightness.dark, platform: defaultTargetPlatform).scaffoldBackgroundColor,
+        reason: 'the first frame, dark under the icon on cream',
       );
       expect(find.descendant(of: find.byKey(WelcomeSting.sceneKey), matching: find.byType(RobotStage)), findsOneWidget);
       await tester.pumpWidget(const SizedBox());

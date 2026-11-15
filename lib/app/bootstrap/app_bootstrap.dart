@@ -65,6 +65,8 @@ class AppBootstrap {
     // The chosen app icon, read before the first frame, so the opening starts in its colours rather than the
     // default's (a few flag files; a file not read counts as no choice).
     final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.defaultIcon;
+    // The chosen look too, so the first frame is on its page colour, as the launch screen was (the owner, 2026-11-15).
+    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.dark;
 
     log.info('Starting app with env: {}', [config.environment.name]);
 
@@ -74,7 +76,7 @@ class AppBootstrap {
     await sentry.run(
       appConfig.sentryDsn,
       release: '${AppConstants.appVersion}+${AppConstants.appBuildNumber}',
-      appRunner: () => runApp(App(dependencies: appDependencies, appIcon: appIcon)),
+      appRunner: () => runApp(App(dependencies: appDependencies, appIcon: appIcon, themeMode: themeMode)),
     );
   }
 }
