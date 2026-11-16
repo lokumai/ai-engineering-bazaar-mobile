@@ -2533,9 +2533,9 @@ class S {
     return Intl.message('Got it', name: 'tour_done', desc: '', args: []);
   }
 
-  /// `Skip`
+  /// `Skip the tour`
   String get tour_skip {
-    return Intl.message('Skip', name: 'tour_skip', desc: '', args: []);
+    return Intl.message('Skip the tour', name: 'tour_skip', desc: '', args: []);
   }
 
   /// `This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.`

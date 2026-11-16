@@ -24,7 +24,10 @@ final class TourCubit extends Cubit<TourRecord?> {
   /// The reader does not: no page is shown.
   Future<void> decline() => _keep((state ?? const TourRecord()).copyWith(asking: false, guiding: false));
 
-  /// [page] was shown, to its end or skipped.
+  /// The reader skipped the tour: no page is shown any more, until it is taken again (the owner, 2026-11-16).
+  Future<void> end() => _keep((state ?? const TourRecord()).copyWith(asking: false, guiding: false));
+
+  /// [page] was shown to its end.
   Future<void> shown(TourPage page) {
     final record = state ?? const TourRecord();
     return _keep(record.copyWith(seen: {...record.seen, page.name}));

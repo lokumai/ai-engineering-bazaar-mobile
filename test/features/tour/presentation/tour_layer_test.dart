@@ -59,6 +59,16 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 /// The bubble's words.
 Finder _says(String text) => find.text(text);
 
+/// How far along the page's places the dots say it is.
+Finder _dots(int step, int count) =>
+    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == '$step / $count');
+
+final _button = find.byKey(const ValueKey('pocket-assistant'));
+
+/// Whether the floating button is drawn: it is left empty while the Apprentice is out.
+bool _buttonDrawn(WidgetTester tester) =>
+    tester.widget<Visibility>(find.ancestor(of: _button, matching: find.byType(Visibility)).first).visible;
+
 /// The rect the scrim leaves clear.
 Rect? _hole(WidgetTester tester) {
   final paint = tester.widget<CustomPaint>(_scrim);
@@ -124,7 +134,7 @@ void main() {
     Offset? robotWas;
     for (final (i, (spot, words)) in steps.indexed) {
       expect(find.textContaining(words), findsOneWidget, reason: spot);
-      expect(_says('${i + 1} / 4'), findsOneWidget);
+      expect(_dots(i + 1, 4), findsOneWidget);
       expect(_hole(tester), _spot(tester, spot).intersect(Offset.zero & const Size(393, 852)), reason: spot);
       final robot = tester.getCenter(_robot);
       expect(robot, isNot(robotWas), reason: 'it walked to $spot');
@@ -143,7 +153,7 @@ void main() {
 
     await _tap(tester, find.text('Catalog').last);
     expect(find.textContaining('Look for any topic here.'), findsOneWidget);
-    expect(_says('1 / 2'), findsOneWidget);
+    expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('Every level and its modules'), findsOneWidget);
     await _tap(tester, _next);
@@ -154,7 +164,7 @@ void main() {
     expect(_scrim, findsNothing);
   });
 
-  testWidgets('Skip leaves the page shown, and the other tabs still to show', (tester) async {
+  testWidgets('Skip ends the tour: no other tab is shown after it', (tester) async {
     final (_, store) = await _pump(
       tester,
       record: const TourRecord(guiding: true, seen: {'home'}),
@@ -164,10 +174,64 @@ void main() {
 
     await _tap(tester, _skip);
     expect(_scrim, findsNothing);
-    expect(store.kept.seen, {'home', 'quiz'});
+    expect(store.kept.guiding, isFalse);
 
     await _tap(tester, find.text('Caravan').last);
-    expect(find.textContaining('The Caravan travels'), findsOneWidget);
+    expect(_scrim, findsNothing);
+    await _tap(tester, find.text('Catalog').last);
+    expect(_scrim, findsNothing);
+  });
+
+  testWidgets('taken again from the guide, Skip on a tab ends it there too', (tester) async {
+    final (router, store) = await _pump(
+      tester,
+      record: const TourRecord(seen: {'home', 'catalog', 'caravan', 'quiz', 'settings'}),
+      at: '/settings/guide',
+    );
+    await _tap(tester, find.byKey(const ValueKey('guide-replay-tour')));
+    await _tap(tester, _skip);
+    expect(router.state.uri.path, '/');
+
+    await _tap(tester, find.text('Catalog').last);
+    expect(_scrim, findsNothing);
+    await _tap(tester, find.text('Quiz').last);
+    expect(_scrim, findsNothing);
+    expect(store.kept.guiding, isFalse);
+  });
+
+  testWidgets('it comes out of its floating button, which is empty meanwhile, and walks back into it', (tester) async {
+    await _pump(
+      tester,
+      record: const TourRecord(guiding: true, seen: {'home'}),
+      at: '/quiz',
+    );
+    final button = tester.getRect(_button);
+
+    expect(_robot, findsOneWidget);
+    expect(_buttonDrawn(tester), isFalse, reason: 'one Apprentice on the screen');
+    expect(tester.getRect(_robot).topLeft, isNot(button.topLeft), reason: 'it walked to the place');
+
+    await tester.tap(_next);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(_robot, findsOneWidget, reason: 'on its way home');
+    expect(_buttonDrawn(tester), isFalse);
+    await tester.pump(TourLayer.walk);
+    await tester.pump();
+    expect(_robot, findsNothing);
+    expect(_buttonDrawn(tester), isTrue);
+    expect(tester.getRect(_button), button);
+  });
+
+  testWidgets('asked and told Later, it goes back into its button', (tester) async {
+    await _pump(tester, record: const TourRecord(asking: true));
+    expect(_buttonDrawn(tester), isFalse);
+    final seat = tester.getRect(_robot);
+    expect(seat.center.dy, lessThan(tester.getRect(_button).top), reason: 'it came out to ask');
+
+    await _tap(tester, find.byKey(const ValueKey('tour-later')));
+    expect(_robot, findsNothing);
+    expect(_buttonDrawn(tester), isTrue);
   });
 
   testWidgets('Settings: the reading choices, then the guide, which takes the tour again from Home', (tester) async {
@@ -177,6 +241,7 @@ void main() {
       at: '/settings',
     );
     expect(find.textContaining('Your track, the app'), findsOneWidget);
+    expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('Want this tour again?'), findsOneWidget);
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
@@ -185,7 +250,6 @@ void main() {
 
     router.push(ApplicationRoutesConstants.guide);
     await _walk(tester);
-    await tester.ensureVisible(find.byKey(const ValueKey('guide-replay-tour')));
     await _tap(tester, find.byKey(const ValueKey('guide-replay-tour')));
 
     expect(router.state.uri.path, '/');
@@ -197,7 +261,7 @@ void main() {
     await _pump(tester, record: const TourRecord(guiding: true), reduced: true);
 
     final head = _spot(tester, TourSpots.homeHead);
-    expect(tester.getRect(_robot).top, closeTo(head.bottom - TourLayer.robotSize / 3, 1));
+    expect(tester.getRect(_robot).top, closeTo(head.bottom - TourLayer.robotSize / 5, 1));
   });
 
   testWidgets('a screen reader hears only the Apprentice while it speaks', (tester) async {

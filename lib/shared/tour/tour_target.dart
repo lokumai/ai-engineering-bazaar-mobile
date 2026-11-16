@@ -35,6 +35,23 @@ abstract final class TourSpots {
 
   /// Settings' way to the guide, where the tour is taken again.
   static const settingsGuide = 'settings.guide';
+
+  /// The Apprentice's floating button: where it comes out of for the tour, and goes back into after it.
+  static const assistant = 'shell.assistant';
+}
+
+/// Whether the Apprentice is out of its floating button, walking on the tour: the button is left empty meanwhile, so
+/// the reader never sees two of it (the owner, 2026-11-16).
+class TourRobotOut extends InheritedWidget {
+  const TourRobotOut({super.key, required this.out, required super.child});
+
+  final bool out;
+
+  /// Whether it is out now; false with no tour over [context].
+  static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TourRobotOut>()?.out ?? false;
+
+  @override
+  bool updateShouldNotify(TourRobotOut oldWidget) => oldWidget.out != out;
 }
 
 /// Marks [child] as the place [spot] names, for the tour to find it with [TourTarget.contextOf]. The one drawn last

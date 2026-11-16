@@ -12,10 +12,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The Apprentice's tour over the app (plan 11.3, the owner, 2026-11-16), which the app lays over its shell.
 ///
-/// On a first run, once Welcome is over, the Apprentice comes onto Home and asks whether to show the reader around.
-/// Said yes, the page dims but for one place at a time, and the Apprentice walks to it and says in a bubble what it is,
-/// with Next and Skip and how far along it is; each tab's first page is shown the first time it is opened, until the
-/// reader has seen it or skipped it. Settings' guide takes the tour again.
+/// On a first run, once Welcome is over, the Apprentice comes out of its floating button onto Home and asks whether to
+/// show the reader around. Said yes, the page dims but for one place at a time, ringed in gold, and the Apprentice
+/// walks to it and says in a speech bubble what it is, with Next and Skip and dots for how far along it is; each tab's
+/// first page is shown the first time it is opened. Skip ends the whole tour; Settings' guide takes it again. Done, the
+/// Apprentice walks back into its button, which is left empty while it is out ([TourRobotOut]).
 ///
 /// The places are the [TourTarget]s the pages mark, found by name, so no feature imports another; one not on the
 /// screen, such as the band with every module completed, is passed over.
@@ -29,7 +30,7 @@ class TourLayer extends StatefulWidget {
   final Widget robot;
   final Widget child;
 
-  /// The robot's width and height.
+  /// The robot's width and height, its floating button's.
   static const double robotSize = 58;
 
   /// How long a page is left to settle, its content read and laid out, before the tour points into it.
@@ -38,12 +39,21 @@ class TourLayer extends StatefulWidget {
   /// How long the Apprentice takes to walk from one place to the next.
   static const Duration walk = Duration(milliseconds: 650);
 
+  /// The gap between the robot and its bubble, which the bubble's tail crosses.
+  static const double bubbleGap = 12;
+
   @override
   State<TourLayer> createState() => _TourLayerState();
 }
 
 class _TourLayerState extends State<TourLayer> {
   final _layer = GlobalKey();
+
+  /// Where the robot stands while it asks, in the question's column.
+  final _seat = GlobalKey();
+
+  /// The bubble, for the robot to stand on it when it lies over the foot of a place filling the screen.
+  final _bubble = GlobalKey();
 
   /// The page being shown, and the places on it to point at, in order.
   TourPage? _page;
@@ -53,14 +63,22 @@ class _TourLayerState extends State<TourLayer> {
   /// The place pointed at, in the layer's coordinates; null while the Apprentice is on its way.
   Rect? _hole;
 
-  /// Where the robot stands; null before it first comes on.
+  /// Where the robot stands; null while it is in its button.
   Offset? _robotAt;
 
+  /// Whether the robot is walking back into its button.
+  bool _leaving = false;
+
+  /// Whether the question was up at the last build, to tell when it is answered.
+  bool _wasAsking = false;
+
   Timer? _settling;
+  Timer? _home;
 
   @override
   void dispose() {
     _settling?.cancel();
+    _home?.cancel();
     super.dispose();
   }
 
@@ -74,10 +92,74 @@ class _TourLayerState extends State<TourLayer> {
   void _stop() {
     _settling?.cancel();
     _settling = null;
+    _home?.cancel();
+    _home = null;
     _page = null;
     _spots = const [];
     _hole = null;
     _robotAt = null;
+    _leaving = false;
+  }
+
+  RenderBox? get _layerBox => _layer.currentContext?.findRenderObject() as RenderBox?;
+
+  /// The rect of [context]'s box in the layer, if it is laid out.
+  Rect? _rectOf(BuildContext? context) {
+    final layer = _layerBox;
+    final box = context?.findRenderObject() as RenderBox?;
+    if (layer == null || box == null || !box.attached || !box.hasSize) return null;
+    return box.localToGlobal(Offset.zero, ancestor: layer) & box.size;
+  }
+
+  /// Where the robot's button is: where it comes out of and goes back into. With the button hidden in Settings, or on
+  /// a page without it, the corner the button stands in at first.
+  Offset _button(Size size) {
+    if (_rectOf(TourTarget.contextOf(TourSpots.assistant)) case final rect?) return rect.topLeft;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return Offset(rtl ? 16 : size.width - TourLayer.robotSize - 16, size.height - 160);
+  }
+
+  /// The robot comes out of its button and walks to where [to] says, a frame later so it is seen to walk.
+  void _comeOut(Offset? Function(Size size) to) {
+    final layer = _layerBox;
+    if (layer == null) return;
+    setState(() => _robotAt = _button(layer.size));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _leaving) return;
+      if (to(layer.size) case final at?) setState(() => _robotAt = at);
+    });
+  }
+
+  /// The robot walks back into its button; there, the button is drawn again.
+  void _leave() {
+    final layer = _layerBox;
+    setState(() {
+      _settling?.cancel();
+      _settling = null;
+      _page = null;
+      _spots = const [];
+      _hole = null;
+      if (_robotAt == null || layer == null) return;
+      _leaving = true;
+      _robotAt = _button(layer.size);
+    });
+    if (!_leaving) return;
+    _home?.cancel();
+    _home = Timer(MediaQuery.disableAnimationsOf(context) ? Duration.zero : TourLayer.walk, () {
+      if (!mounted) return;
+      setState(() {
+        _home = null;
+        _leaving = false;
+        _robotAt = null;
+      });
+    });
+  }
+
+  /// The question was answered: said yes, the robot waits where it is for Home to settle; said no, it goes back.
+  void _answered() {
+    if (!mounted) return;
+    if (context.read<TourCubit>().state?.guiding ?? false) return;
+    _leave();
   }
 
   /// Shows [page] once it has settled, if it is still due then.
@@ -92,9 +174,13 @@ class _TourLayerState extends State<TourLayer> {
       ];
       if (spots.isEmpty) {
         unawaited(context.read<TourCubit>().shown(page));
+        if (_robotAt != null) _leave();
         return;
       }
+      _home?.cancel();
       setState(() {
+        _home = null;
+        _leaving = false;
         _page = page;
         _spots = spots;
         _step = 0;
@@ -119,72 +205,78 @@ class _TourLayerState extends State<TourLayer> {
       );
     }
     if (!mounted || _page != page || !target.mounted) return;
-    final layer = _layer.currentContext?.findRenderObject() as RenderBox?;
-    final box = target.findRenderObject() as RenderBox?;
-    if (layer == null || box == null || !box.hasSize) return _next();
-    final topLeft = box.localToGlobal(Offset.zero, ancestor: layer);
-    final whole = Offset.zero & layer.size;
-    final hole = (topLeft & box.size).intersect(whole);
+    final layer = _layerBox;
+    final rect = _rectOf(target);
+    if (layer == null || rect == null) return _next();
+    final hole = rect.intersect(Offset.zero & layer.size);
     if (hole.isEmpty) return _next();
-    setState(() {
-      _hole = hole;
-      _robotAt ??= _start(layer.size);
-    });
-    // The robot comes on where it stands, then walks.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _hole == hole) setState(() => _robotAt = _stand(hole, layer.size));
-    });
+    setState(() => _hole = hole);
+    if (_robotAt == null) {
+      _comeOut((size) => _hole == hole ? _stand(hole, size) : null);
+    } else {
+      setState(() => _robotAt = _stand(hole, layer.size));
+    }
   }
 
-  /// Keeps the hole on its place when the page moves under it, as when the day's card comes in above it.
+  /// Keeps the hole on its place when the page moves under it, as when the day's card comes in above it, and the robot
+  /// on its bubble when the bubble lies over the place.
   void _follow() {
     final hole = _hole;
     if (!mounted || _page == null || hole == null) return;
-    final target = TourTarget.contextOf(_spots[_step]);
-    final layer = _layer.currentContext?.findRenderObject() as RenderBox?;
-    final box = target?.findRenderObject() as RenderBox?;
-    if (layer == null || box == null || !box.attached || !box.hasSize) return;
-    final now = (box.localToGlobal(Offset.zero, ancestor: layer) & box.size).intersect(Offset.zero & layer.size);
+    final layer = _layerBox;
+    final rect = _rectOf(TourTarget.contextOf(_spots[_step]));
+    if (layer == null || rect == null) return;
+    final now = rect.intersect(Offset.zero & layer.size);
     final moved = (now.topLeft - hole.topLeft).distance + (now.bottomRight - hole.bottomRight).distance;
-    if (now.isEmpty || moved < 0.5) return;
-    setState(() {
-      _hole = now;
-      _robotAt = _stand(now, layer.size);
-    });
+    if (!now.isEmpty && moved >= 0.5) {
+      setState(() {
+        _hole = now;
+        _robotAt = _stand(now, layer.size);
+      });
+      return;
+    }
+    if (_side(hole, layer.size) != _Side.over) return;
+    final at = _robotAt;
+    final bubble = _rectOf(_bubble.currentContext);
+    if (at == null || bubble == null) return;
+    final y = bubble.top - TourLayer.bubbleGap - TourLayer.robotSize;
+    if ((at.dy - y).abs() >= 0.5) setState(() => _robotAt = Offset(at.dx, y));
   }
 
-  /// Where the robot first comes on: the corner of the floating button, over the navigation.
-  Offset _start(Size size) {
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    final y = size.height - 160;
-    return Offset(rtl ? 16 : size.width - TourLayer.robotSize - 16, y);
-  }
+  /// How much of the robot stands over the place it points at: its foot or its head, little of the place hidden.
+  static const double _perch = TourLayer.robotSize / 5;
 
   /// Where the robot stands beside [hole]: on its lower edge when the bubble goes under it, on its upper edge when
-  /// the bubble goes over it, at its start side.
+  /// the bubble goes over it, at its start side; at its end side on Home's head, where the whole robot already stands
+  /// at the start, so the two are not stacked.
   Offset _stand(Rect hole, Size size) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    final double x = (rtl ? hole.right - 8 - TourLayer.robotSize : hole.left + 8).clamp(
+    final atStart = _step >= _spots.length || _spots[_step] != TourSpots.homeHead;
+    final double x = (rtl == atStart ? hole.right - 8 - TourLayer.robotSize : hole.left + 8).clamp(
       16.0,
       math.max(16.0, size.width - TourLayer.robotSize - 16),
     );
     final double y = switch (_side(hole, size)) {
-      _Side.below => hole.bottom - TourLayer.robotSize / 3,
-      _Side.above => hole.top - TourLayer.robotSize * 2 / 3,
-      _Side.over => size.height - 16 - _overBubble - TourLayer.robotSize * 2 / 3,
+      _Side.below => hole.bottom - _perch,
+      _Side.above => hole.top - TourLayer.robotSize + _perch,
+      _Side.over => size.height - 16 - _overBubble - TourLayer.bubbleGap - TourLayer.robotSize,
     };
     return Offset(x, y.clamp(8.0, math.max(8.0, size.height - TourLayer.robotSize - 8)));
   }
 
-  /// The room the bubble is given under or over a place, at the most.
-  static const double _bubbleRoom = 220;
+  /// Where the robot stands while it asks: on its seat in the question's column.
+  Offset? _seated(Size size) => _rectOf(_seat.currentContext)?.topLeft;
 
-  /// About how tall a bubble is, for the robot to stand on it when it lies over the foot of a place filling the screen.
-  static const double _overBubble = 150;
+  /// The room the bubble is given under or over a place, at the most.
+  static const double _bubbleRoom = 230;
+
+  /// About how tall a bubble is, for where the robot first heads when the bubble lies over the foot of a place filling
+  /// the screen; [_follow] then stands it on the bubble as laid out.
+  static const double _overBubble = 170;
 
   static _Side _side(Rect hole, Size size) {
-    if (size.height - hole.bottom >= _bubbleRoom + TourLayer.robotSize / 2) return _Side.below;
-    if (hole.top >= _bubbleRoom + TourLayer.robotSize) return _Side.above;
+    if (size.height - hole.bottom >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.below;
+    if (hole.top >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.above;
     return _Side.over;
   }
 
@@ -192,36 +284,63 @@ class _TourLayerState extends State<TourLayer> {
     final page = _page;
     if (page == null) return;
     if (_step + 1 >= _spots.length) {
-      _finish();
+      unawaited(context.read<TourCubit>().shown(page));
+      _leave();
       return;
     }
     setState(() => _step++);
     unawaited(_point());
   }
 
-  void _finish() {
-    final page = _page;
-    setState(_stop);
-    if (page != null) unawaited(context.read<TourCubit>().shown(page));
+  /// Skip: the tour ends, on every tab (the owner, 2026-11-16).
+  void _skip() {
+    unawaited(context.read<TourCubit>().end());
+    _leave();
   }
 
   @override
   Widget build(BuildContext context) {
     final record = context.watch<TourCubit>().state;
     final asking = (record?.asking ?? false) && widget.location == BazaarPaths.home;
+    if (asking && _robotAt == null && !_leaving) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _robotAt == null) _comeOut(_seated);
+      });
+    }
+    if (_wasAsking && !asking) WidgetsBinding.instance.addPostFrameCallback((_) => _answered());
+    _wasAsking = asking;
     final page = TourPage.at(widget.location);
     if (!asking && page != null && _page == null && context.read<TourCubit>().due(page)) _schedule(page);
     final showing = _page != null;
     if (showing && _hole != null) WidgetsBinding.instance.addPostFrameCallback((_) => _follow());
+    // The robot is out, between its question and the first place, or walking home: the page still waits for it.
+    final waiting = !asking && !showing && _robotAt != null && !_leaving;
+    final robotAt = _robotAt;
+    final reduced = MediaQuery.disableAnimationsOf(context);
     return Stack(
       key: _layer,
       children: [
-        // While the Apprentice speaks, a screen reader hears it alone.
-        ExcludeSemantics(excluding: asking || showing, child: widget.child),
+        // While the Apprentice speaks, a screen reader hears it alone; while it is out, its button is empty.
+        TourRobotOut(
+          out: asking || robotAt != null,
+          child: ExcludeSemantics(excluding: asking || showing, child: widget.child),
+        ),
         if (asking)
-          Positioned.fill(child: _Asking(robot: widget.robot))
+          Positioned.fill(child: _Asking(seat: _seat))
         else if (showing)
-          Positioned.fill(child: BlockSemantics(child: _pointing(context))),
+          Positioned.fill(child: BlockSemantics(child: _pointing(context)))
+        else if (waiting)
+          const Positioned.fill(child: _Scrim(hole: null)),
+        if (robotAt != null)
+          AnimatedPositioned(
+            duration: reduced ? Duration.zero : TourLayer.walk,
+            curve: Curves.easeInOut,
+            left: robotAt.dx,
+            top: robotAt.dy,
+            width: TourLayer.robotSize,
+            height: TourLayer.robotSize,
+            child: _Hop(key: ValueKey(robotAt), hop: !reduced, child: widget.robot),
+          ),
       ],
     );
   }
@@ -230,53 +349,49 @@ class _TourLayerState extends State<TourLayer> {
     final s = S.of(context);
     final hole = _hole;
     final robotAt = _robotAt;
-    final reduced = MediaQuery.disableAnimationsOf(context);
     final last = _step + 1 >= _spots.length;
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
         final side = hole == null ? _Side.over : _side(hole, size);
-        final bubble = _Bubble(
-          key: ValueKey(_spots[_step]),
-          text: _textOf(s, _spots[_step]),
-          counter: s.tour_step(_step + 1, _spots.length),
-          actions: [
-            TextButton(key: const ValueKey('tour-skip'), onPressed: _finish, child: Text(s.tour_skip)),
-            FilledButton(
-              key: const ValueKey('tour-next'),
-              onPressed: _next,
-              child: Text(last ? s.tour_done : s.tour_next),
-            ),
-          ],
-        );
         final width = math.min(size.width - 32, 440.0);
+        final left = (size.width - width) / 2;
+        final gap = TourLayer.robotSize - _perch + TourLayer.bubbleGap;
         return Stack(
           children: [
             Positioned.fill(child: _Scrim(hole: hole)),
             if (hole != null && robotAt != null)
               Positioned(
-                left: (size.width - width) / 2,
+                left: left,
                 width: width,
                 top: switch (side) {
-                  _Side.below => hole.bottom + TourLayer.robotSize * 2 / 3 + 4,
+                  _Side.below => hole.bottom + gap,
                   _ => null,
                 },
                 bottom: switch (side) {
                   _Side.below => null,
-                  _Side.above => size.height - hole.top + TourLayer.robotSize * 2 / 3 + 4,
+                  _Side.above => size.height - hole.top + gap,
                   _Side.over => 16,
                 },
-                child: bubble,
-              ),
-            if (robotAt != null)
-              AnimatedPositioned(
-                duration: reduced ? Duration.zero : TourLayer.walk,
-                curve: Curves.easeInOut,
-                left: robotAt.dx,
-                top: robotAt.dy,
-                width: TourLayer.robotSize,
-                height: TourLayer.robotSize,
-                child: _Hop(key: ValueKey((_step, robotAt)), hop: !reduced, child: widget.robot),
+                child: _Bubble(
+                  key: _bubble,
+                  text: _textOf(s, _spots[_step]),
+                  step: _step,
+                  steps: _spots.length,
+                  // The tail reaches for the robot, under it or over it.
+                  tailX: robotAt.dx + TourLayer.robotSize / 2 - left,
+                  tailUp: side != _Side.above,
+                  actions: [
+                    TextButton(key: const ValueKey('tour-skip'), onPressed: _skip, child: Text(s.tour_skip)),
+                    FilledButton.icon(
+                      key: const ValueKey('tour-next'),
+                      onPressed: _next,
+                      iconAlignment: IconAlignment.end,
+                      icon: Icon(last ? Icons.check : Icons.arrow_forward, size: 18),
+                      label: Text(last ? s.tour_done : s.tour_next),
+                    ),
+                  ],
+                ),
               ),
           ],
         );
@@ -303,17 +418,23 @@ class _TourLayerState extends State<TourLayer> {
 /// Where a place's bubble goes: under it, over it, or over its foot when it fills the screen.
 enum _Side { below, above, over }
 
-/// The Apprentice's question on a first run's Home: the page dims, it comes on in the middle and asks.
-class _Asking extends StatelessWidget {
-  const _Asking({required this.robot});
+/// The gold the places are ringed in, the Apprentice's badge's.
+const _gold = Color(0xffddb46a);
 
-  final Widget robot;
+/// The Apprentice's question on a first run's Home: the page dims, it comes out onto its [seat] in the middle and asks.
+class _Asking extends StatelessWidget {
+  const _Asking({required this.seat});
+
+  final GlobalKey seat;
+
+  /// How far the seat is from the bubble's start edge.
+  static const double _inset = 12;
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final cubit = context.read<TourCubit>();
-    final reduced = MediaQuery.disableAnimationsOf(context);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
     return BlockSemantics(
       child: Stack(
         children: [
@@ -323,34 +444,38 @@ class _Asking extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 12),
-                      child: SizedBox.square(
-                        dimension: TourLayer.robotSize,
-                        child: _Hop(hop: !reduced, child: robot),
-                      ),
-                    ),
-                    _Bubble(
-                      key: const ValueKey('tour-asking'),
-                      text: s.tour_hello,
-                      actions: [
-                        TextButton(
-                          key: const ValueKey('tour-later'),
-                          onPressed: cubit.decline,
-                          child: Text(s.tour_later),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final middle = _inset + TourLayer.robotSize / 2;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(start: _inset, bottom: TourLayer.bubbleGap),
+                          child: SizedBox.square(key: seat, dimension: TourLayer.robotSize),
                         ),
-                        FilledButton(
-                          key: const ValueKey('tour-accept'),
-                          onPressed: cubit.accept,
-                          child: Text(s.tour_show_me),
+                        _Bubble(
+                          key: const ValueKey('tour-asking'),
+                          text: s.tour_hello,
+                          tailX: rtl ? constraints.maxWidth - middle : middle,
+                          tailUp: true,
+                          actions: [
+                            TextButton(
+                              key: const ValueKey('tour-later'),
+                              onPressed: cubit.decline,
+                              child: Text(s.tour_later),
+                            ),
+                            FilledButton(
+                              key: const ValueKey('tour-accept'),
+                              onPressed: cubit.accept,
+                              child: Text(s.tour_show_me),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -361,40 +486,63 @@ class _Asking extends StatelessWidget {
   }
 }
 
-/// What the Apprentice says, with what the reader can answer.
+/// What the Apprentice says, in a speech bubble whose tail reaches for it, with its name, what the reader can answer
+/// and, on a page's places, a dot for each.
 class _Bubble extends StatelessWidget {
-  const _Bubble({super.key, required this.text, required this.actions, this.counter});
+  const _Bubble({
+    super.key,
+    required this.text,
+    required this.actions,
+    required this.tailX,
+    required this.tailUp,
+    this.step,
+    this.steps,
+  });
 
   final String text;
   final List<Widget> actions;
 
-  /// How far along the page's places it is, as `1 / 4`.
-  final String? counter;
+  /// Where the tail leaves the bubble, from its left edge, and whether it points up.
+  final double tailX;
+  final bool tailUp;
+
+  /// The place being shown and how many the page has; no dots while null.
+  final int? step;
+  final int? steps;
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final colors = context.bazaarColors;
     final textTheme = Theme.of(context).textTheme;
-    final counter = this.counter;
+    final (step, steps) = (this.step, this.steps);
     return Material(
       color: colors.surfaceRaised,
-      elevation: 6,
-      shadowColor: const Color(0x66000000),
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      elevation: 3,
+      shadowColor: const Color(0x40000000),
+      shape: _BubbleShape(
+        tailX: tailX,
+        up: tailUp,
+        side: BorderSide(color: colors.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 12, 8),
+        padding: const EdgeInsets.fromLTRB(18, 14, 12, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ExcludeSemantics(
+              child: Text(s.pocket_title, style: displayFace(textTheme.titleSmall)?.copyWith(color: colors.primary)),
+            ),
+            const SizedBox(height: 4),
             Semantics(
               liveRegion: true,
-              child: Text(text, style: textTheme.bodyMedium?.copyWith(color: colors.onSurface)),
+              child: Text(text, style: textTheme.bodyLarge?.copyWith(color: colors.onSurface, height: 1.4)),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               children: [
-                if (counter != null) Text(counter, style: textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted)),
+                if (step != null && steps != null) _Dots(step: step, steps: steps),
                 Expanded(
                   child: Wrap(
                     alignment: WrapAlignment.end,
@@ -412,11 +560,121 @@ class _Bubble extends StatelessWidget {
   }
 }
 
-/// The page dimmed, but for [hole]; it takes every touch, so the page waits while the Apprentice speaks.
-class _Scrim extends StatelessWidget {
+/// A dot for each of a page's places, the one shown long and filled; a screen reader hears `2 / 4`.
+class _Dots extends StatelessWidget {
+  const _Dots({required this.step, required this.steps});
+
+  final int step;
+  final int steps;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      label: S.of(context).tour_step(step + 1, steps),
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 5,
+        children: [
+          for (var i = 0; i < steps; i++)
+            AnimatedContainer(
+              duration: reduced ? Duration.zero : const Duration(milliseconds: 250),
+              width: i == step ? 18 : 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: i <= step ? colors.primary : colors.line,
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A rounded bubble with a tail at [tailX] from its left edge, up out of its top or down out of its foot.
+class _BubbleShape extends ShapeBorder {
+  const _BubbleShape({required this.tailX, required this.up, this.side = BorderSide.none});
+
+  final double tailX;
+  final bool up;
+  final BorderSide side;
+
+  static const double _radius = 18;
+  static const double _tail = 11;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  Path _path(Rect rect) {
+    final x = (rect.left + tailX).clamp(
+      rect.left + _radius + _tail,
+      math.max(rect.left + _radius + _tail, rect.right - _radius - _tail),
+    );
+    final edge = up ? rect.top : rect.bottom;
+    final tip = up ? edge - _tail : edge + _tail;
+    // The tip leans a little toward the start, as a drawn bubble's does.
+    final tail = Path()
+      ..moveTo(x - _tail, edge)
+      ..quadraticBezierTo(x - 2, edge, x - 3, tip)
+      ..quadraticBezierTo(x + 3, edge, x + _tail, edge)
+      ..close();
+    return Path.combine(
+      PathOperation.union,
+      Path()..addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(_radius))),
+      tail,
+    );
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => _path(rect);
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => _path(rect);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    if (side.style == BorderStyle.none) return;
+    canvas.drawPath(_path(rect), side.toPaint());
+  }
+
+  @override
+  ShapeBorder scale(double t) => _BubbleShape(tailX: tailX * t, up: up, side: side.scale(t));
+}
+
+/// The page dimmed, but for [hole], which a gold ring breathes around; it takes every touch, so the page waits while
+/// the Apprentice speaks.
+class _Scrim extends StatefulWidget {
   const _Scrim({required this.hole});
 
   final Rect? hole;
+
+  @override
+  State<_Scrim> createState() => _ScrimState();
+}
+
+class _ScrimState extends State<_Scrim> with SingleTickerProviderStateMixin {
+  late final AnimationController _breath = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _breath
+        ..stop()
+        ..value = 1;
+    } else if (!_breath.isAnimating) {
+      unawaited(_breath.repeat(reverse: true));
+    }
+  }
+
+  @override
+  void dispose() {
+    _breath.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -424,26 +682,44 @@ class _Scrim extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {},
       child: ExcludeSemantics(
-        child: CustomPaint(key: const ValueKey('tour-scrim'), painter: _ScrimPainter(hole)),
+        child: CustomPaint(key: const ValueKey('tour-scrim'), painter: _ScrimPainter(widget.hole, _breath)),
       ),
     );
   }
 }
 
 class _ScrimPainter extends CustomPainter {
-  _ScrimPainter(this.hole);
+  _ScrimPainter(this.hole, this.breath) : super(repaint: breath);
 
   final Rect? hole;
+  final Animation<double> breath;
 
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path()
       ..fillType = PathFillType.evenOdd
       ..addRect(Offset.zero & size);
-    if (hole case final hole?) {
-      path.addRRect(RRect.fromRectAndRadius(hole.inflate(6), const Radius.circular(14)));
-    }
-    canvas.drawPath(path, Paint()..color = const Color(0x8C000000));
+    final hole = this.hole;
+    final ring = hole == null ? null : RRect.fromRectAndRadius(hole.inflate(6), const Radius.circular(14));
+    if (ring != null) path.addRRect(ring);
+    canvas.drawPath(path, Paint()..color = const Color(0x99000000));
+    if (ring == null) return;
+    final t = Curves.easeInOut.transform(breath.value);
+    canvas
+      ..drawRRect(
+        ring.inflate(2 + 3 * t),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 6
+          ..color = _gold.withValues(alpha: 0.12 + 0.18 * t),
+      )
+      ..drawRRect(
+        ring,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5
+          ..color = _gold.withValues(alpha: 0.7 + 0.3 * t),
+      );
   }
 
   @override

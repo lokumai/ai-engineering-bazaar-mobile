@@ -603,7 +603,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Your track, the app\'s language and its look are chosen here.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
-    "tour_skip": MessageLookupByLibrary.simpleMessage("Skip"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
     "tour_step": m54,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I\'ll show you what it does.",

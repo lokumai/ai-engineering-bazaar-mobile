@@ -610,7 +610,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "مسیر، زبان برنامه و ظاهر آن را اینجا انتخاب می‌کنید.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
-    "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
     "tour_step": m54,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، آزمون و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",

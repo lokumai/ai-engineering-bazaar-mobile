@@ -364,7 +364,17 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                             size: BazaarShell.assistantSize,
                             at: _assistantAt,
                             onRest: (at) => _assistantAt = at,
-                            child: widget.assistant!,
+                            // Where the Apprentice comes out of for its tour, left empty while it walks (plan 11.3).
+                            child: TourTarget(
+                              spot: TourSpots.assistant,
+                              child: Visibility(
+                                visible: !TourRobotOut.of(context),
+                                maintainState: true,
+                                maintainAnimation: true,
+                                maintainSize: true,
+                                child: widget.assistant!,
+                              ),
+                            ),
                           ),
                         ),
                     ],
