@@ -78,7 +78,7 @@ lib/
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's camel, Quiz, Settings;
+                                                with small names (Home, Catalog, the Caravan's horse, Quiz, Settings;
                                                 shared/design_system/widgets/caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
@@ -122,7 +122,8 @@ lib/
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
     utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
   features/
-    home/                                       Home at `/`: continue card, the modules after it, practice, offline note
+    home/                                       Home at `/`: the modules later on, practice, offline note; the band over the
+                                                navigation with the module to read now (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views

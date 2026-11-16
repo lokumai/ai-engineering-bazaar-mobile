@@ -54,6 +54,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The module to read now, the one left half read or else the next one, is in a band over the bottom navigation on Home, the catalog and the Quiz tab, under the thumb; Home no longer has a card at its head, and After that is Later on.
+- The catalog's search folds a module with more than one hit to its best one, unfolded with a tap, and can be kept to some levels.
+- Asked to chat while asleep, the Apprentice wakes and answers at once.
+- The Caravan tab's mark is a horse's head.
+
 - The opening is the pocket model's robot in what it wears, on the ground of the light or dark look the reader chose: it pops up and waves, sends hearts, gets stars or hearts for eyes, hops its hat, wiggles, spins, bounces or hums, at random, then shrinks away as the app opens out of a circle where it stood, about a second in all. The launch screens are cream, the default icon's ground.
 - The Settings tab opens on Settings itself whenever it is tapped, not on the page of it left.
 - The launch screen and the app's first frames are on the page colour of the look the reader chose, light or dark, not on the app icon's ground; before a choice, dark, whatever the phone's theme.
