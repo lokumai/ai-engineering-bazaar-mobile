@@ -1,9 +1,13 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
@@ -11,16 +15,18 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../support/catalog_fixture_index.dart';
 import '../../../../support/content_builders.dart';
 
 /// The catalog's search (plan 7.1): every module document of the fixture reads as one module with an opening and a
 /// section on retrieval.
-MockContentRepository _repository() {
+MockContentRepository _repository({String Function()? opening}) {
   final repository = MockContentRepository();
   when(() => repository.readModuleDoc(any())).thenAnswer((invocation) async {
     final path = invocation.positionalArguments.single as String;
@@ -28,9 +34,9 @@ MockContentRepository _repository() {
     return testDoc(
       key: key,
       title: 'Module $key',
-      body: const [
-        ParagraphBlock(inlines: [TextInline(text: 'An opening about agents.')], lead: false),
-        HeadingBlock(
+      body: [
+        ParagraphBlock(inlines: [TextInline(text: opening?.call() ?? 'An opening about agents.')], lead: false),
+        const HeadingBlock(
           depth: 2,
           id: 'retrieval',
           mark: null,
@@ -160,6 +166,41 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.testTextInput.isVisible, isFalse, reason: 'a drag through the hits');
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'agent', reason: 'the words stay');
+  });
+
+  // The content downloaded while the app was open was not searched until the app started again.
+  testWidgets('content updated while the app is open is searched in its new text', (tester) async {
+    var opening = 'An opening about agents.';
+    final content = MockContentBloc();
+    final states = StreamController<ContentState>();
+    addTearDown(states.close);
+    ContentReady ready(String version) => ContentReady(
+      index: catalogFixtureIndex(contentVersion: version),
+      origin: ContentOrigin.bundled,
+      notice: null,
+      refresh: const RefreshIdle(),
+    );
+    whenListen(content, states.stream, initialState: ready('a' * 64));
+    final router = AppRouterFactory(initialLocation: '/sheets').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      bazaarTestApp(
+        router: router,
+        content: content,
+        repository: _repository(opening: () => opening),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _type(tester, 'zebra');
+    expect(find.text('Nothing found for “zebra”.'), findsOneWidget);
+
+    opening = 'An opening about a zebra.';
+    states.add(ready('b' * 64));
+    await tester.pumpAndSettle();
+    await tester.pump(CatalogSearchField.settle);
+    await tester.pumpAndSettle();
+    expect(find.text('Nothing found for “zebra”.'), findsNothing);
+    expect(find.byType(CatalogSearchResults), findsOneWidget);
   });
 
   testWidgets('words that match nothing say so, and the clear button brings the levels back', (tester) async {

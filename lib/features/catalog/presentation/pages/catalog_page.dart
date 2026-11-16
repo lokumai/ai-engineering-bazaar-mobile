@@ -51,8 +51,9 @@ class CatalogPage extends StatelessWidget {
     final rows = catalogRows(index, track, view, language: language);
     final next = view == null ? null : nextUnsigned(view, curriculum);
     return BlocProvider(
-      // A new search for another track or language: its index holds one of each.
-      key: ValueKey((track, language)),
+      // A new search for another track or language, its index holding one of each, and for new content downloaded
+      // while the app is open, which names another version.
+      key: ValueKey((track, language, index.contentVersion)),
       // The words kept from the last time the catalog was shown are searched again, so a tab left and come back to
       // finds its search, and a new track or language searches them in its own text.
       create: (context) {
