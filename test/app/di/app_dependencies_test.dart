@@ -351,6 +351,25 @@ void main() {
     expect(await store.load(), isNull, reason: 'a file it cannot read starts a fresh model');
   });
 
+  test('createPocketModelStore keeps the temperature the reader set beside the model', () async {
+    final root = Directory.systemTemp.createTempSync('pocket_temperature_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    expect(await dependencies.createPocketModelStore().loadTemperature(), isNull);
+    await dependencies.createPocketModelStore().saveTemperature(1.4);
+    expect(await dependencies.createPocketModelStore().loadTemperature(), 1.4, reason: 'kept for the next start');
+    expect(File('${root.path}/toy/temperature.txt').existsSync(), isTrue);
+
+    File('${root.path}/toy/temperature.txt').writeAsStringSync('hot');
+    expect(await dependencies.createPocketModelStore().loadTemperature(), isNull, reason: 'not a number');
+    File('${root.path}/toy/temperature.txt').writeAsStringSync('9');
+    expect(await dependencies.createPocketModelStore().loadTemperature(), isNull, reason: 'out of its range');
+  });
+
   test('createReadingPlaceStore keeps the places in one file under the support directory (plan 1BA)', () async {
     final root = Directory.systemTemp.createTempSync('reading_place_store_test_');
     addTearDown(() => root.deleteSync(recursive: true));

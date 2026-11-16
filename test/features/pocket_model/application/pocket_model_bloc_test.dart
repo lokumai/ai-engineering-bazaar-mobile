@@ -179,6 +179,79 @@ void main() {
     });
   });
 
+  test('the temperature set is kept, and the next start begins at it', () {
+    final store = MemoryPocketModelStore();
+    run(store, (async, bloc) {
+      expect(ready(bloc).temperature, PocketModelReady.defaultTemperature, reason: 'none set yet');
+      bloc.add(const PocketModelTemperatureSet(1.5));
+      async.flushMicrotasks();
+      expect(store.temperature, 1.5);
+    });
+    run(store, (async, bloc) => expect(ready(bloc).temperature, 1.5));
+  });
+
+  // The owner, 2026-11-16: looking at a sleeping model and closing its sheet woke it.
+  test('asleep, its sheet closing leaves it asleep', () {
+    final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon.subtract(const Duration(days: 1))));
+    run(store, (async, bloc) {
+      bloc.add(const PocketModelHushed());
+      async.flushMicrotasks();
+      expect(ready(bloc).awake, isFalse);
+      expect(ready(bloc).action, PocketAction.none);
+    });
+  });
+
+  group('back from the background', () {
+    test('left awake there longer than its sleep, it has fallen asleep', () {
+      final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon));
+      run(store, (async, bloc) {
+        async.elapse(PocketModel.sleepAfter);
+        bloc.add(const PocketModelResumed());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isFalse);
+        expect(ready(bloc).action, PocketAction.none, reason: 'falling asleep is not a tap');
+      });
+    });
+
+    test('back sooner, it is still awake', () {
+      final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon));
+      run(store, (async, bloc) {
+        async.elapse(const Duration(hours: 2));
+        bloc.add(const PocketModelResumed());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isTrue);
+      });
+    });
+
+    test('woken in the night without a feed, it stays awake until its sleep has passed since then', () {
+      final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon.subtract(const Duration(days: 1))));
+      run(store, (async, bloc) {
+        bloc.add(const PocketModelPetted());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isTrue);
+
+        async.elapse(const Duration(minutes: 5));
+        bloc.add(const PocketModelResumed());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isTrue, reason: 'its last feed is old, but it was woken five minutes ago');
+
+        async.elapse(PocketModel.sleepAfter);
+        bloc.add(const PocketModelResumed());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isFalse);
+      });
+    });
+
+    test('asleep, coming back does not wake it', () {
+      final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon.subtract(const Duration(days: 1))));
+      run(store, (async, bloc) {
+        bloc.add(const PocketModelResumed());
+        async.flushMicrotasks();
+        expect(ready(bloc).awake, isFalse);
+      });
+    });
+  });
+
   test('started over, it forgets what it read and keeps level 0, awake', () {
     final store = MemoryPocketModelStore(PocketModel(tokens: 900, lastFed: noon.subtract(const Duration(days: 1))));
     run(store, (async, bloc) {

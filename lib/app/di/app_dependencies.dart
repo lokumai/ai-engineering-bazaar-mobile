@@ -113,9 +113,11 @@ class AppDependencies {
       FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
 
   /// Home's pocket model, as one file under [supportDirectory]`/toy/pocket_model.json`, apart from the record
-  /// (plan 9.2).
-  IPocketModelStore createPocketModelStore() =>
-      FilePocketModelStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'));
+  /// (plan 9.2), and the temperature the reader set beside it in `/toy/temperature.txt`.
+  IPocketModelStore createPocketModelStore() => FilePocketModelStore(
+    FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'),
+    temperature: FileTextStore(baseDirectory: supportDirectory, path: 'toy/temperature.txt'),
+  );
 
   /// The robot's outfit, as one file under [supportDirectory]`/toy/outfit.json`, apart from the record (plan 9.9).
   IRobotOutfitStore createRobotOutfitStore() =>
@@ -152,9 +154,10 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
 
 /// The pocket model's port over one text file of the app's own.
 final class FilePocketModelStore implements IPocketModelStore {
-  const FilePocketModelStore(this._file);
+  const FilePocketModelStore(this._file, {required this._temperature});
 
   final FileTextStore _file;
+  final FileTextStore _temperature;
 
   @override
   Future<PocketModel?> load() async {
@@ -164,6 +167,15 @@ final class FilePocketModelStore implements IPocketModelStore {
 
   @override
   Future<void> save(PocketModel model) => _file.write(encodePocketModel(model));
+
+  @override
+  Future<double?> loadTemperature() async {
+    final text = await _temperature.read();
+    return text == null ? null : decodePocketTemperature(text);
+  }
+
+  @override
+  Future<void> saveTemperature(double temperature) => _temperature.write('$temperature');
 }
 
 /// The quiz scores' port over one text file of the app's own.

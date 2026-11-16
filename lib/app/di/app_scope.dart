@@ -131,12 +131,14 @@ class AppScope extends StatelessWidget {
                   content: context.read<ContentBloc>(),
                 ),
               )..add(const PocketModelStarted());
+              // Back from the background it may have fallen asleep there (the owner, 2026-11-16).
+              final lifecycle = AppLifecycleListener(onResume: () => bloc.add(const PocketModelResumed()));
               // Its stream ends when it closes, and the listening with it.
               bloc.stream.listen((state) {
                 if (state case PocketModelReady(:final model) when model.level != level.state) {
                   level.reached(model.level);
                 }
-              });
+              }, onDone: lifecycle.dispose);
               return bloc;
             },
           ),

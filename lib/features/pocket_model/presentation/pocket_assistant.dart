@@ -147,8 +147,8 @@ RobotFace robotFaceOf(PocketModelState state) {
     PocketModelReady(:final model) when model.overfitAt(now) => RobotFace.overfit,
     PocketModelReady(:final model) => switch (model.moodAt(now)) {
       PocketMood.hungry => RobotFace.hungry,
-      PocketMood.asleep => RobotFace.asleep,
-      PocketMood.newborn || PocketMood.content => RobotFace.calm,
+      // Woken and not fed since, it is awake: calm, as its card shows it.
+      PocketMood.asleep || PocketMood.newborn || PocketMood.content => RobotFace.calm,
     },
   };
 }
