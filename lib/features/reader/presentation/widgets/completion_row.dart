@@ -67,7 +67,7 @@ class CompletionRow extends StatelessWidget {
             ),
             subtitle: done
                 ? Text(
-                    s.reader_completed_on(shortDate(signedOff)),
+                    s.reader_completed_on(shortDate(signedOff, language: Localizations.localeOf(context).languageCode)),
                     style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
                   )
                 : null,

@@ -122,6 +122,7 @@ void main() {
     TargetPlatform platform = TargetPlatform.android,
     ReadingPlace? place,
     ValueChanged<ReadingPlace?>? onPlace,
+    Locale locale = const Locale('en'),
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -158,7 +159,13 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
-      bazaarTestApp(router: router, content: readyContentBloc(index), record: record ?? _record(), platform: platform),
+      bazaarTestApp(
+        router: router,
+        content: readyContentBloc(index),
+        record: record ?? _record(),
+        platform: platform,
+        locale: locale,
+      ),
     );
     await tester.pumpAndSettle();
     return router;
@@ -290,13 +297,36 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T23:59:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));
 
     expect(find.text('Completed 3 Sept 2026'), findsOneWidget);
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+  });
+
+  // The owner, 2026-11-16: in Turkish the line read "16 Nov 2026 tarihinde tamamlandı".
+  testWidgets('in Turkish the day it was completed is written with the Turkish month', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(body: [_paragraph('Body text.')]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    final record = normaliseRecord({
+      'sheets': {
+        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
+      },
+    });
+    await pumpReader(
+      tester,
+      record: _record(record: record),
+      locale: const Locale('tr'),
+    );
+
+    expect(find.text('3 Eyl 2026 tarihinde tamamlandı'), findsOneWidget);
   });
 
   testWidgets('a module completed in the other track is not complete here', (tester) async {
@@ -309,7 +339,7 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T23:59:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));
