@@ -1,5 +1,7 @@
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
@@ -75,6 +77,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
         RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
         RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),
+        RepositoryProvider<ITourStore>(create: (_) => dependencies.createTourStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -145,6 +148,11 @@ class AppScope extends StatelessWidget {
           BlocProvider<PocketButtonCubit>(
             lazy: false,
             create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),
+          ),
+          // The Apprentice's tour, which a first run's Welcome offers and the shell lays over the pages (plan 11.3).
+          BlocProvider<TourCubit>(
+            lazy: false,
+            create: (context) => TourCubit(store: context.read<ITourStore>())..load(),
           ),
           BlocProvider<LanguageCubit>(
             lazy: false,

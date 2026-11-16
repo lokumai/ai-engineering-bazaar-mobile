@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
@@ -138,6 +139,9 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IPocketButtonStore createPocketButtonStore() => MemoryPocketButtonStore();
+
+  @override
+  ITourStore createTourStore() => MemoryTourStore();
 
   @override
   IFeedbackSender createFeedbackSender() => MockFeedbackSender();

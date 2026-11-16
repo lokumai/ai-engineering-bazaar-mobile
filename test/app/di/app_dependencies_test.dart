@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
@@ -309,6 +310,22 @@ void main() {
     expect(await dependencies.createPocketButtonStore().hidden(), isTrue);
     await button.hide(hidden: false);
     expect(await button.hidden(), isFalse);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createTourStore keeps where the reader is with the tour in flags, apart from the record (plan 11.3)', () async {
+    final root = Directory.systemTemp.createTempSync('tour');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    expect(await dependencies.createTourStore().load(), const TourRecord());
+    const record = TourRecord(guiding: true, seen: {'home', 'quiz'});
+    await dependencies.createTourStore().save(const TourRecord(asking: true));
+    await dependencies.createTourStore().save(record);
+    expect(await dependencies.createTourStore().load(), record, reason: 'kept for the next start, the question gone');
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
