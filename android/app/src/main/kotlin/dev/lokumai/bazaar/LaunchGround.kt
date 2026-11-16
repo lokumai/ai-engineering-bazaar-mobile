@@ -11,7 +11,8 @@ import android.os.Build
  * choice; it is kept here for the next launch.
  *
  * Android 13 and later show the look's launch screen from the next launch ([apply]). Earlier versions always show the
- * manifest's, on the dark ground the app opens in until the reader chooses; the window then takes the look's ground
+ * manifest's, on the cream ground of the light look the app opens in until the reader chooses (the owner, 2026-11-16);
+ * the window then takes the look's ground
  * ([MainActivity.onCreate]).
  */
 object LaunchGround {
@@ -24,12 +25,12 @@ object LaunchGround {
     val grounds = mapOf("light" to R.color.ic_launcher_cream_background, "dark" to R.color.bazaar_page)
 
     /** Each look's launch screen on Android 13 and later (values-v31/styles.xml). */
-    val launchThemes = mapOf("light" to R.style.LaunchTheme_Light, "dark" to R.style.LaunchTheme)
+    val launchThemes = mapOf("light" to R.style.LaunchTheme, "dark" to R.style.LaunchTheme_Dark)
 
-    /** The look last named: dark, the app's own until the reader chooses, before the Dart side named one. */
+    /** The look last named: light, the app's own until the reader chooses, before the Dart side named one. */
     fun current(context: Context): String =
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString(KEY, null)?.takeIf { it in grounds }
-            ?: "dark"
+            ?: "light"
 
     /** The ground of the look last named. */
     fun ground(context: Context): Int = grounds.getValue(current(context))

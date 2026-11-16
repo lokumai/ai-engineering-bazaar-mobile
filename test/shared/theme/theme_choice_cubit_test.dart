@@ -53,7 +53,7 @@ final class _UnreadStore implements IThemeStore {
 }
 
 void main() {
-  test('starts dark before anything is chosen', () => expect(ThemeChoiceCubit().state, ThemeMode.dark));
+  test('starts light before anything is chosen', () => expect(ThemeChoiceCubit().state, ThemeMode.light));
 
   test('a control offers light and dark only', () {
     expect(ThemeChoiceCubit.modes, [ThemeMode.light, ThemeMode.dark]);
@@ -67,12 +67,12 @@ void main() {
 
   blocTest<ThemeChoiceCubit, ThemeMode>(
     'load makes the kept choice current',
-    build: () => ThemeChoiceCubit(store: _Store(ThemeMode.light)),
+    build: () => ThemeChoiceCubit(store: _Store(ThemeMode.dark)),
     act: (c) => c.load(),
-    expect: () => [ThemeMode.light],
+    expect: () => [ThemeMode.dark],
   );
   blocTest<ThemeChoiceCubit, ThemeMode>(
-    'load with no choice leaves it dark',
+    'load with no choice leaves it light',
     build: () => ThemeChoiceCubit(store: _Store()),
     act: (c) => c.load(),
     expect: () => <ThemeMode>[],
@@ -118,14 +118,14 @@ void main() {
       expect(ground.kept, [ThemeMode.light]);
     });
 
-    test('load names dark when nothing was chosen', () async {
+    test('load names light when nothing was chosen', () async {
       final ground = _Ground();
       final cubit = ThemeChoiceCubit(store: _Store(), ground: ground);
       addTearDown(cubit.close);
 
       await cubit.load();
 
-      expect(ground.kept, [ThemeMode.dark]);
+      expect(ground.kept, [ThemeMode.light]);
     });
 
     test('choose keeps the look, then names it', () async {

@@ -200,8 +200,8 @@ void main() {
     expect(start.bottom, lessThanOrEqualTo(852));
   });
 
-  testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
-    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+  testWidgets('the track step chooses the appearance too, Light selected first whatever the phone', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
     await tester.pumpAndSettle();
@@ -210,14 +210,14 @@ void main() {
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Phone'), findsNothing);
     expect(
-      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))),
+      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light))),
       isSemantics(isSelected: true, isButton: true),
     );
-    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
-    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark)));
+    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark)));
     await tester.pump();
 
-    expect(theme.state, ThemeMode.light);
+    expect(theme.state, ThemeMode.dark);
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {

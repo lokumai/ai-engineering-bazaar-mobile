@@ -2,18 +2,18 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// The look of the app: light or dark. Until the reader chooses, it is dark, whatever the phone's setting (owner,
-/// 2026-11-13); the reader can change it in Settings or on Welcome's first step.
+/// The look of the app: light or dark. Until the reader chooses, it is light, whatever the phone's setting (owner,
+/// 2026-11-16, dark until then); the reader can change it in Settings or on Welcome's first step.
 ///
 /// The choice is kept by the [IThemeStore], on this device and never in the record, and named to the [ILaunchGround],
 /// so the phone opens the next launch on its page colour.
 ///
 /// The boot reads the kept choice before the app's first frame and passes it as [initial], so the first frame is
-/// already in it; without it the cubit starts dark and [load] reads it.
+/// already in it; without it the cubit starts light and [load] reads it.
 final class ThemeChoiceCubit extends Cubit<ThemeMode> {
   ThemeChoiceCubit({this._store = const MemoryThemeStore(), this._ground = const NoLaunchGround(), ThemeMode? initial})
     : _read = initial != null,
-      super(initial ?? ThemeMode.dark);
+      super(initial ?? ThemeMode.light);
 
   final IThemeStore _store;
   final ILaunchGround _ground;

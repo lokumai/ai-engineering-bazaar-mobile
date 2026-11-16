@@ -66,7 +66,7 @@ class AppBootstrap {
     // default's (a few flag files; a file not read counts as no choice).
     final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.defaultIcon;
     // The chosen look too, so the first frame is on its page colour, as the launch screen was (the owner, 2026-11-15).
-    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.dark;
+    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.light;
 
     log.info('Starting app with env: {}', [config.environment.name]);
 
