@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
@@ -166,8 +167,12 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final query = widget.query;
     if (_findClosed || query == null || query.trim().isEmpty) return null;
     return _finder ??= TextFinder(query: query, lang: context.read<LanguageCubit>().state)
-      // A step to a mark moves the page: the heading it opened at is no longer held.
-      ..onStep = () => _held = null;
+      // A step to a mark moves the page: the heading it opened at is no longer held, nor the place it was left at,
+      // which a picture that loads would otherwise scroll back to.
+      ..onStep = () {
+        _held = null;
+        _moved = true;
+      };
   }
 
   void _closeFind() => setState(() {
@@ -176,7 +181,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _findClosed = true;
   });
 
-  /// Makes the first mark under the heading the module opened at the current one, once it is drawn.
+  /// Makes the first mark under the heading the module opened at the current one, once it is drawn; with no heading,
+  /// the first mark the page shows, a frame later, once the page stands where the module was left.
   void _scheduleFindStart() {
     final finder = _finder;
     if (finder == null || _findStarted) return;
@@ -184,7 +190,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _finder != finder) return;
       final fragment = widget.fragment;
-      final box = fragment == null ? null : _headingKeys[fragment]?.currentContext?.findRenderObject();
+      if (fragment == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _finder == finder) finder.startInView();
+        });
+        WidgetsBinding.instance.scheduleFrame();
+        return;
+      }
+      final box = _headingKeys[fragment]?.currentContext?.findRenderObject();
       finder.startAt(box is RenderBox && box.attached ? box.localToGlobal(Offset.zero).dy : double.negativeInfinity);
     });
   }
@@ -414,7 +427,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                             '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
                             style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
                           ),
-                        Semantics(header: true, child: Text(doc.title, style: readerTitleStyle(context))),
+                        // The title as marked text: the catalog finds a module by its title, so its words are marked.
+                        Semantics(
+                          header: true,
+                          child: InlineText(
+                            inlines: [TextInline(text: doc.title)],
+                            style: readerTitleStyle(context),
+                            onLink: (_) {},
+                          ),
+                        ),
                         if (written) ...[
                           const SizedBox(height: 8),
                           Text(
