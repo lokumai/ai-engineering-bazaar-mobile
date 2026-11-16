@@ -263,6 +263,32 @@ void main() {
     expect(_cardTitle(tester), SampleCaravan.trends('fa').first.title);
   });
 
+  testWidgets('in Persian the arrows point the way the road runs: back to the right, on to the left', (tester) async {
+    await _pump(tester, locale: const Locale('fa'));
+
+    // An icon that matches the text's direction is drawn mirrored in right to left, so a chevron's drawn way is its
+    // own way, turned once more when it mirrors.
+    bool pointsRight(String key) {
+      final icon = tester.widget<Icon>(find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(Icon)));
+      final mirrored = icon.icon!.matchTextDirection;
+      return (icon.icon == Icons.chevron_right) != mirrored;
+    }
+
+    expect(pointsRight('caravan-previous'), isTrue);
+    expect(pointsRight('caravan-next'), isFalse);
+  });
+
+  testWidgets('the end of the page scrolls clear of the Apprentice button', (tester) async {
+    await _pump(tester);
+    const hint = 'Swipe the card, drag the road or tap a stall to travel.';
+    await tester.drag(find.byType(ListView).first, const Offset(0, -4000));
+    await tester.pumpAndSettle();
+
+    final end = tester.getRect(find.text(hint));
+    final button = tester.getRect(find.byKey(const ValueKey('pocket-assistant')));
+    expect(end.bottom, lessThanOrEqualTo(button.top));
+  });
+
   testWidgets('in Turkish the trends and the period are in Turkish', (tester) async {
     await _pump(tester, locale: const Locale('tr'));
 

@@ -17,6 +17,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
@@ -125,7 +126,7 @@ class _CaravanPageState extends State<CaravanPage> {
             String titleAt(int i) => road.stops[i].trend.title;
             return ListView(
               key: const PageStorageKey('caravan'),
-              padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xxl),
+              padding: EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xxl + FloatingRoom.of(context)),
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -184,9 +185,8 @@ class _CaravanPageState extends State<CaravanPage> {
                         key: const ValueKey('caravan-previous'),
                         tooltip: s.caravan_previous,
                         onPressed: selected > 0 ? () => _select(selected - 1, count) : null,
-                        icon: Icon(
-                          Directionality.of(context) == TextDirection.rtl ? Icons.chevron_right : Icons.chevron_left,
-                        ),
+                        // The chevrons mirror themselves in right to left.
+                        icon: const Icon(Icons.chevron_left),
                       ),
                       Expanded(
                         child: Text(
@@ -199,9 +199,7 @@ class _CaravanPageState extends State<CaravanPage> {
                         key: const ValueKey('caravan-next'),
                         tooltip: s.caravan_next,
                         onPressed: selected < count - 1 ? () => _select(selected + 1, count) : null,
-                        icon: Icon(
-                          Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
-                        ),
+                        icon: const Icon(Icons.chevron_right),
                       ),
                     ],
                   ),
