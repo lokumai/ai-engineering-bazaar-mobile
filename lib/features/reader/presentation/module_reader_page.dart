@@ -151,6 +151,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// changes, as a picture loads.
   bool _moved = false;
 
+  /// Whether the reader has scrolled the page with their own hand. Until then no place is kept: a module opened at a
+  /// section from the day's card or a search hit, and only looked at, is not where the reader left off (the owner,
+  /// 2026-11-16).
+  bool _readerScrolled = false;
+
   /// A place this near the top is no place: the module opens at its top.
   static const double _topSlack = 120;
 
@@ -221,8 +226,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     if (notification case UserScrollNotification(depth: 0)) {
       _moved = true;
       _held = null;
+      _readerScrolled = true;
     }
-    if (notification case ScrollEndNotification(depth: 0, :final metrics)) _keepPlace(metrics);
+    if (notification case ScrollEndNotification(depth: 0, :final metrics) when _readerScrolled) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     if (notification is ScrollMetricsNotification) _holdHeading();

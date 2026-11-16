@@ -775,6 +775,20 @@ void main() {
       expect(scrolled(tester), greaterThan(0));
     });
 
+    // The owner, 2026-11-16: a look at the day's card or a search hit opened the module at a section and kept that as
+    // where it was left, so Continue reading went to a module only glanced at.
+    testWidgets('opened at a section, it keeps no place until the reader scrolls', (tester) async {
+      longModule();
+      final places = <ReadingPlace?>[];
+      await pumpReader(tester, fragment: 'one', onPlace: places.add);
+      expect(scrolled(tester), greaterThan(0), reason: 'it opened at the section');
+      expect(places, isEmpty, reason: 'a glance is not reading');
+
+      await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(places.last?.heading, 'one', reason: 'read on from there, it is where the module is left');
+    });
+
     testWidgets('each scroll that ends tells where the module is left, and the top is no place', (tester) async {
       longModule();
       final places = <ReadingPlace?>[];
