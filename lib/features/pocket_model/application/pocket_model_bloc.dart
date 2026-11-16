@@ -172,7 +172,7 @@ final class PocketModelReady extends PocketModelState {
 /// language model ([TinyLm]) reads, sentences it writes, and moods. The language model is rebuilt from the kept count
 /// at the start and when the app's language changes, and reads on with each feed.
 ///
-/// A model found asleep (not fed for hours) wakes on the first tap of any kind. Fed too fast it overfits: it learns
+/// A model found asleep (not fed for hours) wakes on the first tap of any kind, and asked to chat, answers as it wakes. Fed too fast it overfits: it learns
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
 /// Events run one at a time, so fast taps are counted in order and each is kept.
 final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
@@ -271,7 +271,20 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       return;
     }
     if (!ready.awake && event is! PocketModelTemperatureSet && event is! _PocketModelRecovered) {
-      emit(ready.copyWith(awake: true, action: PocketAction.woke, clearSpeech: true));
+      final woken = ready.copyWith(awake: true, action: PocketAction.woke, clearSpeech: true);
+      emit(woken);
+      // Asked to chat, it answers as it wakes: a reader who taps Chat and sees nothing said may not tap it again (plan
+      // 10.3, the owner, 2026-11-16). It says good morning when its level reaches its own talk, else what it can.
+      if (event is PocketModelAsked) {
+        final lm = _lm!;
+        final kind = lm.canTalk && ready.temperature >= cold ? 'woke' : null;
+        emit(
+          woken.copyWith(
+            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: kind),
+            action: PocketAction.spoke,
+          ),
+        );
+      }
       return;
     }
     switch (event) {

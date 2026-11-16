@@ -60,6 +60,35 @@ void main() {
     });
   });
 
+  // Plan 10.3 (the owner, 2026-11-16): Chat on a sleeping model said nothing, so a new reader would not know it talks.
+  test('asked to chat while asleep, it wakes and answers at once', () {
+    final store = MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon.subtract(const Duration(days: 1))));
+    run(store, (async, bloc) {
+      final actions = <PocketAction>[];
+      final listening = bloc.stream.listen((state) => actions.add((state as PocketModelReady).action));
+      bloc.add(const PocketModelAsked());
+      async.flushMicrotasks();
+      listening.cancel();
+
+      expect(actions, [PocketAction.woke, PocketAction.spoke], reason: 'it wakes, then speaks');
+      expect(ready(bloc).awake, isTrue);
+      expect(ready(bloc).speech?.tokens, isNotEmpty);
+    });
+  });
+
+  test('woken by Chat at a level with its own talk, it says good morning', () {
+    final woke = {for (final (_, s) in PocketCorpus.chat('en')['woke']!) s};
+    final store = MemoryPocketModelStore(
+      PocketModel(tokens: PocketModel.levels[4], lastFed: noon.subtract(const Duration(days: 1))),
+    );
+    run(store, (async, bloc) {
+      bloc.add(const PocketModelAsked());
+      async.flushMicrotasks();
+
+      expect(woke, contains(ready(bloc).speech!.tokens.join(' ')));
+    });
+  });
+
   test('a feed adds tokens and keeps them, and its model reads that many of its text', () {
     final store = MemoryPocketModelStore();
     run(store, (async, bloc) {
