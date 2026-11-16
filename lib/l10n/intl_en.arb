@@ -279,6 +279,20 @@
       }
     }
   },
+  "catalog_search_matches": "{count, plural, =1{1 match} other{{count} matches}}",
+  "@catalog_search_matches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_open_module": "Open the module",
+  "@catalog_search_open_module": {},
+  "catalog_search_all_levels": "All",
+  "@catalog_search_all_levels": {},
+  "catalog_search_levels": "Levels to search",
+  "@catalog_search_levels": {},
   "catalog_search_none": "Nothing found for “{query}”.",
   "@catalog_search_none": {
     "placeholders": {

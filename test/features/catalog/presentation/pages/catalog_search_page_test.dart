@@ -37,6 +37,13 @@ MockContentRepository _repository() {
           inlines: [TextInline(text: 'Retrieval')],
         ),
         ParagraphBlock(inlines: [TextInline(text: 'Finding the passages that answer.')], lead: false),
+        HeadingBlock(
+          depth: 2,
+          id: 'memory',
+          mark: null,
+          inlines: [TextInline(text: 'Memory')],
+        ),
+        ParagraphBlock(inlines: [TextInline(text: 'Agents keep what they read.')], lead: false),
       ],
     );
   });
@@ -168,5 +175,92 @@ void main() {
     await _type(tester, 'passages');
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  // Plan 10.1 (the owner's testers, 2026-11-16): a module with many hits filled the screen.
+  testWidgets('a module with more than one hit is folded to its best, and a tap on its head unfolds it', (
+    tester,
+  ) async {
+    final router = await _pump(tester);
+    await _type(tester, 'agents');
+
+    expect(find.text('2 matches'), findsNWidgets(6));
+    expect(find.text('An opening about agents.'), findsNWidgets(6), reason: 'the best hit of each module');
+    expect(find.text('Memory'), findsNothing);
+    expect(find.text('Open the module'), findsNothing);
+    final head = find.ancestor(of: find.textContaining('Module alpha/first'), matching: find.byType(InkWell)).first;
+    expect(tester.getSemantics(head), isSemantics(isExpanded: false, hasExpandedState: true));
+
+    await tester.tap(find.textContaining('Module alpha/first'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/sheets', reason: 'the head of a folded card unfolds it');
+    expect(find.text('Memory'), findsOneWidget);
+    expect(find.text('Open the module'), findsOneWidget);
+    expect(tester.getSemantics(head), isSemantics(isExpanded: true, hasExpandedState: true));
+
+    await tester.tap(find.text('Memory'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, startsWith('/courses/'));
+    expect((router.state.extra! as ReaderTarget).fragment, 'memory');
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Memory'), findsOneWidget, reason: 'it stays unfolded');
+    await tester.tap(find.text('Open the module'));
+    await tester.pumpAndSettle();
+    final target = router.state.extra! as ReaderTarget;
+    expect((target.fragment, target.query), (null, 'agents'));
+  });
+
+  testWidgets('a folded card unfolds on a tap on its best hit too, and folds again on its head', (tester) async {
+    await _pump(tester);
+    await _type(tester, 'agents');
+
+    await tester.tap(find.text('An opening about agents.').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Memory'), findsOneWidget);
+
+    await tester.tap(find.textContaining('Module alpha/first'));
+    await tester.pumpAndSettle();
+    expect(find.text('Memory'), findsNothing);
+  });
+
+  testWidgets('a module with one hit is not folded', (tester) async {
+    final router = await _pump(tester);
+    await _type(tester, 'passages');
+
+    expect(find.textContaining('match'), findsNothing);
+    await tester.tap(find.textContaining('Module alpha/first'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, startsWith('/courses/'));
+  });
+
+  // Plan 10.2: the hits can be kept to some levels.
+  testWidgets('the levels with hits can be chosen, each with how many, and All brings every level back', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await _type(tester, 'passages');
+
+    expect(find.text('Alpha Level · 3'), findsOneWidget);
+    expect(find.text('Beta Level · 2'), findsOneWidget);
+    expect(find.text('Gamma Level · 1'), findsOneWidget);
+
+    await tester.tap(find.text('Beta Level · 2'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 results'), findsOneWidget);
+    expect(find.textContaining('Module beta/fourth'), findsOneWidget);
+    expect(find.textContaining('Module alpha/first'), findsNothing);
+
+    // The row of levels scrolls sideways on a narrow phone.
+    await tester.ensureVisible(find.text('Gamma Level · 1'));
+    await tester.tap(find.text('Gamma Level · 1'));
+    await tester.pumpAndSettle();
+    expect(find.text('3 results'), findsOneWidget, reason: 'more than one level');
+
+    await tester.ensureVisible(find.text('All'));
+    await tester.tap(find.text('All'));
+    await tester.pumpAndSettle();
+    expect(find.text('6 results'), findsOneWidget);
   });
 }

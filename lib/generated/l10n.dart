@@ -539,6 +539,33 @@ class S {
     return Intl.message('the first $count shown', name: 'catalog_search_shown', desc: '', args: [count]);
   }
 
+  /// `{count, plural, =1{1 match} other{{count} matches}}`
+  String catalog_search_matches(int count) {
+    return Intl.plural(
+      count,
+      one: '1 match',
+      other: '$count matches',
+      name: 'catalog_search_matches',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Open the module`
+  String get catalog_search_open_module {
+    return Intl.message('Open the module', name: 'catalog_search_open_module', desc: '', args: []);
+  }
+
+  /// `All`
+  String get catalog_search_all_levels {
+    return Intl.message('All', name: 'catalog_search_all_levels', desc: '', args: []);
+  }
+
+  /// `Levels to search`
+  String get catalog_search_levels {
+    return Intl.message('Levels to search', name: 'catalog_search_levels', desc: '', args: []);
+  }
+
   /// `Nothing found for “{query}”.`
   String catalog_search_none(String query) {
     return Intl.message('Nothing found for “$query”.', name: 'catalog_search_none', desc: '', args: [query]);

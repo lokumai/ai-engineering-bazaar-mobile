@@ -50,90 +50,92 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m14(count) => "${Intl.plural(count, one: '1 result', other: '${count} results')}";
 
-  static String m15(query) => "Nothing found for “${query}”.";
+  static String m15(count) => "${Intl.plural(count, one: '1 match', other: '${count} matches')}";
 
-  static String m16(count) => "the first ${count} shown";
+  static String m16(query) => "Nothing found for “${query}”.";
 
-  static String m17(day) => "Backed up ${day}";
+  static String m17(count) => "the first ${count} shown";
 
-  static String m18(seconds) =>
+  static String m18(day) => "Backed up ${day}";
+
+  static String m19(seconds) =>
       "${Intl.plural(seconds, one: 'Reset. You can undo it for 1 second.', other: 'Reset. You can undo it for ${seconds} seconds.')}";
 
-  static String m19(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
+  static String m20(count) => "${Intl.plural(count, one: '1 module state', other: '${count} module states')}";
 
-  static String m20(hours) => "~${hours} h";
+  static String m21(hours) => "~${hours} h";
 
-  static String m21(hours, minutes) => "~${hours} h ${minutes} min";
+  static String m22(hours, minutes) => "~${hours} h ${minutes} min";
 
-  static String m22(minutes) => "~${minutes} min";
+  static String m23(minutes) => "~${minutes} min";
 
-  static String m23(url) => "Could not open ${url}";
+  static String m24(url) => "Could not open ${url}";
 
-  static String m24(count, first) =>
+  static String m25(count, first) =>
       "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
 
-  static String m25(percent) => "${percent} % read";
+  static String m26(percent) => "${percent} % read";
 
-  static String m26(minutes, words) => "${minutes} min · ${words} words";
+  static String m27(minutes, words) => "${minutes} min · ${words} words";
 
-  static String m27(approved, total) => "${approved}/${total} completed";
+  static String m28(approved, total) => "${approved}/${total} completed";
 
-  static String m28(total) => "--/${total} completed";
+  static String m29(total) => "--/${total} completed";
 
-  static String m29(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
+  static String m30(count) => "${Intl.plural(count, one: '1 module', other: '${count} modules')}";
 
-  static String m30(level) => "Level ${level}";
+  static String m31(level) => "Level ${level}";
 
-  static String m31(value) => "loss ${value}";
+  static String m32(value) => "loss ${value}";
 
-  static String m32(level) => "read a module for level ${level}";
+  static String m33(level) => "read a module for level ${level}";
 
-  static String m33(count) =>
+  static String m34(count) =>
       "${Intl.plural(count, one: '1 finished module waiting', other: '${count} finished modules waiting')}";
 
-  static String m34(words) => "It says: ${words}";
+  static String m35(words) => "It says: ${words}";
 
-  static String m35(level) => "Apprentice, level ${level}. Tap to pet it.";
+  static String m36(level) => "Apprentice, level ${level}. Tap to pet it.";
 
-  static String m36(count, level) => "${count} to level ${level}";
+  static String m37(count, level) => "${count} to level ${level}";
 
-  static String m37(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+  static String m38(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
 
-  static String m38(taken, total) => "${taken} of ${total} taken";
+  static String m39(taken, total) => "${taken} of ${total} taken";
 
-  static String m39(index, count) => "Question ${index} of ${count}";
+  static String m40(index, count) => "Question ${index} of ${count}";
 
-  static String m40(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+  static String m41(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
 
-  static String m41(score, total) => "${score} of ${total}";
+  static String m42(score, total) => "${score} of ${total}";
 
-  static String m42(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
+  static String m43(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
 
-  static String m43(count) => "${count} questions on the main points of this module";
+  static String m44(count) => "${count} questions on the main points of this module";
 
-  static String m44(letter) => "Not this one. The answer is ${letter}.";
+  static String m45(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m45(date) => "Completed ${date}";
+  static String m46(date) => "Completed ${date}";
 
-  static String m46(position, total) => "Match ${position} of ${total}";
+  static String m47(position, total) => "Match ${position} of ${total}";
 
-  static String m47(minutes) => "${minutes} min";
+  static String m48(minutes) => "${minutes} min";
 
-  static String m48(number, count) => "MODULE ${number} OF ${count}";
+  static String m49(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m49(label) => "${label} · Planned";
+  static String m50(label) => "${label} · Planned";
 
-  static String m50(hash, date) => "Rev ${hash} · ${date}";
+  static String m51(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m51(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m52(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
-  static String m52(reason) => "The check for updates did not finish: ${reason}.";
+  static String m53(reason) => "The check for updates did not finish: ${reason}.";
 
-  static String m53(name, level) => "${name}, unlocks at level ${level}";
+  static String m54(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m54(name) => "${name}, worn";
+  static String m55(name) => "${name}, worn";
 
-  static String m55(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m56(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -198,11 +200,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_complete_module": m12,
     "catalog_filter_completed": MessageLookupByLibrary.simpleMessage("Completed"),
     "catalog_level_dial": m13,
+    "catalog_search_all_levels": MessageLookupByLibrary.simpleMessage("All"),
     "catalog_search_clear": MessageLookupByLibrary.simpleMessage("Clear the search"),
     "catalog_search_count": m14,
     "catalog_search_hint": MessageLookupByLibrary.simpleMessage("Search the modules"),
-    "catalog_search_none": m15,
-    "catalog_search_shown": m16,
+    "catalog_search_levels": MessageLookupByLibrary.simpleMessage("Levels to search"),
+    "catalog_search_matches": m15,
+    "catalog_search_none": m16,
+    "catalog_search_open_module": MessageLookupByLibrary.simpleMessage("Open the module"),
+    "catalog_search_shown": m17,
     "catalog_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "catalog_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
@@ -219,7 +225,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This part of the course could not be read on this device. Restart the app to reload it.",
     ),
     "data_back_up": MessageLookupByLibrary.simpleMessage("Back up"),
-    "data_backed_up": m17,
+    "data_backed_up": m18,
     "data_backup_not_written": MessageLookupByLibrary.simpleMessage(
       "The backup file could not be written. Nothing was marked as backed up.",
     ),
@@ -228,7 +234,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_reset": MessageLookupByLibrary.simpleMessage("Reset"),
     "data_reset_closed": MessageLookupByLibrary.simpleMessage("Reset. The time to undo it has passed."),
-    "data_reset_counting": m18,
+    "data_reset_counting": m19,
     "data_reset_not_finished": MessageLookupByLibrary.simpleMessage(
       "The reset did not finish: the app could not delete its files. The progress on this device is unchanged.",
     ),
@@ -251,12 +257,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
-    "data_tally_states": m19,
+    "data_tally_states": m20,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
-    "duration_hours": m20,
-    "duration_hours_minutes": m21,
-    "duration_minutes": m22,
+    "duration_hours": m21,
+    "duration_hours_minutes": m22,
+    "duration_minutes": m23,
     "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
       "A device backup may still hold an earlier copy of your progress.",
     ),
@@ -270,7 +276,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
-    "error_link_open_failed": m23,
+    "error_link_open_failed": m24,
     "feedback_failed": MessageLookupByLibrary.simpleMessage("The report was not sent. Try again later."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("What happened"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
@@ -284,7 +290,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "At the end of a module, mark it complete. The catalog shows what you have read, and Home shows what comes next.",
     ),
     "guide_complete_title": MessageLookupByLibrary.simpleMessage("Mark what you finish"),
-    "guide_levels": m24,
+    "guide_levels": m25,
     "guide_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
     "guide_modules": MessageLookupByLibrary.simpleMessage(
       "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
@@ -307,7 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_practice": MessageLookupByLibrary.simpleMessage("Quizzes to practise"),
     "home_practice_lede": MessageLookupByLibrary.simpleMessage("Quizzes from the modules you completed."),
-    "home_read_percent": m25,
+    "home_read_percent": m26,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Open the image full screen"),
@@ -329,11 +335,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_owner": MessageLookupByLibrary.simpleMessage("Owner"),
     "legal_phone": MessageLookupByLibrary.simpleMessage("Phone"),
     "legal_title": MessageLookupByLibrary.simpleMessage("Legal"),
-    "length_minutes_words": m26,
-    "level_completed": m27,
-    "level_completed_pending": m28,
+    "length_minutes_words": m27,
+    "level_completed": m28,
+    "level_completed_pending": m29,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("General notes"),
-    "level_module_count": m29,
+    "level_module_count": m30,
     "loading": MessageLookupByLibrary.simpleMessage("Loading"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planned"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("Caravan"),
@@ -370,23 +376,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Feed tokens"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("hallucinating"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("A toy model that can talk nonsense."),
-    "pocket_level": m30,
+    "pocket_level": m31,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("level"),
-    "pocket_loss": m31,
+    "pocket_loss": m32,
     "pocket_loss_empty": MessageLookupByLibrary.simpleMessage("The curve starts with the first feed."),
     "pocket_loss_title": MessageLookupByLibrary.simpleMessage("Training loss"),
-    "pocket_next_module": m32,
+    "pocket_next_module": m33,
     "pocket_read_module": MessageLookupByLibrary.simpleMessage("Read a module you finished"),
     "pocket_read_none": MessageLookupByLibrary.simpleMessage("Finish a module, and it can read it too."),
-    "pocket_read_waiting": m33,
+    "pocket_read_waiting": m34,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Start over"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
       "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the apprentice over?"),
-    "pocket_says": m34,
-    "pocket_stage_label": m35,
+    "pocket_says": m35,
+    "pocket_stage_label": m36,
     "pocket_stat_modules": MessageLookupByLibrary.simpleMessage("modules read"),
     "pocket_stat_tokens": MessageLookupByLibrary.simpleMessage("tokens eaten"),
     "pocket_stat_words": MessageLookupByLibrary.simpleMessage("words known"),
@@ -404,7 +410,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("Rested, and ready to learn again."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
-    "pocket_to_next": m36,
+    "pocket_to_next": m37,
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
@@ -456,30 +462,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m37,
-    "quiz_list_taken": m38,
+    "quiz_list_count": m38,
+    "quiz_list_taken": m39,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m39,
+    "quiz_progress": m40,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m40,
-    "quiz_score_count": m41,
-    "quiz_score_line": m42,
+    "quiz_score_before": m41,
+    "quiz_score_count": m42,
+    "quiz_score_line": m43,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m43,
+    "quiz_subtitle": m44,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "This quiz could not be opened. Close it and try again later.",
     ),
-    "quiz_wrong": m44,
+    "quiz_wrong": m45,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m45,
+    "reader_completed_on": m46,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
@@ -488,27 +494,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Stop marking the search"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Next match"),
-    "reader_find_position": m46,
+    "reader_find_position": m47,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("Previous match"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m47,
-    "reader_module_of": m48,
+    "reader_minutes": m48,
+    "reader_module_of": m49,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m49,
+    "reader_pager_planned": m50,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("Try again"),
-    "reader_revision": m50,
+    "reader_revision": m51,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
-    "record_not_saved": m51,
+    "record_not_saved": m52,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -537,7 +543,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_published": MessageLookupByLibrary.simpleMessage("Published"),
     "settings_reading": MessageLookupByLibrary.simpleMessage("Reading"),
     "settings_refresh_checking": MessageLookupByLibrary.simpleMessage("Checking for updates"),
-    "settings_refresh_failed": m52,
+    "settings_refresh_failed": m53,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",
@@ -565,12 +571,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m53,
-    "wardrobe_item_worn": m54,
+    "wardrobe_item_locked": m54,
+    "wardrobe_item_worn": m55,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m55,
+    "wardrobe_preview": m56,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),
