@@ -156,6 +156,9 @@ void main() {
     expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('Every level and its modules'), findsOneWidget);
+    // The levels fill the screen, so the bubble lies over their foot: high enough to reach, off the navigation.
+    expect(tester.getRect(_next).bottom, lessThan(852 * (1 - TourLayer.overFoot)));
+    expect(tester.getRect(_next).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top - 60));
     await _tap(tester, _next);
     expect(store.kept.seen, {'home', 'catalog'});
 

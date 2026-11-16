@@ -39,6 +39,9 @@ class TourLayer extends StatefulWidget {
   /// How long the Apprentice takes to walk from one place to the next.
   static const Duration walk = Duration(milliseconds: 650);
 
+  /// The share of the screen's height at its foot that no bubble goes into.
+  static const double overFoot = 0.22;
+
   /// The gap between the robot and its bubble, which the bubble's tail crosses.
   static const double bubbleGap = 12;
 
@@ -259,7 +262,7 @@ class _TourLayerState extends State<TourLayer> {
     final double y = switch (_side(hole, size)) {
       _Side.below => hole.bottom - _perch,
       _Side.above => hole.top - TourLayer.robotSize + _perch,
-      _Side.over => size.height - 16 - _overBubble - TourLayer.bubbleGap - TourLayer.robotSize,
+      _Side.over => size.height - _overFoot(size) - _overBubble - TourLayer.bubbleGap - TourLayer.robotSize,
     };
     return Offset(x, y.clamp(8.0, math.max(8.0, size.height - TourLayer.robotSize - 8)));
   }
@@ -274,8 +277,13 @@ class _TourLayerState extends State<TourLayer> {
   /// the screen; [_follow] then stands it on the bubble as laid out.
   static const double _overBubble = 170;
 
+  /// The screen's foot no bubble goes into: its lowest fifth or so, the band and the navigation, so Next is never at
+  /// the screen's very foot (the owner, 2026-11-16: on the catalog's levels it lay on the navigation). A bubble under a
+  /// place needs its room above it; one over a place filling the screen stands on it.
+  static double _overFoot(Size size) => math.max(16, size.height * TourLayer.overFoot);
+
   static _Side _side(Rect hole, Size size) {
-    if (size.height - hole.bottom >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.below;
+    if (size.height - _overFoot(size) - hole.bottom >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.below;
     if (hole.top >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.above;
     return _Side.over;
   }
@@ -371,7 +379,7 @@ class _TourLayerState extends State<TourLayer> {
                 bottom: switch (side) {
                   _Side.below => null,
                   _Side.above => size.height - hole.top + gap,
-                  _Side.over => 16,
+                  _Side.over => _overFoot(size),
                 },
                 child: _Bubble(
                   key: _bubble,
