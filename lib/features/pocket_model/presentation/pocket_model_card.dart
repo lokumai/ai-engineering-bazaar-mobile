@@ -260,7 +260,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         }
       case PocketAction.spoke:
         if (!reduced) _speak(state);
-      case PocketAction.none:
+      // Its status line says it could not read one.
+      case PocketAction.none || PocketAction.unreadable:
     }
     _wake();
   }
@@ -542,6 +543,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       // A new level says nothing here: its ring and the wardrobe show it (the owner, 2026-11-14).
       case PocketAction.recovered:
         return s.pocket_status_recovered;
+      case PocketAction.unreadable:
+        return s.pocket_status_unreadable;
       default:
     }
     if (state.speech?.hallucinating ?? false) return s.pocket_status_hallucinating;
@@ -843,7 +846,8 @@ class _ReadModule extends StatelessWidget {
       children: [
         FilledButton.icon(
           key: const ValueKey('pocket-read'),
-          onPressed: () => context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first)),
+          onPressed: () =>
+              context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first, others: waiting.sublist(1))),
           icon: const Icon(Icons.auto_stories_outlined),
           label: Text(s.pocket_read_module, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),

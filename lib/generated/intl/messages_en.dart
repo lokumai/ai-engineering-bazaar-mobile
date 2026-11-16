@@ -410,6 +410,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Overfitted: it learnt the tokens by heart and repeats them. Let it rest a few seconds.",
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("Rested, and ready to learn again."),
+    "pocket_status_unreadable": MessageLookupByLibrary.simpleMessage(
+      "It could not read a module just now. Try again later.",
+    ),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
     "pocket_to_next": m37,

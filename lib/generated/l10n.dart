@@ -2121,6 +2121,16 @@ class S {
     return Intl.message('Rested, and ready to learn again.', name: 'pocket_status_recovered', desc: '', args: []);
   }
 
+  /// `It could not read a module just now. Try again later.`
+  String get pocket_status_unreadable {
+    return Intl.message(
+      'It could not read a module just now. Try again later.',
+      name: 'pocket_status_unreadable',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Too hot: it hallucinates. Turn the temperature down.`
   String get pocket_status_hallucinating {
     return Intl.message(

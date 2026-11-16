@@ -337,6 +337,28 @@ void main() {
       });
     });
 
+    // A module whose text would not open held up every module after it, and the tap did nothing.
+    test('one it cannot read is passed over for the next one waiting', () {
+      final store = MemoryPocketModelStore();
+      run(store, (async, bloc) {
+        bloc.add(const PocketModelModuleRead('beta/missing', others: ['alpha/first']));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.readings.single.key, 'alpha/first');
+        expect(ready(bloc).action, isIn([PocketAction.studied, PocketAction.levelUp]));
+      });
+    });
+
+    test('when none of them can be read, it says so', () {
+      run(MemoryPocketModelStore(), (async, bloc) {
+        final beat = ready(bloc).beat;
+        bloc.add(const PocketModelModuleRead('beta/missing', others: ['beta/gone']));
+        async.flushMicrotasks();
+        expect(ready(bloc).model, PocketModel.fresh);
+        expect(ready(bloc).action, PocketAction.unreadable);
+        expect(ready(bloc).beat, beat + 1);
+      });
+    });
+
     test('a feed after it draws the module in the curve', () {
       run(MemoryPocketModelStore(), (async, bloc) {
         bloc.add(const PocketModelModuleRead('alpha/first'));

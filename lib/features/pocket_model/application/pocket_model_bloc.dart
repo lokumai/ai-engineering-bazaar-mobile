@@ -54,14 +54,18 @@ final class PocketModelReset extends PocketModelEvent {
   const PocketModelReset();
 }
 
-/// The reader gave it the course module [key] to read (plan 9.6): one they finished.
+/// The reader gave it the course module [key] to read (plan 9.6): one they finished. One it cannot read is passed
+/// over for the next of [others] it can, so one module that does not open does not hold up the rest.
 final class PocketModelModuleRead extends PocketModelEvent {
-  const PocketModelModuleRead(this.key);
+  const PocketModelModuleRead(this.key, {this.others = const []});
 
   final String key;
 
+  /// The other finished modules waiting after [key], in order.
+  final List<String> others;
+
   @override
-  List<Object?> get props => [key];
+  List<Object?> get props => [key, others];
 }
 
 /// The reader closed the sheet, or petted it fast while it had spoken: its words go.
@@ -95,7 +99,7 @@ final class _PocketModelRecovered extends PocketModelEvent {
 }
 
 /// What the model last did, for the card to show once: [PocketModelReady.beat] counts each.
-enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied }
+enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied, unreadable }
 
 sealed class PocketModelState extends Equatable {
   const PocketModelState();
@@ -348,14 +352,26 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             action: PocketAction.spoke,
           ),
         );
-      case PocketModelModuleRead(:final key):
-        if (ready.model.hasRead(key)) return;
+      case PocketModelModuleRead(:final key, :final others):
         final lm = _lm!;
-        final text = await _load(key, lm.language);
-        if (text == null) return;
+        String? found;
+        ModuleText? text;
+        for (final waiting in [key, ...others]) {
+          if (ready.model.hasRead(waiting)) continue;
+          text = await _load(waiting, lm.language);
+          if (text != null) {
+            found = waiting;
+            break;
+          }
+        }
+        if (found == null || text == null) {
+          // None of them could be read now: it says so, where a tap that did nothing would look broken.
+          if (![key, ...others].every(ready.model.hasRead)) emit(ready.copyWith(action: PocketAction.unreadable));
+          return;
+        }
         final sentences = text.sentences;
-        final count = lm.read(sentences, topic: key, sections: text.sections);
-        final model = ready.model.readAt(key, count, now);
+        final count = lm.read(sentences, topic: found, sections: text.sections);
+        final model = ready.model.readAt(found, count, now);
         lm.level = model.level;
         await _store.save(model);
         emit(

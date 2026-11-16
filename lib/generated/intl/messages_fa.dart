@@ -413,6 +413,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "بیش‌برازش: توکن‌ها را از بر کرده و تکرارشان می‌کند. بگذارید چند ثانیه استراحت کند.",
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("استراحت کرد و دوباره آمادهٔ یادگیری است."),
+    "pocket_status_unreadable": MessageLookupByLibrary.simpleMessage(
+      "الان نتوانست ماژولی را بخواند. بعداً دوباره امتحان کن.",
+    ),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("شاگرد"),
     "pocket_to_next": m37,

@@ -1064,6 +1064,8 @@
   "@pocket_status_overfit": {},
   "pocket_status_recovered": "Rested, and ready to learn again.",
   "@pocket_status_recovered": {},
+  "pocket_status_unreadable": "It could not read a module just now. Try again later.",
+  "@pocket_status_unreadable": {},
   "pocket_status_hallucinating": "Too hot: it hallucinates. Turn the temperature down.",
   "@pocket_status_hallucinating": {},
   "pocket_status_cold": "Cold: it says its likeliest words, every time.",

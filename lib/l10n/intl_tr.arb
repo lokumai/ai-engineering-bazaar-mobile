@@ -301,6 +301,7 @@
   "pocket_status_asleep": "Uyuyor. Uyandırmak için dokun.",
   "pocket_status_overfit": "Aşırı öğrendi: tokenları ezberledi ve onları tekrarlıyor. Birkaç saniye dinlensin.",
   "pocket_status_recovered": "Dinlendi, yeniden öğrenmeye hazır.",
+  "pocket_status_unreadable": "Şu an bir modülü okuyamadı. Sonra yine dene.",
   "pocket_status_hallucinating": "Fazla sıcak: halüsinasyon görüyor. Sıcaklığı düşür.",
   "pocket_status_cold": "Soğuk: her seferinde en olası sözcükleri söylüyor.",
   "pocket_hallucinating": "halüsinasyon",

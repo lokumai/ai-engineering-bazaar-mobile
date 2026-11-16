@@ -205,6 +205,21 @@ void main() {
     await _rest(tester);
   });
 
+  testWidgets('a finished module it cannot open: the tap says so instead of doing nothing', (tester) async {
+    await _pump(
+      tester,
+      record: signOff(RecordData.empty, 'alpha/first', null, '2026-11-14T12:00:00.000Z'),
+      texts: const MemoryPocketTexts({}),
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('pocket-read')));
+    await tester.tap(find.byKey(const ValueKey('pocket-read')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('It could not read a module just now. Try again later.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pocket-read')), findsOneWidget, reason: 'it still waits, to try again');
+    await _rest(tester);
+  });
+
   testWidgets('with no module finished, it says one can be read', (tester) async {
     await _pump(tester);
     expect(find.byKey(const ValueKey('pocket-read')), findsNothing);
