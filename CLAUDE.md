@@ -122,8 +122,10 @@ lib/
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
     utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
   features/
-    home/                                       Home at `/`: the modules later on, practice, offline note; the band over the
-                                                navigation with the module to read now (HomeContinueBand, set by the shell)
+    home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
+                                                app fills with the Apprentice's corner), the modules later on, practice,
+                                                offline note; the band over the navigation with the module to read now
+                                                (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
@@ -135,7 +137,9 @@ lib/
                                                 first-launch steps (language and track, then the story the app passes in)
     about/                                      the story of the Bazaar from the bundle (AboutBloc), told as a film over the
                                                 whole screen: at `/settings/about`, outside the shell, and Welcome's last step
-    guide/                                      How the bazaar works, at `/settings/guide`
+    guide/                                      How the bazaar works, at `/settings/guide`, with Take the tour again
+    tour/                                       the Apprentice's tour for a first run (TourCubit, TourLayer over the shell);
+                                                pages mark its places with shared/tour/tour_target.dart (TourTarget, TourSpots)
     caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
                                                 the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
