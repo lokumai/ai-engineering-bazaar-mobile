@@ -19,7 +19,7 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
-  const App({super.key, this.dependencies = const AppDependencies(), this.appIcon, this.themeMode});
+  const App({super.key, this.dependencies = const AppDependencies(), this.appIcon, this.themeMode, this.language});
 
   final AppDependencies dependencies;
 
@@ -28,6 +28,10 @@ class App extends StatefulWidget {
 
   /// The look the boot read, so the first frame is already in it; null when it was not read.
   final ThemeMode? themeMode;
+
+  /// The language the reader chose, which the boot read so the first frame is already in it; null when none was
+  /// chosen or it was not read, and the phone's is taken.
+  final String? language;
 
   @override
   State<App> createState() => _AppState();
@@ -48,6 +52,7 @@ class _AppState extends State<App> {
     return AppScope(
       appIcon: widget.appIcon,
       themeMode: widget.themeMode,
+      language: widget.language,
       dependencies: widget.dependencies,
       // The interface follows the chosen language (plan 1Q); Persian lays it out right to left.
       child: BlocBuilder<ThemeChoiceCubit, ThemeMode>(

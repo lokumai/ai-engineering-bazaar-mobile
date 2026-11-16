@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:ai_engineering_bazaar/app/app.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
+import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -60,6 +61,21 @@ class _IconDependencies extends FixtureAppDependencies {
 
   @override
   IThemeStore createThemeStore() => const _KeptTheme(ThemeMode.dark);
+
+  @override
+  ILanguageStore createLanguageStore() => const _KeptLanguage('fa');
+}
+
+final class _KeptLanguage implements ILanguageStore {
+  const _KeptLanguage(this.language);
+
+  final String language;
+
+  @override
+  Future<String?> chosen() async => language;
+
+  @override
+  Future<void> choose(String language) async {}
 }
 
 final class _KeptTheme implements IThemeStore {
@@ -136,7 +152,10 @@ void main() {
 
     // The opening starts in the chosen icon's colours from the app's first frame (the owner, 2026-11-14), on the page
     // colour of the chosen look, as the launch screen was, not on the icon's ground (the owner, 2026-11-15).
-    testWidgets('reads the chosen app icon and look before the first frame and hands them to the app', (tester) async {
+    // And in the chosen language, not the phone's for a moment (the owner, 2026-11-16).
+    testWidgets('reads the chosen app icon, look and language before the first frame and hands them to the app', (
+      tester,
+    ) async {
       final sentry = _RecordingSentryStart(
         const AppConfig(environment: Environment.prod, contentBaseUrl: testContentBaseUrl),
       );
@@ -158,6 +177,12 @@ void main() {
 
       expect(tester.widget<App>(find.byType(App)).appIcon, BazaarIcon.tvCream);
       expect(tester.widget<App>(find.byType(App)).themeMode, ThemeMode.dark);
+      expect(tester.widget<App>(find.byType(App)).language, 'fa');
+      expect(
+        Directionality.of(tester.element(find.byKey(WelcomeSting.groundKey))),
+        TextDirection.rtl,
+        reason: 'the first frame, in Persian',
+      );
       expect(
         tester.widget<ColoredBox>(find.byKey(WelcomeSting.groundKey)).color,
         bazaarTheme(brightness: Brightness.dark, platform: defaultTargetPlatform).scaffoldBackgroundColor,

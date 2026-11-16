@@ -44,7 +44,14 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
 class AppScope extends StatelessWidget {
-  const AppScope({super.key, required this.dependencies, required this.child, this.appIcon, this.themeMode});
+  const AppScope({
+    super.key,
+    required this.dependencies,
+    required this.child,
+    this.appIcon,
+    this.themeMode,
+    this.language,
+  });
 
   final AppDependencies dependencies;
 
@@ -53,6 +60,10 @@ class AppScope extends StatelessWidget {
 
   /// The look the boot read before the first frame; null when it was not read, and the cubit reads it.
   final ThemeMode? themeMode;
+
+  /// The language the boot read before the first frame; null when none was chosen or it was not read, and the phone's
+  /// is taken until the cubit has read the choice.
+  final String? language;
   final Widget child;
 
   @override
@@ -160,7 +171,7 @@ class AppScope extends StatelessWidget {
             lazy: false,
             create: (context) => LanguageCubit(
               store: context.read<ILanguageStore>(),
-              initial: PlatformDispatcher.instance.locale.languageCode,
+              initial: language ?? PlatformDispatcher.instance.locale.languageCode,
             )..load(),
           ),
           BlocProvider<ThemeChoiceCubit>(
