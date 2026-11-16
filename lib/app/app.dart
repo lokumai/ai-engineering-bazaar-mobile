@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/app/app_gate.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
@@ -77,6 +78,8 @@ class _AppState extends State<App> {
                 child: WelcomeGate(
                   // The second step is the story of the Bazaar, a feature of its own (plan 3.5).
                   story: (onDone) => AboutWelcomeStep(onDone: onDone),
+                  // The Apprentice offers its tour after a first run's Welcome only (plan 11.3).
+                  onFirstRun: () => context.read<TourCubit>().offer(),
                   child: child!,
                 ),
               ),

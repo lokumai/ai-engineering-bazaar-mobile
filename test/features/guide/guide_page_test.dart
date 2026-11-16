@@ -3,6 +3,8 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/guide/presentation/pages/guide_page.dart';
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +34,25 @@ void main() {
       expect(find.text(title, skipOffstage: false), findsOneWidget, reason: title);
     }
     expect(find.textContaining('The catalog shows what you have read', skipOffstage: false), findsOneWidget);
+  });
+
+  testWidgets('it takes the Apprentice\'s tour again, from Home (plan 11.3)', (tester) async {
+    final tour = TourCubit(store: MemoryTourStore(const TourRecord(guiding: true, seen: {'home', 'settings'})));
+    await tour.load();
+    final router = AppRouterFactory(initialLocation: '/settings/guide').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router, tour: tour));
+    await tester.pumpAndSettle();
+
+    final replay = find.byKey(const ValueKey('guide-replay-tour'));
+    expect(find.text('Take the tour again'), findsOneWidget);
+    await tester.ensureVisible(replay);
+    await tester.tap(replay);
+    await tester.pump();
+
+    expect(router.state.uri.path, '/');
+    expect(tour.state, const TourRecord(guiding: true), reason: 'every page is shown again');
+    await tester.pump(const Duration(seconds: 2));
   });
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {

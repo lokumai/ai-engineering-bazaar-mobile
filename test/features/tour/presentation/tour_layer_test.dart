@@ -2,6 +2,7 @@
 library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
@@ -169,8 +170,8 @@ void main() {
     expect(find.textContaining('The Caravan travels'), findsOneWidget);
   });
 
-  testWidgets('Settings: the reading choices, then the way to the guide', (tester) async {
-    final (_, store) = await _pump(
+  testWidgets('Settings: the reading choices, then the guide, which takes the tour again from Home', (tester) async {
+    final (router, store) = await _pump(
       tester,
       record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'quiz'}),
       at: '/settings',
@@ -181,6 +182,15 @@ void main() {
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
     await _tap(tester, _next);
     expect(store.kept.seen, hasLength(5));
+
+    router.push(ApplicationRoutesConstants.guide);
+    await _walk(tester);
+    await tester.ensureVisible(find.byKey(const ValueKey('guide-replay-tour')));
+    await _tap(tester, find.byKey(const ValueKey('guide-replay-tour')));
+
+    expect(router.state.uri.path, '/');
+    expect(find.textContaining('This is my corner.'), findsOneWidget);
+    expect(store.kept, const TourRecord(guiding: true));
   });
 
   testWidgets('with reduced motion the Apprentice is at its place at once', (tester) async {

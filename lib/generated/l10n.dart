@@ -2648,6 +2648,11 @@ class S {
     );
   }
 
+  /// `Take the tour again`
+  String get guide_replay_tour {
+    return Intl.message('Take the tour again', name: 'guide_replay_tour', desc: '', args: []);
+  }
+
   /// `{step} / {count}`
   String tour_step(int step, int count) {
     return Intl.message(

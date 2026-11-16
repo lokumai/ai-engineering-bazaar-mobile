@@ -366,5 +366,6 @@
   "tour_quiz_level": "Her seviyenin quizleri burada. Bir seviyeyi aç, bir quiz çöz; istediğin kadar yeniden çözebilirsin.",
   "tour_settings_reading": "Yolunu, uygulamanın dilini ve görünümünü buradan seçersin.",
   "tour_settings_guide": "Bu turu yeniden izlemek istersen Bazaar nasıl işler sayfasında seni bekliyor.",
+  "guide_replay_tour": "Turu baştan izle",
   "tour_step": "{step} / {count}"
 }

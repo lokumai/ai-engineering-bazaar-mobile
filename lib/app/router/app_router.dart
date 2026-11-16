@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
 import 'package:ai_engineering_bazaar/features/caravan/navigation/caravan_routes.dart';
 import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
@@ -19,6 +21,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_p
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
@@ -117,7 +120,13 @@ class AppRouterFactory {
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
-            ...GuideFeatureRoutes.routes(),
+            // The guide takes the Apprentice's tour again, from Home (plan 11.3).
+            ...GuideFeatureRoutes.routes(
+              replayTour: (context) {
+                unawaited(context.read<TourCubit>().replay());
+                context.go(BazaarPaths.home);
+              },
+            ),
             ...PocketModelFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,

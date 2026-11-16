@@ -303,6 +303,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu telefonda kalır.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
+    "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Turu baştan izle"),
     "guide_title": MessageLookupByLibrary.simpleMessage("Bazaar nasıl işler"),
     "home_after": MessageLookupByLibrary.simpleMessage("Daha sonra"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Yazılmış bütün modüller tamamlandı."),

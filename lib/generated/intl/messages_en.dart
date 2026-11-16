@@ -302,6 +302,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
+    "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Take the tour again"),
     "guide_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
     "home_after": MessageLookupByLibrary.simpleMessage("Later on"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),

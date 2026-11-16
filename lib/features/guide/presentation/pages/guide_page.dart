@@ -9,7 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// is finished, and the course on the device. It was Welcome's last step (plan 1X) until the story of the Bazaar took
 /// that place (plan 3.5).
 class GuidePage extends StatelessWidget {
-  const GuidePage({super.key});
+  const GuidePage({super.key, this.replayTour});
+
+  /// Takes the Apprentice's tour again (plan 11.3); no button while null.
+  final void Function(BuildContext context)? replayTour;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +68,15 @@ class GuidePage extends StatelessWidget {
                   ),
                 ),
               ),
+            if (replayTour case final replay?) ...[
+              const SizedBox(height: 4),
+              FilledButton.tonalIcon(
+                key: const ValueKey('guide-replay-tour'),
+                onPressed: () => replay(context),
+                icon: const Icon(Icons.tour_outlined),
+                label: Text(s.guide_replay_tour),
+              ),
+            ],
           ],
         ),
       ),

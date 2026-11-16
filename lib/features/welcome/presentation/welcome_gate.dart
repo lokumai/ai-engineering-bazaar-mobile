@@ -18,19 +18,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// app passes as [story], since the story is a feature of its own. Content that names no story (a copy from before the
 /// site published it, web D125) has no story button.
 class WelcomeGate extends StatelessWidget {
-  const WelcomeGate({super.key, required this.child, required this.story});
+  const WelcomeGate({super.key, required this.child, required this.story, this.onFirstRun});
 
   final Widget child;
 
   /// The story, the story button's step, which calls its argument once the reader goes on.
   final Widget Function(VoidCallback onDone) story;
 
+  /// Called once Welcome's steps are over on the first launch, never on a later one: the app has the Apprentice offer
+  /// its tour then (plan 11.3).
+  final VoidCallback? onFirstRun;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
           WelcomeBloc(store: context.read<IWelcomeStore>())..add(WelcomeStarted(story: _hasStory(context))),
-      child: BlocBuilder<WelcomeBloc, WelcomeState>(
+      child: BlocConsumer<WelcomeBloc, WelcomeState>(
+        // Welcome done with a track chosen is the end of a first run; a later launch is done with none.
+        listenWhen: (before, after) => after is WelcomeDone && after.chosen != null && before is! WelcomeDone,
+        listener: (context, state) => onFirstRun?.call(),
         builder: (context, state) => switch (state) {
           WelcomeChecking() => ColoredBox(color: Theme.of(context).colorScheme.surface),
           WelcomeChoosingTrack(:final story) => WelcomeTrackView(

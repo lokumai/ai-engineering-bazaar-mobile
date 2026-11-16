@@ -1319,6 +1319,8 @@
   "@tour_settings_reading": {},
   "tour_settings_guide": "Want this tour again? It waits in How the bazaar works.",
   "@tour_settings_guide": {},
+  "guide_replay_tour": "Take the tour again",
+  "@guide_replay_tour": {},
   "tour_step": "{step} / {count}",
   "@tour_step": {
     "description": "Which of the tour's places on this page the Apprentice is at, of how many.",

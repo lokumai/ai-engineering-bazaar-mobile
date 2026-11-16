@@ -303,6 +303,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین گوشی می‌ماند.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("روی همین دستگاه، بدون اینترنت"),
+    "guide_replay_tour": MessageLookupByLibrary.simpleMessage("دوباره گشت بزنیم"),
     "guide_title": MessageLookupByLibrary.simpleMessage("بازار چطور کار می‌کند"),
     "home_after": MessageLookupByLibrary.simpleMessage("در ادامه"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("همهٔ درس‌های نوشته‌شده تکمیل شده‌اند."),
