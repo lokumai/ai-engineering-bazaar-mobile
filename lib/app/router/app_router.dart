@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_band.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_corner.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -73,8 +74,8 @@ class AppRouterFactory {
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
             child: DevConsoleShortcut(
-              // The pocket model's round button, in the corner of Home (plan 9.4, 9.9).
-              // The reader can hide it in Settings (plan 9.9).
+              // The pocket model's round button, in the corner of Home, the catalog, the Caravan and the Quiz tab (plan
+              // 9.4, 11.2). The reader can hide it in Settings (plan 9.9).
               child: BlocBuilder<PocketButtonCubit, bool>(
                 builder: (context, shown) => BazaarShell(
                   location: state.uri.path,
@@ -87,7 +88,16 @@ class AppRouterFactory {
             ),
           ),
           routes: [
-            _page('home', BazaarPaths.home, const HomePage()),
+            // The Apprentice presents the day's card from its corner at Home's head (plan 11.2), unless the reader
+            // hid it in Settings; the card stands alone then.
+            _pageOf(
+              'home',
+              BazaarPaths.home,
+              (_) => BlocBuilder<PocketButtonCubit, bool>(
+                builder: (context, shown) =>
+                    HomePage(dailyFrame: shown ? (context, card) => PocketCorner(message: card) : null),
+              ),
+            ),
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
             _pageOf('level', '/sheets/:level', (state) => _level(state, Track.engineers)),

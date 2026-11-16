@@ -3,7 +3,6 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_band.dart';
-import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -104,8 +103,10 @@ void main() {
   testWidgets('the round button of the Apprentice stands above it', (tester) async {
     await _pump(tester);
 
-    expect(find.byType(PocketAssistantButton), findsOneWidget);
-    expect(tester.getBottomLeft(find.byType(PocketAssistantButton)).dy, lessThanOrEqualTo(tester.getTopLeft(_band).dy));
+    // The floating one; Home's corner has its own at the page's head (plan 11.2).
+    final button = find.byKey(const ValueKey('pocket-assistant'));
+    expect(button, findsOneWidget);
+    expect(tester.getBottomLeft(button).dy, lessThanOrEqualTo(tester.getTopLeft(_band).dy));
   });
 
   testWidgets('is gone while the keyboard is up, so it does not ride up over a search', (tester) async {

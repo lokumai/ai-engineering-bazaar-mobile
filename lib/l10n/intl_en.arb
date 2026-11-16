@@ -1139,7 +1139,7 @@
   },
   "settings_pocket_button": "Apprentice",
   "@settings_pocket_button": {
-    "description": "The title of the choice, on or off, that shows or hides the pocket model's round button on Home."
+    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab."
   },
   "settings_on": "On",
   "@settings_on": {

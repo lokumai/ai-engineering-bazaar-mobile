@@ -15,7 +15,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// It tells the model the app's language, so the model reads and speaks it before the sheet is ever opened.
 class PocketAssistantButton extends StatefulWidget {
-  const PocketAssistantButton({super.key});
+  const PocketAssistantButton({super.key, this.name = 'pocket-assistant'});
+
+  /// What its round button is keyed by, and its badge by with `-badge` after it: the floating button's and the one in
+  /// Home's corner tell apart.
+  final String name;
 
   /// The button's width and height.
   static const double size = 58;
@@ -59,7 +63,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
               clipBehavior: Clip.none,
               children: [
                 Material(
-                  key: const ValueKey('pocket-assistant'),
+                  key: ValueKey(widget.name),
                   shape: const CircleBorder(),
                   elevation: 4,
                   shadowColor: const Color(0x66000000),
@@ -97,7 +101,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                     end: -2,
                     child: IgnorePointer(
                       child: DecoratedBox(
-                        key: const ValueKey('pocket-assistant-badge'),
+                        key: ValueKey('${widget.name}-badge'),
                         decoration: BoxDecoration(
                           color: const Color(0xffddb46a),
                           shape: BoxShape.circle,

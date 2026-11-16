@@ -2288,7 +2288,7 @@ class S {
     return Intl.message(
       'Apprentice',
       name: 'settings_pocket_button',
-      desc: 'The title of the choice, on or off, that shows or hides the pocket model\'s round button on Home.',
+      desc: 'The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab.',
       args: [],
     );
   }

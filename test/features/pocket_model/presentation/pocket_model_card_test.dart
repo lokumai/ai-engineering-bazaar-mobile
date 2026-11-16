@@ -84,14 +84,23 @@ final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widge
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('its round button sits on Home only, not on the catalog, Quiz or a module, and opens it', (tester) async {
+  testWidgets('its round button sits on the first pages of Home, the catalog, the Caravan and Quiz, not in Settings', (
+    tester,
+  ) async {
     await _pump(tester, open: false);
     final button = find.byKey(const ValueKey('pocket-assistant'));
     expect(button, findsOneWidget);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
     expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
-    for (final (label, shows) in [('Catalog', false), ('Quiz', false), ('Settings', false), ('Home', true)]) {
+    // The owner, 2026-11-16: everywhere but Settings, and on Home too, under the thumb.
+    for (final (label, shows) in [
+      ('Catalog', true),
+      ('Caravan', true),
+      ('Quiz', true),
+      ('Settings', false),
+      ('Home', true),
+    ]) {
       await tester.tap(find.text(label).last);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -102,7 +111,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(PocketModelCard), findsOneWidget);
-    expect(find.text('Apprentice'), findsOneWidget);
+    expect(find.descendant(of: find.byType(PocketModelCard), matching: find.text('Apprentice')), findsOneWidget);
     expect(find.text('New: it knows no words yet. Feed it some tokens.'), findsOneWidget);
     await _rest(tester);
   });
@@ -241,8 +250,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     // The owner, 2026-11-14: the line meant nothing beside the ring and the wardrobe.
-    expect(find.textContaining('Level 1'), findsNothing);
-    expect(find.textContaining('wardrobe'), findsNothing);
+    final sheet = find.byKey(const ValueKey('pocket-sheet'));
+    expect(find.descendant(of: sheet, matching: find.textContaining('Level 1')), findsNothing);
+    expect(find.descendant(of: sheet, matching: find.textContaining('wardrobe')), findsNothing);
     expect(find.text('1'), findsOneWidget, reason: "the ring's level");
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.confetti), isNotEmpty);
     await _rest(tester);
