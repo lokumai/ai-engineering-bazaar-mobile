@@ -86,7 +86,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                           padding: const EdgeInsets.fromLTRB(9, 8, 9, 10),
                           child: CustomPaint(
                             painter: RobotHeadPainter(
-                              face: _faceOf(state),
+                              face: robotFaceOf(state),
                               outfit: context.watch<RobotOutfitCubit>().state.within(level),
                             ),
                           ),
@@ -136,20 +136,21 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
     PocketModelReady(:final model) => model.level,
     PocketModelLoading() => 0,
   };
+}
 
-  static RobotFace _faceOf(PocketModelState state) {
-    final now = clock.now();
-    return switch (state) {
-      PocketModelLoading() => RobotFace.calm,
-      PocketModelReady(awake: false) => RobotFace.asleep,
-      PocketModelReady(:final model) when model.overfitAt(now) => RobotFace.overfit,
-      PocketModelReady(:final model) => switch (model.moodAt(now)) {
-        PocketMood.hungry => RobotFace.hungry,
-        PocketMood.asleep => RobotFace.asleep,
-        PocketMood.newborn || PocketMood.content => RobotFace.calm,
-      },
-    };
-  }
+/// The robot's face for the model's mood.
+RobotFace robotFaceOf(PocketModelState state) {
+  final now = clock.now();
+  return switch (state) {
+    PocketModelLoading() => RobotFace.calm,
+    PocketModelReady(awake: false) => RobotFace.asleep,
+    PocketModelReady(:final model) when model.overfitAt(now) => RobotFace.overfit,
+    PocketModelReady(:final model) => switch (model.moodAt(now)) {
+      PocketMood.hungry => RobotFace.hungry,
+      PocketMood.asleep => RobotFace.asleep,
+      PocketMood.newborn || PocketMood.content => RobotFace.calm,
+    },
+  };
 }
 
 /// Opens the pocket model in a sheet over the whole app, its stage, its training and its buttons. Closed, it forgets

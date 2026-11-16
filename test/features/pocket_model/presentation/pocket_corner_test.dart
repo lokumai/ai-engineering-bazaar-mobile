@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
@@ -59,6 +60,12 @@ void main() {
       expect(find.descendant(of: _corner, matching: finder), findsOneWidget);
     }
     expect(find.byKey(const ValueKey('pocket-assistant')), findsOneWidget, reason: 'the floating one, under the thumb');
+    final whole = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter);
+    expect(
+      find.descendant(of: _corner, matching: whole),
+      findsOneWidget,
+      reason: 'the whole robot, not its head',
+    );
   });
 
   testWidgets('its name says Çırak in Turkish', (tester) async {

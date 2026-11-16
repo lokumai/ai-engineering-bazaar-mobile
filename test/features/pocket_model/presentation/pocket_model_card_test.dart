@@ -77,7 +77,11 @@ Future<void> _rest(WidgetTester tester) async {
 Finder _stat(String label) =>
     find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == label);
 
-final _stage = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter);
+/// The sheet's stage, not the whole robot in Home's corner.
+final _stage = find.descendant(
+  of: find.byType(PocketModelCard),
+  matching: find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter),
+);
 
 final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is LossChartPainter);
 
