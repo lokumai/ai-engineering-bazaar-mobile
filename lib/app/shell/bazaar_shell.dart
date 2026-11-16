@@ -29,7 +29,7 @@ import 'package:go_router/go_router.dart';
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
 /// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
-/// names kept so each is clear). The Caravan's camel holds the middle and opens its page, which says it is under
+/// names kept so each is clear). The Caravan's horse holds the middle and opens its page, which says it is under
 /// maintenance until the bundle carries the web's timeline (plan 3.1).
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
