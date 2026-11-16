@@ -182,6 +182,31 @@ void main() {
     expect(find.text('No trend matches.'), findsOneWidget);
   });
 
+  testWidgets(
+    'in All trends a tap elsewhere or a drag through the list puts the keyboard away, as iOS has no back key',
+    (tester) async {
+      await _pump(tester, platform: TargetPlatform.iOS);
+      await tester.tap(find.byKey(const ValueKey('caravan-all')));
+      await tester.pumpAndSettle();
+      final search = find.byKey(const ValueKey('caravan-search'));
+
+      // A frame after the focus, as a reader's tap comes after the keyboard is up.
+      await tester.showKeyboard(search);
+      await tester.pump();
+      expect(tester.testTextInput.isVisible, isTrue);
+      await tester.tap(find.text('22 trends'));
+      await tester.pumpAndSettle();
+      expect(tester.testTextInput.isVisible, isFalse, reason: 'a tap outside the field');
+
+      await tester.showKeyboard(search);
+      await tester.pump();
+      expect(tester.testTextInput.isVisible, isTrue);
+      await tester.drag(find.byKey(const ValueKey('caravan-trend-gpu_rush')), const Offset(0, -100));
+      await tester.pumpAndSettle();
+      expect(tester.testTextInput.isVisible, isFalse, reason: 'a drag through the list');
+    },
+  );
+
   testWidgets('a drag on the stage pulls the road, and the caravan walks to the nearest stop', (tester) async {
     final cubit = _cubit();
     await _pump(tester, caravan: cubit);
