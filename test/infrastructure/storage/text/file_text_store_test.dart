@@ -24,6 +24,35 @@ void main() {
     await store().delete();
   });
 
+  // Quick choices in the wardrobe wrote at once through the one `.tmp` file, and the outfit kept could be any of them.
+  test('writes made at once land in the order made, the last one kept', () async {
+    final one = store();
+    final other = store();
+    final writes = [
+      for (var i = 0; i < 30; i++) (i.isEven ? one : other).write(List.filled(1 + (29 - i) * 400, '$i').join(',')),
+    ];
+    await Future.wait(writes);
+    expect(await store().read(), List.filled(1, '29').join(','));
+    expect(File('${root.path}/quiz/scores.json.tmp').existsSync(), isFalse);
+
+    final last = [one.write('kept'), other.delete()];
+    await Future.wait(last);
+    expect(await store().read(), isNull, reason: 'the delete came after the write');
+  });
+
+  test('a write whose folder cannot be found fails alone: the next write to the file still runs', () async {
+    var calls = 0;
+    final flaky = FileTextStore(
+      baseDirectory: () async => ++calls == 1 ? throw StateError('no folder yet') : root,
+      path: 'quiz/scores.json',
+    );
+    final failed = flaky.write('lost');
+    final next = flaky.write('kept');
+    await expectLater(failed, throwsStateError);
+    await next;
+    expect(await store().read(), 'kept');
+  });
+
   test('a file that is not UTF-8 text reads as null, not an error', () async {
     Directory('${root.path}/quiz').createSync();
     File('${root.path}/quiz/scores.json').writeAsBytesSync([0xff, 0xfe, 0xc3, 0x28]);

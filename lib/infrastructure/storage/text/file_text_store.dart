@@ -5,6 +5,9 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 /// One text file of the app's own, at `<baseDirectory>/<path>`, apart from the record: written to `<path>.tmp` with a
 /// flush and renamed over the file, so a crash leaves the old text or the new, never half of one.
 ///
+/// Writes and deletes of one file run one at a time, in the order made, even from two stores over the same file: two
+/// at once would share the `.tmp` file, and the text kept could be either, or neither.
+///
 /// A file that cannot be read reads as null, and one that cannot be written is logged and stays as it was.
 /// `baseDirectory` is called on first use and its result kept; a call that fails is not kept.
 final class FileTextStore {
@@ -16,6 +19,22 @@ final class FileTextStore {
   final String _path;
 
   File? _resolved;
+
+  /// The last write or delete of each file, by its path under the base directory, which the next one waits for.
+  static final Map<String, Future<void>> _last = {};
+
+  /// Runs [change] after the changes to this file made before it.
+  Future<void> _inTurn(Future<void> Function() change) {
+    final previous = _last[_path] ?? Future<void>.value();
+    // One that failed was its own caller's to hear; the next still runs.
+    final next = previous.then((_) {}, onError: (Object _) {}).then((_) => change());
+    _last[_path] = next;
+    // The queue forgets a file once nothing waits on it. An error is the caller's: this copy of it is let go.
+    next.whenComplete(() {
+      if (identical(_last[_path], next)) _last.remove(_path);
+    }).ignore();
+    return next;
+  }
 
   Future<File> _file() async => _resolved ??= File('${(await _baseDirectory()).path}/$_path');
 
@@ -35,7 +54,7 @@ final class FileTextStore {
   }
 
   /// Replaces the file's text with [text].
-  Future<void> write(String text) async {
+  Future<void> write(String text) => _inTurn(() async {
     try {
       final file = await _file();
       await file.parent.create(recursive: true);
@@ -45,15 +64,15 @@ final class FileTextStore {
     } on FileSystemException catch (error) {
       _log.warn('{} not written: {}', [_path, error]);
     }
-  }
+  });
 
   /// Removes the file; a file that is not there stays so.
-  Future<void> delete() async {
+  Future<void> delete() => _inTurn(() async {
     try {
       final file = await _file();
       if (await file.exists()) await file.delete();
     } on FileSystemException catch (error) {
       _log.warn('{} not deleted: {}', [_path, error]);
     }
-  }
+  });
 }
