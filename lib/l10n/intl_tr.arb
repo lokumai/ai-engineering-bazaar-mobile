@@ -45,6 +45,7 @@
   "home_read_percent": "%{percent} okundu",
   "home_all_complete": "Yazılmış bütün modüller tamamlandı.",
   "home_daily_title": "Bugünün kartı",
+  "home_daily_completed": "Tamamlandı",
   "home_after": "Daha sonra",
   "home_see_catalog": "Bütün kataloğu gör",
   "home_practice": "Pratik için quizler",

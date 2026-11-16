@@ -1,14 +1,20 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/application/daily_card_cubit.dart';
 import 'package:ai_engineering_bazaar/features/home/application/daily_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
-import 'package:flutter/widgets.dart' show Locale, ValueKey;
+import 'package:flutter/widgets.dart' show Locale, Text, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -50,14 +56,32 @@ MockContentRepository _course() {
   return repository;
 }
 
-Future<GoRouter> _pumpHome(WidgetTester tester, {MockContentRepository? repository, Locale? locale}) async {
+/// A course whose module documents are titled by their key, so the card says which module it is from.
+MockContentRepository _titledCourse() {
+  final repository = missingContentRepository();
+  when(() => repository.readModuleDoc(any())).thenAnswer((invocation) async {
+    final path = invocation.positionalArguments.single as String;
+    return testDoc(
+      title: 'Module ${path.split('/').skip(3).take(2).join('/')}',
+      body: [_p('An opening.'), _h('why', 'Why tools'), _p('Models call tools.')],
+    );
+  });
+  return repository;
+}
+
+Future<GoRouter> _pumpHome(
+  WidgetTester tester, {
+  MockContentRepository? repository,
+  Locale? locale,
+  RecordBloc? record,
+}) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
   await tester.pumpWidget(
     bazaarTestApp(
       router: router,
       content: readyContentBloc(),
-      record: readyRecordBloc(),
+      record: record ?? readyRecordBloc(),
       repository: repository ?? _course(),
       locale: locale ?? const Locale('en'),
     ),
@@ -120,6 +144,58 @@ void main() {
 
       expect(_card, findsNothing);
       expect(find.text('Later on'), findsOneWidget, reason: 'the rest of Home is there');
+    });
+  });
+
+  // The owner, 2026-11-16: the card turned to another module once its module was finished, and a Home left open
+  // overnight kept the day before.
+  testWidgets('finished during the day, the card stays and says so', (tester) async {
+    final day = Clock.fixed(DateTime(2026, 11, 16, 10));
+    await withClock(day, () async {
+      final states = StreamController<RecordState>();
+      addTearDown(states.close);
+      final record = MockRecordBloc();
+      RecordReady ready(RecordData data) => RecordReady(
+        record: data,
+        writeState: const WriteSaved(),
+        quarantine: null,
+        quarantineKept: false,
+        launchReadFailed: false,
+        undo: null,
+      );
+      whenListen(record, states.stream, initialState: ready(RecordData.empty));
+      await _pumpHome(tester, repository: _titledCourse(), record: record);
+      final module = tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
+      expect(find.byKey(const ValueKey('home-daily-completed')), findsNothing);
+
+      final key = module.substring('Module '.length);
+      final finished = signOff(RecordData.empty, key, 'abc1234', DateTime(2026, 11, 16, 9).toUtc().toIso8601String());
+      states.add(ready(finished));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(of: _card, matching: find.text(module)),
+        findsOneWidget,
+        reason: 'the same module',
+      );
+      expect(find.byKey(const ValueKey('home-daily-completed')), findsOneWidget);
+      expect(find.text('Completed'), findsOneWidget);
+    });
+  });
+
+  testWidgets('Home left open over midnight shows the new day\'s card', (tester) async {
+    var now = DateTime(2026, 11, 16, 23, 59);
+    await withClock(Clock(() => now), () async {
+      await _pumpHome(tester, repository: _titledCourse());
+      String module() =>
+          tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
+      final before = module();
+
+      now = DateTime(2026, 11, 17, 0, 1);
+      await tester.pump(const Duration(minutes: 2));
+      await tester.pumpAndSettle();
+
+      expect(module(), isNot(before));
     });
   });
 

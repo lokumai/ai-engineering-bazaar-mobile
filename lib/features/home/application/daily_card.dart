@@ -42,6 +42,9 @@ const int dailyOpenCount = 3;
 /// The module of [day]'s card in [track]: one of the modules completed, which it recalls, or of the next
 /// [dailyOpenCount] not completed, which it teases, all by number, each written in the track and in [language]. The
 /// days go round them in turn. Null when there is none, as with a course not written in [language].
+///
+/// A module completed on [day] itself counts as not completed yet, as it was when the day began: the card the day
+/// opened on stays all day, finished or not (the owner, 2026-11-16).
 DailyChoice? dailyChoice(
   BundleIndex index,
   Track track,
@@ -51,13 +54,20 @@ DailyChoice? dailyChoice(
 }) {
   final view = trackView(record, track);
   final facts = [...curriculumFor(index, track).modules]..sort((a, b) => a.number.compareTo(b.number));
+  // Completed, and not on [day] itself; a time that cannot be read counts as another day.
+  bool doneBefore(CurriculumFact fact) {
+    if (!isSigned(fact, view)) return false;
+    final at = DateTime.tryParse(view.signedOff(fact.slug, Track.engineers)!);
+    return at == null || dayNumber(at.toLocal()) != day;
+  }
+
   final done = [
     for (final fact in facts)
-      if (isSigned(fact, view)) fact.slug,
+      if (doneBefore(fact)) fact.slug,
   ];
   final open = [
     for (final fact in facts)
-      if (fact.drawn && !isSigned(fact, view)) fact.slug,
+      if (fact.drawn && !doneBefore(fact)) fact.slug,
   ].take(dailyOpenCount);
   final pool = [
     for (final key in [...done, ...open])

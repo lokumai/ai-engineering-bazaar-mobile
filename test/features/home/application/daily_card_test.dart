@@ -61,6 +61,24 @@ void main() {
       expect(turns.first!.docPath, 'api/v1/modules/alpha/first/en.json');
     });
 
+    // The owner, 2026-11-16: finishing the day's module turned the card to another module.
+    test('a module completed on the day itself leaves the day on the card it opened on', () {
+      final day = dayNumber(DateTime(2026, 11, 16));
+      final morning = dailyChoice(index, Track.engineers, RecordData.empty, language: 'en', day: day)!;
+      final evening = signOff(
+        RecordData.empty,
+        morning.moduleKey,
+        'abc1234',
+        DateTime(2026, 11, 16, 15).toUtc().toIso8601String(),
+      );
+      expect(dailyChoice(index, Track.engineers, evening, language: 'en', day: day), morning);
+      expect(
+        dailyChoice(index, Track.engineers, evening, language: 'en', day: day + 1),
+        isNot(dailyChoice(index, Track.engineers, RecordData.empty, language: 'en', day: day + 1)),
+        reason: 'the next day it counts as completed',
+      );
+    });
+
     test('no card in a language the course is not written in', () {
       expect(dailyChoice(index, Track.engineers, RecordData.empty, language: 'tr', day: 0), isNull);
     });

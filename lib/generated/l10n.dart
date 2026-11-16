@@ -355,6 +355,11 @@ class S {
     return Intl.message('Today\'s card', name: 'home_daily_title', desc: '', args: []);
   }
 
+  /// `Completed`
+  String get home_daily_completed {
+    return Intl.message('Completed', name: 'home_daily_completed', desc: '', args: []);
+  }
+
   /// `Later on`
   String get home_after {
     return Intl.message('Later on', name: 'home_after', desc: '', args: []);

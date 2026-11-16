@@ -308,6 +308,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_after": MessageLookupByLibrary.simpleMessage("در ادامه"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("همهٔ درس‌های نوشته‌شده تکمیل شده‌اند."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("ادامهٔ خواندن"),
+    "home_daily_completed": MessageLookupByLibrary.simpleMessage("تکمیل‌شده"),
     "home_daily_title": MessageLookupByLibrary.simpleMessage("کارت امروز"),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "بدون اتصال به اینترنت هم خوانده می‌شود. برنامه هر بار که باز می‌شود، از سایت نسخهٔ جدیدتر را می‌پرسد.",
