@@ -130,11 +130,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m53(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
-  static String m54(name, level) => "${name}، در سطح ${level} باز می‌شود";
+  static String m54(step, count) => "${step} / ${count}";
 
-  static String m55(name) => "${name}، پوشیده";
+  static String m55(name, level) => "${name}، در سطح ${level} باز می‌شود";
 
-  static String m56(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
+  static String m56(name) => "${name}، پوشیده";
+
+  static String m57(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -570,15 +572,57 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
     "settings_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
+    "tour_band": MessageLookupByLibrary.simpleMessage(
+      "ماژولی که الان باید بخوانید همیشه اینجاست، زیر انگشتتان: همانی که نیمه‌کاره ماند، یا ماژول بعدی.",
+    ),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
+      "کاروان در خط زمانی جریان‌های هوش مصنوعی سفر می‌کند. هر ایستگاه یک جریان است، همراه ماژول‌هایی که آن را آموزش می‌دهند.",
+    ),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage(
+      "برای حرکت کاروان، اینجا را بکشید یا روی یک ایستگاه بزنید.",
+    ),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
+      "همهٔ سطح‌ها و ماژول‌هایشان اینجا هستند. ماژولی که تمام کنید علامت می‌خورد.",
+    ),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
+      "هر موضوعی را اینجا جستجو کنید. نتیجه‌ها ماژول به ماژول کنار هم می‌آیند و می‌توانید آن‌ها را به سطح‌های دلخواه محدود کنید.",
+    ),
+    "tour_done": MessageLookupByLibrary.simpleMessage("فهمیدم"),
+    "tour_hello": MessageLookupByLibrary.simpleMessage(
+      "سلام، من شاگردم. این یک برنامهٔ آموزشی است: مهندسی هوش مصنوعی را سطح به سطح و ماژول به ماژول یاد می‌دهیم. می‌خواهید همه‌جا را نشانتان بدهم؟",
+    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage(
+      "ماژول‌های بعدی اینجا منتظرند؛ زیرشان آزمون‌هایی برای تمرین و مسیر شما در سطح‌ها هست.",
+    ),
+    "tour_home_head": MessageLookupByLibrary.simpleMessage(
+      "این گوشهٔ من است. هر روز بخشی از دوره را برایتان می‌آورم: برای خواندنش روی کارت بزنید. هر وقت خواستید با من گفتگو کنید.",
+    ),
+    "tour_later": MessageLookupByLibrary.simpleMessage("بعدا"),
+    "tour_next": MessageLookupByLibrary.simpleMessage("بعدی"),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
+      "آزمون‌های هر سطح اینجا هستند. سطحی را باز کنید، آزمونی بدهید و هر چند بار خواستید تکرارش کنید.",
+    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
+      "دوباره این گشت را می‌خواهید؟ در «بازار چطور کار می‌کند» منتظر شماست.",
+    ),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
+      "مسیر، زبان برنامه و ظاهر آن را اینجا انتخاب می‌کنید.",
+    ),
+    "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن"),
+    "tour_step": m54,
+    "tour_tabs": MessageLookupByLibrary.simpleMessage(
+      "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، آزمون و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
+    ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
-    "wardrobe_item_locked": m54,
-    "wardrobe_item_worn": m55,
+    "wardrobe_item_locked": m55,
+    "wardrobe_item_worn": m56,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
-    "wardrobe_preview": m56,
+    "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),

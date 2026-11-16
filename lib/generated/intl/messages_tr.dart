@@ -130,11 +130,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m53(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
-  static String m54(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m54(step, count) => "${step} / ${count}";
 
-  static String m55(name) => "${name}, giyili";
+  static String m55(name, level) => "${name}, ${level}. seviyede açılır";
 
-  static String m56(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m56(name) => "${name}, giyili";
+
+  static String m57(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -568,15 +570,57 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
+    "tour_band": MessageLookupByLibrary.simpleMessage(
+      "Okuman gereken modül hep burada, başparmağının altında: yarım bıraktığın ya da sıradaki.",
+    ),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
+      "Kervan, yapay zekâdaki akımların zaman çizelgesinde yol alıyor. Her durak bir akım; onu anlatan modüller de yanında.",
+    ),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage(
+      "Kervanı yürütmek için burada kaydır ya da bir durağa dokun.",
+    ),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
+      "Bütün seviyeler ve modülleri burada. Tamamladığın modül işaretlenir.",
+    ),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
+      "Herhangi bir konuyu buradan ara. Sonuçlar modül modül toplanır; istersen seviye seçerek daraltırsın.",
+    ),
+    "tour_done": MessageLookupByLibrary.simpleMessage("Tamam"),
+    "tour_hello": MessageLookupByLibrary.simpleMessage(
+      "Merhaba, ben Çırak. Burası bir eğitim uygulaması: yapay zekâ mühendisliğini seviye seviye, modül modül öğretiyoruz. Sana etrafı gezdireyim mi?",
+    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage(
+      "Sonraki modüller burada seni bekliyor; altında pratik için quizler ve seviyelerdeki yolun var.",
+    ),
+    "tour_home_head": MessageLookupByLibrary.simpleMessage(
+      "Burası benim köşem. Her gün sana kursun bir bölümünü getiriyorum: okumak için karta dokun. Benimle istediğin zaman sohbet edebilirsin.",
+    ),
+    "tour_later": MessageLookupByLibrary.simpleMessage("Sonra"),
+    "tour_next": MessageLookupByLibrary.simpleMessage("İleri"),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
+      "Her seviyenin quizleri burada. Bir seviyeyi aç, bir quiz çöz; istediğin kadar yeniden çözebilirsin.",
+    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
+      "Bu turu yeniden izlemek istersen Bazaar nasıl işler sayfasında seni bekliyor.",
+    ),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
+      "Yolunu, uygulamanın dilini ve görünümünü buradan seçersin.",
+    ),
+    "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("Atla"),
+    "tour_step": m54,
+    "tour_tabs": MessageLookupByLibrary.simpleMessage(
+      "Aşağıda sekmeler var: Katalog, Kervan, Quiz ve Ayarlar. Birini aç, orada neler yapabileceğini göstereyim.",
+    ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m54,
-    "wardrobe_item_worn": m55,
+    "wardrobe_item_locked": m55,
+    "wardrobe_item_worn": m56,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m56,
+    "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

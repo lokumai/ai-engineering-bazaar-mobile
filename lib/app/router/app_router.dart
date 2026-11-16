@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_p
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
@@ -77,12 +78,19 @@ class AppRouterFactory {
               // The pocket model's round button, in the corner of Home, the catalog, the Caravan and the Quiz tab (plan
               // 9.4, 11.2). The reader can hide it in Settings (plan 9.9).
               child: BlocBuilder<PocketButtonCubit, bool>(
-                builder: (context, shown) => BazaarShell(
+                // The Apprentice's tour over the shell, the navigation included (plan 11.3); it walks as its button.
+                builder: (context, shown) => TourLayer(
                   location: state.uri.path,
-                  assistant: shown ? const PocketAssistantButton() : null,
-                  // The module left half read, under the thumb (plan 10.4).
-                  band: const HomeContinueBand(),
-                  child: child,
+                  robot: const IgnorePointer(
+                    child: ExcludeSemantics(child: PocketAssistantButton(name: 'tour-robot')),
+                  ),
+                  child: BazaarShell(
+                    location: state.uri.path,
+                    assistant: shown ? const PocketAssistantButton() : null,
+                    // The module left half read, under the thumb (plan 10.4).
+                    band: const HomeContinueBand(),
+                    child: child,
+                  ),
                 ),
               ),
             ),

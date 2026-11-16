@@ -131,11 +131,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m53(reason) => "The check for updates did not finish: ${reason}.";
 
-  static String m54(name, level) => "${name}, unlocks at level ${level}";
+  static String m54(step, count) => "${step} / ${count}";
 
-  static String m55(name) => "${name}, worn";
+  static String m55(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m56(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m56(name) => "${name}, worn";
+
+  static String m57(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -565,17 +567,57 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
+    "tour_band": MessageLookupByLibrary.simpleMessage(
+      "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
+    ),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
+      "The Caravan travels the timeline of AI\'s trends. Each stop is one trend, with the modules that teach it.",
+    ),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide along here, or tap a stop, to move the caravan."),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
+      "Every level and its modules are here. A module you complete is marked as done.",
+    ),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
+      "Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.",
+    ),
+    "tour_done": MessageLookupByLibrary.simpleMessage("Got it"),
+    "tour_hello": MessageLookupByLibrary.simpleMessage(
+      "Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
+    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage(
+      "The modules after it wait here; under them are quizzes to practise and your path through the levels.",
+    ),
+    "tour_home_head": MessageLookupByLibrary.simpleMessage(
+      "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
+    ),
+    "tour_later": MessageLookupByLibrary.simpleMessage("Later"),
+    "tour_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
+      "Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
+    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
+      "Want this tour again? It waits in How the bazaar works.",
+    ),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
+      "Your track, the app\'s language and its look are chosen here.",
+    ),
+    "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("Skip"),
+    "tour_step": m54,
+    "tour_tabs": MessageLookupByLibrary.simpleMessage(
+      "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I\'ll show you what it does.",
+    ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m54,
-    "wardrobe_item_worn": m55,
+    "wardrobe_item_locked": m55,
+    "wardrobe_item_worn": m56,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m56,
+    "wardrobe_preview": m57,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),
