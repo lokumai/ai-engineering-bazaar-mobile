@@ -215,7 +215,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pocket-read')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('It could not read a module just now. Try again later.'), findsOneWidget);
+    expect(find.text('It could not read the module this time. Try again later.'), findsOneWidget);
     expect(find.byKey(const ValueKey('pocket-read')), findsOneWidget, reason: 'it still waits, to try again');
     await _rest(tester);
   });

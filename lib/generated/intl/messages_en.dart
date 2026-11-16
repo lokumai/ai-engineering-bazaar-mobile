@@ -412,7 +412,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_status_recovered": MessageLookupByLibrary.simpleMessage("Rested, and ready to learn again."),
     "pocket_status_unreadable": MessageLookupByLibrary.simpleMessage(
-      "It could not read a module just now. Try again later.",
+      "It could not read the module this time. Try again later.",
     ),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
