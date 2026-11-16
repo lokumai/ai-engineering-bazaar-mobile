@@ -49,8 +49,12 @@ import 'package:go_router/go_router.dart';
 /// navigation on Home's first page only; never over the catalog, the Quiz tab, a level's page, a module or the
 /// Caravan's stage, and it goes with the navigation when a page folds it away. The reader can drag it or throw it
 /// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
+///
+/// The [band] the router passes (the module left half read, plan 10.4) lies over the navigation on the first pages of
+/// Home, the catalog and the Quiz tab, under the reader's thumb; the page and the [assistant] stand above it. It is gone
+/// while the keyboard is up, so it does not ride up over a search.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child, this.assistant});
+  const BazaarShell({super.key, required this.location, required this.child, this.assistant, this.band});
 
   /// The path of the page [child] shows.
   final String location;
@@ -58,6 +62,17 @@ class BazaarShell extends StatefulWidget {
 
   /// The round button in the corner of some tabs' first pages.
   final Widget? assistant;
+
+  /// The band over the navigation on some tabs' first pages; it takes no room when it has nothing to show.
+  final Widget? band;
+
+  /// The pages the [band] lies under: the first pages of Home, the two catalogs and the Quiz tab.
+  static const Set<String> bandPages = {
+    BazaarPaths.home,
+    BazaarPaths.catalogEngineers,
+    BazaarPaths.catalogEveryone,
+    BazaarPaths.quizzes,
+  };
 
   /// The pages that show the [assistant]: Home's first page only; elsewhere it would only distract (the owner,
   /// 2026-11-14).
@@ -282,6 +297,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     final atTabRoot = !pushed && _selectedIndex != 0;
     final assistantShown =
         widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
+    final bandShown =
+        widget.band != null && media.viewInsets.bottom == 0 && BazaarShell.bandPages.contains(widget.location);
     return PopScope(
       canPop: !atTabRoot,
       onPopInvokedWithResult: (didPop, _) {
@@ -347,6 +364,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 ),
               ),
             ),
+            // Over the navigation, under the thumb; the page and the round button stand above it.
+            if (bandShown) ReadableWidth(child: widget.band!),
           ],
         ),
         // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.

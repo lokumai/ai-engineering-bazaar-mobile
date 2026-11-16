@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
@@ -153,7 +154,7 @@ void main() {
 
     expect(find.text('CONTINUE READING'), findsOneWidget);
     expect(find.text('UP NEXT'), findsNothing);
-    expect(find.text('37 % read'), findsOneWidget);
+    expect(find.descendant(of: find.byType(HomeContinueCard), matching: find.text('37 % read')), findsOneWidget);
     expect(find.text('20 min'), findsNothing, reason: 'how far it was read in place of its length');
     expect(find.text('First Module'), findsOneWidget, reason: 'the next module is first after it');
     await _tap(tester, find.text('Continue'));

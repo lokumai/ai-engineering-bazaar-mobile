@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_band.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
@@ -78,6 +79,8 @@ class AppRouterFactory {
                 builder: (context, shown) => BazaarShell(
                   location: state.uri.path,
                   assistant: shown ? const PocketAssistantButton() : null,
+                  // The module left half read, under the thumb (plan 10.4).
+                  band: const HomeContinueBand(),
                   child: child,
                 ),
               ),
