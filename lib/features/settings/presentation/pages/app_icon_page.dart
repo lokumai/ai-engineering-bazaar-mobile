@@ -5,7 +5,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 
-/// The app icon page, from Settings' App icon row (the owner, 2026-11-14): the six icons as pictures, the one in use
+/// The app icon page, from Settings' App icon row (the owner, 2026-11-14): the icons as pictures, the one in use
 /// marked ([AppIconChoices]). A tap makes that icon the app's, on the home screen and in the opening; a note says when
 /// the phone shows it.
 class AppIconPage extends StatelessWidget {

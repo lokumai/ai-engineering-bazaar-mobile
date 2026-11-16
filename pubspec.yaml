@@ -31,6 +31,7 @@ dependencies:
   http: 1.6.0
   path_provider: 2.1.6
   flutter_svg: 2.3.0
+  path_parsing: 1.1.0
   file_picker: 13.1.0
 
 dev_dependencies:
@@ -64,12 +65,30 @@ flutter:
     - assets/fonts/OFL.txt
     - assets/fonts/OFL-Fraunces.txt
     - assets/brand/lokum_logo.webp
-    - assets/app_icon/dark.png
-    - assets/app_icon/cream.png
-    - assets/app_icon/noir.png
-    - assets/app_icon/ink.png
-    - assets/app_icon/nightGold.png
-    - assets/app_icon/nightSea.png
+    - assets/app_icon/fezDark.png
+    - assets/app_icon/fezCream.png
+    - assets/app_icon/antennaDark.png
+    - assets/app_icon/antennaCream.png
+    - assets/app_icon/beanieDark.png
+    - assets/app_icon/beanieCream.png
+    - assets/app_icon/domeDark.png
+    - assets/app_icon/domeCream.png
+    - assets/app_icon/mortarboardDark.png
+    - assets/app_icon/mortarboardCream.png
+    - assets/app_icon/tvDark.png
+    - assets/app_icon/tvCream.png
+    - assets/app_icon/turbanDark.png
+    - assets/app_icon/turbanCream.png
+    - assets/app_icon/earsDark.png
+    - assets/app_icon/earsCream.png
+    - assets/app_icon/wizardDark.png
+    - assets/app_icon/wizardCream.png
+    - assets/app_icon/topHatDark.png
+    - assets/app_icon/topHatCream.png
+    - assets/app_icon/visorDark.png
+    - assets/app_icon/visorCream.png
+    - assets/app_icon/crownDark.png
+    - assets/app_icon/crownCream.png
     - assets/welcome/cast_mihri.webp
     - assets/welcome/cast_dariush.webp
     - assets/welcome/cast_bit.webp

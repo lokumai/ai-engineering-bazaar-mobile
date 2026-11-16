@@ -17,6 +17,9 @@ class ApplicationRoutesConstants {
   /// The app icon's choice, from Settings.
   static const appIcon = '/settings/app-icon';
 
+  /// The robot's wardrobe, from Settings' Customize (plan 9.9).
+  static const robot = '/settings/robot';
+
   /// How the bazaar works, from Settings; Welcome's guide before About took its place.
   static const guide = '/settings/guide';
 

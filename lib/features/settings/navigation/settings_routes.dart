@@ -12,11 +12,12 @@ import 'package:go_router/go_router.dart';
 
 class SettingsFeatureRoutes {
   /// The settings route, its app icon page and its privacy and legal page; [openDevConsole] reaches the page's developer console entry
-  /// (null hides it, Decision A6), and [crashReports] says whether this build sends crash reports (plan 3.4); only then
+  /// (null hides it, Decision A6), [wardrobePicture] draws the robot beside the Wardrobe row, and [crashReports] says whether this build sends crash reports (plan 3.4); only then
   /// is there Report a problem, which sends through Sentry too.
   static List<GoRoute> routes({
     required void Function(BuildContext context)? openDevConsole,
     required bool crashReports,
+    Widget Function(double side)? wardrobePicture,
   }) => [
     GoRoute(
       name: 'settings',
@@ -24,7 +25,7 @@ class SettingsFeatureRoutes {
       pageBuilder: (context, state) => appTransitionPage(
         context: context,
         state: state,
-        child: SettingsPage(openDevConsole: openDevConsole, feedback: crashReports),
+        child: SettingsPage(openDevConsole: openDevConsole, feedback: crashReports, wardrobePicture: wardrobePicture),
       ),
     ),
     GoRoute(

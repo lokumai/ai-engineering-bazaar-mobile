@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_choices.dart';
+import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,72 +28,116 @@ Future<AppIconCubit> _pump(
   IAppIconSwitch iconSwitch = const NoAppIconSwitch(),
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
+  int level = 0,
+  BazaarIcon? initial,
 }) async {
-  final cubit = AppIconCubit(iconSwitch: iconSwitch)..load();
+  tester.view.physicalSize = const Size(393, 1600);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  final cubit = AppIconCubit(iconSwitch: iconSwitch, initial: initial)..load();
   addTearDown(cubit.close);
+  final robotLevel = RobotLevelCubit()..reached(level);
+  // The provider the test app makes of it closes it.
   final router = GoRouter(
     routes: [GoRoute(path: '/', builder: (_, _) => const AppIconPage())],
   );
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, appIcon: cubit, platform: platform, locale: locale));
+  await tester.pumpWidget(
+    bazaarTestApp(router: router, appIcon: cubit, robotLevel: robotLevel, platform: platform, locale: locale),
+  );
   await tester.pumpAndSettle();
   return cubit;
 }
 
 Matcher _selected(bool selected) => isSemantics(isSelected: selected, isButton: true);
 
+Finder _picture(AppIconRobot robot, BazaarIcon icon) =>
+    find.descendant(of: find.byKey(appIconChoiceKey(robot)), matching: find.image(AssetImage(icon.asset)));
+
 void main() {
-  testWidgets('shows the six icons as pictures, named only to a screen reader, Noir the default and in use', (
+  testWidgets('the ground above, then every robot of the wardrobe on it; the fez on cream the default and in use', (
     tester,
   ) async {
-    await _pump(tester);
+    await _pump(tester, level: 20);
 
-    for (final icon in BazaarIcon.values) {
-      expect(find.byKey(appIconChoiceKey(icon)), findsOneWidget, reason: icon.name);
-      expect(
-        find.descendant(of: find.byKey(appIconChoiceKey(icon)), matching: find.image(AssetImage(icon.asset))),
-        findsOneWidget,
-        reason: icon.name,
-      );
+    final ground = tester.getRect(find.byKey(appIconGroundKey(AppIconGround.cream)));
+    for (final robot in AppIconRobot.values) {
+      expect(_picture(robot, BazaarIcon.of(robot, AppIconGround.cream)), findsOneWidget, reason: robot.name);
+      expect(tester.getTopLeft(find.byKey(appIconChoiceKey(robot))).dy, greaterThan(ground.bottom));
     }
+    expect(tester.getSemantics(find.byKey(appIconGroundKey(AppIconGround.cream))), isSemantics(isSelected: true));
     // No names under the pictures (the owner, 2026-11-14); a screen reader hears them.
-    for (final name in ['Dark', 'Cream', 'Noir', 'Ink', 'Night gold', 'Night sea', 'Default']) {
-      expect(find.text(name), findsNothing, reason: name);
-    }
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), isSemantics(label: 'Noir, Default'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), isSemantics(label: 'Dark'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(true));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.dark))), _selected(false));
+    expect(find.text('Fez'), findsNothing);
+    expect(
+      tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))),
+      isSemantics(label: 'Fez, Cream, Default'),
+    );
+    expect(
+      tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.wizard))),
+      isSemantics(label: "Wizard's hat, Cream"),
+    );
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))), _selected(true));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.wizard))), _selected(false));
   });
 
-  testWidgets('stands the six in two rows of three: Noir, Ink, Night gold; Night sea, Dark, Cream', (tester) async {
-    await _pump(tester);
-
-    Offset at(BazaarIcon icon) => tester.getTopLeft(find.byKey(appIconChoiceKey(icon)));
-    final rows = [
-      [BazaarIcon.noir, BazaarIcon.ink, BazaarIcon.nightGold],
-      [BazaarIcon.nightSea, BazaarIcon.dark, BazaarIcon.cream],
-    ];
-    for (final row in rows) {
-      expect({for (final icon in row) at(icon).dy}, hasLength(1), reason: '$row');
-      expect(at(row[0]).dx, lessThan(at(row[1]).dx));
-      expect(at(row[1]).dx, lessThan(at(row[2]).dx));
-    }
-    expect(at(BazaarIcon.nightSea).dy, greaterThan(at(BazaarIcon.noir).dy));
-  });
-
-  testWidgets('a tap makes that icon the app icon and marks it', (tester) async {
+  testWidgets('choosing cream puts every robot on cream, and the icon in use with them', (tester) async {
     final iconSwitch = _Switch();
-    final cubit = await _pump(tester, iconSwitch: iconSwitch);
+    final cubit = await _pump(tester, iconSwitch: iconSwitch, level: 20, initial: BazaarIcon.tvDark);
     iconSwitch.asked.clear();
 
-    await tester.tap(find.byKey(appIconChoiceKey(BazaarIcon.nightSea)));
+    await tester.tap(find.byKey(appIconGroundKey(AppIconGround.cream)));
     await tester.pumpAndSettle();
 
-    expect(cubit.state, const AppIconKnown(BazaarIcon.nightSea));
-    expect(iconSwitch.asked, [BazaarIcon.nightSea]);
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), _selected(true));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), _selected(false));
+    expect(cubit.state.icon, BazaarIcon.tvCream);
+    expect(iconSwitch.asked, [BazaarIcon.tvCream]);
+    for (final robot in AppIconRobot.values) {
+      expect(_picture(robot, BazaarIcon.of(robot, AppIconGround.cream)), findsOneWidget, reason: robot.name);
+    }
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.tv))), _selected(true));
+
+    await tester.tap(find.byKey(appIconGroundKey(AppIconGround.dark)));
+    await tester.pumpAndSettle();
+    expect(cubit.state.icon, BazaarIcon.tvDark);
+  });
+
+  testWidgets('a tap on a robot makes it the app icon on the ground chosen, and marks it', (tester) async {
+    final iconSwitch = _Switch();
+    final cubit = await _pump(tester, iconSwitch: iconSwitch, level: 20, initial: BazaarIcon.fezCream);
+    iconSwitch.asked.clear();
+
+    await tester.tap(find.byKey(appIconChoiceKey(AppIconRobot.crown)));
+    await tester.pumpAndSettle();
+
+    expect(cubit.state, const AppIconKnown(BazaarIcon.crownCream));
+    expect(iconSwitch.asked, [BazaarIcon.crownCream]);
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.crown))), _selected(true));
+    expect(tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))), _selected(false));
+  });
+
+  testWidgets('a robot the pocket model has not unlocked in its wardrobe is locked, with its level', (tester) async {
+    final cubit = await _pump(tester, level: 2);
+
+    expect(
+      tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.dome))),
+      isSemantics(label: 'Round head, Cream, unlocks at level 3'),
+    );
+    expect(
+      find.descendant(of: find.byKey(appIconChoiceKey(AppIconRobot.dome)), matching: find.text('Level 3')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byKey(appIconChoiceKey(AppIconRobot.beanie)), matching: find.byIcon(Icons.lock_rounded)),
+      findsNothing,
+      reason: 'the beanie unlocks at level 2',
+    );
+    await tester.tap(find.byKey(appIconChoiceKey(AppIconRobot.dome)));
+    await tester.pumpAndSettle();
+    expect(cubit.state.icon, BazaarIcon.fezCream, reason: 'a locked icon cannot be chosen');
+
+    await tester.tap(find.byKey(appIconChoiceKey(AppIconRobot.beanie)));
+    await tester.pumpAndSettle();
+    expect(cubit.state.icon, BazaarIcon.beanieCream);
   });
 
   testWidgets('says on Android that the icon changes once the app is left, and on iOS that the phone confirms it', (
@@ -106,15 +151,18 @@ void main() {
   });
 
   testWidgets('names the icons in Turkish', (tester) async {
-    await _pump(tester, locale: const Locale('tr'));
+    await _pump(tester, locale: const Locale('tr'), level: 20);
 
     expect(find.text('App ikonu'), findsOneWidget);
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.nightSea))), isSemantics(label: 'Gece denizi'));
-    expect(tester.getSemantics(find.byKey(appIconChoiceKey(BazaarIcon.noir))), isSemantics(label: 'Noir, Varsayılan'));
+    expect(find.text('Koyu'), findsOneWidget);
+    expect(
+      tester.getSemantics(find.byKey(appIconChoiceKey(AppIconRobot.fez))),
+      isSemantics(label: 'Fes, Krem, Varsayılan'),
+    );
   });
 
   testWidgets('the page meets the platform guidelines', (tester) async {
-    await _pump(tester, platform: defaultTargetPlatform);
+    await _pump(tester, platform: defaultTargetPlatform, level: 4);
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   }, variant: bazaarPlatforms);

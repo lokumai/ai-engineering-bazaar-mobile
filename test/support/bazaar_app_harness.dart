@@ -3,6 +3,13 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
+import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
@@ -22,6 +29,7 @@ import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -105,10 +113,16 @@ Widget bazaarTestApp({
   AppIconCubit? appIcon,
   QuizScoresBloc? scores,
   ReadingPlacesBloc? places,
+  CaravanCubit? caravan,
   IContentRepository? repository,
   IBackupGateway? backupGateway,
   IRecordRepository? recordRepository,
   IFeedbackSender? feedbackSender,
+  IPocketModelStore? pocketStore,
+  IPocketTexts? pocketTexts,
+  RobotOutfitCubit? robotOutfit,
+  PocketButtonCubit? pocketButton,
+  RobotLevelCubit? robotLevel,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -120,6 +134,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
+      RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
     ],
     child: MultiBlocProvider(
       providers: [
@@ -141,6 +156,18 @@ Widget bazaarTestApp({
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+        if (caravan != null)
+          BlocProvider<CaravanCubit>.value(value: caravan)
+        else
+          BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+        BlocProvider<RobotOutfitCubit>(create: (_) => robotOutfit ?? RobotOutfitCubit(store: MemoryRobotOutfitStore())),
+        BlocProvider<PocketButtonCubit>(create: (_) => pocketButton ?? PocketButtonCubit()),
+        BlocProvider<RobotLevelCubit>(create: (_) => robotLevel ?? RobotLevelCubit()),
+        BlocProvider<PocketModelBloc>(
+          create: (context) =>
+              PocketModelBloc(store: context.read<IPocketModelStore>(), texts: pocketTexts)
+                ..add(const PocketModelStarted()),
+        ),
         if (language != null)
           BlocProvider<LanguageCubit>.value(value: language)
         else

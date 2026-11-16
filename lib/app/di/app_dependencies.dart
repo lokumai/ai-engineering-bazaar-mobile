@@ -11,10 +11,15 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/bundled_content.dart';
@@ -33,6 +38,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
+import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
@@ -81,8 +87,14 @@ class AppDependencies {
   /// The chosen look (light or dark), as file flags under [supportDirectory]`/flags/`, apart from the record.
   IThemeStore createThemeStore() => FlagThemeStore(FileFlagStore(baseDirectory: supportDirectory));
 
+  /// Names the chosen look to the phone, so the next launch opens on its page colour, over the native channel.
+  ILaunchGround createLaunchGround() => const ChannelLaunchGround(LaunchGroundChannel());
+
   /// The chosen app icon, as file flags under [supportDirectory]`/flags/`, apart from the record.
   IAppIconStore createAppIconStore() => FlagAppIconStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// Whether the pocket model's round button is hidden, as a file flag under [supportDirectory]`/flags/` (plan 9.9).
+  IPocketButtonStore createPocketButtonStore() => FlagPocketButtonStore(FileFlagStore(baseDirectory: supportDirectory));
 
   /// Puts the chosen app icon on the home screen, over the native channel.
   IAppIconSwitch createAppIconSwitch() => const ChannelAppIconSwitch(AppIconChannel());
@@ -95,6 +107,15 @@ class AppDependencies {
   /// (plan 1BA).
   IReadingPlaceStore createReadingPlaceStore() =>
       FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
+
+  /// Home's pocket model, as one file under [supportDirectory]`/toy/pocket_model.json`, apart from the record
+  /// (plan 9.2).
+  IPocketModelStore createPocketModelStore() =>
+      FilePocketModelStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'));
+
+  /// The robot's outfit, as one file under [supportDirectory]`/toy/outfit.json`, apart from the record (plan 9.9).
+  IRobotOutfitStore createRobotOutfitStore() =>
+      FileRobotOutfitStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/outfit.json'));
 
   /// Report a problem's sender, over Sentry's user feedback; Settings shows the page only when Sentry is on.
   IFeedbackSender createFeedbackSender() => const SentryFeedbackSender();
@@ -123,6 +144,22 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
   @override
   Future<void> save(Map<String, ReadingPlace> places) =>
       places.isEmpty ? _file.delete() : _file.write(encodeReadingPlaces(places));
+}
+
+/// The pocket model's port over one text file of the app's own.
+final class FilePocketModelStore implements IPocketModelStore {
+  const FilePocketModelStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<PocketModel?> load() async {
+    final text = await _file.read();
+    return text == null ? null : decodePocketModel(text);
+  }
+
+  @override
+  Future<void> save(PocketModel model) => _file.write(encodePocketModel(model));
 }
 
 /// The quiz scores' port over one text file of the app's own.
@@ -211,6 +248,37 @@ final class FlagLanguageStore implements ILanguageStore {
   }
 }
 
+/// The pocket button's port over the app's file flags: `pocket-button-hidden` set when the reader hid it.
+final class FlagPocketButtonStore implements IPocketButtonStore {
+  const FlagPocketButtonStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _flag = 'pocket-button-hidden';
+
+  @override
+  Future<bool> hidden() => _flags.isSet(_flag);
+
+  @override
+  Future<void> hide({required bool hidden}) => hidden ? _flags.set(_flag) : _flags.clear(_flag);
+}
+
+/// The robot's outfit in one text file.
+final class FileRobotOutfitStore implements IRobotOutfitStore {
+  const FileRobotOutfitStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<RobotOutfit?> load() async {
+    final text = await _file.read();
+    return text == null ? null : decodeRobotOutfit(text);
+  }
+
+  @override
+  Future<void> save(RobotOutfit outfit) => _file.write(encodeRobotOutfit(outfit));
+}
+
 /// The theme cubit's port over the app's file flags: `theme-light` or `theme-dark`, at most one set. No flag set means
 /// no choice was made, or the phone was chosen.
 final class FlagThemeStore implements IThemeStore {
@@ -272,4 +340,14 @@ final class ChannelAppIconSwitch implements IAppIconSwitch {
 
   @override
   Future<void> choose(BazaarIcon icon) => _channel.choose(icon.name);
+}
+
+/// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.
+final class ChannelLaunchGround implements ILaunchGround {
+  const ChannelLaunchGround(this._channel);
+
+  final LaunchGroundChannel _channel;
+
+  @override
+  Future<void> keep(ThemeMode mode) => _channel.keep(dark: mode != ThemeMode.light);
 }

@@ -31,6 +31,7 @@ void main() {
       expect(sources.map((file) => file.path).toSet(), {
         for (final name in [
           'AppIconSwitch',
+          'LaunchGround',
           'MainActivity',
           'MainApplication',
           'NativeScrubPatterns',
@@ -38,7 +39,7 @@ void main() {
           'NativeSentryScrubber',
         ])
           '$kotlinMain/$name.kt',
-        for (final name in ['AppIconSwitchTest', 'NativeSentryScrubberTest', 'NativeSentryTest'])
+        for (final name in ['AppIconSwitchTest', 'LaunchGroundTest', 'NativeSentryScrubberTest', 'NativeSentryTest'])
           '$kotlinTest/$name.kt',
       });
       for (final source in sources) {
