@@ -165,20 +165,26 @@ final class SearchHit extends Equatable {
 
 /// The hits of one query.
 final class SearchResults extends Equatable {
-  const SearchResults({required this.hits, required this.total});
+  const SearchResults({required this.hits, required this.total, this.levels = const {}});
 
   /// No hit.
   static const none = SearchResults(hits: [], total: 0);
 
-  /// The best hits, at most [CatalogSearchIndex.limit].
+  /// The best hits, at most [CatalogSearchIndex.limit], in the levels asked for.
   final List<SearchHit> hits;
 
-  /// How many entries matched, the ones not shown included.
+  /// How many entries matched in the levels asked for, the ones not shown included.
   final int total;
 
+  /// How many entries matched in each level, by its slug, whatever levels were asked for: the filter's counts.
+  final Map<String, int> levels;
+
   @override
-  List<Object?> get props => [hits, total];
+  List<Object?> get props => [hits, total, levels];
 }
+
+/// The slug of the level [entry] is in: a module's level, or the level itself.
+String levelOf(SearchEntry entry) => entry.moduleKey.split('/').first;
 
 enum _Field { title, section, text }
 
@@ -222,7 +228,8 @@ final class CatalogSearchIndex {
 
   /// The hits for [query], best first, at most [limit], and how many there are in all. A Persian query with a prefix or
   /// a suffix typed apart from its word is searched joined as well (web `joinedVariant`), each entry at its better score.
-  SearchResults search(String query) {
+  /// With [levels], only the hits in those levels (by slug) are kept; the count of each level is of every hit.
+  SearchResults search(String query, {Set<String> levels = const {}}) {
     final terms = termsOf(query);
     if (terms.isEmpty) return SearchResults.none;
     final variant = joinedVariant(query, lang);
@@ -235,9 +242,21 @@ final class CatalogSearchIndex {
     final marked = {...terms, ...variantTerms}.toList();
     final ranked = [for (final MapEntry(key: i, :value) in total.entries) (i, value * _rank(entries[i]))]
       ..sort((a, b) => b.$2.compareTo(a.$2) != 0 ? b.$2.compareTo(a.$2) : a.$1.compareTo(b.$1));
+    final counts = <String, int>{};
+    for (final (i, _) in ranked) {
+      final level = levelOf(entries[i]);
+      counts[level] = (counts[level] ?? 0) + 1;
+    }
+    final kept = levels.isEmpty
+        ? ranked
+        : [
+            for (final hit in ranked)
+              if (levels.contains(levelOf(entries[hit.$1]))) hit,
+          ];
     return SearchResults(
-      hits: [for (final (i, score) in ranked.take(limit)) _hit(entries[i], score, marked)],
-      total: ranked.length,
+      hits: [for (final (i, score) in kept.take(limit)) _hit(entries[i], score, marked)],
+      total: kept.length,
+      levels: counts,
     );
   }
 

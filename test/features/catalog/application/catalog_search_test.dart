@@ -106,6 +106,26 @@ void main() {
   });
 
   group('CatalogSearchIndex', () {
+    // Plan 10.2: the hits can be kept to some levels, and each level says how many it has.
+    test('counts the hits of each level, and keeps to the levels asked for', () {
+      final index = CatalogSearchIndex([
+        _entry('agents call tools', key: 'alpha/first'),
+        _entry('agents read files', key: 'alpha/second'),
+        _entry('agents plan', key: 'beta/fourth'),
+        _entry('agents of a level', kind: SearchKind.level, key: 'gamma'),
+        _entry('no match here', key: 'beta/fifth'),
+      ], lang: 'en');
+
+      final all = index.search('agents');
+      expect(all.total, 4);
+      expect(all.levels, {'alpha': 2, 'beta': 1, 'gamma': 1});
+
+      final kept = index.search('agents', levels: {'beta', 'gamma'});
+      expect(kept.hits.map((h) => h.entry.moduleKey), ['beta/fourth', 'gamma']);
+      expect(kept.total, 2);
+      expect(kept.levels, all.levels, reason: 'the counts are of every level');
+    });
+
     test('every word typed must match', () {
       final index = CatalogSearchIndex([_entry('agents call tools'), _entry('agents read files')], lang: 'en');
 
