@@ -148,8 +148,6 @@
   },
   "home_up_next": "Up next",
   "@home_up_next": {},
-  "home_open_module": "Open the module",
-  "@home_open_module": {},
   "home_continue_reading": "Continue reading",
   "@home_continue_reading": {},
   "home_read_percent": "{percent} % read",
@@ -161,11 +159,9 @@
       }
     }
   },
-  "home_continue": "Continue",
-  "@home_continue": {},
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
-  "home_after": "After that",
+  "home_after": "Later on",
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",
   "@home_see_catalog": {},

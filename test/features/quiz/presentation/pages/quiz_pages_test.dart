@@ -188,7 +188,10 @@ void main() {
 
     await _openLevels(tester, ['alpha']);
     expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget);
-    expect(find.text('First Story'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.text('First Story')),
+      findsOneWidget,
+    );
     expect(find.byKey(QuizListPage.rowKey('alpha/second')), findsNothing, reason: 'not written For Everyone');
   });
 

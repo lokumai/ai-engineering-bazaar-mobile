@@ -126,7 +126,7 @@ void main() {
     await openFold(tester, _level('Alpha Level'));
 
     expect(_inOverview('First Module'), findsOneWidget);
-    expect(find.text('First Story'), findsNothing);
+    expect(_inOverview('First Story'), findsNothing, reason: 'the catalog keeps the course\'s titles');
     expect(_plannedIn('alpha/second'), findsOneWidget);
     expect(_plannedIn('alpha/third'), findsOneWidget);
     expect(_plannedIn('alpha/first'), findsNothing);

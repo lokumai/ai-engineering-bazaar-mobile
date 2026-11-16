@@ -3,7 +3,6 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
@@ -12,7 +11,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Locale, Size, Text;
+import 'package:flutter/widgets.dart' show Locale, Size, Text, ValueKey;
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -72,24 +71,31 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// The band over the navigation with the module to read now (plan 10.4).
+final _band = find.byKey(const ValueKey('home-continue-band'));
+
+Finder _inBand(String text) => find.descendant(of: _band, matching: find.text(text));
+
 void main() {
-  testWidgets('the label over the card is in Turkish capitals: SIRADAKİ, not SIRADAKI', (tester) async {
+  testWidgets('the band says Up next in Turkish too', (tester) async {
     await _pumpHome(tester, locale: const Locale('tr'));
 
-    expect(find.text('SIRADAKİ'), findsOneWidget);
-    expect(find.text('SIRADAKI'), findsNothing);
+    expect(_inBand('Sıradaki'), findsOneWidget);
   });
 
-  testWidgets('Home is the first page: the track, the next module, the ones after it and the offline note', (
+  // Plan 10.4 (the owner, 2026-11-16): the module to read now is in the band under the thumb, and Home's card is gone.
+  testWidgets('Home is the first page: the modules later on and the offline note, the next module in the band', (
     tester,
   ) async {
     await _pumpHome(tester);
 
     expect(find.byType(HomePage), findsOneWidget);
-    expect(find.text('UP NEXT'), findsOneWidget);
-    expect(find.text('First Module'), findsOneWidget);
-    expect(find.text('20 min'), findsOneWidget);
-    expect(find.text('After that'), findsOneWidget);
+    expect(_inBand('Up next'), findsOneWidget);
+    expect(_inBand('First Module'), findsOneWidget);
+    expect(_inBand('20 min'), findsOneWidget);
+    expect(find.text('First Module'), findsOneWidget, reason: 'in the band only, with no card at the head');
+    expect(find.text('UP NEXT'), findsNothing);
+    expect(find.text('Later on'), findsOneWidget);
     expect(find.text('Second Module'), findsOneWidget);
     expect(find.text('Fourth Module', skipOffstage: false), findsOneWidget);
     expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
@@ -132,16 +138,16 @@ void main() {
     expect(fourth, contains('40'));
   });
 
-  testWidgets('the continue card opens the next module', (tester) async {
+  testWidgets('the band opens the next module', (tester) async {
     final router = await _pumpHome(tester, record: _completed(['alpha/first']));
 
-    expect(find.text('Second Module'), findsOneWidget);
-    await _tap(tester, find.text('Open the module'));
+    expect(_inBand('Second Module'), findsOneWidget);
+    await _tap(tester, _band);
 
     expect(_path(router), '/courses/alpha/second');
   });
 
-  testWidgets('a module left half read: the card goes on with it, says how far, and opens it (plan 1BA)', (
+  testWidgets('a module left half read: the band goes on with it, says how far, and opens it (plan 1BA)', (
     tester,
   ) async {
     final places = ReadingPlacesBloc(
@@ -152,12 +158,12 @@ void main() {
     addTearDown(places.close);
     final router = await _pumpHome(tester, places: places);
 
-    expect(find.text('CONTINUE READING'), findsOneWidget);
-    expect(find.text('UP NEXT'), findsNothing);
-    expect(find.descendant(of: find.byType(HomeContinueCard), matching: find.text('37 % read')), findsOneWidget);
-    expect(find.text('20 min'), findsNothing, reason: 'how far it was read in place of its length');
-    expect(find.text('First Module'), findsOneWidget, reason: 'the next module is first after it');
-    await _tap(tester, find.text('Continue'));
+    expect(_inBand('Continue reading'), findsOneWidget);
+    expect(_inBand('Up next'), findsNothing);
+    expect(_inBand('37 % read'), findsOneWidget);
+    expect(_inBand('Fourth Module'), findsOneWidget);
+    expect(find.text('First Module'), findsOneWidget, reason: 'the next module is first later on');
+    await _tap(tester, _band);
 
     expect(_path(router), '/courses/beta/fourth');
   });
@@ -181,7 +187,7 @@ void main() {
     );
 
     expect(find.text('Every written module is complete.'), findsOneWidget);
-    expect(find.text('Open the module'), findsNothing);
+    expect(_band, findsNothing);
     await _tap(tester, find.text('See the whole catalog').first);
 
     expect(_path(router), '/sheets');
@@ -198,8 +204,8 @@ void main() {
     expect(_path(router), '/');
     expect(track.state, Track.everyone);
     expect(find.text('Second Module'), findsNothing);
-    expect(find.text('First Story'), findsOneWidget, reason: 'alpha/first is completed For Engineers only');
-    await _tap(tester, find.text('Open the module'));
+    expect(_inBand('First Story'), findsOneWidget, reason: 'alpha/first is completed For Engineers only');
+    await _tap(tester, _band);
     expect(_path(router), '/everyone/courses/alpha/first');
   });
 
@@ -209,9 +215,7 @@ void main() {
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
-    await tester.ensureVisible(find.text('Open the module'));
-    await tester.pump();
-    expectHittable(tester, find.text('Open the module'));
+    expectHittable(tester, _band);
   });
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {

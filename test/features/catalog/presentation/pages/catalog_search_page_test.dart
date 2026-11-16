@@ -152,7 +152,11 @@ void main() {
 
     await tester.showKeyboard(find.byType(TextField));
     expect(tester.testTextInput.isVisible, isTrue);
-    await tester.drag(find.byType(CatalogSearchResults), const Offset(0, -100));
+    // From the top of the hits, which is on screen.
+    await tester.dragFrom(
+      tester.getTopLeft(find.byType(CatalogSearchResults)) + const Offset(40, 40),
+      const Offset(0, -100),
+    );
     await tester.pumpAndSettle();
     expect(tester.testTextInput.isVisible, isFalse, reason: 'a drag through the hits');
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'agent', reason: 'the words stay');

@@ -7,6 +7,8 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +20,7 @@ import '../../../../support/bazaar_app_harness.dart';
 /// reading, the likeliest tap, sat at the top of the screen, out of the thumb's reach).
 final _band = find.byKey(const ValueKey('home-continue-band'));
 
-Future<GoRouter> _pump(WidgetTester tester, {String at = '/', bool halfRead = true}) async {
+Future<GoRouter> _pump(WidgetTester tester, {String at = '/', bool halfRead = true, RecordData? record}) async {
   final places = ReadingPlacesBloc(
     store: MemoryReadingPlaceStore({
       if (halfRead) 'engineers:beta/fourth': ReadingPlace(offset: 400, share: 0.37, at: DateTime.utc(2026, 11, 11)),
@@ -27,7 +29,7 @@ Future<GoRouter> _pump(WidgetTester tester, {String at = '/', bool halfRead = tr
   addTearDown(places.close);
   final router = AppRouterFactory(initialLocation: at).create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, places: places));
+  await tester.pumpWidget(bazaarTestApp(router: router, places: places, record: readyRecordBloc(record)));
   await tester.pumpAndSettle();
   return router;
 }
@@ -65,11 +67,38 @@ void main() {
     });
   }
 
-  testWidgets('takes no room with no module half read', (tester) async {
-    await _pump(tester, halfRead: false);
+  // The owner, 2026-11-16: with no module half read, it offers the next one, so Home's card could go.
+  testWidgets('with no module half read, it offers the next one, with its minutes', (tester) async {
+    final router = await _pump(tester, halfRead: false);
+
+    expect(find.descendant(of: _band, matching: find.text('Up next')), findsOneWidget);
+    expect(find.descendant(of: _band, matching: find.text('First Module')), findsOneWidget);
+    expect(find.descendant(of: _band, matching: find.text('20 min')), findsOneWidget);
+    await tester.tap(_band);
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/courses/alpha/first');
+  });
+
+  testWidgets('takes no room with every module completed', (tester) async {
+    await _pump(
+      tester,
+      halfRead: false,
+      record: ['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth'].fold<RecordData>(
+        RecordData.empty,
+        (record, key) => signOff(record, key, 'abc1234', '2026-11-09T10:00:00.000Z'),
+      ),
+    );
     expect(_band, findsNothing);
-    expect(find.byType(HomeContinueBand), findsOneWidget);
     expect(tester.getSize(find.byType(HomeContinueBand)).height, 0);
+  });
+
+  testWidgets('grows with the text size rather than overflow', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester);
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(_band).height, greaterThan(HomeContinueBand.height));
   });
 
   testWidgets('the round button of the Apprentice stands above it', (tester) async {

@@ -330,11 +330,6 @@ class S {
     return Intl.message('Up next', name: 'home_up_next', desc: '', args: []);
   }
 
-  /// `Open the module`
-  String get home_open_module {
-    return Intl.message('Open the module', name: 'home_open_module', desc: '', args: []);
-  }
-
   /// `Continue reading`
   String get home_continue_reading {
     return Intl.message('Continue reading', name: 'home_continue_reading', desc: '', args: []);
@@ -350,19 +345,14 @@ class S {
     );
   }
 
-  /// `Continue`
-  String get home_continue {
-    return Intl.message('Continue', name: 'home_continue', desc: '', args: []);
-  }
-
   /// `Every written module is complete.`
   String get home_all_complete {
     return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
   }
 
-  /// `After that`
+  /// `Later on`
   String get home_after {
-    return Intl.message('After that', name: 'home_after', desc: '', args: []);
+    return Intl.message('Later on', name: 'home_after', desc: '', args: []);
   }
 
   /// `See the whole catalog`

@@ -15,14 +15,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The module left half read, in a band over the navigation, under the reader's thumb (plan 10.4, the owner's testers,
-/// 2026-11-16: Continue reading, the likeliest tap, sat at the top of the screen): its level's dot, its title and how
-/// far it was read, with a bar in its level's hue along the band's top; a tap goes on from there. With no module half
-/// read on this device it takes no room. It is the same module Home's continue card goes on with (plan 1BA).
+/// The module to read now, in a band over the navigation, under the reader's thumb (plan 10.4, the owner's testers,
+/// 2026-11-16: Continue reading, the likeliest tap, sat at the top of the screen; the owner: Up next too, and Home's card
+/// goes): the module left half read on this device, with how far it was read and a bar in its level's hue along the
+/// band's top, else the next module of the track not completed, with its minutes (plan 1BA). Its level's dot and its
+/// title; a tap opens it, where it was left. With every module completed it takes no room.
 class HomeContinueBand extends StatelessWidget {
   const HomeContinueBand({super.key});
 
-  /// The band's height, its bar included.
+  /// The band's least height, its bar included; it grows with the text size.
   static const double height = 56;
 
   @override
@@ -50,17 +51,18 @@ class HomeContinueBand extends StatelessWidget {
       places: places,
       language: language,
     ).next;
-    final share = next?.share;
-    if (next == null || share == null) return const SizedBox.shrink();
+    if (next == null) return const SizedBox.shrink();
+    final share = next.share;
     final s = S.of(context);
     final colors = context.bazaarColors;
     final textTheme = Theme.of(context).textTheme;
     final hue = levelHue(context, next.position);
-    final percent = (share * 100).round();
+    final label = share == null ? s.home_up_next : s.home_continue_reading;
+    final measure = share == null ? s.reader_minutes(next.module.minutes) : s.home_read_percent((share * 100).round());
     void open() => context.push(BazaarPaths.module(track, next.module.key));
     return Semantics(
       button: true,
-      label: '${s.home_continue_reading}: ${next.title}, ${s.home_read_percent(percent)}',
+      label: '$label: ${next.title}, $measure',
       onTap: open,
       excludeSemantics: true,
       child: Material(
@@ -68,49 +70,45 @@ class HomeContinueBand extends StatelessWidget {
         color: colors.surface,
         child: InkWell(
           onTap: open,
-          child: SizedBox(
-            height: height,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: height),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // How far it was read, along the band's top edge, over a hairline.
+                // How far it was read, along the band's top edge, over a hairline; the hairline alone for a module not begun.
                 SizedBox(
                   height: 3,
-                  child: LinearProgressIndicator(value: share, color: hue, backgroundColor: colors.line),
+                  child: LinearProgressIndicator(value: share ?? 0, color: hue, backgroundColor: colors.line),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                    child: Row(
-                      spacing: AppSpacing.md,
-                      children: [
-                        LevelKey(color: hue, size: 8),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                s.home_continue_reading,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted),
-                              ),
-                              Text(
-                                next.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.titleSmall?.copyWith(color: colors.onSurfaceTitle),
-                              ),
-                            ],
-                          ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.sm),
+                  child: Row(
+                    spacing: AppSpacing.md,
+                    children: [
+                      LevelKey(color: hue, size: 8),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted),
+                            ),
+                            Text(
+                              next.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: textTheme.titleSmall?.copyWith(color: colors.onSurfaceTitle),
+                            ),
+                          ],
                         ),
-                        Text(
-                          s.home_read_percent(percent),
-                          style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
-                        ),
-                        Icon(Icons.arrow_forward, size: 20, color: colors.primary),
-                      ],
-                    ),
+                      ),
+                      Text(measure, style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
+                      Icon(Icons.arrow_forward, size: 20, color: colors.primary),
+                    ],
                   ),
                 ),
               ],
