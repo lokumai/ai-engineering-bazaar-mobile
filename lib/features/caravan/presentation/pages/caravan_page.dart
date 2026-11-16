@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -138,16 +139,19 @@ class _CaravanPageState extends State<CaravanPage> {
                 const SizedBox(height: AppSpacing.md),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: SizedBox.fromSize(
-                      size: stageSize,
-                      child: CaravanStage(
-                        road: road,
-                        journey: _journey,
-                        selected: selected,
-                        onSelect: (i) => _select(i, count),
-                        semanticLabel: s.caravan_stage_label(stop.trend.title),
+                  child: TourTarget(
+                    spot: TourSpots.caravanStage,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: SizedBox.fromSize(
+                        size: stageSize,
+                        child: CaravanStage(
+                          road: road,
+                          journey: _journey,
+                          selected: selected,
+                          onSelect: (i) => _select(i, count),
+                          semanticLabel: s.caravan_stage_label(stop.trend.title),
+                        ),
                       ),
                     ),
                   ),
@@ -155,17 +159,20 @@ class _CaravanPageState extends State<CaravanPage> {
                 const SizedBox(height: AppSpacing.md),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                  child: CaravanStrip(
-                    road: road,
-                    journey: _journey,
-                    selected: selected,
-                    span: geometry.span,
-                    focusOffset: (StageGeometry.focus - 0.5) * geometry.span,
-                    onSelect: (i) => _select(i, count),
-                    label: s.caravan_strip_label,
-                    value: '${stop.trend.title}, ${caravanPeriod(context, stop)}',
-                    increased: selected < count - 1 ? titleAt(selected + 1) : null,
-                    decreased: selected > 0 ? titleAt(selected - 1) : null,
+                  child: TourTarget(
+                    spot: TourSpots.caravanStrip,
+                    child: CaravanStrip(
+                      road: road,
+                      journey: _journey,
+                      selected: selected,
+                      span: geometry.span,
+                      focusOffset: (StageGeometry.focus - 0.5) * geometry.span,
+                      onSelect: (i) => _select(i, count),
+                      label: s.caravan_strip_label,
+                      value: '${stop.trend.title}, ${caravanPeriod(context, stop)}',
+                      increased: selected < count - 1 ? titleAt(selected + 1) : null,
+                      decreased: selected > 0 ? titleAt(selected - 1) : null,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),

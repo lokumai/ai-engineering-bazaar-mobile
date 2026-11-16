@@ -22,6 +22,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -66,14 +67,18 @@ class QuizListPage extends StatelessWidget {
         // (review round 4), and without it the Quiz tab and the catalog open alike.
         SectionRule(title: s.nav_quiz),
         const SizedBox(height: AppSpacing.md),
-        for (final level in quizLevels(index, track)) ...[
-          _LevelCard(
-            key: QuizListPage.levelKey(level.level.slug),
-            level: level,
-            track: track,
-            scores: scores,
-            open: open.contains(level.level.slug),
-            onToggle: () => fold.toggle(level.level.slug, upNext),
+        for (final (position, level) in quizLevels(index, track).indexed) ...[
+          // The Apprentice's tour points at the first level (plan 11.3).
+          TourTarget(
+            spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
+            child: _LevelCard(
+              key: QuizListPage.levelKey(level.level.slug),
+              level: level,
+              track: track,
+              scores: scores,
+              open: open.contains(level.level.slug),
+              onToggle: () => fold.toggle(level.level.slug, upNext),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
         ],

@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:clock/clock.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -67,7 +68,11 @@ class HomeDailyCard extends StatelessWidget {
   Widget _framed(BuildContext context, Widget? card) {
     final head = frame == null ? card : frame!(context, card);
     if (head == null) return const SizedBox.shrink();
-    return Padding(padding: const EdgeInsets.only(bottom: 24), child: head);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      // The Apprentice's tour points at it first (plan 11.3).
+      child: TourTarget(spot: TourSpots.homeHead, child: head),
+    );
   }
 }
 

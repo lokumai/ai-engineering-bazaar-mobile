@@ -17,6 +17,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -76,17 +77,20 @@ class CatalogPage extends StatelessWidget {
             // (review round 4), and without it the catalog and the Quiz tab open alike.
             SectionRule(title: S.of(context).nav_catalog),
             const SizedBox(height: AppSpacing.md),
-            const CatalogSearchField(),
+            const TourTarget(spot: TourSpots.catalogSearch, child: CatalogSearchField()),
             const SizedBox(height: AppSpacing.lg),
             if (searching)
               CatalogSearchResults(track: track)
             else ...[
-              CatalogOverview(
-                track: track,
-                index: index,
-                rows: rows,
-                counts: view == null ? null : categoryProgress(view, curriculum),
-                upNext: next == null ? null : index.module(next)?.level,
+              TourTarget(
+                spot: TourSpots.catalogLevels,
+                child: CatalogOverview(
+                  track: track,
+                  index: index,
+                  rows: rows,
+                  counts: view == null ? null : categoryProgress(view, curriculum),
+                  upNext: next == null ? null : index.module(next)?.level,
+                ),
               ),
               const SizedBox(height: AppSpacing.xl),
               const CatalogLegend(),

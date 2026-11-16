@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/theme/appearance_name.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -104,51 +105,55 @@ class _SettingsView extends StatelessWidget {
           ],
           SectionRule(title: s.settings_reading),
           const SizedBox(height: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.sm,
-            children: [
-              Text(s.settings_track, style: theme.textTheme.titleSmall),
-              BazaarSegmentedControl<Track>(
-                semanticLabel: s.settings_track,
-                selected: context.watch<TrackCubit>().state,
-                onSelected: (track) => context.read<TrackCubit>().choose(track),
-                segments: [
-                  for (final info in index.tracks)
-                    BazaarSegment(
-                      value: info.track,
-                      label: trackName(s, info.track),
-                      key: settingsTrackKey(info.track),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(s.settings_language, style: theme.textTheme.titleSmall),
-              BazaarSegmentedControl<String>(
-                semanticLabel: s.settings_language,
-                selected: context.watch<LanguageCubit>().state,
-                onSelected: (language) => context.read<LanguageCubit>().choose(language),
-                segments: [
-                  for (final language in LanguageCubit.supported)
-                    BazaarSegment(
-                      value: language,
-                      label: LanguageCubit.names[language]!,
-                      key: settingsLanguageKey(language),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(s.settings_appearance, style: theme.textTheme.titleSmall),
-              BazaarSegmentedControl<ThemeMode>(
-                semanticLabel: s.settings_appearance,
-                selected: context.watch<ThemeChoiceCubit>().state,
-                onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
-                segments: [
-                  for (final mode in ThemeChoiceCubit.modes)
-                    BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
-                ],
-              ),
-            ],
+          // The Apprentice's tour points at the reading choices (plan 11.3).
+          TourTarget(
+            spot: TourSpots.settingsReading,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.sm,
+              children: [
+                Text(s.settings_track, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<Track>(
+                  semanticLabel: s.settings_track,
+                  selected: context.watch<TrackCubit>().state,
+                  onSelected: (track) => context.read<TrackCubit>().choose(track),
+                  segments: [
+                    for (final info in index.tracks)
+                      BazaarSegment(
+                        value: info.track,
+                        label: trackName(s, info.track),
+                        key: settingsTrackKey(info.track),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(s.settings_language, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<String>(
+                  semanticLabel: s.settings_language,
+                  selected: context.watch<LanguageCubit>().state,
+                  onSelected: (language) => context.read<LanguageCubit>().choose(language),
+                  segments: [
+                    for (final language in LanguageCubit.supported)
+                      BazaarSegment(
+                        value: language,
+                        label: LanguageCubit.names[language]!,
+                        key: settingsLanguageKey(language),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(s.settings_appearance, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<ThemeMode>(
+                  semanticLabel: s.settings_appearance,
+                  selected: context.watch<ThemeChoiceCubit>().state,
+                  onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
+                  segments: [
+                    for (final mode in ThemeChoiceCubit.modes)
+                      BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
@@ -223,7 +228,11 @@ class _SettingsView extends StatelessWidget {
             children: [
               // The story only where the content names one (web D125).
               if (hasStory) _Page(label: s.settings_story, onTap: () => context.push(ApplicationRoutesConstants.about)),
-              _Page(label: s.guide_title, onTap: () => context.push(ApplicationRoutesConstants.guide)),
+              // Where the tour is taken again (plan 11.3).
+              TourTarget(
+                spot: TourSpots.settingsGuide,
+                child: _Page(label: s.guide_title, onTap: () => context.push(ApplicationRoutesConstants.guide)),
+              ),
               _Page(
                 label: s.settings_privacy_legal,
                 onTap: () => context.push(ApplicationRoutesConstants.privacyLegal),

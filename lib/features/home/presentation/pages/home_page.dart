@@ -20,6 +20,7 @@ import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -72,13 +73,24 @@ class HomePage extends StatelessWidget {
         // card says the track is completed.
         if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
         if (overview.after.isNotEmpty) ...[
-          SectionRule(title: s.home_after),
-          const SizedBox(height: 12),
-          BazaarRows(
-            children: [
-              for (final entry in overview.after)
-                HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
-            ],
+          TourTarget(
+            spot: TourSpots.homeAfter,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionRule(title: s.home_after),
+                const SizedBox(height: 12),
+                BazaarRows(
+                  children: [
+                    for (final entry in overview.after)
+                      HomeAfterRow(
+                        entry: entry,
+                        onTap: () => context.push(BazaarPaths.module(track, entry.module.key)),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
         ],
