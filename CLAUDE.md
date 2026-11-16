@@ -107,7 +107,7 @@ lib/
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
     robot_level/                                RobotLevelCubit: the pocket model's level (the Apprentice, Çırak, in the app's
                                                 copy), which unlocks the app icons
-    theme/                                      ThemeChoiceCubit (light or dark; dark until chosen), IThemeStore,
+    theme/                                      ThemeChoiceCubit (light or dark; light until chosen), IThemeStore,
                                                 appearance_name.dart: the choice kept on the device, never in the
                                                 record; ILaunchGround: the look named to the phone for its launch screen
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
