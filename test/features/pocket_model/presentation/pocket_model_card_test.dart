@@ -639,6 +639,30 @@ void main() {
     await _rest(tester);
   });
 
+  // Under reduced motion its own clock stands still, so every second pet was a quick one and closed the bubble.
+  testWidgets('under reduced motion two pets minutes apart leave its words; two quick ones close them', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(SpeechBubble), findsOneWidget);
+
+    final stage = tester.getRect(_stage);
+    final robot = stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60);
+    await tester.tapAt(robot);
+    await tester.pump();
+    await tester.pump(const Duration(minutes: 2));
+    await tester.tapAt(robot);
+    await tester.pump();
+    expect(find.byType(SpeechBubble), findsOneWidget, reason: 'two minutes apart, not a quick pet');
+
+    await tester.tapAt(robot);
+    await tester.pump();
+    expect(find.byType(SpeechBubble), findsNothing, reason: 'a quick second pet closes it');
+  });
+
   testWidgets('it wears its outfit, a part above its level as its first, and its content says nothing', (tester) async {
     final outfit = RobotOutfitCubit(
       store: MemoryRobotOutfitStore(
