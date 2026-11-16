@@ -46,7 +46,6 @@ void main() {
 
     final replay = find.byKey(const ValueKey('guide-replay-tour'));
     expect(find.text('Take the tour again'), findsOneWidget);
-    await tester.ensureVisible(replay);
     await tester.tap(replay);
     await tester.pump();
 
@@ -54,6 +53,24 @@ void main() {
     expect(tour.state, const TourRecord(guiding: true), reason: 'every page is shown again');
     await tester.pump(const Duration(seconds: 2));
   });
+
+  for (final language in ['en', 'tr', 'fa']) {
+    testWidgets('Take the tour again is in sight without a scroll on a small phone, in $language', (tester) async {
+      tester.view.physicalSize = const Size(375, 667);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final router = AppRouterFactory(initialLocation: '/settings/guide').create();
+      addTearDown(router.dispose);
+      await tester.pumpWidget(bazaarTestApp(router: router, locale: Locale(language)));
+      await tester.pumpAndSettle();
+
+      final button = tester.getRect(find.byKey(const ValueKey('guide-replay-tour')));
+      final nav = tester.getRect(find.byType(NavigationBar));
+      expect(button.top, greaterThanOrEqualTo(0));
+      expect(button.bottom, lessThanOrEqualTo(nav.top));
+    });
+  }
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {
     tester.view.physicalSize = const Size(390, 844);

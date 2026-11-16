@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// How the bazaar works, from Settings (`/settings/guide`), in four short points: the levels, the modules, marking what
 /// is finished, and the course on the device. It was Welcome's last step (plan 1X) until the story of the Bazaar took
-/// that place (plan 3.5).
+/// that place (plan 3.5). Take the tour again stands under them, held there however long they run.
 class GuidePage extends StatelessWidget {
   const GuidePage({super.key, this.replayTour});
 
@@ -68,18 +68,28 @@ class GuidePage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (replayTour case final replay?) ...[
-              const SizedBox(height: 4),
-              FilledButton.tonalIcon(
-                key: const ValueKey('guide-replay-tour'),
-                onPressed: () => replay(context),
-                icon: const Icon(Icons.tour_outlined),
-                label: Text(s.guide_replay_tour),
-              ),
-            ],
           ],
         ),
       ),
+      // Held under the points, never scrolled away, in every language (the owner, 2026-11-16).
+      bottomNavigationBar: switch (replayTour) {
+        final replay? => DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border(top: BorderSide(color: colors.line, width: 0.5)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+            child: FilledButton.tonalIcon(
+              key: const ValueKey('guide-replay-tour'),
+              onPressed: () => replay(context),
+              icon: const Icon(Icons.tour_outlined),
+              label: Text(s.guide_replay_tour),
+            ),
+          ),
+        ),
+        null => null,
+      },
     );
   }
 }
