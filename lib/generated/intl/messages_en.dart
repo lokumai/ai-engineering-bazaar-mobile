@@ -304,6 +304,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_after": MessageLookupByLibrary.simpleMessage("Later on"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("Continue reading"),
+    "home_daily_title": MessageLookupByLibrary.simpleMessage("Today\'s card"),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "It reads without a connection. At every start the app asks the site for a newer version.",
     ),

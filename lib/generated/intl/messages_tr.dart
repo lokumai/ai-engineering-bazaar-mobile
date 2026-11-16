@@ -305,6 +305,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_after": MessageLookupByLibrary.simpleMessage("Daha sonra"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Yazılmış bütün modüller tamamlandı."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("Okumaya devam et"),
+    "home_daily_title": MessageLookupByLibrary.simpleMessage("Bugünün kartı"),
     "home_offline_body": MessageLookupByLibrary.simpleMessage(
       "Bağlantı olmadan da okunur. Uygulama her açılışta siteye daha yeni bir sürüm olup olmadığını sorar.",
     ),

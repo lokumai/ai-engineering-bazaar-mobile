@@ -161,6 +161,8 @@
   },
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
+  "home_daily_title": "Today's card",
+  "@home_daily_title": {},
   "home_after": "Later on",
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",

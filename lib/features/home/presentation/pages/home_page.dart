@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/features/home/application/home_overview.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_complete_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice_row.dart';
@@ -23,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the modules later in the track, the
+/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the day's card (plan 11.1), the modules later in the track, the
 /// quizzes of the modules completed last to practise again (plan 1AD), the reader's path through the levels at a
 /// glance, and the offline note. The module to read now (Continue reading or Up next, plan 1BA) is in the band over the
 /// navigation, under the thumb (plan 10.4), so Home has no card at its head unless every module is completed. Home says what to read now (plan 1P); the levels, their modules
@@ -32,7 +33,11 @@ import 'package:go_router/go_router.dart';
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.dailyFrame});
+
+  /// What presents the day's card at the page's head, which the app fills with the Apprentice (plan 11.2); the card
+  /// alone when null.
+  final DailyCardFrame? dailyFrame;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +66,8 @@ class HomePage extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(20, 20, 20, 28 + FloatingRoom.of(context)),
       children: [
         if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
+        // The day's card, a section of a module to read today (plan 11.1).
+        HomeDailyCard(frame: dailyFrame),
         // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
         // card says the track is completed.
         if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
