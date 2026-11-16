@@ -572,46 +572,49 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
     "tour_band": MessageLookupByLibrary.simpleMessage(
-      "Okuman gereken modül hep burada, başparmağının altında: yarım bıraktığın ya da sıradaki.",
+      "Okuyacağın modül hep burada, parmağının ucunda: yarım bıraktığın ya da sıradaki.",
     ),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
-      "Kervan, yapay zekâdaki akımların zaman çizelgesinde yol alıyor. Her durak bir akım; onu anlatan modüller de yanında.",
+      "Kervan, yapay zekâ tarihindeki akımların arasından geçiyor. Her durak bir akım, onu anlatan modüller de yanında.",
     ),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage(
-      "Kervanı yürütmek için burada kaydır ya da bir durağa dokun.",
+      "Kervanı ilerletmek için burayı kaydır ya da bir durağa dokun.",
     ),
     "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
-      "Bütün seviyeler ve modülleri burada. Tamamladığın modül işaretlenir.",
+      "Bütün seviyeler ve modüller burada. Bitirdiğin modüllerin yanına işaret konur.",
     ),
     "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
-      "Herhangi bir konuyu buradan ara. Sonuçlar modül modül toplanır; istersen seviye seçerek daraltırsın.",
+      "Aradığın konuyu buraya yaz. Sonuçlar modül modül gelir; istersen seviye seçip filtreleyebilirsin.",
     ),
-    "tour_done": MessageLookupByLibrary.simpleMessage("Tamam"),
+    "tour_done": MessageLookupByLibrary.simpleMessage("Anladım"),
     "tour_hello": MessageLookupByLibrary.simpleMessage(
-      "Merhaba, ben Çırak. Burası bir eğitim uygulaması: yapay zekâ mühendisliğini seviye seviye, modül modül öğretiyoruz. Sana etrafı gezdireyim mi?",
+      "Merhaba, ben Çırak. Burada yapay zekâ mühendisliğini seviye seviye, modül modül öğreneceksin. İstersen sana kısaca etrafı gezdireyim?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sonraki modüller burada seni bekliyor; altında pratik için quizler ve seviyelerdeki yolun var.",
+      "Sıradaki modüller burada. Altında pratik yapman için quizler ve seviyelerdeki ilerlemen var.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "Burası benim köşem. Her gün sana kursun bir bölümünü getiriyorum: okumak için karta dokun. Benimle istediğin zaman sohbet edebilirsin.",
+      "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",
     ),
-    "tour_later": MessageLookupByLibrary.simpleMessage("Sonra"),
-    "tour_next": MessageLookupByLibrary.simpleMessage("İleri"),
+    "tour_later": MessageLookupByLibrary.simpleMessage("Şimdi değil"),
+    "tour_next": MessageLookupByLibrary.simpleMessage("Devam"),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
-      "Her seviyenin quizleri burada. Bir seviyeyi aç, bir quiz çöz; istediğin kadar yeniden çözebilirsin.",
+      "Her seviyenin quizleri burada. Bir seviye aç, quiz çöz; dilediğin kadar tekrar çözebilirsin.",
+    ),
+    "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
+      "Burası benim gardırobum. Bana başka şapkalar ve gövdeler giydirebilir, uygulamanın simgesini değiştirebilirsin. Seviyem yükseldikçe yenileri açılır.",
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
-      "Bu turu yeniden izlemek istersen Bazaar nasıl işler sayfasında seni bekliyor.",
+      "Bu turu yeniden izlemek istersen \"Bazaar nasıl işler\" sayfasından başlatabilirsin.",
     ),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
-      "Yolunu, uygulamanın dilini ve görünümünü buradan seçersin.",
+      "Okuma yolunu, uygulamanın dilini ve görünümünü buradan değiştirebilirsin.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
-    "tour_skip": MessageLookupByLibrary.simpleMessage("Atla"),
+    "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
     "tour_step": m54,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "Aşağıda sekmeler var: Katalog, Kervan, Quiz ve Ayarlar. Birini aç, orada neler yapabileceğini göstereyim.",
+      "Sekmeler aşağıda: Katalog, Kervan, Quiz ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),

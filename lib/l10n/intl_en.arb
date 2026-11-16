@@ -1317,6 +1317,8 @@
   "@tour_quiz_level": {},
   "tour_settings_reading": "Your track, the app's language and its look are chosen here.",
   "@tour_settings_reading": {},
+  "tour_settings_customize": "This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.",
+  "@tour_settings_customize": {},
   "tour_settings_guide": "Want this tour again? It waits in How the bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",

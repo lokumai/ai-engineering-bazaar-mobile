@@ -603,6 +603,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "آزمون‌های هر سطح اینجا هستند. سطحی را باز کنید، آزمونی بدهید و هر چند بار خواستید تکرارش کنید.",
     ),
+    "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
+      "این کمد لباس من است. کلاه و بدن دیگری تنم کنید یا نماد برنامه را عوض کنید؛ با بالا رفتن سطحم چیزهای تازه باز می‌شود.",
+    ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
       "دوباره این گشت را می‌خواهید؟ در «بازار چطور کار می‌کند» منتظر شماست.",
     ),

@@ -115,7 +115,7 @@ void main() {
     await _pump(tester, record: const TourRecord(asking: true), locale: const Locale('tr'));
 
     expect(_says('Gezdir'), findsOneWidget);
-    expect(_says('Sonra'), findsOneWidget);
+    expect(_says('Şimdi değil'), findsOneWidget);
     expect(find.textContaining('Merhaba, ben Çırak.'), findsOneWidget);
   });
 
@@ -241,7 +241,9 @@ void main() {
       at: '/settings',
     );
     expect(find.textContaining('Your track, the app'), findsOneWidget);
-    expect(_dots(1, 2), findsOneWidget);
+    await _tap(tester, _next);
+    expect(find.textContaining('This is my wardrobe.'), findsOneWidget);
+    expect(_dots(2, 3), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('Want this tour again?'), findsOneWidget);
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');

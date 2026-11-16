@@ -596,6 +596,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
     ),
+    "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
+      "This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.",
+    ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
       "Want this tour again? It waits in How the bazaar works.",
     ),

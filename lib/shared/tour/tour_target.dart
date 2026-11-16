@@ -33,6 +33,9 @@ abstract final class TourSpots {
   /// Settings' reading choices: the track, the language and the look.
   static const settingsReading = 'settings.reading';
 
+  /// Settings' Customize: the Apprentice's button, the app icon and its wardrobe.
+  static const settingsCustomize = 'settings.customize';
+
   /// Settings' way to the guide, where the tour is taken again.
   static const settingsGuide = 'settings.guide';
 

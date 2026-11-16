@@ -159,33 +159,37 @@ class _SettingsView extends StatelessWidget {
           // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
           SectionRule(title: s.settings_customize),
           const SizedBox(height: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.sm,
-            children: [
-              // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
-              Text(s.settings_pocket_button, style: theme.textTheme.titleSmall),
-              BazaarSegmentedControl<bool>(
-                key: const Key('settings-pocket-button'),
-                semanticLabel: s.settings_pocket_button,
-                selected: context.watch<PocketButtonCubit>().state,
-                onSelected: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
-                segments: [
-                  BazaarSegment(value: true, label: s.settings_on, key: settingsPocketKey(shown: true)),
-                  BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              AppIconRow(
-                key: const Key('settings-app-icon'),
-                onTap: () => context.push(ApplicationRoutesConstants.appIcon),
-              ),
-              _WardrobeRow(
-                key: const Key('settings-robot'),
-                picture: wardrobePicture,
-                onTap: () => context.push(ApplicationRoutesConstants.robot),
-              ),
-            ],
+          // The Apprentice's tour points at what it can wear (plan 11.3).
+          TourTarget(
+            spot: TourSpots.settingsCustomize,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.sm,
+              children: [
+                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
+                Text(s.settings_pocket_button, style: theme.textTheme.titleSmall),
+                BazaarSegmentedControl<bool>(
+                  key: const Key('settings-pocket-button'),
+                  semanticLabel: s.settings_pocket_button,
+                  selected: context.watch<PocketButtonCubit>().state,
+                  onSelected: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
+                  segments: [
+                    BazaarSegment(value: true, label: s.settings_on, key: settingsPocketKey(shown: true)),
+                    BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                AppIconRow(
+                  key: const Key('settings-app-icon'),
+                  onTap: () => context.push(ApplicationRoutesConstants.appIcon),
+                ),
+                _WardrobeRow(
+                  key: const Key('settings-robot'),
+                  picture: wardrobePicture,
+                  onTap: () => context.push(ApplicationRoutesConstants.robot),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_data),

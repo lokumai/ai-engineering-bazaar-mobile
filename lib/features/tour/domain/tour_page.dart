@@ -8,7 +8,7 @@ enum TourPage {
   catalog([TourSpots.catalogSearch, TourSpots.catalogLevels]),
   caravan([TourSpots.caravanStage, TourSpots.caravanStrip]),
   quiz([TourSpots.quizLevel]),
-  settings([TourSpots.settingsReading, TourSpots.settingsGuide]);
+  settings([TourSpots.settingsReading, TourSpots.settingsCustomize, TourSpots.settingsGuide]);
 
   const TourPage(this.spots);
 

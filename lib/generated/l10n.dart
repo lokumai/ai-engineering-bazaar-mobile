@@ -2638,6 +2638,16 @@ class S {
     );
   }
 
+  /// `This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.`
+  String get tour_settings_customize {
+    return Intl.message(
+      'This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.',
+      name: 'tour_settings_customize',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Want this tour again? It waits in How the bazaar works.`
   String get tour_settings_guide {
     return Intl.message(
