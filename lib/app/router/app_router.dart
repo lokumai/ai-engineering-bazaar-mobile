@@ -24,6 +24,8 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/practice_
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/brief_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/module_brief_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/review_session_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/wrong_answers_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
@@ -123,6 +125,8 @@ class AppRouterFactory {
             _page('practice', BazaarPaths.practice, const PracticePage()),
             // Wrong answers, in the shell under Practice (plan 13.4).
             _page('practiceWrong', BazaarPaths.practiceWrong, const WrongAnswersPage()),
+            // A module in 2 minutes: the completed modules (plan 13.7).
+            _page('practiceBrief', BazaarPaths.practiceBrief, const BriefListPage()),
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
@@ -151,6 +155,12 @@ class AppRouterFactory {
         // Practice's sessions full screen, over the shell (plan 13.3, 13.4).
         _page('practiceReview', BazaarPaths.practiceReview, const ReviewSessionPage(kind: ReviewKind.today)),
         _page('practiceWrongAll', BazaarPaths.practiceWrongAll, const ReviewSessionPage(kind: ReviewKind.wrong)),
+        // A module's cards in 2 minutes, full screen (plan 13.7).
+        _pageOf(
+          'practiceBriefOf',
+          '${BazaarPaths.practiceBrief}/:level/:module',
+          (state) => ModuleBriefPage(moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}'),
+        ),
         // A module's quiz full screen, over the shell, from Practice (plan 1AC, 13.2).
         _pageOf(
           'quiz',

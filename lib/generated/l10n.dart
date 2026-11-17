@@ -2896,6 +2896,107 @@ class S {
     return Intl.message('No wrong answers now.', name: 'practice_wrong_none', desc: '', args: []);
   }
 
+  /// `A module in 2 minutes`
+  String get practice_brief {
+    return Intl.message('A module in 2 minutes', name: 'practice_brief', desc: '', args: []);
+  }
+
+  /// `{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}`
+  String practice_brief_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'Complete a module first',
+      one: '1 completed module',
+      other: '$count completed modules',
+      name: 'practice_brief_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `The Summary and the Key Terms of a module you completed, card by card.`
+  String get practice_brief_lede {
+    return Intl.message(
+      'The Summary and the Key Terms of a module you completed, card by card.',
+      name: 'practice_brief_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Summary`
+  String get brief_summary {
+    return Intl.message('Summary', name: 'brief_summary', desc: '', args: []);
+  }
+
+  /// `Key Terms`
+  String get brief_terms {
+    return Intl.message('Key Terms', name: 'brief_terms', desc: '', args: []);
+  }
+
+  /// `Take the quiz`
+  String get brief_take_quiz {
+    return Intl.message('Take the quiz', name: 'brief_take_quiz', desc: '', args: []);
+  }
+
+  /// `That is the module. Its quiz checks what stayed.`
+  String get brief_end {
+    return Intl.message('That is the module. Its quiz checks what stayed.', name: 'brief_end', desc: '', args: []);
+  }
+
+  /// `{step} of {count}`
+  String brief_step(int step, int count) {
+    return Intl.message('$step of $count', name: 'brief_step', desc: '', args: [step, count]);
+  }
+
+  /// `Previous card`
+  String get brief_previous {
+    return Intl.message('Previous card', name: 'brief_previous', desc: '', args: []);
+  }
+
+  /// `Next card`
+  String get brief_next {
+    return Intl.message('Next card', name: 'brief_next', desc: '', args: []);
+  }
+
+  /// `Open the module`
+  String get brief_open_module {
+    return Intl.message('Open the module', name: 'brief_open_module', desc: '', args: []);
+  }
+
+  /// `Glossary`
+  String get practice_glossary {
+    return Intl.message('Glossary', name: 'practice_glossary', desc: '', args: []);
+  }
+
+  /// `{count, plural, =0{No terms yet} =1{1 term} other{{count} terms}}`
+  String practice_glossary_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No terms yet',
+      one: '1 term',
+      other: '$count terms',
+      name: 'practice_glossary_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Find a term`
+  String get glossary_find {
+    return Intl.message('Find a term', name: 'glossary_find', desc: '', args: []);
+  }
+
+  /// `No term matches.`
+  String get glossary_none {
+    return Intl.message('No term matches.', name: 'glossary_none', desc: '', args: []);
+  }
+
+  /// `In these modules`
+  String get glossary_in {
+    return Intl.message('In these modules', name: 'glossary_in', desc: '', args: []);
+  }
+
   /// `Quizzes by level`
   String get practice_quizzes {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);

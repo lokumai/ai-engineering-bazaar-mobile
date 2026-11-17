@@ -211,6 +211,70 @@ void main() {
     expect(find.byKey(const Key('review-section-link')), findsNothing);
   });
 
+  testWidgets('a module in 2 minutes: its Summary point by point, its Key Terms, then Take the quiz (plan 13.7)', (
+    tester,
+  ) async {
+    HeadingBlock h(String id, String text) => HeadingBlock(
+      depth: 2,
+      id: id,
+      mark: null,
+      inlines: [TextInline(text: text)],
+    );
+    ParagraphBlock p(String text) => ParagraphBlock(inlines: [TextInline(text: text)], lead: false);
+    ListItem term(String name, String definition) => ListItem(
+      checked: null,
+      taskIndex: null,
+      blocks: [
+        ParagraphBlock(
+          inlines: [
+            StrongInline(inlines: [TextInline(text: name)]),
+            TextInline(text: ': $definition'),
+          ],
+          lead: false,
+        ),
+      ],
+    );
+    final doc = testDoc(
+      body: [
+        h('lamps', 'Lamps'),
+        p('A lantern holds a flame.'),
+        h('words', 'Words'),
+        ListBlock(ordered: false, start: null, items: [term('Wick', 'what burns.'), term('Glass', 'keeps wind out.')]),
+        h('sum', 'Sum'),
+        p('Lanterns carry light.'),
+        p('Wicks draw oil.'),
+        h('refs', 'Sources'),
+        p('A book.'),
+      ],
+      quiz: _items,
+    );
+    final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
+    expect(
+      find.descendant(of: find.byKey(const Key('practice-brief')), matching: find.text('1 completed module')),
+      findsOneWidget,
+    );
+    await _tap(tester, find.byKey(const Key('practice-brief')));
+    expect(router.state.uri.path, '/practice/brief');
+    await _tap(tester, find.byKey(const ValueKey('brief-alpha/first')));
+    expect(router.state.uri.path, '/practice/brief/alpha/first');
+    expect(find.byType(NavigationBar), findsNothing, reason: 'full screen');
+
+    expect(find.text('1 of 4'), findsOneWidget, reason: 'two points, one card of terms, the end');
+    expect(find.text('Lanterns carry light.', findRichText: true), findsOneWidget);
+    await tester.drag(find.byKey(const ValueKey('brief-pager')), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('2 of 4'), findsOneWidget, reason: 'a swipe goes on');
+    expect(find.text('Wicks draw oil.', findRichText: true), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('brief-next')));
+    expect(find.text('Wick'), findsOneWidget);
+    expect(find.text('what burns.', findRichText: true), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('brief-next')));
+    expect(find.byKey(const Key('brief-next')).hitTestable(), findsOneWidget);
+    expect(tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed, isNull, reason: 'the last card');
+    await _tap(tester, find.byKey(const Key('brief-take-quiz')));
+    expect(router.state.uri.path, '/quiz/alpha/first');
+  });
+
   testWidgets('with no module completed, there is nothing to review today', (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);

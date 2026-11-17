@@ -1426,6 +1426,46 @@
   "practice_wrong_lede": "Every question answered wrong, by level. Right twice in a row and it leaves.",
   "practice_wrong_all": "Answer them all",
   "practice_wrong_none": "No wrong answers now.",
+  "practice_brief": "A module in 2 minutes",
+  "practice_brief_count": "{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}",
+  "@practice_brief_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_brief_lede": "The Summary and the Key Terms of a module you completed, card by card.",
+  "brief_summary": "Summary",
+  "brief_terms": "Key Terms",
+  "brief_take_quiz": "Take the quiz",
+  "brief_end": "That is the module. Its quiz checks what stayed.",
+  "brief_step": "{step} of {count}",
+  "@brief_step": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "brief_previous": "Previous card",
+  "brief_next": "Next card",
+  "brief_open_module": "Open the module",
+  "practice_glossary": "Glossary",
+  "practice_glossary_count": "{count, plural, =0{No terms yet} =1{1 term} other{{count} terms}}",
+  "@practice_glossary_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "glossary_find": "Find a term",
+  "glossary_none": "No term matches.",
+  "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
   "home_review": "Today's review, {count, plural, =1{1 card} other{{count} cards}}",
   "@home_review": {

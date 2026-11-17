@@ -1,6 +1,8 @@
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/brief_list_page.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -19,7 +21,7 @@ import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 
 /// Practice's head (plan 13.2): Today's review, with its cards, minutes and modules and Start, or why there is none
-/// today; then the row to Wrong answers.
+/// today; then the rows to Wrong answers and to A module in 2 minutes.
 class PracticeHead extends StatelessWidget {
   const PracticeHead({super.key, required this.index, required this.track});
 
@@ -32,6 +34,8 @@ class PracticeHead extends StatelessWidget {
     final language = context.watch<LanguageCubit>().state;
     final history = context.watch<ReviewBloc>().state.history;
     final pool = reviewPoolOf(context, track, language);
+    final notes = context.watch<StudyNotesCubit>().state;
+    final briefs = pool != null && notes is StudyNotesReady ? briefModules(pool.completed, notes).length : 0;
     final today = dayNumber(clock.now());
     final cards = pool?.today(history, today) ?? const <String>[];
     final wrong = pool?.wrong(history) ?? const <String>[];
@@ -57,6 +61,13 @@ class PracticeHead extends StatelessWidget {
               title: s.practice_wrong,
               detail: s.practice_wrong_count(wrong.length),
               onTap: () => context.push(BazaarPaths.practiceWrong),
+            ),
+            _PracticeRow(
+              key: const Key('practice-brief'),
+              icon: Icons.timer_outlined,
+              title: s.practice_brief,
+              detail: s.practice_brief_count(briefs),
+              onTap: () => context.push(BazaarPaths.practiceBrief),
             ),
           ],
         ),
