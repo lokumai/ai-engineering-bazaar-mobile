@@ -103,6 +103,9 @@ RecordBloc _record({RecordData? record, WriteState writeState = const WriteSaved
 
 String _path(GoRouter router) => router.state.uri.path;
 
+// Noon on the local day, so the completion day is 3 Sept in every time zone CI runs in.
+final _noonOf3Sept = DateTime(2026, 9, 3, 12).toUtc().toIso8601String();
+
 void main() {
   late MockModuleReaderBloc readerBloc;
 
@@ -297,7 +300,7 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));
@@ -317,7 +320,7 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(
@@ -339,7 +342,7 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T12:00:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));

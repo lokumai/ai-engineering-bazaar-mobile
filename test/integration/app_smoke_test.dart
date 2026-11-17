@@ -93,6 +93,10 @@ Future<void> _drain(WidgetTester tester, bool Function() done, {required String 
 /// End-to-end smoke: boots the whole app over the fixture dependencies (the fixture content, no network), and lands on
 /// Home inside the shell once the content and the record are ready. There is no sign-in. The second test opens a
 /// module from the catalog, completes it over real files and reads it back after a restart.
+// Noon on the local day, so the module reads as completed on 9 Nov in every time zone CI runs in.
+final _signedAt = DateTime(2026, 11, 9, 12).toUtc();
+final _signed = _signedAt.toIso8601String();
+
 void main() {
   testWidgets('cold start shows Home with no sign-in', (tester) async {
     await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
@@ -173,7 +177,7 @@ void main() {
 
   testWidgets(
     'completing a module survives a restart',
-    (tester) => withClock(Clock.fixed(DateTime.utc(2026, 11, 9, 10)), () async {
+    (tester) => withClock(Clock.fixed(_signedAt), () async {
       final dir = Directory.systemTemp.createTempSync('bazaar_smoke_');
       addTearDown(() => dir.deleteSync(recursive: true));
       final title = ContentParser.parseIndex(File('$contentFixtureBundle/index.json').readAsStringSync())
@@ -218,7 +222,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Completed 9 Nov 2026'), findsOneWidget);
-      expect(recordFile.readAsStringSync(), contains('"signedOff":"2026-11-09T10:00:00.000Z"'));
+      expect(recordFile.readAsStringSync(), contains('"signedOff":"$_signed"'));
 
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(App(dependencies: _SmokeDependencies(dir)));
@@ -229,9 +233,9 @@ void main() {
       final state = tester.element(find.byType(ModuleReaderView)).read<RecordBloc>().state;
       expect(state, isA<RecordReady>());
       final record = (state as RecordReady).record;
-      expect(record.signedOff('alpha/first', Track.engineers), '2026-11-09T10:00:00.000Z');
+      expect(record.signedOff('alpha/first', Track.engineers), _signed);
       // The fixture's For Everyone version is written, so it is completed along with For Engineers (plan 1V).
-      expect(record.signedMap(Track.everyone), {'alpha/first': '2026-11-09T10:00:00.000Z'});
+      expect(record.signedMap(Track.everyone), {'alpha/first': _signed});
     }),
   );
 }
