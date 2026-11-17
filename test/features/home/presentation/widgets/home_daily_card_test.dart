@@ -14,7 +14,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
-import 'package:flutter/widgets.dart' show Locale, Text, ValueKey;
+import 'package:flutter/widgets.dart' show Locale, Scrollable, Size, Text, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -196,6 +196,29 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(module(), isNot(before));
+    });
+  });
+
+  testWidgets('scrolled away and back, the card is whole at once, so Home does not jump', (tester) async {
+    // A short screen, so the card leaves the list's reach at Home's foot and the list lets it go.
+    tester.view.physicalSize = const Size(400, 500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await withClock(_dayZero, () async {
+      final repository = _course();
+      await _pumpHome(tester, repository: repository);
+      expect(_card, findsOneWidget);
+      final home = find.byType(Scrollable).first;
+
+      await tester.drag(home, const Offset(0, -5000));
+      await tester.pumpAndSettle();
+      expect(_card, findsNothing, reason: 'Home must be long enough to let the card go');
+
+      await tester.drag(home, const Offset(0, 5000));
+      await tester.pump();
+
+      expect(find.descendant(of: _card, matching: find.text('Why tools')), findsOneWidget);
+      verify(() => repository.readModuleDoc(any())).called(1);
     });
   });
 

@@ -42,7 +42,12 @@ class HomeDailyCard extends StatefulWidget {
   State<HomeDailyCard> createState() => _HomeDailyCardState();
 }
 
-class _HomeDailyCardState extends State<HomeDailyCard> {
+/// Kept alive in Home's lazy list: scrolled to the foot and back, a card built again would read its document again and
+/// stand empty meanwhile, and Home would jump as it grew (the owner, 2026-11-17).
+class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late int _day = dayNumber(clock.now());
   Timer? _midnight;
   late final AppLifecycleListener _lifecycle;
@@ -80,6 +85,7 @@ class _HomeDailyCardState extends State<HomeDailyCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final index = switch (context.watch<ContentBloc>().state) {
       ContentReady(:final index) => index,
       _ => null,
