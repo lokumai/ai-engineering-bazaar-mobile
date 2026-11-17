@@ -147,9 +147,25 @@ class BlockView extends StatelessWidget {
   };
 }
 
-/// The body text style in [ink].
-TextStyle _bodyStyle(Color ink) =>
-    TextStyle(fontSize: BazaarType.body.size, height: BazaarType.body.height, color: ink);
+/// The line height of the body text under it (plan 12.5): the reader's line spacing, which the reader passes from its
+/// reading settings; without one, the design's own.
+class ReadingLines extends InheritedWidget {
+  const ReadingLines({super.key, required this.height, required super.child});
+
+  /// The body text's line height, a multiple of its size.
+  final double height;
+
+  /// The line height under [context]: the nearest [ReadingLines]', else the design's own.
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ReadingLines>()?.height ?? BazaarType.body.height!;
+
+  @override
+  bool updateShouldNotify(ReadingLines oldWidget) => height != oldWidget.height;
+}
+
+/// The body text style in [ink], at the line height under [context].
+TextStyle _bodyStyle(BuildContext context, Color ink) =>
+    TextStyle(fontSize: BazaarType.body.size, height: ReadingLines.of(context), color: ink);
 
 class _Paragraph extends StatelessWidget {
   const _Paragraph({required this.block, required this.render});
@@ -164,10 +180,10 @@ class _Paragraph extends StatelessWidget {
     final style = block.lead
         ? TextStyle(
             fontSize: BazaarType.lead.size,
-            height: BazaarType.lead.height ?? BazaarType.body.height,
+            height: BazaarType.lead.height ?? ReadingLines.of(context),
             color: scope?.ink ?? colors.onSurfaceMuted,
           )
-        : _bodyStyle(scope?.ink ?? colors.onSurface);
+        : _bodyStyle(context, scope?.ink ?? colors.onSurface);
     final text = InlineText(
       inlines: block.inlines,
       style: style,
@@ -218,7 +234,7 @@ class _Heading extends StatelessWidget {
           color: ink,
         ),
       )!,
-      _ => _bodyStyle(ink).copyWith(fontWeight: FontWeight.w600),
+      _ => _bodyStyle(context, ink).copyWith(fontWeight: FontWeight.w600),
     };
     // The mark is never drawn: the web keeps it only for its table of contents (corrections, row 3.6.3).
     Widget text = InlineText(
@@ -318,7 +334,7 @@ class _ListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
-    final markerStyle = _bodyStyle(ProseScope.maybeOf(context)?.ink ?? colors.onSurface);
+    final markerStyle = _bodyStyle(context, ProseScope.maybeOf(context)?.ink ?? colors.onSurface);
     final checklist = ChecklistScope.maybeOf(context);
     final start = block.start ?? 1;
     final markerWidth = block.ordered
@@ -452,7 +468,7 @@ class _Unknown extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 8,
         children: [
-          Text(s.block_unknown, style: _bodyStyle(colors.onSurface)),
+          Text(s.block_unknown, style: _bodyStyle(context, colors.onSurface)),
           if (webPage != null)
             TextButton(onPressed: () => unawaited(openExternalLink(context, webPage)), child: Text(s.open_on_the_web)),
         ],

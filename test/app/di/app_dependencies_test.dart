@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
@@ -154,6 +155,36 @@ void main() {
     await store.choose(ThemeMode.system);
     expect(await store.chosen(), isNull, reason: 'the phone is no flag at all');
     expect(File('${root.path}/flags/theme-light').existsSync(), isFalse);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+  });
+
+  test('createReadingStyleStore keeps the reading settings as file flags, apart from the record (plan 12.5)', () async {
+    final root = Directory.systemTemp.createTempSync('reading_style_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createReadingStyleStore();
+    expect(store, isA<FlagReadingStyleStore>());
+    expect(await store.chosen(), ReadingStyle.standard);
+
+    await store.keep(const ReadingStyle(size: ReadingSize.larger, spacing: ReadingSpacing.wide));
+    expect(
+      await dependencies.createReadingStyleStore().chosen(),
+      const ReadingStyle(size: ReadingSize.larger, spacing: ReadingSpacing.wide),
+      reason: 'kept for the next start',
+    );
+
+    await store.keep(const ReadingStyle(size: ReadingSize.small));
+    expect(await store.chosen(), const ReadingStyle(size: ReadingSize.small));
+    expect(File('${root.path}/flags/reading-size-larger').existsSync(), isFalse, reason: 'one size at a time');
+    expect(File('${root.path}/flags/reading-spacing-wide').existsSync(), isFalse, reason: 'the default is no flag');
+
+    await store.keep(ReadingStyle.standard);
+    expect(await store.chosen(), ReadingStyle.standard);
+    expect(Directory('${root.path}/flags').listSync().where((f) => f.path.contains('reading-')), isEmpty);
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 

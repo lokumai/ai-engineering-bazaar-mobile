@@ -34,6 +34,7 @@ import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:clock/clock.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -455,28 +456,36 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                         ],
                         const SizedBox(height: 24),
                         if (doc.prerequisites.isNotEmpty) ...[
-                          PrerequisitesBox(refs: doc.prerequisites),
+                          ReadingStyleScope(child: PrerequisitesBox(refs: doc.prerequisites)),
                           const SizedBox(height: 24),
                         ],
                         if (doc.shownObjectives.isNotEmpty) ...[
-                          ObjectivesCard(objectives: doc.shownObjectives),
+                          ReadingStyleScope(child: ObjectivesCard(objectives: doc.shownObjectives)),
                           const SizedBox(height: 26),
                         ],
+                        // The module's text in the reader's reading settings (plan 12.5); its title and bars keep theirs.
                         if (body != null)
-                          BlockList(blocks: body, render: render)
+                          ReadingStyleScope(
+                            child: BlockList(blocks: body, render: render),
+                          )
                         else if (draft != null) ...[
                           if (draft.summary case final summary?)
-                            BlockList(
-                              blocks: [
-                                ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
-                              ],
-                              render: render,
+                            ReadingStyleScope(
+                              child: BlockList(
+                                blocks: [
+                                  ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                                ],
+                                render: render,
+                              ),
                             ),
                           if (draft.parts.isNotEmpty) ...[
                             ScheduleOfParts(parts: draft.parts),
                             const SizedBox(height: 26),
                           ],
-                          if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
+                          if (draft.written case final writtenBlocks?)
+                            ReadingStyleScope(
+                              child: BlockList(blocks: writtenBlocks, render: render),
+                            ),
                         ],
                         if (written) ...[
                           const SizedBox(height: 16),

@@ -1,6 +1,8 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/inline_setting.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/reading_style_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -104,7 +106,7 @@ class _SettingsView extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
           ],
           SectionRule(title: s.settings_reading),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           // The Apprentice's tour points at the reading choices (plan 11.3).
           TourTarget(
             spot: TourSpots.settingsReading,
@@ -112,6 +114,7 @@ class _SettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpacing.sm,
               children: [
+                // The track's names are long, so its label stays above it.
                 Text(s.settings_track, style: theme.textTheme.titleSmall),
                 BazaarSegmentedControl<Track>(
                   semanticLabel: s.settings_track,
@@ -126,10 +129,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(s.settings_language, style: theme.textTheme.titleSmall),
-                BazaarSegmentedControl<String>(
-                  semanticLabel: s.settings_language,
+                InlineSetting<String>(
+                  label: s.settings_language,
                   selected: context.watch<LanguageCubit>().state,
                   onSelected: (language) => context.read<LanguageCubit>().choose(language),
                   segments: [
@@ -141,10 +142,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(s.settings_appearance, style: theme.textTheme.titleSmall),
-                BazaarSegmentedControl<ThemeMode>(
-                  semanticLabel: s.settings_appearance,
+                InlineSetting<ThemeMode>(
+                  label: s.settings_appearance,
                   selected: context.watch<ThemeChoiceCubit>().state,
                   onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
                   segments: [
@@ -152,13 +151,17 @@ class _SettingsView extends StatelessWidget {
                       BazaarSegment(value: mode, label: appearanceName(s, mode), key: settingsAppearanceKey(mode)),
                   ],
                 ),
+                ReadingStyleRow(
+                  key: const Key('settings-reading-style'),
+                  onTap: () => context.push(ApplicationRoutesConstants.readingStyle),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
           SectionRule(title: s.settings_customize),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           // The Apprentice's tour points at what it can wear (plan 11.3).
           TourTarget(
             spot: TourSpots.settingsCustomize,
@@ -167,10 +170,9 @@ class _SettingsView extends StatelessWidget {
               spacing: AppSpacing.sm,
               children: [
                 // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
-                Text(s.settings_pocket_button, style: theme.textTheme.titleSmall),
-                BazaarSegmentedControl<bool>(
+                InlineSetting<bool>(
                   key: const Key('settings-pocket-button'),
-                  semanticLabel: s.settings_pocket_button,
+                  label: s.settings_pocket_button,
                   selected: context.watch<PocketButtonCubit>().state,
                   onSelected: (shown) => context.read<PocketButtonCubit>().show(shown: shown),
                   segments: [
@@ -178,7 +180,6 @@ class _SettingsView extends StatelessWidget {
                     BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
                 AppIconRow(
                   key: const Key('settings-app-icon'),
                   onTap: () => context.push(ApplicationRoutesConstants.appIcon),
@@ -193,6 +194,12 @@ class _SettingsView extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_data),
+          const SizedBox(height: AppSpacing.md),
+          // From Home's foot (plan 12.6).
+          Text(
+            s.settings_on_device,
+            style: theme.textTheme.bodyMedium?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+          ),
           const SizedBox(height: AppSpacing.md),
           const DataSection(),
           const SizedBox(height: AppSpacing.xl),
@@ -212,6 +219,12 @@ class _SettingsView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
+              // The other half of Home's offline note (plan 12.6).
+              Text(
+                s.settings_refresh_every_start,
+                style: theme.textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted),
+              ),
+              const SizedBox(height: AppSpacing.xs),
               _Action(
                 label: s.settings_check_for_updates,
                 onPressed: switch (ready.refresh) {

@@ -84,7 +84,7 @@ void main() {
   });
 
   // Plan 10.4 (the owner, 2026-11-16): the module to read now is in the band under the thumb, and Home's card is gone.
-  testWidgets('Home is the first page: the modules later on and the offline note, the next module in the band', (
+  testWidgets('Home is the first page: the modules later on, the next module in the band, no offline note', (
     tester,
   ) async {
     await _pumpHome(tester);
@@ -100,7 +100,11 @@ void main() {
     expect(find.text('Fourth Module', skipOffstage: false), findsOneWidget);
     expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
     expect(find.byType(CompletionDial), findsNothing);
-    expect(find.text('The course is on this device', skipOffstage: false), findsOneWidget);
+    expect(
+      find.textContaining('on this device', skipOffstage: false),
+      findsNothing,
+      reason: 'plan 12.6: the note is in Settings',
+    );
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'nothing completed yet');
   });
 

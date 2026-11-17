@@ -38,6 +38,8 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
@@ -88,6 +90,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
         RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
         RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),
+        RepositoryProvider<IReadingStyleStore>(create: (_) => dependencies.createReadingStyleStore()),
         RepositoryProvider<ITourStore>(create: (_) => dependencies.createTourStore()),
       ],
       child: MultiBlocProvider(
@@ -158,6 +161,10 @@ class AppScope extends StatelessWidget {
             create: (context) => RobotOutfitCubit(store: context.read<IRobotOutfitStore>())..load(),
           ),
           // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
+          BlocProvider<ReadingStyleCubit>(
+            lazy: false,
+            create: (context) => ReadingStyleCubit(store: context.read<IReadingStyleStore>())..load(),
+          ),
           BlocProvider<PocketButtonCubit>(
             lazy: false,
             create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),

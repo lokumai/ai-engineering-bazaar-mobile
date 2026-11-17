@@ -110,6 +110,9 @@ lib/
     theme/                                      ThemeChoiceCubit (light or dark; light until chosen), IThemeStore,
                                                 appearance_name.dart: the choice kept on the device, never in the
                                                 record; ILaunchGround: the look named to the phone for its launch screen
+    reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
+                                                store port, ReadingStyleScope that the reader wraps a module's text in;
+                                                kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
@@ -124,14 +127,14 @@ lib/
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
                                                 app fills with the Apprentice's corner), the modules later on, practice,
-                                                offline note; the band over the navigation with the module to read now
+                                                the path; the band over the navigation with the module to read now
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
     quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
                                                 module's quiz at `/quiz/<level>/<module>`
-    settings/                                   track, language, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
+    settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)

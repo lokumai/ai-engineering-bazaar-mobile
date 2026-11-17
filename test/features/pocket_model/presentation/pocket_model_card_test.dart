@@ -4,7 +4,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
@@ -165,7 +165,8 @@ void main() {
     await tester.pump();
     await tester.drag(find.byType(ListView).first, const Offset(0, -4000));
     await tester.pump(const Duration(milliseconds: 500));
-    final note = tester.getRect(find.byType(HomeOfflineNote));
+    // Home's last part, the path, now that the offline note went to Settings (plan 12.6).
+    final note = tester.getRect(find.byType(HomePath));
     final button = tester.getRect(find.byKey(const ValueKey('pocket-assistant')));
     expect(note.bottom, lessThanOrEqualTo(button.top));
   });

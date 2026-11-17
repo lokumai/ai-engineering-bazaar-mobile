@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/features/settings/application/feedback_sen
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/app_icon_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/feedback_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/privacy_legal_page.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/reading_style_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_page.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
@@ -32,6 +33,12 @@ class SettingsFeatureRoutes {
       name: 'appIcon',
       path: ApplicationRoutesConstants.appIcon,
       pageBuilder: (context, state) => appTransitionPage(context: context, state: state, child: const AppIconPage()),
+    ),
+    GoRoute(
+      name: 'readingStyle',
+      path: ApplicationRoutesConstants.readingStyle,
+      pageBuilder: (context, state) =>
+          appTransitionPage(context: context, state: state, child: const ReadingStylePage()),
     ),
     GoRoute(
       name: 'privacyLegal',
