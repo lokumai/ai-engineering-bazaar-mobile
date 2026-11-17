@@ -55,6 +55,7 @@ class ModuleReaderPage extends StatelessWidget {
     this.fragment,
     this.query,
     this.quizBuilder,
+    this.keepsPlace = true,
   });
 
   final String moduleKey;
@@ -68,6 +69,10 @@ class ModuleReaderPage extends StatelessWidget {
 
   /// Draws the quiz of a module that has one; null draws none (Decision A38).
   final QuizBuilder? quizBuilder;
+
+  /// Whether the module keeps where it is left. One opened from the day's card keeps none, however far it is scrolled:
+  /// a look at the day's card is not the module being read (the owner, 2026-11-17).
+  final bool keepsPlace;
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +105,13 @@ class ModuleReaderPage extends StatelessWidget {
           query: query,
           quizBuilder: quizBuilder,
           place: completed(record.state) ? null : places.state.of(track, moduleKey),
-          onPlace: (place) => places.add(
-            place == null || completed(record.state)
-                ? ReadingPlaceCleared(track: track, module: moduleKey)
-                : ReadingPlaceKept(track: track, module: moduleKey, place: place),
-          ),
+          onPlace: !keepsPlace
+              ? null
+              : (place) => places.add(
+                  place == null || completed(record.state)
+                      ? ReadingPlaceCleared(track: track, module: moduleKey)
+                      : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+                ),
         ),
       ),
     );
@@ -159,7 +166,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// 2026-11-16).
   bool _readerScrolled = false;
 
-  /// A place this near the top is no place: the module opens at its top.
+  /// A place this near the top is the module's top: read and gone back up, the module is still the one being read, and
+  /// opens at its top (the owner, 2026-11-17, back at the top by the status bar).
   static const double _topSlack = 120;
 
   /// How far the module is read, from 0 to 1, by the scroll position on screen; drawn as the reading bar. The record
@@ -286,7 +294,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final onPlace = widget.onPlace;
     if (onPlace == null) return;
     if (metrics.pixels < _topSlack) {
-      onPlace(null);
+      onPlace(ReadingPlace(offset: 0, share: 0, at: clock.now()));
       return;
     }
     String? heading;

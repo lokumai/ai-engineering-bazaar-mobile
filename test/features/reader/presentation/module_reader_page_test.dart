@@ -824,7 +824,7 @@ void main() {
       expect(places.last?.heading, 'one', reason: 'read on from there, it is where the module is left');
     });
 
-    testWidgets('each scroll that ends tells where the module is left, and the top is no place', (tester) async {
+    testWidgets('each scroll that ends tells where the module is left, and near the top it is the top', (tester) async {
       longModule();
       final places = <ReadingPlace?>[];
       await pumpReader(tester, onPlace: places.add);
@@ -844,7 +844,9 @@ void main() {
 
       await tester.fling(page, const Offset(0, 6000), 8000);
       await tester.pumpAndSettle();
-      expect(places.last, isNull);
+      expect(places.last?.heading, isNull);
+      expect(places.last?.offset, 0);
+      expect(places.last?.share, 0);
     });
   });
 
@@ -1276,8 +1278,9 @@ void main() {
       await tester.fling(find.byType(SingleChildScrollView).first, const Offset(0, 6000), 8000);
       await tester.pumpAndSettle();
 
-      expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
-      expect(await store.load(), isEmpty);
+      // Back at the top, it is kept at its top: still the module being read (the owner, 2026-11-17).
+      expect(places.state.of(Track.engineers, 'alpha/first')?.share, 0);
+      expect((await store.load()).values.single.offset, 0);
     });
 
     group('a completed module keeps no place (the owner, 2026-11-12)', () {

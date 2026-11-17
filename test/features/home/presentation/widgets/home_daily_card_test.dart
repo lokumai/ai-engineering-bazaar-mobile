@@ -7,7 +7,10 @@ import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/application/daily_card_cubit.dart';
 import 'package:ai_engineering_bazaar/features/home/application/daily_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
@@ -74,6 +77,7 @@ Future<GoRouter> _pumpHome(
   MockContentRepository? repository,
   Locale? locale,
   RecordBloc? record,
+  ReadingPlacesBloc? places,
 }) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
@@ -84,6 +88,7 @@ Future<GoRouter> _pumpHome(
       record: record ?? readyRecordBloc(),
       repository: repository ?? _course(),
       locale: locale ?? const Locale('en'),
+      places: places,
     ),
   );
   await tester.pumpAndSettle();
@@ -135,6 +140,42 @@ void main() {
 
       expect(router.state.uri.path, '/courses/alpha/first');
       expect(ReaderTarget.of(router.state.extra).fragment, 'why');
+    });
+  });
+
+  // The owner, on the phone (2026-11-17): a module opened from the day's card and scrolled came back as Continue
+  // reading. A look at the day's card is not the module being read.
+  testWidgets('a module opened from the card keeps no place, however far it is scrolled', (tester) async {
+    await withClock(_dayZero, () async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final repository = missingContentRepository();
+      when(() => repository.readModuleDoc(any())).thenAnswer(
+        (_) async => testDoc(
+          title: 'First Module',
+          body: [
+            _p('An opening.'),
+            _h('why', 'Why tools'),
+            _p('Models call tools. They read what comes back.'),
+            for (var i = 0; i < 60; i++) _p('Paragraph $i of a long section, long enough to wrap on a phone.'),
+          ],
+        ),
+      );
+      final places = ReadingPlacesBloc(store: MemoryReadingPlaceStore())..add(const ReadingPlacesStarted());
+      addTearDown(places.close);
+      final router = await _pumpHome(tester, repository: repository, places: places);
+
+      await tester.tap(_card);
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/courses/alpha/first');
+      await tester.drag(
+        find.text('Paragraph 3 of a long section, long enough to wrap on a phone.'),
+        const Offset(0, -900),
+      );
+      await tester.pumpAndSettle();
+
+      expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
     });
   });
 

@@ -8,6 +8,8 @@ import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -106,4 +108,43 @@ void main() {
       },
     );
   }
+
+  // The owner, on the phone (2026-11-17): back at the top by the status bar, the module's place was dropped, so the
+  // continue band showed an older module instead.
+  testWidgets('back at the top by the status bar, the module is kept at its top', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final places = ReadingPlacesBloc(store: MemoryReadingPlaceStore())..add(const ReadingPlacesStarted());
+    addTearDown(places.close);
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      bazaarTestApp(
+        router: router,
+        content: readyContentBloc(),
+        record: readyRecordBloc(),
+        repository: _longModule(),
+        places: places,
+        platform: TargetPlatform.iOS,
+      ),
+    );
+    await tester.pumpAndSettle();
+    router.push(BazaarPaths.module(Track.engineers, 'alpha/first'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.text('Paragraph 2 of a long module, long enough to wrap a line or two on a phone.'),
+      const Offset(0, -1500),
+    );
+    await tester.pumpAndSettle();
+    expect(places.state.of(Track.engineers, 'alpha/first'), isNotNull, reason: 'kept once scrolled by hand');
+
+    await _tapStatusBar(tester);
+
+    final place = places.state.of(Track.engineers, 'alpha/first');
+    expect(place, isNotNull, reason: 'still the module being read, so the continue band offers it');
+    expect(place!.share, 0);
+    expect(place.offset, 0);
+  });
 }

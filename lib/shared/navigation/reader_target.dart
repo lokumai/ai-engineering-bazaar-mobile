@@ -1,7 +1,7 @@
 /// Where a module page opens, passed as the route's `extra`: the heading to scroll to, and the words searched in the
 /// catalog, which the reader marks (plan 7.1). A module link passes the heading alone, as a plain string.
 final class ReaderTarget {
-  const ReaderTarget({this.fragment, this.query, this.visit = false});
+  const ReaderTarget({this.fragment, this.query, this.visit = false, this.glance = false});
 
   /// The id of the heading to open at.
   final String? fragment;
@@ -12,6 +12,10 @@ final class ReaderTarget {
   /// Whether the module is of the other track, opened from a search that found nothing in the reader's track (plan
   /// 12.7): the shell leaves the reader's track as it is, as it would not for a link to the other track.
   final bool visit;
+
+  /// Whether the module is opened from the day's card, for a look: it keeps no place, so the continue band never
+  /// offers it (the owner, 2026-11-17).
+  final bool glance;
 
   /// The target an `extra` names: a [ReaderTarget], a heading id, or nothing.
   static ReaderTarget of(Object? extra) => switch (extra) {

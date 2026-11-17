@@ -113,8 +113,10 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
             card: card,
             hue: levelHue(context, position),
             completed: completed,
-            onTap: () =>
-                context.push(BazaarPaths.module(track, card.moduleKey), extra: ReaderTarget(fragment: card.sectionId)),
+            onTap: () => context.push(
+              BazaarPaths.module(track, card.moduleKey),
+              extra: ReaderTarget(fragment: card.sectionId, glance: true),
+            ),
           ),
           DailyCardLoading() || DailyCardNone() => null,
         }),

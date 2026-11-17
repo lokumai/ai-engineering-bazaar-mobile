@@ -178,6 +178,7 @@ class AppRouterFactory {
       fragment: target.fragment,
       query: target.query,
       quizBuilder: buildQuizPanel,
+      keepsPlace: !target.glance,
     );
   }
 
