@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/reading_style_page.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
@@ -51,10 +52,27 @@ void main() {
       for (final locale in const [Locale('en'), Locale('tr'), Locale('fa')]) {
         testWidgets('on a $name in ${locale.languageCode}, Reading and Customize fit the screen', (tester) async {
           await _pumpSettings(tester, size: size, insets: insets, locale: locale);
+          // The wardrobe first, then the app icon, Customize's last row (the owner, 2026-11-17).
           final wardrobe = find.byKey(const Key('settings-robot'));
+          final icon = find.byKey(const Key('settings-app-icon'));
+          expect(tester.getBottomLeft(wardrobe).dy, lessThanOrEqualTo(tester.getTopLeft(icon).dy));
           // Above the navigation at the screen's foot.
           final navigation = tester.getTopLeft(find.byType(NavigationBar)).dy;
-          expect(tester.getBottomLeft(wardrobe).dy, lessThanOrEqualTo(navigation), reason: 'the wardrobe on screen');
+          expect(tester.getBottomLeft(icon).dy, lessThanOrEqualTo(navigation), reason: 'the app icon row on screen');
+          // The Apprentice's button floats over Settings too (the owner, 2026-11-17), below the last row, not on it.
+          expect(
+            tester.getBottomLeft(icon).dy,
+            lessThanOrEqualTo(tester.getTopLeft(find.byKey(const ValueKey('pocket-assistant'))).dy),
+            reason: 'the Apprentice\'s button clear of the app icon row',
+          );
+          // The Apprentice's label on its choices' line, at the phone's own text size (the owner, 2026-11-17).
+          final choice = find.byKey(const Key('settings-pocket-button'));
+          final label = find.descendant(of: choice, matching: find.byType(Text)).first;
+          expect(
+            tester.getCenter(label).dy,
+            moreOrLessEquals(tester.getCenter(find.byKey(settingsPocketKey(shown: true))).dy, epsilon: 1),
+            reason: 'the label beside On and Off',
+          );
         });
       }
     }

@@ -142,7 +142,7 @@ void main() {
   });
 
   testWidgets(
-    'Customize, under Reading: the pocket model on or off first, its name above, then the icon and wardrobe',
+    'Customize, under Reading: the pocket model on or off first, its name beside it, then the wardrobe and icon',
     (tester) async {
       final store = MemoryPocketButtonStore();
       final button = PocketButtonCubit(store: store);
@@ -156,18 +156,23 @@ void main() {
       expect(customize, greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy));
       expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
 
-      // At the top of Customize (the owner, 2026-11-14), its name above its two segments (the owner, 2026-11-17: on one
-      // line with them, Settings looked crowded).
+      // At the top of Customize (the owner, 2026-11-14), its name at the start of its two segments' line (the owner,
+      // 2026-11-17: the other choices keep theirs above).
       final choice = find.byKey(const Key('settings-pocket-button'));
       expect(tester.getTopLeft(choice).dy, greaterThan(customize));
       final title = find.descendant(of: choice, matching: find.text('Apprentice'));
       expect(
-        tester.getBottomLeft(title).dy,
-        lessThanOrEqualTo(tester.getTopLeft(find.byKey(settingsPocketKey(shown: true))).dy),
+        tester.getCenter(title).dy,
+        moreOrLessEquals(tester.getCenter(find.byKey(settingsPocketKey(shown: true))).dy, epsilon: 1),
+      );
+      // The wardrobe, then the app icon (the owner, 2026-11-17).
+      expect(
+        tester.getTopLeft(find.byKey(const Key('settings-robot'))).dy,
+        greaterThan(tester.getBottomLeft(choice).dy),
       );
       expect(
         tester.getTopLeft(find.byKey(const Key('settings-app-icon'))).dy,
-        greaterThan(tester.getBottomLeft(choice).dy),
+        greaterThan(tester.getBottomLeft(find.byKey(const Key('settings-robot'))).dy),
       );
       expect(find.descendant(of: choice, matching: find.text('On')), findsOneWidget);
       expect(find.descendant(of: choice, matching: find.text('Off')), findsOneWidget);
@@ -183,7 +188,7 @@ void main() {
       await tester.ensureVisible(wardrobe);
       expect(find.descendant(of: wardrobe, matching: find.text('Wardrobe')), findsOneWidget);
       final picture = find.descendant(of: wardrobe, matching: find.byKey(const Key('robot-picture')));
-      expect(tester.getSize(picture), const Size.square(52));
+      expect(tester.getSize(picture), const Size.square(44));
       expect(tester.getTopLeft(picture).dx, lessThan(tester.getTopLeft(find.text('Wardrobe')).dx));
       await tester.tap(find.byKey(const Key('settings-robot')));
       await tester.pumpAndSettle();
@@ -207,7 +212,7 @@ void main() {
       findsNothing,
       reason: 'the picture says which',
     );
-    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(52, 52));
+    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(44, 44));
     expect(tester.getSemantics(row), isSemantics(label: 'App icon, Fez, Dark', isButton: true));
     expect(
       tester.getTopLeft(row).dy,

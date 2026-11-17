@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/inline_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/labeled_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/reading_style_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -21,6 +22,7 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -97,7 +99,8 @@ class _SettingsView extends StatelessWidget {
     final openDevConsole = this.openDevConsole;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      // The Apprentice's button floats over Settings' corner too, so its end scrolls clear of it.
+      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -159,7 +162,7 @@ class _SettingsView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // The pocket model's button, the app's icon and its robot's wardrobe (plan 9.9).
+          // The pocket model's button, its robot's wardrobe and the app's icon (plan 9.9).
           SectionRule(title: s.settings_customize),
           const SizedBox(height: AppSpacing.sm),
           // The Apprentice's tour points at what it can wear (plan 11.3).
@@ -167,10 +170,11 @@ class _SettingsView extends StatelessWidget {
             spot: TourSpots.settingsCustomize,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.sm,
+              spacing: AppSpacing.xs,
               children: [
-                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
-                LabeledSetting<bool>(
+                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14), its
+                // label beside it (the owner, 2026-11-17).
+                InlineSetting<bool>(
                   key: const Key('settings-pocket-button'),
                   label: s.settings_pocket_button,
                   selected: context.watch<PocketButtonCubit>().state,
@@ -180,14 +184,17 @@ class _SettingsView extends StatelessWidget {
                     BazaarSegment(value: false, label: s.settings_off, key: settingsPocketKey(shown: false)),
                   ],
                 ),
-                AppIconRow(
-                  key: const Key('settings-app-icon'),
-                  onTap: () => context.push(ApplicationRoutesConstants.appIcon),
-                ),
+                // The wardrobe first (the owner, 2026-11-17).
                 _WardrobeRow(
                   key: const Key('settings-robot'),
                   picture: wardrobePicture,
                   onTap: () => context.push(ApplicationRoutesConstants.robot),
+                ),
+                AppIconRow(
+                  key: const Key('settings-app-icon'),
+                  picture: _rowPicture,
+                  padding: _rowPadding,
+                  onTap: () => context.push(ApplicationRoutesConstants.appIcon),
                 ),
               ],
             ),
@@ -333,6 +340,11 @@ class _Action extends StatelessWidget {
   }
 }
 
+/// The side of the Wardrobe and App icon rows' pictures, and the rows' padding: a little smaller than the App icon
+/// page's, so the Apprentice's button stands below Customize's last row on a small phone (the owner, 2026-11-17).
+const double _rowPicture = 44;
+const EdgeInsets _rowPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 8);
+
 /// The Wardrobe row (plan 9.10), in the App icon row's style: the robot in what it wears as a picture, the row's
 /// name and an arrow.
 class _WardrobeRow extends StatelessWidget {
@@ -347,11 +359,11 @@ class _WardrobeRow extends StatelessWidget {
     final picture = this.picture;
     return BazaarRow(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      padding: _rowPadding,
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          if (picture != null) ExcludeSemantics(child: picture(52)),
+          if (picture != null) ExcludeSemantics(child: picture(_rowPicture)),
           Expanded(
             child: Text(
               S.of(context).settings_robot,
