@@ -252,6 +252,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_search_shown": m20,
     "catalog_state_complete": MessageLookupByLibrary.simpleMessage("تکمیل‌شده"),
     "catalog_state_not_yet": MessageLookupByLibrary.simpleMessage("هنوز نه"),
+    "catalog_topics": MessageLookupByLibrary.simpleMessage("اصطلاح‌هایی برای دیدن"),
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
       "محتوای دوره در این برنامه باز نشد. به‌روزرسانی برنامه آن را بازمی‌گرداند. پیشرفت شما در این دستگاه حفظ می‌شود.",
     ),

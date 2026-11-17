@@ -419,6 +419,7 @@
   "glossary_find": "یافتن اصطلاح",
   "glossary_none": "اصطلاحی پیدا نشد.",
   "glossary_in": "در این درس‌ها",
+  "catalog_topics": "اصطلاح‌هایی برای دیدن",
   "practice_quizzes": "آزمون‌ها بر اساس سطح",
   "home_review": "مرور امروز، {count, plural, =1{1 کارت} other{{count} کارت}}",
   "review_progress": "کارت {step} از {count}",

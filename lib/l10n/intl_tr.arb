@@ -419,6 +419,7 @@
   "glossary_find": "Terim bul",
   "glossary_none": "Eşleşen terim yok.",
   "glossary_in": "Geçtiği modüller",
+  "catalog_topics": "Göz atılacak terimler",
   "practice_quizzes": "Seviyelere göre quizler",
   "home_review": "Günün tekrarı, {count, plural, =1{1 kart} other{{count} kart}}",
   "review_progress": "Kart {step}/{count}",

@@ -251,6 +251,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_search_shown": m20,
     "catalog_state_complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "catalog_state_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
+    "catalog_topics": MessageLookupByLibrary.simpleMessage("Terms to look up"),
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
       "The course content in this app could not be opened. An update of the app restores it. Your progress on this device is kept.",
     ),
