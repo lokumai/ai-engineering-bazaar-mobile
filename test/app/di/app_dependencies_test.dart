@@ -354,10 +354,16 @@ void main() {
     );
 
     expect(await dependencies.createTourStore().load(), const TourRecord());
-    const record = TourRecord(guiding: true, seen: {'home', 'quiz'});
+    const record = TourRecord(guiding: true, seen: {'home', 'practice'});
     await dependencies.createTourStore().save(const TourRecord(asking: true));
     await dependencies.createTourStore().save(record);
     expect(await dependencies.createTourStore().load(), record, reason: 'kept for the next start, the question gone');
+    await dependencies.createTourStore().save(const TourRecord(guiding: true, seen: {'home', 'quiz'}));
+    expect(
+      await dependencies.createTourStore().load(),
+      const TourRecord(guiding: true, seen: {'home'}),
+      reason: "the Quiz tab's page is not Practice's, so Practice is still shown (plan 13.11)",
+    );
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 

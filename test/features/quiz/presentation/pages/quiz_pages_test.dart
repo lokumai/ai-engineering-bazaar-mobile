@@ -87,6 +87,10 @@ Future<void> _openLevels(WidgetTester tester, List<String> slugs) async {
   }
 }
 
+/// Scrolls Practice until [target] is drawn: the levels sit below its head, off a test screen.
+Future<void> _scrollTo(WidgetTester tester, Finder target) =>
+    tester.scrollUntilVisible(target, 200, scrollable: find.byType(Scrollable).first);
+
 void main() {
   setUpAll(registerAllFallbackValues);
 
@@ -137,12 +141,16 @@ void main() {
     await tester.pumpAndSettle();
     router.go('/practice');
     await tester.pumpAndSettle();
+    await _scrollTo(tester, find.bySemanticsLabel(RegExp('^Beta Level,')));
     expect(find.byKey(PracticePage.rowKey('alpha/first')), findsNothing, reason: 'alpha stays closed');
+    await _scrollTo(tester, find.byKey(PracticePage.rowKey('beta/fourth')));
     expect(find.byKey(PracticePage.rowKey('beta/fourth')), findsOneWidget, reason: 'beta stays open');
 
     await tester.pumpWidget(const SizedBox());
     await _pump(tester);
+    await _scrollTo(tester, find.byKey(PracticePage.rowKey('alpha/first')));
     expect(find.byKey(PracticePage.rowKey('alpha/first')), findsOneWidget, reason: 'a new launch');
+    await _scrollTo(tester, find.bySemanticsLabel(RegExp('^Gamma Level,')));
     expect(find.byKey(PracticePage.rowKey('beta/fourth')), findsNothing);
   });
 
