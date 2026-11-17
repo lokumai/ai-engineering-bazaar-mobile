@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
-import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -20,8 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The field at the head of the catalog where the reader types words to find (plan 7.1). The query is searched a
-/// moment after the last key, so a fast typist is not searched letter by letter. Tapped while empty, it shows the
-/// recent searches under it (plan 12.8); a tap on one searches it again.
+/// moment after the last key, so a fast typist is not searched letter by letter.
 class CatalogSearchField extends StatefulWidget {
   const CatalogSearchField({super.key});
 
@@ -35,32 +33,13 @@ class CatalogSearchField extends StatefulWidget {
 class _CatalogSearchFieldState extends State<CatalogSearchField> {
   // The words kept from the last time the catalog was shown.
   late final _controller = TextEditingController(text: context.read<CatalogQueryCubit>().state);
-  final _focus = FocusNode();
   Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _focus.addListener(() => setState(() {}));
-  }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _focus.dispose();
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Searches [search] again, as if typed.
-  void _again(String search) {
-    _timer?.cancel();
-    _controller.text = search;
-    _controller.selection = TextSelection.collapsed(offset: search.length);
-    setState(() {});
-    context.read<CatalogQueryCubit>().keep(search);
-    unawaited(context.read<CatalogSearchCubit>().search(search));
-    _focus.unfocus();
   }
 
   void _changed(String text) {
@@ -85,30 +64,12 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final recent = context.watch<RecentSearchesCubit>().state;
-    final field = _field(context);
-    if (!_focus.hasFocus || _controller.text.isNotEmpty || recent.isEmpty) return field;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        field,
-        // A tap on the list does not put the keyboard away before it lands.
-        TextFieldTapRegion(
-          child: _RecentSearches(searches: recent, onSearch: _again),
-        ),
-      ],
-    );
-  }
-
-  Widget _field(BuildContext context) {
     final s = S.of(context);
     return TextField(
       controller: _controller,
-      focusNode: _focus,
       onChanged: _changed,
       onSubmitted: (text) {
         _timer?.cancel();
-        unawaited(context.read<RecentSearchesCubit>().add(text));
         unawaited(context.read<CatalogSearchCubit>().search(text));
       },
       textInputAction: TextInputAction.search,
@@ -127,67 +88,6 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
         // 48 high, the least a tap target may be.
         constraints: const BoxConstraints(minHeight: 48),
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
-      ),
-    );
-  }
-}
-
-/// The recent searches under the empty field (plan 12.8): their name and Clear, then each search, which searches it
-/// again, with a button that forgets it.
-class _RecentSearches extends StatelessWidget {
-  const _RecentSearches({required this.searches, required this.onSearch});
-
-  final List<String> searches;
-  final ValueChanged<String> onSearch;
-
-  /// The key of the list.
-  static const listKey = ValueKey('catalog-recent-searches');
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
-    final textTheme = Theme.of(context).textTheme;
-    final cubit = context.read<RecentSearchesCubit>();
-    return Padding(
-      key: listKey,
-      padding: const EdgeInsets.only(top: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  s.catalog_recent_title,
-                  style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-                ),
-              ),
-              TextButton(onPressed: () => unawaited(cubit.clear()), child: Text(s.catalog_recent_clear)),
-            ],
-          ),
-          for (final search in searches)
-            InkWell(
-              onTap: () => onSearch(search),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
-                child: Row(
-                  spacing: AppSpacing.md,
-                  children: [
-                    Icon(Icons.history, size: 20, color: colors.onSurfaceMuted),
-                    Expanded(
-                      child: Text(search, style: textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, size: 18, color: colors.onSurfaceMuted),
-                      tooltip: s.catalog_recent_remove(search),
-                      onPressed: () => unawaited(cubit.remove(search)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
@@ -391,13 +291,7 @@ class _ModuleHitsState extends State<_ModuleHits> {
   bool get _folds => !_level && _hits.length > 1;
 
   /// Opens the module at [fragment] with the words searched marked, or the level's page for a level.
-  void _go(BuildContext context, String? fragment) {
-    // A search that opened something is kept as a recent one (plan 12.8).
-    unawaited(context.read<RecentSearchesCubit>().add(widget.query));
-    _push(context, fragment);
-  }
-
-  void _push(BuildContext context, String? fragment) => _level
+  void _go(BuildContext context, String? fragment) => _level
       ? context.push(BazaarPaths.level(widget.track, _hits.first.entry.moduleKey))
       : context.push(
           BazaarPaths.module(widget.track, _hits.first.entry.moduleKey),

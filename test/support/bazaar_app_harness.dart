@@ -32,7 +32,6 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
-import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,7 +128,6 @@ Widget bazaarTestApp({
   TourCubit? tour,
   RobotLevelCubit? robotLevel,
   ReadingStyleCubit? readingStyle,
-  RecentSearchesCubit? recentSearches,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -162,7 +160,6 @@ Widget bazaarTestApp({
           ),
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
-        BlocProvider<RecentSearchesCubit>(create: (_) => recentSearches ?? RecentSearchesCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         if (caravan != null)
           BlocProvider<CaravanCubit>.value(value: caravan)

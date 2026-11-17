@@ -313,18 +313,6 @@
       }
     }
   },
-  "catalog_recent_title": "Recent searches",
-  "@catalog_recent_title": {},
-  "catalog_recent_clear": "Clear",
-  "@catalog_recent_clear": {},
-  "catalog_recent_remove": "Remove “{query}”",
-  "@catalog_recent_remove": {
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
   "block_code_copy": "Copy",
   "@block_code_copy": {},
   "block_code_copied": "Copied",
