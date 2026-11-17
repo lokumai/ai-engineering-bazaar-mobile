@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ai_engineering_bazaar/features/quiz/application/review_session.dart';
+import 'package:ai_engineering_bazaar/features/quiz/application/section_finder.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_option.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
@@ -9,6 +10,10 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 /// A Practice session's page by the [ReviewSessionCubit]'s state: the card shown, or the results.
 class ReviewSessionView extends StatefulWidget {
@@ -138,9 +143,64 @@ class _QuestionCard extends StatelessWidget {
           key: const Key('review-verdict'),
           container: true,
           liveRegion: true,
-          child: answered ? QuizVerdict(item: quiz, right: at.results[at.index]!) : const SizedBox.shrink(),
+          child: answered
+              ? QuizVerdict(
+                  item: quiz,
+                  right: at.results[at.index]!,
+                  // From a wrong answer to the section that teaches it, its words marked (plan 13.5).
+                  footer: switch (item.section) {
+                    final section? when at.results[at.index] == false => _SectionLink(item: item, section: section),
+                    _ => null,
+                  },
+                )
+              : const SizedBox.shrink(),
         ),
       ],
+    );
+  }
+}
+
+/// "This is in: <section> ›": opens the module at the section, with the question's words marked by the find bar. The
+/// module is opened for a look: it keeps no place, as from the day's card.
+class _SectionLink extends StatelessWidget {
+  const _SectionLink({required this.item, required this.section});
+
+  final QuestionItem item;
+  final FoundSection section;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    final label = S.of(context).review_section_link(section.title);
+    return Semantics(
+      link: true,
+      label: label,
+      excludeSemantics: true,
+      child: InkWell(
+        key: const Key('review-section-link'),
+        onTap: () => context.push(
+          BazaarPaths.module(context.read<TrackCubit>().state, item.moduleKey),
+          extra: ReaderTarget(fragment: section.heading, query: section.words.join(' '), glance: true),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: BazaarType.control.size,
+                    fontWeight: FontWeight.w600,
+                    color: colors.primary,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_right, color: colors.primary, size: 20),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

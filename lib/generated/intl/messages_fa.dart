@@ -145,15 +145,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m60(right, total) => "${right} از ${total} درست";
 
-  static String m61(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
+  static String m61(section) => "این در اینجاست: ${section}";
 
-  static String m62(step, count) => "${step} / ${count}";
+  static String m62(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
-  static String m63(name, level) => "${name}، در سطح ${level} باز می‌شود";
+  static String m63(step, count) => "${step} / ${count}";
 
-  static String m64(name) => "${name}، پوشیده";
+  static String m64(name, level) => "${name}، در سطح ${level} باز می‌شود";
 
-  static String m65(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
+  static String m65(name) => "${name}، پوشیده";
+
+  static String m66(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -590,6 +592,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_finish": MessageLookupByLibrary.simpleMessage("پایان"),
     "review_progress": m59,
     "review_result": m60,
+    "review_section_link": m61,
     "review_term": MessageLookupByLibrary.simpleMessage("اصطلاح"),
     "review_term_knew": MessageLookupByLibrary.simpleMessage("می‌دانستم"),
     "review_term_not_yet": MessageLookupByLibrary.simpleMessage("هنوز نه"),
@@ -620,7 +623,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "برنامه هر بار که باز می‌شود، از سایت نسخهٔ جدیدتر را می‌پرسد.",
     ),
-    "settings_refresh_failed": m61,
+    "settings_refresh_failed": m62,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("از زمان باز شدن برنامه بررسی نشده است"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "محتوای جدیدتر به نسخهٔ جدیدتری از برنامه نیاز دارد. برای دریافت آن، برنامه را به‌روزرسانی کنید.",
@@ -686,7 +689,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
-    "tour_step": m62,
+    "tour_step": m63,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، آزمون و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
     ),
@@ -695,10 +698,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
-    "wardrobe_item_locked": m63,
-    "wardrobe_item_worn": m64,
+    "wardrobe_item_locked": m64,
+    "wardrobe_item_worn": m65,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
-    "wardrobe_preview": m65,
+    "wardrobe_preview": m66,
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),

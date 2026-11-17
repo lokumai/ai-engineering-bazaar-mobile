@@ -2955,6 +2955,11 @@ class S {
   String get review_empty {
     return Intl.message('No cards to show.', name: 'review_empty', desc: '', args: []);
   }
+
+  /// `This is in: {section}`
+  String review_section_link(String section) {
+    return Intl.message('This is in: $section', name: 'review_section_link', desc: '', args: [section]);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -413,5 +413,6 @@
   "review_finish": "Bitir",
   "review_result": "{total} karttan {right} tanesi doğru",
   "review_back": "Pratik'e dön",
-  "review_empty": "Gösterilecek kart yok."
+  "review_empty": "Gösterilecek kart yok.",
+  "review_section_link": "Bu konu şurada: {section}"
 }

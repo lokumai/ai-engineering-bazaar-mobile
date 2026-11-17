@@ -145,15 +145,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m60(right, total) => "${total} karttan ${right} tanesi doğru";
 
-  static String m61(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
+  static String m61(section) => "Bu konu şurada: ${section}";
 
-  static String m62(step, count) => "${step} / ${count}";
+  static String m62(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
-  static String m63(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m63(step, count) => "${step} / ${count}";
 
-  static String m64(name) => "${name}, giyili";
+  static String m64(name, level) => "${name}, ${level}. seviyede açılır";
 
-  static String m65(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m65(name) => "${name}, giyili";
+
+  static String m66(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -588,6 +590,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_finish": MessageLookupByLibrary.simpleMessage("Bitir"),
     "review_progress": m59,
     "review_result": m60,
+    "review_section_link": m61,
     "review_term": MessageLookupByLibrary.simpleMessage("Terim"),
     "review_term_knew": MessageLookupByLibrary.simpleMessage("Biliyordum"),
     "review_term_not_yet": MessageLookupByLibrary.simpleMessage("Henüz değil"),
@@ -616,7 +619,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "Uygulama her açılışta siteye daha yeni bir sürüm olup olmadığını sorar.",
     ),
-    "settings_refresh_failed": m61,
+    "settings_refresh_failed": m62,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Uygulama açıldığından beri kontrol edilmedi"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Yeni içerik, uygulamanın daha yeni bir sürümünü gerektiriyor. Almak için uygulamayı güncelle.",
@@ -680,7 +683,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
-    "tour_step": m62,
+    "tour_step": m63,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "Sekmeler aşağıda: Katalog, Kervan, Quiz ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
     ),
@@ -689,10 +692,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m63,
-    "wardrobe_item_worn": m64,
+    "wardrobe_item_locked": m64,
+    "wardrobe_item_worn": m65,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m65,
+    "wardrobe_preview": m66,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

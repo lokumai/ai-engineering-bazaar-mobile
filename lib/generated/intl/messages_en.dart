@@ -146,15 +146,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m60(right, total) => "${right} of ${total} right";
 
-  static String m61(reason) => "The check for updates did not finish: ${reason}.";
+  static String m61(section) => "This is in: ${section}";
 
-  static String m62(step, count) => "${step} / ${count}";
+  static String m62(reason) => "The check for updates did not finish: ${reason}.";
 
-  static String m63(name, level) => "${name}, unlocks at level ${level}";
+  static String m63(step, count) => "${step} / ${count}";
 
-  static String m64(name) => "${name}, worn";
+  static String m64(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m65(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m65(name) => "${name}, worn";
+
+  static String m66(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -587,6 +589,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_finish": MessageLookupByLibrary.simpleMessage("Finish"),
     "review_progress": m59,
     "review_result": m60,
+    "review_section_link": m61,
     "review_term": MessageLookupByLibrary.simpleMessage("Term"),
     "review_term_knew": MessageLookupByLibrary.simpleMessage("Knew it"),
     "review_term_not_yet": MessageLookupByLibrary.simpleMessage("Not yet"),
@@ -617,7 +620,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "At every start the app asks the site for a newer version.",
     ),
-    "settings_refresh_failed": m61,
+    "settings_refresh_failed": m62,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",
@@ -679,7 +682,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
-    "tour_step": m62,
+    "tour_step": m63,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I\'ll show you what it does.",
     ),
@@ -688,12 +691,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m63,
-    "wardrobe_item_worn": m64,
+    "wardrobe_item_locked": m64,
+    "wardrobe_item_worn": m65,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m65,
+    "wardrobe_preview": m66,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),

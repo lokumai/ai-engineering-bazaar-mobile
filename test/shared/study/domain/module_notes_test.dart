@@ -75,6 +75,12 @@ void main() {
     expect(notes.summaryHeading, 'wrap');
     expect(notes.summary, hasLength(4), reason: 'its paragraphs and its subsection, up to the next level-2 heading');
     expect(notes.quiz, hasLength(1));
+    expect(
+      [for (final section in notes.sections) section.id],
+      ['lamps', 'a-list'],
+      reason: 'the sections that teach: not the Key Terms, the Summary with its subsection, or the References',
+    );
+    expect(notes.sections.first, const NoteSection(id: 'lamps', title: 'Lamps', text: 'Some text.'));
   });
 
   test('a list of that shape only mid-module is not the Key Terms', () {

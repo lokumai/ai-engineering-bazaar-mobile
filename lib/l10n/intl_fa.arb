@@ -413,5 +413,6 @@
   "review_finish": "پایان",
   "review_result": "{right} از {total} درست",
   "review_back": "بازگشت به تمرین",
-  "review_empty": "کارتی برای نمایش نیست."
+  "review_empty": "کارتی برای نمایش نیست.",
+  "review_section_link": "این در اینجاست: {section}"
 }

@@ -40,10 +40,29 @@ final class GlossaryTerm extends Equatable {
   List<Object?> get props => [moduleKey, index, name, forms, definition];
 }
 
-/// A module's Key Terms, Summary and quiz, as Practice uses them.
+/// A section of a module's text, a level-2 or level-3 heading and the words under it, up to the next such heading.
+final class NoteSection extends Equatable {
+  const NoteSection({required this.id, required this.title, required this.text});
+
+  /// The heading's id, to open the module at it.
+  final String id;
+
+  /// The heading's words.
+  final String title;
+
+  /// The words under it, as a reader meets them.
+  final String text;
+
+  @override
+  List<Object?> get props => [id, title, text];
+}
+
+/// A module's Key Terms, Summary and quiz, as Practice uses them, and the sections that teach it.
 final class ModuleNotes extends Equatable {
   const ModuleNotes({
     required this.moduleKey,
+    this.lang = 'en',
+    this.sections = const [],
     this.terms = const [],
     this.termsHeading,
     this.summary = const [],
@@ -52,6 +71,13 @@ final class ModuleNotes extends Equatable {
   });
 
   final String moduleKey;
+
+  /// The language the document is written in: the reader's, or English where the module is not translated.
+  final String lang;
+
+  /// The sections that teach the module, in order: every one but the Key Terms, the Summary and the References, which
+  /// restate it, and their subsections.
+  final List<NoteSection> sections;
 
   /// The Key Terms, in the document's order; empty when the module has none.
   final List<GlossaryTerm> terms;
@@ -69,7 +95,7 @@ final class ModuleNotes extends Equatable {
   final List<QuizItem> quiz;
 
   @override
-  List<Object?> get props => [moduleKey, terms, termsHeading, summary, summaryHeading, quiz];
+  List<Object?> get props => [moduleKey, lang, sections, terms, termsHeading, summary, summaryHeading, quiz];
 }
 
 /// The notes of [doc], the module [moduleKey].
@@ -103,14 +129,45 @@ ModuleNotes notesOf(String moduleKey, ModuleDoc doc) {
     final next = headings.indexOf(termsAt) + 1;
     if (next < headings.length - 1) summaryAt = headings[next];
   }
+  final left = {?termsAt, ?summaryAt, if (headings.isNotEmpty) headings.last};
   return ModuleNotes(
     moduleKey: moduleKey,
+    lang: doc.lang,
+    sections: _teaching(body, left),
     terms: terms,
     termsHeading: termsAt == null ? null : (body[termsAt] as HeadingBlock).id,
     summary: summaryAt == null ? const [] : _sectionAt(body, summaryAt),
     summaryHeading: summaryAt == null ? null : (body[summaryAt] as HeadingBlock).id,
     quiz: doc.quiz ?? const [],
   );
+}
+
+/// The sections of [body] under its level-2 and level-3 headings, leaving out the level-2 sections at the places
+/// [left] and their subsections; a section with no words is left out too.
+List<NoteSection> _teaching(List<Block> body, Set<int> left) {
+  final sections = <NoteSection>[];
+  HeadingBlock? open;
+  var blocks = <Block>[];
+  void close() {
+    final text = plainOf(blocks);
+    if (open case final heading? when text.isNotEmpty) {
+      sections.add(NoteSection(id: heading.id, title: squashSpace(inlineText(heading.inlines)), text: text));
+    }
+  }
+
+  var skipping = false;
+  for (final (position, block) in body.indexed) {
+    if (block case HeadingBlock(:final depth) when depth <= 3) {
+      close();
+      if (depth == 2) skipping = left.contains(position);
+      open = skipping ? null : block;
+      blocks = [];
+    } else {
+      blocks.add(block);
+    }
+  }
+  close();
+  return sections;
 }
 
 /// The blocks under the heading at [position], up to the next heading of its level or above.

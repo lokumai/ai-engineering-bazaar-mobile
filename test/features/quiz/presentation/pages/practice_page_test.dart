@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
@@ -33,12 +34,13 @@ Future<(GoRouter, ReviewBloc)> _pump(
   RecordData? record,
   String at = '/practice',
   TargetPlatform platform = TargetPlatform.android,
+  ModuleDoc? doc,
 }) async {
   tester.view.physicalSize = const Size(400, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final repository = missingContentRepository();
-  when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _items));
+  when(() => repository.readModuleDoc(any())).thenAnswer((_) async => doc ?? testDoc(quiz: _items));
   final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
   addTearDown(review.close);
   final router = AppRouterFactory(initialLocation: at).create();
@@ -146,6 +148,67 @@ void main() {
     await _tap(tester, find.byKey(const Key('review-next')));
     await _tap(tester, find.byKey(const Key('review-back')));
     expect(find.text('No wrong answers now.'), findsOneWidget, reason: 'right twice in a row, and they leave');
+  });
+
+  testWidgets('a wrong answer links to the section that teaches it, opened with its words marked (plan 13.5)', (
+    tester,
+  ) async {
+    HeadingBlock h(String id, String text) => HeadingBlock(
+      depth: 2,
+      id: id,
+      mark: null,
+      inlines: [TextInline(text: text)],
+    );
+    ParagraphBlock p(String text) => ParagraphBlock(inlines: [TextInline(text: text)], lead: false);
+    final doc = testDoc(
+      body: [
+        h('lamps', 'Lamps'),
+        p('A lantern holds a flame behind glass, carried by hand at night.'),
+        h('oil', 'Oil'),
+        p('The wick draws paraffin up from the reservoir, and the flame burns the paraffin.'),
+        h('care', 'Care'),
+        p('Trim the wick and clean the glass, so the light stays bright.'),
+      ],
+      quiz: const [
+        QuizItem(
+          question: 'What does the wick draw up from the reservoir?',
+          options: ['Paraffin', 'Water', 'Air', 'Sand'],
+          answer: 0,
+          explain: 'The wick draws the fuel.',
+        ),
+      ],
+    );
+    final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
+    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _tap(tester, find.text('Water'));
+    expect(find.text('This is in: Oil'), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('review-section-link')));
+    expect(router.state.uri.path, '/courses/alpha/first');
+    final target = router.state.extra! as ReaderTarget;
+    expect(target.fragment, 'oil');
+    expect(target.glance, isTrue, reason: 'a look: it keeps no place');
+    expect(target.query!.split(' '), containsAll(['paraffin', 'reservoir']));
+  });
+
+  testWidgets('a right answer offers no section link', (tester) async {
+    HeadingBlock h(String id, String text) => HeadingBlock(
+      depth: 2,
+      id: id,
+      mark: null,
+      inlines: [TextInline(text: text)],
+    );
+    ParagraphBlock p(String text) => ParagraphBlock(inlines: [TextInline(text: text)], lead: false);
+    final doc = testDoc(
+      body: [h('a', 'A'), p('paraffin reservoir wick'), h('b', 'B'), p('glass flame'), h('c', 'C'), p('night hand')],
+      quiz: const [
+        QuizItem(question: 'Wick reservoir?', options: ['Paraffin', 'Water'], answer: 0, explain: 'E'),
+      ],
+    );
+    await _pump(tester, record: _completed(['alpha/first']), doc: doc);
+    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _tap(tester, find.text('Paraffin'));
+    expect(find.text('Correct.'), findsOneWidget);
+    expect(find.byKey(const Key('review-section-link')), findsNothing);
   });
 
   testWidgets('with no module completed, there is nothing to review today', (tester) async {

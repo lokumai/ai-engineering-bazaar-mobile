@@ -1463,5 +1463,13 @@
     }
   },
   "review_back": "Back to Practice",
-  "review_empty": "No cards to show."
+  "review_empty": "No cards to show.",
+  "review_section_link": "This is in: {section}",
+  "@review_section_link": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  }
 }

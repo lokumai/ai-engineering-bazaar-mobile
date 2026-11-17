@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:ai_engineering_bazaar/features/quiz/application/section_finder.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
@@ -24,15 +25,24 @@ sealed class ReviewItem extends Equatable {
 /// A quiz question, its options in the order shown: shuffled in Practice only (plan 13.6), so [item]'s `answer` is the
 /// right option's place as shown.
 final class QuestionItem extends ReviewItem {
-  const QuestionItem({required super.key, required super.moduleTitle, required this.item, required this.length});
+  const QuestionItem({
+    required super.key,
+    required super.moduleTitle,
+    required this.item,
+    required this.length,
+    this.section,
+  });
 
   final QuizItem item;
 
   /// How many questions its module's quiz has.
   final int length;
 
+  /// The section of its module that teaches it, which a wrong answer links to (plan 13.5); null when unsure.
+  final FoundSection? section;
+
   @override
-  List<Object?> get props => [key, moduleTitle, item, length];
+  List<Object?> get props => [key, moduleTitle, item, length, section];
 }
 
 /// A term looked up: the term, then its definition when asked, then whether it was known.
@@ -69,6 +79,7 @@ ReviewItem? _itemOf(String key, StudyNotesReady notes, String Function(String) t
     moduleTitle: titleOf(module.moduleKey),
     item: shuffled(item, random),
     length: module.quiz.length,
+    section: sectionFor(item, module),
   );
 }
 
