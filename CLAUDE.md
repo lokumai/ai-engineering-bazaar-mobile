@@ -106,6 +106,9 @@ lib/
     review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
                                                 and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
                                                 review, Wrong answers); the app's own, never in the record
+    study/                                      a module's Key Terms, Summary and quiz found by place and shape
+                                                (module_notes.dart), StudyNotesCubit that reads them for a track and
+                                                language, StudyNotesLoader that asks for them under the pages that show them
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows

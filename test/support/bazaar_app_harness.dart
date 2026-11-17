@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
@@ -159,6 +160,9 @@ Widget bazaarTestApp({
           BlocProvider<ReviewBloc>.value(value: review)
         else
           BlocProvider<ReviewBloc>(create: (_) => ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted())),
+        BlocProvider<StudyNotesCubit>(
+          create: (context) => StudyNotesCubit(repository: context.read<IContentRepository>()),
+        ),
         if (places != null)
           BlocProvider<ReadingPlacesBloc>.value(value: places)
         else

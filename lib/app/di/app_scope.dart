@@ -34,6 +34,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -118,6 +119,10 @@ class AppScope extends StatelessWidget {
           BlocProvider<ReviewBloc>(
             lazy: false,
             create: (context) => ReviewBloc(store: context.read<IReviewStore>())..add(const ReviewStarted()),
+          ),
+          // The modules' Key Terms, Summary and quiz, read when a page that shows them opens (StudyNotesLoader).
+          BlocProvider<StudyNotesCubit>(
+            create: (context) => StudyNotesCubit(repository: context.read<IContentRepository>()),
           ),
           BlocProvider<ReadingPlacesBloc>(
             lazy: false,
