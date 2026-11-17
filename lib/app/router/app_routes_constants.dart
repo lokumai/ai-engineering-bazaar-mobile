@@ -17,6 +17,9 @@ class ApplicationRoutesConstants {
   /// The app icon's choice, from Settings.
   static const appIcon = '/settings/app-icon';
 
+  /// The reading settings, from Settings' Reading (plan 12.5).
+  static const readingStyle = '/settings/reading';
+
   /// The robot's wardrobe, from Settings' Customize (plan 9.9).
   static const robot = '/settings/robot';
 

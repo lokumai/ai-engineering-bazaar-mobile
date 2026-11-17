@@ -6,12 +6,14 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_m
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_model_card.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../support/accessibility.dart';
 import '../../../support/bazaar_app_harness.dart';
@@ -20,7 +22,7 @@ import '../../../support/bazaar_app_harness.dart';
 
 final _corner = find.byKey(const ValueKey('pocket-corner'));
 
-Future<void> _pump(
+Future<GoRouter> _pump(
   WidgetTester tester, {
   MemoryPocketModelStore? store,
   PocketButtonCubit? button,
@@ -35,6 +37,7 @@ Future<void> _pump(
   await tester.pumpWidget(bazaarTestApp(router: router, pocketStore: store, pocketButton: button, locale: locale));
   await tester.pump();
   await tester.pump();
+  return router;
 }
 
 /// Lets the sheet's stage settle, so no timer is left running.
@@ -105,6 +108,41 @@ void main() {
 
     expect(_corner, findsNothing);
     expect(find.text('Later on'), findsOneWidget);
+  });
+
+  // The owner, 2026-11-17: the tour ends on Settings, and the Apprentice walked back to a corner that was not there.
+  testWidgets('Settings has the corner too, and its end scrolls clear of it', (tester) async {
+    final router = await _pump(tester);
+    router.go('/settings');
+    await tester.pump();
+    await tester.pump();
+
+    expect(_corner, findsOneWidget);
+    final page = tester.widget<SingleChildScrollView>(find.byType(SingleChildScrollView).first);
+    expect(page.padding!.resolve(TextDirection.ltr).bottom, greaterThan(70));
+  });
+
+  // The owner, 2026-11-17: the Wardrobe row shows the whole Apprentice, small, in what it wears, not its head.
+  testWidgets('Settings\' Wardrobe row shows the whole robot, not its head', (tester) async {
+    final router = await _pump(tester);
+    router.go('/settings');
+    await tester.pump();
+    await tester.pump();
+
+    final row = find.byKey(const Key('settings-robot'));
+    final whole = find.descendant(
+      of: row,
+      matching: find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter),
+    );
+    expect(whole, findsOneWidget);
+    expect(
+      find.descendant(
+        of: row,
+        matching: find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is RobotIconPainter),
+      ),
+      findsNothing,
+    );
+    expect(tester.getSize(find.ancestor(of: whole, matching: find.byType(ClipRRect)).first), const Size.square(52));
   });
 
   testWidgets('meets the tap target guidelines', (tester) async {

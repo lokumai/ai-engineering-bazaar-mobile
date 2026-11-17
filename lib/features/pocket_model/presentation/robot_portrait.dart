@@ -6,8 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The robot's head and hat as an app icon draws it (plan 9.10): a happy face on a square [ground], the head filling
-/// [fill] of the square's side. The app icons are rendered from it (`tool/render_app_icons.dart`), and Settings'
-/// Wardrobe row shows it.
+/// [fill] of the square's side. The app icons are rendered from it (`tool/render_app_icons.dart`).
 class RobotIconPainter extends CustomPainter {
   RobotIconPainter({required this.outfit, this.ground, this.fill = 0.72});
 
@@ -35,26 +34,57 @@ class RobotIconPainter extends CustomPainter {
   bool shouldRepaint(RobotIconPainter old) => old.outfit != outfit || old.ground != ground || old.fill != fill;
 }
 
-/// The robot in what it wears now, as a small rounded picture in the app icon's style, on [ground]: Settings' Wardrobe
-/// row.
+/// The whole robot, standing in what it wears now with a happy face, small in a rounded square on [ground]: Settings'
+/// Wardrobe row (the owner, 2026-11-17: the whole Apprentice, not its head).
 class RobotPortrait extends StatelessWidget {
   const RobotPortrait({super.key, required this.size, required this.ground});
 
   final double size;
   final Color ground;
 
+  /// The stage the robot is drawn on, as the Apprentice's corner draws it, then fitted into the square.
+  static const Size _stage = Size(150, 197);
+
   @override
   Widget build(BuildContext context) {
-    final level = switch (context.watch<PocketModelBloc>().state) {
-      PocketModelReady(:final model) => model.level,
-      PocketModelLoading() => 0,
+    final (level, temperature) = switch (context.watch<PocketModelBloc>().state) {
+      PocketModelReady(:final model, :final temperature) => (model.level, temperature),
+      PocketModelLoading() => (0, 0.8),
     };
     final outfit = context.watch<RobotOutfitCubit>().state.within(level);
     return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(size * 0.23)),
-      child: CustomPaint(
-        size: Size.square(size),
-        painter: RobotIconPainter(outfit: outfit, ground: ground),
+      child: ColoredBox(
+        color: ground,
+        child: SizedBox.square(
+          dimension: size,
+          child: Padding(
+            padding: EdgeInsets.all(size * 0.06),
+            child: FittedBox(
+              child: CustomPaint(
+                size: _stage,
+                painter: PocketRobotPainter(
+                  rug: false,
+                  centred: true,
+                  repaint: const AlwaysStoppedAnimation(0),
+                  frame: () => RobotFrame(
+                    time: 0,
+                    face: RobotFace.happy,
+                    look: Offset.zero,
+                    blink: 0,
+                    hop: 0,
+                    temperature: temperature,
+                    level: level,
+                    particles: const [],
+                    alive: false,
+                    mirrored: false,
+                    outfit: outfit,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

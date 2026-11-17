@@ -4,7 +4,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
@@ -88,21 +88,19 @@ final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widge
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('its round button sits on the first pages of Home, the catalog, the Caravan and Quiz, not in Settings', (
-    tester,
-  ) async {
+  testWidgets('its round button sits on the first page of every tab, Settings too', (tester) async {
     await _pump(tester, open: false);
     final button = find.byKey(const ValueKey('pocket-assistant'));
     expect(button, findsOneWidget);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
     expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
-    // The owner, 2026-11-16: everywhere but Settings, and on Home too, under the thumb.
+    // The owner, 2026-11-16: on Home too, under the thumb; 2026-11-17: in Settings too, where the tour ends.
     for (final (label, shows) in [
       ('Catalog', true),
       ('Caravan', true),
       ('Quiz', true),
-      ('Settings', false),
+      ('Settings', true),
       ('Home', true),
     ]) {
       await tester.tap(find.text(label).last);
@@ -165,7 +163,8 @@ void main() {
     await tester.pump();
     await tester.drag(find.byType(ListView).first, const Offset(0, -4000));
     await tester.pump(const Duration(milliseconds: 500));
-    final note = tester.getRect(find.byType(HomeOfflineNote));
+    // Home's last part, the path, now that the offline note went to Settings (plan 12.6).
+    final note = tester.getRect(find.byType(HomePath));
     final button = tester.getRect(find.byKey(const ValueKey('pocket-assistant')));
     expect(note.bottom, lessThanOrEqualTo(button.top));
   });

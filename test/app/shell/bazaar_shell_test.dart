@@ -263,6 +263,34 @@ void main() {
     expect(_navHeight(tester), full, reason: 'back at the end');
   });
 
+  // The owner, on the phone (2026-11-17): near a module's end the page shook up and down. Back at the end, the bars took
+  // their room again, which left the end below the screen; a scroll down to it hid them again, which brought the end
+  // up, so they came back, and so on.
+  testWidgets("a scroll on at a module's end leaves the navigation, and the page stays at its end", (tester) async {
+    await _pumpLongPage(tester, '/courses/alpha/first');
+    final full = _navHeight(tester);
+    final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+
+    await _scroll(tester, -300);
+    expect(_navHeight(tester), 0);
+    await _scroll(tester, -10000);
+    expect(_navHeight(tester), full, reason: 'back at the end');
+
+    // The bars took their room back, so the end is a little further; reading on reaches it, and nothing moves back.
+    var last = position.pixels;
+    for (var i = 0; i < 4; i++) {
+      await _scroll(tester, -60);
+      expect(_navHeight(tester), full, reason: 'scroll $i on at the end');
+      expect(position.pixels, greaterThanOrEqualTo(last), reason: 'scroll $i on at the end');
+      last = position.pixels;
+    }
+    expect(position.pixels, position.maxScrollExtent);
+
+    await _scroll(tester, 300);
+    await _scroll(tester, -100);
+    expect(_navHeight(tester), 0, reason: 'away from the end, reading down hides it again');
+  });
+
   testWidgets('a module scrolled for the reader, as to the place it was left, keeps the navigation (plan 1BA)', (
     tester,
   ) async {

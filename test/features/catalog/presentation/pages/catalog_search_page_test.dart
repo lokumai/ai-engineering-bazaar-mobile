@@ -80,6 +80,23 @@ void main() {
     expect(find.byType(CatalogSearchResults), findsNothing);
   });
 
+  // The owner, on the phone (2026-11-17): the keyboard went away at the first letter, since what stood under the field
+  // changed and the field was built again.
+  testWidgets('the keyboard stays up while words are typed and the hits come', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byType(TextField));
+    // The caret blinks while the field has focus, so the page never settles.
+    await tester.pump(const Duration(milliseconds: 300));
+
+    for (final typed in ['p', 'pa', 'passages']) {
+      await tester.enterText(find.byType(TextField), typed);
+      await tester.pump(CatalogSearchField.settle);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.testTextInput.isVisible, isTrue, reason: 'after "$typed"');
+    }
+    expect(find.byType(CatalogSearchResults), findsOneWidget);
+  });
+
   testWidgets('typed words show the hits in place of the levels, the matched word in bold', (tester) async {
     await _pump(tester);
 

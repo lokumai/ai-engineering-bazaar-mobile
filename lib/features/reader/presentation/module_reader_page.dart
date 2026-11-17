@@ -34,6 +34,9 @@ import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:clock/clock.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_scope.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/section_spine.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,6 +55,7 @@ class ModuleReaderPage extends StatelessWidget {
     this.fragment,
     this.query,
     this.quizBuilder,
+    this.keepsPlace = true,
   });
 
   final String moduleKey;
@@ -65,6 +69,10 @@ class ModuleReaderPage extends StatelessWidget {
 
   /// Draws the quiz of a module that has one; null draws none (Decision A38).
   final QuizBuilder? quizBuilder;
+
+  /// Whether the module keeps where it is left. One opened from the day's card keeps none, however far it is scrolled:
+  /// a look at the day's card is not the module being read (the owner, 2026-11-17).
+  final bool keepsPlace;
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +105,13 @@ class ModuleReaderPage extends StatelessWidget {
           query: query,
           quizBuilder: quizBuilder,
           place: completed(record.state) ? null : places.state.of(track, moduleKey),
-          onPlace: (place) => places.add(
-            place == null || completed(record.state)
-                ? ReadingPlaceCleared(track: track, module: moduleKey)
-                : ReadingPlaceKept(track: track, module: moduleKey, place: place),
-          ),
+          onPlace: !keepsPlace
+              ? null
+              : (place) => places.add(
+                  place == null || completed(record.state)
+                      ? ReadingPlaceCleared(track: track, module: moduleKey)
+                      : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+                ),
         ),
       ),
     );
@@ -156,12 +166,19 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// 2026-11-16).
   bool _readerScrolled = false;
 
-  /// A place this near the top is no place: the module opens at its top.
+  /// A place this near the top is the module's top: read and gone back up, the module is still the one being read, and
+  /// opens at its top (the owner, 2026-11-17, back at the top by the status bar).
   static const double _topSlack = 120;
 
   /// How far the module is read, from 0 to 1, by the scroll position on screen; drawn as the reading bar. The record
   /// keeps no reading position (R61); the place kept on this device is [ModuleReaderView.onPlace]'s.
   final _readProgress = ValueNotifier<double>(0);
+
+  /// The section in view, for the sections beside the text on a wide screen (plan 12.10); null above the first.
+  final _currentSection = ValueNotifier<String?>(null);
+
+  /// The ids of the module's sections, as last drawn.
+  List<String> _sectionIds = const [];
 
   /// Marks the words searched; null when none were, or once the reader closed the bar.
   TextFinder? _finder;
@@ -211,6 +228,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void dispose() {
     _finder?.dispose();
     _readProgress.dispose();
+    _currentSection.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -233,7 +251,22 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     if (notification is ScrollMetricsNotification) _holdHeading();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
+    _currentSection.value = _sectionAt(metrics.pixels);
     return false;
+  }
+
+  /// The section whose heading is the last one at or above [pixels], a little below the top counting.
+  String? _sectionAt(double pixels) {
+    String? found;
+    var base = double.negativeInfinity;
+    for (final id in _sectionIds) {
+      final offset = _headingOffset(id);
+      if (offset != null && offset <= pixels + 24 && offset >= base) {
+        found = id;
+        base = offset;
+      }
+    }
+    return found;
   }
 
   GlobalKey _headingKey(String id) => _headingKeys.putIfAbsent(id, GlobalKey.new);
@@ -261,7 +294,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final onPlace = widget.onPlace;
     if (onPlace == null) return;
     if (metrics.pixels < _topSlack) {
-      onPlace(null);
+      onPlace(ReadingPlace(offset: 0, share: 0, at: clock.now()));
       return;
     }
     String? heading;
@@ -377,6 +410,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
               if (entry.depth == 2) entry,
           ]
         : const <TocEntry>[];
+    _sectionIds = [for (final section in sections) section.id];
     final quiz = doc.quiz;
     final quizBuilder = widget.quizBuilder;
     final level = switch (context.read<ContentBloc>().state) {
@@ -402,98 +436,110 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
           ),
           if (finder != null) FindBar(finder: finder, onClose: _closeFind),
           Expanded(
-            child: NotificationListener<Notification>(
-              onNotification: _onScroll,
-              child: _checklistScope(
-                doc,
-                _findScope(
-                  finder,
-                  SingleChildScrollView(
-                    controller: _scroll,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (sections.isNotEmpty)
-                          Align(
-                            alignment: AlignmentDirectional.centerEnd,
-                            child: TextButton.icon(
-                              onPressed: () => unawaited(_openContents(sections)),
-                              icon: const Icon(Icons.toc),
-                              label: Text(s.reader_contents),
+            child: _withSections(
+              context,
+              sections,
+              (spine) => NotificationListener<Notification>(
+                onNotification: _onScroll,
+                child: _checklistScope(
+                  doc,
+                  _findScope(
+                    finder,
+                    SingleChildScrollView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (sections.isNotEmpty && !spine)
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: TextButton.icon(
+                                onPressed: () => unawaited(_openContents(sections)),
+                                icon: const Icon(Icons.toc),
+                                label: Text(s.reader_contents),
+                              ),
+                            ),
+                          if (draft != null && !written) ...[
+                            StatusBand(partlyWritten: draft.written != null),
+                            const SizedBox(height: 20),
+                          ],
+                          // The level and the module's number over the title (the mockup's line; both are the index's).
+                          if (level != null)
+                            Text(
+                              '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
+                              style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+                            ),
+                          // The title as marked text: the catalog finds a module by its title, so its words are marked.
+                          Semantics(
+                            header: true,
+                            child: InlineText(
+                              inlines: [TextInline(text: doc.title)],
+                              style: readerTitleStyle(context),
+                              onLink: (_) {},
                             ),
                           ),
-                        if (draft != null && !written) ...[
-                          StatusBand(partlyWritten: draft.written != null),
-                          const SizedBox(height: 20),
-                        ],
-                        // The level and the module's number over the title (the mockup's line; both are the index's).
-                        if (level != null)
-                          Text(
-                            '${level.title} · ${entry.number.toString().padLeft(2, '0')}',
-                            style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
-                          ),
-                        // The title as marked text: the catalog finds a module by its title, so its words are marked.
-                        Semantics(
-                          header: true,
-                          child: InlineText(
-                            inlines: [TextInline(text: doc.title)],
-                            style: readerTitleStyle(context),
-                            onLink: (_) {},
-                          ),
-                        ),
-                        if (written) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            // The minutes and the words as the module's web page prints them under its title (web D128).
-                            switch (doc.words) {
-                              final words? => s.length_minutes_words(entry.minutes, groupedNumber(words, doc.lang)),
-                              null => s.reader_minutes(entry.minutes),
-                            },
-                            style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
-                          ),
-                        ],
-                        const SizedBox(height: 24),
-                        if (doc.prerequisites.isNotEmpty) ...[
-                          PrerequisitesBox(refs: doc.prerequisites),
+                          if (written) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              // The minutes and the words as the module's web page prints them under its title (web D128).
+                              switch (doc.words) {
+                                final words? => s.length_minutes_words(entry.minutes, groupedNumber(words, doc.lang)),
+                                null => s.reader_minutes(entry.minutes),
+                              },
+                              style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
+                            ),
+                          ],
                           const SizedBox(height: 24),
-                        ],
-                        if (doc.shownObjectives.isNotEmpty) ...[
-                          ObjectivesCard(objectives: doc.shownObjectives),
-                          const SizedBox(height: 26),
-                        ],
-                        if (body != null)
-                          BlockList(blocks: body, render: render)
-                        else if (draft != null) ...[
-                          if (draft.summary case final summary?)
-                            BlockList(
-                              blocks: [
-                                ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
-                              ],
-                              render: render,
-                            ),
-                          if (draft.parts.isNotEmpty) ...[
-                            ScheduleOfParts(parts: draft.parts),
+                          if (doc.prerequisites.isNotEmpty) ...[
+                            ReadingStyleScope(child: PrerequisitesBox(refs: doc.prerequisites)),
+                            const SizedBox(height: 24),
+                          ],
+                          if (doc.shownObjectives.isNotEmpty) ...[
+                            ReadingStyleScope(child: ObjectivesCard(objectives: doc.shownObjectives)),
                             const SizedBox(height: 26),
                           ],
-                          if (draft.written case final writtenBlocks?) BlockList(blocks: writtenBlocks, render: render),
-                        ],
-                        if (written) ...[
-                          const SizedBox(height: 16),
-                          CompletionRow(
-                            doc: doc,
-                            onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
-                          ),
-                        ],
-                        const SizedBox(height: 32),
-                        Pager(previous: doc.previous, next: doc.next),
-                        if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
+                          // The module's text in the reader's reading settings (plan 12.5); its title and bars keep theirs.
+                          if (body != null)
+                            ReadingStyleScope(
+                              child: BlockList(blocks: body, render: render),
+                            )
+                          else if (draft != null) ...[
+                            if (draft.summary case final summary?)
+                              ReadingStyleScope(
+                                child: BlockList(
+                                  blocks: [
+                                    ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                                  ],
+                                  render: render,
+                                ),
+                              ),
+                            if (draft.parts.isNotEmpty) ...[
+                              ScheduleOfParts(parts: draft.parts),
+                              const SizedBox(height: 26),
+                            ],
+                            if (draft.written case final writtenBlocks?)
+                              ReadingStyleScope(
+                                child: BlockList(blocks: writtenBlocks, render: render),
+                              ),
+                          ],
+                          if (written) ...[
+                            const SizedBox(height: 16),
+                            CompletionRow(
+                              doc: doc,
+                              onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                            ),
+                          ],
                           const SizedBox(height: 32),
-                          quizBuilder(context, entry.key, quiz),
+                          Pager(previous: doc.previous, next: doc.next),
+                          if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
+                            const SizedBox(height: 32),
+                            quizBuilder(context, entry.key, quiz),
+                          ],
+                          const SizedBox(height: 40),
+                          ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
                         ],
-                        const SizedBox(height: 40),
-                        ReaderFooter(entry: entry, track: doc.track, moduleCount: moduleCount),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -504,6 +550,36 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       ),
     );
   }
+
+  /// The module's text, with its sections beside it when the page is wide enough for both, an iPad in landscape (plan
+  /// 12.10, the web's section spine). [text] is told whether they stand beside it, which then replaces the contents
+  /// button. The text comes first in the tree, so the status bar's tap scrolls it and not the sections; a row laid out
+  /// the other way round puts the sections at the start.
+  Widget _withSections(BuildContext context, List<TocEntry> sections, Widget Function(bool spine) text) =>
+      LayoutBuilder(
+        builder: (context, constraints) {
+          // One column keeps a phone's measure, as every other page.
+          if (sections.isEmpty || constraints.maxWidth < ReadableWidth.withSections - 1) {
+            return ReadableWidth(child: text(false));
+          }
+          final ltr = Directionality.of(context) == TextDirection.ltr;
+          return Row(
+            textDirection: ltr ? TextDirection.rtl : TextDirection.ltr,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: text(true)),
+              const SizedBox(width: ReadableWidth.gap),
+              SizedBox(
+                width: ReadableWidth.sections,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 16, top: 24),
+                  child: SectionSpine(sections: sections, current: _currentSection, onTap: _scrollTo),
+                ),
+              ),
+            ],
+          );
+        },
+      );
 
   /// The scope stands whether or not anything is searched, so closing the find bar keeps the page's scroll view, and
   /// with it the place the reader is at, rather than building a new one at the top.

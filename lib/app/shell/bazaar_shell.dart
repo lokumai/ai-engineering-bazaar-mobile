@@ -56,11 +56,22 @@ import 'package:go_router/go_router.dart';
 /// Home, the catalog and the Quiz tab, under the reader's thumb; the page and the [assistant] stand above it. It is gone
 /// while the keyboard is up, so it does not ride up over a search.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child, this.assistant, this.band});
+  const BazaarShell({
+    super.key,
+    required this.location,
+    required this.child,
+    this.assistant,
+    this.band,
+    this.visit = false,
+  });
 
   /// The path of the page [child] shows.
   final String location;
   final Widget child;
+
+  /// Whether the page is a module of the other track opened from a search (plan 12.7, [ReaderTarget.visit]): its track
+  /// does not become the current one.
+  final bool visit;
 
   /// The round button in the corner of some tabs' first pages.
   final Widget? assistant;
@@ -76,14 +87,15 @@ class BazaarShell extends StatefulWidget {
     BazaarPaths.quizzes,
   };
 
-  /// The pages that show the [assistant]: the first pages of Home, the two catalogs, the Caravan and the Quiz tab (the
-  /// owner, 2026-11-16: Settings has no place for it).
+  /// The pages that show the [assistant]: the first pages of every tab. Settings has it too (the owner, 2026-11-17):
+  /// the tour ends there, and the Apprentice walked back to a corner that was not there.
   static const Set<String> assistantPages = {
     BazaarPaths.home,
     BazaarPaths.catalogEngineers,
     BazaarPaths.catalogEveryone,
     BazaarPaths.caravan,
     BazaarPaths.quizzes,
+    BazaarPaths.settings,
   };
 
   /// The [assistant]'s width and height.
@@ -104,6 +116,19 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   static const double _travel = 24;
 
   bool _navHidden = false;
+
+  /// The bar with the band, and the navigation, at their full height whether shown or not: the room they take back.
+  final _topChromeKey = GlobalKey();
+  final _navChromeKey = GlobalKey();
+
+  /// The room the bars take when shown, from their drawn heights.
+  double get _chromeRoom {
+    double height(GlobalKey key) => switch (key.currentContext?.findRenderObject()) {
+      final RenderBox box when box.hasSize => box.size.height,
+      _ => 0,
+    };
+    return height(_topChromeKey) + height(_navChromeKey);
+  }
 
   /// The distance scrolled since the direction last changed: positive down, negative up.
   double _run = 0;
@@ -182,7 +207,10 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
       hidden = false;
     } else if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
-      if (metrics.pixels <= metrics.minScrollExtent || metrics.extentAfter <= 0) {
+      // Shown, the bars leave the page that much shorter; so within their room of the end they stay, or hiding them
+      // would bring the end up, show them again, and shake the page (the owner, 2026-11-17).
+      final end = _navHidden ? 0 : _chromeRoom;
+      if (metrics.pixels <= metrics.minScrollExtent || metrics.extentAfter <= end) {
         hidden = false;
         _run = 0;
       } else if (delta != 0 && _direction != ScrollDirection.idle) {
@@ -219,6 +247,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   }
 
   void _rememberTrack() {
+    if (widget.visit) return;
     final track = BazaarPaths.trackOf(widget.location);
     if (track != null) context.read<TrackCubit>().select(track);
   }
@@ -324,6 +353,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 duration: motion,
                 curve: BazaarMotion.bazaar,
                 child: ExcludeSemantics(
+                  key: _topChromeKey,
                   excluding: chromeHidden,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -355,7 +385,11 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                         room: assistantShown ? 76 : 0,
                         child: KeyedSubtree(
                           key: _pageKey,
-                          child: ReadableWidth(child: widget.child),
+                          // A module's page is wider, for its sections beside its text on a tablet (plan 12.10).
+                          child: ReadableWidth(
+                            maxWidth: _onModule ? ReadableWidth.withSections : ReadableWidth.text,
+                            child: widget.child,
+                          ),
                         ),
                       ),
                       if (assistantShown)
@@ -398,6 +432,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
             duration: motion,
             curve: BazaarMotion.bazaar,
             child: ExcludeSemantics(
+              key: _navChromeKey,
               excluding: chromeHidden,
               child: TourTarget(
                 spot: TourSpots.tabs,

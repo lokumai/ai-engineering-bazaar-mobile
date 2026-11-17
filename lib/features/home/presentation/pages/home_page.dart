@@ -2,7 +2,6 @@ import 'package:ai_engineering_bazaar/features/home/application/home_overview.da
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_complete_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -27,7 +26,7 @@ import 'package:go_router/go_router.dart';
 
 /// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the day's card (plan 11.1), the modules later in the track, the
 /// quizzes of the modules completed last to practise again (plan 1AD), the reader's path through the levels at a
-/// glance, and the offline note. The module to read now (Continue reading or Up next, plan 1BA) is in the band over the
+/// glance (the offline note went to Settings, plan 12.6). The module to read now (Continue reading or Up next, plan 1BA) is in the band over the
 /// navigation, under the thumb (plan 10.4), so Home has no card at its head unless every module is completed. Home says what to read now (plan 1P); the levels, their modules
 /// and their completion in full live on the catalog (plan 1AB).
 ///
@@ -129,10 +128,6 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 14),
           HomePath(levels: overview.levels),
         ],
-        const SizedBox(height: 22),
-        const Divider(height: 1, thickness: 0.5),
-        const SizedBox(height: 4),
-        const HomeOfflineNote(),
       ],
     );
   }

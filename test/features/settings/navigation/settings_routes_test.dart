@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../../support/bazaar_app_harness.dart';
 
 void main() {
-  test('settings feature exposes the settings route, its app icon page and its privacy and legal page', () {
+  test('settings feature exposes the settings route, its app icon page, its reading settings and its privacy and legal page', () {
     final routes = SettingsFeatureRoutes.routes(openDevConsole: null, crashReports: false);
 
     expect(
@@ -18,6 +18,7 @@ void main() {
       [
         ('settings', ApplicationRoutesConstants.settings),
         ('appIcon', ApplicationRoutesConstants.appIcon),
+        ('readingStyle', ApplicationRoutesConstants.readingStyle),
         ('privacyLegal', ApplicationRoutesConstants.privacyLegal),
       ],
     );

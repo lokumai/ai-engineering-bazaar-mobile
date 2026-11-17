@@ -16,6 +16,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/quiz_slot.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -126,6 +128,7 @@ void main() {
     ReadingPlace? place,
     ValueChanged<ReadingPlace?>? onPlace,
     Locale locale = const Locale('en'),
+    ReadingStyleCubit? readingStyle,
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -168,6 +171,7 @@ void main() {
         record: record ?? _record(),
         platform: platform,
         locale: locale,
+        readingStyle: readingStyle,
       ),
     );
     await tester.pumpAndSettle();
@@ -416,6 +420,34 @@ void main() {
     await pumpReader(tester);
 
     expect(find.byKey(const Key('write-failure')), findsNothing);
+  });
+
+  testWidgets('the module\'s text is drawn in the reading settings, its title is not (plan 12.5)', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(title: 'The Title', body: [_paragraph('A body paragraph.')]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    final style = ReadingStyleCubit();
+    await style.chooseSize(ReadingSize.largest);
+    await style.chooseSpacing(ReadingSpacing.wide);
+    await pumpReader(tester, readingStyle: style);
+
+    RichText rich(String text) =>
+        tester.widget<RichText>(find.byWidgetPredicate((w) => w is RichText && w.text.toPlainText() == text).first);
+    final body = rich('A body paragraph.');
+    expect(body.textScaler.scale(16), moreOrLessEquals(16 * ReadingSize.largest.factor));
+    final inline = tester.widget<InlineText>(
+      find.ancestor(of: find.text('A body paragraph.'), matching: find.byType(InlineText)).first,
+    );
+    expect(inline.style.height, ReadingSpacing.wide.lineHeight);
+    expect(rich('The Title').textScaler.scale(16), 16, reason: 'the title keeps the phone\'s text size');
+
+    await style.reset();
+    await tester.pump();
+    expect(rich('A body paragraph.').textScaler.scale(16), 16);
   });
 
   testWidgets('the reading bar follows every scroll step', (tester) async {
@@ -792,7 +824,7 @@ void main() {
       expect(places.last?.heading, 'one', reason: 'read on from there, it is where the module is left');
     });
 
-    testWidgets('each scroll that ends tells where the module is left, and the top is no place', (tester) async {
+    testWidgets('each scroll that ends tells where the module is left, and near the top it is the top', (tester) async {
       longModule();
       final places = <ReadingPlace?>[];
       await pumpReader(tester, onPlace: places.add);
@@ -812,7 +844,9 @@ void main() {
 
       await tester.fling(page, const Offset(0, 6000), 8000);
       await tester.pumpAndSettle();
-      expect(places.last, isNull);
+      expect(places.last?.heading, isNull);
+      expect(places.last?.offset, 0);
+      expect(places.last?.share, 0);
     });
   });
 
@@ -1244,8 +1278,9 @@ void main() {
       await tester.fling(find.byType(SingleChildScrollView).first, const Offset(0, 6000), 8000);
       await tester.pumpAndSettle();
 
-      expect(places.state.of(Track.engineers, 'alpha/first'), isNull);
-      expect(await store.load(), isEmpty);
+      // Back at the top, it is kept at its top: still the module being read (the owner, 2026-11-17).
+      expect(places.state.of(Track.engineers, 'alpha/first')?.share, 0);
+      expect((await store.load()).values.single.offset, 0);
     });
 
     group('a completed module keeps no place (the owner, 2026-11-12)', () {

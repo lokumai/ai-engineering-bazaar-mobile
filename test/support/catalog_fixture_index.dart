@@ -5,12 +5,14 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 /// three levels and six modules, some written in one track only and some planned in both; [story] names a story
 /// document (web D125), none by default; [words] gives a module's For Engineers word counts per language (web D128),
 /// none by default; [titles] gives a module's For Engineers titles per language (web D139), none by default;
+/// [everyoneTitles] gives a module's For Everyone titles per language, none by default;
 /// [contentVersion] names the bundle, as a new one downloaded names another.
 BundleIndex catalogFixtureIndex({
   String? contentVersion,
   Map<String, String> story = const {},
   Map<String, Map<String, int>> words = const {},
   Map<String, Map<String, String>> titles = const {},
+  Map<String, Map<String, String>> everyoneTitles = const {},
 }) {
   return BundleIndex(
     story: story,
@@ -57,6 +59,7 @@ BundleIndex catalogFixtureIndex({
         'alpha/first',
         words: words['alpha/first'] ?? const {},
         titles: titles['alpha/first'] ?? const {},
+        everyoneTitles: everyoneTitles['alpha/first'] ?? const {},
         number: 1,
         minutes: 20,
         prerequisites: const [],
@@ -67,6 +70,7 @@ BundleIndex catalogFixtureIndex({
         'alpha/second',
         words: words['alpha/second'] ?? const {},
         titles: titles['alpha/second'] ?? const {},
+        everyoneTitles: everyoneTitles['alpha/second'] ?? const {},
         number: 2,
         minutes: 25,
         prerequisites: const ['alpha/first'],
@@ -77,6 +81,7 @@ BundleIndex catalogFixtureIndex({
         'alpha/third',
         words: words['alpha/third'] ?? const {},
         titles: titles['alpha/third'] ?? const {},
+        everyoneTitles: everyoneTitles['alpha/third'] ?? const {},
         number: 3,
         minutes: 30,
         prerequisites: const ['alpha/first', 'alpha/second'],
@@ -87,6 +92,7 @@ BundleIndex catalogFixtureIndex({
         'beta/fourth',
         words: words['beta/fourth'] ?? const {},
         titles: titles['beta/fourth'] ?? const {},
+        everyoneTitles: everyoneTitles['beta/fourth'] ?? const {},
         number: 4,
         minutes: 40,
         prerequisites: const ['alpha/third'],
@@ -97,6 +103,7 @@ BundleIndex catalogFixtureIndex({
         'beta/fifth',
         words: words['beta/fifth'] ?? const {},
         titles: titles['beta/fifth'] ?? const {},
+        everyoneTitles: everyoneTitles['beta/fifth'] ?? const {},
         number: 5,
         minutes: 20,
         prerequisites: const [],
@@ -107,6 +114,7 @@ BundleIndex catalogFixtureIndex({
         'gamma/sixth',
         words: words['gamma/sixth'] ?? const {},
         titles: titles['gamma/sixth'] ?? const {},
+        everyoneTitles: everyoneTitles['gamma/sixth'] ?? const {},
         number: 6,
         minutes: 45,
         prerequisites: const ['beta/fourth'],
@@ -132,6 +140,7 @@ ModuleEntry _module(
   required (String, String?) everyone,
   Map<String, int> words = const {},
   Map<String, String> titles = const {},
+  Map<String, String> everyoneTitles = const {},
 }) {
   final (engineersTitle, engineersSummary) = engineers;
   final (everyoneTitle, everyoneSummary) = everyone;
@@ -159,6 +168,7 @@ ModuleEntry _module(
         title: everyoneTitle,
         drawn: everyoneDrawn,
         summary: everyoneSummary,
+        titles: everyoneTitles,
         hasQuiz: everyoneDrawn && engineersDrawn,
         revision: everyoneDrawn ? _revision : null,
         docs: everyoneDrawn ? {'en': 'api/v1/modules/$key/everyone/en.json'} : const {},

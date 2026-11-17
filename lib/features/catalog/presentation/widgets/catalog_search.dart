@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -119,6 +120,41 @@ class CatalogSearchResults extends StatelessWidget {
     final hits = results.hits;
     // The levels stay to choose from while a choice finds nothing, so it can be undone.
     final filter = results.levels.isEmpty ? null : _LevelFilter(found: results.levels, chosen: state.levels);
+    final other = state.other;
+    if (hits.isEmpty && other != null && other.hits.isNotEmpty) {
+      // Nothing in the reader's track, so the other track's hits (plan 12.7); opened, the track stays.
+      final otherTrack = track.other;
+      return Column(
+        key: const ValueKey('catalog-search-other-track'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              s.catalog_search_none_here(state.query.trim()),
+              style: textTheme.bodyLarge?.copyWith(color: muted),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            '${s.catalog_search_other_track(trackName(s, otherTrack))} · ${s.catalog_search_count(other.total)}',
+            style: textTheme.labelLarge?.copyWith(color: muted),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          for (final MapEntry(key: module, value: group) in _byModule(other.hits).entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: _ModuleHits(
+                key: ValueKey('other-$module'),
+                hits: group,
+                track: otherTrack,
+                query: state.query,
+                visit: true,
+              ),
+            ),
+        ],
+      );
+    }
     if (hits.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,10 +173,7 @@ class CatalogSearchResults extends StatelessWidget {
         ],
       );
     }
-    final groups = <String, List<SearchHit>>{};
-    for (final hit in hits) {
-      (groups[hit.entry.moduleKey] ??= []).add(hit);
-    }
+    final groups = _byModule(hits);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -164,6 +197,15 @@ class CatalogSearchResults extends StatelessWidget {
       ],
     );
   }
+}
+
+/// [hits] by their module, in the order of each module's best hit.
+Map<String, List<SearchHit>> _byModule(List<SearchHit> hits) {
+  final groups = <String, List<SearchHit>>{};
+  for (final hit in hits) {
+    (groups[hit.entry.moduleKey] ??= []).add(hit);
+  }
+  return groups;
 }
 
 /// The levels the hits can be kept to (plan 10.2): All, then each level with hits, how many in it; more than one level
@@ -225,11 +267,14 @@ class _LevelFilter extends StatelessWidget {
 /// One module's hits in a card, the level's hue across its top. With more than one hit it is folded (plan 10.1): its
 /// name, how many hits, and the best one; a tap on its head unfolds it to a row that opens the module and every hit.
 class _ModuleHits extends StatefulWidget {
-  const _ModuleHits({super.key, required this.hits, required this.track, required this.query});
+  const _ModuleHits({super.key, required this.hits, required this.track, required this.query, this.visit = false});
 
   final List<SearchHit> hits;
   final Track track;
   final String query;
+
+  /// Whether the hits are of the other track (plan 12.7): opened, the reader's track stays as it is.
+  final bool visit;
 
   @override
   State<_ModuleHits> createState() => _ModuleHitsState();
@@ -250,7 +295,7 @@ class _ModuleHitsState extends State<_ModuleHits> {
       ? context.push(BazaarPaths.level(widget.track, _hits.first.entry.moduleKey))
       : context.push(
           BazaarPaths.module(widget.track, _hits.first.entry.moduleKey),
-          extra: ReaderTarget(fragment: fragment, query: widget.query),
+          extra: ReaderTarget(fragment: fragment, query: widget.query, visit: widget.visit),
         );
 
   @override

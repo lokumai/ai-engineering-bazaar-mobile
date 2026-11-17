@@ -150,7 +150,8 @@ void main() {
     await search.search('tool');
 
     expect(search.state.results!.hits, isEmpty);
-    verifyNever(() => repository.readModuleDoc('api/v1/modules/alpha/third/en.json'));
+    // Read once, by the other track's search that a query finding nothing here makes (plan 12.7), never for this one.
+    verify(() => repository.readModuleDoc('api/v1/modules/alpha/third/en.json')).called(1);
   });
 
   // Plan 10.2: the levels the hits are kept to.
@@ -188,6 +189,55 @@ void main() {
 
       search.clear();
       expect(search.state.levels, isEmpty);
+    });
+  });
+
+  group('the other track (plan 12.7)', () {
+    final twoTracks = testIndex(
+      modules: [
+        testModule(
+          key: 'alpha/first',
+          tracks: {
+            Track.engineers: testModuleTrack(docs: const {'en': 'engineers/first.json'}),
+            Track.everyone: testModuleTrack(docs: const {'en': 'everyone/first.json'}),
+          },
+        ),
+      ],
+    );
+    late MockContentRepository both;
+    setUp(() {
+      both = MockContentRepository();
+      when(() => both.readModuleDoc('engineers/first.json'))
+          .thenAnswer((_) async => _doc('alpha/first', 'First', 'The tokenizer splits text into tokens.'));
+      when(() => both.readModuleDoc('everyone/first.json'))
+          .thenAnswer((_) async => _doc('alpha/first', 'First', 'A gentle story about reading.'));
+    });
+    CatalogSearchCubit everyone() {
+      final cubit = CatalogSearchCubit(repository: both, bundle: twoTracks, track: Track.everyone, language: 'en');
+      addTearDown(cubit.close);
+      return cubit;
+    }
+
+    test('nothing in this track: the other track\'s hits, its modules only', () async {
+      final search = everyone();
+      await search.search('tokenizer');
+      expect(search.state.results!.total, 0);
+      expect(search.state.other!.hits.map((h) => h.entry.moduleKey), ['alpha/first']);
+    });
+
+    test('a hit in this track: the other track is not looked in', () async {
+      final search = everyone();
+      await search.search('story');
+      expect(search.state.results!.total, greaterThan(0));
+      expect(search.state.other, isNull);
+      verifyNever(() => both.readModuleDoc('engineers/first.json'));
+    });
+
+    test('nothing in either track: no other hits', () async {
+      final search = everyone();
+      await search.search('zebra');
+      expect(search.state.results!.total, 0);
+      expect(search.state.other, isNull);
     });
   });
 }

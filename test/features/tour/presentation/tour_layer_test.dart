@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../support/accessibility.dart';
 import '../../../support/bazaar_app_harness.dart';
+import '../../welcome/presentation/welcome_track_fit_harness.dart' show loadFace, robotoFiles;
 
 /// The Apprentice's tour (plan 11.3).
 
@@ -252,6 +253,12 @@ void main() {
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
     await _tap(tester, _next);
     expect(store.kept.seen, hasLength(5));
+    // The owner, 2026-11-17: the tour ends here, so the Apprentice walks back into a button Settings now has.
+    await tester.pump(TourLayer.walk);
+    await tester.pump();
+    expect(_robot, findsNothing);
+    expect(_button, findsOneWidget);
+    expect(_buttonDrawn(tester), isTrue);
 
     router.push(ApplicationRoutesConstants.guide);
     await _walk(tester);
@@ -260,6 +267,44 @@ void main() {
     expect(router.state.uri.path, '/');
     expect(find.textContaining('This is my corner.'), findsOneWidget);
     expect(store.kept, const TourRecord(guiding: true));
+  });
+
+  // Plan 12.12: Settings' Reading grew a row and its rows moved onto one line; each stop still rings its whole place,
+  // the Apprentice stays on the screen and Next stays above the navigation, measured in Roboto on a small Android and
+  // an iPhone, in each language.
+  group('Settings\' stops in a real face', () {
+    setUpAll(() => loadFace('Roboto', robotoFiles()));
+    for (final (name, size, insets) in [
+      ('393x852 iPhone', const Size(393, 852), (62.0, 34.0)),
+      ('360x800 Android', const Size(360, 800), (24.0, 24.0)),
+    ]) {
+      for (final locale in const [Locale('en'), Locale('tr'), Locale('fa')]) {
+        testWidgets('on a $name in ${locale.languageCode}', (tester) async {
+          await _pump(
+            tester,
+            record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'quiz'}),
+            at: '/settings',
+            locale: locale,
+          );
+          tester.view.physicalSize = size;
+          tester.view.padding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          tester.view.viewPadding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          addTearDown(tester.view.reset);
+          await _walk(tester);
+          final screen = Offset.zero & size;
+          for (final spot in [TourSpots.settingsReading, TourSpots.settingsCustomize, TourSpots.settingsGuide]) {
+            await _walk(tester);
+            final hole = _hole(tester)!;
+            final place = _spot(tester, spot);
+            expect(hole.height, moreOrLessEquals(place.height, epsilon: 1), reason: '$spot: the whole place ringed');
+            expect(screen.contains(tester.getRect(_robot).topLeft), isTrue, reason: '$spot: the Apprentice on screen');
+            final next = tester.getRect(_next);
+            expect(next.bottom, lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy), reason: spot);
+            if (spot != TourSpots.settingsGuide) await _tap(tester, _next);
+          }
+        });
+      }
+    }
   });
 
   testWidgets('with reduced motion the Apprentice is at its place at once', (tester) async {

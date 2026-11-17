@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// What the catalog's search shows.
 final class CatalogSearchState extends Equatable {
-  const CatalogSearchState({this.query = '', this.results, this.reading = false, this.levels = const {}});
+  const CatalogSearchState({this.query = '', this.results, this.reading = false, this.levels = const {}, this.other});
 
   /// The words typed, as typed.
   final String query;
@@ -24,11 +24,15 @@ final class CatalogSearchState extends Equatable {
   /// Whether the module documents are being read for the first search.
   final bool reading;
 
+  /// What [query] found in the other track's modules when it found nothing at all in this track (plan 12.7); null
+  /// otherwise. Its hits open the other track's module and leave the reader's track as it is.
+  final SearchResults? other;
+
   /// Whether the catalog shows the search instead of the levels.
   bool get active => query.trim().isNotEmpty;
 
   @override
-  List<Object?> get props => [query, results, reading, levels];
+  List<Object?> get props => [query, results, reading, levels, other];
 }
 
 /// The catalog's search in one track and one language (plan 7.1). The first query reads the track's module documents
@@ -46,6 +50,9 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
   final String _language;
   Future<CatalogSearchIndex>? _building;
   CatalogSearchIndex? _index;
+
+  /// The other track's modules, built the first time a query finds nothing in this track.
+  Future<CatalogSearchIndex>? _otherBuilding;
 
   /// Counts the queries, so one answered after a later one is dropped.
   int _ticket = 0;
@@ -75,18 +82,34 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     if (isClosed || ticket != _ticket) return;
     // The levels as chosen now: a choice made while the documents were read counts.
     final levels = state.levels;
-    emit(
-      CatalogSearchState(
-        query: query,
-        results: index.search(query, levels: levels),
-        levels: levels,
-      ),
-    );
+    final results = index.search(query, levels: levels);
+    // Nothing at all in this track, whatever levels are chosen: the other track's modules are looked in (plan 12.7).
+    final none = results.total == 0 && (levels.isEmpty || index.search(query).total == 0);
+    emit(CatalogSearchState(query: query, results: results, levels: levels));
+    if (!none) return;
+    final SearchResults other;
+    try {
+      other = (await (_otherBuilding ??= _build(track: _track.other, levels: false))).search(query);
+    } on Object catch (error, stack) {
+      _otherBuilding = null;
+      _log.error('other track search index not built: {}\n{}', [error, stack]);
+      return;
+    }
+    if (isClosed || ticket != _ticket || other.total == 0) return;
+    emit(CatalogSearchState(query: query, results: results, levels: levels, other: other));
   }
 
   /// Keeps the hits to [levels] (by slug; none for every level) and searches the query again.
   Future<void> filter(Set<String> levels) async {
-    emit(CatalogSearchState(query: state.query, results: state.results, reading: state.reading, levels: levels));
+    emit(
+      CatalogSearchState(
+        query: state.query,
+        results: state.results,
+        reading: state.reading,
+        levels: levels,
+        other: state.other,
+      ),
+    );
     if (state.active) await search(state.query);
   }
 
@@ -96,10 +119,12 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     emit(const CatalogSearchState());
   }
 
-  Future<CatalogSearchIndex> _build() async {
+  /// The index of [track]'s modules, and of the levels when [levels] is set: the levels are the same in both tracks,
+  /// so the other track's index leaves them out.
+  Future<CatalogSearchIndex> _build({Track? track, bool levels = true}) async {
     final entries = <SearchEntry>[];
     for (final module in _bundle.modules) {
-      final docs = module.tracks[_track]?.docs;
+      final docs = module.tracks[track ?? _track]?.docs;
       // A module with no document in the track (For Everyone not written) is absent, as on the web.
       final path = docs?[_language] ?? docs?['en'];
       if (path == null) continue;
@@ -111,7 +136,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
       }
     }
     // The levels after the modules: the web's search finds a level by its name and its blurb.
-    entries.addAll(_bundle.levels.map(levelEntryOf));
+    if (levels) entries.addAll(_bundle.levels.map(levelEntryOf));
     return CatalogSearchIndex(entries, lang: _language);
   }
 }

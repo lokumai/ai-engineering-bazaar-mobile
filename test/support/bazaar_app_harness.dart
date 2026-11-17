@@ -32,6 +32,7 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -126,6 +127,7 @@ Widget bazaarTestApp({
   PocketButtonCubit? pocketButton,
   TourCubit? tour,
   RobotLevelCubit? robotLevel,
+  ReadingStyleCubit? readingStyle,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -168,6 +170,7 @@ Widget bazaarTestApp({
         // Not loaded unless a test passes one: no tour shows over the pages.
         BlocProvider<TourCubit>(create: (_) => tour ?? TourCubit(store: MemoryTourStore())),
         BlocProvider<RobotLevelCubit>(create: (_) => robotLevel ?? RobotLevelCubit()),
+        BlocProvider<ReadingStyleCubit>(create: (_) => readingStyle ?? ReadingStyleCubit()),
         BlocProvider<PocketModelBloc>(
           create: (context) =>
               PocketModelBloc(store: context.read<IPocketModelStore>(), texts: pocketTexts)

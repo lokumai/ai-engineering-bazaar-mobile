@@ -34,9 +34,11 @@ void main() {
       expect(engineers[0].minutes, 20);
     });
 
-    test('For Everyone rows keep the For Engineers title and count only their own completions', () {
+    // The owner, 2026-11-17: the web keeps the For Engineers title in both tracks; the app shows each track's own, as
+    // the reader bar does, so the row and the bar agree.
+    test('For Everyone rows carry the For Everyone title and count only their own completions', () {
       final everyone = catalogRows(index, Track.everyone, view(Track.everyone));
-      expect(everyone.map((r) => r.title).first, 'First Module'); // For Engineers title in both tracks
+      expect(everyone.map((r) => r.title).first, 'First Story');
       expect(everyone.map((r) => r.drawn), [true, false, false, true, false, true]);
       expect(everyone.every((r) => !r.signed), isTrue); // a For Engineers completion does not count For Everyone
       expect(everyone[0].summary, 'Story of the first module.');
@@ -52,13 +54,24 @@ void main() {
           'alpha/first': {'en': 'First Module', 'tr': 'Birinci Modül'},
         },
       );
-      for (final track in Track.values) {
-        final rows = catalogRows(titled, track, null, language: 'tr');
-        expect(rows[0].title, 'Birinci Modül', reason: 'the For Engineers title in both tracks');
-        expect(rows[1].title, 'Second Module');
-      }
+      final rows = catalogRows(titled, Track.engineers, null, language: 'tr');
+      expect(rows[0].title, 'Birinci Modül');
+      expect(rows[1].title, 'Second Module');
       expect(catalogRows(titled, Track.engineers, null).first.title, 'First Module');
       expect(catalogRows(titled, Track.engineers, null, language: 'fa').first.title, 'First Module');
+    });
+
+    test("each track's rows carry that track's title in the language (tr: Security, Güvenlik)", () {
+      final titled = catalogFixtureIndex(
+        titles: {
+          'alpha/first': {'en': 'Security', 'tr': 'Security'},
+        },
+        everyoneTitles: {
+          'alpha/first': {'en': 'Security', 'tr': 'Güvenlik'},
+        },
+      );
+      expect(catalogRows(titled, Track.engineers, null, language: 'tr').first.title, 'Security');
+      expect(catalogRows(titled, Track.everyone, null, language: 'tr').first.title, 'Güvenlik');
     });
   });
 

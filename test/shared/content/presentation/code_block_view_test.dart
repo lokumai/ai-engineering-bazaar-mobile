@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/code_block_vie
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/content_builders.dart';
@@ -118,5 +119,41 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(tester.getSize(find.byKey(const Key('code-body'))).width, greaterThan(390));
+  });
+
+  // Plan 12.9: Copy on a code block's head.
+  testWidgets('Copy puts the code on the clipboard and says Copied for a moment; output has none', (tester) async {
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') copied.add((call.arguments as Map)['text'] as String);
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await pumpBlocks(tester, const [
+      CodeBlock(
+        language: 'python',
+        lines: [
+          [CodeToken(text: 'def ', role: 'keyword', bold: false), CodeToken(text: 'run():', role: null, bold: false)],
+          [],
+          [CodeToken(text: '    return 1', role: null, bold: false)],
+        ],
+      ),
+      CodeBlock(
+        language: 'output',
+        lines: [
+          [CodeToken(text: 'ok', role: null, bold: false)],
+        ],
+      ),
+    ]);
+    final copy = find.byKey(const Key('code-copy'));
+    expect(copy, findsOneWidget, reason: 'on the code, not on the output');
+
+    await tester.tap(copy);
+    await tester.pump();
+    expect(copied, ['def run():\n\n    return 1']);
+    expect(find.descendant(of: copy, matching: find.text('Copied')), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.descendant(of: copy, matching: find.text('Copy')), findsOneWidget);
   });
 }

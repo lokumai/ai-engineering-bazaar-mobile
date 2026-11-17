@@ -405,21 +405,6 @@ class S {
     return Intl.message('Your path', name: 'home_path', desc: '', args: []);
   }
 
-  /// `The course is on this device`
-  String get home_offline_title {
-    return Intl.message('The course is on this device', name: 'home_offline_title', desc: '', args: []);
-  }
-
-  /// `It reads without a connection. At every start the app asks the site for a newer version.`
-  String get home_offline_body {
-    return Intl.message(
-      'It reads without a connection. At every start the app asks the site for a newer version.',
-      name: 'home_offline_body',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Open on the web`
   String get open_on_the_web {
     return Intl.message('Open on the web', name: 'open_on_the_web', desc: '', args: []);
@@ -569,6 +554,31 @@ class S {
   /// `Nothing found for “{query}”.`
   String catalog_search_none(String query) {
     return Intl.message('Nothing found for “$query”.', name: 'catalog_search_none', desc: '', args: [query]);
+  }
+
+  /// `Nothing found for “{query}” in this track.`
+  String catalog_search_none_here(String query) {
+    return Intl.message(
+      'Nothing found for “$query” in this track.',
+      name: 'catalog_search_none_here',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `In {track}`
+  String catalog_search_other_track(String track) {
+    return Intl.message('In $track', name: 'catalog_search_other_track', desc: '', args: [track]);
+  }
+
+  /// `Copy`
+  String get block_code_copy {
+    return Intl.message('Copy', name: 'block_code_copy', desc: '', args: []);
+  }
+
+  /// `Copied`
+  String get block_code_copied {
+    return Intl.message('Copied', name: 'block_code_copied', desc: '', args: []);
   }
 
   /// `Length`
@@ -1328,6 +1338,121 @@ class S {
   /// `Reading`
   String get settings_reading {
     return Intl.message('Reading', name: 'settings_reading', desc: '', args: []);
+  }
+
+  /// `Reading settings`
+  String get settings_reading_style {
+    return Intl.message('Reading settings', name: 'settings_reading_style', desc: '', args: []);
+  }
+
+  /// `Aa`
+  String get reading_sample_mark {
+    return Intl.message(
+      'Aa',
+      name: 'reading_sample_mark',
+      desc: 'Two letters drawn at the reader\'s text size on the Reading settings row, as a sample of the module text; the script\'s own letters.',
+      args: [],
+    );
+  }
+
+  /// `Text size`
+  String get reading_size {
+    return Intl.message('Text size', name: 'reading_size', desc: '', args: []);
+  }
+
+  /// `Small`
+  String get reading_size_small {
+    return Intl.message('Small', name: 'reading_size_small', desc: '', args: []);
+  }
+
+  /// `Standard`
+  String get reading_size_standard {
+    return Intl.message('Standard', name: 'reading_size_standard', desc: '', args: []);
+  }
+
+  /// `Large`
+  String get reading_size_large {
+    return Intl.message('Large', name: 'reading_size_large', desc: '', args: []);
+  }
+
+  /// `Larger`
+  String get reading_size_larger {
+    return Intl.message('Larger', name: 'reading_size_larger', desc: '', args: []);
+  }
+
+  /// `Largest`
+  String get reading_size_largest {
+    return Intl.message('Largest', name: 'reading_size_largest', desc: '', args: []);
+  }
+
+  /// `Line spacing`
+  String get reading_spacing {
+    return Intl.message('Line spacing', name: 'reading_spacing', desc: '', args: []);
+  }
+
+  /// `Tight`
+  String get reading_spacing_tight {
+    return Intl.message('Tight', name: 'reading_spacing_tight', desc: '', args: []);
+  }
+
+  /// `Comfortable`
+  String get reading_spacing_comfortable {
+    return Intl.message('Comfortable', name: 'reading_spacing_comfortable', desc: '', args: []);
+  }
+
+  /// `Wide`
+  String get reading_spacing_wide {
+    return Intl.message('Wide', name: 'reading_spacing_wide', desc: '', args: []);
+  }
+
+  /// `Back to the default`
+  String get reading_reset {
+    return Intl.message('Back to the default', name: 'reading_reset', desc: '', args: []);
+  }
+
+  /// `Preview`
+  String get reading_preview {
+    return Intl.message('Preview', name: 'reading_preview', desc: '', args: []);
+  }
+
+  /// `An embedding is a list of numbers that describes a piece of text. Similar meanings give similar numbers, so the pieces closest to a question can be found.`
+  String get reading_preview_text {
+    return Intl.message(
+      'An embedding is a list of numbers that describes a piece of text. Similar meanings give similar numbers, so the pieces closest to a question can be found.',
+      name: 'reading_preview_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `These settings change a module's text, not the menus.`
+  String get reading_note {
+    return Intl.message(
+      'These settings change a module\'s text, not the menus.',
+      name: 'reading_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The course is on this device and reads without a connection.`
+  String get settings_on_device {
+    return Intl.message(
+      'The course is on this device and reads without a connection.',
+      name: 'settings_on_device',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `At every start the app asks the site for a newer version.`
+  String get settings_refresh_every_start {
+    return Intl.message(
+      'At every start the app asks the site for a newer version.',
+      name: 'settings_refresh_every_start',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Audience`
@@ -2643,10 +2768,10 @@ class S {
     );
   }
 
-  /// `Your track, the app's language and its look are chosen here.`
+  /// `Your track, the app's language, its look and the text size of the modules are chosen here.`
   String get tour_settings_reading {
     return Intl.message(
-      'Your track, the app\'s language and its look are chosen here.',
+      'Your track, the app\'s language, its look and the text size of the modules are chosen here.',
       name: 'tour_settings_reading',
       desc: '',
       args: [],

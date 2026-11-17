@@ -110,6 +110,33 @@ void main() {
     expect(body.top - heading.bottom, 14);
   });
 
+  // Plan 12.3: at the foot of a level's page, a lazy list; scrolled away and back, the notes are whole at once.
+  testWidgets('in a lazy list, scrolled away and back, the notes are read once and drawn at once', (tester) async {
+    when(() => repository.readLevelDoc(_readme)).thenAnswer((_) async => _doc);
+    await pumpInTheme(
+      tester,
+      ListView(
+        children: [
+          LevelNotes(readme: _readme, diagramThemes: _themes),
+          const SizedBox(height: 5000),
+        ],
+      ),
+      Brightness.light,
+      repository: repository,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Level note.'), findsOneWidget);
+
+    tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(4800);
+    await tester.pumpAndSettle();
+    expect(find.text('Level note.'), findsNothing, reason: 'the list let it go');
+    tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(0);
+    await tester.pump();
+
+    expect(find.text('Level note.'), findsOneWidget);
+    verify(() => repository.readLevelDoc(_readme)).called(1);
+  });
+
   testWidgets('the document is read once across rebuilds', (tester) async {
     when(() => repository.readLevelDoc(_readme)).thenAnswer((_) async => _doc);
 

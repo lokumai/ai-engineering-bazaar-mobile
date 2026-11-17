@@ -119,7 +119,7 @@ void main() {
     final recordBloc = readyRecordBloc() as MockRecordBloc;
     await _pump(tester, location: '/everyone/sheets', record: recordBloc);
     await _open(tester, 'Alpha Level');
-    await _tap(tester, find.bySemanticsLabel('Complete First Module'));
+    await _tap(tester, find.bySemanticsLabel('Complete First Story'));
 
     final event = verify(() => recordBloc.add(captureAny())).captured.single as CompletionToggled;
     expect((event.key, event.revision, event.track), ('alpha/first', null, Track.everyone));
@@ -159,7 +159,7 @@ void main() {
     await _pump(tester, location: '/everyone/sheets', record: record);
     expect(find.text('1/3'), findsOneWidget, reason: 'carried over from For Engineers');
     await _open(tester, 'Alpha Level');
-    await _tap(tester, find.bySemanticsLabel('Complete First Module'));
+    await _tap(tester, find.bySemanticsLabel('Complete First Story'));
     expect(find.text('0/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
 

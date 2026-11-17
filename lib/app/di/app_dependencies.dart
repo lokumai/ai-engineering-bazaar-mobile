@@ -41,6 +41,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
+import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 
@@ -97,6 +99,9 @@ class AppDependencies {
 
   /// Whether the pocket model's round button is hidden, as a file flag under [supportDirectory]`/flags/` (plan 9.9).
   IPocketButtonStore createPocketButtonStore() => FlagPocketButtonStore(FileFlagStore(baseDirectory: supportDirectory));
+
+  /// The reading settings, as file flags under [supportDirectory]`/flags/`, apart from the record (plan 12.5).
+  IReadingStyleStore createReadingStyleStore() => FlagReadingStyleStore(FileFlagStore(baseDirectory: supportDirectory));
 
   ITourStore createTourStore() => FlagTourStore(FileFlagStore(baseDirectory: supportDirectory));
 
@@ -325,6 +330,42 @@ final class FileRobotOutfitStore implements IRobotOutfitStore {
 
   @override
   Future<void> save(RobotOutfit outfit) => _file.write(encodeRobotOutfit(outfit));
+}
+
+/// The reading style cubit's port over the app's file flags (plan 12.5): `reading-size-<name>` and
+/// `reading-spacing-<name>`, at most one of each set. No flag set means the design's own.
+final class FlagReadingStyleStore implements IReadingStyleStore {
+  const FlagReadingStyleStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static String _size(ReadingSize size) => 'reading-size-${size.name}';
+  static String _spacing(ReadingSpacing spacing) => 'reading-spacing-${spacing.name}';
+
+  @override
+  Future<ReadingStyle> chosen() async {
+    var style = ReadingStyle.standard;
+    for (final size in ReadingSize.values) {
+      if (await _flags.isSet(_size(size))) style = style.copyWith(size: size);
+    }
+    for (final spacing in ReadingSpacing.values) {
+      if (await _flags.isSet(_spacing(spacing))) style = style.copyWith(spacing: spacing);
+    }
+    return style;
+  }
+
+  @override
+  Future<void> keep(ReadingStyle style) async {
+    for (final size in ReadingSize.values) {
+      if (size != style.size) await _flags.clear(_size(size));
+    }
+    for (final spacing in ReadingSpacing.values) {
+      if (spacing != style.spacing) await _flags.clear(_spacing(spacing));
+    }
+    // The design's own is no flag at all.
+    if (style.size != ReadingSize.standard) await _flags.set(_size(style.size));
+    if (style.spacing != ReadingSpacing.comfortable) await _flags.set(_spacing(style.spacing));
+  }
 }
 
 /// The theme cubit's port over the app's file flags: `theme-light` or `theme-dark`, at most one set. No flag set means
