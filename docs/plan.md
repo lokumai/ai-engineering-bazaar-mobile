@@ -429,7 +429,7 @@ On `feature/settings-search`, from main at e03dc15 (PR #11 merged). The owner we
 - [x] **12.9 Copy on code blocks.** A Copy button at a code block's top corner puts the code on the clipboard and says Copied.
 - [x] **12.10 Two columns on an iPad in landscape.** On a wide screen the module's sections stand at the start, the one in view marked as the reader scrolls, as the web's section spine; the text's line length is capped. Portrait stays one column with the contents sheet. Done by width: a module's page may be 1012 wide (720 of text, 260 of sections, a 32 gap), so two columns show from that width on (an iPad in landscape; a 12.9-inch iPad Pro in portrait too, being 1024 wide); narrower, the text keeps 720 and the contents button. The sections come after the text in the tree, laid out at the start, so the status bar's tap scrolls the text.
 - [x] **12.11 Talk, not Chat.** The Apprentice's corner button only makes it speak, there is no chat: tr "Konuştur", en "Talk", fa "حرف بزن".
-- [ ] **12.12 The tour, again.** Settings' stops (Reading, Customize, the guide) and Home's stops fitted to the new pages: frames, places, animations, on the small phone; the Reading stop's words name the text size.
+- [x] **12.12 The tour, again.** Settings' stops (Reading, Customize, the guide) and Home's stops fitted to the new pages: frames, places, animations, on the small phone; the Reading stop's words name the text size.
 
 ## Phase 13: the Practice tab (PR B)
 
