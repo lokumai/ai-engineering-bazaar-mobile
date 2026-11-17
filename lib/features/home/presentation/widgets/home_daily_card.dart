@@ -58,10 +58,8 @@ class _HomeDailyCardState extends State<HomeDailyCard> {
 
   /// Waits for the next local midnight, a moment past it.
   void _wait() {
-    final now = clock.now();
-    final next = DateTime(now.year, now.month, now.day + 1);
     _midnight?.cancel();
-    _midnight = Timer(next.difference(now) + const Duration(seconds: 1), () {
+    _midnight = Timer(untilLocalMidnight(clock.now()), () {
       _turn();
       _wait();
     });
