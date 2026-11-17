@@ -59,12 +59,9 @@ void main() {
           // Above the navigation at the screen's foot.
           final navigation = tester.getTopLeft(find.byType(NavigationBar)).dy;
           expect(tester.getBottomLeft(icon).dy, lessThanOrEqualTo(navigation), reason: 'the app icon row on screen');
-          // The Apprentice's button floats over Settings too (the owner, 2026-11-17), below the last row, not on it.
-          expect(
-            tester.getBottomLeft(icon).dy,
-            lessThanOrEqualTo(tester.getTopLeft(find.byKey(const ValueKey('pocket-assistant'))).dy),
-            reason: 'the Apprentice\'s button clear of the app icon row',
-          );
+          // The Apprentice's button floats over Settings too (the owner, 2026-11-17), and may cover the App icon row's end
+          // on a small phone: the rows keep their size (the owner: that matters more).
+          expect(find.byKey(const ValueKey('pocket-assistant')), findsOneWidget);
           // The Apprentice's label on its choices' line, at the phone's own text size (the owner, 2026-11-17).
           final choice = find.byKey(const Key('settings-pocket-button'));
           final label = find.descendant(of: choice, matching: find.byType(Text)).first;

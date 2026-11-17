@@ -170,7 +170,7 @@ class _SettingsView extends StatelessWidget {
             spot: TourSpots.settingsCustomize,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.xs,
+              spacing: AppSpacing.sm,
               children: [
                 // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14), its
                 // label beside it (the owner, 2026-11-17).
@@ -192,8 +192,6 @@ class _SettingsView extends StatelessWidget {
                 ),
                 AppIconRow(
                   key: const Key('settings-app-icon'),
-                  picture: _rowPicture,
-                  padding: _rowPadding,
                   onTap: () => context.push(ApplicationRoutesConstants.appIcon),
                 ),
               ],
@@ -340,11 +338,6 @@ class _Action extends StatelessWidget {
   }
 }
 
-/// The side of the Wardrobe and App icon rows' pictures, and the rows' padding: a little smaller than the App icon
-/// page's, so the Apprentice's button stands below Customize's last row on a small phone (the owner, 2026-11-17).
-const double _rowPicture = 44;
-const EdgeInsets _rowPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 8);
-
 /// The Wardrobe row (plan 9.10), in the App icon row's style: the robot in what it wears as a picture, the row's
 /// name and an arrow.
 class _WardrobeRow extends StatelessWidget {
@@ -359,11 +352,11 @@ class _WardrobeRow extends StatelessWidget {
     final picture = this.picture;
     return BazaarRow(
       onTap: onTap,
-      padding: _rowPadding,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          if (picture != null) ExcludeSemantics(child: picture(_rowPicture)),
+          if (picture != null) ExcludeSemantics(child: picture(52)),
           Expanded(
             child: Text(
               S.of(context).settings_robot,

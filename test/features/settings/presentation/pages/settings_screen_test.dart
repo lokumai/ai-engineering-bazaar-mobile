@@ -188,7 +188,7 @@ void main() {
       await tester.ensureVisible(wardrobe);
       expect(find.descendant(of: wardrobe, matching: find.text('Wardrobe')), findsOneWidget);
       final picture = find.descendant(of: wardrobe, matching: find.byKey(const Key('robot-picture')));
-      expect(tester.getSize(picture), const Size.square(44));
+      expect(tester.getSize(picture), const Size.square(52));
       expect(tester.getTopLeft(picture).dx, lessThan(tester.getTopLeft(find.text('Wardrobe')).dx));
       await tester.tap(find.byKey(const Key('settings-robot')));
       await tester.pumpAndSettle();
@@ -212,7 +212,7 @@ void main() {
       findsNothing,
       reason: 'the picture says which',
     );
-    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(44, 44));
+    expect(tester.getSize(find.descendant(of: row, matching: find.byType(Image))), const Size(52, 52));
     expect(tester.getSemantics(row), isSemantics(label: 'App icon, Fez, Dark', isButton: true));
     expect(
       tester.getTopLeft(row).dy,

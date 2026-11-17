@@ -142,7 +142,7 @@ void main() {
       ),
       findsNothing,
     );
-    expect(tester.getSize(find.ancestor(of: whole, matching: find.byType(ClipRRect)).first), const Size.square(44));
+    expect(tester.getSize(find.ancestor(of: whole, matching: find.byType(ClipRRect)).first), const Size.square(52));
   });
 
   testWidgets('meets the tap target guidelines', (tester) async {
