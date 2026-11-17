@@ -116,6 +116,19 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
 
   bool _navHidden = false;
 
+  /// The bar with the band, and the navigation, at their full height whether shown or not: the room they take back.
+  final _topChromeKey = GlobalKey();
+  final _navChromeKey = GlobalKey();
+
+  /// The room the bars take when shown, from their drawn heights.
+  double get _chromeRoom {
+    double height(GlobalKey key) => switch (key.currentContext?.findRenderObject()) {
+      final RenderBox box when box.hasSize => box.size.height,
+      _ => 0,
+    };
+    return height(_topChromeKey) + height(_navChromeKey);
+  }
+
   /// The distance scrolled since the direction last changed: positive down, negative up.
   double _run = 0;
 
@@ -193,7 +206,10 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
       hidden = false;
     } else if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
-      if (metrics.pixels <= metrics.minScrollExtent || metrics.extentAfter <= 0) {
+      // Shown, the bars leave the page that much shorter; so within their room of the end they stay, or hiding them
+      // would bring the end up, show them again, and shake the page (the owner, 2026-11-17).
+      final end = _navHidden ? 0 : _chromeRoom;
+      if (metrics.pixels <= metrics.minScrollExtent || metrics.extentAfter <= end) {
         hidden = false;
         _run = 0;
       } else if (delta != 0 && _direction != ScrollDirection.idle) {
@@ -336,6 +352,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 duration: motion,
                 curve: BazaarMotion.bazaar,
                 child: ExcludeSemantics(
+                  key: _topChromeKey,
                   excluding: chromeHidden,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -414,6 +431,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
             duration: motion,
             curve: BazaarMotion.bazaar,
             child: ExcludeSemantics(
+              key: _navChromeKey,
               excluding: chromeHidden,
               child: TourTarget(
                 spot: TourSpots.tabs,
