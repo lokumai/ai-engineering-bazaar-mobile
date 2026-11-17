@@ -11,6 +11,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_di
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_frame.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,12 +20,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Widget buildQuizPanel(BuildContext context, String moduleKey, List<QuizItem> items) =>
     QuizPanel(moduleKey: moduleKey, items: items);
 
-/// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W).
+/// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W), and each answer
+/// to Practice's history (plan 13.1).
 QuizCubit quizCubitFor(BuildContext context, String moduleKey, List<QuizItem> items) {
   final scores = context.read<QuizScoresBloc>()..add(QuizLengthSeen(key: moduleKey, total: items.length));
+  final review = context.read<ReviewBloc>()..add(ReviewQuizLengthSeen(moduleKey: moduleKey, length: items.length));
   return QuizCubit(
     items,
     onFinished: (right, total) => scores.add(QuizScoreRecorded(key: moduleKey, right: right, total: total)),
+    onAnswered: (index, right) =>
+        review.add(ReviewAnswered(key: questionKey(moduleKey, index), right: right, length: items.length)),
   );
 }
 

@@ -87,7 +87,8 @@ lib/
     content/                                    FileContentRepository, BundledContent, ContentHttp, object store
     storage/record/file_record_repository.dart  record files under Application Support/record/
     storage/flags/file_flag_store.dart          the app's own flags under Application Support/flags/ (Welcome seen)
-    storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
+    storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json,
+                                                quiz/review.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
     theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
@@ -102,6 +103,9 @@ lib/
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
+    review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
+                                                and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
+                                                review, Wrong answers); the app's own, never in the record
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
@@ -124,6 +128,7 @@ lib/
                                                 phone's measure
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
     utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
+    utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
                                                 app fills with the Apprentice's corner), the modules later on, practice,

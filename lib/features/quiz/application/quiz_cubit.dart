@@ -13,14 +13,17 @@ part 'quiz_state.dart';
 /// A `Cubit` because every call is atomic and the event stream adds nothing.
 final class QuizCubit extends Cubit<QuizState> {
   /// Throws an [ArgumentError] when [items] is empty. [onFinished] hears each attempt once, when its results first show,
-  /// with the right answers and the questions (plan 1W: the app keeps the score, the record does not).
-  QuizCubit(List<QuizItem> items, {this.onFinished})
+  /// with the right answers and the questions (plan 1W: the app keeps the score, the record does not). [onAnswered]
+  /// hears each question's first answer, with its index and whether it was right (plan 13.1: Practice's history).
+  QuizCubit(List<QuizItem> items, {this.onFinished, this.onAnswered})
     : _items = List.unmodifiable(_nonEmpty(items)),
       super(_fresh(items.length));
 
   final List<QuizItem> _items;
 
   final void Function(int right, int total)? onFinished;
+
+  final void Function(int index, bool right)? onAnswered;
 
   /// Whether this attempt's results were shown; Start over begins a new attempt.
   bool _finished = false;
@@ -52,6 +55,7 @@ final class QuizCubit extends Cubit<QuizState> {
     if (current.picks[current.index] != null) return;
     final picks = List<int?>.of(current.picks)..[current.index] = option;
     emit(QuizAsking(index: current.index, picks: List<int?>.unmodifiable(picks)));
+    onAnswered?.call(current.index, option == _items[current.index].answer);
   }
 
   /// Shows the next question once the current one is answered; does nothing on the last question.

@@ -3,6 +3,8 @@ import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
@@ -115,6 +117,7 @@ Widget bazaarTestApp({
   ThemeChoiceCubit? themeChoice,
   AppIconCubit? appIcon,
   QuizScoresBloc? scores,
+  ReviewBloc? review,
   ReadingPlacesBloc? places,
   CaravanCubit? caravan,
   IContentRepository? repository,
@@ -152,6 +155,10 @@ Widget bazaarTestApp({
           BlocProvider<QuizScoresBloc>(
             create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted()),
           ),
+        if (review != null)
+          BlocProvider<ReviewBloc>.value(value: review)
+        else
+          BlocProvider<ReviewBloc>(create: (_) => ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted())),
         if (places != null)
           BlocProvider<ReadingPlacesBloc>.value(value: places)
         else

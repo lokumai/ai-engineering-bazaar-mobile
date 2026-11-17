@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.d
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
@@ -128,6 +129,9 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IQuizScoreStore createQuizScoreStore() => MemoryQuizScoreStore();
+
+  @override
+  IReviewStore createReviewStore() => MemoryReviewStore();
 
   @override
   IReadingPlaceStore createReadingPlaceStore() => MemoryReadingPlaceStore();

@@ -7,6 +7,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -371,6 +374,27 @@ void main() {
         expect(scores.state, const QuizScoresReady(kept), reason: 'a reset that did not erase keeps the scores');
         bloc.close();
         scores.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test("the reset erases Practice's history with the record, and its undo brings it back (plan 13.1)", () {
+      onFakeClock((async) {
+        final kept = ReviewHistory.empty.answered('alpha/first#0', right: false, today: 1, length: 3);
+        final review = ReviewBloc(store: MemoryReviewStore(kept))..add(const ReviewStarted());
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, review: review);
+        async.flushMicrotasks();
+        expect(review.state, ReviewReady(kept));
+
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(review.state, const ReviewReady(ReviewHistory.empty));
+
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(review.state, ReviewReady(kept));
+        bloc.close();
+        review.close();
         async.flushMicrotasks();
       });
     });

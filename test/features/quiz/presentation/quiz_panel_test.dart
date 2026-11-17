@@ -8,6 +8,9 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +32,17 @@ Widget panelApp(
   List<QuizItem> quiz, {
   TargetPlatform platform = TargetPlatform.android,
   QuizScoresBloc? scores,
+  ReviewBloc? review,
   Locale locale = const Locale('en'),
-}) => BlocProvider<QuizScoresBloc>.value(
-  value: scores ?? (QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted())),
+}) => MultiBlocProvider(
+  providers: [
+    BlocProvider<QuizScoresBloc>.value(
+      value: scores ?? (QuizScoresBloc(store: MemoryQuizScoreStore())..add(const QuizScoresStarted())),
+    ),
+    BlocProvider<ReviewBloc>.value(
+      value: review ?? (ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted())),
+    ),
+  ],
   child: _panelApp(quiz, platform, locale),
 );
 
@@ -129,6 +140,28 @@ void main() {
     await answer(tester, ['One', 'One', 'One']);
     expect(scores.state.of('alpha/first'), const QuizScore(last: 1, best: 3, total: 3, previous: 3));
     expect(find.text('The time before: 3 of 3. Best: 3 of 3.'), findsOneWidget);
+  });
+
+  testWidgets("each question's first answer goes to Practice's history, right or wrong (plan 13.1)", (tester) async {
+    final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
+    addTearDown(review.close);
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(panelApp(items, review: review));
+    await toggle(tester);
+
+    await answer(tester, ['One', 'One', 'Three']);
+    final cards = review.state.history.cards;
+    expect(
+      {
+        for (final i in [0, 1, 2]) i: cards['alpha/first#$i']!.wrong,
+      },
+      {0: false, 1: true, 2: false},
+    );
+    expect(review.state.history.lengths, {'alpha/first': 3});
+    expect(review.state.history.doneOn(dayNumber(DateTime.now())), 0, reason: "a module's quiz is not Today's review");
   });
 
   testWidgets('the card names the quiz and its count, and opens nothing by itself', (tester) async {
