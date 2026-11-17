@@ -45,7 +45,7 @@ Future<void> _rest(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('Home opens on the Apprentice: its button, its name and level, and Talk', (tester) async {
+  testWidgets('Home opens on the Apprentice: its button, its name and level, and Chat', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: clock.now())));
 
     expect(_corner, findsOneWidget);
@@ -72,10 +72,10 @@ void main() {
     await _pump(tester, locale: const Locale('tr'));
 
     expect(find.descendant(of: _corner, matching: find.text('Çırak')), findsOneWidget);
-    expect(find.descendant(of: _corner, matching: find.text('Konuştur')), findsOneWidget);
+    expect(find.descendant(of: _corner, matching: find.text('Sohbet et')), findsOneWidget);
   });
 
-  testWidgets('Talk opens its sheet with it already talking', (tester) async {
+  testWidgets('Chat opens its sheet with it already talking', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: clock.now())));
 
     await tester.tap(find.byKey(const ValueKey('pocket-corner-chat')));

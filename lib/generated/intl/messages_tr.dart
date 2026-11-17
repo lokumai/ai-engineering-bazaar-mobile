@@ -380,7 +380,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("Kedi kulakları"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("Eski televizyon"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("Uzay kaskı"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("Konuştur"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("Sohbet et"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Token yedir"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("halüsinasyon"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("Saçmalayabilen oyuncak bir model."),

@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The Apprentice's corner at Home's head (plan 11.2, the owner, 2026-11-16): the whole robot in what it wears, which
 /// opens its sheet,
-/// its name and level with how far its feeds have taken it to the next, a Talk button (plan 12.11: it makes the model speak, there is no chat), and under them what it says,
+/// its name and level with how far its feeds have taken it to the next, a Chat button, and under them what it says,
 /// with a tail up to it: the day's card, which the app passes as [message]. The floating button stays on Home too, under
 /// the thumb, which the corner at the page's head is far from (the owner, 2026-11-16).
 class PocketCorner extends StatelessWidget {
