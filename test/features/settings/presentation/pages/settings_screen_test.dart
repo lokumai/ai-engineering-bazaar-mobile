@@ -215,12 +215,12 @@ void main() {
     expect(find.text('app icon page'), findsOneWidget);
   });
 
-  testWidgets('the appearance is Light or Dark, with Dark selected until one is chosen, whatever the phone', (
+  testWidgets('the appearance is Light or Dark, with Light selected until one is chosen, whatever the phone', (
     tester,
   ) async {
     final themeChoice = ThemeChoiceCubit();
     addTearDown(themeChoice.close);
-    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), themeChoice: themeChoice));
     await tester.pump();
@@ -233,16 +233,16 @@ void main() {
     );
     expect(find.text('Phone'), findsNothing);
     expect(
-      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.dark))),
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.light))),
       isSemantics(isSelected: true, isButton: true),
     );
-    expect(themeChoice.state, ThemeMode.dark, reason: 'dark until a tap, though the phone is light');
+    expect(themeChoice.state, ThemeMode.light, reason: 'light until a tap, though the phone is dark');
 
-    await tester.tap(find.byKey(settingsAppearanceKey(ThemeMode.light)));
+    await tester.tap(find.byKey(settingsAppearanceKey(ThemeMode.dark)));
     await tester.pump();
-    expect(themeChoice.state, ThemeMode.light);
+    expect(themeChoice.state, ThemeMode.dark);
     expect(
-      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.light))),
+      tester.getSemantics(find.byKey(settingsAppearanceKey(ThemeMode.dark))),
       isSemantics(isSelected: true, isButton: true),
     );
   });

@@ -148,8 +148,6 @@
   },
   "home_up_next": "Up next",
   "@home_up_next": {},
-  "home_open_module": "Open the module",
-  "@home_open_module": {},
   "home_continue_reading": "Continue reading",
   "@home_continue_reading": {},
   "home_read_percent": "{percent} % read",
@@ -161,11 +159,13 @@
       }
     }
   },
-  "home_continue": "Continue",
-  "@home_continue": {},
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
-  "home_after": "After that",
+  "home_daily_title": "Today's card",
+  "@home_daily_title": {},
+  "home_daily_completed": "Completed",
+  "@home_daily_completed": {},
+  "home_after": "Later on",
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",
   "@home_see_catalog": {},
@@ -279,6 +279,20 @@
       }
     }
   },
+  "catalog_search_matches": "{count, plural, =1{1 match} other{{count} matches}}",
+  "@catalog_search_matches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_search_open_module": "Open the module",
+  "@catalog_search_open_module": {},
+  "catalog_search_all_levels": "All",
+  "@catalog_search_all_levels": {},
+  "catalog_search_levels": "Levels to search",
+  "@catalog_search_levels": {},
   "catalog_search_none": "Nothing found for “{query}”.",
   "@catalog_search_none": {
     "placeholders": {
@@ -1052,6 +1066,8 @@
   "@pocket_status_overfit": {},
   "pocket_status_recovered": "Rested, and ready to learn again.",
   "@pocket_status_recovered": {},
+  "pocket_status_unreadable": "It could not read the module this time. Try again later.",
+  "@pocket_status_unreadable": {},
   "pocket_status_hallucinating": "Too hot: it hallucinates. Turn the temperature down.",
   "@pocket_status_hallucinating": {},
   "pocket_status_cold": "Cold: it says its likeliest words, every time.",
@@ -1127,7 +1143,7 @@
   },
   "settings_pocket_button": "Apprentice",
   "@settings_pocket_button": {
-    "description": "The title of the choice, on or off, that shows or hides the pocket model's round button on Home."
+    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab."
   },
   "settings_on": "On",
   "@settings_on": {
@@ -1271,6 +1287,52 @@
       "body": {
         "type": "String"
       }
+    }
+  },
+  "tour_hello": "Hi, I'm the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
+  "@tour_hello": {},
+  "tour_show_me": "Show me around",
+  "@tour_show_me": {},
+  "tour_later": "Later",
+  "@tour_later": {},
+  "tour_next": "Next",
+  "@tour_next": {},
+  "tour_done": "Got it",
+  "@tour_done": {},
+  "tour_skip": "Skip the tour",
+  "@tour_skip": {},
+  "tour_home_head": "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
+  "@tour_home_head": {},
+  "tour_home_after": "The modules after it wait here; under them are quizzes to practise and your path through the levels.",
+  "@tour_home_after": {},
+  "tour_band": "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
+  "@tour_band": {},
+  "tour_tabs": "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I'll show you what it does.",
+  "@tour_tabs": {},
+  "tour_catalog_search": "Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.",
+  "@tour_catalog_search": {},
+  "tour_catalog_levels": "Every level and its modules are here. A module you complete is marked as done.",
+  "@tour_catalog_levels": {},
+  "tour_caravan_stage": "The Caravan travels the timeline of AI's trends. Each stop is one trend, with the modules that teach it.",
+  "@tour_caravan_stage": {},
+  "tour_caravan_strip": "Slide along here, or tap a stop, to move the caravan.",
+  "@tour_caravan_strip": {},
+  "tour_quiz_level": "Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
+  "@tour_quiz_level": {},
+  "tour_settings_reading": "Your track, the app's language and its look are chosen here.",
+  "@tour_settings_reading": {},
+  "tour_settings_customize": "This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.",
+  "@tour_settings_customize": {},
+  "tour_settings_guide": "Want this tour again? It waits in How the bazaar works.",
+  "@tour_settings_guide": {},
+  "guide_replay_tour": "Take the tour again",
+  "@guide_replay_tour": {},
+  "tour_step": "{step} / {count}",
+  "@tour_step": {
+    "description": "Which of the tour's places on this page the Apprentice is at, of how many.",
+    "placeholders": {
+      "step": {"type": "int"},
+      "count": {"type": "int"}
     }
   }
 }

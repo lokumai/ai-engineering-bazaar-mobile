@@ -15,7 +15,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// It tells the model the app's language, so the model reads and speaks it before the sheet is ever opened.
 class PocketAssistantButton extends StatefulWidget {
-  const PocketAssistantButton({super.key});
+  const PocketAssistantButton({super.key, this.name = 'pocket-assistant'});
+
+  /// What its round button is keyed by, and its badge by with `-badge` after it: the floating button's and the one in
+  /// Home's corner tell apart.
+  final String name;
 
   /// The button's width and height.
   static const double size = 58;
@@ -59,7 +63,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
               clipBehavior: Clip.none,
               children: [
                 Material(
-                  key: const ValueKey('pocket-assistant'),
+                  key: ValueKey(widget.name),
                   shape: const CircleBorder(),
                   elevation: 4,
                   shadowColor: const Color(0x66000000),
@@ -82,7 +86,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                           padding: const EdgeInsets.fromLTRB(9, 8, 9, 10),
                           child: CustomPaint(
                             painter: RobotHeadPainter(
-                              face: _faceOf(state),
+                              face: robotFaceOf(state),
                               outfit: context.watch<RobotOutfitCubit>().state.within(level),
                             ),
                           ),
@@ -97,7 +101,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                     end: -2,
                     child: IgnorePointer(
                       child: DecoratedBox(
-                        key: const ValueKey('pocket-assistant-badge'),
+                        key: ValueKey('${widget.name}-badge'),
                         decoration: BoxDecoration(
                           color: const Color(0xffddb46a),
                           shape: BoxShape.circle,
@@ -132,20 +136,21 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
     PocketModelReady(:final model) => model.level,
     PocketModelLoading() => 0,
   };
+}
 
-  static RobotFace _faceOf(PocketModelState state) {
-    final now = clock.now();
-    return switch (state) {
-      PocketModelLoading() => RobotFace.calm,
-      PocketModelReady(awake: false) => RobotFace.asleep,
-      PocketModelReady(:final model) when model.overfitAt(now) => RobotFace.overfit,
-      PocketModelReady(:final model) => switch (model.moodAt(now)) {
-        PocketMood.hungry => RobotFace.hungry,
-        PocketMood.asleep => RobotFace.asleep,
-        PocketMood.newborn || PocketMood.content => RobotFace.calm,
-      },
-    };
-  }
+/// The robot's face for the model's mood.
+RobotFace robotFaceOf(PocketModelState state) {
+  final now = clock.now();
+  return switch (state) {
+    PocketModelLoading() => RobotFace.calm,
+    PocketModelReady(awake: false) => RobotFace.asleep,
+    PocketModelReady(:final model) when model.overfitAt(now) => RobotFace.overfit,
+    PocketModelReady(:final model) => switch (model.moodAt(now)) {
+      PocketMood.hungry => RobotFace.hungry,
+      // Woken and not fed since, it is awake: calm, as its card shows it.
+      PocketMood.asleep || PocketMood.newborn || PocketMood.content => RobotFace.calm,
+    },
+  };
 }
 
 /// Opens the pocket model in a sheet over the whole app, its stage, its training and its buttons. Closed, it forgets

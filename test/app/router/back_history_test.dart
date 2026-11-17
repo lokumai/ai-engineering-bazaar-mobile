@@ -35,7 +35,7 @@ void main() {
 
   testWidgets('a module opened from Home goes back Home', (tester) async {
     final router = await pumpAt(tester, '/');
-    await tap(tester, find.text('Open the module'));
+    await tap(tester, find.byKey(const ValueKey('home-continue-band')));
     expect(path(router), '/courses/alpha/first');
 
     await back(tester);

@@ -22,12 +22,12 @@ void main() {
       expect(find.byType(HomePage), findsOneWidget);
     });
 
-    testWidgets('starts dark, with the light and dark app themes', (tester) async {
+    testWidgets('starts light, with the light and dark app themes', (tester) async {
       await tester.pumpWidget(const App(dependencies: FixtureAppDependencies()));
       await tester.pump();
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(app.themeMode, ThemeMode.dark);
+      expect(app.themeMode, ThemeMode.light, reason: 'the owner, 2026-11-16');
       expect(app.theme!.brightness, Brightness.light);
       expect(app.darkTheme!.brightness, Brightness.dark);
       expect(app.theme!.extension<BazaarColors>(), BazaarColors.light);

@@ -77,21 +77,34 @@ Future<void> _rest(WidgetTester tester) async {
 Finder _stat(String label) =>
     find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == label);
 
-final _stage = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter);
+/// The sheet's stage, not the whole robot in Home's corner.
+final _stage = find.descendant(
+  of: find.byType(PocketModelCard),
+  matching: find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is PocketRobotPainter),
+);
 
 final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widget.painter is LossChartPainter);
 
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('its round button sits on Home only, not on the catalog, Quiz or a module, and opens it', (tester) async {
+  testWidgets('its round button sits on the first pages of Home, the catalog, the Caravan and Quiz, not in Settings', (
+    tester,
+  ) async {
     await _pump(tester, open: false);
     final button = find.byKey(const ValueKey('pocket-assistant'));
     expect(button, findsOneWidget);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
     expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
-    for (final (label, shows) in [('Catalog', false), ('Quiz', false), ('Settings', false), ('Home', true)]) {
+    // The owner, 2026-11-16: everywhere but Settings, and on Home too, under the thumb.
+    for (final (label, shows) in [
+      ('Catalog', true),
+      ('Caravan', true),
+      ('Quiz', true),
+      ('Settings', false),
+      ('Home', true),
+    ]) {
       await tester.tap(find.text(label).last);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -102,7 +115,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(PocketModelCard), findsOneWidget);
-    expect(find.text('Apprentice'), findsOneWidget);
+    expect(find.descendant(of: find.byType(PocketModelCard), matching: find.text('Apprentice')), findsOneWidget);
     expect(find.text('New: it knows no words yet. Feed it some tokens.'), findsOneWidget);
     await _rest(tester);
   });
@@ -192,6 +205,21 @@ void main() {
     await _rest(tester);
   });
 
+  testWidgets('a finished module it cannot open: the tap says so instead of doing nothing', (tester) async {
+    await _pump(
+      tester,
+      record: signOff(RecordData.empty, 'alpha/first', null, '2026-11-14T12:00:00.000Z'),
+      texts: const MemoryPocketTexts({}),
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('pocket-read')));
+    await tester.tap(find.byKey(const ValueKey('pocket-read')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('It could not read the module this time. Try again later.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pocket-read')), findsOneWidget, reason: 'it still waits, to try again');
+    await _rest(tester);
+  });
+
   testWidgets('with no module finished, it says one can be read', (tester) async {
     await _pump(tester);
     expect(find.byKey(const ValueKey('pocket-read')), findsNothing);
@@ -241,8 +269,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     // The owner, 2026-11-14: the line meant nothing beside the ring and the wardrobe.
-    expect(find.textContaining('Level 1'), findsNothing);
-    expect(find.textContaining('wardrobe'), findsNothing);
+    final sheet = find.byKey(const ValueKey('pocket-sheet'));
+    expect(find.descendant(of: sheet, matching: find.textContaining('Level 1')), findsNothing);
+    expect(find.descendant(of: sheet, matching: find.textContaining('wardrobe')), findsNothing);
     expect(find.text('1'), findsOneWidget, reason: "the ring's level");
     expect(_frame(tester).particles.where((p) => p.kind == ParticleKind.confetti), isNotEmpty);
     await _rest(tester);
@@ -623,6 +652,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byType(SpeechBubble), findsNothing, reason: 'a second pet closes it');
     await _rest(tester);
+  });
+
+  // Under reduced motion its own clock stands still, so every second pet was a quick one and closed the bubble.
+  testWidgets('under reduced motion two pets minutes apart leave its words; two quick ones close them', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
+    await tester.tap(find.byKey(const ValueKey('pocket-ask')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(SpeechBubble), findsOneWidget);
+
+    final stage = tester.getRect(_stage);
+    final robot = stage.topLeft + PocketRobotPainter.seat(stage.size) - const Offset(0, 60);
+    await tester.tapAt(robot);
+    await tester.pump();
+    await tester.pump(const Duration(minutes: 2));
+    await tester.tapAt(robot);
+    await tester.pump();
+    expect(find.byType(SpeechBubble), findsOneWidget, reason: 'two minutes apart, not a quick pet');
+
+    await tester.tapAt(robot);
+    await tester.pump();
+    expect(find.byType(SpeechBubble), findsNothing, reason: 'a quick second pet closes it');
   });
 
   testWidgets('it wears its outfit, a part above its level as its first, and its content says nothing', (tester) async {

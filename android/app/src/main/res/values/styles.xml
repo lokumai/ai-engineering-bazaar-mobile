@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Theme applied to the Android Window while the process is starting. Its ground is the dark page colour, the
-         look the app opens in until the reader chooses (owner, 2026-11-13), whatever the phone's theme: the launch
-         screen follows the app's look, not the phone's or the app icon's (owner, 2026-11-15). -->
+    <!-- Theme applied to the Android Window while the process is starting. Its ground is the cream page colour, the
+         light look the app opens in until the reader chooses (owner, 2026-11-16), whatever the phone's theme: the
+         launch screen follows the app's look, not the phone's or the app icon's (owner, 2026-11-15). -->
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@drawable/launch_background</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started: the window behind the Flutter UI.
          MainActivity gives it the ground of the reader's look (LaunchGround.kt). -->
     <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <item name="android:windowBackground">@color/bazaar_page</item>
+        <item name="android:windowBackground">@color/ic_launcher_cream_background</item>
     </style>
 </resources>

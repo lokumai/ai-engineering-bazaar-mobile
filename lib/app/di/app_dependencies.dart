@@ -16,6 +16,8 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_ou
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_feedback.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
@@ -96,6 +98,8 @@ class AppDependencies {
   /// Whether the pocket model's round button is hidden, as a file flag under [supportDirectory]`/flags/` (plan 9.9).
   IPocketButtonStore createPocketButtonStore() => FlagPocketButtonStore(FileFlagStore(baseDirectory: supportDirectory));
 
+  ITourStore createTourStore() => FlagTourStore(FileFlagStore(baseDirectory: supportDirectory));
+
   /// Puts the chosen app icon on the home screen, over the native channel.
   IAppIconSwitch createAppIconSwitch() => const ChannelAppIconSwitch(AppIconChannel());
 
@@ -109,9 +113,11 @@ class AppDependencies {
       FileReadingPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'reading/places.json'));
 
   /// Home's pocket model, as one file under [supportDirectory]`/toy/pocket_model.json`, apart from the record
-  /// (plan 9.2).
-  IPocketModelStore createPocketModelStore() =>
-      FilePocketModelStore(FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'));
+  /// (plan 9.2), and the temperature the reader set beside it in `/toy/temperature.txt`.
+  IPocketModelStore createPocketModelStore() => FilePocketModelStore(
+    FileTextStore(baseDirectory: supportDirectory, path: 'toy/pocket_model.json'),
+    temperature: FileTextStore(baseDirectory: supportDirectory, path: 'toy/temperature.txt'),
+  );
 
   /// The robot's outfit, as one file under [supportDirectory]`/toy/outfit.json`, apart from the record (plan 9.9).
   IRobotOutfitStore createRobotOutfitStore() =>
@@ -148,9 +154,10 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
 
 /// The pocket model's port over one text file of the app's own.
 final class FilePocketModelStore implements IPocketModelStore {
-  const FilePocketModelStore(this._file);
+  const FilePocketModelStore(this._file, {required this._temperature});
 
   final FileTextStore _file;
+  final FileTextStore _temperature;
 
   @override
   Future<PocketModel?> load() async {
@@ -160,6 +167,15 @@ final class FilePocketModelStore implements IPocketModelStore {
 
   @override
   Future<void> save(PocketModel model) => _file.write(encodePocketModel(model));
+
+  @override
+  Future<double?> loadTemperature() async {
+    final text = await _temperature.read();
+    return text == null ? null : decodePocketTemperature(text);
+  }
+
+  @override
+  Future<void> saveTemperature(double temperature) => _temperature.write('$temperature');
 }
 
 /// The quiz scores' port over one text file of the app's own.
@@ -261,6 +277,38 @@ final class FlagPocketButtonStore implements IPocketButtonStore {
 
   @override
   Future<void> hide({required bool hidden}) => hidden ? _flags.set(_flag) : _flags.clear(_flag);
+}
+
+/// The tour's port over the app's file flags (plan 11.3): `tour-asking` while the Apprentice is to ask, `tour-guiding`
+/// once the reader said yes, and `tour-seen-<page>` for each page shown.
+final class FlagTourStore implements ITourStore {
+  const FlagTourStore(this._flags);
+
+  final FileFlagStore _flags;
+
+  static const _asking = 'tour-asking';
+  static const _guiding = 'tour-guiding';
+  static String _seen(TourPage page) => 'tour-seen-${page.name}';
+
+  @override
+  Future<TourRecord> load() async => TourRecord(
+    asking: await _flags.isSet(_asking),
+    guiding: await _flags.isSet(_guiding),
+    seen: {
+      for (final page in TourPage.values)
+        if (await _flags.isSet(_seen(page))) page.name,
+    },
+  );
+
+  @override
+  Future<void> save(TourRecord record) async {
+    Future<void> flag(String name, {required bool on}) => on ? _flags.set(name) : _flags.clear(name);
+    await flag(_asking, on: record.asking);
+    await flag(_guiding, on: record.guiding);
+    for (final page in TourPage.values) {
+      await flag(_seen(page), on: record.seen.contains(page.name));
+    }
+  }
 }
 
 /// The robot's outfit in one text file.

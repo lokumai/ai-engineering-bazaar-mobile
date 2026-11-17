@@ -54,14 +54,18 @@ final class PocketModelReset extends PocketModelEvent {
   const PocketModelReset();
 }
 
-/// The reader gave it the course module [key] to read (plan 9.6): one they finished.
+/// The reader gave it the course module [key] to read (plan 9.6): one they finished. One it cannot read is passed
+/// over for the next of [others] it can, so one module that does not open does not hold up the rest.
 final class PocketModelModuleRead extends PocketModelEvent {
-  const PocketModelModuleRead(this.key);
+  const PocketModelModuleRead(this.key, {this.others = const []});
 
   final String key;
 
+  /// The other finished modules waiting after [key], in order.
+  final List<String> others;
+
   @override
-  List<Object?> get props => [key];
+  List<Object?> get props => [key, others];
 }
 
 /// The reader closed the sheet, or petted it fast while it had spoken: its words go.
@@ -84,13 +88,18 @@ final class PocketModelTemperatureSet extends PocketModelEvent {
   List<Object?> get props => [temperature];
 }
 
+/// The app came back from the background: a model left awake there for [PocketModel.sleepAfter] has fallen asleep.
+final class PocketModelResumed extends PocketModelEvent {
+  const PocketModelResumed();
+}
+
 /// An overfit model has rested.
 final class _PocketModelRecovered extends PocketModelEvent {
   const _PocketModelRecovered();
 }
 
 /// What the model last did, for the card to show once: [PocketModelReady.beat] counts each.
-enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied }
+enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied, unreadable }
 
 sealed class PocketModelState extends Equatable {
   const PocketModelState();
@@ -114,11 +123,14 @@ final class PocketModelReady extends PocketModelState {
     this.curve = const [],
     this.known = 0,
     this.read = const [],
-    this.temperature = 0.8,
+    this.temperature = defaultTemperature,
     this.speech,
     this.action = PocketAction.none,
     this.beat = 0,
   });
+
+  /// The temperature it starts at, before the reader sets one.
+  static const double defaultTemperature = 0.8;
 
   final PocketModel model;
 
@@ -172,7 +184,7 @@ final class PocketModelReady extends PocketModelState {
 /// language model ([TinyLm]) reads, sentences it writes, and moods. The language model is rebuilt from the kept count
 /// at the start and when the app's language changes, and reads on with each feed.
 ///
-/// A model found asleep (not fed for hours) wakes on the first tap of any kind. Fed too fast it overfits: it learns
+/// A model found asleep (not fed for hours) wakes on the first tap of any kind, and asked to chat, answers as it wakes. Fed too fast it overfits: it learns
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
 /// Events run one at a time, so fast taps are counted in order and each is kept.
 final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
@@ -197,6 +209,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
 
   /// What it said last, a few answers back, for its repetition penalty.
   final List<List<String>> _recent = [];
+
+  /// When it was last woken, or found awake: it falls asleep again [PocketModel.sleepAfter] after this or its last
+  /// feed, whichever came later.
+  DateTime? _wokeAt;
 
   Future<ModuleText?> _load(String key, String language) async {
     final kept = _read[(language, key)];
@@ -235,10 +251,19 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     switch (event) {
       case PocketModelStarted(:final language):
         final model = await _store.load() ?? PocketModel.fresh;
+        final temperature = await _store.loadTemperature();
         final (lm, curve) = await _build(model, language);
         _lm = lm;
+        final awake = model.moodAt(now) != PocketMood.asleep;
+        if (awake) _wokeAt = now;
         emit(
-          PocketModelReady(model: model, curve: curve, known: lm.known, awake: model.moodAt(now) != PocketMood.asleep),
+          PocketModelReady(
+            model: model,
+            curve: curve,
+            known: lm.known,
+            awake: awake,
+            temperature: temperature ?? PocketModelReady.defaultTemperature,
+          ),
         );
         return;
       case _ when state is! PocketModelReady:
@@ -258,6 +283,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       _rest?.cancel();
       await _store.save(PocketModel.fresh);
       _recent.clear();
+      _wokeAt = now;
       final lm = _lm = TinyLm(_lm?.language ?? 'en')..level = PocketModel.fresh.level;
       emit(
         PocketModelReady(
@@ -270,8 +296,27 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       );
       return;
     }
-    if (!ready.awake && event is! PocketModelTemperatureSet && event is! _PocketModelRecovered) {
-      emit(ready.copyWith(awake: true, action: PocketAction.woke, clearSpeech: true));
+    // Only the reader's own tap wakes it: not its sheet closing, its temperature, its rest or the app coming back.
+    if (!ready.awake &&
+        event is! PocketModelTemperatureSet &&
+        event is! _PocketModelRecovered &&
+        event is! PocketModelHushed &&
+        event is! PocketModelResumed) {
+      _wokeAt = now;
+      final woken = ready.copyWith(awake: true, action: PocketAction.woke, clearSpeech: true);
+      emit(woken);
+      // Asked to chat, it answers as it wakes: a reader who taps Chat and sees nothing said may not tap it again (plan
+      // 10.3, the owner, 2026-11-16). It says good morning when its level reaches its own talk, else what it can.
+      if (event is PocketModelAsked) {
+        final lm = _lm!;
+        final kind = lm.canTalk && ready.temperature >= cold ? 'woke' : null;
+        emit(
+          woken.copyWith(
+            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: kind),
+            action: PocketAction.spoke,
+          ),
+        );
+      }
       return;
     }
     switch (event) {
@@ -307,14 +352,26 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             action: PocketAction.spoke,
           ),
         );
-      case PocketModelModuleRead(:final key):
-        if (ready.model.hasRead(key)) return;
+      case PocketModelModuleRead(:final key, :final others):
         final lm = _lm!;
-        final text = await _load(key, lm.language);
-        if (text == null) return;
+        String? found;
+        ModuleText? text;
+        for (final waiting in [key, ...others]) {
+          if (ready.model.hasRead(waiting)) continue;
+          text = await _load(waiting, lm.language);
+          if (text != null) {
+            found = waiting;
+            break;
+          }
+        }
+        if (found == null || text == null) {
+          // None of them could be read now: it says so, where a tap that did nothing would look broken.
+          if (![key, ...others].every(ready.model.hasRead)) emit(ready.copyWith(action: PocketAction.unreadable));
+          return;
+        }
         final sentences = text.sentences;
-        final count = lm.read(sentences, topic: key, sections: text.sections);
-        final model = ready.model.readAt(key, count, now);
+        final count = lm.read(sentences, topic: found, sections: text.sections);
+        final model = ready.model.readAt(found, count, now);
         lm.level = model.level;
         await _store.save(model);
         emit(
@@ -332,7 +389,16 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       case PocketModelHushed():
         if (ready.speech != null) emit(ready.copyWith(clearSpeech: true));
       case PocketModelTemperatureSet(:final temperature):
-        emit(ready.copyWith(temperature: temperature.clamp(0, 2).toDouble()));
+        final held = temperature.clamp(0, 2).toDouble();
+        emit(ready.copyWith(temperature: held));
+        await _store.saveTemperature(held);
+      case PocketModelResumed():
+        final fed = ready.model.lastFed;
+        final woke = _wokeAt;
+        final since = [?fed, ?woke].fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
+        if (ready.awake && since != null && now.difference(since) >= PocketModel.sleepAfter) {
+          emit(ready.copyWith(awake: false, action: PocketAction.none, clearSpeech: true));
+        }
       case _PocketModelRecovered():
         if (ready.model.overfitAt(now)) return;
         final model = ready.model.rested();

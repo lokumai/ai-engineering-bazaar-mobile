@@ -10,10 +10,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// What the catalog's search shows.
 final class CatalogSearchState extends Equatable {
-  const CatalogSearchState({this.query = '', this.results, this.reading = false});
+  const CatalogSearchState({this.query = '', this.results, this.reading = false, this.levels = const {}});
 
   /// The words typed, as typed.
   final String query;
+
+  /// The levels the hits are kept to, by slug; none keeps every level.
+  final Set<String> levels;
 
   /// What [query] found; null while there is no query or the documents are still being read.
   final SearchResults? results;
@@ -25,7 +28,7 @@ final class CatalogSearchState extends Equatable {
   bool get active => query.trim().isNotEmpty;
 
   @override
-  List<Object?> get props => [query, results, reading];
+  List<Object?> get props => [query, results, reading, levels];
 }
 
 /// The catalog's search in one track and one language (plan 7.1). The first query reads the track's module documents
@@ -47,7 +50,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
   /// Counts the queries, so one answered after a later one is dropped.
   int _ticket = 0;
 
-  /// Searches [query], or goes back to the catalog when it is empty.
+  /// Searches [query] in the levels chosen, or goes back to the catalog when it is empty, every level chosen again.
   Future<void> search(String query) async {
     final ticket = ++_ticket;
     if (query.trim().isEmpty) {
@@ -56,19 +59,35 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     }
     var index = _index;
     if (index == null) {
-      emit(CatalogSearchState(query: query, reading: true));
+      emit(CatalogSearchState(query: query, reading: true, levels: state.levels));
       try {
         index = _index = await (_building ??= _build());
       } on Object catch (error, stack) {
         // A build that failed is not kept: the next query reads the documents again, rather than wait on it for ever.
         _building = null;
         _log.error('search index not built: {}\n{}', [error, stack]);
-        if (!isClosed && ticket == _ticket) emit(CatalogSearchState(query: query, results: SearchResults.none));
+        if (!isClosed && ticket == _ticket) {
+          emit(CatalogSearchState(query: query, results: SearchResults.none, levels: state.levels));
+        }
         return;
       }
     }
     if (isClosed || ticket != _ticket) return;
-    emit(CatalogSearchState(query: query, results: index.search(query)));
+    // The levels as chosen now: a choice made while the documents were read counts.
+    final levels = state.levels;
+    emit(
+      CatalogSearchState(
+        query: query,
+        results: index.search(query, levels: levels),
+        levels: levels,
+      ),
+    );
+  }
+
+  /// Keeps the hits to [levels] (by slug; none for every level) and searches the query again.
+  Future<void> filter(Set<String> levels) async {
+    emit(CatalogSearchState(query: state.query, results: state.results, reading: state.reading, levels: levels));
+    if (state.active) await search(state.query);
   }
 
   /// Clears the query.

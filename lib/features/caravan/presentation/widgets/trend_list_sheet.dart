@@ -50,6 +50,8 @@ class _TrendListState extends State<TrendList> {
 
     return CustomScrollView(
       controller: widget.controller,
+      // iOS has no back key to put the keyboard away: a drag through the list does, and a tap outside the field.
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.sm),
@@ -76,6 +78,7 @@ class _TrendListState extends State<TrendList> {
               TextField(
                 key: const ValueKey('caravan-search'),
                 onChanged: (value) => setState(() => _query = value),
+                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),

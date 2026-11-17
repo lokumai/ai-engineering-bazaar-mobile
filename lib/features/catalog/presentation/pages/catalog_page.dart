@@ -17,6 +17,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -50,8 +51,9 @@ class CatalogPage extends StatelessWidget {
     final rows = catalogRows(index, track, view, language: language);
     final next = view == null ? null : nextUnsigned(view, curriculum);
     return BlocProvider(
-      // A new search for another track or language: its index holds one of each.
-      key: ValueKey((track, language)),
+      // A new search for another track or language, its index holding one of each, and for new content downloaded
+      // while the app is open, which names another version.
+      key: ValueKey((track, language, index.contentVersion)),
       // The words kept from the last time the catalog was shown are searched again, so a tab left and come back to
       // finds its search, and a new track or language searches them in its own text.
       create: (context) {
@@ -76,17 +78,20 @@ class CatalogPage extends StatelessWidget {
             // (review round 4), and without it the catalog and the Quiz tab open alike.
             SectionRule(title: S.of(context).nav_catalog),
             const SizedBox(height: AppSpacing.md),
-            const CatalogSearchField(),
+            const TourTarget(spot: TourSpots.catalogSearch, child: CatalogSearchField()),
             const SizedBox(height: AppSpacing.lg),
             if (searching)
               CatalogSearchResults(track: track)
             else ...[
-              CatalogOverview(
-                track: track,
-                index: index,
-                rows: rows,
-                counts: view == null ? null : categoryProgress(view, curriculum),
-                upNext: next == null ? null : index.module(next)?.level,
+              TourTarget(
+                spot: TourSpots.catalogLevels,
+                child: CatalogOverview(
+                  track: track,
+                  index: index,
+                  rows: rows,
+                  counts: view == null ? null : categoryProgress(view, curriculum),
+                  upNext: next == null ? null : index.module(next)?.level,
+                ),
               ),
               const SizedBox(height: AppSpacing.xl),
               const CatalogLegend(),

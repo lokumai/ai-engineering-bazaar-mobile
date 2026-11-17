@@ -4,15 +4,17 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 /// A synthetic index built with the entity constructors (no file, no parser), for the shell, router and catalog tests:
 /// three levels and six modules, some written in one track only and some planned in both; [story] names a story
 /// document (web D125), none by default; [words] gives a module's For Engineers word counts per language (web D128),
-/// none by default; [titles] gives a module's For Engineers titles per language (web D139), none by default.
+/// none by default; [titles] gives a module's For Engineers titles per language (web D139), none by default;
+/// [contentVersion] names the bundle, as a new one downloaded names another.
 BundleIndex catalogFixtureIndex({
+  String? contentVersion,
   Map<String, String> story = const {},
   Map<String, Map<String, int>> words = const {},
   Map<String, Map<String, String>> titles = const {},
 }) {
   return BundleIndex(
     story: story,
-    contentVersion: 'f' * 64,
+    contentVersion: contentVersion ?? 'f' * 64,
     publishedAt: '2026-11-01T00:00:00.000Z',
     publishedAtInstant: DateTime.utc(2026, 11, 1),
     tracks: const [

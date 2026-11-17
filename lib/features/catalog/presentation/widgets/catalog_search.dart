@@ -92,10 +92,12 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
   }
 }
 
-/// The hits of the catalog's search in place of the levels (plan 7.1): how many, then one card per module, in the order
-/// of its best hit, under its level's hue, with the module's name and each matching section under it, its heading and
-/// the words around the match, the matched words in bold. A section opens its module at that section, the module's name
-/// at its top; either way the words searched are marked in the module.
+/// The hits of the catalog's search in place of the levels (plan 7.1): the levels to keep the hits to (plan 10.2), how
+/// many, then one card per module, in the order of its best hit, under its level's hue, with the module's name and each
+/// matching section under it, its heading and the words around the match, the matched words in bold. A module with more
+/// than one hit is folded to its best one (plan 10.1, the owner's testers, 2026-11-16: seven sections of one module
+/// filled the screen); a tap unfolds it. A section opens its module at that section; either way the words searched are
+/// marked in the module.
 class CatalogSearchResults extends StatelessWidget {
   const CatalogSearchResults({super.key, required this.track});
 
@@ -115,13 +117,24 @@ class CatalogSearchResults extends StatelessWidget {
       );
     }
     final hits = results.hits;
+    // The levels stay to choose from while a choice finds nothing, so it can be undone.
+    final filter = results.levels.isEmpty ? null : _LevelFilter(found: results.levels, chosen: state.levels);
     if (hits.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        child: Semantics(
-          liveRegion: true,
-          child: Text(s.catalog_search_none(state.query.trim()), style: textTheme.bodyLarge?.copyWith(color: muted)),
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ?filter,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                s.catalog_search_none(state.query.trim()),
+                style: textTheme.bodyLarge?.copyWith(color: muted),
+              ),
+            ),
+          ),
+        ],
       );
     }
     final groups = <String, List<SearchHit>>{};
@@ -131,6 +144,7 @@ class CatalogSearchResults extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        ?filter,
         Semantics(
           liveRegion: true,
           child: Text(
@@ -141,32 +155,102 @@ class CatalogSearchResults extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        for (final group in groups.values)
+        for (final MapEntry(key: module, value: group) in groups.entries)
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: _ModuleHits(hits: group, track: track, query: state.query),
+            // Keyed by the module, so one unfolded stays so while the reader types on.
+            child: _ModuleHits(key: ValueKey(module), hits: group, track: track, query: state.query),
           ),
       ],
     );
   }
 }
 
-/// One module's hits in a card, the level's hue across its top.
-class _ModuleHits extends StatelessWidget {
-  const _ModuleHits({required this.hits, required this.track, required this.query});
+/// The levels the hits can be kept to (plan 10.2): All, then each level with hits, how many in it; more than one level
+/// may be chosen, and All chooses every level again.
+class _LevelFilter extends StatelessWidget {
+  const _LevelFilter({required this.found, required this.chosen});
+
+  /// How many hits each level has, by slug.
+  final Map<String, int> found;
+
+  /// The levels chosen, by slug; none for every level.
+  final Set<String> chosen;
+
+  /// The key of a level's choice.
+  static Key keyOf(String level) => ValueKey('catalog-search-level-$level');
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final cubit = context.read<CatalogSearchCubit>();
+    final index = (context.read<ContentBloc>().state as ContentReady).index;
+    // In the course's order, a level chosen kept even when the words typed now find nothing in it.
+    final levels = [
+      for (final level in index.levels)
+        if (found.containsKey(level.slug) || chosen.contains(level.slug)) level,
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Semantics(
+        container: true,
+        label: s.catalog_search_levels,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: AppSpacing.sm,
+            children: [
+              ChoiceChip(
+                key: keyOf(''),
+                label: Text(s.catalog_search_all_levels),
+                selected: chosen.isEmpty,
+                onSelected: (_) => unawaited(cubit.filter(const {})),
+              ),
+              for (final level in levels)
+                FilterChip(
+                  key: keyOf(level.slug),
+                  label: Text('${level.title} · ${found[level.slug] ?? 0}'),
+                  selected: chosen.contains(level.slug),
+                  onSelected: (on) =>
+                      unawaited(cubit.filter(on ? {...chosen, level.slug} : chosen.difference({level.slug}))),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One module's hits in a card, the level's hue across its top. With more than one hit it is folded (plan 10.1): its
+/// name, how many hits, and the best one; a tap on its head unfolds it to a row that opens the module and every hit.
+class _ModuleHits extends StatefulWidget {
+  const _ModuleHits({super.key, required this.hits, required this.track, required this.query});
 
   final List<SearchHit> hits;
   final Track track;
   final String query;
 
-  bool get _level => hits.first.entry.kind == SearchKind.level;
+  @override
+  State<_ModuleHits> createState() => _ModuleHitsState();
+}
+
+class _ModuleHitsState extends State<_ModuleHits> {
+  bool _open = false;
+
+  List<SearchHit> get _hits => widget.hits;
+
+  bool get _level => _hits.first.entry.kind == SearchKind.level;
+
+  /// Whether the card folds: a module with more than one hit.
+  bool get _folds => !_level && _hits.length > 1;
 
   /// Opens the module at [fragment] with the words searched marked, or the level's page for a level.
-  void _open(BuildContext context, String? fragment) => _level
-      ? context.push(BazaarPaths.level(track, hits.first.entry.moduleKey))
+  void _go(BuildContext context, String? fragment) => _level
+      ? context.push(BazaarPaths.level(widget.track, _hits.first.entry.moduleKey))
       : context.push(
-          BazaarPaths.module(track, hits.first.entry.moduleKey),
-          extra: ReaderTarget(fragment: fragment, query: query),
+          BazaarPaths.module(widget.track, _hits.first.entry.moduleKey),
+          extra: ReaderTarget(fragment: fragment, query: widget.query),
         );
 
   @override
@@ -174,11 +258,77 @@ class _ModuleHits extends StatelessWidget {
     final s = S.of(context);
     final colors = context.bazaarColors;
     final textTheme = Theme.of(context).textTheme;
-    final first = hits.first.entry;
+    final first = _hits.first.entry;
     final index = (context.read<ContentBloc>().state as ContentReady).index;
     final level = _level ? index.level(first.moduleKey) : null;
     final hue = levelHue(context, levelPosition(index, first.moduleKey.split('/').first));
     final mark = TextStyle(fontWeight: FontWeight.w700, color: colors.onSurface);
+    final still = MediaQuery.disableAnimationsOf(context);
+    Widget hitRow(SearchHit hit, {bool folded = false}) => InkWell(
+      onTap: folded ? () => setState(() => _open = true) : () => _go(context, hit.entry.sectionId),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hit.entry.kind == SearchKind.section)
+              Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+            if (hit.excerpt.isNotEmpty)
+              Text.rich(
+                _marked(hit, mark),
+                style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
+                maxLines: folded ? 1 : 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
+      ),
+    );
+    final head = Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      alignment: AlignmentDirectional.centerStart,
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      if (!_level)
+                        TextSpan(
+                          text: '${moduleNumber(first.number)}  ',
+                          style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
+                        ),
+                      TextSpan(text: first.module),
+                    ],
+                  ),
+                  style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
+                ),
+                if (level != null)
+                  Text(
+                    s.level_module_count(level.total),
+                    style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
+                  ),
+                if (!first.ready)
+                  Text(s.module_planned, style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
+              ],
+            ),
+          ),
+          if (_folds) ...[
+            const SizedBox(width: AppSpacing.sm),
+            Text(s.catalog_search_matches(_hits.length), style: textTheme.labelMedium?.copyWith(color: hue)),
+            AnimatedRotation(
+              turns: _open ? 0.5 : 0,
+              duration: still ? Duration.zero : const Duration(milliseconds: 200),
+              child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
+            ),
+          ],
+        ],
+      ),
+    );
     return Material(
       color: colors.surface,
       shape: RoundedRectangleBorder(
@@ -190,61 +340,51 @@ class _ModuleHits extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ColoredBox(color: hue, child: const SizedBox(height: 3)),
-          InkWell(
-            onTap: () => _open(context, null),
-            // At least 48 high, the least a tap target may be.
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 48),
-              alignment: AlignmentDirectional.centerStart,
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        if (!_level)
-                          TextSpan(
-                            text: '${moduleNumber(first.number)}  ',
-                            style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-                          ),
-                        TextSpan(text: first.module),
-                      ],
-                    ),
-                    style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                  ),
-                  if (level != null)
-                    Text(
-                      s.level_module_count(level.total),
-                      style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
-                    ),
-                  if (!first.ready)
-                    Text(s.module_planned, style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
-                ],
-              ),
+          Semantics(
+            button: true,
+            expanded: _folds ? _open : null,
+            child: InkWell(
+              // A folding card's head folds and unfolds it; any other card's opens the module or the level.
+              onTap: _folds ? () => setState(() => _open = !_open) : () => _go(context, null),
+              // At least 48 high, the least a tap target may be.
+              child: head,
             ),
           ),
-          for (final hit in hits)
-            InkWell(
-              onTap: () => _open(context, hit.entry.sectionId),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (hit.entry.kind == SearchKind.section)
-                      Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
-                    if (hit.excerpt.isNotEmpty)
-                      Text.rich(
-                        _marked(hit, mark),
-                        style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+          AnimatedSize(
+            duration: still ? Duration.zero : const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            alignment: AlignmentDirectional.topStart,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_folds && !_open)
+                  hitRow(_hits.first, folded: true)
+                else ...[
+                  if (_folds)
+                    InkWell(
+                      key: ValueKey('catalog-search-open-${first.moduleKey}'),
+                      onTap: () => _go(context, null),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                s.catalog_search_open_module,
+                                style: textTheme.labelLarge?.copyWith(color: colors.primary),
+                              ),
+                            ),
+                            Icon(Icons.arrow_forward, size: 18, color: colors.primary),
+                          ],
+                        ),
                       ),
-                  ],
-                ),
-              ),
+                    ),
+                  for (final hit in _hits) hitRow(hit),
+                ],
+              ],
             ),
+          ),
           const SizedBox(height: AppSpacing.xs),
         ],
       ),

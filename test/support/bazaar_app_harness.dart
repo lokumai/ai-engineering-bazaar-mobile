@@ -1,3 +1,5 @@
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -122,6 +124,7 @@ Widget bazaarTestApp({
   IPocketTexts? pocketTexts,
   RobotOutfitCubit? robotOutfit,
   PocketButtonCubit? pocketButton,
+  TourCubit? tour,
   RobotLevelCubit? robotLevel,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
@@ -162,6 +165,8 @@ Widget bazaarTestApp({
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
         BlocProvider<RobotOutfitCubit>(create: (_) => robotOutfit ?? RobotOutfitCubit(store: MemoryRobotOutfitStore())),
         BlocProvider<PocketButtonCubit>(create: (_) => pocketButton ?? PocketButtonCubit()),
+        // Not loaded unless a test passes one: no tour shows over the pages.
+        BlocProvider<TourCubit>(create: (_) => tour ?? TourCubit(store: MemoryTourStore())),
         BlocProvider<RobotLevelCubit>(create: (_) => robotLevel ?? RobotLevelCubit()),
         BlocProvider<PocketModelBloc>(
           create: (context) =>

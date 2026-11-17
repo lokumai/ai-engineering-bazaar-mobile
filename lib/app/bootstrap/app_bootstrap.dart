@@ -66,7 +66,10 @@ class AppBootstrap {
     // default's (a few flag files; a file not read counts as no choice).
     final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.defaultIcon;
     // The chosen look too, so the first frame is on its page colour, as the launch screen was (the owner, 2026-11-15).
-    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.dark;
+    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.light;
+    // The chosen language too, so the first frame is not in the phone's for a moment (the owner, 2026-11-16). None
+    // chosen, the phone's language is taken.
+    final language = await appDependencies.createLanguageStore().chosen();
 
     log.info('Starting app with env: {}', [config.environment.name]);
 
@@ -76,7 +79,8 @@ class AppBootstrap {
     await sentry.run(
       appConfig.sentryDsn,
       release: '${AppConstants.appVersion}+${AppConstants.appBuildNumber}',
-      appRunner: () => runApp(App(dependencies: appDependencies, appIcon: appIcon, themeMode: themeMode)),
+      appRunner: () =>
+          runApp(App(dependencies: appDependencies, appIcon: appIcon, themeMode: themeMode, language: language)),
     );
   }
 }

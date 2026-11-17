@@ -75,8 +75,22 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
   /// The tricks to play, each from its start on the stage's clock; the latest started one shows.
   final List<(RobotTrick, double)> _tricks = [];
 
-  /// When it was last petted, to catch three pets in a row.
-  final List<double> _pets = [];
+  /// When it was last petted, to catch three pets in a row: on the wall clock, as the stage's stands still under
+  /// reduced motion.
+  final List<DateTime> _pets = [];
+
+  /// Keeps the pets of the last [_quick] and adds one now.
+  void _petNow() {
+    final now = clock.now();
+    _pets
+      ..removeWhere((at) => now.difference(at) > _quick)
+      ..add(now);
+  }
+
+  /// Whether it was petted in the last [_quick].
+  bool get _petJustNow => _pets.any((at) => clock.now().difference(at) < _quick);
+
+  static const _quick = Duration(milliseconds: 1500);
 
   /// When its words come out of its bubble, on the stage's clock: its mouth moves with them.
   double _talkFrom = 0;
@@ -219,13 +233,11 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         HapticFeedback.selectionClick();
         _joyAt = _time;
         // Two or three quick pets while it has spoken close its bubble.
-        if (state.speech != null && _pets.where((at) => _time - at < 1.5).isNotEmpty) {
+        if (state.speech != null && _petJustNow) {
           context.read<PocketModelBloc>().add(const PocketModelHushed());
         }
         if (reduced) {
-          _pets
-            ..removeWhere((at) => _time - at > 1.5)
-            ..add(_time);
+          _petNow();
         } else {
           _pet();
         }
@@ -248,7 +260,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
         }
       case PocketAction.spoke:
         if (!reduced) _speak(state);
-      case PocketAction.none:
+      // Its status line says it could not read one.
+      case PocketAction.none || PocketAction.unreadable:
     }
     _wake();
   }
@@ -274,9 +287,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
 
   /// A pet: one of eight turns at random; three pets in a row send its fez flying.
   void _pet() {
-    _pets
-      ..removeWhere((at) => _time - at > 1.5)
-      ..add(_time);
+    _petNow();
     if (_pets.length >= 3) {
       _pets.clear();
       _hopAt = _time;
@@ -532,6 +543,8 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
       // A new level says nothing here: its ring and the wardrobe show it (the owner, 2026-11-14).
       case PocketAction.recovered:
         return s.pocket_status_recovered;
+      case PocketAction.unreadable:
+        return s.pocket_status_unreadable;
       default:
     }
     if (state.speech?.hallucinating ?? false) return s.pocket_status_hallucinating;
@@ -833,7 +846,8 @@ class _ReadModule extends StatelessWidget {
       children: [
         FilledButton.icon(
           key: const ValueKey('pocket-read'),
-          onPressed: () => context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first)),
+          onPressed: () =>
+              context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first, others: waiting.sublist(1))),
           icon: const Icon(Icons.auto_stories_outlined),
           label: Text(s.pocket_read_module, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),

@@ -152,4 +152,42 @@ void main() {
     expect(search.state.results!.hits, isEmpty);
     verifyNever(() => repository.readModuleDoc('api/v1/modules/alpha/third/en.json'));
   });
+
+  // Plan 10.2: the levels the hits are kept to.
+  group('the level filter', () {
+    test('keeps the hits to the levels chosen, and All brings every level back', () async {
+      final search = cubit();
+      await search.search('tool');
+      expect(search.state.results!.total, 2);
+
+      await search.filter({'beta'});
+      expect(search.state.levels, {'beta'});
+      expect(search.state.results!.hits, isEmpty);
+      expect(search.state.results!.levels, {'alpha': 2}, reason: 'the counts stay, so the choice can be undone');
+
+      await search.filter(const {});
+      expect(search.state.results!.total, 2);
+    });
+
+    test('a choice made while the documents are read counts', () async {
+      final search = cubit();
+      final searching = search.search('tool');
+      await search.filter({'beta'});
+      await searching;
+
+      expect(search.state.levels, {'beta'});
+      expect(search.state.results!.hits, isEmpty);
+    });
+
+    test('a choice made with no query is kept for the next one, and clear forgets it', () async {
+      final search = cubit();
+      await search.filter({'alpha'});
+      await search.search('tool');
+      expect(search.state.levels, {'alpha'});
+      expect(search.state.results!.total, 2);
+
+      search.clear();
+      expect(search.state.levels, isEmpty);
+    });
+  });
 }

@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/features/home/application/home_overview.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_card.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_complete_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_offline_note.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice_row.dart';
@@ -18,21 +19,26 @@ import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the track label, the continue
-/// card (Continue reading when a module was left half read, plan 1BA), the modules after it, the quizzes of the modules completed last to practise again (plan 1AD), the reader's path
-/// through the levels at a glance, and the offline note. Home says what to read now (plan 1P); the levels, their modules
+/// The Home page at `/` (the web's front door is `/`; the redesign, plan Phase 1C): the day's card (plan 11.1), the modules later in the track, the
+/// quizzes of the modules completed last to practise again (plan 1AD), the reader's path through the levels at a
+/// glance, and the offline note. The module to read now (Continue reading or Up next, plan 1BA) is in the band over the
+/// navigation, under the thumb (plan 10.4), so Home has no card at its head unless every module is completed. Home says what to read now (plan 1P); the levels, their modules
 /// and their completion in full live on the catalog (plan 1AB).
 ///
 /// Home is a page of neither track, so it shows the remembered track ([TrackCubit]); its switch changes that track
 /// only. The app gate mounts the router only once the content and the record are ready.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.dailyFrame});
+
+  /// What presents the day's card at the page's head, which the app fills with the Apprentice (plan 11.2); the card
+  /// alone when null.
+  final DailyCardFrame? dailyFrame;
 
   @override
   Widget build(BuildContext context) {
@@ -56,31 +62,35 @@ class HomePage extends StatelessWidget {
     };
     final language = context.watch<LanguageCubit>().state;
     final overview = homeOverview(index, track, record, scores: scores, places: places, language: language);
-    final label = overview.next?.share != null ? s.home_continue_reading : s.home_up_next;
-    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(color: context.bazaarColors.onSurfaceMuted);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 28 + FloatingRoom.of(context)),
       children: [
         if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
-        // Shown in capitals as the mockup's label; read as written.
-        Semantics(
-          header: true,
-          label: label,
-          excludeSemantics: true,
-          child: Text(upperCaseIn(label, Localizations.localeOf(context).languageCode), style: labelStyle),
-        ),
-        const SizedBox(height: 12),
-        HomeContinueCard(track: track, next: overview.next),
-        const SizedBox(height: 26),
+        // The day's card, a section of a module to read today (plan 11.1).
+        HomeDailyCard(frame: dailyFrame),
+        // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
+        // card says the track is completed.
+        if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
         if (overview.after.isNotEmpty) ...[
-          SectionRule(title: s.home_after),
-          const SizedBox(height: 12),
-          BazaarRows(
-            children: [
-              for (final entry in overview.after)
-                HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
-            ],
+          TourTarget(
+            spot: TourSpots.homeAfter,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionRule(title: s.home_after),
+                const SizedBox(height: 12),
+                BazaarRows(
+                  children: [
+                    for (final entry in overview.after)
+                      HomeAfterRow(
+                        entry: entry,
+                        onTap: () => context.push(BazaarPaths.module(track, entry.module.key)),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
         ],

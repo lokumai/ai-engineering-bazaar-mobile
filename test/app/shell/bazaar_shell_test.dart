@@ -495,7 +495,7 @@ void main() {
     // A module opened from Home is under Catalog too, with Home under it; its back goes Home, where it was opened.
     await tester.tap(_destination('Home'));
     await tester.pumpAndSettle();
-    await _tap(tester, find.text('Open the module'));
+    await _tap(tester, find.byKey(const ValueKey('home-continue-band')));
     expect(_path(router), '/courses/alpha/first');
     await tester.tap(_destination('Quiz'));
     await tester.pumpAndSettle();

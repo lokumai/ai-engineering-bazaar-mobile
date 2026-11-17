@@ -103,6 +103,9 @@ RecordBloc _record({RecordData? record, WriteState writeState = const WriteSaved
 
 String _path(GoRouter router) => router.state.uri.path;
 
+// Noon on the local day, so the completion day is 3 Sept in every time zone CI runs in.
+final _noonOf3Sept = DateTime(2026, 9, 3, 12).toUtc().toIso8601String();
+
 void main() {
   late MockModuleReaderBloc readerBloc;
 
@@ -122,6 +125,7 @@ void main() {
     TargetPlatform platform = TargetPlatform.android,
     ReadingPlace? place,
     ValueChanged<ReadingPlace?>? onPlace,
+    Locale locale = const Locale('en'),
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -158,7 +162,13 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
-      bazaarTestApp(router: router, content: readyContentBloc(index), record: record ?? _record(), platform: platform),
+      bazaarTestApp(
+        router: router,
+        content: readyContentBloc(index),
+        record: record ?? _record(),
+        platform: platform,
+        locale: locale,
+      ),
     );
     await tester.pumpAndSettle();
     return router;
@@ -290,13 +300,36 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T23:59:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));
 
     expect(find.text('Completed 3 Sept 2026'), findsOneWidget);
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+  });
+
+  // The owner, 2026-11-16: in Turkish the line read "16 Nov 2026 tarihinde tamamlandı".
+  testWidgets('in Turkish the day it was completed is written with the Turkish month', (tester) async {
+    stateIs(
+      ReaderWritten(
+        doc: testDoc(body: [_paragraph('Body text.')]),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    final record = normaliseRecord({
+      'sheets': {
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
+      },
+    });
+    await pumpReader(
+      tester,
+      record: _record(record: record),
+      locale: const Locale('tr'),
+    );
+
+    expect(find.text('3 Eyl 2026 tarihinde tamamlandı'), findsOneWidget);
   });
 
   testWidgets('a module completed in the other track is not complete here', (tester) async {
@@ -309,7 +342,7 @@ void main() {
     );
     final record = normaliseRecord({
       'sheets': {
-        'alpha/first': {'signedOff': '2026-09-03T23:59:00.000Z', 'signedRevision': 'def5678'},
+        'alpha/first': {'signedOff': _noonOf3Sept, 'signedRevision': 'def5678'},
       },
     });
     await pumpReader(tester, record: _record(record: record));
@@ -743,6 +776,20 @@ void main() {
 
       expect(top(tester, find.text('Section one', findRichText: true)), lessThan(844));
       expect(scrolled(tester), greaterThan(0));
+    });
+
+    // The owner, 2026-11-16: a look at the day's card or a search hit opened the module at a section and kept that as
+    // where it was left, so Continue reading went to a module only glanced at.
+    testWidgets('opened at a section, it keeps no place until the reader scrolls', (tester) async {
+      longModule();
+      final places = <ReadingPlace?>[];
+      await pumpReader(tester, fragment: 'one', onPlace: places.add);
+      expect(scrolled(tester), greaterThan(0), reason: 'it opened at the section');
+      expect(places, isEmpty, reason: 'a glance is not reading');
+
+      await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(places.last?.heading, 'one', reason: 'read on from there, it is where the module is left');
     });
 
     testWidgets('each scroll that ends tells where the module is left, and the top is no place', (tester) async {

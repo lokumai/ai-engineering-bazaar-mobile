@@ -66,6 +66,11 @@ void main() {
 const _ownerWords = {
   // Welcome's button to the story of the Bazaar (plan 1BD).
   'welcome_to_story': 'Our story: the owner, 2026-11-15',
+  // The Apprentice speaks as itself in its tour (plan 11.3): the owner, 2026-11-16.
+  'tour_hello': 'the Apprentice introduces itself: the owner, 2026-11-16',
+  'tour_home_head': 'the Apprentice shows its corner: the owner, 2026-11-16',
+  'tour_tabs': 'the Apprentice offers to show each tab: the owner, 2026-11-16',
+  'tour_settings_customize': 'the Apprentice shows its wardrobe: the owner, 2026-11-16',
 };
 
 /// `BANS`, `copy-register.test.ts:181-238`. Every pattern but the exclamation mark is case-insensitive, as on the web.

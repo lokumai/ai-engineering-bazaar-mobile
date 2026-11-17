@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,7 +30,7 @@ import 'package:go_router/go_router.dart';
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
 /// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
-/// names kept so each is clear). The Caravan's camel holds the middle and opens its page, which says it is under
+/// names kept so each is clear). The Caravan's horse holds the middle and opens its page, which says it is under
 /// maintenance until the bundle carries the web's timeline (plan 3.1).
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
@@ -46,11 +47,16 @@ import 'package:go_router/go_router.dart';
 /// (`src/lib/tracks.ts:77-114`).
 ///
 /// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
-/// navigation on Home's first page only; never over the catalog, the Quiz tab, a level's page, a module or the
-/// Caravan's stage, and it goes with the navigation when a page folds it away. The reader can drag it or throw it
+/// navigation on the first pages of Home, the catalog, the Caravan and the Quiz tab, under the thumb, Home's corner at
+/// the page's head being far from it (plan 11.2); never in Settings, a level's page or a module, and it goes with the
+/// navigation when a page folds it away. The reader can drag it or throw it
 /// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
+///
+/// The [band] the router passes (the module left half read, plan 10.4) lies over the navigation on the first pages of
+/// Home, the catalog and the Quiz tab, under the reader's thumb; the page and the [assistant] stand above it. It is gone
+/// while the keyboard is up, so it does not ride up over a search.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child, this.assistant});
+  const BazaarShell({super.key, required this.location, required this.child, this.assistant, this.band});
 
   /// The path of the page [child] shows.
   final String location;
@@ -59,9 +65,26 @@ class BazaarShell extends StatefulWidget {
   /// The round button in the corner of some tabs' first pages.
   final Widget? assistant;
 
-  /// The pages that show the [assistant]: Home's first page only; elsewhere it would only distract (the owner,
-  /// 2026-11-14).
-  static const Set<String> assistantPages = {BazaarPaths.home};
+  /// The band over the navigation on some tabs' first pages; it takes no room when it has nothing to show.
+  final Widget? band;
+
+  /// The pages the [band] lies under: the first pages of Home, the two catalogs and the Quiz tab.
+  static const Set<String> bandPages = {
+    BazaarPaths.home,
+    BazaarPaths.catalogEngineers,
+    BazaarPaths.catalogEveryone,
+    BazaarPaths.quizzes,
+  };
+
+  /// The pages that show the [assistant]: the first pages of Home, the two catalogs, the Caravan and the Quiz tab (the
+  /// owner, 2026-11-16: Settings has no place for it).
+  static const Set<String> assistantPages = {
+    BazaarPaths.home,
+    BazaarPaths.catalogEngineers,
+    BazaarPaths.catalogEveryone,
+    BazaarPaths.caravan,
+    BazaarPaths.quizzes,
+  };
 
   /// The [assistant]'s width and height.
   static const double assistantSize = 58;
@@ -282,6 +305,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     final atTabRoot = !pushed && _selectedIndex != 0;
     final assistantShown =
         widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
+    final bandShown =
+        widget.band != null && media.viewInsets.bottom == 0 && BazaarShell.bandPages.contains(widget.location);
     return PopScope(
       canPop: !atTabRoot,
       onPopInvokedWithResult: (didPop, _) {
@@ -339,7 +364,17 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                             size: BazaarShell.assistantSize,
                             at: _assistantAt,
                             onRest: (at) => _assistantAt = at,
-                            child: widget.assistant!,
+                            // Where the Apprentice comes out of for its tour, left empty while it walks (plan 11.3).
+                            child: TourTarget(
+                              spot: TourSpots.assistant,
+                              child: Visibility(
+                                visible: !TourRobotOut.of(context),
+                                maintainState: true,
+                                maintainAnimation: true,
+                                maintainSize: true,
+                                child: widget.assistant!,
+                              ),
+                            ),
                           ),
                         ),
                     ],
@@ -347,6 +382,12 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                 ),
               ),
             ),
+            // Over the navigation, under the thumb; the page and the round button stand above it.
+            if (bandShown)
+              TourTarget(
+                spot: TourSpots.band,
+                child: ReadableWidth(child: widget.band!),
+              ),
           ],
         ),
         // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
@@ -358,42 +399,45 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
             curve: BazaarMotion.bazaar,
             child: ExcludeSemantics(
               excluding: chromeHidden,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  border: Border(top: BorderSide(color: colors.line, width: 0.5)),
-                ),
-                child: NavigationBar(
-                  height: BazaarShell.navHeight,
-                  backgroundColor: colors.surface,
-                  elevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  indicatorColor: Colors.transparent,
-                  overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                  labelPadding: const EdgeInsets.only(top: 2),
-                  labelTextStyle: WidgetStateProperty.resolveWith(
-                    (states) => TextStyle(
-                      fontSize: 10.5,
-                      height: 1.2,
-                      letterSpacing: 0.1,
-                      fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
-                      color: states.contains(WidgetState.selected) ? open.color : idle.color,
-                    ),
+              child: TourTarget(
+                spot: TourSpots.tabs,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(top: BorderSide(color: colors.line, width: 0.5)),
                   ),
-                  selectedIndex: _selectedIndex,
-                  onDestinationSelected: _onDestinationSelected,
-                  destinations: [
-                    tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
-                    tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
-                    NavigationDestination(
-                      icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
-                      selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
-                      label: l10n.nav_caravan,
+                  child: NavigationBar(
+                    height: BazaarShell.navHeight,
+                    backgroundColor: colors.surface,
+                    elevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    indicatorColor: Colors.transparent,
+                    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                    labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                    labelPadding: const EdgeInsets.only(top: 2),
+                    labelTextStyle: WidgetStateProperty.resolveWith(
+                      (states) => TextStyle(
+                        fontSize: 10.5,
+                        height: 1.2,
+                        letterSpacing: 0.1,
+                        fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
+                        color: states.contains(WidgetState.selected) ? open.color : idle.color,
+                      ),
                     ),
-                    tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
-                    tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
-                  ],
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: _onDestinationSelected,
+                    destinations: [
+                      tab(Icons.home_outlined, Icons.home_rounded, l10n.nav_home),
+                      tab(Icons.menu_book_outlined, Icons.menu_book_rounded, l10n.nav_catalog),
+                      NavigationDestination(
+                        icon: IconTheme.merge(data: idle, child: const CaravanIcon()),
+                        selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
+                        label: l10n.nav_caravan,
+                      ),
+                      tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
+                      tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
+                    ],
+                  ),
                 ),
               ),
             ),

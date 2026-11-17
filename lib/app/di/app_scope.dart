@@ -1,5 +1,7 @@
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
@@ -42,7 +44,14 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
 class AppScope extends StatelessWidget {
-  const AppScope({super.key, required this.dependencies, required this.child, this.appIcon, this.themeMode});
+  const AppScope({
+    super.key,
+    required this.dependencies,
+    required this.child,
+    this.appIcon,
+    this.themeMode,
+    this.language,
+  });
 
   final AppDependencies dependencies;
 
@@ -51,6 +60,10 @@ class AppScope extends StatelessWidget {
 
   /// The look the boot read before the first frame; null when it was not read, and the cubit reads it.
   final ThemeMode? themeMode;
+
+  /// The language the boot read before the first frame; null when none was chosen or it was not read, and the phone's
+  /// is taken until the cubit has read the choice.
+  final String? language;
   final Widget child;
 
   @override
@@ -75,6 +88,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
         RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
         RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),
+        RepositoryProvider<ITourStore>(create: (_) => dependencies.createTourStore()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -128,12 +142,14 @@ class AppScope extends StatelessWidget {
                   content: context.read<ContentBloc>(),
                 ),
               )..add(const PocketModelStarted());
+              // Back from the background it may have fallen asleep there (the owner, 2026-11-16).
+              final lifecycle = AppLifecycleListener(onResume: () => bloc.add(const PocketModelResumed()));
               // Its stream ends when it closes, and the listening with it.
               bloc.stream.listen((state) {
                 if (state case PocketModelReady(:final model) when model.level != level.state) {
                   level.reached(model.level);
                 }
-              });
+              }, onDone: lifecycle.dispose);
               return bloc;
             },
           ),
@@ -146,11 +162,16 @@ class AppScope extends StatelessWidget {
             lazy: false,
             create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),
           ),
+          // The Apprentice's tour, which a first run's Welcome offers and the shell lays over the pages (plan 11.3).
+          BlocProvider<TourCubit>(
+            lazy: false,
+            create: (context) => TourCubit(store: context.read<ITourStore>())..load(),
+          ),
           BlocProvider<LanguageCubit>(
             lazy: false,
             create: (context) => LanguageCubit(
               store: context.read<ILanguageStore>(),
-              initial: PlatformDispatcher.instance.locale.languageCode,
+              initial: language ?? PlatformDispatcher.instance.locale.languageCode,
             )..load(),
           ),
           BlocProvider<ThemeChoiceCubit>(

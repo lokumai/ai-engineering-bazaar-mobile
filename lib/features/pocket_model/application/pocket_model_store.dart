@@ -10,19 +10,38 @@ abstract interface class IPocketModelStore {
 
   /// Keeps [model] in place of what was kept.
   Future<void> save(PocketModel model);
+
+  /// The temperature the reader set, or null when none is kept or it cannot be read.
+  Future<double?> loadTemperature();
+
+  /// Keeps [temperature] as the reader's.
+  Future<void> saveTemperature(double temperature);
 }
 
 /// A store that keeps the model in memory only, for tests and for a device without storage.
 final class MemoryPocketModelStore implements IPocketModelStore {
-  MemoryPocketModelStore([this.kept]);
+  MemoryPocketModelStore([this.kept, this.temperature]);
 
   PocketModel? kept;
+  double? temperature;
 
   @override
   Future<PocketModel?> load() async => kept;
 
   @override
   Future<void> save(PocketModel model) async => kept = model;
+
+  @override
+  Future<double?> loadTemperature() async => temperature;
+
+  @override
+  Future<void> saveTemperature(double temperature) async => this.temperature = temperature;
+}
+
+/// The temperature in [text], or null when it is not one between 0 and 2.
+double? decodePocketTemperature(String text) {
+  final value = double.tryParse(text.trim());
+  return value != null && value >= 0 && value <= 2 ? value : null;
 }
 
 /// [model] as the stored text: its tokens, the modules it read and when it was last fed. A burst is not kept: it lasts

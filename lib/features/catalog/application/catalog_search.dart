@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/plain_text.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/search_text.dart';
 import 'package:equatable/equatable.dart';
 
@@ -87,7 +88,7 @@ List<SearchEntry> entriesOf(ModuleDoc doc, {required int number}) {
         moduleKey: doc.key,
         number: number,
         module: doc.title,
-        section: _squash(inlineText(heading.inlines)),
+        section: squashSpace(inlineText(heading.inlines)),
         sectionId: heading.id,
         text: plainOf(blocks),
         ready: true,
@@ -106,45 +107,6 @@ SearchEntry levelEntryOf(LevelEntry level) => SearchEntry(
   text: level.blurb,
   ready: true,
 );
-
-/// The words of [blocks] a reader meets, one space between blocks and between list items (web `plain`).
-String plainOf(List<Block> blocks) => _squash(blocks.map(_blockText).join(' '));
-
-String _blockText(Block block) => switch (block) {
-  ParagraphBlock(:final inlines) => inlineText(inlines),
-  HeadingBlock(:final inlines) => inlineText(inlines),
-  ListBlock(:final items) => items.map((item) => item.blocks.map(_blockText).join(' ')).join(' '),
-  QuoteBlock(:final blocks) => blocks.map(_blockText).join(' '),
-  CalloutBlock(:final title, :final blocks) => [
-    if (title != null) inlineText(title),
-    ...blocks.map(_blockText),
-  ].join(' '),
-  TableBlock(:final head, :final rows) => [
-    for (final cell in head) inlineText(cell.inlines),
-    for (final row in rows)
-      for (final cell in row) inlineText(cell.inlines),
-  ].join(' '),
-  _ => '',
-};
-
-/// The text of [inlines] as read.
-String inlineText(List<Inline> inlines) => inlines.map(_inlineText).join();
-
-String _inlineText(Inline inline) => switch (inline) {
-  TextInline(:final text) => text,
-  CodeInline(:final text) => text,
-  BreakInline() => ' ',
-  StrongInline(:final inlines) => inlineText(inlines),
-  EmphasisInline(:final inlines) => inlineText(inlines),
-  DeleteInline(:final inlines) => inlineText(inlines),
-  LinkInline(:final inlines) => inlineText(inlines),
-  _ => '',
-};
-
-String _squash(String text) => text.replaceAll(RegExp(r'\s+'), ' ').trim();
-
-/// The sections a reader does not search for: a list of links, and a module's own recap (web D99).
-const _lists = {'references', 'summary', 'kaynaklar', 'özet', 'منابع', 'خلاصه'};
 
 /// One match, with where to show it.
 final class SearchHit extends Equatable {
@@ -165,20 +127,26 @@ final class SearchHit extends Equatable {
 
 /// The hits of one query.
 final class SearchResults extends Equatable {
-  const SearchResults({required this.hits, required this.total});
+  const SearchResults({required this.hits, required this.total, this.levels = const {}});
 
   /// No hit.
   static const none = SearchResults(hits: [], total: 0);
 
-  /// The best hits, at most [CatalogSearchIndex.limit].
+  /// The best hits, at most [CatalogSearchIndex.limit], in the levels asked for.
   final List<SearchHit> hits;
 
-  /// How many entries matched, the ones not shown included.
+  /// How many entries matched in the levels asked for, the ones not shown included.
   final int total;
 
+  /// How many entries matched in each level, by its slug, whatever levels were asked for: the filter's counts.
+  final Map<String, int> levels;
+
   @override
-  List<Object?> get props => [hits, total];
+  List<Object?> get props => [hits, total, levels];
 }
+
+/// The slug of the level [entry] is in: a module's level, or the level itself.
+String levelOf(SearchEntry entry) => entry.moduleKey.split('/').first;
 
 enum _Field { title, section, text }
 
@@ -222,7 +190,8 @@ final class CatalogSearchIndex {
 
   /// The hits for [query], best first, at most [limit], and how many there are in all. A Persian query with a prefix or
   /// a suffix typed apart from its word is searched joined as well (web `joinedVariant`), each entry at its better score.
-  SearchResults search(String query) {
+  /// With [levels], only the hits in those levels (by slug) are kept; the count of each level is of every hit.
+  SearchResults search(String query, {Set<String> levels = const {}}) {
     final terms = termsOf(query);
     if (terms.isEmpty) return SearchResults.none;
     final variant = joinedVariant(query, lang);
@@ -235,9 +204,21 @@ final class CatalogSearchIndex {
     final marked = {...terms, ...variantTerms}.toList();
     final ranked = [for (final MapEntry(key: i, :value) in total.entries) (i, value * _rank(entries[i]))]
       ..sort((a, b) => b.$2.compareTo(a.$2) != 0 ? b.$2.compareTo(a.$2) : a.$1.compareTo(b.$1));
+    final counts = <String, int>{};
+    for (final (i, _) in ranked) {
+      final level = levelOf(entries[i]);
+      counts[level] = (counts[level] ?? 0) + 1;
+    }
+    final kept = levels.isEmpty
+        ? ranked
+        : [
+            for (final hit in ranked)
+              if (levels.contains(levelOf(entries[hit.$1]))) hit,
+          ];
     return SearchResults(
-      hits: [for (final (i, score) in ranked.take(limit)) _hit(entries[i], score, marked)],
-      total: ranked.length,
+      hits: [for (final (i, score) in kept.take(limit)) _hit(entries[i], score, marked)],
+      total: kept.length,
+      levels: counts,
     );
   }
 
@@ -269,7 +250,7 @@ final class CatalogSearchIndex {
 
   static double _rank(SearchEntry entry) {
     if (!entry.ready) return 0.7;
-    return _lists.contains(entry.section.toLowerCase()) ? 0.4 : 1;
+    return recapSections.contains(entry.section.toLowerCase()) ? 0.4 : 1;
   }
 
   /// The window of text shown on a hit: about [_window] characters around the first matched word, cut at words.

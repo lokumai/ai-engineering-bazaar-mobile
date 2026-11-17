@@ -82,10 +82,11 @@ import UIKit
 }
 
 /// iOS opens an app on a picture of its launch screen that it keeps in the app's Library/SplashBoard, and the launch
-/// screen is one, on the dark ground the app opens in until the reader chooses. Repainting those pictures in the ground
+/// screen is one, on the cream ground of the light look the app opens in until the reader chooses (the owner,
+/// 2026-11-16). Repainting those pictures in the ground
 /// of the reader's look lets the app open on it from the next launch (the owner, 2026-11-14, 2026-11-15: the look, not
 /// the icon). The folder is not documented: when it is missing or a picture cannot be read, nothing changes and the app
-/// opens on the dark ground. iOS draws the pictures
+/// opens on the cream ground. iOS draws the pictures
 /// again after an update, and the next launch paints them again.
 enum LaunchPicture {
   /// Where the ground of the look last named is kept, for [BazaarViewController] on the next launch.
@@ -138,7 +139,7 @@ enum LaunchPicture {
 }
 
 /// The app's screen (Main.storyboard). Until Flutter draws its first frame it shows the launch screen once more, which
-/// is dark for every look; that left a flash between the launch picture and the opening for the light look (the owner,
+/// is cream for every look; that left a flash between the launch picture and the opening for the other look (the owner,
 /// 2026-11-15). It shows the ground of the look last named instead.
 class BazaarViewController: FlutterViewController {
   override func awakeFromNib() {

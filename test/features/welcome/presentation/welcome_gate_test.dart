@@ -69,6 +69,7 @@ Widget _gate(
   bool reducedMotion = false,
   TrackCubit? track,
   bool story = true,
+  VoidCallback? onFirstRun,
 }) => RepositoryProvider<IWelcomeStore>.value(
   value: store,
   child: MultiBlocProvider(
@@ -93,7 +94,7 @@ Widget _gate(
       builder: (context, child) => reducedMotion
           ? MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!)
           : child!,
-      home: WelcomeGate(story: _story, child: _app),
+      home: WelcomeGate(story: _story, onFirstRun: onFirstRun, child: _app),
     ),
   ),
 );
@@ -105,7 +106,8 @@ void main() {
     final store = _MemoryWelcomeStore();
     final track = TrackCubit();
     addTearDown(track.close);
-    await tester.pumpWidget(_gate(store, track: track));
+    var firstRuns = 0;
+    await tester.pumpWidget(_gate(store, track: track, onFirstRun: () => firstRuns++));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsNothing);
@@ -132,16 +134,19 @@ void main() {
     expect(find.text('the story'), findsOneWidget);
     expect(track.state, Track.everyone, reason: 'the track is kept as soon as it is chosen');
     expect(store.wasSeen, isFalse, reason: 'not before the story is read or skipped');
+    expect(firstRuns, 0, reason: 'the Apprentice offers its tour once Welcome is over (plan 11.3)');
     await tester.tap(find.byKey(_storyDoneKey));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
+    expect(firstRuns, 1);
   });
 
   testWidgets('Start learning opens the app at once, with no story (the owner, 2026-11-15)', (tester) async {
     final store = _MemoryWelcomeStore();
-    await tester.pumpWidget(_gate(store));
+    var firstRuns = 0;
+    await tester.pumpWidget(_gate(store, onFirstRun: () => firstRuns++));
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.byKey(WelcomeTrackView.startKey));
@@ -152,14 +157,17 @@ void main() {
     expect(find.text('the story'), findsNothing);
     expect(find.text('the app'), findsOneWidget);
     expect(store.wasSeen, isTrue);
+    expect(firstRuns, 1);
   });
 
   testWidgets('a later launch opens the app directly', (tester) async {
-    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true)));
+    var firstRuns = 0;
+    await tester.pumpWidget(_gate(_MemoryWelcomeStore(wasSeen: true), onFirstRun: () => firstRuns++));
     await tester.pumpAndSettle();
 
     expect(find.text('the app'), findsOneWidget);
     expect(find.byType(WelcomeTrackView), findsNothing);
+    expect(firstRuns, 0, reason: 'a reader who used the app before is not offered the tour');
   });
 
   testWidgets('the track step chooses the language too, at once (plan 1S)', (tester) async {
@@ -192,8 +200,8 @@ void main() {
     expect(start.bottom, lessThanOrEqualTo(852));
   });
 
-  testWidgets('the track step chooses the appearance too, Dark selected first whatever the phone', (tester) async {
-    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+  testWidgets('the track step chooses the appearance too, Light selected first whatever the phone', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     await tester.pumpWidget(_gate(_MemoryWelcomeStore(), story: false));
     await tester.pumpAndSettle();
@@ -202,14 +210,14 @@ void main() {
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Phone'), findsNothing);
     expect(
-      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark))),
+      tester.getSemantics(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light))),
       isSemantics(isSelected: true, isButton: true),
     );
-    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
-    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.light)));
+    await tester.ensureVisible(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark)));
+    await tester.tap(find.byKey(WelcomeTrackView.appearanceKey(ThemeMode.dark)));
     await tester.pump();
 
-    expect(theme.state, ThemeMode.light);
+    expect(theme.state, ThemeMode.dark);
   });
 
   testWidgets('text scale 2.0 keeps the way on reachable', (tester) async {

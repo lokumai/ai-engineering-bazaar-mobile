@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/about/navigation/about_routes.dart';
 import 'package:ai_engineering_bazaar/features/caravan/navigation/caravan_routes.dart';
 import 'package:ai_engineering_bazaar/features/guide/navigation/guide_routes.dart';
@@ -11,12 +13,16 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/pages/level_page.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_continue_band.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_assistant.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_corner.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_model_routes.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
+import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
@@ -72,19 +78,37 @@ class AppRouterFactory {
           pageBuilder: (context, state, child) => appPlatformPage(
             state: state,
             child: DevConsoleShortcut(
-              // The pocket model's round button, in the corner of Home (plan 9.4, 9.9).
-              // The reader can hide it in Settings (plan 9.9).
+              // The pocket model's round button, in the corner of Home, the catalog, the Caravan and the Quiz tab (plan
+              // 9.4, 11.2). The reader can hide it in Settings (plan 9.9).
               child: BlocBuilder<PocketButtonCubit, bool>(
-                builder: (context, shown) => BazaarShell(
+                // The Apprentice's tour over the shell, the navigation included (plan 11.3); it walks as its button.
+                builder: (context, shown) => TourLayer(
                   location: state.uri.path,
-                  assistant: shown ? const PocketAssistantButton() : null,
-                  child: child,
+                  robot: const IgnorePointer(
+                    child: ExcludeSemantics(child: PocketAssistantButton(name: 'tour-robot')),
+                  ),
+                  child: BazaarShell(
+                    location: state.uri.path,
+                    assistant: shown ? const PocketAssistantButton() : null,
+                    // The module left half read, under the thumb (plan 10.4).
+                    band: const HomeContinueBand(),
+                    child: child,
+                  ),
                 ),
               ),
             ),
           ),
           routes: [
-            _page('home', BazaarPaths.home, const HomePage()),
+            // The Apprentice presents the day's card from its corner at Home's head (plan 11.2), unless the reader
+            // hid it in Settings; the card stands alone then.
+            _pageOf(
+              'home',
+              BazaarPaths.home,
+              (_) => BlocBuilder<PocketButtonCubit, bool>(
+                builder: (context, shown) =>
+                    HomePage(dailyFrame: shown ? (context, card) => PocketCorner(message: card) : null),
+              ),
+            ),
             _page('catalog', BazaarPaths.catalogEngineers, const CatalogPage(track: Track.engineers)),
             _page('catalogEveryone', BazaarPaths.catalogEveryone, const CatalogPage(track: Track.everyone)),
             _pageOf('level', '/sheets/:level', (state) => _level(state, Track.engineers)),
@@ -96,7 +120,13 @@ class AppRouterFactory {
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
-            ...GuideFeatureRoutes.routes(),
+            // The guide takes the Apprentice's tour again, from Home (plan 11.3).
+            ...GuideFeatureRoutes.routes(
+              replayTour: (context) {
+                unawaited(context.read<TourCubit>().replay());
+                context.go(BazaarPaths.home);
+              },
+            ),
             ...PocketModelFeatureRoutes.routes(),
             ...SettingsFeatureRoutes.routes(
               openDevConsole: kDebugMode ? DevConsoleOverlay.show : null,
