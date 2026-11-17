@@ -97,7 +97,8 @@ lib/
                                                 word rules (search_text.dart)
     content/application/                        ContentBloc
     content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart,
-                                                the marks of the words searched (text_find.dart)
+                                                the marks of the words searched (text_find.dart), the glossary's terms
+                                                dotted in a module's text (term_scope.dart)
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
@@ -107,7 +108,8 @@ lib/
                                                 and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
                                                 review, Wrong answers); the app's own, never in the record
     study/                                      a module's Key Terms, Summary and quiz found by place and shape
-                                                (module_notes.dart), StudyNotesCubit that reads them for a track and
+                                                (module_notes.dart), where a text uses a term (term_marks.dart),
+                                                StudyNotesCubit that reads them for a track and
                                                 language, StudyNotesLoader that asks for them under the pages that show them
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
@@ -139,7 +141,8 @@ lib/
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
-    reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
+    reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views,
+                                                the bubble with a tapped term's definition
     quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
                                                 the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
                                                 `/practice` (Today's review, Wrong answers, the quizzes by level) and its

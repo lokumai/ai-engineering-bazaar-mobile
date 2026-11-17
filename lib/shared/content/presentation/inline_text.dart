@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/search_text.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/logo_view.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/term_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -23,7 +24,9 @@ const _wordJoiner = '\u2060';
 /// is drawn as plain text and is not tappable (Decision A23), as is an inline of a kind it does not know. A logo is
 /// drawn at text height and held to the next word, as the web's `.bz-logo-pair` does.
 ///
-/// Under a [TextFindScope] the words that answer the search are marked, the current one more strongly (plan 7.1).
+/// Under a [TextFindScope] the words that answer the search are marked, the current one more strongly (plan 7.1). Under
+/// a [TermScope] the terms of the glossary are marked with a dotted underline, and a tap on one shows its definition
+/// (plan 13.9).
 class InlineText extends StatefulWidget {
   const InlineText({
     super.key,
@@ -80,6 +83,8 @@ class _InlineTextState extends State<InlineText> implements TextFindTarget {
       onLink: widget.onLink,
       recognizers: _recognizers,
       marker: marker,
+      // The words searched take the marks while the find bar is open; the terms wait for it to close.
+      terms: marker == null ? TermScope.maybeOf(context) : null,
     ).build(widget.inlines, null);
     finder?.report(this, marker?.count ?? 0);
     final root = _root = TextSpan(style: widget.style, children: spans);
@@ -177,10 +182,14 @@ class _SpanBuilder {
     required this.onLink,
     required this.recognizers,
     this.marker,
+    this.terms,
   });
 
   /// Marks the words searched; null when nothing is searched.
   final _Marker? marker;
+
+  /// The terms the text marks, a tap on one showing its definition (plan 13.9); null where none are marked.
+  final TermScope? terms;
 
   final BazaarColors colors;
   final double fontSize;
@@ -196,7 +205,10 @@ class _SpanBuilder {
   ];
 
   List<InlineSpan> _spansOf(Inline inline, TapGestureRecognizer? recognizer) => switch (inline) {
-    TextInline(:final text) => marker?.spans(text, recognizer) ?? [TextSpan(text: text, recognizer: recognizer)],
+    TextInline(:final text) =>
+      marker?.spans(text, recognizer) ??
+          (recognizer == null ? _termSpans(inline) : null) ??
+          [TextSpan(text: text, recognizer: recognizer)],
     // Code in a line is searched, so its words are marked too.
     CodeInline(:final text) => [
       TextSpan(
@@ -248,6 +260,35 @@ class _SpanBuilder {
     ],
     UnknownInline(:final inlines) => build(inlines, recognizer),
   };
+
+  /// The spans of [inline] with its terms marked: a dotted underline, and a tap that shows the term's definition. Null
+  /// when it marks none.
+  List<InlineSpan>? _termSpans(TextInline inline) {
+    final scope = terms;
+    final marks = scope?.marks[inline];
+    if (scope == null || marks == null) return null;
+    final text = inline.text;
+    final style = TextStyle(
+      decoration: TextDecoration.underline,
+      decorationStyle: TextDecorationStyle.dotted,
+      decorationColor: colors.primary,
+      decorationThickness: 2,
+    );
+    final spans = <InlineSpan>[];
+    var at = 0;
+    for (final mark in marks) {
+      if (mark.start > at) spans.add(TextSpan(text: text.substring(at, mark.start)));
+      Offset? lifted;
+      final recognizer = TapGestureRecognizer()
+        ..onTapUp = ((details) => lifted = details.globalPosition)
+        ..onTap = () => scope.onTap(mark.term, lifted);
+      recognizers.add(recognizer);
+      spans.add(TextSpan(text: text.substring(mark.start, mark.end), style: style, recognizer: recognizer));
+      at = mark.end;
+    }
+    if (at < text.length) spans.add(TextSpan(text: text.substring(at)));
+    return spans;
+  }
 
   List<InlineSpan> _link(LinkTarget target, List<Inline> inlines) {
     final recognizer = TapGestureRecognizer()..onTap = () => onLink(target);
