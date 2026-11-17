@@ -2876,6 +2876,26 @@ class S {
     );
   }
 
+  /// `Every question answered wrong, by level. Right twice in a row and it leaves.`
+  String get practice_wrong_lede {
+    return Intl.message(
+      'Every question answered wrong, by level. Right twice in a row and it leaves.',
+      name: 'practice_wrong_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Answer them all`
+  String get practice_wrong_all {
+    return Intl.message('Answer them all', name: 'practice_wrong_all', desc: '', args: []);
+  }
+
+  /// `No wrong answers now.`
+  String get practice_wrong_none {
+    return Intl.message('No wrong answers now.', name: 'practice_wrong_none', desc: '', args: []);
+  }
+
   /// `Quizzes by level`
   String get practice_quizzes {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);

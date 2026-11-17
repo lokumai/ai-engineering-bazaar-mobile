@@ -105,6 +105,49 @@ void main() {
     );
   });
 
+  testWidgets('Wrong answers lists the questions answered wrong by level, and Answer them all asks them (plan 13.4)', (
+    tester,
+  ) async {
+    final (router, review) = await _pump(tester);
+    review
+      ..add(const ReviewAnswered(key: 'beta/fourth#1', right: false, length: 2))
+      ..add(const ReviewAnswered(key: 'alpha/first#0', right: false, length: 2))
+      ..add(const ReviewAnswered(key: 'alpha/first#1', right: true, length: 2));
+    await tester.pumpAndSettle();
+
+    await _tap(tester, find.byKey(const Key('practice-wrong')));
+    expect(router.state.uri.path, '/practice/wrong');
+    expect(find.byType(NavigationBar), findsOneWidget, reason: 'a page of the tab');
+    expect(find.text('Alpha Level'), findsOneWidget);
+    expect(find.text('Beta Level'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('wrong-alpha/first#0'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(const ValueKey('wrong-beta/fourth#1'))).dy),
+      reason: "in the course's order",
+    );
+    expect(find.byKey(const ValueKey('wrong-alpha/first#1')), findsNothing, reason: 'answered right');
+
+    await _tap(tester, find.byKey(const ValueKey('wrong-answer-all')));
+    expect(router.state.uri.path, '/practice/wrong/all');
+    expect(find.text('Card 1 of 2'), findsOneWidget);
+    await _tap(tester, find.text('One'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    await _tap(tester, find.text('Two'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    expect(find.text('2 of 2 right'), findsOneWidget);
+    expect(review.state.history.cards['alpha/first#0']!.wrong, isTrue, reason: 'right once is not enough');
+    expect(review.state.history.doneOn(dayNumber(DateTime.now())), 0, reason: "not Today's review");
+
+    await _tap(tester, find.byKey(const Key('review-back')));
+    await _tap(tester, find.byKey(const ValueKey('wrong-answer-all')));
+    await _tap(tester, find.text('One'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    await _tap(tester, find.text('Two'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    await _tap(tester, find.byKey(const Key('review-back')));
+    expect(find.text('No wrong answers now.'), findsOneWidget, reason: 'right twice in a row, and they leave');
+  });
+
   testWidgets('with no module completed, there is nothing to review today', (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);

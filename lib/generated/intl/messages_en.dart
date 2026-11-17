@@ -446,7 +446,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "The questions of the modules you complete come here, a few each day.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Wrong answers"),
+    "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Answer them all"),
     "practice_wrong_count": m43,
+    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
+      "Every question answered wrong, by level. Right twice in a row and it leaves.",
+    ),
+    "practice_wrong_none": MessageLookupByLibrary.simpleMessage("No wrong answers now."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",

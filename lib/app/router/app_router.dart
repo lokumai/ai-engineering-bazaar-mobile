@@ -25,6 +25,7 @@ import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart'
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/review_session_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/wrong_answers_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
@@ -120,6 +121,8 @@ class AppRouterFactory {
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
             // Practice, once the Quiz tab, in place of the progress page, whose cards moved to the catalog (plan 1AB, 13.2).
             _page('practice', BazaarPaths.practice, const PracticePage()),
+            // Wrong answers, in the shell under Practice (plan 13.4).
+            _page('practiceWrong', BazaarPaths.practiceWrong, const WrongAnswersPage()),
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.

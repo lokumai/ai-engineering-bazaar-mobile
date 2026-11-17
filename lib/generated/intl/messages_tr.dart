@@ -447,7 +447,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Tamamladığın modüllerin soruları buraya gelir, her gün birkaçı.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Yanlışlarım"),
+    "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
     "practice_wrong_count": m43,
+    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
+      "Yanlış cevapladığın her soru, seviyelere göre. Arka arkaya iki kez doğru bilince listeden çıkar.",
+    ),
+    "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama kişisel ayrıntıları cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. Sorun bildir\'den gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",

@@ -1423,6 +1423,9 @@
       }
     }
   },
+  "practice_wrong_lede": "Every question answered wrong, by level. Right twice in a row and it leaves.",
+  "practice_wrong_all": "Answer them all",
+  "practice_wrong_none": "No wrong answers now.",
   "practice_quizzes": "Quizzes by level",
   "home_review": "Today's review, {count, plural, =1{1 card} other{{count} cards}}",
   "@home_review": {

@@ -449,7 +449,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "پرسش‌های درس‌هایی که تکمیل می‌کنید اینجا می‌آیند، هر روز چندتا.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("پاسخ‌های نادرست"),
+    "practice_wrong_all": MessageLookupByLibrary.simpleMessage("به همه پاسخ دهید"),
     "practice_wrong_count": m43,
+    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
+      "هر پرسشی که نادرست پاسخ داده‌اید، بر اساس سطح. دو بار پشت سر هم درست، و از فهرست بیرون می‌رود.",
+    ),
+    "practice_wrong_none": MessageLookupByLibrary.simpleMessage("الان هیچ پاسخ نادرستی ندارید."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، جزئیات شخصی را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
