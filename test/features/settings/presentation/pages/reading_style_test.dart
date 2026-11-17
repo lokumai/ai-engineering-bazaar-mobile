@@ -55,12 +55,6 @@ void main() {
           // Above the navigation at the screen's foot.
           final navigation = tester.getTopLeft(find.byType(NavigationBar)).dy;
           expect(tester.getBottomLeft(wardrobe).dy, lessThanOrEqualTo(navigation), reason: 'the wardrobe on screen');
-          // The Apprentice's button floats over Settings too (the owner, 2026-11-17), below the wardrobe, not on it.
-          expect(
-            tester.getBottomLeft(wardrobe).dy,
-            lessThanOrEqualTo(tester.getTopLeft(find.byKey(const ValueKey('pocket-assistant'))).dy),
-            reason: 'the Apprentice\'s button clear of the wardrobe',
-          );
         });
       }
     }

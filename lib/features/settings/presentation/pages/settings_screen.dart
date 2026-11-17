@@ -1,7 +1,7 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
-import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/inline_setting.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/labeled_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/reading_style_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/presentation/app_icon_row.dart';
@@ -21,7 +21,6 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
-import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -98,8 +97,7 @@ class _SettingsView extends StatelessWidget {
     final openDevConsole = this.openDevConsole;
 
     return SingleChildScrollView(
-      // The Apprentice's button floats over Settings' corner too, so its end scrolls clear of it.
-      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -114,13 +112,12 @@ class _SettingsView extends StatelessWidget {
             spot: TourSpots.settingsReading,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              // Room between the choices, now that they have no labels (the owner, 2026-11-17: too tight).
+              // Room between the choices (the owner, 2026-11-17: too tight).
               spacing: AppSpacing.md,
               children: [
-                // The choices name themselves, so they stand without a label on screen; a screen reader still says
-                // what each one sets (the owner, 2026-11-17: the labels made Settings look crowded).
-                BazaarSegmentedControl<Track>(
-                  semanticLabel: s.settings_track,
+                // Each label above its choices (the owner, 2026-11-17: beside them, or with none, looked crowded).
+                LabeledSetting<Track>(
+                  label: s.settings_track,
                   selected: context.watch<TrackCubit>().state,
                   onSelected: (track) => context.read<TrackCubit>().choose(track),
                   segments: [
@@ -132,8 +129,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                BazaarSegmentedControl<String>(
-                  semanticLabel: s.settings_language,
+                LabeledSetting<String>(
+                  label: s.settings_language,
                   selected: context.watch<LanguageCubit>().state,
                   onSelected: (language) => context.read<LanguageCubit>().choose(language),
                   segments: [
@@ -145,8 +142,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                BazaarSegmentedControl<ThemeMode>(
-                  semanticLabel: s.settings_appearance,
+                LabeledSetting<ThemeMode>(
+                  label: s.settings_appearance,
                   selected: context.watch<ThemeChoiceCubit>().state,
                   onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
                   segments: [
@@ -172,9 +169,8 @@ class _SettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpacing.sm,
               children: [
-                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14); the one
-                // choice with its label on screen, since On and Off alone do not say what they turn on.
-                InlineSetting<bool>(
+                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
+                LabeledSetting<bool>(
                   key: const Key('settings-pocket-button'),
                   label: s.settings_pocket_button,
                   selected: context.watch<PocketButtonCubit>().state,

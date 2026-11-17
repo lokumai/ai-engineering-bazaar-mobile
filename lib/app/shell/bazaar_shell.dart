@@ -87,15 +87,14 @@ class BazaarShell extends StatefulWidget {
     BazaarPaths.quizzes,
   };
 
-  /// The pages that show the [assistant]: the first pages of every tab. Settings has it too (the owner, 2026-11-17):
-  /// the tour ends there, and the Apprentice walked back to a corner that was not there.
+  /// The pages that show the [assistant]: the first pages of Home, the two catalogs, the Caravan and the Quiz tab (the
+  /// owner, 2026-11-16: Settings has no place for it).
   static const Set<String> assistantPages = {
     BazaarPaths.home,
     BazaarPaths.catalogEngineers,
     BazaarPaths.catalogEveryone,
     BazaarPaths.caravan,
     BazaarPaths.quizzes,
-    BazaarPaths.settings,
   };
 
   /// The [assistant]'s width and height.

@@ -253,12 +253,6 @@ void main() {
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
     await _tap(tester, _next);
     expect(store.kept.seen, hasLength(5));
-    // The owner, 2026-11-17: the tour ends here, so the Apprentice walks back into a button Settings now has.
-    await tester.pump(TourLayer.walk);
-    await tester.pump();
-    expect(_robot, findsNothing);
-    expect(_button, findsOneWidget);
-    expect(_buttonDrawn(tester), isTrue);
 
     router.push(ApplicationRoutesConstants.guide);
     await _walk(tester);

@@ -128,8 +128,8 @@ void main() {
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), language: language));
     await tester.pump();
 
-    // Named to a screen reader only: the choices name themselves on screen (the owner, 2026-11-17).
-    expect(find.text('Language'), findsNothing);
+    // Named above its choices, and once to a screen reader (the owner, 2026-11-17).
+    expect(find.text('Language'), findsOneWidget);
     expect(find.bySemanticsLabel('Language'), findsOneWidget);
     expect(find.text('Türkçe'), findsOneWidget);
     expect(find.text('فارسی'), findsOneWidget);
@@ -141,54 +141,55 @@ void main() {
     expect(language.state, 'tr');
   });
 
-  testWidgets('Customize, under Reading: the pocket model on or off first, on one line, then the icon and wardrobe', (
-    tester,
-  ) async {
-    final store = MemoryPocketButtonStore();
-    final button = PocketButtonCubit(store: store);
-    final router = _router(
-      wardrobePicture: (side) => SizedBox.square(key: const Key('robot-picture'), dimension: side),
-    );
-    await tester.pumpWidget(bazaarTestApp(router: router, content: _contentBloc(), pocketButton: button));
-    await tester.pump();
+  testWidgets(
+    'Customize, under Reading: the pocket model on or off first, its name above, then the icon and wardrobe',
+    (tester) async {
+      final store = MemoryPocketButtonStore();
+      final button = PocketButtonCubit(store: store);
+      final router = _router(
+        wardrobePicture: (side) => SizedBox.square(key: const Key('robot-picture'), dimension: side),
+      );
+      await tester.pumpWidget(bazaarTestApp(router: router, content: _contentBloc(), pocketButton: button));
+      await tester.pump();
 
-    final customize = tester.getTopLeft(find.text('Customize')).dy;
-    expect(customize, greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy));
-    expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
+      final customize = tester.getTopLeft(find.text('Customize')).dy;
+      expect(customize, greaterThan(tester.getBottomLeft(find.byKey(settingsAppearanceKey(ThemeMode.dark))).dy));
+      expect(customize, lessThan(tester.getTopLeft(find.text('Your progress')).dy));
 
-    // At the top of Customize (the owner, 2026-11-14), its name and its two segments on one line, so Reading and
-    // Customize fit one screen (plan 12.4).
-    final choice = find.byKey(const Key('settings-pocket-button'));
-    expect(tester.getTopLeft(choice).dy, greaterThan(customize));
-    final title = find.descendant(of: choice, matching: find.text('Apprentice'));
-    expect(
-      tester.getCenter(title).dy,
-      moreOrLessEquals(tester.getCenter(find.byKey(settingsPocketKey(shown: true))).dy, epsilon: 1),
-    );
-    expect(
-      tester.getTopLeft(find.byKey(const Key('settings-app-icon'))).dy,
-      greaterThan(tester.getBottomLeft(choice).dy),
-    );
-    expect(find.descendant(of: choice, matching: find.text('On')), findsOneWidget);
-    expect(find.descendant(of: choice, matching: find.text('Off')), findsOneWidget);
-    expect(find.byType(Switch), findsNothing);
-    expect(tester.getSemantics(find.byKey(settingsPocketKey(shown: true))), isSemantics(isSelected: true));
-    await tester.tap(find.byKey(settingsPocketKey(shown: false)));
-    await tester.pump();
-    expect(button.state, isFalse);
-    expect(store.kept, isTrue, reason: 'hidden, and kept so');
+      // At the top of Customize (the owner, 2026-11-14), its name above its two segments (the owner, 2026-11-17: on one
+      // line with them, Settings looked crowded).
+      final choice = find.byKey(const Key('settings-pocket-button'));
+      expect(tester.getTopLeft(choice).dy, greaterThan(customize));
+      final title = find.descendant(of: choice, matching: find.text('Apprentice'));
+      expect(
+        tester.getBottomLeft(title).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byKey(settingsPocketKey(shown: true))).dy),
+      );
+      expect(
+        tester.getTopLeft(find.byKey(const Key('settings-app-icon'))).dy,
+        greaterThan(tester.getBottomLeft(choice).dy),
+      );
+      expect(find.descendant(of: choice, matching: find.text('On')), findsOneWidget);
+      expect(find.descendant(of: choice, matching: find.text('Off')), findsOneWidget);
+      expect(find.byType(Switch), findsNothing);
+      expect(tester.getSemantics(find.byKey(settingsPocketKey(shown: true))), isSemantics(isSelected: true));
+      await tester.tap(find.byKey(settingsPocketKey(shown: false)));
+      await tester.pump();
+      expect(button.state, isFalse);
+      expect(store.kept, isTrue, reason: 'hidden, and kept so');
 
-    // The Wardrobe row as the App icon row: the robot's picture at the icon's side, then its name.
-    final wardrobe = find.byKey(const Key('settings-robot'));
-    await tester.ensureVisible(wardrobe);
-    expect(find.descendant(of: wardrobe, matching: find.text('Wardrobe')), findsOneWidget);
-    final picture = find.descendant(of: wardrobe, matching: find.byKey(const Key('robot-picture')));
-    expect(tester.getSize(picture), const Size.square(52));
-    expect(tester.getTopLeft(picture).dx, lessThan(tester.getTopLeft(find.text('Wardrobe')).dx));
-    await tester.tap(find.byKey(const Key('settings-robot')));
-    await tester.pumpAndSettle();
-    expect(find.text('wardrobe page'), findsOneWidget);
-  });
+      // The Wardrobe row as the App icon row: the robot's picture at the icon's side, then its name.
+      final wardrobe = find.byKey(const Key('settings-robot'));
+      await tester.ensureVisible(wardrobe);
+      expect(find.descendant(of: wardrobe, matching: find.text('Wardrobe')), findsOneWidget);
+      final picture = find.descendant(of: wardrobe, matching: find.byKey(const Key('robot-picture')));
+      expect(tester.getSize(picture), const Size.square(52));
+      expect(tester.getTopLeft(picture).dx, lessThan(tester.getTopLeft(find.text('Wardrobe')).dx));
+      await tester.tap(find.byKey(const Key('settings-robot')));
+      await tester.pumpAndSettle();
+      expect(find.text('wardrobe page'), findsOneWidget);
+    },
+  );
 
   testWidgets('the App icon row under the appearance shows the icon in use, unnamed, and opens its page', (
     tester,
@@ -230,8 +231,8 @@ void main() {
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), themeChoice: themeChoice));
     await tester.pump();
 
-    // Named to a screen reader only: the choices name themselves on screen (the owner, 2026-11-17).
-    expect(find.text('Appearance'), findsNothing);
+    // Named above its choices, and once to a screen reader (the owner, 2026-11-17).
+    expect(find.text('Appearance'), findsOneWidget);
     expect(find.bySemanticsLabel('Appearance'), findsOneWidget);
     expect(find.text('Light'), findsOneWidget);
     expect(

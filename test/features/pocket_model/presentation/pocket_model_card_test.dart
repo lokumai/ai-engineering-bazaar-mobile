@@ -88,19 +88,21 @@ final _chart = find.byWidgetPredicate((widget) => widget is CustomPaint && widge
 RobotFrame _frame(WidgetTester tester) => (tester.widget<CustomPaint>(_stage).painter! as PocketRobotPainter).frame();
 
 void main() {
-  testWidgets('its round button sits on the first page of every tab, Settings too', (tester) async {
+  testWidgets('its round button sits on the first pages of Home, the catalog, the Caravan and Quiz, not in Settings', (
+    tester,
+  ) async {
     await _pump(tester, open: false);
     final button = find.byKey(const ValueKey('pocket-assistant'));
     expect(button, findsOneWidget);
     expect(find.byType(PocketModelCard), findsNothing, reason: 'Home no longer carries it');
     expect(tester.getRect(button).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top));
 
-    // The owner, 2026-11-16: on Home too, under the thumb; 2026-11-17: in Settings too, where the tour ends.
+    // The owner, 2026-11-16: everywhere but Settings, and on Home too, under the thumb.
     for (final (label, shows) in [
       ('Catalog', true),
       ('Caravan', true),
       ('Quiz', true),
-      ('Settings', true),
+      ('Settings', false),
       ('Home', true),
     ]) {
       await tester.tap(find.text(label).last);
