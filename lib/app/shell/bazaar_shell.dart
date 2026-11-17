@@ -367,7 +367,11 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                         room: assistantShown ? 76 : 0,
                         child: KeyedSubtree(
                           key: _pageKey,
-                          child: ReadableWidth(child: widget.child),
+                          // A module's page is wider, for its sections beside its text on a tablet (plan 12.10).
+                          child: ReadableWidth(
+                            maxWidth: _onModule ? ReadableWidth.withSections : ReadableWidth.text,
+                            child: widget.child,
+                          ),
                         ),
                       ),
                       if (assistantShown)

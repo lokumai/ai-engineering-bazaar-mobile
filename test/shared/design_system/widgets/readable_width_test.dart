@@ -17,7 +17,7 @@ void main() {
 
   testWidgets("on a tablet the page keeps a phone's measure in the middle, its whole height", (tester) async {
     final rect = await _pumpAt(tester, const Size(1200, 900));
-    expect(rect.width, ReadableWidth.maxWidth);
+    expect(rect.width, ReadableWidth.text);
     expect(rect.height, 900);
     expect(rect.center.dx, 600);
   });
