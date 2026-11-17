@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -307,5 +308,60 @@ void main() {
     await tester.tap(find.text('All'));
     await tester.pumpAndSettle();
     expect(find.text('6 results'), findsOneWidget);
+  });
+
+  // Plan 12.8: the recent searches under the empty field.
+  group('recent searches', () {
+    Future<(GoRouter, RecentSearchesCubit)> pumpWith(WidgetTester tester, List<String> kept) async {
+      final recent = RecentSearchesCubit(store: MemoryRecentSearchStore(kept));
+      // The app's provider closes it with the page.
+      await recent.load();
+      final router = AppRouterFactory(initialLocation: '/sheets').create();
+      addTearDown(router.dispose);
+      await tester.pumpWidget(bazaarTestApp(router: router, repository: _repository(), recentSearches: recent));
+      await tester.pumpAndSettle();
+      return (router, recent);
+    }
+
+    final list = find.byKey(const ValueKey('catalog-recent-searches'));
+
+    testWidgets('show when the empty field is tapped, and a tap on one searches it again', (tester) async {
+      await pumpWith(tester, ['passages', 'memory']);
+      expect(list, findsNothing, reason: 'not before the field is tapped');
+
+      await tester.tap(find.byType(TextField));
+      // The caret blinks while the field has focus, so the page never settles.
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.descendant(of: list, matching: find.text('passages')), findsOneWidget);
+      expect(find.descendant(of: list, matching: find.text('memory')), findsOneWidget);
+
+      await tester.tap(find.descendant(of: list, matching: find.text('passages')));
+      await tester.pumpAndSettle();
+      expect(list, findsNothing);
+      expect(find.text('6 results'), findsOneWidget);
+      expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'passages');
+    });
+
+    testWidgets('a search that opens a hit is kept first', (tester) async {
+      final (_, recent) = await pumpWith(tester, ['memory']);
+      await _type(tester, 'passages');
+      await tester.tap(find.text('Retrieval').first);
+      await tester.pumpAndSettle();
+      expect(recent.state, ['passages', 'memory']);
+    });
+
+    testWidgets('one is removed, and Clear forgets them all', (tester) async {
+      final (_, recent) = await pumpWith(tester, ['passages', 'memory']);
+      await tester.tap(find.byType(TextField));
+      // The caret blinks while the field has focus, so the page never settles.
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byTooltip('Remove “memory”'));
+      await tester.pumpAndSettle();
+      expect(recent.state, ['passages']);
+      await tester.tap(find.descendant(of: list, matching: find.text('Clear')));
+      await tester.pumpAndSettle();
+      expect(recent.state, isEmpty);
+      expect(list, findsNothing);
+    });
   });
 }

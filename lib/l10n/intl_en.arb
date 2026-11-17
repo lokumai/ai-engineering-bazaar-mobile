@@ -313,6 +313,18 @@
       }
     }
   },
+  "catalog_recent_title": "Recent searches",
+  "@catalog_recent_title": {},
+  "catalog_recent_clear": "Clear",
+  "@catalog_recent_clear": {},
+  "catalog_recent_remove": "Remove “{query}”",
+  "@catalog_recent_remove": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "card_length": "Length",
   "@card_length": {},
   "card_length_minutes": "{minutes} min",

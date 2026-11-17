@@ -571,6 +571,21 @@ class S {
     return Intl.message('In $track', name: 'catalog_search_other_track', desc: '', args: [track]);
   }
 
+  /// `Recent searches`
+  String get catalog_recent_title {
+    return Intl.message('Recent searches', name: 'catalog_recent_title', desc: '', args: []);
+  }
+
+  /// `Clear`
+  String get catalog_recent_clear {
+    return Intl.message('Clear', name: 'catalog_recent_clear', desc: '', args: []);
+  }
+
+  /// `Remove “{query}”`
+  String catalog_recent_remove(String query) {
+    return Intl.message('Remove “$query”', name: 'catalog_recent_remove', desc: '', args: [query]);
+  }
+
   /// `Length`
   String get card_length {
     return Intl.message('Length', name: 'card_length', desc: '', args: []);

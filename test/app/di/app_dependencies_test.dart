@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
@@ -187,6 +188,27 @@ void main() {
     expect(Directory('${root.path}/flags').listSync().where((f) => f.path.contains('reading-')), isEmpty);
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
+
+  test(
+    'createRecentSearchStore keeps the catalog\'s recent searches in a file, apart from the record (plan 12.8)',
+    () async {
+      final root = Directory.systemTemp.createTempSync('recent_search_store_test_');
+      addTearDown(() => root.deleteSync(recursive: true));
+      final dependencies = AppDependencies(
+        appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+        supportDirectory: () async => root,
+      );
+
+      final store = dependencies.createRecentSearchStore();
+      expect(store, isA<FileRecentSearchStore>());
+      expect(await store.read(), isEmpty);
+      await store.write(['tokens', 'rag']);
+      expect(await dependencies.createRecentSearchStore().read(), ['tokens', 'rag'], reason: 'kept for the next start');
+      await store.write(const []);
+      expect(File('${root.path}/catalog/recent_searches.json').existsSync(), isFalse, reason: 'none is no file');
+      expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+    },
+  );
 
   test('createAppIconStore keeps one chosen app icon as a file flag, apart from the record', () async {
     final root = Directory.systemTemp.createTempSync('app_icon_store_test_');

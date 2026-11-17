@@ -9,6 +9,7 @@ import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
@@ -143,6 +144,9 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IReadingStyleStore createReadingStyleStore() => MemoryReadingStyleStore();
+
+  @override
+  IRecentSearchStore createRecentSearchStore() => MemoryRecentSearchStore();
 
   @override
   ITourStore createTourStore() => MemoryTourStore();

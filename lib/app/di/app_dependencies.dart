@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ai_engineering_bazaar/core/analytics/analytics_service.dart';
 import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
@@ -109,6 +110,10 @@ class AppDependencies {
   IAppIconSwitch createAppIconSwitch() => const ChannelAppIconSwitch(AppIconChannel());
 
   /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
+  /// The catalog's recent searches, as a file under [supportDirectory], apart from the record (plan 12.8).
+  IRecentSearchStore createRecentSearchStore() =>
+      FileRecentSearchStore(FileTextStore(baseDirectory: supportDirectory, path: 'catalog/recent_searches.json'));
+
   IQuizScoreStore createQuizScoreStore() =>
       FileQuizScoreStore(FileTextStore(baseDirectory: supportDirectory, path: 'quiz/scores.json'));
 
@@ -184,6 +189,23 @@ final class FilePocketModelStore implements IPocketModelStore {
 }
 
 /// The quiz scores' port over one text file of the app's own.
+/// The catalog's recent searches over one file of the app's own (plan 12.8).
+final class FileRecentSearchStore implements IRecentSearchStore {
+  const FileRecentSearchStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<List<String>> read() async {
+    final text = await _file.read();
+    return text == null ? const [] : decodeRecentSearches(text);
+  }
+
+  @override
+  Future<void> write(List<String> searches) =>
+      searches.isEmpty ? _file.delete() : _file.write(encodeRecentSearches(searches));
+}
+
 final class FileQuizScoreStore implements IQuizScoreStore {
   const FileQuizScoreStore(this._file);
 

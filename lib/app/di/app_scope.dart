@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
@@ -85,6 +86,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
+        RepositoryProvider<IRecentSearchStore>(create: (_) => dependencies.createRecentSearchStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
@@ -121,6 +123,10 @@ class AppScope extends StatelessWidget {
           BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
           // The words in the catalog's search, kept the same way.
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
+          // The catalog's recent searches, read the first time the catalog asks for them (plan 12.8).
+          BlocProvider<RecentSearchesCubit>(
+            create: (context) => RecentSearchesCubit(store: context.read<IRecentSearchStore>())..load(),
+          ),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
