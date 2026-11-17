@@ -14,7 +14,9 @@ void main() {
         moduleKey: 'alpha/first',
         summary: [p('a'), p('b')],
         terms: [for (var i = 0; i < 9; i++) term(i)],
-        quiz: const [QuizItem(question: 'Q', options: ['a', 'b'], answer: 0, explain: 'E')],
+        quiz: const [
+          QuizItem(question: 'Q', options: ['a', 'b'], answer: 0, explain: 'E'),
+        ],
       ),
     );
     expect(cards.map((card) => card.runtimeType), [SummaryCard, SummaryCard, TermsCard, TermsCard, TermsCard, EndCard]);

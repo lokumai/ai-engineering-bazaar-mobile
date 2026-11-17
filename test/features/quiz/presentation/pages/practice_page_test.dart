@@ -275,6 +275,47 @@ void main() {
     expect(router.state.uri.path, '/quiz/alpha/first');
   });
 
+  testWidgets('the glossary lists the terms A to Z; a term opens its definition and counts as looked up (plan 13.8)', (
+    tester,
+  ) async {
+    final (router, review) = await _pump(tester, doc: _termsDoc());
+    expect(
+      find.descendant(of: find.byKey(const Key('practice-glossary')), matching: find.text('2 terms')),
+      findsOneWidget,
+      reason: 'the same names in every module: one entry each',
+    );
+    await _tap(tester, find.byKey(const Key('practice-glossary')));
+    expect(router.state.uri.path, '/practice/glossary');
+    expect(
+      tester.getTopLeft(find.text('Glass')).dy,
+      lessThan(tester.getTopLeft(find.text('Wick')).dy),
+      reason: 'A to Z',
+    );
+    expect(find.text('what burns.', findRichText: true), findsNothing);
+
+    await _tap(tester, find.text('Wick'));
+    expect(find.text('what burns.', findRichText: true), findsOneWidget);
+    expect(find.text('In these modules'), findsOneWidget);
+    expect(review.state.history.cards.keys, ['term:engineers/alpha/first#0'], reason: 'looked up');
+
+    await tester.enterText(find.byKey(const ValueKey('glossary-find')), 'gla');
+    await tester.pumpAndSettle();
+    expect(find.text('Wick'), findsNothing);
+    expect(find.text('Glass'), findsOneWidget);
+  });
+
+  testWidgets('the glossary opens at the term a link names', (tester) async {
+    final (_, review) = await _pump(
+      tester,
+      doc: _termsDoc(),
+      at: '/practice/glossary?term=term:engineers/beta/fourth%231',
+    );
+    expect(find.text('keeps wind out.', findRichText: true), findsOneWidget);
+    expect(review.state.history.cards.keys, [
+      'term:engineers/alpha/first#1',
+    ], reason: "kept under its first module's key");
+  });
+
   testWidgets('with no module completed, there is nothing to review today', (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);
@@ -289,4 +330,35 @@ void main() {
     await _tap(tester, find.text('One'));
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
+}
+
+/// A module whose Key Terms are Wick and Glass.
+ModuleDoc _termsDoc() {
+  HeadingBlock h(String id, String text) => HeadingBlock(
+    depth: 2,
+    id: id,
+    mark: null,
+    inlines: [TextInline(text: text)],
+  );
+  ListItem term(String name, String definition) => ListItem(
+    checked: null,
+    taskIndex: null,
+    blocks: [
+      ParagraphBlock(
+        inlines: [
+          StrongInline(inlines: [TextInline(text: name)]),
+          TextInline(text: ': $definition'),
+        ],
+        lead: false,
+      ),
+    ],
+  );
+  return testDoc(
+    body: [
+      h('words', 'Words'),
+      ListBlock(ordered: false, start: null, items: [term('Wick', 'what burns.'), term('Glass', 'keeps wind out.')]),
+      h('refs', 'Sources'),
+    ],
+    quiz: _items,
+  );
 }
