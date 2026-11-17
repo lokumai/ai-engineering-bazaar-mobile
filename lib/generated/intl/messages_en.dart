@@ -687,13 +687,16 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "The modules after it wait here; under them are quizzes to practise and your path through the levels.",
+      "The modules after it wait here; under them are Today\'s review, when it has cards, and your path through the levels.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Later"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "tour_practice_today": MessageLookupByLibrary.simpleMessage(
+      "Today\'s review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
+    ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
     ),
@@ -710,7 +713,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
     "tour_step": m66,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I\'ll show you what it does.",
+      "Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I\'ll show you what it does.",
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),

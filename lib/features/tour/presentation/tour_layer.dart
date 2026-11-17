@@ -416,6 +416,7 @@ class _TourLayerState extends State<TourLayer> {
     TourSpots.catalogLevels => s.tour_catalog_levels,
     TourSpots.caravanStage => s.tour_caravan_stage,
     TourSpots.caravanStrip => s.tour_caravan_strip,
+    TourSpots.practiceToday => s.tour_practice_today,
     TourSpots.quizLevel => s.tour_quiz_level,
     TourSpots.settingsReading => s.tour_settings_reading,
     TourSpots.settingsCustomize => s.tour_settings_customize,

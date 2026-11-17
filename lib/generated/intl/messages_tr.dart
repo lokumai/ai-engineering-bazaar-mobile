@@ -688,13 +688,16 @@ class MessageLookup extends MessageLookupByLibrary {
       "Merhaba, ben Çırak. Burada yapay zekâ mühendisliğini seviye seviye, modül modül öğreneceksin. İstersen sana kısaca etrafı gezdireyim?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sıradaki modüller burada. Altında pratik yapman için quizler ve seviyelerdeki ilerlemen var.",
+      "Sıradaki modüller burada. Altında, kartı olan günlerde Günün tekrarı ve seviyelerdeki ilerlemen var.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Şimdi değil"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Devam"),
+    "tour_practice_today": MessageLookupByLibrary.simpleMessage(
+      "Günün tekrarı, tamamladığın modüllerden her gün birkaç kart getirir. Yanlışların, 2 dakikada bir modül ve sözlük hemen altında.",
+    ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "Her seviyenin quizleri burada. Bir seviye aç, quiz çöz; dilediğin kadar tekrar çözebilirsin.",
     ),
@@ -711,7 +714,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
     "tour_step": m66,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "Sekmeler aşağıda: Katalog, Kervan, Quiz ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
+      "Sekmeler aşağıda: Katalog, Kervan, Pratik ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),

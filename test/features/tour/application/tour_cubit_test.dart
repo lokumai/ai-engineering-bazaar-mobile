@@ -27,8 +27,8 @@ void main() {
     expect(TourPage.values.where(cubit.due), TourPage.values);
 
     await cubit.shown(TourPage.home);
-    await cubit.shown(TourPage.quiz);
-    expect(store.kept.seen, {'home', 'quiz'});
+    await cubit.shown(TourPage.practice);
+    expect(store.kept.seen, {'home', 'practice'});
     expect(TourPage.values.where(cubit.due), [TourPage.catalog, TourPage.caravan, TourPage.settings]);
   });
 
@@ -60,7 +60,7 @@ void main() {
     expect(TourPage.at('/sheets'), TourPage.catalog);
     expect(TourPage.at('/everyone/sheets'), TourPage.catalog);
     expect(TourPage.at('/caravan'), TourPage.caravan);
-    expect(TourPage.at('/practice'), TourPage.quiz);
+    expect(TourPage.at('/practice'), TourPage.practice);
     expect(TourPage.at('/settings'), TourPage.settings);
     expect(TourPage.at('/sheets/alpha'), isNull);
     expect(TourPage.at('/courses/alpha/first'), isNull);

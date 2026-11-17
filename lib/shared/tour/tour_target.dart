@@ -30,7 +30,7 @@ abstract final class TourSpots {
   /// Practice's Today's review, at the tab's head (plan 13.11).
   static const practiceToday = 'practice.today';
 
-  /// The Quiz tab's first level.
+  /// Practice's first level of quizzes.
   static const quizLevel = 'quiz.level';
 
   /// Settings' reading choices: the track, the language and the look.

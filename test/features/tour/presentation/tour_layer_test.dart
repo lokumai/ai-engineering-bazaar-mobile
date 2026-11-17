@@ -174,7 +174,7 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home'}),
       at: '/practice',
     );
-    expect(find.textContaining('quizzes are here'), findsOneWidget);
+    expect(find.textContaining("Today's review brings back"), findsOneWidget);
 
     await _tap(tester, _skip);
     expect(_scrim, findsNothing);
@@ -189,7 +189,7 @@ void main() {
   testWidgets('taken again from the guide, Skip on a tab ends it there too', (tester) async {
     final (router, store) = await _pump(
       tester,
-      record: const TourRecord(seen: {'home', 'catalog', 'caravan', 'quiz', 'settings'}),
+      record: const TourRecord(seen: {'home', 'catalog', 'caravan', 'practice', 'settings'}),
       at: '/settings/guide',
     );
     await _tap(tester, find.byKey(const ValueKey('guide-replay-tour')));
@@ -215,6 +215,9 @@ void main() {
     expect(_buttonDrawn(tester), isFalse, reason: 'one Apprentice on the screen');
     expect(tester.getRect(_robot).topLeft, isNot(button.topLeft), reason: 'it walked to the place');
 
+    // Practice has two places: Today's review, then the first level.
+    await _tap(tester, _next);
+    expect(find.textContaining('quizzes are here'), findsOneWidget);
     await tester.tap(_next);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
@@ -241,7 +244,7 @@ void main() {
   testWidgets('Settings: the reading choices, then the guide, which takes the tour again from Home', (tester) async {
     final (router, store) = await _pump(
       tester,
-      record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'quiz'}),
+      record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
       at: '/settings',
     );
     expect(find.textContaining('Your track, the app'), findsOneWidget);
@@ -282,7 +285,7 @@ void main() {
         testWidgets('on a $name in ${locale.languageCode}', (tester) async {
           await _pump(
             tester,
-            record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'quiz'}),
+            record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
             at: '/settings',
             locale: locale,
           );
@@ -301,6 +304,43 @@ void main() {
             final next = tester.getRect(_next);
             expect(next.bottom, lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy), reason: spot);
             if (spot != TourSpots.settingsGuide) await _tap(tester, _next);
+          }
+        });
+      }
+    }
+  });
+
+  // Plan 13.11: the Quiz tab's stop gave way to Practice's two, Today's review with its rows, then the first level;
+  // each rings its whole place, with the Apprentice on the screen and Next above the navigation, in each language.
+  group("Practice's stops in a real face", () {
+    setUpAll(() => loadFace('Roboto', robotoFiles()));
+    for (final (name, size, insets) in [
+      ('393x852 iPhone', const Size(393, 852), (62.0, 34.0)),
+      ('360x800 Android', const Size(360, 800), (24.0, 24.0)),
+    ]) {
+      for (final locale in const [Locale('en'), Locale('tr'), Locale('fa')]) {
+        testWidgets('on a $name in ${locale.languageCode}', (tester) async {
+          await _pump(
+            tester,
+            record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'settings'}),
+            at: '/practice',
+            locale: locale,
+          );
+          tester.view.physicalSize = size;
+          tester.view.padding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          tester.view.viewPadding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          addTearDown(tester.view.reset);
+          await _walk(tester);
+          final screen = Offset.zero & size;
+          for (final spot in [TourSpots.practiceToday, TourSpots.quizLevel]) {
+            await _walk(tester);
+            final hole = _hole(tester)!;
+            final place = _spot(tester, spot);
+            expect(hole.height, moreOrLessEquals(place.height, epsilon: 1), reason: '$spot: the whole place ringed');
+            expect(screen.contains(tester.getRect(_robot).topLeft), isTrue, reason: '$spot: the Apprentice on screen');
+            final next = tester.getRect(_next);
+            expect(next.bottom, lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy), reason: spot);
+            if (spot != TourSpots.quizLevel) await _tap(tester, _next);
           }
         });
       }

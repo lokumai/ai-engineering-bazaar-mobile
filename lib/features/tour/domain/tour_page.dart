@@ -7,7 +7,10 @@ enum TourPage {
   home([TourSpots.homeHead, TourSpots.homeAfter, TourSpots.band, TourSpots.tabs]),
   catalog([TourSpots.catalogSearch, TourSpots.catalogLevels]),
   caravan([TourSpots.caravanStage, TourSpots.caravanStrip]),
-  quiz([TourSpots.quizLevel]),
+
+  /// Practice (plan 13.11): its head, then the quizzes by level. Named anew from the Quiz tab's page, so a reader who
+  /// saw that one is shown Practice too.
+  practice([TourSpots.practiceToday, TourSpots.quizLevel]),
   settings([TourSpots.settingsReading, TourSpots.settingsCustomize, TourSpots.settingsGuide]);
 
   const TourPage(this.spots);
@@ -20,7 +23,7 @@ enum TourPage {
     BazaarPaths.home => home,
     BazaarPaths.catalogEngineers || BazaarPaths.catalogEveryone => catalog,
     BazaarPaths.caravan => caravan,
-    BazaarPaths.practice => quiz,
+    BazaarPaths.practice => practice,
     BazaarPaths.settings => settings,
     _ => null,
   };

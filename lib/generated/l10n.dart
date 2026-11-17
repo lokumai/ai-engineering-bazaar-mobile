@@ -2678,10 +2678,10 @@ class S {
     );
   }
 
-  /// `The modules after it wait here; under them are quizzes to practise and your path through the levels.`
+  /// `The modules after it wait here; under them are Today's review, when it has cards, and your path through the levels.`
   String get tour_home_after {
     return Intl.message(
-      'The modules after it wait here; under them are quizzes to practise and your path through the levels.',
+      'The modules after it wait here; under them are Today\'s review, when it has cards, and your path through the levels.',
       name: 'tour_home_after',
       desc: '',
       args: [],
@@ -2698,10 +2698,10 @@ class S {
     );
   }
 
-  /// `Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I'll show you what it does.`
+  /// `Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I'll show you what it does.`
   String get tour_tabs {
     return Intl.message(
-      'Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I\'ll show you what it does.',
+      'Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I\'ll show you what it does.',
       name: 'tour_tabs',
       desc: '',
       args: [],
@@ -2743,6 +2743,16 @@ class S {
     return Intl.message(
       'Slide along here, or tap a stop, to move the caravan.',
       name: 'tour_caravan_strip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Today's review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.`
+  String get tour_practice_today {
+    return Intl.message(
+      'Today\'s review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.',
+      name: 'tour_practice_today',
       desc: '',
       args: [],
     );

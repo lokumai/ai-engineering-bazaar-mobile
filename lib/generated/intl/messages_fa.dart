@@ -694,13 +694,16 @@ class MessageLookup extends MessageLookupByLibrary {
       "سلام، من شاگردم. این یک برنامهٔ آموزشی است: مهندسی هوش مصنوعی را سطح به سطح و ماژول به ماژول یاد می‌دهیم. می‌خواهید همه‌جا را نشانتان بدهم؟",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "ماژول‌های بعدی اینجا منتظرند؛ زیرشان آزمون‌هایی برای تمرین و مسیر شما در سطح‌ها هست.",
+      "ماژول‌های بعدی اینجا منتظرند؛ زیرشان، روزهایی که کارتی هست، مرور امروز و مسیر شما در سطح‌ها هست.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "این گوشهٔ من است. هر روز بخشی از دوره را برایتان می‌آورم: برای خواندنش روی کارت بزنید. هر وقت خواستید با من گفتگو کنید.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("بعدا"),
     "tour_next": MessageLookupByLibrary.simpleMessage("بعدی"),
+    "tour_practice_today": MessageLookupByLibrary.simpleMessage(
+      "مرور امروز هر روز چند کارت از درس‌هایی که تکمیل کرده‌اید برمی‌گرداند. پاسخ‌های نادرست، یک درس در 2 دقیقه و واژه‌نامه زیر آن هستند.",
+    ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "آزمون‌های هر سطح اینجا هستند. سطحی را باز کنید، آزمونی بدهید و هر چند بار خواستید تکرارش کنید.",
     ),
@@ -717,7 +720,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
     "tour_step": m66,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، آزمون و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
+      "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، تمرین و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
     ),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
