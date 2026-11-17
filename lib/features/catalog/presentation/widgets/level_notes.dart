@@ -54,7 +54,12 @@ final class _Failed extends _Read {
   final StackTrace stackTrace;
 }
 
-class _LevelNotesState extends State<LevelNotes> {
+/// Kept alive at the foot of a level's lazy list: scrolled away and back, notes built again would read the document
+/// again and stand empty meanwhile, so the page's foot would move (plan 12.3).
+class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   _Read _read = const _Reading();
 
   /// The path of the read in flight or done; a result for another path is dropped.
@@ -109,6 +114,7 @@ class _LevelNotesState extends State<LevelNotes> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final body = switch (_read) {
       _Reading() => const SizedBox.shrink(),
       _Arrived(:final doc) => BlockList(
