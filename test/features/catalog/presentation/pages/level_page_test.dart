@@ -278,12 +278,12 @@ void main() {
     await _pumpLevel(tester, '/everyone/sheets/alpha');
     await _build(tester, find.byType(CatalogCards));
 
-    expect(_card('First Module'), findsOneWidget);
-    expect(find.text('First Story'), findsNothing);
-    await _tap(tester, _inCard('First Module', 'Description'));
+    expect(_card('First Story'), findsOneWidget);
+    expect(find.text('First Module'), findsNothing);
+    await _tap(tester, _inCard('First Story', 'Description'));
     expect(find.text('Story of the first module.'), findsOneWidget);
-    expect(_inCard('Second Module', 'Planned'), findsOneWidget);
-    expect(_inCard('Second Module', 'Description'), findsNothing);
+    expect(_inCard('Second Story', 'Planned'), findsOneWidget);
+    expect(_inCard('Second Story', 'Description'), findsNothing);
   });
 
   testWidgets('no filters (owner review); the planned card says so itself', (tester) async {
@@ -305,7 +305,7 @@ void main() {
 
     testWidgets('a module title opens the For Everyone module', (tester) async {
       final router = await _pumpLevel(tester, '/everyone/sheets/alpha');
-      await _tap(tester, _inCards(find.text('First Module')));
+      await _tap(tester, _inCards(find.text('First Story')));
       expect(_path(router), '/everyone/courses/alpha/first');
     });
   });

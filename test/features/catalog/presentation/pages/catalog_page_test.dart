@@ -125,8 +125,8 @@ void main() {
     await _pumpCatalog(tester, '/everyone/sheets');
     await openFold(tester, _level('Alpha Level'));
 
-    expect(_inOverview('First Module'), findsOneWidget);
-    expect(_inOverview('First Story'), findsNothing, reason: 'the catalog keeps the course\'s titles');
+    expect(_inOverview('First Story'), findsOneWidget);
+    expect(_inOverview('First Module'), findsNothing, reason: 'each track keeps its own titles');
     expect(_plannedIn('alpha/second'), findsOneWidget);
     expect(_plannedIn('alpha/third'), findsOneWidget);
     expect(_plannedIn('alpha/first'), findsNothing);
@@ -144,7 +144,7 @@ void main() {
 
     router = await _pumpCatalog(tester, '/everyone/sheets');
     await openFold(tester, _level('Alpha Level'));
-    await _tap(tester, _inOverview('First Module'));
+    await _tap(tester, _inOverview('First Story'));
     expect(_path(router), '/everyone/courses/alpha/first');
   });
 

@@ -27,8 +27,9 @@ final class CatalogRow extends Equatable {
   final String level;
   final int number;
 
-  /// The For Engineers title, in both tracks (web `src/lib/content/manifest.ts:72`), in the language of the rows: the
-  /// English one where the module has none in it (web D139).
+  /// The row's own track title, in the language of the rows: the English one where the module has none in it (web
+  /// D139). The web keeps the For Engineers title in both tracks (`src/lib/content/manifest.ts:72`); the app shows each
+  /// track's own, as the reader bar does (the owner, 2026-11-17).
   final String title;
 
   /// Whether the module is written in the row's track.
@@ -61,7 +62,7 @@ List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view, {
         key: module.key,
         level: module.level,
         number: module.number,
-        title: module.tracks[Track.engineers]!.titleIn(language),
+        title: module.tracks[track]!.titleIn(language),
         drawn: module.tracks[track]!.drawn,
         signed: view != null && isSigned(facts[module.key]!, view),
         minutes: module.minutes,
