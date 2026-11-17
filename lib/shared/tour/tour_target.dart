@@ -27,6 +27,9 @@ abstract final class TourSpots {
   /// The Caravan's strip of stops under the stage.
   static const caravanStrip = 'caravan.strip';
 
+  /// Practice's Today's review, at the tab's head (plan 13.11).
+  static const practiceToday = 'practice.today';
+
   /// The Quiz tab's first level.
   static const quizLevel = 'quiz.level';
 

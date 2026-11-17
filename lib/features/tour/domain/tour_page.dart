@@ -20,7 +20,7 @@ enum TourPage {
     BazaarPaths.home => home,
     BazaarPaths.catalogEngineers || BazaarPaths.catalogEveryone => catalog,
     BazaarPaths.caravan => caravan,
-    BazaarPaths.quizzes => quiz,
+    BazaarPaths.practice => quiz,
     BazaarPaths.settings => settings,
     _ => null,
   };

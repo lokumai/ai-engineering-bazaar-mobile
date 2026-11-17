@@ -8,7 +8,7 @@ import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
-import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/practice_page.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
@@ -146,7 +146,7 @@ void main() {
   testWidgets('the bar names a level and a module from the index, and none of the four tabs (owner, 2026-11-10)', (
     tester,
   ) async {
-    for (final location in ['/', '/sheets', '/everyone/sheets', '/quiz', '/settings']) {
+    for (final location in ['/', '/sheets', '/everyone/sheets', '/practice', '/settings']) {
       await _pumpAt(tester, location, TrackCubit());
       expect(
         find.descendant(of: find.byType(BazaarBar), matching: find.byType(Text)),
@@ -206,7 +206,7 @@ void main() {
       // no page to go back to; a back arrow comes before them both).
       expect(tester.getTopLeft(title).dx, closeTo(tester.getTopLeft(bar).dx + 16 + 12 + 8, 1), reason: location);
     }
-    for (final location in ['/', '/sheets', '/quiz', '/settings']) {
+    for (final location in ['/', '/sheets', '/practice', '/settings']) {
       await _pumpAt(tester, location, TrackCubit());
       expect(tester.widget<BazaarBar>(find.byType(BazaarBar)).accent, isNull, reason: location);
     }
@@ -382,7 +382,7 @@ void main() {
       final router = await _pumpAt(tester, '/', TrackCubit());
       router.push('/courses/alpha/first');
       await tester.pumpAndSettle();
-      await _tap(tester, _destination('Quiz'));
+      await _tap(tester, _destination('Practice'));
       await _tap(tester, _destination('Catalog'));
       expect(_path(router), '/courses/alpha/first', reason: 'the tab opens its module again');
 
@@ -443,7 +443,7 @@ void main() {
 
     expect(track.state, Track.everyone);
 
-    router.go('/quiz');
+    router.go('/practice');
     await tester.pumpAndSettle();
     expect(track.state, Track.everyone, reason: 'a page of neither track keeps the remembered track');
   });
@@ -455,7 +455,7 @@ void main() {
 
     expect(_destination('Home'), findsOneWidget);
     expect(_destination('Catalog'), findsOneWidget);
-    expect(_destination('Quiz'), findsOneWidget);
+    expect(_destination('Practice'), findsOneWidget);
     expect(_destination('Settings'), findsOneWidget);
     expect(selected(), 1, reason: 'a level page is under Catalog');
     // Lower than Material's bar, with each name small under its icon.
@@ -471,9 +471,9 @@ void main() {
     expect(_path(router), '/caravan');
     expect(selected(), 2);
 
-    await tester.tap(_destination('Quiz'));
+    await tester.tap(_destination('Practice'));
     await tester.pumpAndSettle();
-    expect(_path(router), '/quiz');
+    expect(_path(router), '/practice');
     expect(selected(), 3);
 
     await tester.tap(_destination('Settings'));
@@ -486,7 +486,7 @@ void main() {
     expect(_path(router), '/');
     expect(selected(), 0);
 
-    router.go('/quiz');
+    router.go('/practice');
     await tester.pumpAndSettle();
     track.select(Track.everyone);
     await tester.pumpAndSettle();
@@ -503,9 +503,9 @@ void main() {
     await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
     expect(_path(router), '/courses/beta/fourth');
 
-    await tester.tap(_destination('Quiz'));
+    await tester.tap(_destination('Practice'));
     await tester.pumpAndSettle();
-    expect(_path(router), '/quiz');
+    expect(_path(router), '/practice');
 
     await tester.tap(_destination('Catalog'));
     await tester.pumpAndSettle();
@@ -525,7 +525,7 @@ void main() {
     await tester.pumpAndSettle();
     await _tap(tester, find.byKey(const ValueKey('home-continue-band')));
     expect(_path(router), '/courses/alpha/first');
-    await tester.tap(_destination('Quiz'));
+    await tester.tap(_destination('Practice'));
     await tester.pumpAndSettle();
     await tester.tap(_destination('Catalog'));
     await tester.pumpAndSettle();
@@ -538,7 +538,7 @@ void main() {
     final router = await _pumpAt(tester, ApplicationRoutesConstants.privacyLegal, TrackCubit());
     expect(_path(router), ApplicationRoutesConstants.privacyLegal);
 
-    await tester.tap(_destination('Quiz'));
+    await tester.tap(_destination('Practice'));
     await tester.pumpAndSettle();
     await tester.tap(_destination('Settings'));
     await tester.pumpAndSettle();
@@ -556,27 +556,27 @@ void main() {
     testWidgets("the page left is gone in the next frame, and none shows through the other's", (tester) async {
       await _pumpAt(tester, '/sheets', TrackCubit());
 
-      await tapOnce(tester, 'Quiz');
-      expect(find.byType(QuizListPage), findsOneWidget);
+      await tapOnce(tester, 'Practice');
+      expect(find.byType(PracticePage), findsOneWidget);
       expect(find.byType(CatalogOverview), findsNothing);
       expect(TabSwitch.active, isFalse, reason: 'the move ends once the page is drawn');
 
       await tapOnce(tester, 'Catalog');
       expect(find.byType(CatalogOverview), findsOneWidget);
-      expect(find.byType(QuizListPage), findsNothing);
+      expect(find.byType(PracticePage), findsNothing);
     });
 
     testWidgets('a module kept under a tab goes and comes back at once too', (tester) async {
       final router = await _pumpAt(tester, '/sheets', TrackCubit());
       await _pushFromCatalog(tester, 'Beta Level', 'Fourth Module');
 
-      await tapOnce(tester, 'Quiz');
+      await tapOnce(tester, 'Practice');
       expect(find.byType(ModuleReaderPage), findsNothing);
-      expect(find.byType(QuizListPage), findsOneWidget);
+      expect(find.byType(PracticePage), findsOneWidget);
 
       await tapOnce(tester, 'Catalog');
       expect(_path(router), '/courses/beta/fourth');
-      expect(find.byType(QuizListPage), findsNothing);
+      expect(find.byType(PracticePage), findsNothing);
       expect(find.byType(ModuleReaderPage), findsOneWidget);
     });
 
@@ -604,12 +604,12 @@ void main() {
     expect(tester.takeException(), isNull);
     expectHittable(tester, _destination('Home'));
     expectHittable(tester, _destination('Catalog'));
-    expectHittable(tester, _destination('Quiz'));
+    expectHittable(tester, _destination('Practice'));
     expectHittable(tester, _destination('Settings'));
   });
 
   testWidgets('accessibility guidelines', variant: bazaarPlatforms, (tester) async {
-    final router = AppRouterFactory(initialLocation: '/quiz').create();
+    final router = AppRouterFactory(initialLocation: '/practice').create();
     addTearDown(router.dispose);
     await tester.pumpWidget(bazaarTestApp(platform: defaultTargetPlatform, router: router));
     await tester.pumpAndSettle();

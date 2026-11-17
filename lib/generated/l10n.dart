@@ -93,9 +93,9 @@ class S {
     return Intl.message('Catalog', name: 'nav_catalog', desc: '', args: []);
   }
 
-  /// `Quiz`
-  String get nav_quiz {
-    return Intl.message('Quiz', name: 'nav_quiz', desc: '', args: []);
+  /// `Practice`
+  String get nav_practice {
+    return Intl.message('Practice', name: 'nav_practice', desc: '', args: []);
   }
 
   /// `Settings`
@@ -368,16 +368,6 @@ class S {
   /// `See the whole catalog`
   String get home_see_catalog {
     return Intl.message('See the whole catalog', name: 'home_see_catalog', desc: '', args: []);
-  }
-
-  /// `Quizzes to practise`
-  String get home_practice {
-    return Intl.message('Quizzes to practise', name: 'home_practice', desc: '', args: []);
-  }
-
-  /// `Quizzes from the modules you completed.`
-  String get home_practice_lede {
-    return Intl.message('Quizzes from the modules you completed.', name: 'home_practice_lede', desc: '', args: []);
   }
 
   /// `Open the diagram full screen`
@@ -2811,6 +2801,139 @@ class S {
       desc: 'Which of the tour\'s places on this page the Apprentice is at, of how many.',
       args: [step, count],
     );
+  }
+
+  /// `Today's review`
+  String get practice_today {
+    return Intl.message('Today\'s review', name: 'practice_today', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min`
+  String practice_today_cards(int count, int minutes) {
+    return Intl.message(
+      '${Intl.plural(count, one: '1 card', other: '$count cards')}, about $minutes min',
+      name: 'practice_today_cards',
+      desc: '',
+      args: [count, minutes],
+    );
+  }
+
+  /// `From {modules}`
+  String practice_today_from(String modules) {
+    return Intl.message('From $modules', name: 'practice_today_from', desc: '', args: [modules]);
+  }
+
+  /// `Start`
+  String get practice_start {
+    return Intl.message('Start', name: 'practice_start', desc: '', args: []);
+  }
+
+  /// `Nothing to review today`
+  String get practice_today_none {
+    return Intl.message('Nothing to review today', name: 'practice_today_none', desc: '', args: []);
+  }
+
+  /// `The questions of the modules you complete come here, a few each day.`
+  String get practice_today_none_lede {
+    return Intl.message(
+      'The questions of the modules you complete come here, a few each day.',
+      name: 'practice_today_none_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That is all for today`
+  String get practice_today_done {
+    return Intl.message('That is all for today', name: 'practice_today_done', desc: '', args: []);
+  }
+
+  /// `The next cards come tomorrow.`
+  String get practice_today_done_lede {
+    return Intl.message('The next cards come tomorrow.', name: 'practice_today_done_lede', desc: '', args: []);
+  }
+
+  /// `Go to Wrong answers`
+  String get practice_go_wrong {
+    return Intl.message('Go to Wrong answers', name: 'practice_go_wrong', desc: '', args: []);
+  }
+
+  /// `Wrong answers`
+  String get practice_wrong {
+    return Intl.message('Wrong answers', name: 'practice_wrong', desc: '', args: []);
+  }
+
+  /// `{count, plural, =0{None now} =1{1 question} other{{count} questions}}`
+  String practice_wrong_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'None now',
+      one: '1 question',
+      other: '$count questions',
+      name: 'practice_wrong_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Quizzes by level`
+  String get practice_quizzes {
+    return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);
+  }
+
+  /// `Today's review, {count, plural, =1{1 card} other{{count} cards}}`
+  String home_review(int count) {
+    return Intl.message(
+      'Today\'s review, ${Intl.plural(count, one: '1 card', other: '$count cards')}',
+      name: 'home_review',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Card {step} of {count}`
+  String review_progress(int step, int count) {
+    return Intl.message('Card $step of $count', name: 'review_progress', desc: '', args: [step, count]);
+  }
+
+  /// `Term`
+  String get review_term {
+    return Intl.message('Term', name: 'review_term', desc: '', args: []);
+  }
+
+  /// `Show the definition`
+  String get review_term_show {
+    return Intl.message('Show the definition', name: 'review_term_show', desc: '', args: []);
+  }
+
+  /// `Knew it`
+  String get review_term_knew {
+    return Intl.message('Knew it', name: 'review_term_knew', desc: '', args: []);
+  }
+
+  /// `Not yet`
+  String get review_term_not_yet {
+    return Intl.message('Not yet', name: 'review_term_not_yet', desc: '', args: []);
+  }
+
+  /// `Finish`
+  String get review_finish {
+    return Intl.message('Finish', name: 'review_finish', desc: '', args: []);
+  }
+
+  /// `{right} of {total} right`
+  String review_result(int right, int total) {
+    return Intl.message('$right of $total right', name: 'review_result', desc: '', args: [right, total]);
+  }
+
+  /// `Back to Practice`
+  String get review_back {
+    return Intl.message('Back to Practice', name: 'review_back', desc: '', args: []);
+  }
+
+  /// `No cards to show.`
+  String get review_empty {
+    return Intl.message('No cards to show.', name: 'review_empty', desc: '', args: []);
   }
 }
 

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
-import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
@@ -47,11 +46,8 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
       if (path == null) continue;
       try {
         notes.add(notesOf(module.key, await _repository.readModuleDoc(path)));
-      } on ContentMissingException catch (error) {
-        _log.warn('notes of {} unreadable: {}', [path, error]);
-      } on ContentCorruptException catch (error) {
-        _log.warn('notes of {} unreadable: {}', [path, error]);
-      } on ContentFormatException catch (error) {
+      } on Object catch (error) {
+        // A document that cannot be read leaves its module out rather than Practice with an error, as Home's card does.
         _log.warn('notes of {} unreadable: {}', [path, error]);
       }
       // A load for another track, language or content began meanwhile: it owns the state now.

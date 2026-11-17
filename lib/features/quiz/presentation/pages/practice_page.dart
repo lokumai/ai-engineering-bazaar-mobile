@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_list.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/practice_head.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -20,6 +21,7 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart'
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
@@ -27,15 +29,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Quiz tab at `/quiz` (plan 1AC, in place of the progress page): every module's quiz, grouped by level, each
-/// opening the quiz full screen without the reader. The current track's modules are listed, each under its title in
-/// that track: a module has one quiz on both tracks (web D137).
+/// The Practice tab at `/practice` (plan 13.2), once the Quiz tab (plan 1AC): one place to go over what was read. At its
+/// head Today's review and Wrong answers, then every module's quiz, grouped by level, each opening the quiz full screen
+/// without the reader. The current track's modules are listed, each under its title in that track: a module has one
+/// quiz on both tracks (web D137).
 ///
 /// Each level is an arch card in its hue, as in the catalog (owner, 2026-11-10): a tap opens its quizzes under it and a
 /// second tap closes them; several levels may be open at once. The level of the next module to read in the current
 /// track starts open, and what the reader opens or closes stays while the app runs ([QuizFoldCubit]).
-class QuizListPage extends StatelessWidget {
-  const QuizListPage({super.key});
+class PracticePage extends StatelessWidget {
+  const PracticePage({super.key});
 
   /// The key of [slug]'s level button.
   static Key levelKey(String slug) => ValueKey('quiz-level-$slug');
@@ -60,29 +63,38 @@ class QuizListPage extends StatelessWidget {
     final scores = context.watch<QuizScoresBloc>().state;
     final fold = context.watch<QuizFoldCubit>();
     final open = fold.openWith(upNext);
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
-      children: [
-        // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
-        // (review round 4), and without it the Quiz tab and the catalog open alike.
-        SectionRule(title: s.nav_quiz),
-        const SizedBox(height: AppSpacing.md),
-        for (final (position, level) in quizLevels(index, track).indexed) ...[
-          // The Apprentice's tour points at the first level (plan 11.3).
-          TourTarget(
-            spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
-            child: _LevelCard(
-              key: QuizListPage.levelKey(level.level.slug),
-              level: level,
-              track: track,
-              scores: scores,
-              open: open.contains(level.level.slug),
-              onToggle: () => fold.toggle(level.level.slug, upNext),
-            ),
-          ),
+    return StudyNotesLoader(
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
+        children: [
+          // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
+          // (review round 4), and without it Practice and the catalog open alike.
+          SectionRule(title: s.nav_practice),
           const SizedBox(height: AppSpacing.md),
+          TourTarget(
+            spot: TourSpots.practiceToday,
+            child: PracticeHead(index: index, track: track),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          SectionRule(title: s.practice_quizzes),
+          const SizedBox(height: AppSpacing.md),
+          for (final (position, level) in quizLevels(index, track).indexed) ...[
+            // The Apprentice's tour points at the first level (plan 11.3).
+            TourTarget(
+              spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
+              child: _LevelCard(
+                key: PracticePage.levelKey(level.level.slug),
+                level: level,
+                track: track,
+                scores: scores,
+                open: open.contains(level.level.slug),
+                onToggle: () => fold.toggle(level.level.slug, upNext),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -189,7 +201,7 @@ class _LevelCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       for (final module in level.modules)
                         _QuizRow(
-                          key: QuizListPage.rowKey(module.key),
+                          key: PracticePage.rowKey(module.key),
                           module: module,
                           track: track,
                           hue: hue,

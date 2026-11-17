@@ -60,7 +60,7 @@ void main() {
     expect(TourPage.at('/sheets'), TourPage.catalog);
     expect(TourPage.at('/everyone/sheets'), TourPage.catalog);
     expect(TourPage.at('/caravan'), TourPage.caravan);
-    expect(TourPage.at('/quiz'), TourPage.quiz);
+    expect(TourPage.at('/practice'), TourPage.quiz);
     expect(TourPage.at('/settings'), TourPage.settings);
     expect(TourPage.at('/sheets/alpha'), isNull);
     expect(TourPage.at('/courses/alpha/first'), isNull);

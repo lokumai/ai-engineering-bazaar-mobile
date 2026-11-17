@@ -108,7 +108,7 @@ void main() {
     expect(_scrim, findsNothing);
     expect(store.kept, const TourRecord());
 
-    await _tap(tester, find.text('Quiz').last);
+    await _tap(tester, find.text('Practice').last);
     expect(_scrim, findsNothing);
   });
 
@@ -172,7 +172,7 @@ void main() {
     final (_, store) = await _pump(
       tester,
       record: const TourRecord(guiding: true, seen: {'home'}),
-      at: '/quiz',
+      at: '/practice',
     );
     expect(find.textContaining('quizzes are here'), findsOneWidget);
 
@@ -198,7 +198,7 @@ void main() {
 
     await _tap(tester, find.text('Catalog').last);
     expect(_scrim, findsNothing);
-    await _tap(tester, find.text('Quiz').last);
+    await _tap(tester, find.text('Practice').last);
     expect(_scrim, findsNothing);
     expect(store.kept.guiding, isFalse);
   });
@@ -207,7 +207,7 @@ void main() {
     await _pump(
       tester,
       record: const TourRecord(guiding: true, seen: {'home'}),
-      at: '/quiz',
+      at: '/practice',
     );
     final button = tester.getRect(_button);
 

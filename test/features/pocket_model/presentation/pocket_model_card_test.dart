@@ -99,7 +99,7 @@ void main() {
     for (final (label, shows) in [
       ('Catalog', true),
       ('Caravan', true),
-      ('Quiz', true),
+      ('Practice', true),
       ('Settings', true),
       ('Home', true),
     ]) {
@@ -128,7 +128,7 @@ void main() {
     expect(moved.center.dx, lessThan(start.center.dx - 100));
     expect(moved.center.dy, lessThan(start.center.dy - 100));
 
-    for (final label in ['Quiz', 'Home']) {
+    for (final label in ['Practice', 'Home']) {
       await tester.tap(find.text(label).last);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
