@@ -78,6 +78,8 @@
   "catalog_search_all_levels": "همه",
   "catalog_search_levels": "سطح‌های جستجو",
   "catalog_search_none": "برای «{query}» چیزی پیدا نشد.",
+  "catalog_search_none_here": "برای «{query}» در این مسیر چیزی پیدا نشد.",
+  "catalog_search_other_track": "در مسیر {track}",
   "card_length": "مدت",
   "card_length_minutes": "{minutes} دقیقه",
   "card_requires": "پیش‌نیاز",

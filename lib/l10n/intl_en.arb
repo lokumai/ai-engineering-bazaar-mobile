@@ -297,6 +297,22 @@
       }
     }
   },
+  "catalog_search_none_here": "Nothing found for “{query}” in this track.",
+  "@catalog_search_none_here": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "catalog_search_other_track": "In {track}",
+  "@catalog_search_other_track": {
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
   "card_length": "Length",
   "@card_length": {},
   "card_length_minutes": "{minutes} min",

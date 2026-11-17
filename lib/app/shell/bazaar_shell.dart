@@ -56,11 +56,22 @@ import 'package:go_router/go_router.dart';
 /// Home, the catalog and the Quiz tab, under the reader's thumb; the page and the [assistant] stand above it. It is gone
 /// while the keyboard is up, so it does not ride up over a search.
 class BazaarShell extends StatefulWidget {
-  const BazaarShell({super.key, required this.location, required this.child, this.assistant, this.band});
+  const BazaarShell({
+    super.key,
+    required this.location,
+    required this.child,
+    this.assistant,
+    this.band,
+    this.visit = false,
+  });
 
   /// The path of the page [child] shows.
   final String location;
   final Widget child;
+
+  /// Whether the page is a module of the other track opened from a search (plan 12.7, [ReaderTarget.visit]): its track
+  /// does not become the current one.
+  final bool visit;
 
   /// The round button in the corner of some tabs' first pages.
   final Widget? assistant;
@@ -219,6 +230,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   }
 
   void _rememberTrack() {
+    if (widget.visit) return;
     final track = BazaarPaths.trackOf(widget.location);
     if (track != null) context.read<TrackCubit>().select(track);
   }

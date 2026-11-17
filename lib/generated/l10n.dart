@@ -556,6 +556,21 @@ class S {
     return Intl.message('Nothing found for “$query”.', name: 'catalog_search_none', desc: '', args: [query]);
   }
 
+  /// `Nothing found for “{query}” in this track.`
+  String catalog_search_none_here(String query) {
+    return Intl.message(
+      'Nothing found for “$query” in this track.',
+      name: 'catalog_search_none_here',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `In {track}`
+  String catalog_search_other_track(String track) {
+    return Intl.message('In $track', name: 'catalog_search_other_track', desc: '', args: [track]);
+  }
+
   /// `Length`
   String get card_length {
     return Intl.message('Length', name: 'card_length', desc: '', args: []);

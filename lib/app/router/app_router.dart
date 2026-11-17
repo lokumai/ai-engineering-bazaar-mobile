@@ -89,6 +89,8 @@ class AppRouterFactory {
                   ),
                   child: BazaarShell(
                     location: state.uri.path,
+                    // A module of the other track opened from a search keeps the reader's track (plan 12.7).
+                    visit: ReaderTarget.of(state.extra).visit,
                     assistant: shown ? const PocketAssistantButton() : null,
                     // The module left half read, under the thumb (plan 10.4).
                     band: const HomeContinueBand(),
