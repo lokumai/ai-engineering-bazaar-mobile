@@ -21,6 +21,7 @@ import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -97,7 +98,8 @@ class _SettingsView extends StatelessWidget {
     final openDevConsole = this.openDevConsole;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      // The Apprentice's button floats over Settings' corner too, so its end scrolls clear of it.
+      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -112,7 +114,8 @@ class _SettingsView extends StatelessWidget {
             spot: TourSpots.settingsReading,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.sm,
+              // Room between the choices, now that they have no labels (the owner, 2026-11-17: too tight).
+              spacing: AppSpacing.md,
               children: [
                 // The choices name themselves, so they stand without a label on screen; a screen reader still says
                 // what each one sets (the owner, 2026-11-17: the labels made Settings look crowded).

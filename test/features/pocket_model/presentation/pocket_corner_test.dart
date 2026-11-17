@@ -12,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.d
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../support/accessibility.dart';
 import '../../../support/bazaar_app_harness.dart';
@@ -20,7 +21,7 @@ import '../../../support/bazaar_app_harness.dart';
 
 final _corner = find.byKey(const ValueKey('pocket-corner'));
 
-Future<void> _pump(
+Future<GoRouter> _pump(
   WidgetTester tester, {
   MemoryPocketModelStore? store,
   PocketButtonCubit? button,
@@ -35,6 +36,7 @@ Future<void> _pump(
   await tester.pumpWidget(bazaarTestApp(router: router, pocketStore: store, pocketButton: button, locale: locale));
   await tester.pump();
   await tester.pump();
+  return router;
 }
 
 /// Lets the sheet's stage settle, so no timer is left running.
@@ -105,6 +107,18 @@ void main() {
 
     expect(_corner, findsNothing);
     expect(find.text('Later on'), findsOneWidget);
+  });
+
+  // The owner, 2026-11-17: the tour ends on Settings, and the Apprentice walked back to a corner that was not there.
+  testWidgets('Settings has the corner too, and its end scrolls clear of it', (tester) async {
+    final router = await _pump(tester);
+    router.go('/settings');
+    await tester.pump();
+    await tester.pump();
+
+    expect(_corner, findsOneWidget);
+    final page = tester.widget<SingleChildScrollView>(find.byType(SingleChildScrollView).first);
+    expect(page.padding!.resolve(TextDirection.ltr).bottom, greaterThan(70));
   });
 
   testWidgets('meets the tap target guidelines', (tester) async {
