@@ -166,6 +166,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "appearance_dark": MessageLookupByLibrary.simpleMessage("تیره"),
     "appearance_light": MessageLookupByLibrary.simpleMessage("روشن"),
+    "block_code_copied": MessageLookupByLibrary.simpleMessage("کپی شد"),
+    "block_code_copy": MessageLookupByLibrary.simpleMessage("کپی"),
     "block_code_label": m1,
     "block_figure_caption": m2,
     "block_program_output": MessageLookupByLibrary.simpleMessage("خروجی برنامه"),

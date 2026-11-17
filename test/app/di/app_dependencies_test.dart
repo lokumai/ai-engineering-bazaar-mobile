@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ai_engineering_bazaar/features/catalog/application/recent_searches.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';

@@ -78,6 +78,8 @@
   "catalog_search_all_levels": "Tümü",
   "catalog_search_levels": "Aranacak seviyeler",
   "catalog_search_none": "“{query}” için bir şey bulunamadı.",
+  "block_code_copy": "Kopyala",
+  "block_code_copied": "Kopyalandı",
   "catalog_recent_title": "Son aramalar",
   "catalog_recent_clear": "Temizle",
   "catalog_recent_remove": "“{query}” aramasını kaldır",

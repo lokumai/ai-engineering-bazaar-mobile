@@ -586,6 +586,16 @@ class S {
     return Intl.message('Remove “$query”', name: 'catalog_recent_remove', desc: '', args: [query]);
   }
 
+  /// `Copy`
+  String get block_code_copy {
+    return Intl.message('Copy', name: 'block_code_copy', desc: '', args: []);
+  }
+
+  /// `Copied`
+  String get block_code_copied {
+    return Intl.message('Copied', name: 'block_code_copied', desc: '', args: []);
+  }
+
   /// `Length`
   String get card_length {
     return Intl.message('Length', name: 'card_length', desc: '', args: []);

@@ -325,6 +325,10 @@
       }
     }
   },
+  "block_code_copy": "Copy",
+  "@block_code_copy": {},
+  "block_code_copied": "Copied",
+  "@block_code_copied": {},
   "card_length": "Length",
   "@card_length": {},
   "card_length_minutes": "{minutes} min",
