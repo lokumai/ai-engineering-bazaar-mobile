@@ -60,12 +60,25 @@ void main() {
     }
   });
 
-  testWidgets('the Reading settings row says the current size and spacing and opens its page', (tester) async {
+  // The owner, 2026-11-17: the size and spacing written under the name made Settings look crowded; its tile's letters
+  // show the size instead, and a screen reader hears both.
+  testWidgets('the Reading settings row draws its letters at the size chosen, and opens its page', (tester) async {
     final style = ReadingStyleCubit();
-    await style.chooseSize(ReadingSize.large);
     final router = await _pumpSettings(tester, style: style);
+    final sample = find.byKey(const ValueKey('settings-reading-sample'));
+    final standard = tester.getSize(sample).height;
 
-    expect(find.descendant(of: _row, matching: find.text('Large, Comfortable')), findsOneWidget);
+    await style.chooseSize(ReadingSize.large);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(sample).height, greaterThan(standard));
+    expect(find.descendant(of: _row, matching: find.text('Large, Comfortable')), findsNothing);
+    expect(find.bySemanticsLabel('Reading settings, Large, Comfortable'), findsOneWidget);
+
+    await style.chooseSize(ReadingSize.values.last);
+    await tester.pumpAndSettle();
+    final tile = find.ancestor(of: sample, matching: find.byType(SizedBox)).first;
+    expect(tester.getSize(sample).width, lessThan(tester.getSize(tile).width), reason: 'the largest still in its tile');
+
     await tester.tap(_row);
     await tester.pumpAndSettle();
 

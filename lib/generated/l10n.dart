@@ -1345,6 +1345,16 @@ class S {
     return Intl.message('Reading settings', name: 'settings_reading_style', desc: '', args: []);
   }
 
+  /// `Aa`
+  String get reading_sample_mark {
+    return Intl.message(
+      'Aa',
+      name: 'reading_sample_mark',
+      desc: 'Two letters drawn at the reader\'s text size on the Reading settings row, as a sample of the module text; the script\'s own letters.',
+      args: [],
+    );
+  }
+
   /// `Text size`
   String get reading_size {
     return Intl.message('Text size', name: 'reading_size', desc: '', args: []);

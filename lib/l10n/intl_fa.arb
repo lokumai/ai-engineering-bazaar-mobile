@@ -203,6 +203,7 @@
   "content_notice_cache_discarded": "محتوای دانلودشده خوانده نشد، پس برنامه آن را حذف کرد و محتوایی را نشان می‌دهد که همراه این نسخه آمده است. برای دانلود دوبارهٔ آن، در تنظیمات به‌روزرسانی‌ها را بررسی کنید.",
   "settings_reading": "خواندن",
   "settings_reading_style": "تنظیمات خواندن",
+  "reading_sample_mark": "آب",
   "reading_size": "اندازهٔ متن",
   "reading_size_small": "کوچک",
   "reading_size_standard": "معمولی",

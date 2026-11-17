@@ -203,6 +203,7 @@
   "content_notice_cache_discarded": "İndirilen içerik okunamadığı için uygulama onu kaldırdı ve bu sürümle gelen içeriği gösteriyor. Yeniden indirmek için Ayarlar'dan güncellemeleri kontrol et.",
   "settings_reading": "Okuma",
   "settings_reading_style": "Okuma ayarları",
+  "reading_sample_mark": "Aa",
   "reading_size": "Yazı boyutu",
   "reading_size_small": "Küçük",
   "reading_size_standard": "Standart",

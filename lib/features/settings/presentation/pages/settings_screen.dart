@@ -114,8 +114,8 @@ class _SettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpacing.sm,
               children: [
-                // The track's names are long, so its label stays above it.
-                Text(s.settings_track, style: theme.textTheme.titleSmall),
+                // The choices name themselves, so they stand without a label on screen; a screen reader still says
+                // what each one sets (the owner, 2026-11-17: the labels made Settings look crowded).
                 BazaarSegmentedControl<Track>(
                   semanticLabel: s.settings_track,
                   selected: context.watch<TrackCubit>().state,
@@ -129,8 +129,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                InlineSetting<String>(
-                  label: s.settings_language,
+                BazaarSegmentedControl<String>(
+                  semanticLabel: s.settings_language,
                   selected: context.watch<LanguageCubit>().state,
                   onSelected: (language) => context.read<LanguageCubit>().choose(language),
                   segments: [
@@ -142,8 +142,8 @@ class _SettingsView extends StatelessWidget {
                       ),
                   ],
                 ),
-                InlineSetting<ThemeMode>(
-                  label: s.settings_appearance,
+                BazaarSegmentedControl<ThemeMode>(
+                  semanticLabel: s.settings_appearance,
                   selected: context.watch<ThemeChoiceCubit>().state,
                   onSelected: (mode) => context.read<ThemeChoiceCubit>().choose(mode),
                   segments: [
@@ -169,7 +169,8 @@ class _SettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpacing.sm,
               children: [
-                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14).
+                // On or off as Reading's choices are made, first, so it reads as plainly (the owner, 2026-11-14); the one
+                // choice with its label on screen, since On and Off alone do not say what they turn on.
                 InlineSetting<bool>(
                   key: const Key('settings-pocket-button'),
                   label: s.settings_pocket_button,

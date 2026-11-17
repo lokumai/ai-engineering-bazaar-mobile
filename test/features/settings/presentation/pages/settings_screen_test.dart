@@ -128,7 +128,9 @@ void main() {
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), language: language));
     await tester.pump();
 
-    expect(find.text('Language'), findsOneWidget);
+    // Named to a screen reader only: the choices name themselves on screen (the owner, 2026-11-17).
+    expect(find.text('Language'), findsNothing);
+    expect(find.bySemanticsLabel('Language'), findsOneWidget);
     expect(find.text('Türkçe'), findsOneWidget);
     expect(find.text('فارسی'), findsOneWidget);
     expect(tester.getSemantics(find.byKey(settingsLanguageKey('en'))), isSemantics(isSelected: true, isButton: true));
@@ -228,7 +230,9 @@ void main() {
     await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), themeChoice: themeChoice));
     await tester.pump();
 
-    expect(find.text('Appearance'), findsOneWidget);
+    // Named to a screen reader only: the choices name themselves on screen (the owner, 2026-11-17).
+    expect(find.text('Appearance'), findsNothing);
+    expect(find.bySemanticsLabel('Appearance'), findsOneWidget);
     expect(find.text('Light'), findsOneWidget);
     expect(
       find.descendant(of: find.byKey(settingsAppearanceKey(ThemeMode.dark)), matching: find.text('Dark')),

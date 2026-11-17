@@ -531,6 +531,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Embedding, bir metin parçasını anlatan sayılardan oluşan bir listedir. Benzer anlamlar benzer sayılar verir, böylece bir soruya en yakın parçalar bulunabilir.",
     ),
     "reading_reset": MessageLookupByLibrary.simpleMessage("Varsayılana dön"),
+    "reading_sample_mark": MessageLookupByLibrary.simpleMessage("Aa"),
     "reading_size": MessageLookupByLibrary.simpleMessage("Yazı boyutu"),
     "reading_size_large": MessageLookupByLibrary.simpleMessage("Büyük"),
     "reading_size_larger": MessageLookupByLibrary.simpleMessage("Daha büyük"),

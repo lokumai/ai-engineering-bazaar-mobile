@@ -530,6 +530,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "An embedding is a list of numbers that describes a piece of text. Similar meanings give similar numbers, so the pieces closest to a question can be found.",
     ),
     "reading_reset": MessageLookupByLibrary.simpleMessage("Back to the default"),
+    "reading_sample_mark": MessageLookupByLibrary.simpleMessage("Aa"),
     "reading_size": MessageLookupByLibrary.simpleMessage("Text size"),
     "reading_size_large": MessageLookupByLibrary.simpleMessage("Large"),
     "reading_size_larger": MessageLookupByLibrary.simpleMessage("Larger"),

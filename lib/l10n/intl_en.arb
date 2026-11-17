@@ -753,6 +753,10 @@
   "@settings_reading": {},
   "settings_reading_style": "Reading settings",
   "@settings_reading_style": {},
+  "reading_sample_mark": "Aa",
+  "@reading_sample_mark": {
+    "description": "Two letters drawn at the reader's text size on the Reading settings row, as a sample of the module text; the script's own letters."
+  },
   "reading_size": "Text size",
   "@reading_size": {},
   "reading_size_small": "Small",

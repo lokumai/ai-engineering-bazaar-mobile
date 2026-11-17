@@ -533,6 +533,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Embedding فهرستی از عددهاست که یک تکه متن را توصیف می‌کند. معناهای مشابه عددهای مشابه می‌دهند، پس می‌توان نزدیک‌ترین تکه‌ها به یک پرسش را پیدا کرد.",
     ),
     "reading_reset": MessageLookupByLibrary.simpleMessage("بازگشت به حالت پیش‌فرض"),
+    "reading_sample_mark": MessageLookupByLibrary.simpleMessage("آب"),
     "reading_size": MessageLookupByLibrary.simpleMessage("اندازهٔ متن"),
     "reading_size_large": MessageLookupByLibrary.simpleMessage("بزرگ"),
     "reading_size_larger": MessageLookupByLibrary.simpleMessage("بزرگ‌تر"),
