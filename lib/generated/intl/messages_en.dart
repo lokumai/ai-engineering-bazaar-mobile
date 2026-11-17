@@ -371,7 +371,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("Cat ears"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("Old television"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("Space helmet"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("Chat"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("Talk"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Feed tokens"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("hallucinating"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("A toy model that can talk nonsense."),

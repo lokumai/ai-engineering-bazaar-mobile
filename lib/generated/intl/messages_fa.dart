@@ -372,7 +372,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "outfit_head_ears": MessageLookupByLibrary.simpleMessage("گوش گربه"),
     "outfit_head_tv": MessageLookupByLibrary.simpleMessage("تلویزیون قدیمی"),
     "outfit_head_visor": MessageLookupByLibrary.simpleMessage("کلاه فضانوردی"),
-    "pocket_ask": MessageLookupByLibrary.simpleMessage("گفتگو"),
+    "pocket_ask": MessageLookupByLibrary.simpleMessage("حرف بزن"),
     "pocket_feed": MessageLookupByLibrary.simpleMessage("توکن بده"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("مدلی اسباب‌بازی که شاید پرت بگوید."),

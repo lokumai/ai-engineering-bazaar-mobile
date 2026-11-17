@@ -2106,9 +2106,9 @@ class S {
     return Intl.message('Feed tokens', name: 'pocket_feed', desc: '', args: []);
   }
 
-  /// `Chat`
+  /// `Talk`
   String get pocket_ask {
-    return Intl.message('Chat', name: 'pocket_ask', desc: '', args: []);
+    return Intl.message('Talk', name: 'pocket_ask', desc: '', args: []);
   }
 
   /// `Temperature`

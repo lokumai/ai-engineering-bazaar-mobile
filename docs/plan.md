@@ -428,7 +428,7 @@ On `feature/settings-search`, from main at e03dc15 (PR #11 merged). The owner we
 - [ ] **12.8 Recent searches.** Tapping the empty search box shows the last five searches, kept on this device only, each removable, and Clear. Topic chips wait for the Practice tab's glossary (Phase 13), where a chip opens the term, since the search's fuzzy match could send a chip somewhere odd (the owner).
 - [ ] **12.9 Copy on code blocks.** A Copy button at a code block's top corner puts the code on the clipboard and says Copied.
 - [ ] **12.10 Two columns on an iPad in landscape.** On a wide screen the module's sections stand at the start, the one in view marked as the reader scrolls, as the web's section spine; the text's line length is capped. Portrait stays one column with the contents sheet.
-- [ ] **12.11 Talk, not Chat.** The Apprentice's corner button only makes it speak, there is no chat: tr "Konuştur", en "Talk", fa "حرف بزن".
+- [x] **12.11 Talk, not Chat.** The Apprentice's corner button only makes it speak, there is no chat: tr "Konuştur", en "Talk", fa "حرف بزن".
 - [ ] **12.12 The tour, again.** Settings' stops (Reading, Customize, the guide) and Home's stops fitted to the new pages: frames, places, animations, on the small phone; the Reading stop's words name the text size.
 
 ## Phase 13: the Practice tab (PR B)
