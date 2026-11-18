@@ -320,6 +320,8 @@ class _TourLayerState extends State<TourLayer> {
     final page = TourPage.at(widget.location);
     if (!asking && page != null && _page == null && context.read<TourCubit>().due(page)) _schedule(page);
     final showing = _page != null;
+    // A new size (a tablet turned, a window resized) lays the place out again, so the ring is measured again with it.
+    MediaQuery.sizeOf(context);
     if (showing && _hole != null) WidgetsBinding.instance.addPostFrameCallback((_) => _follow());
     // The robot is out, between its question and the first place, or walking home: the page still waits for it.
     final waiting = !asking && !showing && _robotAt != null && !_leaving;
