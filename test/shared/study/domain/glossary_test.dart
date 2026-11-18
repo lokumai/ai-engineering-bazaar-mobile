@@ -1,4 +1,4 @@
-import 'package:ai_engineering_bazaar/features/quiz/application/glossary.dart';
+import 'package:ai_engineering_bazaar/shared/study/domain/glossary.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';

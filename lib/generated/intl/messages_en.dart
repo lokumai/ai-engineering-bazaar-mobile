@@ -350,6 +350,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_daily_completed": MessageLookupByLibrary.simpleMessage("Completed"),
     "home_daily_title": MessageLookupByLibrary.simpleMessage("Today\'s card"),
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
+    "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Quiz waiting"),
     "home_read_percent": m29,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
@@ -680,7 +681,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today\'s review shows above them, under Practice.",
+      "The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today\'s review, the glossary and a quiz waiting.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",

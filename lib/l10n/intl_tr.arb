@@ -375,7 +375,7 @@
   "tour_done": "Anladım",
   "tour_skip": "Turu geç",
   "tour_home_head": "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",
-  "tour_home_after": "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında Günün tekrarı bunların üstünde, Pratik başlığı altında çıkar.",
+  "tour_home_after": "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında bunların üstünde Pratik çıkar: Günün tekrarı, sözlük ve bekleyen quiz.",
   "tour_band": "Okuyacağın modül hep burada, parmağının ucunda: yarım bıraktığın ya da sıradaki.",
   "tour_tabs": "Sekmeler aşağıda: Katalog, Kervan, Pratik ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
   "tour_catalog_search": "Aradığın konuyu buraya yaz. Sonuçlar modül modül gelir; istersen seviye seçip filtreleyebilirsin.",
@@ -429,5 +429,6 @@
   "review_back": "Pratik'e dön",
   "review_back_home": "Ana sayfaya dön",
   "review_empty": "Gösterilecek kart yok.",
-  "review_section_link": "Bu konu şurada: {section}"
+  "review_section_link": "Bu konu şurada: {section}",
+  "home_quiz_waiting": "Bekleyen quiz"
 }

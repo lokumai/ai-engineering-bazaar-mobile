@@ -1338,7 +1338,7 @@
   "@tour_skip": {},
   "tour_home_head": "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
   "@tour_home_head": {},
-  "tour_home_after": "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.",
+  "tour_home_after": "The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today's review, the glossary and a quiz waiting.",
   "@tour_home_after": {},
   "tour_band": "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
   "@tour_band": {},
@@ -1503,5 +1503,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "home_quiz_waiting": "Quiz waiting"
 }

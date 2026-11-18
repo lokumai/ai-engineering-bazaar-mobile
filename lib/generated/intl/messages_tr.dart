@@ -351,6 +351,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_daily_completed": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "home_daily_title": MessageLookupByLibrary.simpleMessage("Bugünün kartı"),
     "home_path": MessageLookupByLibrary.simpleMessage("Yolun"),
+    "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Bekleyen quiz"),
     "home_read_percent": m29,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("Bütün kataloğu gör"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Sıradaki"),
@@ -681,7 +682,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Merhaba, ben Çırak. Burada yapay zekâ mühendisliğini seviye seviye, modül modül öğreneceksin. İstersen sana kısaca etrafı gezdireyim?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında Günün tekrarı bunların üstünde, Pratik başlığı altında çıkar.",
+      "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında bunların üstünde Pratik çıkar: Günün tekrarı, sözlük ve bekleyen quiz.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",

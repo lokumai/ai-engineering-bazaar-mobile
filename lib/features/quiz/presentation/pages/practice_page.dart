@@ -21,7 +21,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -356,17 +356,6 @@ class _AnswerMeter extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Each question's latest answer of the module [moduleKey]'s quiz in [history], null for one never answered; null when
-/// none is answered, or the history holds no length for the quiz.
-List<bool?>? latestAnswers(ReviewHistory history, String moduleKey) {
-  final length = history.lengths[moduleKey];
-  if (length == null) return null;
-  final answers = [
-    for (var i = 0; i < length; i++) history.cards[questionKey(moduleKey, i)]?.answers.lastOrNull?.right,
-  ];
-  return answers.every((answer) => answer == null) ? null : answers;
 }
 
 /// A level's or a module's number in two digits, as the catalog prints it.

@@ -12,6 +12,12 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, Text, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
@@ -42,6 +48,8 @@ Future<GoRouter> _pumpHome(
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
   LanguageCubit? language,
+  ReviewBloc? review,
+  QuizScoresBloc? scores,
 }) async {
   final router = const AppRouterFactory().create();
   addTearDown(router.dispose);
@@ -56,6 +64,8 @@ Future<GoRouter> _pumpHome(
       platform: platform,
       locale: locale,
       language: language,
+      review: review,
+      scores: scores,
     ),
   );
   await tester.pumpAndSettle();
@@ -228,48 +238,146 @@ void main() {
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets("one row offers Today's review of the completed modules' questions, and starts it (plan 13.2)", (
+  testWidgets("Practice under its heading: Today's review, the glossary and a quiz waiting (plan 13.2, 13.17)", (
     tester,
   ) async {
     final repository = missingContentRepository();
-    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _quiz));
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
     final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), repository: repository);
 
     final row = find.byKey(const Key('home-review'), skipOffstage: false);
-    expect(find.text('4 cards, about 2 min', skipOffstage: false), findsOneWidget, reason: 'two questions each');
-    expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'the three rows are gone');
+    final glossary = find.byKey(const Key('home-glossary'), skipOffstage: false);
+    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
+    expect(
+      find.descendant(of: row, matching: find.textContaining('cards, about')),
+      findsOneWidget,
+      reason: "the day's cards",
+    );
     final heading = find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false);
     expect(heading, findsOneWidget, reason: "Practice's own heading, not the tab's name");
     final tops = [
-      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row])
+      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row, glossary, waiting])
         tester.getTopLeft(finder).dy,
       tester.getTopLeft(find.text('Later on', skipOffstage: false)).dy,
     ];
-    expect(
-      tops,
-      [...tops]..sort(),
-      reason: "the day's card, then Practice's heading and its card, then Later on (the owner, 2026-11-18)",
-    );
+    expect(tops, [...tops]..sort(), reason: "the day's card, Practice's heading, its three, then Later on");
     expect(
       find.descendant(of: row, matching: find.byIcon(Icons.school_rounded)),
       findsOneWidget,
       reason: "the tab's cap",
     );
+    expect(find.byKey(const Key('practice-wrong'), skipOffstage: false), findsNothing, reason: "Practice's own");
+    expect(find.byKey(const Key('practice-brief'), skipOffstage: false), findsNothing, reason: "Practice's own");
+
+    expect(find.descendant(of: glossary, matching: find.text('2 terms')), findsOneWidget);
+    expect(
+      find.descendant(of: glossary, matching: find.text('Wick')),
+      findsOneWidget,
+      reason: 'the terms of the last module completed',
+    );
+    expect(
+      find.descendant(of: waiting, matching: find.textContaining('First Module', findRichText: true)),
+      findsOneWidget,
+      reason: "the first completed module in the course's order",
+    );
+    expect(find.byKey(const Key('home-quiz-waiting'), skipOffstage: false), findsOneWidget, reason: 'one row');
+
     await _tap(tester, row);
     expect(_path(router), '/practice/review');
+    router.go('/');
+    await tester.pumpAndSettle();
+    await _tap(tester, glossary);
+    expect(_path(router), '/practice/glossary');
+    router.go('/');
+    await tester.pumpAndSettle();
+    await _tap(tester, waiting);
+    expect(_path(router), '/quiz/alpha/first');
   });
 
-  testWidgets('no review row before a module is completed', (tester) async {
+  testWidgets('the quiz waiting is the next one once a quiz is finished, and none once all are', (tester) async {
     final repository = missingContentRepository();
-    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _quiz));
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
+    final scores = QuizScoresBloc(
+      store: MemoryQuizScoreStore({'alpha/first': const QuizScore(last: 2, best: 2, total: 2)}),
+    )..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), repository: repository, scores: scores);
+    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
+    expect(
+      find.descendant(of: waiting, matching: find.textContaining('Fourth Module', findRichText: true)),
+      findsOneWidget,
+    );
+
+    scores.add(const QuizScoreRecorded(key: 'beta/fourth', right: 1, total: 2));
+    await tester.pumpAndSettle();
+    expect(waiting, findsNothing);
+  });
+
+  testWidgets("once the day's cards are done, Today's review stays and says so (plan 13.17)", (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
+    final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
+    addTearDown(review.close);
+    final router = await _pumpHome(tester, record: _completed(['alpha/first']), repository: repository, review: review);
+    for (final key in [
+      'alpha/first#0',
+      'alpha/first#1',
+      'term:engineers/alpha/first#0',
+      'term:engineers/alpha/first#1',
+    ]) {
+      review.add(ReviewAnswered(key: key, right: true, length: key.startsWith('term') ? null : 2, inReview: true));
+    }
+    await tester.pumpAndSettle();
+    expect(review.state.history.doneOn(dayNumber(DateTime.now())), 4);
+
+    expect(find.byKey(const Key('home-review'), skipOffstage: false), findsNothing);
+    final rest = find.byKey(const Key('home-review-rest'), skipOffstage: false);
+    expect(find.descendant(of: rest, matching: find.text('That is all for today')), findsOneWidget);
+    await _tap(tester, rest);
+    expect(_path(router), '/', reason: 'nothing to start');
+  });
+
+  testWidgets('no Practice before a module is completed', (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
     await _pumpHome(tester, repository: repository);
     expect(find.byKey(const Key('home-review'), skipOffstage: false), findsNothing);
+    expect(find.byKey(const Key('home-glossary'), skipOffstage: false), findsNothing);
     expect(
       find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false),
       findsNothing,
-      reason: 'no heading without its card',
+      reason: 'no heading',
     );
   });
+}
+
+/// A module whose Key Terms are Wick and Glass, with a quiz of two questions.
+ModuleDoc _termsDoc() {
+  ListItem term(String name, String definition) => ListItem(
+    checked: null,
+    taskIndex: null,
+    blocks: [
+      ParagraphBlock(
+        inlines: [
+          StrongInline(inlines: [TextInline(text: name)]),
+          TextInline(text: ': $definition'),
+        ],
+        lead: false,
+      ),
+    ],
+  );
+  return testDoc(
+    body: [
+      const HeadingBlock(
+        depth: 2,
+        id: 'words',
+        mark: null,
+        inlines: [TextInline(text: 'Words')],
+      ),
+      ListBlock(ordered: false, start: null, items: [term('Wick', 'what burns.'), term('Glass', 'keeps wind out.')]),
+    ],
+    quiz: _quiz,
+  );
 }
 
 const _quiz = [

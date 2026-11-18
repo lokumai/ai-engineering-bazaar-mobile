@@ -3,7 +3,7 @@ import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_co
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_review_row.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
@@ -64,9 +64,9 @@ class HomePage extends StatelessWidget {
           if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
           // The day's card, a section of a module to read today (plan 11.1).
           HomeDailyCard(frame: dailyFrame),
-          // Practice's review of the day under its own heading, after the day's card (plan 13.2, the owner 2026-11-18);
-          // none when it has no card today.
-          HomeReviewRow(track: track, language: language),
+          // Practice under its own heading, after the day's card (plan 13.2, 13.17): Today's review, the glossary and a
+          // quiz waiting; none before a module is completed.
+          HomePractice(track: track, language: language),
           // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
           // card says the track is completed.
           if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],

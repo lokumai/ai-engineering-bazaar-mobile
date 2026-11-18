@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:ai_engineering_bazaar/features/quiz/application/glossary.dart';
+import 'package:ai_engineering_bazaar/shared/study/domain/glossary.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/brief_list_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/level_group.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';

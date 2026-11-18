@@ -351,6 +351,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_daily_completed": MessageLookupByLibrary.simpleMessage("تکمیل‌شده"),
     "home_daily_title": MessageLookupByLibrary.simpleMessage("کارت امروز"),
     "home_path": MessageLookupByLibrary.simpleMessage("مسیر شما"),
+    "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("آزمون در انتظار"),
     "home_read_percent": m29,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("دیدن کل کاتالوگ"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("درس بعدی"),
@@ -687,7 +688,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "سلام، من شاگردم. این یک برنامهٔ آموزشی است: مهندسی هوش مصنوعی را سطح به سطح و ماژول به ماژول یاد می‌دهیم. می‌خواهید همه‌جا را نشانتان بدهم؟",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "ماژول‌های بعدی اینجا منتظرند و مسیر شما در سطح‌ها زیرشان است. وقتی درسی را تکمیل کنید، مرور امروز بالای آن‌ها، زیر تمرین، می‌آید.",
+      "ماژول‌های بعدی اینجا منتظرند و مسیر شما در سطح‌ها زیرشان است. وقتی درسی را تکمیل کنید، تمرین بالای آن‌ها می‌آید: مرور امروز، واژه‌نامه و آزمونی که در انتظار است.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "این گوشهٔ من است. هر روز بخشی از دوره را برایتان می‌آورم: برای خواندنش روی کارت بزنید. هر وقت خواستید با من گفتگو کنید.",

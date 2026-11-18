@@ -2668,10 +2668,10 @@ class S {
     );
   }
 
-  /// `The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.`
+  /// `The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today's review, the glossary and a quiz waiting.`
   String get tour_home_after {
     return Intl.message(
-      'The modules after it wait here, and your path through the levels under them. Once you complete a module, Today\'s review shows above them, under Practice.',
+      'The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today\'s review, the glossary and a quiz waiting.',
       name: 'tour_home_after',
       desc: '',
       args: [],
@@ -3050,6 +3050,11 @@ class S {
   /// `This is in: {section}`
   String review_section_link(String section) {
     return Intl.message('This is in: $section', name: 'review_section_link', desc: '', args: [section]);
+  }
+
+  /// `Quiz waiting`
+  String get home_quiz_waiting {
+    return Intl.message('Quiz waiting', name: 'home_quiz_waiting', desc: '', args: []);
   }
 }
 
