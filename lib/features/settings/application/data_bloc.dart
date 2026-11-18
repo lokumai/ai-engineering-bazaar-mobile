@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/undo_countdown.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
@@ -26,15 +27,22 @@ part 'data_event.dart';
 part 'data_state.dart';
 
 /// Runs the data line's flows: back up, restore, reset with its undo, and the set-aside record (spec 3.3.9 to
-/// 3.3.11). The reset erases the quiz scores and the reading places too, and its undo brings them back (plan 1W, 1BA).
+/// 3.3.11). The reset erases the quiz scores, Practice's history and the reading places too, and its undo brings them
+/// back (plan 1W, 13.1, 1BA).
 ///
 /// [RecordBloc] owns every write and the undo window (Decision A42); this bloc hands it events, talks to the
 /// platform through [IBackupGateway], and only displays the countdown, which it never ends on the record's behalf.
 ///
 /// An interface class rather than a final one, so widget tests can provide a `MockBloc` that implements it.
 interface class DataBloc extends Bloc<DataEvent, DataState> {
-  DataBloc({required this._recordBloc, required this._gateway, required this._repository, this._scores, this._places})
-    : super(const DataState()) {
+  DataBloc({
+    required this._recordBloc,
+    required this._gateway,
+    required this._repository,
+    this._scores,
+    this._review,
+    this._places,
+  }) : super(const DataState()) {
     on<BackupRequested>(_onBackupRequested, transformer: EventTransformers.dropConcurrent());
     on<RestoreRequested>(_onRestoreRequested, transformer: EventTransformers.dropConcurrent());
     on<RestoreConfirmed>(_onRestoreConfirmed);
@@ -56,6 +64,9 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
 
   /// The quiz scores, which the reset erases with the record and its undo brings back (plan 1W).
   final QuizScoresBloc? _scores;
+
+  /// Practice's history, which the reset erases with the record and its undo brings back (plan 13.1).
+  final ReviewBloc? _review;
 
   /// Where each module was left, which the reset erases with the record and its undo brings back (plan 1BA).
   final ReadingPlacesBloc? _places;
@@ -185,6 +196,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
           _ => false,
         };
         _scores?.add(QuizScoresErased(again: again));
+        _review?.add(ReviewErased(again: again));
         _places?.add(ReadingPlacesErased(again: again));
       }
       // The page closed while the erase waited in the record's queue: a ticker started now is never cancelled.
@@ -218,6 +230,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     emit(state._with(reset: null));
     if (await undone.future) {
       _scores?.add(const QuizScoresEraseUndone());
+      _review?.add(const ReviewEraseUndone());
       _places?.add(const ReadingPlacesEraseUndone());
     }
   }

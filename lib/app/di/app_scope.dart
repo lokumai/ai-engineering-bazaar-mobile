@@ -32,6 +32,9 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -85,6 +88,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
+        RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
@@ -111,6 +115,14 @@ class AppScope extends StatelessWidget {
           BlocProvider<QuizScoresBloc>(
             lazy: false,
             create: (context) => QuizScoresBloc(store: context.read<IQuizScoreStore>())..add(const QuizScoresStarted()),
+          ),
+          BlocProvider<ReviewBloc>(
+            lazy: false,
+            create: (context) => ReviewBloc(store: context.read<IReviewStore>())..add(const ReviewStarted()),
+          ),
+          // The modules' Key Terms, Summary and quiz, read when a page that shows them opens (StudyNotesLoader).
+          BlocProvider<StudyNotesCubit>(
+            create: (context) => StudyNotesCubit(repository: context.read<IContentRepository>()),
           ),
           BlocProvider<ReadingPlacesBloc>(
             lazy: false,

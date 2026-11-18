@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_list.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/practice_head.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
@@ -12,7 +13,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_di
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -20,6 +20,10 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart'
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
+import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
@@ -27,15 +31,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Quiz tab at `/quiz` (plan 1AC, in place of the progress page): every module's quiz, grouped by level, each
-/// opening the quiz full screen without the reader. The current track's modules are listed, each under its title in
-/// that track: a module has one quiz on both tracks (web D137).
+/// The Practice tab at `/practice` (plan 13.2), once the Quiz tab (plan 1AC): one place to go over what was read. At its
+/// head Today's review and Wrong answers, then every module's quiz, grouped by level, each opening the quiz full screen
+/// without the reader. The current track's modules are listed, each under its title in that track: a module has one
+/// quiz on both tracks (web D137).
 ///
 /// Each level is an arch card in its hue, as in the catalog (owner, 2026-11-10): a tap opens its quizzes under it and a
 /// second tap closes them; several levels may be open at once. The level of the next module to read in the current
 /// track starts open, and what the reader opens or closes stays while the app runs ([QuizFoldCubit]).
-class QuizListPage extends StatelessWidget {
-  const QuizListPage({super.key});
+class PracticePage extends StatelessWidget {
+  const PracticePage({super.key});
 
   /// The key of [slug]'s level button.
   static Key levelKey(String slug) => ValueKey('quiz-level-$slug');
@@ -58,31 +63,42 @@ class QuizListPage extends StatelessWidget {
     };
     final upNext = next == null ? null : index.module(next)?.level;
     final scores = context.watch<QuizScoresBloc>().state;
+    final history = context.watch<ReviewBloc>().state.history;
     final fold = context.watch<QuizFoldCubit>();
     final open = fold.openWith(upNext);
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
-      children: [
-        // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
-        // (review round 4), and without it the Quiz tab and the catalog open alike.
-        SectionRule(title: s.nav_quiz),
-        const SizedBox(height: AppSpacing.md),
-        for (final (position, level) in quizLevels(index, track).indexed) ...[
-          // The Apprentice's tour points at the first level (plan 11.3).
-          TourTarget(
-            spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
-            child: _LevelCard(
-              key: QuizListPage.levelKey(level.level.slug),
-              level: level,
-              track: track,
-              scores: scores,
-              open: open.contains(level.level.slug),
-              onToggle: () => fold.toggle(level.level.slug, upNext),
-            ),
-          ),
+    return StudyNotesLoader(
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
+        children: [
+          // The page's name at the head of its content, which scrolls away with it; the bar stays empty on the tabs
+          // (review round 4), and without it Practice and the catalog open alike.
+          SectionRule(title: s.nav_practice),
           const SizedBox(height: AppSpacing.md),
+          TourTarget(
+            spot: TourSpots.practiceToday,
+            child: PracticeHead(index: index, track: track),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          SectionRule(title: s.practice_quizzes),
+          const SizedBox(height: AppSpacing.md),
+          for (final (position, level) in quizLevels(index, track).indexed) ...[
+            // The Apprentice's tour points at the first level (plan 11.3).
+            TourTarget(
+              spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
+              child: _LevelCard(
+                key: PracticePage.levelKey(level.level.slug),
+                level: level,
+                track: track,
+                scores: scores,
+                history: history,
+                open: open.contains(level.level.slug),
+                onToggle: () => fold.toggle(level.level.slug, upNext),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -94,6 +110,7 @@ class _LevelCard extends StatelessWidget {
     required this.level,
     required this.track,
     required this.scores,
+    required this.history,
     required this.open,
     required this.onToggle,
   });
@@ -103,6 +120,9 @@ class _LevelCard extends StatelessWidget {
   /// The track whose titles the rows show.
   final Track track;
   final QuizScoresState scores;
+
+  /// Practice's history, which holds each question's latest answer.
+  final ReviewHistory history;
   final bool open;
   final VoidCallback onToggle;
 
@@ -112,7 +132,10 @@ class _LevelCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final total = level.modules.length;
-    final taken = level.modules.where((module) => scores.of(module.key) != null).length;
+    // A quiz finished here, or one answered in Practice: its row shows segments, so the dial counts it.
+    final taken = level.modules
+        .where((module) => scores.of(module.key) != null || latestAnswers(history, module.key) != null)
+        .length;
     final count = s.quiz_list_count(total);
     final meter = s.quiz_list_taken(taken, total);
     final hue = levelHue(context, level.position);
@@ -189,11 +212,12 @@ class _LevelCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       for (final module in level.modules)
                         _QuizRow(
-                          key: QuizListPage.rowKey(module.key),
+                          key: PracticePage.rowKey(module.key),
                           module: module,
                           track: track,
                           hue: hue,
                           score: scores.of(module.key),
+                          latest: latestAnswers(history, module.key),
                         ),
                       const SizedBox(height: AppSpacing.xs),
                     ],
@@ -206,11 +230,19 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc in the level's hue, or the catalog's check once every answer was right, the number and title with the last score as one segment
-/// per question once taken, and an arrow; one button as a whole. The best score is spoken with the row and shown on
-/// the results.
+/// One module's quiz in an open level: the question disc in the level's hue, or the catalog's check once every
+/// question's latest answer is right; the number and title, with one segment per question once any is answered, green
+/// for right and red for wrong as last answered, in the module's quiz or in Practice (the owner, 2026-11-18); and an
+/// arrow. One button as a whole. A quiz finished before Practice kept answers shows its last score instead.
 class _QuizRow extends StatelessWidget {
-  const _QuizRow({super.key, required this.module, required this.track, required this.hue, required this.score});
+  const _QuizRow({
+    super.key,
+    required this.module,
+    required this.track,
+    required this.hue,
+    required this.score,
+    required this.latest,
+  });
 
   final ModuleEntry module;
   final Track track;
@@ -221,17 +253,24 @@ class _QuizRow extends StatelessWidget {
   /// The score kept on this device; null for a quiz never finished.
   final QuizScore? score;
 
+  /// Each question's latest answer, null for one never answered; null when none is answered.
+  final List<bool?>? latest;
+
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final number = _number(module.number);
     final title = module.tracks[track]!.titleIn(context.watch<LanguageCubit>().state);
     final score = this.score;
-    final line = score == null ? null : S.of(context).quiz_score_line(score.last, score.best, score.total);
+    final answers = latest ?? (score == null ? null : [for (var i = 0; i < score.total; i++) i < score.last]);
+    final right = answers?.where((answer) => answer ?? false).length ?? 0;
+    final perfect = answers != null && right == answers.length;
+    final line = answers == null ? null : s.practice_latest(right, answers.length);
     return Semantics(
       button: true,
-      label: [('$number $title'), if (score?.perfect ?? false) S.of(context).quiz_all_right, ?line].join(', '),
+      label: [('$number $title'), if (perfect) s.quiz_all_right, ?line].join(', '),
       excludeSemantics: true,
       child: InkWell(
         onTap: () => context.push(BazaarPaths.quiz(module.key)),
@@ -242,8 +281,8 @@ class _QuizRow extends StatelessWidget {
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                if (score?.perfect ?? false)
-                  // The catalog's completed disc: every question answered right once.
+                if (perfect)
+                  // The catalog's completed disc: every question right as last answered.
                   Container(
                     width: 28,
                     height: 28,
@@ -259,7 +298,7 @@ class _QuizRow extends StatelessWidget {
                     spacing: AppSpacing.xs,
                     children: [
                       Text(title, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
-                      if (score != null) _ScoreMeter(score: score, label: line!),
+                      if (answers != null) _AnswerMeter(answers: answers),
                     ],
                   ),
                 ),
@@ -273,31 +312,61 @@ class _QuizRow extends StatelessWidget {
   }
 }
 
-/// The last score of a quiz as one segment per question, the right ones green and the wrong ones red: a meter, not the
-/// level's dial, and no words (owner, 2026-11-10).
-class _ScoreMeter extends StatelessWidget {
-  const _ScoreMeter({required this.score, required this.label});
+/// Each question's latest answer as one segment: green when right, red when wrong, the sunken track when never
+/// answered. Decoration: the row says it in words.
+class _AnswerMeter extends StatelessWidget {
+  const _AnswerMeter({required this.answers});
 
-  final QuizScore score;
-  final String label;
+  final List<bool?> answers;
 
   /// The width of one segment at text scale 1.
   static const double _segment = 14;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
     final scale = MediaQuery.textScalerOf(context);
-    return SizedBox(
-      width: scale.scale(_segment * score.total + 4 * (score.total - 1)),
-      child: SegmentMeter(
-        done: score.last,
-        total: score.total,
-        color: BazaarFixedColors.success,
-        restColor: context.bazaarColors.fault,
-        semanticLabel: label,
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4,
+        children: [
+          for (final (index, answer) in answers.indexed)
+            Container(
+              // One key per question, which says its answer: answer-<index>-right, -wrong or -none.
+              key: ValueKey(
+                'answer-$index-${switch (answer) {
+                  true => 'right',
+                  false => 'wrong',
+                  null => 'none',
+                }}',
+              ),
+              width: scale.scale(_segment),
+              height: 6,
+              decoration: BoxDecoration(
+                color: switch (answer) {
+                  true => BazaarFixedColors.success,
+                  false => colors.fault,
+                  null => colors.surfaceSunken,
+                },
+                borderRadius: const BorderRadius.all(Radius.circular(3)),
+              ),
+            ),
+        ],
       ),
     );
   }
+}
+
+/// Each question's latest answer of the module [moduleKey]'s quiz in [history], null for one never answered; null when
+/// none is answered, or the history holds no length for the quiz.
+List<bool?>? latestAnswers(ReviewHistory history, String moduleKey) {
+  final length = history.lengths[moduleKey];
+  if (length == null) return null;
+  final answers = [
+    for (var i = 0; i < length; i++) history.cards[questionKey(moduleKey, i)]?.answers.lastOrNull?.right,
+  ];
+  return answers.every((answer) => answer == null) ? null : answers;
 }
 
 /// A level's or a module's number in two digits, as the catalog prints it.

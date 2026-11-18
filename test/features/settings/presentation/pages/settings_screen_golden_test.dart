@@ -16,6 +16,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +58,7 @@ Widget _screen({required bool dark}) {
         BlocProvider<PocketButtonCubit>(create: (_) => PocketButtonCubit()),
         BlocProvider<ReadingStyleCubit>(create: (_) => ReadingStyleCubit()),
         BlocProvider<QuizScoresBloc>(create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())),
+        BlocProvider<ReviewBloc>(create: (_) => ReviewBloc(store: MemoryReviewStore())),
         BlocProvider<ReadingPlacesBloc>(create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())),
       ],
       child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),

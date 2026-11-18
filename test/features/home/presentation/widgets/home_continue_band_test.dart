@@ -52,7 +52,7 @@ void main() {
     expect(_band, findsNothing, reason: 'not over the module itself');
   });
 
-  for (final at in ['/sheets', '/quiz']) {
+  for (final at in ['/sheets', '/practice']) {
     testWidgets('lies over the navigation on $at too', (tester) async {
       await _pump(tester, at: at);
       expect(_band, findsOneWidget);

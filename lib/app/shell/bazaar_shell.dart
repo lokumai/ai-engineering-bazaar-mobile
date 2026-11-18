@@ -25,7 +25,7 @@ import 'package:go_router/go_router.dart';
 /// The frame of every page inside the router's ShellRoute: the bar on the page's ground with a back button when there is
 /// a page to go back to and, on a level's page or a module's, its name after the level's hue (the four tabs' pages carry
 /// no name), the thin lattice band under it, the page, and the bottom navigation (web nav labels `Home` and `Catalog`,
-/// `src/components/shell/MainNav.tsx`; `Quiz` and `Settings` are app copy: the catalog carries the progress, plan 1AB,
+/// `src/components/shell/MainNav.tsx`; `Practice` and `Settings` are app copy: the catalog carries the progress, plan 1AB,
 /// 1AC). The track is chosen once and changed in Settings (plan 1L).
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
@@ -47,13 +47,13 @@ import 'package:go_router/go_router.dart';
 /// (`src/lib/tracks.ts:77-114`).
 ///
 /// The [assistant] the router passes (the pocket model's round button, plan 9.4) sits in the corner over the
-/// navigation on the first pages of Home, the catalog, the Caravan and the Quiz tab, under the thumb, Home's corner at
+/// navigation on the first pages of Home, the catalog, the Caravan and Practice, under the thumb, Home's corner at
 /// the page's head being far from it (plan 11.2); never in Settings, a level's page or a module, and it goes with the
 /// navigation when a page folds it away. The reader can drag it or throw it
 /// ([FloatingDock]); it stays where it rests, from one of those pages to the next.
 ///
 /// The [band] the router passes (the module left half read, plan 10.4) lies over the navigation on the first pages of
-/// Home, the catalog and the Quiz tab, under the reader's thumb; the page and the [assistant] stand above it. It is gone
+/// Home, the catalog and Practice, under the reader's thumb; the page and the [assistant] stand above it. It is gone
 /// while the keyboard is up, so it does not ride up over a search.
 class BazaarShell extends StatefulWidget {
   const BazaarShell({
@@ -79,12 +79,12 @@ class BazaarShell extends StatefulWidget {
   /// The band over the navigation on some tabs' first pages; it takes no room when it has nothing to show.
   final Widget? band;
 
-  /// The pages the [band] lies under: the first pages of Home, the two catalogs and the Quiz tab.
+  /// The pages the [band] lies under: the first pages of Home, the two catalogs and Practice.
   static const Set<String> bandPages = {
     BazaarPaths.home,
     BazaarPaths.catalogEngineers,
     BazaarPaths.catalogEveryone,
-    BazaarPaths.quizzes,
+    BazaarPaths.practice,
   };
 
   /// The pages that show the [assistant]: the first pages of every tab. Settings has it too (the owner, 2026-11-17):
@@ -94,7 +94,7 @@ class BazaarShell extends StatefulWidget {
     BazaarPaths.catalogEngineers,
     BazaarPaths.catalogEveryone,
     BazaarPaths.caravan,
-    BazaarPaths.quizzes,
+    BazaarPaths.practice,
     BazaarPaths.settings,
   };
 
@@ -256,12 +256,12 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   /// again opens them again.
   final _stacks = <int, ({RouteMatchList pages, String top})>{};
 
-  /// Home, Catalog (every page of a track), the Caravan, Quiz and Settings.
+  /// Home, Catalog (every page of a track), the Caravan, Practice and Settings.
   int get _selectedIndex => _tabOf(widget.location);
 
   static int _tabOf(String location) => switch (location) {
     BazaarPaths.caravan => 2,
-    BazaarPaths.quizzes => 3,
+    final location when location == BazaarPaths.practice || location.startsWith('${BazaarPaths.practice}/') => 3,
     final location when location == BazaarPaths.settings || location.startsWith('${BazaarPaths.settings}/') => 4,
     final location when BazaarPaths.trackOf(location) != null => 1,
     _ => 0,
@@ -272,7 +272,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
     final target = switch (index) {
       0 => BazaarPaths.home,
       2 => BazaarPaths.caravan,
-      3 => BazaarPaths.quizzes,
+      3 => BazaarPaths.practice,
       4 => BazaarPaths.settings,
       _ => BazaarPaths.catalog(BazaarPaths.trackOf(widget.location) ?? track),
     };
@@ -469,7 +469,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                         selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
                         label: l10n.nav_caravan,
                       ),
-                      tab(Icons.quiz_outlined, Icons.quiz_rounded, l10n.nav_quiz),
+                      tab(Icons.school_outlined, Icons.school_rounded, l10n.nav_practice),
                       tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
                     ],
                   ),

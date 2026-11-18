@@ -5,7 +5,7 @@ import 'package:ai_engineering_bazaar/app/dev_console/content_gallery_page.dart'
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/not_found_page.dart';
 import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
-import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/practice_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
@@ -68,7 +68,7 @@ void main() {
       'moduleEveryone',
       {'level': 'alpha', 'module': 'first'},
     ),
-    ('/quiz', '/quiz', 'quizzes', {}),
+    ('/practice', '/practice', 'practice', {}),
     ('/settings', '/settings', 'settings', {}),
   ];
   for (final (location, path, name, params) in rows) {
@@ -87,7 +87,7 @@ void main() {
           // Decision A38: the router is the one place that hands the quiz feature's panel to the reader.
           expect(tester.widget<ModuleReaderPage>(find.byType(ModuleReaderPage)).quizBuilder, buildQuizPanel);
         }
-        if (name == 'quizzes') expect(find.byType(QuizListPage), findsOneWidget);
+        if (name == 'quizzes') expect(find.byType(PracticePage), findsOneWidget);
       });
     }
   }

@@ -250,6 +250,8 @@ void main() {
       await _pumpHome(tester, repository: repository);
       expect(_card, findsOneWidget);
       final home = find.byType(Scrollable).first;
+      // What Home read to open: the day's module, and Practice's notes for the review row.
+      clearInteractions(repository);
 
       await tester.drag(home, const Offset(0, -5000));
       await tester.pumpAndSettle();
@@ -259,7 +261,7 @@ void main() {
       await tester.pump();
 
       expect(find.descendant(of: _card, matching: find.text('Why tools')), findsOneWidget);
-      verify(() => repository.readModuleDoc(any())).called(1);
+      verifyNever(() => repository.readModuleDoc(any()));
     });
   });
 

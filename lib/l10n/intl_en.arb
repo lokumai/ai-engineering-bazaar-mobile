@@ -19,8 +19,7 @@
   "@nav_home": {},
   "nav_catalog": "Catalog",
   "@nav_catalog": {},
-  "nav_quiz": "Quiz",
-  "@nav_quiz": {},
+  "nav_practice": "Practice",
   "nav_settings": "Settings",
   "@nav_settings": {},
   "nav_caravan": "Caravan",
@@ -169,10 +168,6 @@
   "@home_after": {},
   "home_see_catalog": "See the whole catalog",
   "@home_see_catalog": {},
-  "home_practice": "Quizzes to practise",
-  "@home_practice": {},
-  "home_practice_lede": "Quizzes from the modules you completed.",
-  "@home_practice_lede": {},
   "diagram_expand": "Open the diagram full screen",
   "@diagram_expand": {},
   "image_expand": "Open the image full screen",
@@ -574,20 +569,6 @@
   "@quiz_score_before": {
     "placeholders": {
       "previous": {
-        "type": "int"
-      },
-      "best": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
-  "@quiz_score_line": {
-    "placeholders": {
-      "last": {
         "type": "int"
       },
       "best": {
@@ -1357,11 +1338,11 @@
   "@tour_skip": {},
   "tour_home_head": "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
   "@tour_home_head": {},
-  "tour_home_after": "The modules after it wait here; under them are quizzes to practise and your path through the levels.",
+  "tour_home_after": "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.",
   "@tour_home_after": {},
   "tour_band": "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
   "@tour_band": {},
-  "tour_tabs": "Down here are the tabs: the Catalog, the Caravan, the Quiz and Settings. Open one and I'll show you what it does.",
+  "tour_tabs": "Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I'll show you what it does.",
   "@tour_tabs": {},
   "tour_catalog_search": "Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.",
   "@tour_catalog_search": {},
@@ -1371,6 +1352,7 @@
   "@tour_caravan_stage": {},
   "tour_caravan_strip": "Slide along here, or tap a stop, to move the caravan.",
   "@tour_caravan_strip": {},
+  "tour_practice_today": "Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
   "tour_quiz_level": "Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
   "@tour_quiz_level": {},
   "tour_settings_reading": "Your track, the app's language, its look and the text size of the modules are chosen here.",
@@ -1385,8 +1367,143 @@
   "@tour_step": {
     "description": "Which of the tour's places on this page the Apprentice is at, of how many.",
     "placeholders": {
-      "step": {"type": "int"},
-      "count": {"type": "int"}
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_today": "Today's review",
+  "practice_today_cards": "{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min",
+  "@practice_today_cards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_today_meter": "{done} of {total} done today",
+  "@practice_today_meter": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_start": "Start",
+  "practice_today_none": "Nothing to review today",
+  "practice_today_none_lede": "The questions of the modules you complete come here, a few each day.",
+  "practice_today_done": "That is all for today",
+  "practice_today_done_lede": "The next cards come tomorrow.",
+  "practice_go_wrong": "Go to Wrong answers",
+  "practice_wrong": "Wrong answers",
+  "practice_wrong_count": "{count, plural, =0{None now} =1{1 question} other{{count} questions}}",
+  "@practice_wrong_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_wrong_all": "Answer them all",
+  "practice_wrong_none": "No wrong answers now.",
+  "practice_brief": "A module in 2 minutes",
+  "practice_brief_count": "{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}",
+  "@practice_brief_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "practice_brief_lede": "The Summary and the Key Terms of a module you completed, card by card.",
+  "brief_summary": "Summary",
+  "brief_terms": "Key Terms",
+  "brief_take_quiz": "Take the quiz",
+  "brief_end": "That is the module. Its quiz checks what stayed.",
+  "brief_step": "{step} of {count}",
+  "@brief_step": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "brief_previous": "Previous card",
+  "brief_next": "Next card",
+  "brief_open_module": "Open the module",
+  "practice_glossary": "Glossary",
+  "practice_glossary_count": "{count, plural, =0{No terms yet} =1{1 term} other{{count} terms}}",
+  "@practice_glossary_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "glossary_find": "Find a term",
+  "glossary_find_clear": "Clear the search",
+  "glossary_none": "No term matches.",
+  "glossary_in": "In these modules",
+  "practice_quizzes": "Quizzes by level",
+  "practice_latest": "{right} of {total} right at the last answer",
+  "@practice_latest": {
+    "placeholders": {
+      "right": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "review_progress": "Card {step} of {count}",
+  "@review_progress": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "review_term": "Term",
+  "review_term_show": "Show the definition",
+  "review_term_knew": "Knew it",
+  "review_term_not_yet": "Not yet",
+  "review_finish": "Finish",
+  "review_result": "{right} of {total} right",
+  "@review_result": {
+    "placeholders": {
+      "right": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "review_back": "Back to Practice",
+  "review_back_home": "Back to Home",
+  "review_empty": "No cards to show.",
+  "review_section_link": "This is in: {section}",
+  "@review_section_link": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
     }
   }
 }

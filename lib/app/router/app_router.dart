@@ -20,10 +20,15 @@ import 'package:ai_engineering_bazaar/features/pocket_model/navigation/pocket_mo
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_portrait.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
-import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/practice_page.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/brief_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/glossary_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/module_brief_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/review_session_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/wrong_answers_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
@@ -117,8 +122,14 @@ class AppRouterFactory {
             _pageOf('levelEveryone', '/everyone/sheets/:level', (state) => _level(state, Track.everyone)),
             _pageOf('module', '/courses/:level/:module', (state) => _reader(state, Track.engineers)),
             _pageOf('moduleEveryone', '/everyone/courses/:level/:module', (state) => _reader(state, Track.everyone)),
-            // The Quiz tab in place of the progress page, whose cards moved to the catalog (plan 1AB, 1AC).
-            _page('quizzes', BazaarPaths.quizzes, const QuizListPage()),
+            // Practice, once the Quiz tab, in place of the progress page, whose cards moved to the catalog (plan 1AB, 13.2).
+            _page('practice', BazaarPaths.practice, const PracticePage()),
+            // Wrong answers, in the shell under Practice (plan 13.4).
+            _page('practiceWrong', BazaarPaths.practiceWrong, const WrongAnswersPage()),
+            // A module in 2 minutes: the completed modules (plan 13.7).
+            _page('practiceBrief', BazaarPaths.practiceBrief, const BriefListPage()),
+            // The glossary (plan 13.8).
+            _page('practiceGlossary', BazaarPaths.practiceGlossary, const GlossaryPage()),
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.
@@ -144,10 +155,26 @@ class AppRouterFactory {
         ),
         // The story of the Bazaar, a film over the whole app with no bar and no navigation (plan 3.5).
         ...AboutFeatureRoutes.routes(),
-        // A module's quiz full screen, over the shell, from the Quiz tab or Home's practice (plan 1AC, 1AD).
+        // Practice's sessions full screen, over the shell (plan 13.3, 13.4).
+        _pageOf(
+          'practiceReview',
+          BazaarPaths.practiceReview,
+          (state) => ReviewSessionPage(
+            kind: ReviewKind.today,
+            fromHome: state.uri.queryParameters[BazaarPaths.fromParam] == BazaarPaths.fromHome,
+          ),
+        ),
+        _page('practiceWrongAll', BazaarPaths.practiceWrongAll, const ReviewSessionPage(kind: ReviewKind.wrong)),
+        // A module's cards in 2 minutes, full screen (plan 13.7).
+        _pageOf(
+          'practiceBriefOf',
+          '${BazaarPaths.practiceBrief}/:level/:module',
+          (state) => ModuleBriefPage(moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}'),
+        ),
+        // A module's quiz full screen, over the shell, from Practice (plan 1AC, 13.2).
         _pageOf(
           'quiz',
-          '${BazaarPaths.quizzes}/:level/:module',
+          '/quiz/:level/:module',
           (state) => QuizPage(moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}'),
         ),
         // The web's catalog paths that are not pages of their own here.

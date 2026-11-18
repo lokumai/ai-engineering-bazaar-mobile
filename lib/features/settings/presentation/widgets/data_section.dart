@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/res
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
@@ -27,6 +28,7 @@ class DataSection extends StatelessWidget {
         gateway: context.read<IBackupGateway>(),
         repository: context.read<IRecordRepository>(),
         scores: context.read<QuizScoresBloc>(),
+        review: context.read<ReviewBloc>(),
         places: context.read<ReadingPlacesBloc>(),
       ),
       child: const _DataWithBloc(),

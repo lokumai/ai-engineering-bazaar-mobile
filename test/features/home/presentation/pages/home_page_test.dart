@@ -3,7 +3,9 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
@@ -11,21 +13,19 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Locale, Size, Text, ValueKey;
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, Text, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
+import '../../../../mocks/mock_classes.dart';
 import '../../../../support/catalog_fixture_index.dart';
+import '../../../../support/content_builders.dart';
 
 const _now = '2026-11-09T10:00:00.000Z';
 
@@ -37,8 +37,8 @@ Future<GoRouter> _pumpHome(
   RecordData? record,
   BundleIndex? index,
   TrackCubit? track,
-  QuizScoresBloc? scores,
   ReadingPlacesBloc? places,
+  MockContentRepository? repository,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
   LanguageCubit? language,
@@ -51,8 +51,8 @@ Future<GoRouter> _pumpHome(
       content: readyContentBloc(index),
       record: readyRecordBloc(record),
       track: track,
-      scores: scores,
       places: places,
+      repository: repository,
       platform: platform,
       locale: locale,
       language: language,
@@ -228,41 +228,51 @@ void main() {
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets('practice offers the quizzes of the modules completed last, and opens one full screen (plan 1AD)', (
+  testWidgets("one row offers Today's review of the completed modules' questions, and starts it (plan 13.2)", (
     tester,
   ) async {
-    final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']));
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _quiz));
+    final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), repository: repository);
 
-    final practice = find.byKey(const ValueKey('home-practice-alpha/first'), skipOffstage: false);
-    expect(find.text('Quizzes to practise', skipOffstage: false), findsOneWidget);
-    expect(practice, findsOneWidget);
-    expect(find.byKey(const ValueKey('home-practice-beta/fourth'), skipOffstage: false), findsOneWidget);
-
-    await _tap(tester, practice);
-    expect(_path(router), '/quiz/alpha/first');
+    final row = find.byKey(const Key('home-review'), skipOffstage: false);
+    expect(find.text('4 cards, about 2 min', skipOffstage: false), findsOneWidget, reason: 'two questions each');
+    expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'the three rows are gone');
+    final heading = find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false);
+    expect(heading, findsOneWidget, reason: "Practice's own heading, not the tab's name");
+    final tops = [
+      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row])
+        tester.getTopLeft(finder).dy,
+      tester.getTopLeft(find.text('Later on', skipOffstage: false)).dy,
+    ];
+    expect(
+      tops,
+      [...tops]..sort(),
+      reason: "the day's card, then Practice's heading and its card, then Later on (the owner, 2026-11-18)",
+    );
+    expect(
+      find.descendant(of: row, matching: find.byIcon(Icons.school_rounded)),
+      findsOneWidget,
+      reason: "the tab's cap",
+    );
+    await _tap(tester, row);
+    expect(_path(router), '/practice/review');
   });
 
-  testWidgets('a practised quiz shows its last score as segments, with no words, the one not taken first (plan 1W)', (
-    tester,
-  ) async {
-    final scores = QuizScoresBloc(
-      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 1, best: 1, total: 2, previous: 0)}),
-    )..add(const QuizScoresStarted());
-    addTearDown(scores.close);
-    tester.view.physicalSize = const Size(800, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
-    await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), scores: scores);
-
-    final first = find.byKey(const ValueKey('home-practice-alpha/first'), skipOffstage: false);
-    final fourth = find.byKey(const ValueKey('home-practice-beta/fourth'), skipOffstage: false);
-    expect(tester.getTopLeft(fourth).dy, lessThan(tester.getTopLeft(first).dy), reason: 'not taken comes first');
-    final meter = tester.widget<SegmentMeter>(
-      find.descendant(of: first, matching: find.byType(SegmentMeter), skipOffstage: false),
+  testWidgets('no review row before a module is completed', (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _quiz));
+    await _pumpHome(tester, repository: repository);
+    expect(find.byKey(const Key('home-review'), skipOffstage: false), findsNothing);
+    expect(
+      find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false),
+      findsNothing,
+      reason: 'no heading without its card',
     );
-    expect((meter.done, meter.total), (1, 2));
-    expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
-    expect(find.descendant(of: fourth, matching: find.byType(SegmentMeter), skipOffstage: false), findsNothing);
-    expect(find.textContaining('Last 1 of 2', skipOffstage: false), findsNothing);
   });
 }
+
+const _quiz = [
+  QuizItem(question: 'Q1', options: ['One', 'Two'], answer: 0, explain: 'E1'),
+  QuizItem(question: 'Q2', options: ['One', 'Two'], answer: 1, explain: 'E2'),
+];

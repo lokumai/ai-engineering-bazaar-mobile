@@ -78,7 +78,7 @@ lib/
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's horse, Quiz, Settings;
+                                                with small names (Home, Catalog, the Caravan's horse, Practice, Settings;
                                                 shared/design_system/widgets/caravan_icon.dart)
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
@@ -87,7 +87,8 @@ lib/
     content/                                    FileContentRepository, BundledContent, ContentHttp, object store
     storage/record/file_record_repository.dart  record files under Application Support/record/
     storage/flags/file_flag_store.dart          the app's own flags under Application Support/flags/ (Welcome seen)
-    storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json)
+    storage/text/file_text_store.dart           one text file of the app's own, written atomically (quiz/scores.json,
+                                                quiz/review.json)
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
     theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
@@ -96,12 +97,20 @@ lib/
                                                 word rules (search_text.dart)
     content/application/                        ContentBloc
     content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart,
-                                                the marks of the words searched (text_find.dart)
+                                                the marks of the words searched (text_find.dart), the glossary's terms
+                                                dotted in a module's text (term_scope.dart)
     record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
+    review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
+                                                and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
+                                                review, Wrong answers); the app's own, never in the record
+    study/                                      a module's Key Terms, Summary and quiz found by place and shape
+                                                (module_notes.dart), where a text uses a term (term_marks.dart),
+                                                StudyNotesCubit that reads them for a track and
+                                                language, StudyNotesLoader that asks for them under the pages that show them
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
@@ -124,16 +133,20 @@ lib/
                                                 phone's measure
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
     utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
+    utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
-                                                app fills with the Apprentice's corner), the modules later on, practice,
-                                                the path; the band over the navigation with the module to read now
+                                                app fills with the Apprentice's corner), the modules later on, the row to
+                                                Today's review, the path; the band over the navigation with the module to read now
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
-    reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views
-    quiz/                                       QuizCubit, the quiz card, the full-screen quiz, the Quiz tab at `/quiz` and a
-                                                module's quiz at `/quiz/<level>/<module>`
+    reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views,
+                                                the bubble with a tapped term's definition
+    quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
+                                                the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
+                                                `/practice` (Today's review, Wrong answers, the quizzes by level) and its
+                                                sessions (ReviewSessionCubit, options shuffled in Practice only)
     settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the

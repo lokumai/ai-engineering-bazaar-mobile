@@ -13,21 +13,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 import 'package:equatable/equatable.dart';
-
-/// The day [now] falls on, counted from 1970-01-01 in the reader's own calendar: it turns at local midnight. A UTC
-/// moment is read in the local zone first.
-int dayNumber(DateTime now) {
-  final local = now.toLocal();
-  return DateTime.utc(local.year, local.month, local.day).millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
-}
-
-/// How long from [now] until a moment past the next local midnight. A UTC moment is read in the local zone first, so
-/// the wait is never below zero: east of UTC, a UTC moment's own date can be the day before the local one.
-Duration untilLocalMidnight(DateTime now) {
-  final local = now.toLocal();
-  return DateTime(local.year, local.month, local.day + 1).difference(local) + const Duration(seconds: 1);
-}
 
 /// The module the day's card is taken from, and how many times the card has come round to it before.
 final class DailyChoice extends Equatable {

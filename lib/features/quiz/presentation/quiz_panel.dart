@@ -9,8 +9,11 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart'
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_frame.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_option.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,29 +21,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Widget buildQuizPanel(BuildContext context, String moduleKey, List<QuizItem> items) =>
     QuizPanel(moduleKey: moduleKey, items: items);
 
-/// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W).
+/// A [QuizCubit] over [items] that hands each finished attempt to the scores of this device (plan 1W), and each answer
+/// to Practice's history (plan 13.1).
 QuizCubit quizCubitFor(BuildContext context, String moduleKey, List<QuizItem> items) {
   final scores = context.read<QuizScoresBloc>()..add(QuizLengthSeen(key: moduleKey, total: items.length));
+  final review = context.read<ReviewBloc>()..add(ReviewQuizLengthSeen(moduleKey: moduleKey, length: items.length));
   return QuizCubit(
     items,
     onFinished: (right, total) => scores.add(QuizScoreRecorded(key: moduleKey, right: right, total: total)),
+    onAnswered: (index, right) =>
+        review.add(ReviewAnswered(key: questionKey(moduleKey, index), right: right, length: items.length)),
   );
-}
-
-/// The letter of option [index]: A, B, C, D (web `QuickQuiz.tsx:35`).
-String _letter(int index) => String.fromCharCode(0x41 + index);
-
-/// The size [text] takes in [style] at the current text scale, so a box sized from it grows with the text (spec 3.10).
-Size _textSize(BuildContext context, String text, TextStyle style) {
-  final painter = TextPainter(
-    text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
-    textDirection: Directionality.of(context),
-    textScaler: MediaQuery.textScalerOf(context),
-    maxLines: 1,
-  )..layout();
-  final size = painter.size;
-  painter.dispose();
-  return size;
 }
 
 /// The quiz at the end of a module on either track (web D137, `QuickQuiz.tsx`, `ModuleSheet.tsx:493-509`) as the
@@ -268,17 +259,17 @@ class _QuestionView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < item.options.length; i++) ...[
-          _OptionButton(
-            letter: _letter(i),
+          QuizOptionButton(
+            letter: quizLetter(i),
             text: item.options[i],
             selected: pick == i,
             outcome: !answered
-                ? _Outcome.open
+                ? QuizOutcome.open
                 : i == item.answer
-                ? _Outcome.right
+                ? QuizOutcome.right
                 : pick == i
-                ? _Outcome.wrong
-                : _Outcome.other,
+                ? QuizOutcome.wrong
+                : QuizOutcome.other,
             onPressed: answered ? null : () => cubit.pick(i),
           ),
           const SizedBox(height: 8),
@@ -287,7 +278,7 @@ class _QuestionView extends StatelessWidget {
           key: const Key('quiz-verdict'),
           container: true,
           liveRegion: true,
-          child: answered ? _Verdict(item: item, right: pick == item.answer) : const SizedBox.shrink(),
+          child: answered ? QuizVerdict(item: item, right: pick == item.answer) : const SizedBox.shrink(),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -303,140 +294,6 @@ class _QuestionView extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// How an option is drawn: before the answer, the right option, the wrong pick, or any other option once answered.
-enum _Outcome { open, right, wrong, other }
-
-/// One option: its letter and text in `onSurface` on `surfaceRaised` in every state (the web's `on-primary` letter on
-/// a `success` or `fault` disc reads under 4.5:1), the outcome shown by an edge and an icon only.
-class _OptionButton extends StatelessWidget {
-  const _OptionButton({
-    required this.letter,
-    required this.text,
-    required this.selected,
-    required this.outcome,
-    required this.onPressed,
-  });
-
-  final String letter;
-  final String text;
-  final bool selected;
-  final _Outcome outcome;
-
-  /// Null once the question is answered: the option is then disabled, as the web's `aria-disabled` option is.
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.bazaarColors;
-    final edge = switch (outcome) {
-      _Outcome.right => const BorderSide(color: BazaarFixedColors.success, width: 2),
-      _Outcome.wrong => BorderSide(color: colors.fault, width: 2),
-      _Outcome.open || _Outcome.other => BorderSide(color: colors.lineStrong),
-    };
-    final ink = outcome == _Outcome.other ? colors.onSurfaceMuted : colors.onSurface;
-    final icon = switch (outcome) {
-      _Outcome.right => const Icon(Icons.check, color: BazaarFixedColors.success),
-      _Outcome.wrong => Icon(Icons.close, color: colors.fault),
-      _Outcome.open || _Outcome.other => null,
-    };
-    final target = minTapTarget(Theme.of(context).platform);
-    final letterStyle = TextStyle(fontSize: BazaarType.mark.size, fontWeight: FontWeight.w600, color: ink);
-    // 26 at text scale 1.0; larger text grows the circle around its letter instead of cutting the letter off.
-    final letterSize = _textSize(context, letter, letterStyle);
-    final diameter = math.max(26.0, (math.max(letterSize.width, letterSize.height) + 8).ceilToDouble());
-    return Semantics(
-      container: true,
-      button: true,
-      inMutuallyExclusiveGroup: true,
-      selected: selected,
-      enabled: onPressed != null,
-      label: '$letter $text',
-      onTap: onPressed,
-      excludeSemantics: true,
-      child: Material(
-        color: colors.surfaceRaised,
-        shape: RoundedRectangleBorder(side: edge, borderRadius: const BorderRadius.all(BazaarRadii.md)),
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const RoundedRectangleBorder(borderRadius: BorderRadius.all(BazaarRadii.md)),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: target),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: diameter,
-                    height: diameter,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colors.lineStrong),
-                    ),
-                    child: Text(letter, style: letterStyle),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      text,
-                      style: TextStyle(fontSize: BazaarType.control.size, color: ink),
-                    ),
-                  ),
-                  if (icon != null) ...[const SizedBox(width: 8), ExcludeSemantics(child: icon)],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The verdict of an answered question and its explanation, on `surfaceSunken` with a 3 px edge at the start of the line
-/// (the right in Persian) in `success` or `fault`; the text stays `onSurface` (Decision A18).
-class _Verdict extends StatelessWidget {
-  const _Verdict({required this.item, required this.right});
-
-  final QuizItem item;
-  final bool right;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
-    final edge = right ? BazaarFixedColors.success : colors.fault;
-    final style = TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface);
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: colors.surfaceSunken,
-        border: BorderDirectional(start: BorderSide(color: edge, width: 3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              ExcludeSemantics(child: Icon(right ? Icons.check : Icons.close, color: edge, size: 20)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  right ? s.quiz_correct : s.quiz_wrong(_letter(item.answer)),
-                  style: style.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(item.explain, style: style),
-        ],
-      ),
     );
   }
 }
@@ -601,7 +458,7 @@ class _RecapRow extends StatelessWidget {
               children: [
                 // 24 at text scale 1.0, wider when larger text needs it, the same in every row.
                 SizedBox(
-                  width: math.max(24.0, (_textSize(context, '$count.', style).width + 4).ceilToDouble()),
+                  width: math.max(24.0, (quizTextSize(context, '$count.', style).width + 4).ceilToDouble()),
                   child: Text('$number.', style: style),
                 ),
                 ExcludeSemantics(

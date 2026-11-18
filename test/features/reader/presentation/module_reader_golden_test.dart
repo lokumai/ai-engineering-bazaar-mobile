@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:alchemist/alchemist.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -98,6 +99,7 @@ Widget _reader({required bool dark}) {
             BlocProvider<ContentBloc>.value(value: readyContentBloc(testIndex())),
             BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
             BlocProvider<ReadingStyleCubit>(create: (_) => ReadingStyleCubit()),
+            BlocProvider<StudyNotesCubit>(create: (_) => StudyNotesCubit(repository: _repository())),
           ],
           child: const ModuleReaderView(),
         ),

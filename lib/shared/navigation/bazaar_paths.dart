@@ -14,7 +14,33 @@ abstract final class BazaarPaths {
   static const home = '/';
   static const catalogEngineers = '/sheets';
   static const catalogEveryone = '/everyone/sheets';
-  static const quizzes = '/quiz';
+
+  /// The Practice tab (plan 13.2), once the Quiz tab.
+  static const practice = '/practice';
+
+  /// Today's review full screen (plan 13.3).
+  static const practiceReview = '$practice/review';
+
+  /// Where a session was opened from, as a query parameter: from Home, its results lead back to Home, from Practice
+  /// to Practice (the owner, 2026-11-18).
+  static const fromParam = 'from';
+  static const fromHome = 'home';
+
+  /// Today's review full screen, opened from Home.
+  static const practiceReviewFromHome = '$practiceReview?$fromParam=$fromHome';
+
+  /// Wrong answers (plan 13.4), and every one of them asked full screen.
+  static const practiceWrong = '$practice/wrong';
+  static const practiceWrongAll = '$practiceWrong/all';
+
+  /// A module in 2 minutes (plan 13.7): the completed modules, and one module's cards full screen.
+  static const practiceBrief = '$practice/brief';
+  static String practiceBriefOf(String key) => '$practiceBrief/$key';
+
+  /// The glossary (plan 13.8).
+  static const practiceGlossary = '$practice/glossary';
+
+  static const _quiz = '/quiz';
 
   /// The Caravan, the web's trends timeline (`/caravan/`), drawn on the web's sample trends until the bundle carries
   /// the author's (plan 9.1).
@@ -39,7 +65,7 @@ abstract final class BazaarPaths {
   static String module(Track track, String key) => '${_prefix(track)}/$_courses/$key';
 
   /// The quiz of the module [key] full screen, `/quiz/<key>` (plan 1AC; the web has no quiz page, A9).
-  static String quiz(String key) => '$quizzes/$key';
+  static String quiz(String key) => '$_quiz/$key';
 
   /// The track a catalog or module page belongs to; null for every other location, Home included.
   static Track? trackOf(String location) => _parse(location)?.track;

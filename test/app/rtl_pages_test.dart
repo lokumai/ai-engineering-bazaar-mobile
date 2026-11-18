@@ -15,7 +15,7 @@ void main() {
     ('Home', '/'),
     ('the catalog', '/sheets'),
     ("a level's page", '/sheets/alpha'),
-    ('Quiz', '/quiz'),
+    ('Practice', '/practice'),
     ('Settings', '/settings'),
     ("a module's page", '/courses/alpha/first'),
   ]) {

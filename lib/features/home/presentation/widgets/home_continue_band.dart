@@ -7,7 +7,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dar
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -43,14 +42,7 @@ class HomeContinueBand extends StatelessWidget {
     if (index == null || record == null || places == null) return const SizedBox.shrink();
     final track = context.watch<TrackCubit>().state;
     final language = context.watch<LanguageCubit>().state;
-    final next = homeOverview(
-      index,
-      track,
-      record,
-      scores: const <String, QuizScore>{},
-      places: places,
-      language: language,
-    ).next;
+    final next = homeOverview(index, track, record, places: places, language: language).next;
     if (next == null) return const SizedBox.shrink();
     final share = next.share;
     final s = S.of(context);

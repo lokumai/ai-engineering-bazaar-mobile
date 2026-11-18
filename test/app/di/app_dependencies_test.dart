@@ -14,6 +14,7 @@ import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
@@ -353,10 +354,16 @@ void main() {
     );
 
     expect(await dependencies.createTourStore().load(), const TourRecord());
-    const record = TourRecord(guiding: true, seen: {'home', 'quiz'});
+    const record = TourRecord(guiding: true, seen: {'home', 'practice'});
     await dependencies.createTourStore().save(const TourRecord(asking: true));
     await dependencies.createTourStore().save(record);
     expect(await dependencies.createTourStore().load(), record, reason: 'kept for the next start, the question gone');
+    await dependencies.createTourStore().save(const TourRecord(guiding: true, seen: {'home', 'quiz'}));
+    expect(
+      await dependencies.createTourStore().load(),
+      const TourRecord(guiding: true, seen: {'home'}),
+      reason: "the Quiz tab's page is not Practice's, so Practice is still shown (plan 13.11)",
+    );
     expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
   });
 
@@ -399,6 +406,28 @@ void main() {
     expect(await dependencies.createPocketModelStore().loadTemperature(), isNull, reason: 'not a number');
     File('${root.path}/toy/temperature.txt').writeAsStringSync('9');
     expect(await dependencies.createPocketModelStore().loadTemperature(), isNull, reason: 'out of its range');
+  });
+
+  test("createReviewStore keeps Practice's history in one file beside the scores (plan 13.1)", () async {
+    final root = Directory.systemTemp.createTempSync('review_store_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+
+    final store = dependencies.createReviewStore();
+    expect(store, isA<FileReviewStore>());
+    expect(await store.load(), ReviewHistory.empty);
+
+    final history = ReviewHistory.empty.answered('alpha/first#0', right: true, today: 1, length: 3);
+    await store.save(history);
+    expect(await dependencies.createReviewStore().load(), history, reason: 'kept for the next start');
+    expect(File('${root.path}/quiz/review.json').existsSync(), isTrue);
+    expect(Directory('${root.path}/record').existsSync(), isFalse, reason: 'never in the record');
+
+    await store.save(ReviewHistory.empty);
+    expect(File('${root.path}/quiz/review.json').existsSync(), isFalse, reason: 'no history, no file');
   });
 
   test('createReadingPlaceStore keeps the places in one file under the support directory (plan 1BA)', () async {

@@ -2,20 +2,20 @@
 library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
-import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/quiz_list_page.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/practice_page.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,12 +39,13 @@ const _items = [
 
 Future<GoRouter> _pump(
   WidgetTester tester, {
-  String location = '/quiz',
+  String location = '/practice',
   TrackCubit? track,
   MockContentRepository? repository,
   QuizScoresBloc? scores,
   LanguageCubit? language,
   BundleIndex? index,
+  ReviewBloc? review,
 }) async {
   final router = AppRouterFactory(initialLocation: location).create();
   addTearDown(router.dispose);
@@ -56,6 +57,7 @@ Future<GoRouter> _pump(
       scores: scores,
       language: language,
       content: index == null ? null : readyContentBloc(index),
+      review: review,
     ),
   );
   await tester.pumpAndSettle();
@@ -75,35 +77,54 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// The quiz row [moduleKey]'s segments in order, each 'right', 'wrong' or 'none'.
+List<String> _segments(WidgetTester tester, String moduleKey) => [
+  for (final element
+      in find
+          .descendant(
+            of: find.byKey(PracticePage.rowKey(moduleKey)),
+            matching: find.byWidgetPredicate((widget) => '${widget.key}'.contains("'answer-")),
+          )
+          .evaluate())
+    RegExp(r"answer-\d+-(\w+)'").firstMatch('${element.widget.key}')!.group(1)!,
+];
+
 const _titles = {'alpha': 'Alpha Level', 'beta': 'Beta Level', 'gamma': 'Gamma Level'};
 
-/// Opens the levels [slugs] on the Quiz tab, unless open already.
+/// Opens the levels [slugs] on Practice, unless open already; they stand under Today's review, so the page scrolls to
+/// each first.
 Future<void> _openLevels(WidgetTester tester, List<String> slugs) async {
   for (final slug in slugs) {
-    await openFold(tester, find.bySemanticsLabel(RegExp('^${_titles[slug]},')));
+    final button = find.bySemanticsLabel(RegExp('^${_titles[slug]},'));
+    await tester.scrollUntilVisible(button, 200, scrollable: find.byType(Scrollable).first);
+    await openFold(tester, button);
   }
 }
+
+/// Scrolls Practice until [target] is drawn: the levels sit below its head, off a test screen.
+Future<void> _scrollTo(WidgetTester tester, Finder target) =>
+    tester.scrollUntilVisible(target, 200, scrollable: find.byType(Scrollable).first);
 
 void main() {
   setUpAll(registerAllFallbackValues);
 
-  testWidgets('the Quiz tab lists every quiz by level, under the Quiz destination', (tester) async {
+  testWidgets('Practice lists every quiz by level, under the Practice destination', (tester) async {
     await _pump(tester);
 
     expect(
-      find.descendant(of: find.byType(ListView), matching: find.text('Quiz')),
+      find.descendant(of: find.byType(ListView), matching: find.text('Practice')),
       findsOneWidget,
       reason: 'its name',
     );
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 3);
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
-    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsOneWidget, reason: 'alpha/first is next to read');
+    expect(find.byKey(PracticePage.rowKey('beta/fourth')), findsNothing, reason: 'the other levels start closed');
     expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 0 of 2 taken$')), findsOneWidget);
     await _openLevels(tester, ['alpha', 'beta', 'gamma']);
     for (final key in ['alpha/first', 'alpha/second', 'beta/fourth', 'gamma/sixth']) {
-      expect(find.byKey(QuizListPage.rowKey(key)), findsOneWidget, reason: key);
+      expect(find.byKey(PracticePage.rowKey(key)), findsOneWidget, reason: key);
     }
-    expect(find.byKey(QuizListPage.rowKey('alpha/third')), findsNothing, reason: 'planned, no quiz');
+    expect(find.byKey(PracticePage.rowKey('alpha/third')), findsNothing, reason: 'planned, no quiz');
     expect(find.bySemanticsLabel('01 First Module'), findsOneWidget);
     expect(find.textContaining('come with the'), findsNothing);
   });
@@ -128,19 +149,23 @@ void main() {
     final router = await _pump(tester);
     await _tap(tester, find.bySemanticsLabel(RegExp('^Alpha Level,')));
     await _openLevels(tester, ['beta']);
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing);
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsNothing);
 
     router.go('/settings');
     await tester.pumpAndSettle();
-    router.go('/quiz');
+    router.go('/practice');
     await tester.pumpAndSettle();
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'alpha stays closed');
-    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsOneWidget, reason: 'beta stays open');
+    await _scrollTo(tester, find.bySemanticsLabel(RegExp('^Beta Level,')));
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsNothing, reason: 'alpha stays closed');
+    await _scrollTo(tester, find.byKey(PracticePage.rowKey('beta/fourth')));
+    expect(find.byKey(PracticePage.rowKey('beta/fourth')), findsOneWidget, reason: 'beta stays open');
 
     await tester.pumpWidget(const SizedBox());
     await _pump(tester);
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'a new launch');
-    expect(find.byKey(QuizListPage.rowKey('beta/fourth')), findsNothing);
+    await _scrollTo(tester, find.byKey(PracticePage.rowKey('alpha/first')));
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsOneWidget, reason: 'a new launch');
+    await _scrollTo(tester, find.bySemanticsLabel(RegExp('^Gamma Level,')));
+    expect(find.byKey(PracticePage.rowKey('beta/fourth')), findsNothing);
   });
 
   testWidgets(
@@ -152,32 +177,65 @@ void main() {
       addTearDown(scores.close);
       await _pump(tester, scores: scores);
 
-      expect(find.text('Last 1 of 2 · best 2 of 2'), findsNothing, reason: 'no words');
-      final meter = tester.widget<SegmentMeter>(
-        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.byType(SegmentMeter)),
-      );
-      expect((meter.done, meter.total), (1, 2), reason: 'the last score, one segment per question');
-      expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
-      expect(
-        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/second')), matching: find.byType(SegmentMeter)),
-        findsNothing,
-      );
+      expect(_segments(tester, 'alpha/first'), ['right', 'wrong'], reason: 'the last score, one segment per question');
+      expect(_segments(tester, 'alpha/second'), isEmpty);
       expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
-      expect(find.bySemanticsLabel('01 First Module, All answers right, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('01 First Module, 1 of 2 right at the last answer'), findsOneWidget);
       expect(
-        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
-        findsOneWidget,
-        reason: 'the best attempt was all right: the catalog check, not the question mark',
+        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+        findsNothing,
+        reason: 'the last attempt had a wrong answer, though the best was all right',
       );
       expect(
-        find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/second')), matching: find.text('?')),
+        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.text('?')),
         findsOneWidget,
       );
       expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
       expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz, 0 of 1 taken$')), findsOneWidget);
+      final beta = find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz, 0 of 1 taken$'));
+      await tester.scrollUntilVisible(beta, 200, scrollable: find.byType(Scrollable).first);
+      expect(beta, findsOneWidget);
     },
   );
+
+  testWidgets("the quizzes' segments follow each question's latest answer, Practice's too (the owner, 2026-11-18)", (
+    tester,
+  ) async {
+    final scores = QuizScoresBloc(
+      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 2, best: 2, total: 2, previous: 2)}),
+    )..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
+    addTearDown(review.close);
+    await _pump(tester, scores: scores, review: review);
+    expect(_segments(tester, 'alpha/first'), ['right', 'right']);
+
+    review.add(const ReviewAnswered(key: 'alpha/first#1', right: false, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/first'), ['none', 'wrong'], reason: 'a wrong answer in a review shows at once');
+    expect(
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      findsNothing,
+    );
+    expect(find.bySemanticsLabel('01 First Module, 0 of 2 right at the last answer'), findsOneWidget);
+
+    review
+      ..add(const ReviewAnswered(key: 'alpha/first#0', right: true, length: 2, inReview: true))
+      ..add(const ReviewAnswered(key: 'alpha/first#1', right: true, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/first'), ['right', 'right']);
+    expect(
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      findsOneWidget,
+      reason: 'every latest answer right: the catalog check',
+    );
+    expect(find.text('1/2'), findsOneWidget);
+
+    review.add(const ReviewAnswered(key: 'alpha/second#0', right: false, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/second'), ['wrong', 'none']);
+    expect(find.text('2/2'), findsOneWidget, reason: 'a quiz answered in Practice counts as taken in the level dial');
+  });
 
   testWidgets('a For Everyone reader sees the quizzes of the modules written For Everyone, under their titles there', (
     tester,
@@ -187,19 +245,19 @@ void main() {
     await _pump(tester, track: track);
 
     await _openLevels(tester, ['alpha']);
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget);
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsOneWidget);
     expect(
-      find.descendant(of: find.byKey(QuizListPage.rowKey('alpha/first')), matching: find.text('First Story')),
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.text('First Story')),
       findsOneWidget,
     );
-    expect(find.byKey(QuizListPage.rowKey('alpha/second')), findsNothing, reason: 'not written For Everyone');
+    expect(find.byKey(PracticePage.rowKey('alpha/second')), findsNothing, reason: 'not written For Everyone');
   });
 
   testWidgets('a row opens the quiz full screen, titled with the module, and Done comes back', (tester) async {
     final router = await _pump(tester, repository: _withQuiz());
     await _openLevels(tester, ['alpha']);
 
-    await _tap(tester, find.byKey(QuizListPage.rowKey('alpha/first')));
+    await _tap(tester, find.byKey(PracticePage.rowKey('alpha/first')));
     expect(router.state.uri.path, '/quiz/alpha/first');
     expect(find.byType(QuizScreen), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget);
@@ -214,11 +272,11 @@ void main() {
     await _tap(tester, find.text('Two'));
     await _tap(tester, find.text('See results'));
     await _tap(tester, find.text('Done'));
-    expect(router.state.uri.path, '/quiz');
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsOneWidget, reason: 'the level stays open');
+    expect(router.state.uri.path, '/practice');
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsOneWidget, reason: 'the level stays open');
 
     await _tap(tester, find.bySemanticsLabel(RegExp('^Alpha Level,')));
-    expect(find.byKey(QuizListPage.rowKey('alpha/first')), findsNothing, reason: 'a second tap closes it');
+    expect(find.byKey(PracticePage.rowKey('alpha/first')), findsNothing, reason: 'a second tap closes it');
   });
 
   testWidgets('a quiz that cannot be read says so, and closes', (tester) async {
@@ -227,30 +285,30 @@ void main() {
     final router = await _pump(tester, repository: repository);
     await _openLevels(tester, ['beta']);
 
-    await _tap(tester, find.byKey(QuizListPage.rowKey('beta/fourth')));
+    await _tap(tester, find.byKey(PracticePage.rowKey('beta/fourth')));
     expect(find.text('This quiz could not be opened. Close it and try again later.'), findsOneWidget);
     await _tap(tester, find.byType(CloseButton));
-    expect(router.state.uri.path, '/quiz');
+    expect(router.state.uri.path, '/practice');
   });
 
   testWidgets('text scale 2.0', (tester) async {
-    final router = AppRouterFactory(initialLocation: '/quiz').create();
+    final router = AppRouterFactory(initialLocation: '/practice').create();
     addTearDown(router.dispose);
     await pumpAtTextScale(tester, bazaarTestApp(router: router), scale: 2.0);
 
     expect(tester.takeException(), isNull);
     final list = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
-    final gamma = find.byKey(QuizListPage.levelKey('gamma'));
+    final gamma = find.byKey(PracticePage.levelKey('gamma'));
     await tester.scrollUntilVisible(gamma, 200, scrollable: list);
     await _tap(tester, gamma);
-    final last = find.byKey(QuizListPage.rowKey('gamma/sixth'));
+    final last = find.byKey(PracticePage.rowKey('gamma/sixth'));
     await tester.scrollUntilVisible(last, 200, scrollable: list);
     await tester.pump();
     expectHittable(tester, last);
   });
 
   testWidgets('meets the platform guidelines', variant: bazaarPlatforms, (tester) async {
-    final router = AppRouterFactory(initialLocation: '/quiz').create();
+    final router = AppRouterFactory(initialLocation: '/practice').create();
     addTearDown(router.dispose);
     await tester.pumpWidget(bazaarTestApp(platform: defaultTargetPlatform, router: router));
     await tester.pumpAndSettle();
