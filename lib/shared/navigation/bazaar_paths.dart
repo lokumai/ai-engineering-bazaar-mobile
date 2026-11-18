@@ -29,6 +29,9 @@ abstract final class BazaarPaths {
   /// Today's review full screen, opened from Home.
   static const practiceReviewFromHome = '$practiceReview?$fromParam=$fromHome';
 
+  /// The Practice tab's endless review, full screen (the owner, 2026-11-18).
+  static const practiceEndless = '$practice/endless';
+
   /// Wrong answers (plan 13.4), and every one of them asked full screen.
   static const practiceWrong = '$practice/wrong';
   static const practiceWrongAll = '$practiceWrong/all';

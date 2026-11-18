@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -125,8 +126,16 @@ void main() {
       expect(find.byKey(PracticePage.rowKey(key)), findsOneWidget, reason: key);
     }
     expect(find.byKey(PracticePage.rowKey('alpha/third')), findsNothing, reason: 'planned, no quiz');
-    expect(find.bySemanticsLabel('01 First Module'), findsOneWidget);
+    expect(find.bySemanticsLabel('First Module'), findsOneWidget);
     expect(find.textContaining('come with the'), findsNothing);
+    final level = find.byKey(PracticePage.levelKey('alpha'));
+    expect(
+      find.ancestor(of: level, matching: find.byType(BazaarCard)),
+      findsNothing,
+      reason: "a row on the page's ground, not a card (the owner, 2026-11-18)",
+    );
+    expect(find.descendant(of: level, matching: find.byType(BazaarCard)), findsNothing);
+    expect(find.textContaining(RegExp(r'^0\d'), findRichText: true), findsNothing, reason: 'no numbers');
   });
 
   testWidgets("a quiz's row is titled in the chosen language (web D139)", (tester) async {
@@ -139,8 +148,8 @@ void main() {
         },
       ),
     );
-    expect(find.bySemanticsLabel('01 Birinci Modül'), findsOneWidget);
-    expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget);
+    expect(find.bySemanticsLabel('Birinci Modül'), findsOneWidget);
+    expect(find.bySemanticsLabel('Second Module'), findsOneWidget);
   });
 
   testWidgets('what the reader opens or closes stays while the app runs; a new launch opens the next level', (
@@ -180,7 +189,7 @@ void main() {
       expect(_segments(tester, 'alpha/first'), ['right', 'wrong'], reason: 'the last score, one segment per question');
       expect(_segments(tester, 'alpha/second'), isEmpty);
       expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
-      expect(find.bySemanticsLabel('01 First Module, 1 of 2 right at the last answer'), findsOneWidget);
+      expect(find.bySemanticsLabel('First Module, 1 of 2 right at the last answer'), findsOneWidget);
       expect(
         find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
         findsNothing,
@@ -190,7 +199,7 @@ void main() {
         find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.text('?')),
         findsOneWidget,
       );
-      expect(find.bySemanticsLabel('02 Second Module'), findsOneWidget, reason: 'never finished: no score');
+      expect(find.bySemanticsLabel('Second Module'), findsOneWidget, reason: 'never finished: no score');
       expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);
       final beta = find.bySemanticsLabel(RegExp(r'^Beta Level, 1 quiz, 0 of 1 taken$'));
       await tester.scrollUntilVisible(beta, 200, scrollable: find.byType(Scrollable).first);
@@ -217,7 +226,7 @@ void main() {
       find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
       findsNothing,
     );
-    expect(find.bySemanticsLabel('01 First Module, 0 of 2 right at the last answer'), findsOneWidget);
+    expect(find.bySemanticsLabel('First Module, 0 of 2 right at the last answer'), findsOneWidget);
 
     review
       ..add(const ReviewAnswered(key: 'alpha/first#0', right: true, length: 2, inReview: true))

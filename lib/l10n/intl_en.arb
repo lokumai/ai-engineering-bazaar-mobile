@@ -1378,7 +1378,7 @@
   "@tour_caravan_stage": {},
   "tour_caravan_strip": "Slide here, or tap a stop, to move along.",
   "@tour_caravan_strip": {},
-  "tour_practice_today": "A few questions and terms a day from the modules you completed.",
+  "tour_practice_today": "Practice here for as long as you like.",
   "tour_quiz_level": "Each level's quizzes. Take them as often as you like.",
   "@tour_quiz_level": {},
   "tour_settings_reading": "Track, language, look and text size.",
@@ -1402,6 +1402,8 @@
     }
   },
   "practice_today": "Today's review",
+  "practice_endless": "Endless review",
+  "practice_endless_lede": "Questions and terms at random, as long as you like. The same one may come again.",
   "practice_today_cards": "{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min",
   "@practice_today_cards": {
     "placeholders": {
@@ -1413,23 +1415,11 @@
       }
     }
   },
-  "practice_today_meter": "{done} of {total} done today",
-  "@practice_today_meter": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "practice_start": "Start",
   "practice_today_none": "Nothing to review today",
   "practice_today_none_lede": "The questions of the modules you complete come here, a few each day.",
   "practice_today_done": "That is all for today",
   "practice_today_done_lede": "The next cards come tomorrow.",
-  "practice_go_wrong": "Go to Wrong answers",
   "practice_wrong": "Wrong answers",
   "practice_wrong_count": "{count, plural, =0{None now} =1{1 question} other{{count} questions}}",
   "@practice_wrong_count": {

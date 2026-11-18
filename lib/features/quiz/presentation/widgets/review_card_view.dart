@@ -94,7 +94,7 @@ class _CardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Steps(at: at, count: cubit.items.length),
+          if (cubit.endless) _Tally(at: at) else _Steps(at: at, count: cubit.items.length),
           const SizedBox(height: AppSpacing.md),
           switch (item) {
             QuestionItem() => _QuestionCard(item: item, at: at, focus: focus, hue: hue),
@@ -133,6 +133,40 @@ class _Steps extends StatelessWidget {
         Text(
           s.review_progress(at.index + 1, count),
           style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+        ),
+      ],
+    );
+  }
+}
+
+/// An endless review's head (the owner, 2026-11-18): how many of the cards answered were right, and Finish, which ends
+/// it with its results; with none answered it goes back to Practice.
+class _Tally extends StatelessWidget {
+  const _Tally({required this.at});
+
+  final ReviewAt at;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final colors = context.bazaarColors;
+    final answered = at.results.where((result) => result != null).length;
+    final right = at.results.where((result) => result ?? false).length;
+    return Row(
+      spacing: AppSpacing.md,
+      children: [
+        Expanded(
+          child: Text(
+            answered == 0 ? '' : s.review_result(right, answered),
+            key: const Key('review-tally'),
+            style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+          ),
+        ),
+        TextButton.icon(
+          key: const Key('review-end'),
+          onPressed: answered == 0 ? () => context.go(BazaarPaths.practice) : context.read<ReviewSessionCubit>().finish,
+          icon: const Icon(Icons.check),
+          label: Text(s.review_finish),
         ),
       ],
     );
@@ -211,7 +245,6 @@ class _QuestionCard extends StatelessWidget {
       children: [
         BazaarCard(
           shape: BazaarCardShape.leaf,
-          accent: hue,
           tint: hue,
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
           child: Column(
@@ -290,7 +323,7 @@ class _NextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final cubit = context.read<ReviewSessionCubit>();
-    final last = at.index == cubit.items.length - 1;
+    final last = !cubit.endless && at.index == cubit.items.length - 1;
     return Align(
       alignment: AlignmentDirectional.centerEnd,
       child: FilledButton.icon(
@@ -384,7 +417,6 @@ class _TermCard extends StatelessWidget {
       children: [
         BazaarCard(
           shape: BazaarCardShape.leaf,
-          accent: hue,
           tint: hue,
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
           child: Column(

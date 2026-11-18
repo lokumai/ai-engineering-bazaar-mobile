@@ -317,7 +317,6 @@ class _CardView extends StatelessWidget {
     final body = _summaryStyle(colors);
     return BazaarCard(
       shape: BazaarCardShape.leaf,
-      accent: hue,
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

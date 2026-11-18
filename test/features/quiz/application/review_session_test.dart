@@ -73,6 +73,35 @@ void main() {
     });
   });
 
+  group('drawItem (the owner, 2026-11-18)', () {
+    final notes = _notes([
+      const ModuleNotes(moduleKey: 'alpha/first', quiz: [item, item]),
+    ]);
+    test('one of the keys at random, never the last one again while another can be drawn', () {
+      final seen = <String>{};
+      for (var seed = 0; seed < 30; seed++) {
+        final drawn = drawItem(
+          ['alpha/first#0', 'alpha/first#1'],
+          notes,
+          titleOf: (key) => key,
+          random: Random(seed),
+          last: 'alpha/first#0',
+        );
+        expect(drawn!.key, 'alpha/first#1');
+        seen.add(drawItem(['alpha/first#0', 'alpha/first#1'], notes, titleOf: (key) => key, random: Random(seed))!.key);
+      }
+      expect(seen, {'alpha/first#0', 'alpha/first#1'}, reason: 'either, with no last');
+    });
+
+    test('a single key comes again; none the notes hold draws nothing', () {
+      expect(
+        drawItem(['alpha/first#0'], notes, titleOf: (key) => key, random: Random(1), last: 'alpha/first#0')!.key,
+        'alpha/first#0',
+      );
+      expect(drawItem(['gone/module#0', 'alpha/first#7'], notes, titleOf: (key) => key, random: Random(1)), isNull);
+    });
+  });
+
   group('termChoices (plan 13.16)', () {
     final notes = _notes([
       ModuleNotes(
@@ -159,6 +188,47 @@ void main() {
       cubit.next();
       expect(answers, [false, true]);
       expect(cubit.state, const ReviewFinished(results: [false, true]));
+    });
+
+    test('endless: Next after the last card draws another, and Finish ends with the cards answered '
+        '(the owner, 2026-11-18)', () {
+      QuestionItem question(int i) => QuestionItem(key: 'alpha/first#$i', moduleTitle: 'First', item: item, length: 9);
+      var drawn = 0;
+      final cubit = ReviewSessionCubit(
+        [question(0)],
+        onAnswered: (_, _) {},
+        draw: (last) {
+          drawn++;
+          return question(int.parse(last.key.split('#').last) + 1);
+        },
+      );
+      addTearDown(cubit.close);
+      expect(cubit.endless, isTrue);
+
+      for (var i = 0; i < 3; i++) {
+        cubit
+          ..pick(2)
+          ..next();
+      }
+      expect(cubit.state, const ReviewAt(index: 3, results: [true, true, true, null]));
+      expect(cubit.items.map((card) => card.key), ['alpha/first#0', 'alpha/first#1', 'alpha/first#2', 'alpha/first#3']);
+      expect(drawn, 3);
+
+      cubit.finish();
+      expect(cubit.state, const ReviewFinished(results: [true, true, true]), reason: 'the card unanswered left out');
+      expect(cubit.items, hasLength(3));
+    });
+
+    test('a session of fixed cards draws none and is not endless', () {
+      final cubit = ReviewSessionCubit([
+        QuestionItem(key: 'alpha/first#0', moduleTitle: 'First', item: item, length: 1),
+      ], onAnswered: (_, _) {});
+      addTearDown(cubit.close);
+      expect(cubit.endless, isFalse);
+      cubit
+        ..pick(2)
+        ..next();
+      expect(cubit.state, const ReviewFinished(results: [true]));
     });
 
     test('a session needs a card', () {

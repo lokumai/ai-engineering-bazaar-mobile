@@ -165,6 +165,7 @@ class AppRouterFactory {
           ),
         ),
         _page('practiceWrongAll', BazaarPaths.practiceWrongAll, const ReviewSessionPage(kind: ReviewKind.wrong)),
+        _page('practiceEndless', BazaarPaths.practiceEndless, const ReviewSessionPage(kind: ReviewKind.endless)),
         // A module's cards in 2 minutes, full screen (plan 13.7).
         _pageOf(
           'practiceBriefOf',

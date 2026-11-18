@@ -153,25 +153,53 @@ QuizItem shuffled(QuizItem item, Random random) {
   );
 }
 
+/// The next card of an endless review (the owner, 2026-11-18): one of [keys] at [random], repeats and all, but not
+/// [last] again while another can be drawn; null when the notes hold none of them.
+ReviewItem? drawItem(
+  List<String> keys,
+  StudyNotesReady notes, {
+  required String Function(String moduleKey) titleOf,
+  required Random random,
+  String? last,
+}) {
+  final left = [...keys]..shuffle(random);
+  if (left.length > 1 && left.first == last) left.add(left.removeAt(0));
+  for (final key in left) {
+    if (_itemOf(key, notes, titleOf, random) case final item?) return item;
+  }
+  return null;
+}
+
 /// A Practice session over [items], one card at a time (plan 13.3, 13.4): a question takes one answer, final, as in a
-/// module's quiz, and a term is asked as one (plan 13.16). Each card's answer goes to
-/// [onAnswered] once, as it is given.
+/// module's quiz, and a term is asked as one (plan 13.16). Each card's answer goes to [onAnswered] once, as it is given.
+///
+/// With [draw] it is endless (the owner, 2026-11-18): Next after the last card draws another, and [finish] ends it with
+/// the cards answered.
 ///
 /// A `Cubit` because every call is atomic and the event stream adds nothing.
 final class ReviewSessionCubit extends Cubit<ReviewSessionState> {
   /// Throws an [ArgumentError] when [items] is empty.
-  ReviewSessionCubit(List<ReviewItem> items, {required this.onAnswered})
-    : items = List.unmodifiable(items.isEmpty ? throw ArgumentError.value(items, 'items', 'No cards') : items),
+  ReviewSessionCubit(List<ReviewItem> items, {required this.onAnswered, this.draw})
+    : _items = items.isEmpty ? throw ArgumentError.value(items, 'items', 'No cards') : [...items],
       super(ReviewAt(index: 0, results: List.unmodifiable(List<bool?>.filled(items.length, null))));
 
-  final List<ReviewItem> items;
+  final List<ReviewItem> _items;
+
+  /// The cards so far: all of them, or in an endless session those drawn.
+  List<ReviewItem> get items => List.unmodifiable(_items);
 
   final void Function(ReviewItem item, bool right) onAnswered;
+
+  /// The next card of an endless session after the one given; null for a session of fixed cards.
+  final ReviewItem? Function(ReviewItem last)? draw;
+
+  /// Whether Next after the last card draws another.
+  bool get endless => draw != null;
 
   /// Answers the current card, a question or a term, with [option]; ignored once answered, or when the session is over.
   void pick(int option) {
     if (state case final ReviewAt at when at.pick == null && at.results[at.index] == null) {
-      final (count, answer) = switch (items[at.index]) {
+      final (count, answer) = switch (_items[at.index]) {
         QuestionItem(:final item) => (item.options.length, item.answer),
         TermItem(:final options, :final answer) => (options.length, answer),
       };
@@ -180,21 +208,31 @@ final class ReviewSessionCubit extends Cubit<ReviewSessionState> {
     }
   }
 
-  /// Shows the next card once the current one is answered, or the results after the last.
+  /// Shows the next card once the current one is answered: in an endless session one drawn after the last, else the
+  /// results after the last.
   void next() {
     if (state case final ReviewAt at when at.results[at.index] != null) {
-      emit(
-        at.index == items.length - 1
-            ? ReviewFinished(results: at.results)
-            : ReviewAt(index: at.index + 1, results: at.results),
-      );
+      if (at.index < _items.length - 1) return emit(ReviewAt(index: at.index + 1, results: at.results));
+      final drawn = draw?.call(_items[at.index]);
+      if (drawn == null) return emit(ReviewFinished(results: at.results));
+      _items.add(drawn);
+      emit(ReviewAt(index: at.index + 1, results: List.unmodifiable([...at.results, null])));
+    }
+  }
+
+  /// Ends an endless session at once, with the cards answered; the card shown unanswered is left out.
+  void finish() {
+    if (state case final ReviewAt at) {
+      final answered = at.answered ? at.index + 1 : at.index;
+      _items.length = answered;
+      emit(ReviewFinished(results: List.unmodifiable(at.results.take(answered))));
     }
   }
 
   void _answer(ReviewAt at, bool right, {required int pick}) {
     final results = List<bool?>.of(at.results)..[at.index] = right;
     emit(ReviewAt(index: at.index, results: List.unmodifiable(results), pick: pick));
-    onAnswered(items[at.index], right);
+    onAnswered(_items[at.index], right);
   }
 }
 

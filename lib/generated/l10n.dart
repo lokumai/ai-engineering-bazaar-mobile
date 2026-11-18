@@ -2758,14 +2758,9 @@ class S {
     return Intl.message('Slide here, or tap a stop, to move along.', name: 'tour_caravan_strip', desc: '', args: []);
   }
 
-  /// `A few questions and terms a day from the modules you completed.`
+  /// `Practice here for as long as you like.`
   String get tour_practice_today {
-    return Intl.message(
-      'A few questions and terms a day from the modules you completed.',
-      name: 'tour_practice_today',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Practice here for as long as you like.', name: 'tour_practice_today', desc: '', args: []);
   }
 
   /// `Each level's quizzes. Take them as often as you like.`
@@ -2818,6 +2813,21 @@ class S {
     return Intl.message('Today\'s review', name: 'practice_today', desc: '', args: []);
   }
 
+  /// `Endless review`
+  String get practice_endless {
+    return Intl.message('Endless review', name: 'practice_endless', desc: '', args: []);
+  }
+
+  /// `Questions and terms at random, as long as you like. The same one may come again.`
+  String get practice_endless_lede {
+    return Intl.message(
+      'Questions and terms at random, as long as you like. The same one may come again.',
+      name: 'practice_endless_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min`
   String practice_today_cards(int count, int minutes) {
     return Intl.message(
@@ -2826,11 +2836,6 @@ class S {
       desc: '',
       args: [count, minutes],
     );
-  }
-
-  /// `{done} of {total} done today`
-  String practice_today_meter(int done, int total) {
-    return Intl.message('$done of $total done today', name: 'practice_today_meter', desc: '', args: [done, total]);
   }
 
   /// `Start`
@@ -2861,11 +2866,6 @@ class S {
   /// `The next cards come tomorrow.`
   String get practice_today_done_lede {
     return Intl.message('The next cards come tomorrow.', name: 'practice_today_done_lede', desc: '', args: []);
-  }
-
-  /// `Go to Wrong answers`
-  String get practice_go_wrong {
-    return Intl.message('Go to Wrong answers', name: 'practice_go_wrong', desc: '', args: []);
   }
 
   /// `Wrong answers`

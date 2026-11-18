@@ -229,7 +229,7 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home'}),
       at: '/practice',
     );
-    expect(find.textContaining('A few questions and terms a day'), findsOneWidget);
+    expect(find.textContaining('Practice here for as long as you like.'), findsOneWidget);
 
     await _tap(tester, _skip);
     expect(_scrim, findsNothing);
