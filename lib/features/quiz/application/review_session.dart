@@ -8,7 +8,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
-import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 
 /// One card of a Practice session (plan 13.3, 13.4): a quiz question or a term looked up.
 sealed class ReviewItem extends Equatable {
@@ -46,22 +45,66 @@ final class QuestionItem extends ReviewItem {
   List<Object?> get props => [key, moduleTitle, item, length, section];
 }
 
-/// A term: the term and the sentence of its module that uses it, then its definition when asked, then whether it was
-/// known.
+/// A term asked as a question (plan 13.16): its definition, and which of [options], term names, it defines; graded as a
+/// question is.
 final class TermItem extends ReviewItem {
-  const TermItem({required super.key, required super.moduleTitle, required this.term, this.usage});
+  const TermItem({
+    required super.key,
+    required super.moduleTitle,
+    required this.term,
+    required this.options,
+    required this.answer,
+    this.termsHeading,
+  });
 
   final GlossaryTerm term;
 
-  /// Where the module uses the term; null when no section does.
-  final TermUsage? usage;
+  /// The term names to choose from, in the order shown: [term]'s and others.
+  final List<String> options;
+
+  /// [term]'s place in [options].
+  final int answer;
+
+  /// The heading of its module's Key Terms, which the verdict links to; null when the notes name none.
+  final String? termsHeading;
 
   @override
-  List<Object?> get props => [key, moduleTitle, term, usage];
+  List<Object?> get props => [key, moduleTitle, term, options, answer, termsHeading];
+}
+
+/// How many options a term card offers at most (plan 13.16).
+const termOptions = 4;
+
+/// The options of a term card for [term] from [notes] (plan 13.16): its own name and up to three others, the others
+/// picked by [random] from its module's Key Terms first, then its level's, then the rest of the track's, no name twice in
+/// any case; then all shuffled. Null when no other term can stand beside it.
+({List<String> options, int answer})? termChoices(GlossaryTerm term, StudyNotesReady notes, Random random) {
+  String fold(String name) => name.trim().toLowerCase();
+  final level = term.moduleKey.split('/').first;
+  final names = <String>{fold(term.name)};
+  final others = <String>[];
+  for (final tier in [
+    (GlossaryTerm other) => other.moduleKey == term.moduleKey,
+    (GlossaryTerm other) => other.moduleKey != term.moduleKey && other.moduleKey.split('/').first == level,
+    (GlossaryTerm other) => other.moduleKey.split('/').first != level,
+  ]) {
+    if (others.length >= termOptions - 1) break;
+    final found = [
+      for (final other in notes.terms)
+        if (tier(other)) other.name,
+    ]..shuffle(random);
+    for (final name in found) {
+      if (others.length >= termOptions - 1) break;
+      if (names.add(fold(name))) others.add(name);
+    }
+  }
+  if (others.isEmpty) return null;
+  final options = [term.name, ...others]..shuffle(random);
+  return (options: options, answer: options.indexOf(term.name));
 }
 
 /// The cards [keys] name, from [notes], each titled by [titleOf] its module; a key whose question or term the notes no
-/// longer hold is left out. [random] shuffles each question's options.
+/// longer hold, or a term with no other to set beside it, is left out. [random] shuffles each card's options.
 List<ReviewItem> reviewItems(
   List<String> keys,
   StudyNotesReady notes, {
@@ -75,9 +118,17 @@ ReviewItem? _itemOf(String key, StudyNotesReady notes, String Function(String) t
   if (module == null) return null;
   if (isTermKey(key)) {
     final term = module.terms.elementAtOrNull(index);
-    return term == null
-        ? null
-        : TermItem(key: key, moduleTitle: titleOf(module.moduleKey), term: term, usage: termUsage(module, term));
+    if (term == null) return null;
+    final choices = termChoices(term, notes, random);
+    if (choices == null) return null;
+    return TermItem(
+      key: key,
+      moduleTitle: titleOf(module.moduleKey),
+      term: term,
+      options: choices.options,
+      answer: choices.answer,
+      termsHeading: module.termsHeading,
+    );
   }
   final item = module.quiz.elementAtOrNull(index);
   if (item == null) return null;
@@ -103,7 +154,7 @@ QuizItem shuffled(QuizItem item, Random random) {
 }
 
 /// A Practice session over [items], one card at a time (plan 13.3, 13.4): a question takes one answer, final, as in a
-/// module's quiz; a term shows its definition when asked, then is marked known or not yet. Each card's answer goes to
+/// module's quiz, and a term is asked as one (plan 13.16). Each card's answer goes to
 /// [onAnswered] once, as it is given.
 ///
 /// A `Cubit` because every call is atomic and the event stream adds nothing.
@@ -117,29 +168,15 @@ final class ReviewSessionCubit extends Cubit<ReviewSessionState> {
 
   final void Function(ReviewItem item, bool right) onAnswered;
 
-  /// Answers the current question with [option]; ignored on a term, once answered, or when the session is over.
+  /// Answers the current card, a question or a term, with [option]; ignored once answered, or when the session is over.
   void pick(int option) {
     if (state case final ReviewAt at when at.pick == null && at.results[at.index] == null) {
-      if (items[at.index] case final QuestionItem question) {
-        RangeError.checkValueInInterval(option, 0, question.item.options.length - 1, 'option');
-        _answer(at, question.item.answer == option, pick: option);
-      }
-    }
-  }
-
-  /// Shows the current term's definition.
-  void reveal() {
-    if (state case final ReviewAt at when items[at.index] is TermItem && !at.revealed) {
-      emit(ReviewAt(index: at.index, results: at.results, revealed: true));
-    }
-  }
-
-  /// Marks the current term, once its definition is shown, as known or not yet, and goes on to the next card: the
-  /// answer is the way on, with no Next for a term (the owner, 2026-11-18).
-  void judge({required bool knew}) {
-    if (state case final ReviewAt at when items[at.index] is TermItem && at.revealed && at.results[at.index] == null) {
-      _answer(at, knew, revealed: true);
-      next();
+      final (count, answer) = switch (items[at.index]) {
+        QuestionItem(:final item) => (item.options.length, item.answer),
+        TermItem(:final options, :final answer) => (options.length, answer),
+      };
+      RangeError.checkValueInInterval(option, 0, count - 1, 'option');
+      _answer(at, answer == option, pick: option);
     }
   }
 
@@ -154,9 +191,9 @@ final class ReviewSessionCubit extends Cubit<ReviewSessionState> {
     }
   }
 
-  void _answer(ReviewAt at, bool right, {int? pick, bool revealed = false}) {
+  void _answer(ReviewAt at, bool right, {required int pick}) {
     final results = List<bool?>.of(at.results)..[at.index] = right;
-    emit(ReviewAt(index: at.index, results: List.unmodifiable(results), pick: pick, revealed: revealed));
+    emit(ReviewAt(index: at.index, results: List.unmodifiable(results), pick: pick));
     onAnswered(items[at.index], right);
   }
 }
@@ -165,20 +202,18 @@ sealed class ReviewSessionState extends Equatable {
   const ReviewSessionState();
 }
 
-/// Card [index] shown: [results] holds each card's answer once given; [pick] is the option picked on a question, and
-/// [revealed] whether a term's definition is shown.
+/// Card [index] shown: [results] holds each card's answer once given; [pick] is the option picked on it.
 final class ReviewAt extends ReviewSessionState {
-  const ReviewAt({required this.index, required this.results, this.pick, this.revealed = false});
+  const ReviewAt({required this.index, required this.results, this.pick});
 
   final int index;
   final List<bool?> results;
   final int? pick;
-  final bool revealed;
 
   bool get answered => results[index] != null;
 
   @override
-  List<Object?> get props => [index, results, pick, revealed];
+  List<Object?> get props => [index, results, pick];
 }
 
 /// Every card answered.

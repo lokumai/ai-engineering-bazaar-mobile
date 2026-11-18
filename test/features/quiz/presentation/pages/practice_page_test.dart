@@ -253,20 +253,40 @@ void main() {
     await _tap(tester, find.byKey(const Key('review-next')));
 
     expect(find.text('Card 2 of 4'), findsOneWidget);
-    expect(find.text('Wick'), findsOneWidget, reason: 'then a term');
+    expect(find.text('Which term is this?'), findsOneWidget, reason: 'then a term, asked as a question (plan 13.16)');
+    expect(find.text('what burns.', findRichText: true), findsOneWidget, reason: 'its definition, shown at once');
     expect(
       find.text('The wick draws the oil up.', findRichText: true),
-      findsOneWidget,
-      reason: "the module's sentence",
+      findsNothing,
+      reason: "no module's sentence (the owner, 2026-11-18)",
     );
-    expect(find.text('what burns.', findRichText: true), findsNothing, reason: 'the definition waits for a tap');
-    expect(find.byKey(const Key('review-term-knew')), findsNothing);
-    await _tap(tester, find.byKey(const Key('review-term-show')));
-    expect(find.text('what burns.', findRichText: true), findsOneWidget);
-    expect(find.byKey(const Key('review-next')), findsNothing, reason: 'no Next for a term (the owner, 2026-11-18)');
-    await _tap(tester, find.byKey(const Key('review-term-knew')));
-    expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isTrue);
-    expect(find.text('Card 3 of 4'), findsOneWidget, reason: 'Knew it counts the answer and goes on');
+    expect(find.byKey(const Key('review-next')), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.byKey(const Key('review-next'))).onPressed, isNull, reason: 'not answered');
+    await _tap(tester, find.text('Glass'));
+    expect(find.textContaining('Not this one.'), findsOneWidget);
+    expect(find.text('This is in: First Module'), findsOneWidget, reason: "a way to the module's Key Terms");
+    expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isFalse);
+    expect(review.state.history.cards['term:engineers/alpha/first#0']!.wrong, isTrue, reason: 'back tomorrow');
+    await _tap(tester, find.byKey(const Key('review-next')));
+    expect(find.text('Card 3 of 4'), findsOneWidget);
+  });
+
+  testWidgets("a term's way to its module opens the Key Terms with the term marked (plan 13.16)", (tester) async {
+    final (router, _) = await _pump(
+      tester,
+      record: _completed(['alpha/first']),
+      doc: _termsDoc(),
+      at: '/practice/review',
+    );
+    // The day's cards: a question, then a term.
+    await _tap(tester, find.text('One'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    await _tap(tester, find.text('Wick'));
+    expect(find.text('Correct.'), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('review-section-link')));
+    expect(router.state.uri.path, '/courses/alpha/first');
+    final target = router.state.extra! as ReaderTarget;
+    expect((target.fragment, target.query, target.glance), ('words', 'Wick', true));
   });
 
   testWidgets("a question's Next sits under its verdict, as in a module's quiz, and a new card starts at its top "

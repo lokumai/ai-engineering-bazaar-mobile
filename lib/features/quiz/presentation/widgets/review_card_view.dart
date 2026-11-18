@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ai_engineering_bazaar/features/quiz/application/review_session.dart';
-import 'package:ai_engineering_bazaar/features/quiz/application/section_finder.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_option.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -200,13 +200,11 @@ class _QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
     final quiz = item.item;
     final pick = at.pick;
     final answered = at.answered;
-    final last = at.index == cubit.items.length - 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -263,46 +261,69 @@ class _QuestionCard extends StatelessWidget {
                   right: at.results[at.index]!,
                   // From a wrong answer to the section that teaches it, its words marked (plan 13.5).
                   footer: switch (item.section) {
-                    final section? when at.results[at.index] == false => _SectionLink(item: item, section: section),
+                    final section? when at.results[at.index] == false => _SectionLink(
+                      moduleKey: item.moduleKey,
+                      fragment: section.heading,
+                      title: section.title,
+                      query: section.words.join(' '),
+                    ),
                     _ => null,
                   },
                 )
               : const SizedBox.shrink(),
         ),
         const SizedBox(height: AppSpacing.md),
-        // Where a module's quiz has its Next: under the verdict, on the end side; a little larger, under the thumb.
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: FilledButton.icon(
-            key: const Key('review-next'),
-            onPressed: answered ? cubit.next : null,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(128, 48),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: BazaarType.control.size),
-            ),
-            icon: Icon(last ? Icons.check : Icons.arrow_forward),
-            iconAlignment: IconAlignment.end,
-            label: Text(last ? s.review_finish : s.quiz_next),
-          ),
-        ),
+        _NextButton(at: at),
       ],
     );
   }
 }
 
-/// "This is in: <section> ›": opens the module at the section, with the question's words marked by the find bar. The
-/// module is opened for a look: it keeps no place, as from the day's card.
-class _SectionLink extends StatelessWidget {
-  const _SectionLink({required this.item, required this.section});
+/// Next, or Finish on the last card: where a module's quiz has its Next, under the verdict on the end side; a little
+/// larger, under the thumb (the owner, 2026-11-18).
+class _NextButton extends StatelessWidget {
+  const _NextButton({required this.at});
 
-  final QuestionItem item;
-  final FoundSection section;
+  final ReviewAt at;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final cubit = context.read<ReviewSessionCubit>();
+    final last = at.index == cubit.items.length - 1;
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: FilledButton.icon(
+        key: const Key('review-next'),
+        onPressed: at.answered ? cubit.next : null,
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(128, 48),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: BazaarType.control.size),
+        ),
+        icon: Icon(last ? Icons.check : Icons.arrow_forward),
+        iconAlignment: IconAlignment.end,
+        label: Text(last ? s.review_finish : s.quiz_next),
+      ),
+    );
+  }
+}
+
+/// "This is in: <title> ›": opens the module [moduleKey] at [fragment], with the words of [query] marked by the find
+/// bar: a question's section, or a term's Key Terms. The module is opened for a look: it keeps no place, as from the
+/// day's card.
+class _SectionLink extends StatelessWidget {
+  const _SectionLink({required this.moduleKey, required this.fragment, required this.title, required this.query});
+
+  final String moduleKey;
+  final String? fragment;
+  final String title;
+  final String query;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
-    final label = S.of(context).review_section_link(section.title);
+    final label = S.of(context).review_section_link(title);
     return Semantics(
       link: true,
       label: label,
@@ -310,8 +331,8 @@ class _SectionLink extends StatelessWidget {
       child: InkWell(
         key: const Key('review-section-link'),
         onTap: () => context.push(
-          BazaarPaths.module(context.read<TrackCubit>().state, item.moduleKey),
-          extra: ReaderTarget(fragment: section.heading, query: section.words.join(' '), glance: true),
+          BazaarPaths.module(context.read<TrackCubit>().state, moduleKey),
+          extra: ReaderTarget(fragment: fragment, query: query, glance: true),
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
@@ -338,10 +359,9 @@ class _SectionLink extends StatelessWidget {
   }
 }
 
-/// A term as a card: the term and the sentence of its module that uses it, the term marked there, on a leaf card in
-/// its level's hue; a tap on the card shows its definition under it, drawn as a question's explanation, then Not yet
-/// and Knew it side by side (the owner, 2026-11-18: the first one stood alone on an empty screen). Either one counts the
-/// answer and goes on to the next card: Not yet keeps the term due tomorrow, Knew it moves it to a later box.
+/// A term asked as a question (plan 13.16, the owner, 2026-11-18): its definition on a leaf card in its level's hue,
+/// "Which term is this?", then term names to choose from, graded as a question is, with a way to the module's Key Terms
+/// and Next under the verdict.
 class _TermCard extends StatelessWidget {
   const _TermCard({required this.item, required this.at, required this.focus, required this.hue});
 
@@ -356,121 +376,82 @@ class _TermCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
-    final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
-    final usage = item.usage;
-    final quoted = TextStyle(fontSize: BazaarType.control.size, height: 1.5, color: colors.onSurface);
+    final pick = at.pick;
+    final answered = at.answered;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      spacing: AppSpacing.md,
       children: [
         BazaarCard(
-          key: at.revealed ? null : const Key('review-term-show'),
           shape: BazaarCardShape.leaf,
           accent: hue,
           tint: hue,
-          onTap: at.revealed ? null : cubit.reveal,
-          semanticLabel: at.revealed
-              ? null
-              : ['${s.review_term}: ${item.term.name}.', if (usage != null) usage.text, s.review_term_show].join(' '),
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.md,
+            spacing: AppSpacing.sm,
             children: [
               _CardHead(kind: s.review_term, module: item.moduleTitle, hue: hue),
+              Text(s.review_term_ask, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
               Focus(
                 focusNode: focus,
-                child: Text(
-                  item.term.name,
-                  style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.onSurfaceTitle),
-                ),
-              ),
-              if (usage != null)
-                // The module's own sentence, the term in it marked: how the module put it.
-                Container(
-                  padding: const EdgeInsetsDirectional.fromSTEB(12, 2, 0, 2),
-                  decoration: BoxDecoration(
-                    border: BorderDirectional(start: BorderSide(color: hue, width: 3)),
+                child: InlineText(
+                  inlines: item.term.definition,
+                  style: TextStyle(
+                    fontSize: BazaarType.lead.size,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                    color: colors.onSurfaceTitle,
                   ),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: usage.text.substring(0, usage.start)),
-                        TextSpan(
-                          text: usage.text.substring(usage.start, usage.end),
-                          style: TextStyle(fontWeight: FontWeight.w700, color: colors.onSurfaceTitle),
-                        ),
-                        TextSpan(text: usage.text.substring(usage.end)),
-                      ],
-                    ),
-                    style: quoted.copyWith(fontStyle: FontStyle.italic),
-                  ),
-                ),
-              if (!at.revealed)
-                Row(
-                  spacing: 6,
-                  children: [
-                    Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
-                    Flexible(
-                      child: Text(
-                        s.review_term_show,
-                        style: theme.textTheme.labelLarge?.copyWith(color: colors.primary),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-        AnimatedSize(
-          duration: duration,
-          curve: BazaarMotion.bazaar,
-          alignment: Alignment.topCenter,
-          child: !at.revealed
-              ? const SizedBox(width: double.infinity)
-              : Semantics(
-                  liveRegion: true,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceSunken,
-                      border: BorderDirectional(start: BorderSide(color: colors.primary, width: 3)),
-                    ),
-                    child: InlineText(
-                      inlines: item.term.definition,
-                      style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
-                      // A definition's link would leave the session; it is read here, not followed.
-                      onLink: (_) {},
-                    ),
-                  ),
-                ),
-        ),
-        if (at.revealed && at.results[at.index] == null)
-          Row(
-            spacing: AppSpacing.md,
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  key: const Key('review-term-not-yet'),
-                  onPressed: () => cubit.judge(knew: false),
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: Icon(Icons.replay_rounded, color: colors.fault),
-                  label: Text(s.review_term_not_yet),
-                ),
-              ),
-              Expanded(
-                child: FilledButton.icon(
-                  key: const Key('review-term-knew'),
-                  onPressed: () => cubit.judge(knew: true),
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.check),
-                  label: Text(s.review_term_knew),
+                  // A definition's link would leave the session; it is read here, not followed.
+                  onLink: (_) {},
                 ),
               ),
             ],
           ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        for (var i = 0; i < item.options.length; i++) ...[
+          QuizOptionButton(
+            letter: quizLetter(i),
+            text: item.options[i],
+            selected: pick == i,
+            outcome: !answered
+                ? QuizOutcome.open
+                : i == item.answer
+                ? QuizOutcome.right
+                : pick == i
+                ? QuizOutcome.wrong
+                : QuizOutcome.other,
+            onPressed: answered ? null : () => cubit.pick(i),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        Semantics(
+          key: const Key('review-verdict'),
+          container: true,
+          liveRegion: true,
+          child: answered
+              ? QuizVerdict(
+                  item: QuizItem(
+                    question: item.term.definitionText,
+                    options: item.options,
+                    answer: item.answer,
+                    explain: '',
+                  ),
+                  right: at.results[at.index]!,
+                  // The term among its module's Key Terms, its words marked.
+                  footer: _SectionLink(
+                    moduleKey: item.moduleKey,
+                    fragment: item.termsHeading,
+                    title: item.moduleTitle,
+                    query: item.term.name,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _NextButton(at: at),
       ],
     );
   }

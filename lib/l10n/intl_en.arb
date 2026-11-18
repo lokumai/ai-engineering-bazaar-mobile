@@ -1480,9 +1480,7 @@
     }
   },
   "review_term": "Term",
-  "review_term_show": "Show the definition",
-  "review_term_knew": "Knew it",
-  "review_term_not_yet": "Not yet",
+  "review_term_ask": "Which term is this?",
   "review_finish": "Finish",
   "review_result": "{right} of {total} right",
   "@review_result": {

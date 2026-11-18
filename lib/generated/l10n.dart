@@ -3017,19 +3017,9 @@ class S {
     return Intl.message('Term', name: 'review_term', desc: '', args: []);
   }
 
-  /// `Show the definition`
-  String get review_term_show {
-    return Intl.message('Show the definition', name: 'review_term_show', desc: '', args: []);
-  }
-
-  /// `Knew it`
-  String get review_term_knew {
-    return Intl.message('Knew it', name: 'review_term_knew', desc: '', args: []);
-  }
-
-  /// `Not yet`
-  String get review_term_not_yet {
-    return Intl.message('Not yet', name: 'review_term_not_yet', desc: '', args: []);
+  /// `Which term is this?`
+  String get review_term_ask {
+    return Intl.message('Which term is this?', name: 'review_term_ask', desc: '', args: []);
   }
 
   /// `Finish`
