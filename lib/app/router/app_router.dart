@@ -156,7 +156,14 @@ class AppRouterFactory {
         // The story of the Bazaar, a film over the whole app with no bar and no navigation (plan 3.5).
         ...AboutFeatureRoutes.routes(),
         // Practice's sessions full screen, over the shell (plan 13.3, 13.4).
-        _page('practiceReview', BazaarPaths.practiceReview, const ReviewSessionPage(kind: ReviewKind.today)),
+        _pageOf(
+          'practiceReview',
+          BazaarPaths.practiceReview,
+          (state) => ReviewSessionPage(
+            kind: ReviewKind.today,
+            fromHome: state.uri.queryParameters[BazaarPaths.fromParam] == BazaarPaths.fromHome,
+          ),
+        ),
         _page('practiceWrongAll', BazaarPaths.practiceWrongAll, const ReviewSessionPage(kind: ReviewKind.wrong)),
         // A module's cards in 2 minutes, full screen (plan 13.7).
         _pageOf(

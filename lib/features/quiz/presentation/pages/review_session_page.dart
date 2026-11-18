@@ -31,9 +31,12 @@ enum ReviewKind {
 /// answering one does not change the ones to come. Each answer goes to Practice's history at once; closing the page
 /// keeps the answers given.
 class ReviewSessionPage extends StatefulWidget {
-  const ReviewSessionPage({super.key, required this.kind, this.random});
+  const ReviewSessionPage({super.key, required this.kind, this.fromHome = false, this.random});
 
   final ReviewKind kind;
+
+  /// Whether Home opened it: its results then lead back to Home, else to Practice (the owner, 2026-11-18).
+  final bool fromHome;
 
   /// Shuffles the options; a new one when null. Tests pass a seeded one.
   final Random? random;
@@ -84,7 +87,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
           ),
         ),
       ),
-      child: const ReviewSessionView(),
+      child: ReviewSessionView(fromHome: widget.fromHome),
     );
   }
 

@@ -21,6 +21,14 @@ abstract final class BazaarPaths {
   /// Today's review full screen (plan 13.3).
   static const practiceReview = '$practice/review';
 
+  /// Where a session was opened from, as a query parameter: from Home, its results lead back to Home, from Practice
+  /// to Practice (the owner, 2026-11-18).
+  static const fromParam = 'from';
+  static const fromHome = 'home';
+
+  /// Today's review full screen, opened from Home.
+  static const practiceReviewFromHome = '$practiceReview?$fromParam=$fromHome';
+
   /// Wrong answers (plan 13.4), and every one of them asked full screen.
   static const practiceWrong = '$practice/wrong';
   static const practiceWrongAll = '$practiceWrong/all';

@@ -45,7 +45,8 @@ class HomeReviewRow extends StatelessWidget {
             key: const Key('home-review'),
             shape: BazaarCardShape.leaf,
             accent: colors.primary,
-            onTap: () => context.push(BazaarPaths.practiceReview),
+            // Its results lead back to Home, where it was opened (the owner, 2026-11-18).
+            onTap: () => context.push(BazaarPaths.practiceReviewFromHome),
             semanticLabel: '$title, $minutes',
             padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
             child: Row(

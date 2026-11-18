@@ -32,10 +32,13 @@ Color _hueOf(BuildContext context, String moduleKey) {
   return position < 0 ? context.bazaarColors.primary : levelHue(context, position);
 }
 
-/// A Practice session's page by the [ReviewSessionCubit]'s state: the card shown with Next under it, or the results.
+/// A Practice session's page by the [ReviewSessionCubit]'s state: the card shown, or the results.
 /// A card is drawn as the app draws a level's: on a card in its level's hue (the owner, 2026-11-18).
 class ReviewSessionView extends StatefulWidget {
-  const ReviewSessionView({super.key});
+  const ReviewSessionView({super.key, this.fromHome = false});
+
+  /// Whether Home opened the session: its results then lead back to Home.
+  final bool fromHome;
 
   @override
   State<ReviewSessionView> createState() => _ReviewSessionViewState();
@@ -63,14 +66,15 @@ class _ReviewSessionViewState extends State<ReviewSessionView> {
         ReviewAt() => _CardPage(at: state, focus: _focus),
         ReviewFinished() => SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-          child: _Results(finished: state),
+          child: _Results(finished: state, fromHome: widget.fromHome),
         ),
       },
     );
   }
 }
 
-/// The card shown under the session's steps, and Next or Finish at the foot, once it is answered.
+/// The card shown under the session's steps. The way on is in the card's own flow, not at the page's foot (the owner,
+/// 2026-11-18): a question's Next under its verdict, as in a module's quiz; a term's Not yet and Knew it.
 class _CardPage extends StatelessWidget {
   const _CardPage({required this.at, required this.focus});
 
@@ -79,42 +83,25 @@ class _CardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     final cubit = context.read<ReviewSessionCubit>();
     final item = cubit.items[at.index];
-    final last = at.index == cubit.items.length - 1;
     final hue = _hueOf(context, item.moduleKey);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _Steps(at: at, count: cubit.items.length),
-                const SizedBox(height: AppSpacing.md),
-                switch (item) {
-                  QuestionItem() => _QuestionCard(item: item, at: at, focus: focus, hue: hue),
-                  TermItem() => _TermCard(item: item, at: at, focus: focus, hue: hue),
-                },
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-          child: FilledButton.icon(
-            key: const Key('review-next'),
-            onPressed: at.answered ? cubit.next : null,
-            icon: Icon(last ? Icons.check : Icons.arrow_forward),
-            iconAlignment: IconAlignment.end,
-            label: Text(last ? s.review_finish : s.quiz_next),
-          ),
-        ),
-      ],
+    return SingleChildScrollView(
+      // A new card starts at its top, not where a long explanation left the last one.
+      key: ValueKey(at.index),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _Steps(at: at, count: cubit.items.length),
+          const SizedBox(height: AppSpacing.md),
+          switch (item) {
+            QuestionItem() => _QuestionCard(item: item, at: at, focus: focus, hue: hue),
+            TermItem() => _TermCard(item: item, at: at, focus: focus, hue: hue),
+          },
+        ],
+      ),
     );
   }
 }
@@ -213,11 +200,13 @@ class _QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
     final quiz = item.item;
     final pick = at.pick;
     final answered = at.answered;
+    final last = at.index == cubit.items.length - 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -280,6 +269,23 @@ class _QuestionCard extends StatelessWidget {
                 )
               : const SizedBox.shrink(),
         ),
+        const SizedBox(height: AppSpacing.md),
+        // Where a module's quiz has its Next: under the verdict, on the end side; a little larger, under the thumb.
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: FilledButton.icon(
+            key: const Key('review-next'),
+            onPressed: answered ? cubit.next : null,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(128, 48),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: BazaarType.control.size),
+            ),
+            icon: Icon(last ? Icons.check : Icons.arrow_forward),
+            iconAlignment: IconAlignment.end,
+            label: Text(last ? s.review_finish : s.quiz_next),
+          ),
+        ),
       ],
     );
   }
@@ -334,7 +340,8 @@ class _SectionLink extends StatelessWidget {
 
 /// A term as a card: the term and the sentence of its module that uses it, the term marked there, on a leaf card in
 /// its level's hue; a tap on the card shows its definition under it, drawn as a question's explanation, then Not yet
-/// and Knew it side by side (the owner, 2026-11-18: the first one stood alone on an empty screen).
+/// and Knew it side by side (the owner, 2026-11-18: the first one stood alone on an empty screen). Either one counts the
+/// answer and goes on to the next card: Not yet keeps the term due tomorrow, Knew it moves it to a later box.
 class _TermCard extends StatelessWidget {
   const _TermCard({required this.item, required this.at, required this.focus, required this.hue});
 
@@ -349,7 +356,6 @@ class _TermCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
-    final result = at.results[at.index];
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
     final usage = item.usage;
     final quoted = TextStyle(fontSize: BazaarType.control.size, height: 1.5, color: colors.onSurface);
@@ -441,7 +447,7 @@ class _TermCard extends StatelessWidget {
                   ),
                 ),
         ),
-        if (at.revealed && result == null)
+        if (at.revealed && at.results[at.index] == null)
           Row(
             spacing: AppSpacing.md,
             children: [
@@ -449,6 +455,7 @@ class _TermCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   key: const Key('review-term-not-yet'),
                   onPressed: () => cubit.judge(knew: false),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                   icon: Icon(Icons.replay_rounded, color: colors.fault),
                   label: Text(s.review_term_not_yet),
                 ),
@@ -457,25 +464,10 @@ class _TermCard extends StatelessWidget {
                 child: FilledButton.icon(
                   key: const Key('review-term-knew'),
                   onPressed: () => cubit.judge(knew: true),
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                   icon: const Icon(Icons.check),
                   label: Text(s.review_term_knew),
                 ),
-              ),
-            ],
-          )
-        else if (result != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 6,
-            children: [
-              Icon(
-                result ? Icons.check : Icons.replay_rounded,
-                size: 20,
-                color: result ? BazaarFixedColors.success : colors.fault,
-              ),
-              Text(
-                result ? s.review_term_knew : s.review_term_not_yet,
-                style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
               ),
             ],
           ),
@@ -485,11 +477,12 @@ class _TermCard extends StatelessWidget {
 }
 
 /// The results: how many were right as the module quiz's dial and in words, each card with a check or a cross, and
-/// the way back to Practice.
+/// the way back to where the session was opened: Home, or Practice.
 class _Results extends StatelessWidget {
-  const _Results({required this.finished});
+  const _Results({required this.finished, required this.fromHome});
 
   final ReviewFinished finished;
+  final bool fromHome;
 
   @override
   Widget build(BuildContext context) {
@@ -555,9 +548,9 @@ class _Results extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         FilledButton(
           key: const Key('review-back'),
-          // Back to Practice's page, from Wrong answers too (the owner, 2026-11-18).
-          onPressed: () => context.go(BazaarPaths.practice),
-          child: Text(s.review_back),
+          // Back to Home when Home opened it; else to Practice's page, from Wrong answers too (the owner, 2026-11-18).
+          onPressed: () => context.go(fromHome ? BazaarPaths.home : BazaarPaths.practice),
+          child: Text(fromHome ? s.review_back_home : s.review_back),
         ),
       ],
     );

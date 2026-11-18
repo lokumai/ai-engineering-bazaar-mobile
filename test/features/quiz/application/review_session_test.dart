@@ -86,11 +86,10 @@ void main() {
       expect((cubit.state as ReviewFinished).right, 1);
     });
 
-    test('a term shows its definition when asked, then is known or not yet', () {
+    test('a term shows its definition when asked, then is known or not yet, which goes on to the next card', () {
       final answers = <bool>[];
-      final cubit = ReviewSessionCubit([
-        const TermItem(key: 'term:engineers/alpha/first#0', moduleTitle: 'First', term: term),
-      ], onAnswered: (_, right) => answers.add(right));
+      const card = TermItem(key: 'term:engineers/alpha/first#0', moduleTitle: 'First', term: term);
+      final cubit = ReviewSessionCubit([card, card], onAnswered: (_, right) => answers.add(right));
       addTearDown(cubit.close);
 
       cubit.judge(knew: true);
@@ -100,10 +99,16 @@ void main() {
       cubit.reveal();
       expect((cubit.state as ReviewAt).revealed, isTrue);
       cubit.judge(knew: false);
-      cubit.judge(knew: true);
       expect(answers, [false]);
-      cubit.next();
-      expect(cubit.state, const ReviewFinished(results: [false]));
+      expect(
+        cubit.state,
+        const ReviewAt(index: 1, results: [false, null]),
+        reason: 'the answer is the way on: no Next for a term (the owner, 2026-11-18)',
+      );
+      cubit.reveal();
+      cubit.judge(knew: true);
+      expect(answers, [false, true]);
+      expect(cubit.state, const ReviewFinished(results: [false, true]), reason: 'after the last, the results');
     });
 
     test('a session needs a card', () {

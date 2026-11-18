@@ -134,10 +134,12 @@ final class ReviewSessionCubit extends Cubit<ReviewSessionState> {
     }
   }
 
-  /// Marks the current term, once its definition is shown, as known or not yet.
+  /// Marks the current term, once its definition is shown, as known or not yet, and goes on to the next card: the
+  /// answer is the way on, with no Next for a term (the owner, 2026-11-18).
   void judge({required bool knew}) {
     if (state case final ReviewAt at when items[at.index] is TermItem && at.revealed && at.results[at.index] == null) {
       _answer(at, knew, revealed: true);
+      next();
     }
   }
 

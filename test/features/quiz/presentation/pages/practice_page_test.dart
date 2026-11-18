@@ -263,8 +263,66 @@ void main() {
     expect(find.byKey(const Key('review-term-knew')), findsNothing);
     await _tap(tester, find.byKey(const Key('review-term-show')));
     expect(find.text('what burns.', findRichText: true), findsOneWidget);
+    expect(find.byKey(const Key('review-next')), findsNothing, reason: 'no Next for a term (the owner, 2026-11-18)');
     await _tap(tester, find.byKey(const Key('review-term-knew')));
     expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isTrue);
+    expect(find.text('Card 3 of 4'), findsOneWidget, reason: 'Knew it counts the answer and goes on');
+  });
+
+  testWidgets("a question's Next sits under its verdict, as in a module's quiz, and a new card starts at its top "
+      '(the owner, 2026-11-18)', (tester) async {
+    await _pump(tester, record: _completed(['alpha/first']));
+    tester.view.physicalSize = const Size(400, 420);
+    await tester.pumpAndSettle();
+    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _tap(tester, find.text('Three'));
+
+    final next = find.byKey(const Key('review-next'));
+    await tester.ensureVisible(next);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(next).dy - tester.getBottomLeft(find.byKey(const Key('review-verdict'))).dy,
+      lessThan(40),
+      reason: 'in the flow under the verdict, not at the foot of the page',
+    );
+    expect(tester.getTopRight(next).dx, greaterThan(300), reason: 'on the end side');
+    expect(tester.getSize(next).height, greaterThanOrEqualTo(48));
+    // The card page's own scroll: the steps' line is in it, on screen or not.
+    double scrolled() => tester
+        .state<ScrollableState>(
+          find.ancestor(of: find.textContaining('Card '), matching: find.byType(Scrollable)).first,
+        )
+        .position
+        .pixels;
+    expect(scrolled(), greaterThan(0), reason: 'scrolled down to Next');
+
+    await tester.tap(next);
+    await tester.pumpAndSettle();
+    expect(find.text('Card 2 of 2'), findsOneWidget);
+    expect(scrolled(), 0);
+  });
+
+  testWidgets(
+    "Today's review opened from Home leads back to Home; from Practice, to Practice (the owner, 2026-11-18)",
+    (tester) async {
+      final (router, _) = await _pump(tester, record: _completed(['alpha/first']), at: '/');
+      await _tap(tester, find.byKey(const Key('home-review')));
+      expect(router.state.uri.path, '/practice/review');
+      await _tap(tester, find.text('One'));
+      await _tap(tester, find.byKey(const Key('review-next')));
+      await _tap(tester, find.text('Two'));
+      await _tap(tester, find.byKey(const Key('review-next')));
+      expect(find.text('Back to Home'), findsOneWidget);
+      await _tap(tester, find.byKey(const Key('review-back')));
+      expect(router.state.uri.path, '/');
+    },
+  );
+
+  testWidgets("closing Today's review opened from Home goes back to Home", (tester) async {
+    final (router, _) = await _pump(tester, record: _completed(['alpha/first']), at: '/');
+    await _tap(tester, find.byKey(const Key('home-review')));
+    await _tap(tester, find.byType(CloseButton));
+    expect(router.state.uri.path, '/');
   });
 
   testWidgets('a module in 2 minutes: its Summary point by point, its Key Terms, then Take the quiz (plan 13.7)', (
