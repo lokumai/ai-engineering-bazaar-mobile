@@ -2906,9 +2906,9 @@ class S {
     return Intl.message('No wrong answers now.', name: 'practice_wrong_none', desc: '', args: []);
   }
 
-  /// `A module in 2 minutes`
+  /// `Recap`
   String get practice_brief {
-    return Intl.message('A module in 2 minutes', name: 'practice_brief', desc: '', args: []);
+    return Intl.message('Recap', name: 'practice_brief', desc: '', args: []);
   }
 
   /// `{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}`

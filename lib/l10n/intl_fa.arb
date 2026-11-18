@@ -413,7 +413,7 @@
   "practice_wrong_count": "{count, plural, =0{الان هیچ} =1{1 پرسش} other{{count} پرسش}}",
   "practice_wrong_all": "به همه پاسخ دهید",
   "practice_wrong_none": "الان هیچ پاسخ نادرستی ندارید.",
-  "practice_brief": "یک درس در 2 دقیقه",
+  "practice_brief": "خلاصه",
   "practice_brief_count": "{count, plural, =0{اول یک درس را تکمیل کنید} other{{count} درس تکمیل‌شده}}",
   "practice_brief_lede": "خلاصه و اصطلاح‌های کلیدی درسی که تکمیل کرده‌اید، کارت به کارت.",
   "brief_summary": "خلاصه",

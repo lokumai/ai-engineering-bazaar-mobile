@@ -11,7 +11,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -213,10 +212,9 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// One module's quiz in an open level: the question disc in the level's hue, or the catalog's check once every
-/// question's latest answer is right; the title, with no number (the owner, 2026-11-18), with one segment per question
-/// once any is answered, green for right and red for wrong as last answered, in the module's quiz or in Practice (the
-/// owner, 2026-11-18); and an arrow. One button as a whole. A quiz finished before Practice kept answers shows its last score instead.
+/// One module's quiz in an open level, with no mark before it (the owner, 2026-11-18): the title, with no number, with
+/// one segment per question once any is answered, green for right and red for wrong as last answered, in the module's
+/// quiz or in Practice (the owner, 2026-11-18); where it stands at its end; and an arrow. One button as a whole. A quiz finished before Practice kept answers shows its last score instead.
 class _QuizRow extends StatelessWidget {
   const _QuizRow({
     super.key,
@@ -230,7 +228,7 @@ class _QuizRow extends StatelessWidget {
   final ModuleEntry module;
   final Track track;
 
-  /// The level's hue, which rings the question disc.
+  /// The level's hue, which rings a quiz not yet taken.
   final Color hue;
 
   /// The score kept on this device; null for a quiz never finished.
@@ -264,16 +262,6 @@ class _QuizRow extends StatelessWidget {
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                if (perfect)
-                  // The catalog's completed disc: every question right as last answered.
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: const BoxDecoration(color: BazaarFixedColors.success, shape: BoxShape.circle),
-                    child: const Icon(Icons.check, size: 18, color: Colors.white),
-                  )
-                else
-                  QuizDisc(hue: hue),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,12 +272,56 @@ class _QuizRow extends StatelessWidget {
                     ],
                   ),
                 ),
+                _QuizStatus(answers: answers, right: right, hue: hue),
                 Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Where a quiz stands, at its row's end (the owner, 2026-11-18): an empty ring in the level's [hue] while none of its
+/// questions is answered, the right ones out of all once any is, and the catalog's green check once every one is right.
+/// Decoration: the row says it in words.
+class _QuizStatus extends StatelessWidget {
+  const _QuizStatus({required this.answers, required this.right, required this.hue});
+
+  final List<bool?>? answers;
+  final int right;
+  final Color hue;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.bazaarColors;
+    final answers = this.answers;
+    return ExcludeSemantics(
+      child: switch (answers) {
+        null => Container(
+          key: const Key('quiz-status-new'),
+          width: 20,
+          height: 20,
+          margin: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: hue, width: 2),
+          ),
+        ),
+        _ when right == answers.length => const Icon(
+          Icons.check_circle,
+          key: Key('quiz-status-perfect'),
+          size: 24,
+          color: BazaarFixedColors.success,
+        ),
+        _ => Text(
+          '$right/${answers.length}',
+          key: const Key('quiz-status-count'),
+          style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceTitle, fontWeight: FontWeight.w700),
+        ),
+      },
     );
   }
 }

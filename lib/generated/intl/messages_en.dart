@@ -466,7 +466,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
     "pocket_to_next": m43,
-    "practice_brief": MessageLookupByLibrary.simpleMessage("A module in 2 minutes"),
+    "practice_brief": MessageLookupByLibrary.simpleMessage("Recap"),
     "practice_brief_count": m44,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "The Summary and the Key Terms of a module you completed, card by card.",

@@ -159,7 +159,7 @@ lib/
                                                 (read_enough.dart)
     quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
                                                 the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
-                                                `/practice` (the endless review, Wrong answers, A module in 2 minutes, the
+                                                `/practice` (the endless review, Wrong answers, Recap, the
                                                 Glossary, the quizzes by level) and its sessions (ReviewSessionCubit,
                                                 options shuffled in Practice only)
     settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),

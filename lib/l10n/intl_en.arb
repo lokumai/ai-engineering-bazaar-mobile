@@ -1439,7 +1439,7 @@
   },
   "practice_wrong_all": "Answer them all",
   "practice_wrong_none": "No wrong answers now.",
-  "practice_brief": "A module in 2 minutes",
+  "practice_brief": "Recap",
   "practice_brief_count": "{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}",
   "@practice_brief_count": {
     "placeholders": {

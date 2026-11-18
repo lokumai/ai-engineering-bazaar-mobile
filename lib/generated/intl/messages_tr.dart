@@ -467,7 +467,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Sıcaklık"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Çırak"),
     "pocket_to_next": m43,
-    "practice_brief": MessageLookupByLibrary.simpleMessage("2 dakikada bir modül"),
+    "practice_brief": MessageLookupByLibrary.simpleMessage("Özet"),
     "practice_brief_count": m44,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın bir modülün özeti ve temel terimleri, kart kart.",

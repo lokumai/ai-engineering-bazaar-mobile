@@ -188,16 +188,30 @@ void main() {
 
       expect(_segments(tester, 'alpha/first'), ['right', 'wrong'], reason: 'the last score, one segment per question');
       expect(_segments(tester, 'alpha/second'), isEmpty);
-      expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
+      expect(find.text('1/2'), findsNWidgets(2), reason: 'the level dial, 1 of 2 taken, and the quiz, 1 of 2 right');
       expect(find.bySemanticsLabel('First Module, 1 of 2 right at the last answer'), findsOneWidget);
       expect(
-        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check_circle)),
         findsNothing,
         reason: 'the last attempt had a wrong answer, though the best was all right',
       );
       expect(
-        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.text('?')),
+        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.byType(Text)),
         findsOneWidget,
+        reason: 'no mark before the title, and no word at its end (the owner, 2026-11-18): only its title',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(PracticePage.rowKey('alpha/second')),
+          matching: find.byKey(const Key('quiz-status-new')),
+        ),
+        findsOneWidget,
+        reason: 'never taken: an empty ring at its end',
+      );
+      expect(
+        tester.widget<Text>(find.byKey(const Key('quiz-status-count'))).data,
+        '1/2',
+        reason: 'taken: the right ones out of all at its end',
       );
       expect(find.bySemanticsLabel('Second Module'), findsOneWidget, reason: 'never finished: no score');
       expect(find.bySemanticsLabel(RegExp(r'^Alpha Level, 2 quizzes, 1 of 2 taken$')), findsOneWidget);
@@ -223,7 +237,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_segments(tester, 'alpha/first'), ['wrong', 'none'], reason: 'a wrong answer in a review shows at once');
     expect(
-      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check_circle)),
       findsNothing,
     );
     expect(find.bySemanticsLabel('First Module, 0 of 2 right at the last answer'), findsOneWidget);
@@ -234,7 +248,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_segments(tester, 'alpha/first'), ['right', 'right']);
     expect(
-      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check_circle)),
       findsOneWidget,
       reason: 'every latest answer right: the catalog check',
     );

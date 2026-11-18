@@ -384,7 +384,7 @@ void main() {
       quiz: _items,
     );
     final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    expect(find.bySemanticsLabel('A module in 2 minutes, 1 completed module'), findsOneWidget);
+    expect(find.bySemanticsLabel('Recap, 1 completed module'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('practice-brief')));
     expect(router.state.uri.path, '/practice/brief');
     await _tap(tester, find.byKey(const ValueKey('brief-alpha/first')));
@@ -508,12 +508,63 @@ void main() {
       reason: 'a short line, not that a card may come again (the owner, 2026-11-18)',
     );
     for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary']) {
-      final card = tester.widget<BazaarCard>(
+      expect(
         find.descendant(of: find.byKey(Key(tile)), matching: find.byType(BazaarCard)),
+        findsNothing,
+        reason: '$tile: no card with an edge of colour along its top',
       );
-      expect(card.accent, isNull, reason: '$tile: no edge of colour along its top');
-      expect(card.tint, isNotNull, reason: '$tile: washed in its hue, as before');
+      final shape =
+          tester
+                  .widget<Material>(find.descendant(of: find.byKey(Key(tile)), matching: find.byType(Material)).first)
+                  .shape!
+              as RoundedRectangleBorder;
+      expect(shape.side.width, 1.5, reason: '$tile: edged in its hue, to read as a button (the owner, 2026-11-18)');
+      expect(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.byIcon(Icons.arrow_forward_rounded)),
+        findsOneWidget,
+        reason: '$tile: an arrow',
+      );
     }
+    final wrong = tester.getRect(find.byKey(const Key('practice-wrong')));
+    final brief = tester.getRect(find.byKey(const Key('practice-brief')));
+    final glossary = tester.getRect(find.byKey(const Key('practice-glossary')));
+    expect(wrong.width, closeTo(brief.width + glossary.width + 12, 1), reason: 'Wrong answers across the width');
+    expect(brief.top, greaterThan(wrong.bottom), reason: 'the other two under it');
+    expect(brief.top, glossary.top, reason: 'side by side');
+    expect(
+      brief.height,
+      closeTo(wrong.height, 1),
+      reason: 'as tall as Wrong answers, their names beside their marks (the owner, 2026-11-18)',
+    );
+    for (final tile in ['practice-brief', 'practice-glossary']) {
+      expect(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.textContaining(RegExp(r'^\d+$'))),
+        findsNothing,
+        reason: '$tile: no count, which said nothing (the owner, 2026-11-18)',
+      );
+    }
+    expect(
+      find.descendant(of: find.byKey(const Key('practice-wrong')), matching: find.textContaining(RegExp(r'^\d+$'))),
+      findsOneWidget,
+      reason: 'Wrong answers keeps its count',
+    );
+    final start = tester.getRect(find.byKey(const Key('practice-endless-start')));
+    final card = tester.getRect(_endless);
+    expect(start.width, greaterThan(card.width * 0.8), reason: 'Start across the card (the owner, 2026-11-18)');
+  });
+
+  testWidgets('with large text the tiles stand one under another, none overflowing', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, record: _completed(['alpha/first']));
+    final rects = [
+      for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary'])
+        tester.getRect(find.byKey(Key(tile), skipOffstage: false)),
+    ];
+    expect(rects[1].top, greaterThan(rects[0].bottom));
+    expect(rects[2].top, greaterThan(rects[1].bottom));
+    expect(rects[1].width, rects[0].width, reason: 'each across the width');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('the endless review draws card after card, repeats and all, until Finish, and counts toward no day '
