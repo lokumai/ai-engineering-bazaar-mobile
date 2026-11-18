@@ -678,16 +678,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),
     "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
-      "Bütün seviyeler ve modüller. Bitirdiklerin işaretlenir.",
+      "Her seviye modüllerine açılır. Bitirdiklerin işaretlenir.",
     ),
     "tour_catalog_search": MessageLookupByLibrary.simpleMessage("Her konuyu buradan ara."),
     "tour_done": MessageLookupByLibrary.simpleMessage("Anladım"),
     "tour_hello": MessageLookupByLibrary.simpleMessage("Merhaba, ben Çırak. Seni biraz gezdireyim mi?"),
-    "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sıradaki modüller burada. Bir modül bitirince Pratik de gelir.",
-    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage("Sıradaki modüller burada."),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "Her gün sana bir bölüm getiririm. Okumak için dokun ya da başkasını iste.",
+      "Her gün sana bir bölüm getiririm. Okumak için dokun, başkası için kaydır.",
+    ),
+    "tour_home_practice": MessageLookupByLibrary.simpleMessage(
+      "Her gün birkaç soru ve terim, bekleyen quiz ve sözlük.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Şimdi değil"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Devam"),

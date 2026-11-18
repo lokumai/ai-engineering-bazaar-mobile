@@ -2693,24 +2693,29 @@ class S {
     return Intl.message('Skip the tour', name: 'tour_skip', desc: '', args: []);
   }
 
-  /// `I bring you a section every day. Tap it to read, or ask for another.`
+  /// `I bring you a section every day. Tap it to read, or swipe for another.`
   String get tour_home_head {
     return Intl.message(
-      'I bring you a section every day. Tap it to read, or ask for another.',
+      'I bring you a section every day. Tap it to read, or swipe for another.',
       name: 'tour_home_head',
       desc: '',
       args: [],
     );
   }
 
-  /// `The next modules wait here. Practice joins them once you complete one.`
-  String get tour_home_after {
+  /// `A few questions and terms a day, a quiz to take, and the glossary.`
+  String get tour_home_practice {
     return Intl.message(
-      'The next modules wait here. Practice joins them once you complete one.',
-      name: 'tour_home_after',
+      'A few questions and terms a day, a quiz to take, and the glossary.',
+      name: 'tour_home_practice',
       desc: '',
       args: [],
     );
+  }
+
+  /// `The next modules wait here.`
+  String get tour_home_after {
+    return Intl.message('The next modules wait here.', name: 'tour_home_after', desc: '', args: []);
   }
 
   /// `The module to read now is always here.`
@@ -2728,10 +2733,10 @@ class S {
     return Intl.message('Search any topic here.', name: 'tour_catalog_search', desc: '', args: []);
   }
 
-  /// `Every level and module. Completed ones get a mark.`
+  /// `Each level opens to its modules. Completed ones get a mark.`
   String get tour_catalog_levels {
     return Intl.message(
-      'Every level and module. Completed ones get a mark.',
+      'Each level opens to its modules. Completed ones get a mark.',
       name: 'tour_catalog_levels',
       desc: '',
       args: [],

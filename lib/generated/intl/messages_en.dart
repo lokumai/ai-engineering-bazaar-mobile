@@ -678,15 +678,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_band": MessageLookupByLibrary.simpleMessage("The module to read now is always here."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("The Caravan travels through the trends of AI."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide here, or tap a stop, to move along."),
-    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage("Every level and module. Completed ones get a mark."),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
+      "Each level opens to its modules. Completed ones get a mark.",
+    ),
     "tour_catalog_search": MessageLookupByLibrary.simpleMessage("Search any topic here."),
     "tour_done": MessageLookupByLibrary.simpleMessage("Got it"),
     "tour_hello": MessageLookupByLibrary.simpleMessage("Hi, I\'m the Apprentice. Shall I show you around?"),
-    "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "The next modules wait here. Practice joins them once you complete one.",
-    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage("The next modules wait here."),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "I bring you a section every day. Tap it to read, or ask for another.",
+      "I bring you a section every day. Tap it to read, or swipe for another.",
+    ),
+    "tour_home_practice": MessageLookupByLibrary.simpleMessage(
+      "A few questions and terms a day, a quiz to take, and the glossary.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Later"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Next"),

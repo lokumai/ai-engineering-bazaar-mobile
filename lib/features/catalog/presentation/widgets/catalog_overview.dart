@@ -17,6 +17,8 @@ import 'package:ai_engineering_bazaar/shared/record/application/completion_toggl
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter/material.dart';
+
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -64,9 +66,10 @@ class CatalogOverview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.md,
       children: [
-        for (final level in levelsOf(index, rows))
+        for (final (at, level) in levelsOf(index, rows).indexed)
           _LevelCard(
             key: CatalogOverview.levelKey(level.slug),
+            first: at == 0,
             track: track,
             index: index,
             level: level,
@@ -96,6 +99,7 @@ class _LevelCard extends StatelessWidget {
     required this.count,
     required this.open,
     required this.onToggle,
+    this.first = false,
   });
 
   final Track track;
@@ -113,6 +117,10 @@ class _LevelCard extends StatelessWidget {
   final LevelCount? count;
   final bool open;
   final VoidCallback onToggle;
+
+  /// Whether it is the first level shown, whose head the tour rings: one level, not the whole page (the owner,
+  /// 2026-11-18).
+  final bool first;
 
   @override
   Widget build(BuildContext context) {
@@ -135,61 +143,64 @@ class _LevelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(
-            button: true,
-            expanded: open,
-            label: [level.title, lead, meter, if (planned) s.module_planned].join(', '),
-            excludeSemantics: true,
-            onTap: onToggle,
-            child: InkWell(
+          _Ringed(
+            first: first,
+            child: Semantics(
+              button: true,
+              expanded: open,
+              label: [level.title, lead, meter, if (planned) s.module_planned].join(', '),
+              excludeSemantics: true,
               onTap: onToggle,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                ),
-                child: Row(
-                  spacing: AppSpacing.md,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 2,
-                        children: [
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '${moduleNumber(position + 1)}  ',
-                                  style: TextStyle(color: colors.onSurfaceMuted),
-                                ),
-                                TextSpan(text: level.title),
-                              ],
+              child: InkWell(
+                onTap: onToggle,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
+                  child: Row(
+                    spacing: AppSpacing.md,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 2,
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${moduleNumber(position + 1)}  ',
+                                    style: TextStyle(color: colors.onSurfaceMuted),
+                                  ),
+                                  TextSpan(text: level.title),
+                                ],
+                              ),
+                              style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
                             ),
-                            style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                          ),
-                          Text(lead, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                          if (planned) ...[const SizedBox(height: AppSpacing.xs), _Tag(text: s.module_planned)],
-                        ],
+                            Text(lead, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                            if (planned) ...[const SizedBox(height: AppSpacing.xs), _Tag(text: s.module_planned)],
+                          ],
+                        ),
                       ),
-                    ),
-                    CompletionDial(
-                      done: count?.approved ?? 0,
-                      total: count?.total ?? level.total,
-                      color: hue,
-                      center: count == null
-                          ? s.catalog_level_dial(catalogNoReading, level.total)
-                          : s.catalog_level_dial(count.approved.toString(), count.total),
-                      semanticLabel: meter,
-                    ),
-                    AnimatedRotation(
-                      turns: open ? 0.5 : 0,
-                      duration: duration,
-                      child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
-                    ),
-                  ],
+                      CompletionDial(
+                        done: count?.approved ?? 0,
+                        total: count?.total ?? level.total,
+                        color: hue,
+                        center: count == null
+                            ? s.catalog_level_dial(catalogNoReading, level.total)
+                            : s.catalog_level_dial(count.approved.toString(), count.total),
+                        semanticLabel: meter,
+                      ),
+                      AnimatedRotation(
+                        turns: open ? 0.5 : 0,
+                        duration: duration,
+                        child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -333,4 +344,15 @@ class _Tag extends StatelessWidget {
       ),
     );
   }
+}
+
+/// [child] marked for the tour's ring when [first], as it is.
+class _Ringed extends StatelessWidget {
+  const _Ringed({required this.first, required this.child});
+
+  final bool first;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => first ? TourTarget(spot: TourSpots.catalogLevels, child: child) : child;
 }

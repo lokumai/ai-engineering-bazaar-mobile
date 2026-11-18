@@ -6,6 +6,9 @@ abstract final class TourSpots {
   /// Home's head: the Apprentice's corner with the day's card, or the card alone.
   static const homeHead = 'home.head';
 
+  /// Home's Practice: Today's review, the quiz waiting and the glossary.
+  static const homePractice = 'home.practice';
+
   /// Home's modules later on.
   static const homeAfter = 'home.after';
 

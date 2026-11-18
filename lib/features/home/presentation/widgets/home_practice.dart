@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_plan.dart';
 import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 
 /// Home's Practice (plan 13.2, 13.17), under the day's card with its own heading: Today's review on its card, then the
@@ -48,22 +49,26 @@ class HomePractice extends StatelessWidget {
     );
     return Padding(
       padding: const EdgeInsets.only(bottom: 26),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionRule(title: S.of(context).nav_practice),
-          const SizedBox(height: 12),
-          _TodayCard(cards: cards, done: history.doneOn(today) > 0),
-          const SizedBox(height: AppSpacing.sm),
-          // The rest as rows on the page's ground, as Later on's: one card in the section, not a box for each part
-          // (the owner, 2026-11-18).
-          BazaarRows(
-            children: [
-              if (waiting != null) _QuizWaitingRow(moduleKey: waiting, track: track, language: language),
-              const _GlossaryRow(),
-            ],
-          ),
-        ],
+      // The tour's stop on Practice, which Home shows from the first launch (the owner, 2026-11-18).
+      child: TourTarget(
+        spot: TourSpots.homePractice,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SectionRule(title: S.of(context).nav_practice),
+            const SizedBox(height: 12),
+            _TodayCard(cards: cards, done: history.doneOn(today) > 0),
+            const SizedBox(height: AppSpacing.sm),
+            // The rest as rows on the page's ground, as Later on's: one card in the section, not a box for each part
+            // (the owner, 2026-11-18).
+            BazaarRows(
+              children: [
+                if (waiting != null) _QuizWaitingRow(moduleKey: waiting, track: track, language: language),
+                const _GlossaryRow(),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -92,8 +97,9 @@ class _Disc extends StatelessWidget {
   }
 }
 
-/// Today's review on a leaf card, the section's one card, with no edge in a hue (the owner, 2026-11-18). With cards left a tap starts them, and
-/// the results lead back to Home; once the day's are done, or with none, it says so and stays (plan 13.17).
+/// Today's review on a leaf card, the section's one card, with no edge in a hue (the owner, 2026-11-18). With cards
+/// left a tap starts them, and the results lead back to Home; once the day's are done, or with none, it says so and
+/// stays (plan 13.17).
 class _TodayCard extends StatelessWidget {
   const _TodayCard({required this.cards, required this.done});
 

@@ -411,6 +411,7 @@ class _TourLayerState extends State<TourLayer> {
 
   static String _textOf(S s, String spot) => switch (spot) {
     TourSpots.homeHead => s.tour_home_head,
+    TourSpots.homePractice => s.tour_home_practice,
     TourSpots.homeAfter => s.tour_home_after,
     TourSpots.band => s.tour_band,
     TourSpots.tabs => s.tour_tabs,

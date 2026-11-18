@@ -86,6 +86,9 @@ Rect _spot(WidgetTester tester, String spot) {
   return box.localToGlobal(Offset.zero) & box.size;
 }
 
+/// The widget the tour's place [TourSpots.catalogLevels] marks.
+Widget _target(WidgetTester tester) => TourTarget.contextOf(TourSpots.catalogLevels)!.widget;
+
 const _hello = "Hi, I'm the Apprentice. Shall I show you around?";
 
 void main() {
@@ -151,6 +154,24 @@ void main() {
     expect(store.kept, const TourRecord(guiding: true, seen: {'home'}));
   });
 
+  testWidgets("with Practice on Home, it stops there after the day's card (the owner, 2026-11-18)", (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer(
+      (_) async => testDoc(
+        quiz: const [
+          QuizItem(question: 'Q1', options: ['One', 'Two'], answer: 0, explain: 'E1'),
+        ],
+      ),
+    );
+    await _pump(tester, record: const TourRecord(guiding: true), repository: repository);
+
+    expect(_dots(1, 5), findsOneWidget, reason: 'five places: the head, Practice, Later on, the band, the tabs');
+    await _tap(tester, _next);
+    expect(find.textContaining('A few questions and terms a day, a quiz to take'), findsOneWidget);
+    expect(_hole(tester), _spot(tester, TourSpots.homePractice).intersect(Offset.zero & const Size(393, 852)));
+    expect(_hole(tester)!.height, lessThan(300), reason: 'Practice alone');
+  });
+
   for (final locale in const [Locale('en'), Locale('fa')]) {
     testWidgets("on Home's head it leaves Show another in sight, which the words name (${locale.languageCode})", (
       tester,
@@ -183,9 +204,16 @@ void main() {
     expect(find.textContaining('Search any topic here.'), findsOneWidget);
     expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('Every level and module.'), findsOneWidget);
-    // The levels fill the screen, so the bubble lies over their foot: high enough to reach, off the navigation.
-    expect(tester.getRect(_next).bottom, lessThan(852 * (1 - TourLayer.overFoot)));
+    expect(find.textContaining('Each level opens to its modules.'), findsOneWidget);
+    // The ring holds the first level's head alone, not the whole page (the owner, 2026-11-18).
+    final ring = _hole(tester)!;
+    expect(ring.height, lessThan(140), reason: "one level's head");
+    expect(ring, _spot(tester, TourSpots.catalogLevels));
+    expect(
+      find.descendant(of: find.byKey(const ValueKey('catalog-level-alpha')), matching: find.byWidget(_target(tester))),
+      findsOneWidget,
+      reason: 'the first level',
+    );
     expect(tester.getRect(_next).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top - 60));
     await _tap(tester, _next);
     expect(store.kept.seen, {'home', 'catalog'});

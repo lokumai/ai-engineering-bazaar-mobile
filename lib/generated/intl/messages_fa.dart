@@ -683,15 +683,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_band": MessageLookupByLibrary.simpleMessage("ماژولی که الان باید بخوانید همیشه اینجاست."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("کاروان از میان جریان‌های هوش مصنوعی می‌گذرد."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("برای حرکت، اینجا را بکشید یا روی ایستگاهی بزنید."),
-    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage("همهٔ سطح‌ها و ماژول‌ها. تکمیل‌شده‌ها علامت می‌خورند."),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
+      "هر سطح به ماژول‌هایش باز می‌شود. تکمیل‌شده‌ها علامت می‌خورند.",
+    ),
     "tour_catalog_search": MessageLookupByLibrary.simpleMessage("هر موضوعی را اینجا جستجو کنید."),
     "tour_done": MessageLookupByLibrary.simpleMessage("فهمیدم"),
     "tour_hello": MessageLookupByLibrary.simpleMessage("سلام، من شاگردم. همه‌جا را نشانتان بدهم؟"),
-    "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "ماژول‌های بعدی اینجا هستند. با تکمیل یک ماژول، تمرین هم می‌آید.",
-    ),
+    "tour_home_after": MessageLookupByLibrary.simpleMessage("ماژول‌های بعدی اینجا هستند."),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "هر روز بخشی برایتان می‌آورم. برای خواندن بزنید یا یکی دیگر بخواهید.",
+      "هر روز بخشی برایتان می‌آورم. برای خواندن بزنید، برای یکی دیگر بکشید.",
+    ),
+    "tour_home_practice": MessageLookupByLibrary.simpleMessage(
+      "هر روز چند پرسش و اصطلاح، آزمونی در انتظار و واژه‌نامه.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("بعدا"),
     "tour_next": MessageLookupByLibrary.simpleMessage("بعدی"),

@@ -83,15 +83,13 @@ class CatalogPage extends StatelessWidget {
             if (searching)
               CatalogSearchResults(track: track)
             else ...[
-              TourTarget(
-                spot: TourSpots.catalogLevels,
-                child: CatalogOverview(
-                  track: track,
-                  index: index,
-                  rows: rows,
-                  counts: view == null ? null : categoryProgress(view, curriculum),
-                  upNext: next == null ? null : index.module(next)?.level,
-                ),
+              // The tour rings the first level's head alone (CatalogOverview).
+              CatalogOverview(
+                track: track,
+                index: index,
+                rows: rows,
+                counts: view == null ? null : categoryProgress(view, curriculum),
+                upNext: next == null ? null : index.module(next)?.level,
               ),
               const SizedBox(height: AppSpacing.xl),
               const CatalogLegend(),
