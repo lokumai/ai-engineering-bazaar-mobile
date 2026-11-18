@@ -731,7 +731,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                 // once listened to, it goes on from where it was left (the owner, 2026-11-18).
                                 if (_voice == true && parts.isNotEmpty)
                                   BlocBuilder<ListenCubit, ListenState>(
-                                    buildWhen: (before, now) => _readsThis(before) != _readsThis(now),
+                                    // Also when nothing is read: the places kept come in, or another module ends.
+                                    buildWhen: (before, now) =>
+                                        _readsThis(before) != _readsThis(now) || now is ListenIdle,
                                     builder: (context, state) => _readsThis(state)
                                         ? const SizedBox.shrink()
                                         : Align(

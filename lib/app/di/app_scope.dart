@@ -138,7 +138,10 @@ class AppScope extends StatelessWidget {
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The module read aloud, for the whole app: it goes on across the tabs and with the screen off (plan 15).
-          BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
+          BlocProvider<ListenCubit>(
+            create: (context) =>
+                ListenCubit(speech: context.read<ISpeech>(), store: dependencies.createListenPlaceStore())..load(),
+          ),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
           // The pocket model's level, which unlocks the app icons as its wardrobe (plan 9.10): read from its store,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/spoken_parts.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,9 +76,16 @@ void main() {
   late _Voice voice;
   late ListenCubit listen;
 
-  void make({bool speaks = true, Duration restAfter = const Duration(minutes: 2)}) {
+  late MemoryListenPlaceStore store;
+
+  void make({
+    bool speaks = true,
+    Duration restAfter = const Duration(minutes: 2),
+    Map<String, ListenPlace> kept = const {},
+  }) {
     voice = _Voice(speaks: speaks);
-    listen = ListenCubit(speech: voice, restAfter: restAfter);
+    store = MemoryListenPlaceStore(kept);
+    listen = ListenCubit(speech: voice, store: store, restAfter: restAfter);
     addTearDown(listen.close);
   }
 
@@ -290,6 +298,83 @@ void main() {
       await _settle();
       expect(listen.state, const ListenIdle(rate: 1));
       expect(listen.keptAt('alpha/first', Track.engineers), isNull);
+    });
+
+    test('every part heard to its end, the reading ends naming the module heard whole', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice
+        ..reach(0)
+        ..reach(1)
+        ..reach(2)
+        ..finish();
+      await _settle();
+      expect(listen.state, const ListenIdle(rate: 1, heardAll: (module: 'alpha/first', track: Track.engineers)));
+      expect(store.kept, isEmpty, reason: 'heard whole, nothing is kept of it');
+    });
+
+    test('a part skipped with Next is not heard; heard over two sittings, it is whole', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      listen.next();
+      await _settle();
+      voice
+        ..reach(0)
+        ..reach(1)
+        ..finish();
+      await _settle();
+      expect(listen.state, const ListenIdle(rate: 1), reason: 'the first part was skipped');
+      expect(store.kept['engineers/alpha/first'], const ListenPlace(count: 3, heard: {1, 2}));
+
+      listen.start(_first);
+      await _settle();
+      voice
+        ..reach(0)
+        ..reach(1);
+      listen.stop();
+      await _settle();
+      expect(listen.state, const ListenIdle(rate: 1), reason: 'stopped: not heard whole yet');
+      expect(store.kept['engineers/alpha/first'], const ListenPlace(count: 3, index: 1, heard: {0, 1, 2}));
+
+      listen.start(_first);
+      await _settle();
+      listen
+        ..next()
+        ..next();
+      await _settle();
+      expect((listen.state as ListenIdle).heardAll, (
+        module: 'alpha/first',
+        track: Track.engineers,
+      ), reason: 'past the last part, every one heard before');
+    });
+
+    test('the places are read from the store and kept in it, so they last when the app is closed', () async {
+      make(kept: {'engineers/alpha/first': const ListenPlace(count: 3, index: 2)});
+      expect(listen.keptAt('alpha/first', Track.engineers), isNull, reason: 'not read yet');
+      await listen.load();
+      expect(listen.keptAt('alpha/first', Track.engineers), 2);
+      expect(listen.state, const ListenIdle(rate: 1, loaded: true), reason: "the module's Listen hears of them");
+
+      listen.start(_first);
+      await _settle();
+      expect(listen.state, on(2));
+      listen.stop();
+      await _settle();
+      expect(store.kept['engineers/alpha/first']?.index, 2);
+    });
+
+    test('a place kept for a module of another length starts it from its head', () async {
+      make(
+        kept: {
+          'engineers/alpha/first': const ListenPlace(count: 5, index: 4, heard: {0, 1, 2, 3}),
+        },
+      );
+      await listen.load();
+      listen.start(_first);
+      await _settle();
+      expect(listen.state, on(0));
     });
 
     test('a module with nothing to read does not start', () async {

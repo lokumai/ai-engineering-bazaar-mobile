@@ -79,7 +79,8 @@ lib/
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
                                                 module pages; empty on the tabs), thin lattice band, bottom navigation of icons
                                                 with small names (Home, Catalog, the Caravan's horse, Practice, Settings;
-                                                shared/design_system/widgets/caravan_icon.dart)
+                                                shared/design_system/widgets/caravan_icon.dart); listen_completion.dart
+                                                marks a module heard whole completed, with Undo
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -124,7 +125,9 @@ lib/
                                                 appearance_name.dart: the choice kept on the device, never in the
                                                 record; ILaunchGround: the look named to the phone for its launch screen
     listen/                                     the module read aloud, for the whole app (plan 15): spoken_parts.dart, the
-                                                ISpeech port, ListenCubit, the bar over the navigation elsewhere (ListenBar)
+                                                ISpeech port, ListenCubit, the bar over the navigation elsewhere (ListenBar),
+                                                listen_place.dart (where each module was left and the parts heard, kept on
+                                                the device under listen/places.json, never in the record)
     reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record

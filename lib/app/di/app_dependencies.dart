@@ -47,6 +47,7 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/speech/phone_speech.dart';
 
@@ -115,6 +116,11 @@ class AppDependencies {
   /// The phone's own voice, which reads a module aloud (plan 15.1).
   ISpeech createSpeech() => PhoneSpeechPort(PhoneSpeech());
 
+  /// Where each module read aloud was left and which parts were heard, as one file under
+  /// [supportDirectory]`/listen/places.json`, apart from the record (the owner, 2026-11-18).
+  IListenPlaceStore createListenPlaceStore() =>
+      FileListenPlaceStore(FileTextStore(baseDirectory: supportDirectory, path: 'listen/places.json'));
+
   /// The quiz scores, as one file under [supportDirectory]`/quiz/scores.json`, apart from the record (plan 1W).
   IQuizScoreStore createQuizScoreStore() =>
       FileQuizScoreStore(FileTextStore(baseDirectory: supportDirectory, path: 'quiz/scores.json'));
@@ -167,6 +173,23 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
   @override
   Future<void> save(Map<String, ReadingPlace> places) =>
       places.isEmpty ? _file.delete() : _file.write(encodeReadingPlaces(places));
+}
+
+/// The listening places' port over one text file of the app's own.
+final class FileListenPlaceStore implements IListenPlaceStore {
+  const FileListenPlaceStore(this._file);
+
+  final FileTextStore _file;
+
+  @override
+  Future<Map<String, ListenPlace>> load() async {
+    final text = await _file.read();
+    return text == null ? const {} : decodeListenPlaces(text);
+  }
+
+  @override
+  Future<void> save(Map<String, ListenPlace> places) =>
+      places.isEmpty ? _file.delete() : _file.write(encodeListenPlaces(places));
 }
 
 /// The pocket model's port over one text file of the app's own.

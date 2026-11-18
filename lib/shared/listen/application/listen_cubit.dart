@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/spoken_parts.dart';
 
@@ -36,11 +37,16 @@ final class ListenSession extends Equatable {
 ///
 /// A module stopped, left paused for [restAfter], or put aside for another keeps its place, and started again it goes
 /// on from there (the owner, 2026-11-18): the bar over the navigation leaves, the band is back, and the module's Listen
-/// says it resumes. Read to its end, the place is let go. The places last while the app runs.
+/// says it resumes. Each part heard to its end is kept too, a part skipped with Next is not; once every part is heard,
+/// over one sitting or many, the reading ends with [ListenIdle.heardAll], which the app marks completed. Read to its
+/// end, the place to go on from is let go. The places are kept in the [IListenPlaceStore], so they last when the app
+/// is closed.
 ///
 /// A `Cubit` because every call is atomic; a newer call cuts the reading under way by its turn, not by an event queue.
 final class ListenCubit extends Cubit<ListenState> {
-  ListenCubit({required this._speech, this.restAfter = const Duration(minutes: 2)}) : super(const ListenIdle(rate: 1));
+  ListenCubit({required this._speech, IListenPlaceStore? store, this.restAfter = const Duration(minutes: 2)})
+    : _store = store ?? MemoryListenPlaceStore(),
+      super(const ListenIdle(rate: 1));
 
   /// How long a pause lasts before the reading ends, its place kept.
   final Duration restAfter;
@@ -49,6 +55,7 @@ final class ListenCubit extends Cubit<ListenState> {
   static const rates = [1.0, 1.25, 1.5, 0.75];
 
   final ISpeech _speech;
+  final IListenPlaceStore _store;
 
   double _rate = rates.first;
 
@@ -61,16 +68,26 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The reading under way; a call that starts another or stops it moves the turn on, so the one before ends.
   int _turn = 0;
 
-  /// Where each module ended, by [_keyOf], to go on from when it is started again.
-  final _kept = <String, int>{};
+  /// Each module's place, by [listenPlaceKey].
+  Map<String, ListenPlace> _places = {};
 
   /// Ends a pause that has lasted [restAfter].
   Timer? _rest;
 
-  static String _keyOf(String module, Track track) => '${track.name}/$module';
+  /// Reads the places kept; a module's Listen asked before it ends sees none.
+  Future<void> load() async {
+    final kept = await _store.load();
+    if (isClosed) return;
+    _places = {...kept, ..._places};
+    // The module's Listen reads the places as the state changes: one emit for them to be seen.
+    if (state case ListenIdle(:final rate)) emit(ListenIdle(rate: rate, loaded: true));
+  }
 
   /// The part the module [module] of [track] goes on from when started, null for its head; null while it is read.
-  int? keptAt(String module, Track track) => _kept[_keyOf(module, track)];
+  int? keptAt(String module, Track track) {
+    if (_session case final session? when session.module == module && session.track == track) return null;
+    return _places[listenPlaceKey(module, track)]?.index;
+  }
 
   /// The parts of the module being read; none while none is.
   List<SpokenPart> get parts => _session?.parts ?? const [];
@@ -83,8 +100,10 @@ final class ListenCubit extends Cubit<ListenState> {
     if (session.parts.isEmpty) return;
     _keep();
     _session = session;
-    final from = _kept.remove(_keyOf(session.module, session.track)) ?? 0;
-    unawaited(_play(from < session.parts.length ? from : 0));
+    final key = listenPlaceKey(session.module, session.track);
+    // Kept for a module of another length, the place no longer fits it.
+    if (_places[key] case final place? when place.count != session.parts.length) _places.remove(key);
+    unawaited(_play(_places[key]?.index ?? 0));
   }
 
   void pause() {
@@ -123,25 +142,27 @@ final class ListenCubit extends Cubit<ListenState> {
   }
 
   /// Ends the reading, its place kept.
-  void stop() => _end(keep: true);
-
-  void _end({required bool keep}) {
-    final session = _session;
-    if (state is! ListenOn || session == null) return;
+  void stop() {
+    if (state is! ListenOn || _session == null) return;
     _cut();
-    if (keep) {
-      _keep();
-    } else {
-      _kept.remove(_keyOf(session.module, session.track));
-    }
+    _keep();
     _session = null;
     emit(ListenIdle(rate: _rate));
   }
 
-  /// Keeps the place of the module being read, if one is.
+  /// Keeps where the module being read is, if one is.
   void _keep() {
     final session = _session;
-    if (state case ListenOn(:final index) when session != null) _kept[_keyOf(session.module, session.track)] = index;
+    if (state case ListenOn(:final index) when session != null) _place(session, (place) => place.at(index));
+  }
+
+  /// Changes the place of [session]'s module by [change], and keeps every place.
+  void _place(ListenSession session, ListenPlace Function(ListenPlace place) change) {
+    final key = listenPlaceKey(session.module, session.track);
+    final place = change(_places[key] ?? ListenPlace(count: session.parts.length));
+    _places = {..._places}..remove(key);
+    if (!place.isEmpty) _places[key] = place;
+    unawaited(_store.save(_places));
   }
 
   /// Paused on part [index], the reading ends after [restAfter] unless something is done.
@@ -165,8 +186,7 @@ final class ListenCubit extends Cubit<ListenState> {
   }
 
   void _go(int index, {required bool playing}) {
-    // Past the last part, as read to its end: no place kept.
-    if (index >= parts.length) return _end(keep: false);
+    if (index >= parts.length) return _ended();
     if (playing) {
       unawaited(_play(index));
     } else {
@@ -180,8 +200,21 @@ final class ListenCubit extends Cubit<ListenState> {
     unawaited(_speech.stop());
   }
 
+  /// Past the last part: nothing to go on from; and with every part heard, the module was listened to whole, and its
+  /// parts heard are let go with it.
+  void _ended() {
+    final session = _session;
+    if (session == null) return;
+    _cut();
+    final key = listenPlaceKey(session.module, session.track);
+    final whole = _places[key]?.heardAll ?? false;
+    _place(session, (place) => whole ? const ListenPlace(count: 0) : place.at(null));
+    _session = null;
+    emit(ListenIdle(rate: _rate, heardAll: whole ? (module: session.module, track: session.track) : null));
+  }
+
   /// Hands the phone every part from [from] on at once, so it reads on with the screen off, and follows each as it
-  /// starts.
+  /// starts. A part counts heard once the next starts after it in the same speak, or the speak ends after it.
   Future<void> _play(int from) async {
     _rest?.cancel();
     final turn = ++_turn;
@@ -189,19 +222,24 @@ final class ListenCubit extends Cubit<ListenState> {
     emit(_on(from, playing: true));
     await _speech.stop();
     if (turn != _turn || isClosed) return;
+    int? started;
     await _speech.speak(
       [for (final part in session.parts.skip(from)) part.text],
       language: session.language,
       rate: _rate,
       onPart: (index) {
-        if (turn == _turn && !isClosed) emit(_on(from + index, playing: true));
+        if (turn != _turn || isClosed) return;
+        final at = from + index;
+        if (started case final before? when before == at - 1) _place(session, (place) => place.hearing(before));
+        started = at;
+        emit(_on(at, playing: true));
       },
     );
     if (turn != _turn || isClosed) return;
-    // Read to its end: started again, it reads from its head.
-    _kept.remove(_keyOf(session.module, session.track));
-    _session = null;
-    emit(ListenIdle(rate: _rate));
+    if (started case final last? when last == session.parts.length - 1) {
+      _place(session, (place) => place.hearing(last));
+    }
+    _ended();
   }
 
   @override
@@ -215,14 +253,17 @@ sealed class ListenState extends Equatable {
   const ListenState();
 }
 
-/// No module being read: Listen at a module's head, at [rate] when started.
+/// No module being read: Listen at a module's head, at [rate] when started. Just after a module was heard whole,
+/// [heardAll] names it, once; [loaded] once the places kept were read.
 final class ListenIdle extends ListenState {
-  const ListenIdle({required this.rate});
+  const ListenIdle({required this.rate, this.heardAll, this.loaded = false});
 
   final double rate;
+  final ({String module, Track track})? heardAll;
+  final bool loaded;
 
   @override
-  List<Object?> get props => [rate];
+  List<Object?> get props => [rate, heardAll, loaded];
 }
 
 /// Reading part [index] of [count] of [module] on [track], or paused on it; the player stands at the module's foot,
