@@ -7,9 +7,9 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
@@ -20,18 +20,13 @@ import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_plan.dart';
 import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/study/domain/glossary.dart';
-import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 
-/// Home's Practice (plan 13.2, 13.17), under the day's card with its own heading: Today's review, the glossary, and the
-/// first quiz not yet taken. Wrong answers and A module in 2 minutes stay the Practice tab's own (the owner,
+/// Home's Practice (plan 13.2, 13.17), under the day's card with its own heading: Today's review on its card, then the
+/// glossary and the first quiz not yet taken as rows. Wrong answers and A module in 2 minutes stay the Practice tab's own (the owner,
 /// 2026-11-18). Nothing shows before a module is completed, or while the notes are being read.
 class HomePractice extends StatelessWidget {
   const HomePractice({super.key, required this.track, required this.language});
-
-  /// How many terms of the last module completed the glossary card names.
-  static const termsShown = 3;
 
   final Track track;
   final String language;
@@ -51,7 +46,6 @@ class HomePractice extends StatelessWidget {
       finished: (key) => scores.of(key) != null,
       history: history,
     );
-    final last = notes.of(pool.completed.last);
     return Padding(
       padding: const EdgeInsets.only(bottom: 26),
       child: Column(
@@ -60,15 +54,15 @@ class HomePractice extends StatelessWidget {
           SectionRule(title: S.of(context).nav_practice),
           const SizedBox(height: 12),
           _TodayCard(cards: cards, done: history.doneOn(today) > 0),
-          const SizedBox(height: AppSpacing.md),
-          _GlossaryCard(
-            count: glossaryOf(notes.modules, language).length,
-            terms: [for (final term in last?.terms.take(termsShown) ?? const <GlossaryTerm>[]) term.name],
+          const SizedBox(height: AppSpacing.sm),
+          // The rest as rows on the page's ground, as Later on's: one card in the section, not a box for each part
+          // (the owner, 2026-11-18).
+          BazaarRows(
+            children: [
+              const _GlossaryRow(),
+              if (waiting != null) _QuizWaitingRow(moduleKey: waiting, track: track, language: language),
+            ],
           ),
-          if (waiting != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            _QuizWaiting(moduleKey: waiting, track: track, language: language),
-          ],
         ],
       ),
     );
@@ -148,97 +142,41 @@ class _TodayCard extends StatelessWidget {
   }
 }
 
-/// The glossary on an arch card in its Practice hue: its mark, its name, how many terms, and a few terms of the last
-/// module completed as small labels, the words a reader met last; a tap opens it (plan 13.17).
-class _GlossaryCard extends StatelessWidget {
-  const _GlossaryCard({required this.count, required this.terms});
-
-  final int count;
-  final List<String> terms;
+/// The glossary as a row on the page's ground, as Later on's (the owner, 2026-11-18: not every part of Home in a box;
+/// no terms and no count under it): its purple mark and its name; a tap opens it (plan 13.17).
+class _GlossaryRow extends StatelessWidget {
+  const _GlossaryRow();
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final hue = colors.category3;
-    final detail = s.practice_glossary_count(count);
-    return BazaarCard(
+    return BazaarRow(
       key: const Key('home-glossary'),
-      shape: BazaarCardShape.arch,
-      accent: hue,
-      tint: hue,
       onTap: () => context.push(BazaarPaths.practiceGlossary),
-      semanticLabel: [s.practice_glossary, detail, ...terms].join(', '),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      semanticLabel: s.practice_glossary,
+      child: Row(
         spacing: AppSpacing.md,
         children: [
-          Row(
-            spacing: AppSpacing.md,
-            children: [
-              _Disc(hue: hue, icon: Icons.sort_by_alpha_rounded),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
-                  children: [
-                    Text(
-                      s.practice_glossary,
-                      style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                    ),
-                    Text(detail, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward, size: 20, color: colors.primary),
-            ],
-          ),
-          if (terms.isNotEmpty)
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [for (final term in terms) _TermLabel(term: term, hue: hue)],
+          Icon(Icons.sort_by_alpha_rounded, size: 22, color: colors.category3),
+          Expanded(
+            child: Text(
+              s.practice_glossary,
+              style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
             ),
+          ),
+          ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
         ],
       ),
     );
   }
 }
 
-/// A term's name on a small raised label, its first letter in the display face, as the glossary heads its letters.
-class _TermLabel extends StatelessWidget {
-  const _TermLabel({required this.term, required this.hue});
-
-  final String term;
-  final Color hue;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = context.bazaarColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: const BorderRadius.all(BazaarRadii.md),
-        border: Border.all(color: colors.lineStrong),
-      ),
-      child: Text(
-        term,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: displayFace(theme.textTheme.labelLarge)?.copyWith(color: colors.onSurfaceTitle),
-      ),
-    );
-  }
-}
-
-/// "Quiz waiting": the first completed module whose quiz is not taken, after its level's key, its number and title; a
-/// tap opens its quiz (plan 13.17).
-class _QuizWaiting extends StatelessWidget {
-  const _QuizWaiting({required this.moduleKey, required this.track, required this.language});
+/// "Quiz waiting" as a row on the page's ground, drawn as Later on's: the first completed module whose quiz is not
+/// taken, its number, its title, and under it the level's key with "Quiz waiting"; a tap opens its quiz (plan 13.17).
+class _QuizWaitingRow extends StatelessWidget {
+  const _QuizWaitingRow({required this.moduleKey, required this.track, required this.language});
 
   final String moduleKey;
   final Track track;
@@ -257,52 +195,41 @@ class _QuizWaiting extends StatelessWidget {
     final position = index?.levels.indexWhere((level) => level.slug == module?.level) ?? -1;
     final hue = position < 0 ? colors.primary : levelHue(context, position);
     final title = module?.tracks[track]?.titleIn(language) ?? moduleKey;
-    final number = module == null ? '' : '${module.number.toString().padLeft(2, '0')}  ';
-    return BazaarCard(
+    return BazaarRow(
       key: const Key('home-quiz-waiting'),
-      accent: hue,
       onTap: () => context.push(BazaarPaths.quiz(moduleKey)),
       semanticLabel: '${s.home_quiz_waiting}, $title',
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.sm),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: minTapTarget(theme.platform)),
-        child: Row(
-          spacing: AppSpacing.md,
-          children: [
-            _Disc(hue: hue, icon: Icons.quiz_outlined),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Row(
-                    spacing: 6,
-                    children: [
-                      LevelKey(color: hue, size: 8),
-                      Text(
-                        s.home_quiz_waiting,
-                        style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
-                      ),
-                    ],
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: number,
-                          style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-                        ),
-                        TextSpan(text: title),
-                      ],
-                    ),
-                    style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                  ),
-                ],
-              ),
+      child: Row(
+        spacing: AppSpacing.md,
+        children: [
+          if (module != null)
+            Text(
+              module.number.toString().padLeft(2, '0'),
+              style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
             ),
-            Icon(Icons.arrow_forward, size: 20, color: colors.primary),
-          ],
-        ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
+                Row(
+                  spacing: 6,
+                  children: [
+                    LevelKey(color: hue, size: 8),
+                    Flexible(
+                      child: Text(
+                        s.home_quiz_waiting,
+                        style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
+        ],
       ),
     );
   }

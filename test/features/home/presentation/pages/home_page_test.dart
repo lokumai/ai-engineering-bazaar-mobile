@@ -18,8 +18,9 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, Text, ValueKey;
+import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -136,7 +137,9 @@ void main() {
     expect(find.text('Second Module', skipOffstage: false), findsOneWidget);
   });
 
-  testWidgets("the modules after it give their minutes and words, as the catalog's rows do (web D128)", (tester) async {
+  testWidgets('the modules after it give their level and minutes, no word count (the owner, 2026-11-18)', (
+    tester,
+  ) async {
     await _pumpHome(
       tester,
       index: catalogFixtureIndex(
@@ -146,10 +149,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Alpha Level · 25 min · 3,670 words'), findsOneWidget);
-    final fourth = tester.widget<Text>(find.textContaining('Beta Level · ', skipOffstage: false)).data!;
-    expect(fourth, isNot(contains('words')), reason: 'the minutes alone where the content has no word count');
-    expect(fourth, contains('40'));
+    expect(find.text('Alpha Level · ~25 min'), findsOneWidget);
+    expect(find.textContaining('words', skipOffstage: false), findsNothing);
   });
 
   testWidgets('the band opens the next module', (tester) async {
@@ -182,16 +183,16 @@ void main() {
     expect(_path(router), '/courses/beta/fourth');
   });
 
-  testWidgets('a module after the next one opens in the track, and the catalog is one tap away', (tester) async {
+  testWidgets('a module after the next one opens in the track; no link to the catalog under them', (tester) async {
     final router = await _pumpHome(tester, record: _completed(['alpha/first']));
 
+    expect(
+      find.text('See the whole catalog', skipOffstage: false),
+      findsNothing,
+      reason: 'the Catalog tab is one tap away (the owner, 2026-11-18)',
+    );
     await _tap(tester, find.text('Fourth Module'));
     expect(_path(router), '/courses/beta/fourth');
-
-    router.pop();
-    await tester.pumpAndSettle();
-    await _tap(tester, find.text('See the whole catalog'));
-    expect(_path(router), '/sheets');
   });
 
   testWidgets('every written module completed: a line says so and Progress is one tap away', (tester) async {
@@ -202,7 +203,7 @@ void main() {
 
     expect(find.text('Every written module is complete.'), findsOneWidget);
     expect(_band, findsNothing);
-    await _tap(tester, find.text('See the whole catalog').first);
+    await _tap(tester, find.text('See the whole catalog'));
 
     expect(_path(router), '/sheets');
   });
@@ -269,11 +270,17 @@ void main() {
     expect(find.byKey(const Key('practice-wrong'), skipOffstage: false), findsNothing, reason: "Practice's own");
     expect(find.byKey(const Key('practice-brief'), skipOffstage: false), findsNothing, reason: "Practice's own");
 
-    expect(find.descendant(of: glossary, matching: find.text('2 terms')), findsOneWidget);
+    for (final part in [glossary, waiting]) {
+      expect(
+        tester.widget(part),
+        isA<BazaarRow>(),
+        reason: "a row on the page's ground, as Later on's: one card in the section (the owner, 2026-11-18)",
+      );
+    }
     expect(
-      find.descendant(of: glossary, matching: find.text('Wick')),
-      findsOneWidget,
-      reason: 'the terms of the last module completed',
+      find.descendant(of: glossary, matching: find.textContaining('terms')),
+      findsNothing,
+      reason: 'its name alone (the owner, 2026-11-18)',
     );
     expect(
       find.descendant(of: waiting, matching: find.textContaining('First Module', findRichText: true)),

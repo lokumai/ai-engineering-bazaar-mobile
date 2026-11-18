@@ -92,14 +92,7 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ],
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              // The Catalog tab's page, as the tab opens it.
-              onPressed: () => context.go(BazaarPaths.catalog(track)),
-              child: Text(s.home_see_catalog),
-            ),
-          ),
+          // No link to the catalog under Later on: the Catalog tab is one tap away (the owner, 2026-11-18).
           if (overview.levels.isNotEmpty) ...[
             const SizedBox(height: 22),
             SectionRule(title: s.home_path),

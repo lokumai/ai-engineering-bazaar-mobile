@@ -50,14 +50,7 @@ final class HomeLevel extends Equatable {
 
 /// The module the continue card opens.
 final class HomeNext extends Equatable {
-  const HomeNext({
-    required this.module,
-    required this.level,
-    required this.position,
-    required this.title,
-    this.words = const {},
-    this.share,
-  });
+  const HomeNext({required this.module, required this.level, required this.position, required this.title, this.share});
 
   final ModuleEntry module;
   final LevelEntry level;
@@ -68,15 +61,12 @@ final class HomeNext extends Equatable {
   /// The module's title in the track, in the overview's language: the English one where it has none (web D139).
   final String title;
 
-  /// The words of the module's document in the track, per language (web D128); empty where the content has no count.
-  final Map<String, int> words;
-
   /// How far down the module the reader left it, from 0 to 1, when the continue card goes on with a module left half
   /// read (plan 1BA); null otherwise.
   final double? share;
 
   @override
-  List<Object?> get props => [module, level, position, title, words, share];
+  List<Object?> get props => [module, level, position, title, share];
 }
 
 /// The overview of [track] from [index], [record], and the reading [places] of this device, with
@@ -99,7 +89,6 @@ HomeOverview homeOverview(
       level: index.level(module.level)!,
       position: positions[module.level]!,
       title: module.tracks[titled]!.titleIn(language),
-      words: module.tracks[titled]!.words,
       share: share,
     );
   }
