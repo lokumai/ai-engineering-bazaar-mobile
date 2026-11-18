@@ -119,6 +119,7 @@
   "reader_completion_region": "تکمیل درس",
   "reader_mark_complete": "علامت زدن این درس به‌عنوان تکمیل‌شده",
   "reader_completed_on": "تکمیل‌شده در {date}",
+  "reader_auto_completed": "به‌عنوان تکمیل‌شده علامت خورد",
   "reader_previous": "قبلی",
   "reader_next": "بعدی",
   "reader_pager_planned": "{label} · برنامه‌ریزی‌شده",

@@ -11,7 +11,7 @@ import 'package:equatable/equatable.dart';
 /// above it, or a narrower screen, still finds the same words; a module read above its first heading keeps the
 /// distance from the top.
 final class ReadingPlace extends Equatable {
-  const ReadingPlace({this.heading, required this.offset, required this.share, required this.at});
+  const ReadingPlace({this.heading, required this.offset, required this.share, required this.at, this.seconds = 0});
 
   /// The id of the last heading above the top of the screen; null above the first heading.
   final String? heading;
@@ -25,11 +25,20 @@ final class ReadingPlace extends Equatable {
   /// When the module was left there, for the most recent place.
   final DateTime at;
 
+  /// The seconds the module was on the screen, over every visit, which marks it completed once read to its end
+  /// (the owner, 2026-11-18); 0 in a file kept before.
+  final int seconds;
+
+  /// This place with [seconds].
+  ReadingPlace withSeconds(int seconds) =>
+      ReadingPlace(heading: heading, offset: offset, share: share, at: at, seconds: seconds);
+
   Map<String, Object?> _toJson() => {
     'heading': ?heading,
     'offset': offset,
     'share': share,
     'at': at.toUtc().toIso8601String(),
+    if (seconds > 0) 'seconds': seconds,
   };
 
   static ReadingPlace? _fromJson(Object? json) {
@@ -38,18 +47,20 @@ final class ReadingPlace extends Equatable {
       final time = DateTime.tryParse(at);
       if (time == null) return null;
       final heading = json['heading'];
+      final seconds = json['seconds'];
       return ReadingPlace(
         heading: heading is String && heading.isNotEmpty ? heading : null,
         offset: offset.toDouble(),
         share: share.toDouble(),
         at: time,
+        seconds: seconds is int && seconds > 0 ? seconds : 0,
       );
     }
     return null;
   }
 
   @override
-  List<Object?> get props => [heading, offset, share, at];
+  List<Object?> get props => [heading, offset, share, at, seconds];
 }
 
 /// The key a place is kept under: the track's id and the module's key, as `engineers:<level>/<module>`. The two tracks
@@ -60,7 +71,8 @@ String readingPlaceKey(Track track, String module) => '${track.id}:$module';
 const readingPlacesSchema = 1;
 
 /// The places as the file keeps them:
-/// `{"schema":1,"places":{"engineers:<level>/<module>":{"heading":"id","offset":120.5,"share":0.4,"at":"..."}}}`.
+/// `{"schema":1,"places":{"engineers:<level>/<module>":{"heading":"id","offset":120.5,"share":0.4,"at":"..."}}}`, each
+/// with `"seconds":300` once the module was on the screen, left out at 0, so a file kept before reads the same.
 String encodeReadingPlaces(Map<String, ReadingPlace> places) => jsonEncode({
   'schema': readingPlacesSchema,
   'places': {for (final MapEntry(:key, :value) in places.entries) key: value._toJson()},

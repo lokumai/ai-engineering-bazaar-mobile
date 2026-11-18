@@ -557,6 +557,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This quiz could not be opened. Close it and try again later.",
     ),
     "quiz_wrong": m54,
+    "reader_auto_completed": MessageLookupByLibrary.simpleMessage("Marked as completed"),
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),

@@ -22,6 +22,23 @@ void main() {
       expect(decodeReadingPlaces(text), places);
     });
 
+    test('keeps the seconds on the screen, and reads a file kept before as none (the owner, 2026-11-18)', () {
+      final place = ReadingPlace(offset: 0, share: 0, at: at, seconds: 312);
+      final text = encodeReadingPlaces({'engineers:alpha/first': place});
+      expect(text, contains('"seconds":312'));
+      expect(decodeReadingPlaces(text).values.single, place);
+      expect(encodeReadingPlaces({'engineers:alpha/first': place.withSeconds(0)}), isNot(contains('seconds')));
+      final before = decodeReadingPlaces(
+        '{"schema":1,"places":{"engineers:alpha/first":{"offset":0,"share":0,"at":"2026-11-11T09:30:00.000Z"}}}',
+      );
+      expect(before.values.single.seconds, 0);
+      final odd = decodeReadingPlaces(
+        '{"schema":1,"places":{"engineers:alpha/first":{"offset":0,"share":0,"at":"2026-11-11T09:30:00.000Z",'
+        '"seconds":"many"}}}',
+      );
+      expect(odd.values.single.seconds, 0, reason: 'seconds not a count read as none, the place kept');
+    });
+
     test('a file that is not the shape reads as no place', () {
       for (final text in ['', 'not json', '[]', '{"schema":2,"places":{}}', '{"schema":1}']) {
         expect(decodeReadingPlaces(text), isEmpty, reason: text);

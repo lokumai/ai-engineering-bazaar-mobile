@@ -460,6 +460,7 @@
       }
     }
   },
+  "reader_auto_completed": "Marked as completed",
   "reader_previous": "Previous",
   "@reader_previous": {},
   "reader_next": "Next",

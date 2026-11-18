@@ -35,7 +35,9 @@ import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/features/reader/domain/read_enough.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:clock/clock.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_scope.dart';
@@ -209,13 +211,40 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// The key of each block of the body, by its place, to follow the voice.
   final _blockKeys = <int, GlobalKey>{};
 
-  /// Pauses the reading aloud when the app leaves the screen; playing with the screen off is for later (plan 15.2).
+  /// Pauses the reading aloud when the app leaves the screen; playing with the screen off is for later (plan 15.2). It
+  /// stops [_onScreen] meanwhile too.
   late final AppLifecycleListener _lifecycle;
+
+  /// How long the module has been on the screen in this visit; over every visit with the place's [ReadingPlace.seconds].
+  final _onScreen = clock.stopwatch();
+
+  /// Whether the module's end, its completion row, has come into view.
+  bool _reachedEnd = false;
+
+  /// The key of the completion row, the module's end.
+  final _endKey = GlobalKey();
+
+  /// The place last kept in this visit, which leaving keeps again with the time spent.
+  ReadingPlace? _lastPlace;
+
+  /// What marks the module completed as it is left, kept while it is drawn: a page being taken down can read nothing
+  /// around it. Null while no written module is drawn.
+  _Leaving? _leaving;
+
+  /// The seconds the module has been on the screen, over every visit.
+  int get _seconds => (widget.place?.seconds ?? 0) + _onScreen.elapsed.inSeconds;
 
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onHide: () => _listen?.pause());
+    _onScreen.start();
+    _lifecycle = AppLifecycleListener(
+      onHide: () {
+        _listen?.pause();
+        _onScreen.stop();
+      },
+      onShow: _onScreen.start,
+    );
   }
 
   /// The reading aloud of [doc], made when a document with a body is first drawn.
@@ -342,6 +371,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   @override
   void dispose() {
+    _leave();
     _lifecycle.dispose();
     unawaited(_listen?.close());
     _spoken.dispose();
@@ -350,6 +380,52 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _currentSection.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  /// As the module is left, to the next one, back or to another tab (the owner, 2026-11-18): one read to its end, and on
+  /// the screen long enough ([readEnough]), is marked completed, with Undo; otherwise the place is kept with the time
+  /// spent. A module already completed is left as it is.
+  void _leave() {
+    _onScreen.stop();
+    final leaving = _leaving;
+    if (leaving == null) return;
+    final record = leaving.record;
+    final doc = leaving.doc;
+    final completed = switch (record.state) {
+      RecordReady(:final record) => record.signedOff(doc.key, doc.track) != null,
+      RecordLoading() => true,
+    };
+    if (completed) return;
+    final seconds = _seconds;
+    if (!readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
+      final last = _lastPlace ?? widget.place;
+      if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+      return;
+    }
+    final toggle = completionToggled(leaving.index, doc.key, doc.track, revision: leaving.revision);
+    record.add(toggle);
+    widget.onPlace?.call(null);
+    final messenger = leaving.messenger;
+    if (messenger == null) return;
+    // The tree is being taken down: the note waits for the next frame, on the page the reader went to.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!messenger.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          key: const ValueKey('reader-auto-completed'),
+          content: Text(leaving.said),
+          action: SnackBarAction(label: leaving.undo, onPressed: () => record.add(toggle)),
+        ),
+      );
+    });
+    WidgetsBinding.instance.scheduleFrame();
+  }
+
+  /// Whether the module's end, its completion row, is in view at [metrics].
+  bool _endInView(ScrollMetrics metrics) {
+    final box = _endKey.currentContext?.findRenderObject();
+    if (box == null || !box.attached) return false;
+    return RenderAbstractViewport.of(box).getOffsetToReveal(box, 1).offset <= metrics.pixels + 1;
   }
 
   /// Follows the page's own scroll, not a nested one such as a wide table's: every scroll step, and every change of the
@@ -367,6 +443,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     }
     if (notification case ScrollEndNotification(depth: 0, :final metrics) when _readerScrolled) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
+    if (!_reachedEnd) _reachedEnd = _endInView(metrics);
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     if (notification is ScrollMetricsNotification) _holdHeading();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
@@ -412,8 +489,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void _keepPlace(ScrollMetrics metrics) {
     final onPlace = widget.onPlace;
     if (onPlace == null) return;
+    void keep(ReadingPlace place) => onPlace(_lastPlace = place);
     if (metrics.pixels < _topSlack) {
-      onPlace(ReadingPlace(offset: 0, share: 0, at: clock.now()));
+      keep(ReadingPlace(offset: 0, share: 0, at: clock.now(), seconds: _seconds));
       return;
     }
     String? heading;
@@ -425,12 +503,13 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         base = offset;
       }
     }
-    onPlace(
+    keep(
       ReadingPlace(
         heading: heading,
         offset: metrics.pixels - base,
         share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
         at: clock.now(),
+        seconds: _seconds,
       ),
     );
   }
@@ -512,10 +591,23 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _scheduleFindStart();
     final listen = _listenFor(context, doc);
 
-    final diagramThemes = switch (context.read<ContentBloc>().state) {
-      ContentReady(:final index) => index.diagramThemes,
+    final index = switch (context.read<ContentBloc>().state) {
+      ContentReady(:final index) => index,
       final state => throw StateError('The reader needs ready content, not $state'),
     };
+    final diagramThemes = index.diagramThemes;
+    _leaving = !written
+        ? null
+        : _Leaving(
+            doc: doc,
+            minutes: entry.minutes,
+            revision: entry.tracks[doc.track]?.revision?.hash,
+            index: index,
+            record: context.read<RecordBloc>(),
+            messenger: ScaffoldMessenger.maybeOf(context),
+            said: s.reader_auto_completed,
+            undo: s.data_undo,
+          );
     final render = BlockRenderContext(
       onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
       // A37: the base URL and the web path are concatenated, never resolved (spec 3.4.7).
@@ -680,9 +772,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                               ],
                               if (written) ...[
                                 const SizedBox(height: 16),
-                                CompletionRow(
-                                  doc: doc,
-                                  onToggle: () => context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                                // The module's end, which counts it read once in view (the owner, 2026-11-18).
+                                KeyedSubtree(
+                                  key: _endKey,
+                                  child: CompletionRow(
+                                    doc: doc,
+                                    onToggle: () =>
+                                        context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                                  ),
                                 ),
                               ],
                               const SizedBox(height: 32),
@@ -803,4 +900,33 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       _held = fragment;
     });
   }
+}
+
+/// What [_ModuleReaderViewState._leave] needs of a written module and the app around it.
+final class _Leaving {
+  const _Leaving({
+    required this.doc,
+    required this.minutes,
+    required this.revision,
+    required this.index,
+    required this.record,
+    required this.messenger,
+    required this.said,
+    required this.undo,
+  });
+
+  final ModuleDoc doc;
+
+  /// The module's minutes, a third of which on the screen counts it read.
+  final int minutes;
+
+  /// The revision its completion carries (A35).
+  final String? revision;
+  final BundleIndex index;
+  final RecordBloc record;
+  final ScaffoldMessengerState? messenger;
+
+  /// The note that it was marked, and its Undo, in the interface's language.
+  final String said;
+  final String undo;
 }

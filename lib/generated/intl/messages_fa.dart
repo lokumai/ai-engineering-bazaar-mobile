@@ -560,6 +560,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این آزمون باز نشد. آن را ببندید و بعداً دوباره امتحان کنید.",
     ),
     "quiz_wrong": m54,
+    "reader_auto_completed": MessageLookupByLibrary.simpleMessage("به‌عنوان تکمیل‌شده علامت خورد"),
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("بخشی نوشته شده"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("فقط برنامهٔ بخش‌ها"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("پیش از شروع"),

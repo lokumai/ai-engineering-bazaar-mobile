@@ -119,6 +119,7 @@
   "reader_completion_region": "Modülü tamamlama",
   "reader_mark_complete": "Bu modülü tamamlandı olarak işaretle",
   "reader_completed_on": "{date} tarihinde tamamlandı",
+  "reader_auto_completed": "Tamamlandı olarak işaretlendi",
   "reader_previous": "Önceki",
   "reader_next": "Sonraki",
   "reader_pager_planned": "{label} · Planlandı",

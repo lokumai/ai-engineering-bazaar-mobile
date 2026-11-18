@@ -776,6 +776,11 @@ class S {
     return Intl.message('Completed $date', name: 'reader_completed_on', desc: '', args: [date]);
   }
 
+  /// `Marked as completed`
+  String get reader_auto_completed {
+    return Intl.message('Marked as completed', name: 'reader_auto_completed', desc: '', args: []);
+  }
+
   /// `Previous`
   String get reader_previous {
     return Intl.message('Previous', name: 'reader_previous', desc: '', args: []);
