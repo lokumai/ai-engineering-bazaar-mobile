@@ -304,18 +304,6 @@ void main() {
     expect(find.text('Glass'), findsOneWidget);
   });
 
-  testWidgets('the glossary opens at the term a link names', (tester) async {
-    final (_, review) = await _pump(
-      tester,
-      doc: _termsDoc(),
-      at: '/practice/glossary?term=term:engineers/beta/fourth%231',
-    );
-    expect(find.text('keeps wind out.', findRichText: true), findsOneWidget);
-    expect(review.state.history.cards.keys, [
-      'term:engineers/alpha/first#1',
-    ], reason: "kept under its first module's key");
-  });
-
   testWidgets('with no module completed, there is nothing to review today', (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);

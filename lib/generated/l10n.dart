@@ -3007,11 +3007,6 @@ class S {
     return Intl.message('In these modules', name: 'glossary_in', desc: '', args: []);
   }
 
-  /// `Terms to look up`
-  String get catalog_topics {
-    return Intl.message('Terms to look up', name: 'catalog_topics', desc: '', args: []);
-  }
-
   /// `Quizzes by level`
   String get practice_quizzes {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);

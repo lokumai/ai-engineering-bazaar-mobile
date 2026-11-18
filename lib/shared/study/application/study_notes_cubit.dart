@@ -7,8 +7,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 
-/// The Key Terms, Summary and quiz of every module written in a track, in one language (plan 13.2 to 13.10): Practice,
-/// Home's review row, the reader's terms and the search's chips read them. A module not translated lends its English
+/// The Key Terms, Summary and quiz of every module written in a track, in one language (plan 13.2 to 13.9): Practice,
+/// Home's review row and the reader's terms read them. A module not translated lends its English
 /// document, as the reader does (plan 1Q).
 ///
 /// A `Cubit` because each load replaces the one before and the event stream adds nothing: a load for the notes already

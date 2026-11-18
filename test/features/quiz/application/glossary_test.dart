@@ -31,7 +31,6 @@ void main() {
     expect([for (final term in wick.terms) term.moduleKey], ['alpha/first', 'alpha/second']);
     expect(wick.first.definitionText, 'what burns.');
     expect(wick.keyIn(Track.engineers), 'term:engineers/alpha/first#0');
-    expect(wick.holds(Track.engineers, 'term:engineers/alpha/second#0'), isTrue);
   });
 
   test('finds by the start of a word of the name or the definition', () {

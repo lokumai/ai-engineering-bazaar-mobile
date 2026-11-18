@@ -252,7 +252,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "catalog_search_shown": m20,
     "catalog_state_complete": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "catalog_state_not_yet": MessageLookupByLibrary.simpleMessage("Henüz değil"),
-    "catalog_topics": MessageLookupByLibrary.simpleMessage("Göz atılacak terimler"),
     "content_broken_message": MessageLookupByLibrary.simpleMessage(
       "Bu uygulamadaki kurs içeriği açılamadı. Uygulamayı güncellemek sorunu giderir. Bu cihazdaki ilerlemen korunur.",
     ),

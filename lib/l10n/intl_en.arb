@@ -1467,7 +1467,6 @@
   "glossary_find": "Find a term",
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
-  "catalog_topics": "Terms to look up",
   "practice_quizzes": "Quizzes by level",
   "home_review": "Today's review, {count, plural, =1{1 card} other{{count} cards}}",
   "@home_review": {

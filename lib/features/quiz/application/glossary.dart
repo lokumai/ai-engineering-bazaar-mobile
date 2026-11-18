@@ -23,9 +23,6 @@ final class GlossaryEntry extends Equatable {
   /// The key Practice's history keeps the term under in [track]: its first module's.
   String keyIn(Track track) => termKey(track, first.moduleKey, first.index);
 
-  /// Whether [key] is the key of one of its terms in [track].
-  bool holds(Track track, String? key) => terms.any((term) => termKey(track, term.moduleKey, term.index) == key);
-
   @override
   List<Object?> get props => [name, sortKey, terms];
 }

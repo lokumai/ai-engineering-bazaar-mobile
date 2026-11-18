@@ -29,10 +29,8 @@ abstract final class BazaarPaths {
   static const practiceBrief = '$practice/brief';
   static String practiceBriefOf(String key) => '$practiceBrief/$key';
 
-  /// The glossary (plan 13.8), opened at the term [termKey] when given.
+  /// The glossary (plan 13.8).
   static const practiceGlossary = '$practice/glossary';
-  static String glossaryTerm(String termKey) =>
-      Uri(path: practiceGlossary, queryParameters: {'term': termKey}).toString();
 
   static const _quiz = '/quiz';
 

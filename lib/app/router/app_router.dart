@@ -128,12 +128,8 @@ class AppRouterFactory {
             _page('practiceWrong', BazaarPaths.practiceWrong, const WrongAnswersPage()),
             // A module in 2 minutes: the completed modules (plan 13.7).
             _page('practiceBrief', BazaarPaths.practiceBrief, const BriefListPage()),
-            // The glossary (plan 13.8), opened at a term by a search chip (plan 13.10).
-            _pageOf(
-              'practiceGlossary',
-              BazaarPaths.practiceGlossary,
-              (state) => GlossaryPage(initialTerm: state.uri.queryParameters['term']),
-            ),
+            // The glossary (plan 13.8).
+            _page('practiceGlossary', BazaarPaths.practiceGlossary, const GlossaryPage()),
             // The Caravan tab: the journey on the web's sample trends until the bundle carries the author's (plan 9.1).
             ...CaravanFeatureRoutes.routes(),
             // Decision A6: a phone cannot send Ctrl+Shift+D, so debug builds open the console from Settings.

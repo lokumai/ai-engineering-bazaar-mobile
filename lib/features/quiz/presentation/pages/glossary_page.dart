@@ -22,12 +22,9 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 
 /// The glossary at `/practice/glossary` (plan 13.8): every Key Terms entry of the reader's track and language, A to Z,
 /// with a field to find one. A term opens its definition and the modules that hold it; opening it counts as looking it
-/// up, so it comes up in Today's review. [initialTerm], a term's key, opens that term at once, as a search chip does
-/// (plan 13.10).
+/// up, so it comes up in Today's review.
 class GlossaryPage extends StatelessWidget {
-  const GlossaryPage({super.key, this.initialTerm});
-
-  final String? initialTerm;
+  const GlossaryPage({super.key});
 
   /// The key of the entry whose first term has [termKey].
   static Key entryKey(String termKey) => ValueKey('glossary-$termKey');
@@ -37,16 +34,12 @@ class GlossaryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StudyNotesLoader(
-      child: Scaffold(body: _Glossary(initialTerm: initialTerm)),
-    );
+    return StudyNotesLoader(child: const Scaffold(body: _Glossary()));
   }
 }
 
 class _Glossary extends StatefulWidget {
-  const _Glossary({required this.initialTerm});
-
-  final String? initialTerm;
+  const _Glossary();
 
   @override
   State<_Glossary> createState() => _GlossaryState();
@@ -58,10 +51,6 @@ class _GlossaryState extends State<_Glossary> {
 
   /// The open entries, by their first term's key.
   final _open = <String>{};
-
-  /// The entry [GlossaryPage.initialTerm] names, scrolled to once it is drawn.
-  final _initialKey = GlobalKey();
-  bool _initialShown = false;
 
   @override
   void dispose() {
@@ -90,17 +79,6 @@ class _GlossaryState extends State<_Glossary> {
       _ => null,
     };
     final entries = notes == null ? null : glossaryOf(notes.modules, language);
-    // The entry a chip names opens once, scrolled to, and counts as looked up.
-    final initial = entries?.where((entry) => entry.holds(track, widget.initialTerm)).firstOrNull;
-    if (initial != null && !_initialShown) {
-      _initialShown = true;
-      final key = initial.keyIn(track);
-      _open.add(key);
-      context.read<ReviewBloc>().add(ReviewTermLookedUp(key));
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_initialKey.currentContext case final drawn?) Scrollable.ensureVisible(drawn, alignment: 0.1);
-      });
-    }
     final shown = entries == null ? null : glossaryFind(entries, _query, language);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
@@ -132,7 +110,7 @@ class _GlossaryState extends State<_Glossary> {
               children: [
                 for (final entry in shown)
                   _EntryView(
-                    key: identical(entry, initial) ? _initialKey : GlossaryPage.entryKey(entry.keyIn(track)),
+                    key: GlossaryPage.entryKey(entry.keyIn(track)),
                     entry: entry,
                     open: _open.contains(entry.keyIn(track)),
                     onToggle: () => _toggle(entry.keyIn(track)),

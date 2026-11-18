@@ -6,7 +6,6 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_searc
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
-import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/topic_chips_row.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
@@ -84,8 +83,6 @@ class CatalogPage extends StatelessWidget {
             if (searching)
               CatalogSearchResults(track: track)
             else ...[
-              // A few terms to look up, under the empty field (plan 13.10); the field keeps its place above them.
-              TopicChipsRow(track: track),
               TourTarget(
                 spot: TourSpots.catalogLevels,
                 child: CatalogOverview(
