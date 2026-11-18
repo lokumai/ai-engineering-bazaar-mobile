@@ -487,7 +487,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_today_none_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın modüllerin soruları buraya gelir, her gün birkaçı.",
     ),
-    "practice_wrong": MessageLookupByLibrary.simpleMessage("Yanlışlarım"),
+    "practice_wrong": MessageLookupByLibrary.simpleMessage("Hatalı cevaplar"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
     "practice_wrong_count": m48,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
