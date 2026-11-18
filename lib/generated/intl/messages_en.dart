@@ -325,6 +325,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_sent": MessageLookupByLibrary.simpleMessage("The report is sent."),
     "feedback_title": MessageLookupByLibrary.simpleMessage("Report a problem"),
     "glossary_find": MessageLookupByLibrary.simpleMessage("Find a term"),
+    "glossary_find_clear": MessageLookupByLibrary.simpleMessage("Clear the search"),
     "glossary_in": MessageLookupByLibrary.simpleMessage("In these modules"),
     "glossary_none": MessageLookupByLibrary.simpleMessage("No term matches."),
     "guide_complete": MessageLookupByLibrary.simpleMessage(
@@ -604,6 +605,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("Replace"),
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Replace the progress on this device?"),
     "review_back": MessageLookupByLibrary.simpleMessage("Back to Practice"),
+    "review_back_home": MessageLookupByLibrary.simpleMessage("Back to Home"),
     "review_empty": MessageLookupByLibrary.simpleMessage("No cards to show."),
     "review_finish": MessageLookupByLibrary.simpleMessage("Finish"),
     "review_progress": m61,

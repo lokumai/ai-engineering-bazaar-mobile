@@ -1453,6 +1453,7 @@
     }
   },
   "glossary_find": "Find a term",
+  "glossary_find_clear": "Clear the search",
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
@@ -1495,6 +1496,7 @@
     }
   },
   "review_back": "Back to Practice",
+  "review_back_home": "Back to Home",
   "review_empty": "No cards to show.",
   "review_section_link": "This is in: {section}",
   "@review_section_link": {

@@ -372,6 +372,45 @@ void main() {
     expect(find.text('Glass'), findsNothing, reason: 'its definition holds "wind", but its name does not start with w');
   });
 
+  testWidgets('the glossary field behaves as the catalog\'s: the keyboard covers nothing more, a tap elsewhere puts it '
+      'away, X clears, and it finds at every letter (the owner, 2026-11-18)', (tester) async {
+    await _pump(tester, doc: _termsDoc(), at: '/practice/glossary');
+    final field = find.byKey(const ValueKey('glossary-find'));
+    await tester.tap(field);
+    await tester.pump();
+    tester.view.viewInsets = const FakeViewPadding(bottom: 800);
+    addTearDown(tester.view.resetViewInsets);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Glass').hitTestable(),
+      findsOneWidget,
+      reason: 'the page makes room for the keyboard once, in the shell, not again over its own list',
+    );
+
+    for (final (typed, wick, glass) in [
+      ('g', false, true),
+      ('gl', false, true),
+      ('gla', false, true),
+      ('w', true, false),
+    ]) {
+      await tester.enterText(field, typed);
+      await tester.pumpAndSettle();
+      expect(find.text('Wick'), wick ? findsOneWidget : findsNothing, reason: typed);
+      expect(find.text('Glass'), glass ? findsOneWidget : findsNothing, reason: typed);
+    }
+
+    await _tap(tester, find.byTooltip('Clear the search'));
+    expect(find.text('Wick'), findsOneWidget, reason: 'cleared: every term again');
+    expect(find.text('Glass'), findsOneWidget);
+    expect(find.byTooltip('Clear the search'), findsNothing, reason: 'no X on an empty field');
+
+    bool typing() => tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+    expect(typing(), isTrue);
+    await tester.tapAt(tester.getCenter(find.text('Wick')) + const Offset(-80, 0));
+    await tester.pump();
+    expect(typing(), isFalse, reason: 'a tap elsewhere puts the keyboard away');
+  });
+
   testWidgets('with no module completed, there is nothing to review today', (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);

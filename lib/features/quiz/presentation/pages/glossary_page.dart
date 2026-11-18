@@ -36,7 +36,9 @@ class GlossaryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StudyNotesLoader(child: const Scaffold(body: _Glossary()));
+    // The shell's Scaffold already makes room for the keyboard; this one making room again under it slid a second
+    // ground up over the terms (the owner, 2026-11-18).
+    return StudyNotesLoader(child: const Scaffold(resizeToAvoidBottomInset: false, body: _Glossary()));
   }
 }
 
@@ -58,6 +60,11 @@ class _GlossaryState extends State<_Glossary> {
   void dispose() {
     _find.dispose();
     super.dispose();
+  }
+
+  void _clear() {
+    _find.clear();
+    setState(() => _query = '');
   }
 
   void _toggle(String key) {
@@ -101,10 +108,25 @@ class _GlossaryState extends State<_Glossary> {
                 textInputAction: TextInputAction.search,
                 autocorrect: false,
                 enableSuggestions: false,
+                // As the catalog's field: a tap elsewhere puts the keyboard away, since iOS has no back key to do it.
+                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                style: theme.textTheme.bodyMedium,
                 decoration: InputDecoration(
                   hintText: s.glossary_find,
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  suffixIcon: _query.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          tooltip: s.glossary_find_clear,
+                          onPressed: _clear,
+                        ),
                   border: const OutlineInputBorder(),
+                  isDense: true,
+                  // 48 high, the least a tap target may be.
+                  constraints: const BoxConstraints(minHeight: 48),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ],

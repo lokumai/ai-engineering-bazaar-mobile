@@ -2977,6 +2977,11 @@ class S {
     return Intl.message('Find a term', name: 'glossary_find', desc: '', args: []);
   }
 
+  /// `Clear the search`
+  String get glossary_find_clear {
+    return Intl.message('Clear the search', name: 'glossary_find_clear', desc: '', args: []);
+  }
+
   /// `No term matches.`
   String get glossary_none {
     return Intl.message('No term matches.', name: 'glossary_none', desc: '', args: []);
@@ -3040,6 +3045,11 @@ class S {
   /// `Back to Practice`
   String get review_back {
     return Intl.message('Back to Practice', name: 'review_back', desc: '', args: []);
+  }
+
+  /// `Back to Home`
+  String get review_back_home {
+    return Intl.message('Back to Home', name: 'review_back_home', desc: '', args: []);
   }
 
   /// `No cards to show.`

@@ -326,6 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_sent": MessageLookupByLibrary.simpleMessage("Bildirim gönderildi."),
     "feedback_title": MessageLookupByLibrary.simpleMessage("Sorun bildir"),
     "glossary_find": MessageLookupByLibrary.simpleMessage("Terim bul"),
+    "glossary_find_clear": MessageLookupByLibrary.simpleMessage("Aramayı temizle"),
     "glossary_in": MessageLookupByLibrary.simpleMessage("Geçtiği modüller"),
     "glossary_none": MessageLookupByLibrary.simpleMessage("Eşleşen terim yok."),
     "guide_complete": MessageLookupByLibrary.simpleMessage(
@@ -605,6 +606,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("Değiştir"),
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki ilerleme değiştirilsin mi?"),
     "review_back": MessageLookupByLibrary.simpleMessage("Pratik\'e dön"),
+    "review_back_home": MessageLookupByLibrary.simpleMessage("Ana sayfaya dön"),
     "review_empty": MessageLookupByLibrary.simpleMessage("Gösterilecek kart yok."),
     "review_finish": MessageLookupByLibrary.simpleMessage("Bitir"),
     "review_progress": m61,

@@ -416,6 +416,7 @@
   "practice_glossary": "واژه‌نامه",
   "practice_glossary_count": "{count, plural, =0{هنوز اصطلاحی نیست} other{{count} اصطلاح}}",
   "glossary_find": "یافتن اصطلاح",
+  "glossary_find_clear": "پاک کردن جستجو",
   "glossary_none": "اصطلاحی پیدا نشد.",
   "glossary_in": "در این درس‌ها",
   "practice_quizzes": "آزمون‌ها بر اساس سطح",
@@ -428,6 +429,7 @@
   "review_finish": "پایان",
   "review_result": "{right} از {total} درست",
   "review_back": "بازگشت به تمرین",
+  "review_back_home": "بازگشت به خانه",
   "review_empty": "کارتی برای نمایش نیست.",
   "review_section_link": "این در اینجاست: {section}"
 }

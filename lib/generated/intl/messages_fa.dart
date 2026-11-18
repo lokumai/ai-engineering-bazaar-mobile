@@ -326,6 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_sent": MessageLookupByLibrary.simpleMessage("گزارش ارسال شد."),
     "feedback_title": MessageLookupByLibrary.simpleMessage("گزارش مشکل"),
     "glossary_find": MessageLookupByLibrary.simpleMessage("یافتن اصطلاح"),
+    "glossary_find_clear": MessageLookupByLibrary.simpleMessage("پاک کردن جستجو"),
     "glossary_in": MessageLookupByLibrary.simpleMessage("در این درس‌ها"),
     "glossary_none": MessageLookupByLibrary.simpleMessage("اصطلاحی پیدا نشد."),
     "guide_complete": MessageLookupByLibrary.simpleMessage(
@@ -607,6 +608,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore_confirm_replace": MessageLookupByLibrary.simpleMessage("جایگزین کردن"),
     "restore_confirm_title": MessageLookupByLibrary.simpleMessage("پیشرفت روی این دستگاه جایگزین شود؟"),
     "review_back": MessageLookupByLibrary.simpleMessage("بازگشت به تمرین"),
+    "review_back_home": MessageLookupByLibrary.simpleMessage("بازگشت به خانه"),
     "review_empty": MessageLookupByLibrary.simpleMessage("کارتی برای نمایش نیست."),
     "review_finish": MessageLookupByLibrary.simpleMessage("پایان"),
     "review_progress": m61,
