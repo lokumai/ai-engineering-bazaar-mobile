@@ -11,7 +11,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -27,7 +26,7 @@ import 'package:go_router/go_router.dart';
 
 /// The frame of every page inside the router's ShellRoute: the bar on the page's ground with a back button when there is
 /// a page to go back to and, on a level's page or a module's, its name after the level's hue (the four tabs' pages carry
-/// no name), the thin lattice band under it, the page, and the bottom navigation (web nav labels `Home` and `Catalog`,
+/// no name), the page, with no band between (the owner, 2026-11-18), and the bottom navigation (web nav labels `Home` and `Catalog`,
 /// `src/components/shell/MainNav.tsx`; `Practice` and `Settings` are app copy: the catalog carries the progress, plan 1AB,
 /// 1AC). The track is chosen once and changed in Settings (plan 1L).
 ///
@@ -355,7 +354,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
             removeBottom: !chromeHidden,
             child: Column(
               children: [
-                // The status strip stays; the bar and the band fold up with the navigation while a module is read.
+                // The status strip stays; the bar folds up with the navigation while a module is read. No band under
+                // it: the page meets the status strip on the same ground, as most apps (the owner, 2026-11-18).
                 const BazaarStatusStrip(),
                 ClipRect(
                   child: AnimatedAlign(
@@ -376,7 +376,6 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                             // The bar sits above the shell's navigator, so the router goes back, to the catalog.
                             onBack: pushed ? _back : null,
                           ),
-                          const LatticeBand(thin: true),
                         ],
                       ),
                     ),

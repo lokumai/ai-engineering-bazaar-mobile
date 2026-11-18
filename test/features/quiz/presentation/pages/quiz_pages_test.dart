@@ -278,7 +278,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
     expect(find.byType(AppBar), findsNothing, reason: 'no navy bar: the app bar on the page ground');
     expect(find.descendant(of: find.byType(BazaarBar), matching: find.byType(CloseButton)), findsOneWidget);
-    expect(find.byWidgetPredicate((widget) => widget is LatticeBand && widget.thin), findsOneWidget);
+    expect(find.byType(LatticeBand), findsNothing, reason: 'no band under the bar (the owner, 2026-11-18)');
     expect(find.text('Q1'), findsOneWidget);
 
     await _tap(tester, find.text('One'));

@@ -77,8 +77,9 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
-                                                module pages; empty on the tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's horse, Practice, Settings;
+                                                module pages; empty on the tabs), no lattice band (Welcome's only),
+                                                bottom navigation of icons with small names (Home, Catalog, the
+                                                Caravan's horse, Practice, Settings;
                                                 shared/design_system/widgets/caravan_icon.dart); listen_completion.dart
                                                 marks a module heard whole completed, with Undo
   core/                                         logging, security scrubber, analytics interface
