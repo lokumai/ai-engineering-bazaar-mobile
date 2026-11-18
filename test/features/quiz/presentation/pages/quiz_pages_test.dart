@@ -8,14 +8,14 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
+import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +45,7 @@ Future<GoRouter> _pump(
   QuizScoresBloc? scores,
   LanguageCubit? language,
   BundleIndex? index,
+  ReviewBloc? review,
 }) async {
   final router = AppRouterFactory(initialLocation: location).create();
   addTearDown(router.dispose);
@@ -56,6 +57,7 @@ Future<GoRouter> _pump(
       scores: scores,
       language: language,
       content: index == null ? null : readyContentBloc(index),
+      review: review,
     ),
   );
   await tester.pumpAndSettle();
@@ -74,6 +76,18 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
+
+/// The quiz row [moduleKey]'s segments in order, each 'right', 'wrong' or 'none'.
+List<String> _segments(WidgetTester tester, String moduleKey) => [
+  for (final element
+      in find
+          .descendant(
+            of: find.byKey(PracticePage.rowKey(moduleKey)),
+            matching: find.byWidgetPredicate((widget) => '${widget.key}'.contains("'answer-")),
+          )
+          .evaluate())
+    RegExp(r"answer-\d+-(\w+)'").firstMatch('${element.widget.key}')!.group(1)!,
+];
 
 const _titles = {'alpha': 'Alpha Level', 'beta': 'Beta Level', 'gamma': 'Gamma Level'};
 
@@ -163,22 +177,14 @@ void main() {
       addTearDown(scores.close);
       await _pump(tester, scores: scores);
 
-      expect(find.text('Last 1 of 2 · best 2 of 2'), findsNothing, reason: 'no words');
-      final meter = tester.widget<SegmentMeter>(
-        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byType(SegmentMeter)),
-      );
-      expect((meter.done, meter.total), (1, 2), reason: 'the last score, one segment per question');
-      expect(meter.restColor, BazaarColors.light.fault, reason: 'the wrong answers in red');
-      expect(
-        find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.byType(SegmentMeter)),
-        findsNothing,
-      );
+      expect(_segments(tester, 'alpha/first'), ['right', 'wrong'], reason: 'the last score, one segment per question');
+      expect(_segments(tester, 'alpha/second'), isEmpty);
       expect(find.text('1/2'), findsOneWidget, reason: 'the level dial: 1 of 2 taken');
-      expect(find.bySemanticsLabel('01 First Module, All answers right, Last 1 of 2 · best 2 of 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('01 First Module, 1 of 2 right at the last answer'), findsOneWidget);
       expect(
         find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
-        findsOneWidget,
-        reason: 'the best attempt was all right: the catalog check, not the question mark',
+        findsNothing,
+        reason: 'the last attempt had a wrong answer, though the best was all right',
       );
       expect(
         find.descendant(of: find.byKey(PracticePage.rowKey('alpha/second')), matching: find.text('?')),
@@ -191,6 +197,45 @@ void main() {
       expect(beta, findsOneWidget);
     },
   );
+
+  testWidgets("the quizzes' segments follow each question's latest answer, Practice's too (the owner, 2026-11-18)", (
+    tester,
+  ) async {
+    final scores = QuizScoresBloc(
+      store: MemoryQuizScoreStore(const {'alpha/first': QuizScore(last: 2, best: 2, total: 2, previous: 2)}),
+    )..add(const QuizScoresStarted());
+    addTearDown(scores.close);
+    final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
+    addTearDown(review.close);
+    await _pump(tester, scores: scores, review: review);
+    expect(_segments(tester, 'alpha/first'), ['right', 'right']);
+
+    review.add(const ReviewAnswered(key: 'alpha/first#1', right: false, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/first'), ['none', 'wrong'], reason: 'a wrong answer in a review shows at once');
+    expect(
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      findsNothing,
+    );
+    expect(find.bySemanticsLabel('01 First Module, 0 of 2 right at the last answer'), findsOneWidget);
+
+    review
+      ..add(const ReviewAnswered(key: 'alpha/first#0', right: true, length: 2, inReview: true))
+      ..add(const ReviewAnswered(key: 'alpha/first#1', right: true, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/first'), ['right', 'right']);
+    expect(
+      find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
+      findsOneWidget,
+      reason: 'every latest answer right: the catalog check',
+    );
+    expect(find.text('1/2'), findsOneWidget);
+
+    review.add(const ReviewAnswered(key: 'alpha/second#0', right: false, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/second'), ['wrong', 'none']);
+    expect(find.text('2/2'), findsOneWidget, reason: 'a quiz answered in Practice counts as taken in the level dial');
+  });
 
   testWidgets('a For Everyone reader sees the quizzes of the modules written For Everyone, under their titles there', (
     tester,

@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/pages/home_page.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -12,7 +13,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Key, Locale, Text, ValueKey;
+import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, Text, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -237,6 +238,23 @@ void main() {
     final row = find.byKey(const Key('home-review'), skipOffstage: false);
     expect(find.text('4 cards, about 2 min', skipOffstage: false), findsOneWidget, reason: 'two questions each');
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'the three rows are gone');
+    final heading = find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false);
+    expect(heading, findsOneWidget, reason: "Practice's own heading, not the tab's name");
+    final tops = [
+      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row])
+        tester.getTopLeft(finder).dy,
+      tester.getTopLeft(find.text('Later on', skipOffstage: false)).dy,
+    ];
+    expect(
+      tops,
+      [...tops]..sort(),
+      reason: "the day's card, then Practice's heading and its card, then Later on (the owner, 2026-11-18)",
+    );
+    expect(
+      find.descendant(of: row, matching: find.byIcon(Icons.school_rounded)),
+      findsOneWidget,
+      reason: "the tab's cap",
+    );
     await _tap(tester, row);
     expect(_path(router), '/practice/review');
   });
@@ -246,6 +264,11 @@ void main() {
     when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(quiz: _quiz));
     await _pumpHome(tester, repository: repository);
     expect(find.byKey(const Key('home-review'), skipOffstage: false), findsNothing);
+    expect(
+      find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false),
+      findsNothing,
+      reason: 'no heading without its card',
+    );
   });
 }
 

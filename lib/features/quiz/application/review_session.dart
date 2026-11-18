@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
+import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 
 /// One card of a Practice session (plan 13.3, 13.4): a quiz question or a term looked up.
 sealed class ReviewItem extends Equatable {
@@ -45,14 +46,18 @@ final class QuestionItem extends ReviewItem {
   List<Object?> get props => [key, moduleTitle, item, length, section];
 }
 
-/// A term looked up: the term, then its definition when asked, then whether it was known.
+/// A term: the term and the sentence of its module that uses it, then its definition when asked, then whether it was
+/// known.
 final class TermItem extends ReviewItem {
-  const TermItem({required super.key, required super.moduleTitle, required this.term});
+  const TermItem({required super.key, required super.moduleTitle, required this.term, this.usage});
 
   final GlossaryTerm term;
 
+  /// Where the module uses the term; null when no section does.
+  final TermUsage? usage;
+
   @override
-  List<Object?> get props => [key, moduleTitle, term];
+  List<Object?> get props => [key, moduleTitle, term, usage];
 }
 
 /// The cards [keys] name, from [notes], each titled by [titleOf] its module; a key whose question or term the notes no
@@ -70,7 +75,9 @@ ReviewItem? _itemOf(String key, StudyNotesReady notes, String Function(String) t
   if (module == null) return null;
   if (isTermKey(key)) {
     final term = module.terms.elementAtOrNull(index);
-    return term == null ? null : TermItem(key: key, moduleTitle: titleOf(module.moduleKey), term: term);
+    return term == null
+        ? null
+        : TermItem(key: key, moduleTitle: titleOf(module.moduleKey), term: term, usage: termUsage(module, term));
   }
   final item = module.quiz.elementAtOrNull(index);
   if (item == null) return null;

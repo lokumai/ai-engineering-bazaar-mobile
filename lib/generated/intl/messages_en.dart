@@ -110,24 +110,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m42(count) => "${Intl.plural(count, zero: 'No terms yet', one: '1 term', other: '${count} terms')}";
 
-  static String m43(count, minutes) =>
+  static String m43(right, total) => "${right} of ${total} right at the last answer";
+
+  static String m44(count, minutes) =>
       "${Intl.plural(count, one: '1 card', other: '${count} cards')}, about ${minutes} min";
 
-  static String m44(done, total) => "${done} of ${total} done today";
+  static String m45(done, total) => "${done} of ${total} done today";
 
-  static String m45(count) => "${Intl.plural(count, zero: 'None now', one: '1 question', other: '${count} questions')}";
+  static String m46(count) => "${Intl.plural(count, zero: 'None now', one: '1 question', other: '${count} questions')}";
 
-  static String m46(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+  static String m47(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
 
-  static String m47(taken, total) => "${taken} of ${total} taken";
+  static String m48(taken, total) => "${taken} of ${total} taken";
 
-  static String m48(index, count) => "Question ${index} of ${count}";
+  static String m49(index, count) => "Question ${index} of ${count}";
 
-  static String m49(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+  static String m50(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
 
-  static String m50(score, total) => "${score} of ${total}";
-
-  static String m51(last, best, total) => "Last ${last} of ${total} · best ${best} of ${total}";
+  static String m51(score, total) => "${score} of ${total}";
 
   static String m52(count) => "${count} questions on the main points of this module";
 
@@ -458,23 +458,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_glossary": MessageLookupByLibrary.simpleMessage("Glossary"),
     "practice_glossary_count": m42,
     "practice_go_wrong": MessageLookupByLibrary.simpleMessage("Go to Wrong answers"),
+    "practice_latest": m43,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("Quizzes by level"),
     "practice_start": MessageLookupByLibrary.simpleMessage("Start"),
     "practice_today": MessageLookupByLibrary.simpleMessage("Today\'s review"),
-    "practice_today_cards": m43,
+    "practice_today_cards": m44,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("That is all for today"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("The next cards come tomorrow."),
-    "practice_today_meter": m44,
+    "practice_today_meter": m45,
     "practice_today_none": MessageLookupByLibrary.simpleMessage("Nothing to review today"),
     "practice_today_none_lede": MessageLookupByLibrary.simpleMessage(
       "The questions of the modules you complete come here, a few each day.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Wrong answers"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Answer them all"),
-    "practice_wrong_count": m45,
-    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
-      "Every question answered wrong, by level. Right twice in a row and it leaves.",
-    ),
+    "practice_wrong_count": m46,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("No wrong answers now."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
@@ -527,16 +525,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m46,
-    "quiz_list_taken": m47,
+    "quiz_list_count": m47,
+    "quiz_list_taken": m48,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m48,
+    "quiz_progress": m49,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m49,
-    "quiz_score_count": m50,
-    "quiz_score_line": m51,
+    "quiz_score_before": m50,
+    "quiz_score_count": m51,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
@@ -683,7 +680,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "The modules after it wait here; under them are Today\'s review, when it has cards, and your path through the levels.",
+      "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today\'s review shows above them, under Practice.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
@@ -691,7 +688,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_later": MessageLookupByLibrary.simpleMessage("Later"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Next"),
     "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "Today\'s review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
+      "Today\'s review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
     ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.",

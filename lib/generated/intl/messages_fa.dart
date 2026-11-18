@@ -109,24 +109,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m42(count) => "${Intl.plural(count, zero: 'هنوز اصطلاحی نیست', other: '${count} اصطلاح')}";
 
-  static String m43(count, minutes) =>
+  static String m43(right, total) => "در آخرین پاسخ‌ها ${right} از ${total} درست";
+
+  static String m44(count, minutes) =>
       "${Intl.plural(count, one: '1 کارت', other: '${count} کارت')}، حدود ${minutes} دقیقه";
 
-  static String m44(done, total) => "امروز ${done} از ${total} کارت انجام شد";
+  static String m45(done, total) => "امروز ${done} از ${total} کارت انجام شد";
 
-  static String m45(count) => "${Intl.plural(count, zero: 'الان هیچ', one: '1 پرسش', other: '${count} پرسش')}";
+  static String m46(count) => "${Intl.plural(count, zero: 'الان هیچ', one: '1 پرسش', other: '${count} پرسش')}";
 
-  static String m46(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
+  static String m47(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
 
-  static String m47(taken, total) => "${taken} از ${total} آزمون حل شده";
+  static String m48(taken, total) => "${taken} از ${total} آزمون حل شده";
 
-  static String m48(index, count) => "پرسش ${index} از ${count}";
+  static String m49(index, count) => "پرسش ${index} از ${count}";
 
-  static String m49(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
+  static String m50(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
 
-  static String m50(score, total) => "${score} از ${total}";
-
-  static String m51(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
+  static String m51(score, total) => "${score} از ${total}";
 
   static String m52(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
 
@@ -461,23 +461,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_glossary": MessageLookupByLibrary.simpleMessage("واژه‌نامه"),
     "practice_glossary_count": m42,
     "practice_go_wrong": MessageLookupByLibrary.simpleMessage("رفتن به پاسخ‌های نادرست"),
+    "practice_latest": m43,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("آزمون‌ها بر اساس سطح"),
     "practice_start": MessageLookupByLibrary.simpleMessage("شروع"),
     "practice_today": MessageLookupByLibrary.simpleMessage("مرور امروز"),
-    "practice_today_cards": m43,
+    "practice_today_cards": m44,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("برای امروز همین بود"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("کارت‌های بعدی فردا می‌آیند."),
-    "practice_today_meter": m44,
+    "practice_today_meter": m45,
     "practice_today_none": MessageLookupByLibrary.simpleMessage("امروز چیزی برای مرور نیست"),
     "practice_today_none_lede": MessageLookupByLibrary.simpleMessage(
       "پرسش‌های درس‌هایی که تکمیل می‌کنید اینجا می‌آیند، هر روز چندتا.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("پاسخ‌های نادرست"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("به همه پاسخ دهید"),
-    "practice_wrong_count": m45,
-    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
-      "هر پرسشی که نادرست پاسخ داده‌اید، بر اساس سطح. دو بار پشت سر هم درست، و از فهرست بیرون می‌رود.",
-    ),
+    "practice_wrong_count": m46,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("الان هیچ پاسخ نادرستی ندارید."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی درباره داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
@@ -530,16 +528,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("بازگشت به پرسش‌ها"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("درست است."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("تمام"),
-    "quiz_list_count": m46,
-    "quiz_list_taken": m47,
+    "quiz_list_count": m47,
+    "quiz_list_taken": m48,
     "quiz_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
-    "quiz_progress": m48,
+    "quiz_progress": m49,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage("، درست"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage("، نادرست"),
-    "quiz_score_before": m49,
-    "quiz_score_count": m50,
-    "quiz_score_line": m51,
+    "quiz_score_before": m50,
+    "quiz_score_count": m51,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
@@ -690,7 +687,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "سلام، من شاگردم. این یک برنامهٔ آموزشی است: مهندسی هوش مصنوعی را سطح به سطح و ماژول به ماژول یاد می‌دهیم. می‌خواهید همه‌جا را نشانتان بدهم؟",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "ماژول‌های بعدی اینجا منتظرند؛ زیرشان، روزهایی که کارتی هست، مرور امروز و مسیر شما در سطح‌ها هست.",
+      "ماژول‌های بعدی اینجا منتظرند و مسیر شما در سطح‌ها زیرشان است. وقتی درسی را تکمیل کنید، مرور امروز بالای آن‌ها، زیر تمرین، می‌آید.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "این گوشهٔ من است. هر روز بخشی از دوره را برایتان می‌آورم: برای خواندنش روی کارت بزنید. هر وقت خواستید با من گفتگو کنید.",
@@ -698,7 +695,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_later": MessageLookupByLibrary.simpleMessage("بعدا"),
     "tour_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "مرور امروز هر روز چند کارت از درس‌هایی که تکمیل کرده‌اید برمی‌گرداند. پاسخ‌های نادرست، یک درس در 2 دقیقه و واژه‌نامه زیر آن هستند.",
+      "مرور امروز هر روز چند پرسش و اصطلاح از درس‌هایی که تکمیل کرده‌اید برمی‌گرداند. پاسخ‌های نادرست، یک درس در 2 دقیقه و واژه‌نامه زیر آن هستند.",
     ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "آزمون‌های هر سطح اینجا هستند. سطحی را باز کنید، آزمونی بدهید و هر چند بار خواستید تکرارش کنید.",

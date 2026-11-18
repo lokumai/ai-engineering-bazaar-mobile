@@ -931,16 +931,6 @@ class S {
     );
   }
 
-  /// `Last {last} of {total} · best {best} of {total}`
-  String quiz_score_line(int last, int best, int total) {
-    return Intl.message(
-      'Last $last of $total · best $best of $total',
-      name: 'quiz_score_line',
-      desc: '',
-      args: [last, best, total],
-    );
-  }
-
   /// `{taken} of {total} taken`
   String quiz_list_taken(int taken, int total) {
     return Intl.message('$taken of $total taken', name: 'quiz_list_taken', desc: '', args: [taken, total]);
@@ -2678,10 +2668,10 @@ class S {
     );
   }
 
-  /// `The modules after it wait here; under them are Today's review, when it has cards, and your path through the levels.`
+  /// `The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.`
   String get tour_home_after {
     return Intl.message(
-      'The modules after it wait here; under them are Today\'s review, when it has cards, and your path through the levels.',
+      'The modules after it wait here, and your path through the levels under them. Once you complete a module, Today\'s review shows above them, under Practice.',
       name: 'tour_home_after',
       desc: '',
       args: [],
@@ -2748,10 +2738,10 @@ class S {
     );
   }
 
-  /// `Today's review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.`
+  /// `Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.`
   String get tour_practice_today {
     return Intl.message(
-      'Today\'s review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.',
+      'Today\'s review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.',
       name: 'tour_practice_today',
       desc: '',
       args: [],
@@ -2886,16 +2876,6 @@ class S {
     );
   }
 
-  /// `Every question answered wrong, by level. Right twice in a row and it leaves.`
-  String get practice_wrong_lede {
-    return Intl.message(
-      'Every question answered wrong, by level. Right twice in a row and it leaves.',
-      name: 'practice_wrong_lede',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Answer them all`
   String get practice_wrong_all {
     return Intl.message('Answer them all', name: 'practice_wrong_all', desc: '', args: []);
@@ -3010,6 +2990,16 @@ class S {
   /// `Quizzes by level`
   String get practice_quizzes {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);
+  }
+
+  /// `{right} of {total} right at the last answer`
+  String practice_latest(int right, int total) {
+    return Intl.message(
+      '$right of $total right at the last answer',
+      name: 'practice_latest',
+      desc: '',
+      args: [right, total],
+    );
   }
 
   /// `Card {step} of {count}`

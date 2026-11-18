@@ -82,57 +82,78 @@ class _GlossaryState extends State<_Glossary> {
     };
     final entries = notes == null ? null : glossaryOf(notes.modules, language);
     final shown = entries == null ? null : glossaryFind(entries, _query, language);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionRule(title: s.practice_glossary),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            key: GlossaryPage.findKey,
-            controller: _find,
-            onChanged: (value) => setState(() => _query = value),
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              hintText: s.glossary_find,
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          if (shown == null)
-            const Center(child: CircularProgressIndicator())
-          else if (entries!.isEmpty)
-            Text(s.practice_glossary_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
-          else if (shown.isEmpty)
-            Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
-          else
-            for (final (letter, group) in _byLetter(shown)) ...[
-              const SizedBox(height: AppSpacing.sm),
-              SectionRule(title: letter),
-              const SizedBox(height: AppSpacing.sm),
-              BazaarCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, entry) in group.indexed) ...[
-                      if (i > 0) Divider(height: 1, color: colors.line),
-                      _EntryView(
-                        key: GlossaryPage.entryKey(entry.keyIn(track)),
-                        entry: entry,
-                        open: _open.contains(entry.keyIn(track)),
-                        onToggle: () => _toggle(entry.keyIn(track)),
-                      ),
-                    ],
-                  ],
+    // The page's name and the field stay at the top; only the terms scroll under them, so the field never takes the
+    // page up with it (the owner, 2026-11-18).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SectionRule(title: s.practice_glossary),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                key: GlossaryPage.findKey,
+                controller: _find,
+                onChanged: (value) => setState(() => _query = value),
+                textInputAction: TextInputAction.search,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(
+                  hintText: s.glossary_find,
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
             ],
-        ],
-      ),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding:
+                const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.lg) +
+                EdgeInsets.only(bottom: FloatingRoom.of(context)),
+            children: [
+              if (shown == null)
+                const Center(child: CircularProgressIndicator())
+              else if (entries!.isEmpty)
+                Text(s.practice_glossary_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
+              else if (shown.isEmpty)
+                Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
+              else
+                // A to Z by letter; what a search finds, the best first, in one card.
+                for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown) : [('', shown)]) ...[
+                  if (letter.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    SectionRule(title: letter),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                  BazaarCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, entry) in group.indexed) ...[
+                          if (i > 0) Divider(height: 1, color: colors.line),
+                          _EntryView(
+                            key: GlossaryPage.entryKey(entry.keyIn(track)),
+                            entry: entry,
+                            open: _open.contains(entry.keyIn(track)),
+                            onToggle: () => _toggle(entry.keyIn(track)),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

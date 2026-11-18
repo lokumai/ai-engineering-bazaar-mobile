@@ -45,12 +45,11 @@ void main() {
       expect(again.run, 2);
     });
 
-    test('right twice in a row takes a question out of Wrong answers (plan 13.4)', () {
+    test('one right answer takes a question out of Wrong answers (plan 13.4, the owner 2026-11-18)', () {
       var card = ReviewCard.after(null, right: false, today: today);
-      card = ReviewCard.after(card, right: true, today: today + 1);
-      expect(card.wrong, isTrue, reason: 'once is not enough');
-      card = ReviewCard.after(card, right: true, today: today + 2);
-      expect(card.wrong, isFalse);
+      expect(card.wrong, isTrue);
+      card = ReviewCard.after(card, right: true, today: today);
+      expect(card.wrong, isFalse, reason: 'right once, even the same day');
     });
 
     test('a card keeps its last answers only, the oldest first', () {

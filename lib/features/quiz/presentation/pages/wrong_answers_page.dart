@@ -22,7 +22,7 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 
 /// Wrong answers at `/practice/wrong` (plan 13.4): every question answered wrong, in a module's quiz or in Practice,
 /// grouped by level, each under its module's title; Answer them all asks them full screen. A question answered right
-/// twice in a row leaves the list.
+/// once leaves the list (the owner, 2026-11-18).
 class WrongAnswersPage extends StatelessWidget {
   const WrongAnswersPage({super.key});
 
@@ -63,8 +63,6 @@ class _WrongAnswers extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg) + EdgeInsets.only(bottom: FloatingRoom.of(context)),
       children: [
         SectionRule(title: s.practice_wrong),
-        const SizedBox(height: AppSpacing.sm),
-        Text(s.practice_wrong_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
         const SizedBox(height: AppSpacing.md),
         if (pool == null || notes is! StudyNotesReady)
           const Center(child: CircularProgressIndicator())

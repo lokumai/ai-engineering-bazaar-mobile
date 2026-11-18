@@ -44,14 +44,26 @@ List<GlossaryEntry> glossaryOf(List<ModuleNotes> modules, String lang) {
   ]..sort((a, b) => a.sortKey.compareTo(b.sortKey));
 }
 
-/// The entries of [entries] whose name or definition holds every word of [query], as the search matches words;
-/// all of them for an empty query.
+/// The entries of [entries] that [query] finds, as it is typed (the owner, 2026-11-18): one letter finds the names that
+/// start with it; more find the names or definitions holding every word of [query] as the search matches words, those
+/// whose name starts with the query first. All of them for an empty query.
 List<GlossaryEntry> glossaryFind(List<GlossaryEntry> entries, String query, String lang) {
+  final typed = normalise(query.trim(), lang);
+  if (typed.isEmpty) return entries;
   final terms = searchTerms(query, lang);
-  if (terms.isEmpty) return entries;
-  return [
+  if (terms.isEmpty) {
+    return [
+      for (final entry in entries)
+        if (entry.sortKey.startsWith(typed)) entry,
+    ];
+  }
+  final found = [
     for (final entry in entries)
       if (_holdsAll('${entry.name} ${entry.first.definitionText}', terms, lang)) entry,
+  ];
+  return [
+    ...found.where((entry) => entry.sortKey.startsWith(typed)),
+    ...found.where((entry) => !entry.sortKey.startsWith(typed)),
   ];
 }
 

@@ -138,17 +138,17 @@ void main() {
     await _tap(tester, find.text('Two'));
     await _tap(tester, find.byKey(const Key('review-next')));
     expect(find.text('2 of 2 right'), findsOneWidget);
-    expect(review.state.history.cards['alpha/first#0']!.wrong, isTrue, reason: 'right once is not enough');
+    expect(
+      review.state.history.cards['alpha/first#0']!.wrong,
+      isFalse,
+      reason: 'right once, and it leaves (the owner, 2026-11-18)',
+    );
     expect(review.state.history.doneOn(dayNumber(DateTime.now())), 0, reason: "not Today's review");
 
     await _tap(tester, find.byKey(const Key('review-back')));
-    await _tap(tester, find.byKey(const ValueKey('wrong-answer-all')));
-    await _tap(tester, find.text('One'));
-    await _tap(tester, find.byKey(const Key('review-next')));
-    await _tap(tester, find.text('Two'));
-    await _tap(tester, find.byKey(const Key('review-next')));
-    await _tap(tester, find.byKey(const Key('review-back')));
-    expect(find.text('No wrong answers now.'), findsOneWidget, reason: 'right twice in a row, and they leave');
+    expect(router.state.uri.path, '/practice', reason: 'Done goes to Practice (the owner, 2026-11-18)');
+    await _tap(tester, find.byKey(const Key('practice-wrong')));
+    expect(find.text('No wrong answers now.'), findsOneWidget);
   });
 
   testWidgets('a wrong answer links to the section that teaches it, opened with its words marked (plan 13.5)', (
@@ -212,6 +212,61 @@ void main() {
     expect(find.byKey(const Key('review-section-link')), findsNothing);
   });
 
+  testWidgets("Today's review mixes questions and terms; a term card shows the module's sentence, a tap its definition "
+      '(the owner, 2026-11-18)', (tester) async {
+    HeadingBlock h(String id, String text) => HeadingBlock(
+      depth: 2,
+      id: id,
+      mark: null,
+      inlines: [TextInline(text: text)],
+    );
+    ParagraphBlock p(String text) => ParagraphBlock(inlines: [TextInline(text: text)], lead: false);
+    ListItem term(String name, String definition) => ListItem(
+      checked: null,
+      taskIndex: null,
+      blocks: [
+        ParagraphBlock(
+          inlines: [
+            StrongInline(inlines: [TextInline(text: name)]),
+            TextInline(text: ': $definition'),
+          ],
+          lead: false,
+        ),
+      ],
+    );
+    final doc = testDoc(
+      body: [
+        h('lamps', 'Lamps'),
+        p('Night falls. The wick draws the oil up.'),
+        h('words', 'Words'),
+        ListBlock(ordered: false, start: null, items: [term('Wick', 'what burns.'), term('Glass', 'keeps wind out.')]),
+        h('sum', 'Sum'),
+        p('Lanterns carry light.'),
+      ],
+      quiz: _items,
+    );
+    final (_, review) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
+    expect(find.descendant(of: _today, matching: find.textContaining('4 cards')), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    expect(find.text('Q1'), findsOneWidget, reason: 'a question first');
+    await _tap(tester, find.text('One'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+
+    expect(find.text('Card 2 of 4'), findsOneWidget);
+    expect(find.text('Wick'), findsOneWidget, reason: 'then a term');
+    expect(
+      find.text('The wick draws the oil up.', findRichText: true),
+      findsOneWidget,
+      reason: "the module's sentence",
+    );
+    expect(find.text('what burns.', findRichText: true), findsNothing, reason: 'the definition waits for a tap');
+    expect(find.byKey(const Key('review-term-knew')), findsNothing);
+    await _tap(tester, find.byKey(const Key('review-term-show')));
+    expect(find.text('what burns.', findRichText: true), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('review-term-knew')));
+    expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isTrue);
+  });
+
   testWidgets('a module in 2 minutes: its Summary point by point, its Key Terms, then Take the quiz (plan 13.7)', (
     tester,
   ) async {
@@ -257,13 +312,16 @@ void main() {
     expect(router.state.uri.path, '/practice/brief/alpha/first');
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen');
 
-    expect(find.bySemanticsLabel('1 of 4'), findsOneWidget, reason: 'two points, one card of terms, the end');
+    expect(
+      find.bySemanticsLabel('1 of 3'),
+      findsOneWidget,
+      reason: 'the Summary on one card as it fits, one card of terms, the end (the owner, 2026-11-18)',
+    );
     expect(find.text('Lanterns carry light.', findRichText: true), findsOneWidget);
+    expect(find.text('Wicks draw oil.', findRichText: true), findsOneWidget);
     await tester.drag(find.byKey(const ValueKey('brief-pager')), const Offset(-300, 0));
     await tester.pumpAndSettle();
-    expect(find.bySemanticsLabel('2 of 4'), findsOneWidget, reason: 'a swipe goes on');
-    expect(find.text('Wicks draw oil.', findRichText: true), findsOneWidget);
-    await _tap(tester, find.byKey(const Key('brief-next')));
+    expect(find.bySemanticsLabel('2 of 3'), findsOneWidget, reason: 'a swipe goes on');
     expect(find.text('Wick'), findsOneWidget);
     expect(find.text('what burns.', findRichText: true), findsOneWidget);
     await _tap(tester, find.byKey(const Key('brief-next')));
@@ -296,10 +354,22 @@ void main() {
     expect(find.text('In these modules'), findsOneWidget);
     expect(review.state.history.cards.keys, ['term:engineers/alpha/first#0'], reason: 'looked up');
 
-    await tester.enterText(find.byKey(const ValueKey('glossary-find')), 'gla');
+    final field = find.byKey(const ValueKey('glossary-find'));
+    expect(
+      find.ancestor(of: field, matching: find.byType(Scrollable)),
+      findsNothing,
+      reason:
+          'the title and the field stay put over the list: a tap on the field scrolls nothing (the owner, 2026-11-18)',
+    );
+    await tester.enterText(field, 'gla');
     await tester.pumpAndSettle();
     expect(find.text('Wick'), findsNothing);
     expect(find.text('Glass'), findsOneWidget);
+
+    await tester.enterText(field, 'w');
+    await tester.pumpAndSettle();
+    expect(find.text('Wick'), findsOneWidget, reason: 'one letter finds as it is typed');
+    expect(find.text('Glass'), findsNothing, reason: 'its definition holds "wind", but its name does not start with w');
   });
 
   testWidgets('with no module completed, there is nothing to review today', (tester) async {

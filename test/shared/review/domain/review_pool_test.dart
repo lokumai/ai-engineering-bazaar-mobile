@@ -22,10 +22,14 @@ void main() {
     expect(pool.questions, ['alpha/second#0']);
     expect(pool.everyQuestion, ['alpha/first#0', 'alpha/first#1', 'alpha/second#0']);
     expect(pool.terms, ['term:engineers/alpha/second#0']);
+    expect(pool.newTerms, ['term:engineers/alpha/second#0'], reason: "a completed module's terms, never seen yet");
 
     final history = ReviewHistory.empty.answered('alpha/first#1', right: false, today: 1, length: 2);
     expect(pool.wrong(history), ['alpha/first#1'], reason: 'a question of a module not completed still counts');
-    expect(pool.today(history, 1), ['alpha/second#0']);
+    expect(pool.today(history, 1), [
+      'alpha/second#0',
+      'term:engineers/alpha/second#0',
+    ], reason: 'questions and terms mixed, a question first (the owner, 2026-11-18)');
   });
 
   test('a module completed in the other track is not completed in this one', () {

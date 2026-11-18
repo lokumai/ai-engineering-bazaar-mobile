@@ -579,20 +579,6 @@
       }
     }
   },
-  "quiz_score_line": "Last {last} of {total} · best {best} of {total}",
-  "@quiz_score_line": {
-    "placeholders": {
-      "last": {
-        "type": "int"
-      },
-      "best": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "quiz_list_taken": "{taken} of {total} taken",
   "@quiz_list_taken": {
     "placeholders": {
@@ -1352,7 +1338,7 @@
   "@tour_skip": {},
   "tour_home_head": "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
   "@tour_home_head": {},
-  "tour_home_after": "The modules after it wait here; under them are Today's review, when it has cards, and your path through the levels.",
+  "tour_home_after": "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.",
   "@tour_home_after": {},
   "tour_band": "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
   "@tour_band": {},
@@ -1366,7 +1352,7 @@
   "@tour_caravan_stage": {},
   "tour_caravan_strip": "Slide along here, or tap a stop, to move the caravan.",
   "@tour_caravan_strip": {},
-  "tour_practice_today": "Today's review brings back a few cards a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
+  "tour_practice_today": "Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
   "tour_quiz_level": "Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
   "@tour_quiz_level": {},
   "tour_settings_reading": "Your track, the app's language, its look and the text size of the modules are chosen here.",
@@ -1427,7 +1413,6 @@
       }
     }
   },
-  "practice_wrong_lede": "Every question answered wrong, by level. Right twice in a row and it leaves.",
   "practice_wrong_all": "Answer them all",
   "practice_wrong_none": "No wrong answers now.",
   "practice_brief": "A module in 2 minutes",
@@ -1471,6 +1456,17 @@
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
+  "practice_latest": "{right} of {total} right at the last answer",
+  "@practice_latest": {
+    "placeholders": {
+      "right": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "review_progress": "Card {step} of {count}",
   "@review_progress": {
     "placeholders": {

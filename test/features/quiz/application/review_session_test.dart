@@ -20,7 +20,12 @@ void main() {
     track: Track.engineers,
     language: 'en',
     modules: const [
-      ModuleNotes(moduleKey: 'alpha/first', quiz: [item, item], terms: [term]),
+      ModuleNotes(
+        moduleKey: 'alpha/first',
+        quiz: [item, item],
+        terms: [term],
+        sections: [NoteSection(id: 'lamps', title: 'Lamps', text: 'Night falls. A lantern lights the road.')],
+      ),
     ],
   );
 
@@ -52,6 +57,11 @@ void main() {
       expect((items[0] as QuestionItem).length, 2);
       expect(items[0].moduleTitle, 'Title of alpha/first');
       expect((items[1] as TermItem).term, term);
+      expect(
+        (items[1] as TermItem).usage?.text,
+        'A lantern lights the road.',
+        reason: 'the sentence of the module that uses it (the owner, 2026-11-18)',
+      );
     });
   });
 

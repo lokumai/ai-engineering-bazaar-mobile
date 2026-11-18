@@ -14,6 +14,7 @@ final class ReviewPool extends Equatable {
     required this.completed,
     required this.questions,
     required this.terms,
+    required this.newTerms,
     required this.everyQuestion,
   });
 
@@ -26,18 +27,21 @@ final class ReviewPool extends Equatable {
   /// The term keys of every module in the track.
   final List<String> terms;
 
+  /// The term keys of [completed], in the course's order: those Today's review shows new.
+  final List<String> newTerms;
+
   /// The question keys of every module in the track: those Wrong answers can hold.
   final List<String> everyQuestion;
 
   /// Today's review on [today] from [history].
   List<String> today(ReviewHistory history, int today) =>
-      todaysReview(history, questions: questions, terms: terms, today: today);
+      todaysReview(history, questions: questions, terms: terms, newTerms: newTerms, today: today);
 
   /// Wrong answers from [history].
   List<String> wrong(ReviewHistory history) => wrongAnswers(history, questions: everyQuestion);
 
   @override
-  List<Object?> get props => [completed, questions, terms, everyQuestion];
+  List<Object?> get props => [completed, questions, terms, newTerms, everyQuestion];
 }
 
 /// The pool of [track] from the notes of its [modules], in the course's order, and the [record].
@@ -57,6 +61,10 @@ ReviewPool reviewPool({required Track track, required RecordData record, require
     terms: [
       for (final notes in modules)
         for (final term in notes.terms) termKey(track, notes.moduleKey, term.index),
+    ],
+    newTerms: [
+      for (final key in completed)
+        for (final term in byKey[key]!.terms) termKey(track, key, term.index),
     ],
     everyQuestion: [for (final notes in modules) ...questionsOf(notes)],
   );

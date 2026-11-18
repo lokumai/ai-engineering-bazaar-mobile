@@ -17,7 +17,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.d
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -333,8 +332,9 @@ class _SectionLink extends StatelessWidget {
   }
 }
 
-/// A term as a card to turn: the term large on an arch card in its level's hue; a tap on the card shows its definition
-/// under a rule, then Not yet and Knew it, side by side.
+/// A term as a card: the term and the sentence of its module that uses it, the term marked there, on a leaf card in
+/// its level's hue; a tap on the card shows its definition under it, drawn as a question's explanation, then Not yet
+/// and Knew it side by side (the owner, 2026-11-18: the first one stood alone on an empty screen).
 class _TermCard extends StatelessWidget {
   const _TermCard({required this.item, required this.at, required this.focus, required this.hue});
 
@@ -350,82 +350,96 @@ class _TermCard extends StatelessWidget {
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
     final result = at.results[at.index];
-    final reduced = MediaQuery.disableAnimationsOf(context);
-    final duration = reduced ? Duration.zero : BazaarMotion.fold;
-    final face = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _CardHead(kind: s.review_term, module: item.moduleTitle, hue: hue),
-        const SizedBox(height: AppSpacing.xl),
-        Focus(
-          focusNode: focus,
-          child: Text(
-            item.term.name,
-            textAlign: TextAlign.center,
-            style: displayFace(theme.textTheme.headlineSmall)?.copyWith(color: colors.onSurfaceTitle),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        AnimatedSize(
-          duration: duration,
-          curve: BazaarMotion.bazaar,
-          alignment: Alignment.topCenter,
-          child: AnimatedSwitcher(
-            duration: duration,
-            child: at.revealed
-                ? Column(
-                    key: const ValueKey('definition'),
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: AppSpacing.md,
-                    children: [
-                      const ExcludeSemantics(child: DashedRule()),
-                      Semantics(
-                        liveRegion: true,
-                        child: InlineText(
-                          inlines: item.term.definition,
-                          style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
-                          // A definition's link would leave the session; it is read here, not followed.
-                          onLink: (_) {},
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(
-                    key: const ValueKey('hint'),
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 6,
-                    children: [
-                      Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
-                      Flexible(
-                        child: Text(
-                          s.review_term_show,
-                          style: theme.textTheme.labelLarge?.copyWith(color: colors.primary),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-      ],
-    );
+    final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
+    final usage = item.usage;
+    final quoted = TextStyle(fontSize: BazaarType.control.size, height: 1.5, color: colors.onSurface);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       spacing: AppSpacing.md,
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 200),
-          child: BazaarCard(
-            key: at.revealed ? null : const Key('review-term-show'),
-            shape: BazaarCardShape.arch,
-            accent: hue,
-            tint: hue,
-            onTap: at.revealed ? null : cubit.reveal,
-            semanticLabel: at.revealed ? null : '${s.review_term}: ${item.term.name}. ${s.review_term_show}',
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
-            child: face,
+        BazaarCard(
+          key: at.revealed ? null : const Key('review-term-show'),
+          shape: BazaarCardShape.leaf,
+          accent: hue,
+          tint: hue,
+          onTap: at.revealed ? null : cubit.reveal,
+          semanticLabel: at.revealed
+              ? null
+              : ['${s.review_term}: ${item.term.name}.', if (usage != null) usage.text, s.review_term_show].join(' '),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.md,
+            children: [
+              _CardHead(kind: s.review_term, module: item.moduleTitle, hue: hue),
+              Focus(
+                focusNode: focus,
+                child: Text(
+                  item.term.name,
+                  style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.onSurfaceTitle),
+                ),
+              ),
+              if (usage != null)
+                // The module's own sentence, the term in it marked: how the module put it.
+                Container(
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 2, 0, 2),
+                  decoration: BoxDecoration(
+                    border: BorderDirectional(start: BorderSide(color: hue, width: 3)),
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: usage.text.substring(0, usage.start)),
+                        TextSpan(
+                          text: usage.text.substring(usage.start, usage.end),
+                          style: TextStyle(fontWeight: FontWeight.w700, color: colors.onSurfaceTitle),
+                        ),
+                        TextSpan(text: usage.text.substring(usage.end)),
+                      ],
+                    ),
+                    style: quoted.copyWith(fontStyle: FontStyle.italic),
+                  ),
+                ),
+              if (!at.revealed)
+                Row(
+                  spacing: 6,
+                  children: [
+                    Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
+                    Flexible(
+                      child: Text(
+                        s.review_term_show,
+                        style: theme.textTheme.labelLarge?.copyWith(color: colors.primary),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
+        ),
+        AnimatedSize(
+          duration: duration,
+          curve: BazaarMotion.bazaar,
+          alignment: Alignment.topCenter,
+          child: !at.revealed
+              ? const SizedBox(width: double.infinity)
+              : Semantics(
+                  liveRegion: true,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceSunken,
+                      border: BorderDirectional(start: BorderSide(color: colors.primary, width: 3)),
+                    ),
+                    child: InlineText(
+                      inlines: item.term.definition,
+                      style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
+                      // A definition's link would leave the session; it is read here, not followed.
+                      onLink: (_) {},
+                    ),
+                  ),
+                ),
         ),
         if (at.revealed && result == null)
           Row(
@@ -541,7 +555,8 @@ class _Results extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         FilledButton(
           key: const Key('review-back'),
-          onPressed: () => Navigator.maybePop(context),
+          // Back to Practice's page, from Wrong answers too (the owner, 2026-11-18).
+          onPressed: () => context.go(BazaarPaths.practice),
           child: Text(s.review_back),
         ),
       ],

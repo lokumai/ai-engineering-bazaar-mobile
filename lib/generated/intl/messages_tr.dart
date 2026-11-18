@@ -109,24 +109,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m42(count) => "${Intl.plural(count, zero: 'Henüz terim yok', other: '${count} terim')}";
 
-  static String m43(count, minutes) =>
+  static String m43(right, total) => "Son cevaplarda ${total} sorudan ${right} doğru";
+
+  static String m44(count, minutes) =>
       "${Intl.plural(count, one: '1 kart', other: '${count} kart')}, yaklaşık ${minutes} dk";
 
-  static String m44(done, total) => "Bugün ${total} karttan ${done} tanesi bitti";
+  static String m45(done, total) => "Bugün ${total} karttan ${done} tanesi bitti";
 
-  static String m45(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
+  static String m46(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
 
-  static String m46(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
+  static String m47(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
 
-  static String m47(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
+  static String m48(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
 
-  static String m48(index, count) => "Soru ${index} / ${count}";
+  static String m49(index, count) => "Soru ${index} / ${count}";
 
-  static String m49(previous, best, total) => "Bir önceki: ${previous} / ${total}. En iyi: ${best} / ${total}.";
+  static String m50(previous, best, total) => "Bir önceki: ${previous} / ${total}. En iyi: ${best} / ${total}.";
 
-  static String m50(score, total) => "${score} / ${total}";
-
-  static String m51(last, best, total) => "Son ${last} / ${total} · en iyi ${best} / ${total}";
+  static String m51(score, total) => "${score} / ${total}";
 
   static String m52(count) => "Bu modülün ana noktalarına dair ${count} soru";
 
@@ -459,23 +459,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_glossary": MessageLookupByLibrary.simpleMessage("Sözlük"),
     "practice_glossary_count": m42,
     "practice_go_wrong": MessageLookupByLibrary.simpleMessage("Yanlışlarıma git"),
+    "practice_latest": m43,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("Seviyelere göre quizler"),
     "practice_start": MessageLookupByLibrary.simpleMessage("Başla"),
     "practice_today": MessageLookupByLibrary.simpleMessage("Günün tekrarı"),
-    "practice_today_cards": m43,
+    "practice_today_cards": m44,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("Bugünlük bu kadar"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("Sıradaki kartlar yarın gelir."),
-    "practice_today_meter": m44,
+    "practice_today_meter": m45,
     "practice_today_none": MessageLookupByLibrary.simpleMessage("Bugün tekrar edecek bir şey yok"),
     "practice_today_none_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın modüllerin soruları buraya gelir, her gün birkaçı.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Yanlışlarım"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
-    "practice_wrong_count": m45,
-    "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
-      "Yanlış cevapladığın her soru, seviyelere göre. Arka arkaya iki kez doğru bilince listeden çıkar.",
-    ),
+    "practice_wrong_count": m46,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
@@ -528,16 +526,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Sorulara dön"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Doğru."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Bitti"),
-    "quiz_list_count": m46,
-    "quiz_list_taken": m47,
+    "quiz_list_count": m47,
+    "quiz_list_taken": m48,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
-    "quiz_progress": m48,
+    "quiz_progress": m49,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", doğru"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", yanlış"),
-    "quiz_score_before": m49,
-    "quiz_score_count": m50,
-    "quiz_score_line": m51,
+    "quiz_score_before": m50,
+    "quiz_score_count": m51,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("doğru cevap"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("Sonuçları gör"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Baştan başla"),
@@ -684,7 +681,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Merhaba, ben Çırak. Burada yapay zekâ mühendisliğini seviye seviye, modül modül öğreneceksin. İstersen sana kısaca etrafı gezdireyim?",
     ),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sıradaki modüller burada. Altında, kartı olan günlerde Günün tekrarı ve seviyelerdeki ilerlemen var.",
+      "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında Günün tekrarı bunların üstünde, Pratik başlığı altında çıkar.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
       "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",
@@ -692,7 +689,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_later": MessageLookupByLibrary.simpleMessage("Şimdi değil"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Devam"),
     "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "Günün tekrarı, tamamladığın modüllerden her gün birkaç kart getirir. Yanlışların, 2 dakikada bir modül ve sözlük hemen altında.",
+      "Günün tekrarı, tamamladığın modüllerden her gün birkaç soru ve terim getirir. Yanlışların, 2 dakikada bir modül ve sözlük hemen altında.",
     ),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
       "Her seviyenin quizleri burada. Bir seviye aç, quiz çöz; dilediğin kadar tekrar çözebilirsin.",

@@ -11,17 +11,23 @@ const reviewDaily = 5;
 /// About how many minutes [cards] cards take, half a minute each, at least one.
 int reviewMinutes(int cards) => cards <= 0 ? 0 : (cards + 1) ~/ 2;
 
-/// The cards Today's review offers on [today], at most what is left of [reviewDaily] that day, in order (plan 13.3):
-/// the questions answered wrong that are due, then the other questions due, then the terms looked up that are due,
-/// then the questions never answered (the owner, 2026-11-17: a reader who read but never took a quiz has a review too).
+/// The cards Today's review offers on [today], at most what is left of [reviewDaily] that day (plan 13.3), questions
+/// and terms in turn, a question first, so a day of five is three questions and two terms (the owner, 2026-11-18: always
+/// mixed); when one kind runs out, the other fills its place.
 ///
-/// [questions] are the question keys of the completed modules, in the order new ones are asked; [terms] the term keys
-/// of the reader's track that the course still holds. A card kept for a question or a term no longer offered is left
-/// out. Cards due on the same day keep the order of [questions] and [terms].
+/// The questions come in this order: those answered wrong that are due, the others due, then those never answered (the
+/// owner, 2026-11-17: a reader who read but never took a quiz has a review too). The terms: those due, then those never
+/// seen of the completed modules.
+///
+/// [questions] are the question keys of the completed modules, in the order new ones are asked; [terms] the term keys of
+/// the reader's track that the course still holds; [newTerms] the term keys of the completed modules, in the order new
+/// ones are shown. A card kept for a question or a term no longer offered is left out. Cards due on the same day keep
+/// the order of [questions] and [terms].
 List<String> todaysReview(
   ReviewHistory history, {
   required List<String> questions,
   required List<String> terms,
+  required List<String> newTerms,
   required int today,
 }) {
   final left = reviewDaily - history.doneOn(today);
@@ -37,13 +43,24 @@ List<String> todaysReview(
     return [for (final entry in found) entry.key];
   }
 
-  return [
+  final asked = [
     ...due(questions, (card) => card.wrong),
     ...due(questions, (card) => !card.wrong),
-    ...due(terms, (_) => true),
     for (final key in questions)
       if (!cards.containsKey(key)) key,
-  ].take(left).toList();
+  ];
+  final shown = [
+    ...due(terms, (_) => true),
+    for (final key in newTerms)
+      if (!cards.containsKey(key)) key,
+  ];
+  final day = <String>[];
+  var (q, t) = (0, 0);
+  while (day.length < left && (q < asked.length || t < shown.length)) {
+    final question = day.length.isEven ? q < asked.length : t >= shown.length;
+    day.add(question ? asked[q++] : shown[t++]);
+  }
+  return day;
 }
 
 /// The questions of [questions] in Wrong answers (plan 13.4), in that order: answered wrong, and not right

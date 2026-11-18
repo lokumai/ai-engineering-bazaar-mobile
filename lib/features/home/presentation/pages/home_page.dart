@@ -64,6 +64,9 @@ class HomePage extends StatelessWidget {
           if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
           // The day's card, a section of a module to read today (plan 11.1).
           HomeDailyCard(frame: dailyFrame),
+          // Practice's review of the day under its own heading, after the day's card (plan 13.2, the owner 2026-11-18);
+          // none when it has no card today.
+          HomeReviewRow(track: track, language: language),
           // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
           // card says the track is completed.
           if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
@@ -89,8 +92,6 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ],
-          // Practice's review of the day, in one row (plan 13.2); none when it has no card today.
-          HomeReviewRow(track: track, language: language),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton(

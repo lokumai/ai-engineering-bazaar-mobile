@@ -8,13 +8,14 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_plan.dart';
 import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 
-/// Home's one row to Practice (plan 13.2), in place of its three quiz rows: Today's review and its cards, which a tap
+/// Home's Practice (plan 13.2), under the day's card with its own heading: Today's review and its cards, which a tap
 /// starts. Nothing shows on a day with no card, or while the notes are being read.
 class HomeReviewRow extends StatelessWidget {
   const HomeReviewRow({super.key, required this.track, required this.language});
@@ -33,41 +34,48 @@ class HomeReviewRow extends StatelessWidget {
     final title = s.practice_today;
     final minutes = s.practice_today_cards(cards, reviewMinutes(cards));
     return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
-      // Practice's deck in small: a leaf card with the primary edge, as Today's review is drawn there.
-      child: BazaarCard(
-        key: const Key('home-review'),
-        shape: BazaarCardShape.leaf,
-        accent: colors.primary,
-        onTap: () => context.push(BazaarPaths.practiceReview),
-        semanticLabel: '$title, $minutes',
-        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
-        child: Row(
-          spacing: AppSpacing.md,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Color.alphaBlend(colors.primary.withValues(alpha: 0.12), colors.surface),
-                shape: BoxShape.circle,
-                border: Border.all(color: colors.primary, width: 2),
-              ),
-              child: Icon(Icons.style_rounded, size: 18, color: colors.onSurfaceTitle),
+      padding: const EdgeInsets.only(bottom: 26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionRule(title: s.nav_practice),
+          const SizedBox(height: 12),
+          // Practice's deck in small: a leaf card with the primary edge, as Today's review is drawn there.
+          BazaarCard(
+            key: const Key('home-review'),
+            shape: BazaarCardShape.leaf,
+            accent: colors.primary,
+            onTap: () => context.push(BazaarPaths.practiceReview),
+            semanticLabel: '$title, $minutes',
+            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
+            child: Row(
+              spacing: AppSpacing.md,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(colors.primary.withValues(alpha: 0.12), colors.surface),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colors.primary, width: 2),
+                  ),
+                  child: Icon(Icons.school_rounded, size: 18, color: colors.onSurfaceTitle),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
+                      Text(minutes, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward, size: 20, color: colors.primary),
+              ],
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
-                  Text(minutes, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward, size: 20, color: colors.primary),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

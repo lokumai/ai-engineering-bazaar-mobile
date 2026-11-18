@@ -54,8 +54,8 @@ final class ReviewCard extends Equatable {
   /// How many answers a card keeps, the last ones.
   static const kept = 10;
 
-  /// How many right answers in a row take a question out of Wrong answers (plan 13.4).
-  static const rightToLeave = 2;
+  /// How many right answers in a row take a question out of Wrong answers (plan 13.4): one (the owner, 2026-11-18).
+  static const rightToLeave = 1;
 
   /// The box, from 0 (new, or answered wrong) to [top].
   final int box;

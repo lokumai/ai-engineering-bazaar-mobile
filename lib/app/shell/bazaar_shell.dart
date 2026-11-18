@@ -469,7 +469,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                         selectedIcon: IconTheme.merge(data: open, child: const CaravanIcon()),
                         label: l10n.nav_caravan,
                       ),
-                      tab(Icons.style_outlined, Icons.style_rounded, l10n.nav_practice),
+                      tab(Icons.school_outlined, Icons.school_rounded, l10n.nav_practice),
                       tab(Icons.settings_outlined, Icons.settings_rounded, l10n.nav_settings),
                     ],
                   ),

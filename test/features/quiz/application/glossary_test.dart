@@ -41,10 +41,23 @@ void main() {
     expect(glossaryFind(entries, 'nothing', 'en'), isEmpty);
   });
 
+  test('finds as it is typed: one letter finds the names that start with it (the owner, 2026-11-18)', () {
+    final entries = glossaryOf(modules, 'en');
+    expect([for (final entry in glossaryFind(entries, 'w', 'en')) entry.name], ['Wick'], reason: 'not Glass by "wind"');
+    expect([for (final entry in glossaryFind(entries, 'L', 'en')) entry.name], ['Lantern']);
+    expect(glossaryFind(entries, 'x', 'en'), isEmpty);
+  });
+
+  test('a name that starts with the query comes before a definition that holds it', () {
+    final entries = glossaryOf(modules, 'en');
+    expect([for (final entry in glossaryFind(entries, 'wi', 'en')) entry.name], ['Wick', 'Glass']);
+  });
+
   test('Turkish names sort and match by the search rules', () {
     final tr = glossaryOf([
       ModuleNotes(moduleKey: 'a/b', terms: [_term('a/b', 0, 'Şema', 'yapı.'), _term('a/b', 1, 'Çıktı', 'sonuç.')]),
     ], 'tr');
     expect([for (final entry in glossaryFind(tr, 'cikti', 'tr')) entry.name], ['Çıktı']);
+    expect([for (final entry in glossaryFind(tr, 'ş', 'tr')) entry.name], ['Şema'], reason: 'one letter, folded');
   });
 }

@@ -95,6 +95,69 @@ Map<TextInline, List<TermMark>> termMarks(List<Block> body, List<GlossaryTerm> t
   return marks;
 }
 
+/// The sentence of a module that uses a term, and where in it the term stands (plan 13.3: a term card shows it, so the
+/// reader meets the term as the module put it).
+final class TermUsage extends Equatable {
+  const TermUsage({required this.text, required this.start, required this.end});
+
+  final String text;
+  final int start;
+  final int end;
+
+  @override
+  List<Object?> get props => [text, start, end];
+}
+
+/// The longest a usage runs; a longer sentence is cut around the term, with an ellipsis where it was cut.
+const usageLength = 200;
+
+/// The first sentence of the sections that teach [notes]' module (never its Key Terms, Summary or References) that
+/// uses one of [term]'s forms as a whole word, in any case; null when none does. It is the module's own text, cut to
+/// [usageLength] around the term when longer.
+TermUsage? termUsage(ModuleNotes notes, GlossaryTerm term) {
+  final forms = {
+    for (final form in term.forms)
+      if (form.length >= 2) _fold(form),
+  }.toList()..sort((a, b) => b.length.compareTo(a.length));
+  for (final section in notes.sections) {
+    for (final part in section.text.split(_sentenceEnd)) {
+      final sentence = part.trim();
+      final lower = _fold(sentence);
+      for (final form in forms) {
+        for (var at = lower.indexOf(form); at >= 0; at = lower.indexOf(form, at + 1)) {
+          if (_wordAt(lower, at, at + form.length)) return _cut(sentence, at, at + form.length);
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/// A sentence ends at a full stop, a question or an exclamation mark, Persian's question mark among them, before a space.
+final _sentenceEnd = RegExp(r'(?<=[.!?؟])\s+');
+
+TermUsage _cut(String sentence, int start, int end) {
+  if (sentence.length <= usageLength) return TermUsage(text: sentence, start: start, end: end);
+  var from = (start - (usageLength - (end - start)) ~/ 2).clamp(0, sentence.length - usageLength);
+  var to = from + usageLength;
+  // Whole words only: the cut moves in to the nearest space, never past the term.
+  if (from > 0) {
+    final space = sentence.indexOf(' ', from);
+    if (space >= 0 && space < start) from = space + 1;
+  }
+  if (to < sentence.length) {
+    final space = sentence.lastIndexOf(' ', to);
+    if (space > end) to = space;
+  }
+  final head = from > 0 ? '… ' : '';
+  final tail = to < sentence.length ? ' …' : '';
+  return TermUsage(
+    text: '$head${sentence.substring(from, to)}$tail',
+    start: start - from + head.length,
+    end: end - from + head.length,
+  );
+}
+
 /// Whether [text] from [start] to [end] is a whole word: no letter or digit just before or after it.
 bool _wordAt(String text, int start, int end) =>
     (start == 0 || !_letter.hasMatch(text[start - 1])) && (end == text.length || !_letter.hasMatch(text[end]));
