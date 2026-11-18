@@ -727,7 +727,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   },
                                   style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
                                 ),
-                                // Listen, with a voice for the module's language (plan 15.1), unless it is being read.
+                                // Listen, with a voice for the module's language (plan 15.1), unless it is being read;
+                                // once listened to, it goes on from where it was left (the owner, 2026-11-18).
                                 if (_voice == true && parts.isNotEmpty)
                                   BlocBuilder<ListenCubit, ListenState>(
                                     buildWhen: (before, now) => _readsThis(before) != _readsThis(now),
@@ -749,7 +750,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                                   ),
                                                 ),
                                                 icon: const Icon(Icons.headphones_rounded, size: 18),
-                                                label: Text(s.listen),
+                                                label: Text(
+                                                  listen.keptAt(doc.key, doc.track) == null
+                                                      ? s.listen
+                                                      : s.listen_resume,
+                                                ),
                                               ),
                                             ),
                                           ),

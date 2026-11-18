@@ -426,22 +426,21 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              // The module read aloud, while the reader is elsewhere: a thin bar over the band and the navigation (the
-              // owner, 2026-11-18). On the module itself its player stands at the page's foot.
+              // Over the navigation, under the thumb; the page and the round button stand above it. The module read
+              // aloud, while the reader is elsewhere, takes the band's place as a thin bar, and the band is back once
+              // it ends (the owner, 2026-11-18). On the module itself its player stands at the page's foot.
               if (media.viewInsets.bottom == 0)
                 BlocBuilder<ListenCubit, ListenState>(
                   builder: (context, state) => switch (state) {
                     final ListenOn on when widget.location != BazaarPaths.module(on.track, on.module) => ReadableWidth(
                       child: ListenBar(state: on, onOpen: () => context.push(BazaarPaths.module(on.track, on.module))),
                     ),
-                    ListenOn() || ListenIdle() => const SizedBox.shrink(),
+                    _ when bandShown => TourTarget(
+                      spot: TourSpots.band,
+                      child: ReadableWidth(child: widget.band!),
+                    ),
+                    _ => const SizedBox.shrink(),
                   },
-                ),
-              // Over the navigation, under the thumb; the page and the round button stand above it.
-              if (bandShown)
-                TourTarget(
-                  spot: TourSpots.band,
-                  child: ReadableWidth(child: widget.band!),
                 ),
             ],
           ),

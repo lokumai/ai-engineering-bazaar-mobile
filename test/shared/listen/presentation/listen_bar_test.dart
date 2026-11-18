@@ -48,6 +48,7 @@ final class _Voice implements ISpeech {
 }
 
 final _bar = find.byKey(const ValueKey('listen-bar'));
+final _band = find.byKey(const ValueKey('home-continue-band'));
 
 Future<(GoRouter, _Voice)> _pump(WidgetTester tester, {TargetPlatform platform = TargetPlatform.android}) async {
   tester.view.physicalSize = const Size(390, 844);
@@ -104,11 +105,42 @@ void main() {
 
     router.go('/');
     await tester.pumpAndSettle();
+    expect(_band, findsNothing, reason: 'the bar takes the band\'s place while it shows (the owner, 2026-11-18)');
     final stops = voice.stops;
     await tester.tap(find.byKey(const ValueKey('listen-bar-stop')));
     await tester.pumpAndSettle();
     expect(_bar, findsNothing);
+    expect(_band, findsOneWidget, reason: 'the band is back');
     expect(voice.stops, greaterThan(stops));
+  });
+
+  testWidgets('paused and left a while, the bar leaves for the band; back on the module, Listen goes on from where it '
+      'was (the owner, 2026-11-18)', (tester) async {
+    final (router, voice) = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('listen-next')));
+    await tester.pumpAndSettle();
+    expect(voice.handed.last, hasLength(5), reason: 'on the second part');
+    await tester.tap(find.byKey(const ValueKey('listen-toggle')));
+    await tester.pumpAndSettle();
+
+    router.go('/');
+    await tester.pumpAndSettle();
+    expect(_bar, findsOneWidget, reason: 'a pause just made keeps the bar');
+    expect(_band, findsNothing);
+    await tester.pump(const Duration(minutes: 2));
+    await tester.pumpAndSettle();
+    expect(_bar, findsNothing);
+    expect(_band, findsOneWidget);
+
+    router.go('/courses/alpha/first');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('listen-player')), findsNothing);
+    final listen = find.byKey(const ValueKey('reader-listen'));
+    expect(find.descendant(of: listen, matching: find.text('Resume listening')), findsOneWidget);
+    await tester.tap(listen);
+    await tester.pumpAndSettle();
+    expect(voice.handed.last, hasLength(5), reason: 'from the second part, not the head');
+    expect(find.byKey(const ValueKey('listen-player')), findsOneWidget);
   });
 
   testWidgets("over the navigation the module's player keeps no room for the screen's foot (the owner, 2026-11-18)", (

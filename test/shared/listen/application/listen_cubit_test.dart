@@ -75,9 +75,9 @@ void main() {
   late _Voice voice;
   late ListenCubit listen;
 
-  void make({bool speaks = true}) {
+  void make({bool speaks = true, Duration restAfter = const Duration(minutes: 2)}) {
     voice = _Voice(speaks: speaks);
-    listen = ListenCubit(speech: voice);
+    listen = ListenCubit(speech: voice, restAfter: restAfter);
     addTearDown(listen.close);
   }
 
@@ -214,6 +214,82 @@ void main() {
       final stops = voice.stops;
       await listen.close();
       expect(voice.stops, greaterThan(stops));
+    });
+
+    test('stopped, a module keeps its place, and started again goes on from it (the owner, 2026-11-18)', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(1);
+      listen.stop();
+      await _settle();
+      expect(listen.state, const ListenIdle(rate: 1));
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+      expect(listen.keptAt('alpha/first', Track.everyone), isNull, reason: 'its own track');
+
+      listen.start(_first);
+      await _settle();
+      expect(listen.state, on(1));
+      expect(voice.handed.last.$1, ['Two.', 'Three.']);
+      expect(listen.keptAt('alpha/first', Track.engineers), isNull, reason: 'while it is read');
+    });
+
+    test('a pause left alone ends the reading, its place kept; anything done holds it off', () async {
+      make(restAfter: const Duration(milliseconds: 40));
+      listen.start(_first);
+      await _settle();
+      voice.reach(2);
+      listen.pause();
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      listen.back();
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      expect(listen.state, on(1, playing: false), reason: 'Back started the wait again');
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(listen.state, const ListenIdle(rate: 1), reason: 'the bar leaves and the band is back');
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+
+      listen.start(_first);
+      await _settle();
+      await Future<void>.delayed(const Duration(milliseconds: 60));
+      expect(listen.state, on(1), reason: 'playing, nothing ends it');
+    });
+
+    test('another module started keeps the place of the one put aside', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(2);
+      listen.start(
+        const ListenSession(
+          module: 'alpha/second',
+          track: Track.engineers,
+          title: 'Second',
+          language: 'en',
+          parts: [SpokenPart(block: 0, text: 'Hello.')],
+        ),
+      );
+      await _settle();
+      expect(listen.keptAt('alpha/first', Track.engineers), 2);
+    });
+
+    test('read to its end, or past its last part, a module keeps no place', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(2);
+      voice.finish();
+      await _settle();
+      expect(listen.keptAt('alpha/first', Track.engineers), isNull);
+
+      listen.start(_first);
+      await _settle();
+      listen
+        ..next()
+        ..next()
+        ..next();
+      await _settle();
+      expect(listen.state, const ListenIdle(rate: 1));
+      expect(listen.keptAt('alpha/first', Track.engineers), isNull);
     });
 
     test('a module with nothing to read does not start', () async {

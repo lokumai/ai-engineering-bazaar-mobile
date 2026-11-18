@@ -34,9 +34,16 @@ final class ListenSession extends Equatable {
 /// back on the module it is where the voice is. Started at a module's head, paused and played again, a part back or
 /// on, at another pace, and stopped; another module started takes its place.
 ///
+/// A module stopped, left paused for [restAfter], or put aside for another keeps its place, and started again it goes
+/// on from there (the owner, 2026-11-18): the bar over the navigation leaves, the band is back, and the module's Listen
+/// says it resumes. Read to its end, the place is let go. The places last while the app runs.
+///
 /// A `Cubit` because every call is atomic; a newer call cuts the reading under way by its turn, not by an event queue.
 final class ListenCubit extends Cubit<ListenState> {
-  ListenCubit({required this._speech}) : super(const ListenIdle(rate: 1));
+  ListenCubit({required this._speech, this.restAfter = const Duration(minutes: 2)}) : super(const ListenIdle(rate: 1));
+
+  /// How long a pause lasts before the reading ends, its place kept.
+  final Duration restAfter;
 
   /// The paces offered, in the order Speed steps through them; the first is the voice's own.
   static const rates = [1.0, 1.25, 1.5, 0.75];
@@ -54,23 +61,36 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The reading under way; a call that starts another or stops it moves the turn on, so the one before ends.
   int _turn = 0;
 
+  /// Where each module ended, by [_keyOf], to go on from when it is started again.
+  final _kept = <String, int>{};
+
+  /// Ends a pause that has lasted [restAfter].
+  Timer? _rest;
+
+  static String _keyOf(String module, Track track) => '${track.name}/$module';
+
+  /// The part the module [module] of [track] goes on from when started, null for its head; null while it is read.
+  int? keptAt(String module, Track track) => _kept[_keyOf(module, track)];
+
   /// The parts of the module being read; none while none is.
   List<SpokenPart> get parts => _session?.parts ?? const [];
 
   /// Whether the phone has a voice for [language]: a module in a language with none has no Listen.
   Future<bool> canSpeak(String language) => _voices[language] ??= _speech.canSpeak(language);
 
-  /// Reads [session] from its head, in place of any module being read.
+  /// Reads [session] from where it was left, or its head, in place of any module being read, whose place is kept.
   void start(ListenSession session) {
     if (session.parts.isEmpty) return;
+    _keep();
     _session = session;
-    unawaited(_play(0));
+    final from = _kept.remove(_keyOf(session.module, session.track)) ?? 0;
+    unawaited(_play(from < session.parts.length ? from : 0));
   }
 
   void pause() {
     if (state case final ListenOn on when on.playing) {
       _cut();
-      emit(_on(on.index, playing: false));
+      _paused(on.index);
     }
   }
 
@@ -96,17 +116,39 @@ final class ListenCubit extends Cubit<ListenState> {
       case ListenOn(:final index, playing: true):
         unawaited(_play(index));
       case ListenOn(:final index, playing: false):
-        emit(_on(index, playing: false));
+        _paused(index);
       case ListenIdle():
         emit(ListenIdle(rate: _rate));
     }
   }
 
-  void stop() {
-    if (state is! ListenOn) return;
+  /// Ends the reading, its place kept.
+  void stop() => _end(keep: true);
+
+  void _end({required bool keep}) {
+    final session = _session;
+    if (state is! ListenOn || session == null) return;
     _cut();
+    if (keep) {
+      _keep();
+    } else {
+      _kept.remove(_keyOf(session.module, session.track));
+    }
     _session = null;
     emit(ListenIdle(rate: _rate));
+  }
+
+  /// Keeps the place of the module being read, if one is.
+  void _keep() {
+    final session = _session;
+    if (state case ListenOn(:final index) when session != null) _kept[_keyOf(session.module, session.track)] = index;
+  }
+
+  /// Paused on part [index], the reading ends after [restAfter] unless something is done.
+  void _paused(int index) {
+    emit(_on(index, playing: false));
+    _rest?.cancel();
+    _rest = Timer(restAfter, stop);
   }
 
   ListenOn _on(int index, {required bool playing}) {
@@ -123,15 +165,17 @@ final class ListenCubit extends Cubit<ListenState> {
   }
 
   void _go(int index, {required bool playing}) {
-    if (index >= parts.length) return stop();
+    // Past the last part, as read to its end: no place kept.
+    if (index >= parts.length) return _end(keep: false);
     if (playing) {
       unawaited(_play(index));
     } else {
-      emit(_on(index, playing: false));
+      _paused(index);
     }
   }
 
   void _cut() {
+    _rest?.cancel();
     _turn++;
     unawaited(_speech.stop());
   }
@@ -139,6 +183,7 @@ final class ListenCubit extends Cubit<ListenState> {
   /// Hands the phone every part from [from] on at once, so it reads on with the screen off, and follows each as it
   /// starts.
   Future<void> _play(int from) async {
+    _rest?.cancel();
     final turn = ++_turn;
     final session = _session!;
     emit(_on(from, playing: true));
@@ -153,6 +198,8 @@ final class ListenCubit extends Cubit<ListenState> {
       },
     );
     if (turn != _turn || isClosed) return;
+    // Read to its end: started again, it reads from its head.
+    _kept.remove(_keyOf(session.module, session.track));
     _session = null;
     emit(ListenIdle(rate: _rate));
   }
