@@ -17,11 +17,11 @@ void main() {
     ],
   );
 
-  test('the Summary on one card when it fits, the Key Terms five to a card, then the end', () {
+  test('the Summary on one card when it fits, the Key Terms four to a card, then the end', () {
     final cards = briefCards(notes(11));
     expect(cards.map((card) => card.runtimeType), [SummaryCard, TermsCard, TermsCard, TermsCard, EndCard]);
     expect((cards.first as SummaryCard).blocks, hasLength(3), reason: 'not cut for nothing (the owner, 2026-11-18)');
-    expect([for (final card in cards.whereType<TermsCard>()) card.terms.length], [5, 5, 1]);
+    expect([for (final card in cards.whereType<TermsCard>()) card.terms.length], [4, 4, 3]);
     expect((cards.last as EndCard).hasQuiz, isTrue);
   });
 

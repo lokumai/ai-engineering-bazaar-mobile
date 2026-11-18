@@ -49,11 +49,11 @@ final class EndCard extends BriefCard {
   final bool hasQuiz;
 }
 
-/// How many terms one card holds (the owner, 2026-11-18: four or five read well).
-const _termsPerCard = 5;
+/// How many terms one card holds (the owner, 2026-11-18: four read better than five).
+const _termsPerCard = 4;
 
 /// The cards of [notes] (plan 13.7): the Summary, as few cards as [fits] lets, cut only between its paragraphs and
-/// lists; then the Key Terms five at a time; then the end. Nothing new is written: every card is the module's own text.
+/// lists; then the Key Terms four at a time; then the end. Nothing new is written: every card is the module's own text.
 /// [fits] says whether some of the Summary's blocks fit one card; with none given, the whole Summary is one card.
 List<BriefCard> briefCards(ModuleNotes notes, {bool Function(List<Block> blocks)? fits}) {
   final summary = <SummaryCard>[];
