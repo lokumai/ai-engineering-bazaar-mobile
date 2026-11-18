@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:ai_engineering_bazaar/features/reader/application/listen_cubit.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
+import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/features/reader/domain/spoken_parts.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/completion_row.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/listen_player.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/not_written_view.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/objectives_card.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/pager.dart';
@@ -195,6 +199,57 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   Map<TextInline, List<TermMark>> _marks = const {};
   (ModuleDoc, StudyNotesReady)? _marksOf;
 
+  /// The module read aloud (plan 15.1), made anew for each document drawn with a body; null for a planned one.
+  ListenCubit? _listen;
+  ModuleDoc? _listenOf;
+
+  /// The place in the body of the block read aloud now; null while none is.
+  final _spoken = ValueNotifier<int?>(null);
+
+  /// The key of each block of the body, by its place, to follow the voice.
+  final _blockKeys = <int, GlobalKey>{};
+
+  /// Pauses the reading aloud when the app leaves the screen; playing with the screen off is for later (plan 15.2).
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onHide: () => _listen?.pause());
+  }
+
+  /// The reading aloud of [doc], made when a document with a body is first drawn.
+  ListenCubit? _listenFor(BuildContext context, ModuleDoc doc) {
+    final body = doc.body;
+    if (body == null) return null;
+    if (_listen case final listen? when identical(_listenOf, doc) || _listenOf == doc) return listen;
+    unawaited(_listen?.close());
+    _blockKeys.clear();
+    _spoken.value = null;
+    _listenOf = doc;
+    final listen = _listen = ListenCubit(speech: context.read<ISpeech>(), parts: spokenParts(body), language: doc.lang);
+    unawaited(listen.check());
+    return listen;
+  }
+
+  GlobalKey _blockKey(int index) => _blockKeys.putIfAbsent(index, GlobalKey.new);
+
+  /// Marks the block read now and brings it near the page's top as the voice moves on to it.
+  void _followVoice(BuildContext context, ListenState state) {
+    final parts = _listen?.parts;
+    final block = switch (state) {
+      ListenOn(:final index) when parts != null => parts[index].block,
+      _ => null,
+    };
+    if (_spoken.value == block) return;
+    _spoken.value = block;
+    final target = block == null ? null : _blockKeys[block]?.currentContext;
+    if (target == null) return;
+    _moved = true;
+    _held = null;
+    unawaited(Scrollable.ensureVisible(target, alignment: 0.1, duration: motionDuration(context, BazaarMotion.fold)));
+  }
+
   /// The term whose definition is shown in a bubble, and where it was tapped; null when none is.
   GlossaryTerm? _bubble;
   Offset? _bubbleAt;
@@ -287,6 +342,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
+    unawaited(_listen?.close());
+    _spoken.dispose();
     _finder?.dispose();
     _readProgress.dispose();
     _currentSection.dispose();
@@ -452,6 +510,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _schedulePlace();
     final finder = _finderFor(doc);
     _scheduleFindStart();
+    final listen = _listenFor(context, doc);
 
     final diagramThemes = switch (context.read<ContentBloc>().state) {
       ContentReady(:final index) => index.diagramThemes,
@@ -479,7 +538,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       _ => null,
     };
 
-    return Scaffold(
+    final page = Scaffold(
       body: Stack(
         // The page fills the screen as it did before the bubble stood over it.
         fit: StackFit.expand,
@@ -557,6 +616,26 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   },
                                   style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
                                 ),
+                                // Listen, with a voice for the module's language (plan 15.1).
+                                if (listen != null)
+                                  BlocBuilder<ListenCubit, ListenState>(
+                                    bloc: listen,
+                                    builder: (context, state) => switch (state) {
+                                      ListenOff() => Align(
+                                        alignment: AlignmentDirectional.centerStart,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 8),
+                                          child: OutlinedButton.icon(
+                                            key: const ValueKey('reader-listen'),
+                                            onPressed: listen.start,
+                                            icon: const Icon(Icons.headphones_rounded, size: 18),
+                                            label: Text(s.listen),
+                                          ),
+                                        ),
+                                      ),
+                                      ListenChecking() || ListenNone() || ListenOn() => const SizedBox.shrink(),
+                                    },
+                                  ),
                               ],
                               const SizedBox(height: 24),
                               if (doc.prerequisites.isNotEmpty) ...[
@@ -573,7 +652,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   marks: _termMarksFor(context, doc),
                                   onTap: _showTerm,
                                   child: ReadingStyleScope(
-                                    child: BlockList(blocks: body, render: render),
+                                    child: BlockList(
+                                      blocks: body,
+                                      render: render,
+                                      spoken: listen == null ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                    ),
                                   ),
                                 )
                               else if (draft != null) ...[
@@ -618,6 +701,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                   ),
                 ),
               ),
+              // The player while the module is read aloud (plan 15.1).
+              if (listen != null)
+                BlocBuilder<ListenCubit, ListenState>(
+                  bloc: listen,
+                  builder: (context, state) => switch (state) {
+                    final ListenOn on => ListenPlayer(state: on),
+                    ListenChecking() || ListenNone() || ListenOff() => const SizedBox.shrink(),
+                  },
+                ),
             ],
           ),
           // A term's definition over the text (plan 13.9); a tap anywhere else closes it.
@@ -634,6 +726,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
           ],
         ],
       ),
+    );
+    if (listen == null) return page;
+    return BlocProvider<ListenCubit>.value(
+      value: listen,
+      child: BlocListener<ListenCubit, ListenState>(listener: _followVoice, child: page),
     );
   }
 

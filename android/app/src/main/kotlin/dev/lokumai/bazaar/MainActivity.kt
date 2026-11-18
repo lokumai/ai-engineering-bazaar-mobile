@@ -11,6 +11,9 @@ class MainActivity : FlutterActivity() {
     /** The app icon chosen on the Dart side and not yet put in the launcher (AppIconSwitch). */
     private var chosenIcon: String? = null
 
+    /** The phone's voice, which reads a module aloud (plan 15.1). */
+    private var speech: Speech? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Until Flutter's first frame the window shows; it takes the ground of the reader's look, where the opening starts.
@@ -43,6 +46,14 @@ class MainActivity : FlutterActivity() {
                 }
             }
         handleLaunchGround(flutterEngine)
+        // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
+        speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger)
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        speech?.close()
+        speech = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     private fun handleLaunchGround(flutterEngine: FlutterEngine) {

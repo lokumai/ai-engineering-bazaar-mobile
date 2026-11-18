@@ -467,7 +467,7 @@ After Phase 13, whose history it reads.
 
 ## Phase 15: listen to a module (PR C)
 
-- [ ] **15.1 Listen.** "Listen" at the module's head, with the phone's own speech engine (offline, nothing leaves the phone); a small player at the foot (back, pause, next, speed). The paragraph read is marked and followed; code, tables and pictures are passed over. No voice for the language (often Persian): no button. Tried on one module first, for how the Turkish voice reads English terms.
+- [x] **15.1 Listen.** "Listen" at the module's head, with the phone's own speech engine (offline, nothing leaves the phone); a small player at the foot (back, pause, next, speed). The paragraph read is marked and followed; code, tables and pictures are passed over. No voice for the language (often Persian): no button. Tried on one module first, for how the Turkish voice reads English terms. Built (2026-11-18): each heading, paragraph, list, quote and callout is one part, reading stops at the References, the part read is marked by a faint ground with a bar and brought near the page's top; the player gives back, play or pause, next, how far along, Speed (1, 1.25, 1.5, 0.75) and a way to stop; the reading pauses when the app leaves the screen and stops when the module is left. The phone's voices come through the app's own channel (`lib/infrastructure/speech/`, `Speech.kt` over Android's TextToSpeech, `AppDelegate.swift` over AVSpeechSynthesizer), behind the reader's own `ISpeech`: flutter_tts was tried first and dropped, as it ships no Swift package and iOS takes no CocoaPods. The owner tries it on the phone.
 - [ ] **15.2 Later: playing with the screen off** (the owner: we will add it).
 
 ## Later, kept on purpose (the owner, 2026-11-17)

@@ -366,6 +366,31 @@
   },
   "reader_contents": "Contents",
   "@reader_contents": {},
+  "listen": "Listen",
+  "listen_play": "Play",
+  "listen_pause": "Pause",
+  "listen_back": "Previous paragraph",
+  "listen_next": "Next paragraph",
+  "listen_speed": "Speed {rate}",
+  "@listen_speed": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "listen_stop": "Stop listening",
+  "listen_part": "{at} of {count}",
+  "@listen_part": {
+    "placeholders": {
+      "at": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reader_find_previous": "Previous match",
   "@reader_find_previous": {},
   "reader_find_next": "Next match",

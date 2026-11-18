@@ -45,6 +45,7 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.d
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
 
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
@@ -87,6 +88,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ILaunchGround>(create: (_) => dependencies.createLaunchGround()),
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
+        RepositoryProvider<ISpeech>(create: (_) => dependencies.createSpeech()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),

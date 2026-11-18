@@ -92,6 +92,8 @@ lib/
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
     theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
+    speech/phone_speech.dart                    the phone's own voice, which reads a module aloud: the app's own channel
+                                                (Speech.kt, AppDelegate.swift)
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
                                                 word rules (search_text.dart)
@@ -105,12 +107,14 @@ lib/
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
     review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
-                                                and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
-                                                review, Wrong answers); the app's own, never in the record
+                                                and its file shape, IReviewStore, ReviewBloc, review_plan.dart (Today's
+                                                review, Wrong answers) and quiz_waiting.dart (the first quiz not taken);
+                                                the app's own, never in the record
     study/                                      a module's Key Terms, Summary and quiz found by place and shape
-                                                (module_notes.dart), where a text uses a term (term_marks.dart),
-                                                StudyNotesCubit that reads them for a track and
-                                                language, StudyNotesLoader that asks for them under the pages that show them
+                                                (module_notes.dart), where a text uses a term (term_marks.dart), the
+                                                glossary of a track (glossary.dart), StudyNotesCubit that reads them for a
+                                                track and language, StudyNotesLoader that asks for them under the pages
+                                                that show them
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
@@ -136,13 +140,15 @@ lib/
     utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
-                                                app fills with the Apprentice's corner), the modules later on, the row to
-                                                Today's review, the path; the band over the navigation with the module to read now
+                                                app fills with the Apprentice's corner), Practice (Today's review, the
+                                                glossary and a quiz waiting; home_practice.dart), the modules later on, the
+                                                path; the band over the navigation with the module to read now
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views,
-                                                the bubble with a tapped term's definition
+                                                the bubble with a tapped term's definition; a module read aloud (plan 15:
+                                                spoken_parts.dart, the ISpeech port, ListenCubit, the player)
     quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
                                                 the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
                                                 `/practice` (Today's review, Wrong answers, the quizzes by level) and its

@@ -13,6 +13,8 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// What the blocks of one document share: where a link tap goes, the document's web page, the key each heading
@@ -63,11 +65,14 @@ class ProseScope extends InheritedWidget {
 /// larger of the two, as CSS margins do. A [nested] list, inside a quote, a callout or a list item, drops the bottom
 /// margin of its last block, as the web's `:last-child` rules do.
 class BlockList extends StatelessWidget {
-  const BlockList({super.key, required this.blocks, required this.render, this.nested = false});
+  const BlockList({super.key, required this.blocks, required this.render, this.nested = false, this.spoken});
 
   final List<Block> blocks;
   final BlockRenderContext render;
   final bool nested;
+
+  /// The block a voice reads now, marked, and each block's key to follow it by; null where nothing is read aloud.
+  final SpokenBlocks? spoken;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +83,92 @@ class BlockList extends StatelessWidget {
       final margin = _marginOf(block);
       final gap = index == 0 ? margin.top : math.max(previousBottom, margin.top);
       if (gap > 0) children.add(SizedBox(height: gap));
-      children.add(BlockView(block: block, render: render, modulesMark: marked.contains(index)));
+      final view = BlockView(block: block, render: render, modulesMark: marked.contains(index));
+      children.add(switch (spoken) {
+        final spoken? => _SpokenMark(key: spoken.keyOf(index), index: index, at: spoken.at, child: view),
+        null => view,
+      });
       previousBottom = margin.bottom;
     }
     if (!nested && previousBottom > 0) children.add(SizedBox(height: previousBottom));
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: children);
+  }
+}
+
+/// The block of a document a voice reads now (plan 15.1), by its place in the document, and the key each block is drawn
+/// under, so the page can follow the voice.
+final class SpokenBlocks {
+  const SpokenBlocks({required this.at, required this.keyOf});
+
+  /// The place of the block read now; null while none is.
+  final ValueListenable<int?> at;
+
+  final GlobalKey Function(int index) keyOf;
+}
+
+/// A block marked while a voice reads it: a faint ground in the primary hue a little wider than the block, with a bar
+/// at its start. The ground is always there, clear when the block is not read, so marking a block never builds it
+/// anew.
+class _SpokenMark extends StatelessWidget {
+  const _SpokenMark({super.key, required this.index, required this.at, required this.child});
+
+  final int index;
+  final ValueListenable<int?> at;
+  final Widget child;
+
+  /// The key of the ground of the block read now.
+  static const readKey = Key('spoken-block');
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    return ValueListenableBuilder<int?>(
+      valueListenable: at,
+      child: child,
+      builder: (context, value, child) {
+        final read = value == index;
+        final duration = motionDuration(context, BazaarMotion.shift);
+        return Stack(
+          // The block keeps the width the list gives it, as without the mark.
+          fit: StackFit.passthrough,
+          clipBehavior: Clip.none,
+          children: [
+            PositionedDirectional(
+              start: -10,
+              end: -6,
+              top: -6,
+              bottom: -6,
+              child: IgnorePointer(
+                child: AnimatedContainer(
+                  key: read ? readKey : null,
+                  duration: duration,
+                  decoration: BoxDecoration(
+                    color: read ? colors.primary.withValues(alpha: 0.07) : colors.primary.withValues(alpha: 0),
+                    borderRadius: const BorderRadius.all(BazaarRadii.md),
+                  ),
+                ),
+              ),
+            ),
+            PositionedDirectional(
+              start: -10,
+              top: -6,
+              bottom: -6,
+              width: 3,
+              child: IgnorePointer(
+                child: AnimatedContainer(
+                  duration: duration,
+                  decoration: BoxDecoration(
+                    color: read ? colors.primary : colors.primary.withValues(alpha: 0),
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
+              ),
+            ),
+            child!,
+          ],
+        );
+      },
+    );
   }
 }
 

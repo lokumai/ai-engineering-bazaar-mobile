@@ -1,3 +1,4 @@
+import AVFoundation
 import Flutter
 import UIKit
 
@@ -39,6 +40,9 @@ import UIKit
     "dark": 0x1d1f27,
   ]
 
+  /// The phone's voice, which reads a module aloud (plan 15.1).
+  private var speech: Speech?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -78,6 +82,85 @@ import UIKit
         LaunchPicture.keep(ground)
         result(nil)
       }
+    // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
+    speech = Speech(messenger: registrar.messenger())
+  }
+}
+
+/// The phone's own voice (AVSpeechSynthesizer), which reads a module aloud (plan 15.1), on the channel
+/// lib/infrastructure/speech/phone_speech.dart calls: `canSpeak` with a language, `speak` with an id, the words, the tag
+/// and the rate, and `stop`. Each speak's id goes back in `done` once its words are said or cut. Nothing leaves the
+/// phone.
+final class Speech: NSObject, AVSpeechSynthesizerDelegate {
+  static let channel = "dev.lokumai.bazaar/speech"
+
+  private let channel: FlutterMethodChannel
+  private let synthesizer = AVSpeechSynthesizer()
+
+  /// The id of the words each utterance says.
+  private var ids: [ObjectIdentifier: Int] = [:]
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: Speech.channel, binaryMessenger: messenger)
+    super.init()
+    synthesizer.delegate = self
+    channel.setMethodCallHandler { [weak self] call, result in self?.handle(call, result) }
+  }
+
+  /// Whether a voice of the phone speaks [language], a language code such as `tr`.
+  static func hasVoice(for language: String, among voices: [String]) -> Bool {
+    voices.contains { voice in
+      let code = voice.lowercased()
+      return code == language || code.hasPrefix(language + "-") || code.hasPrefix(language + "_")
+    }
+  }
+
+  private func handle(_ call: FlutterMethodCall, _ result: FlutterResult) {
+    let arguments = call.arguments as? [String: Any] ?? [:]
+    switch call.method {
+    case "canSpeak":
+      guard let language = arguments["language"] as? String else { return result(false) }
+      result(Speech.hasVoice(for: language, among: AVSpeechSynthesisVoice.speechVoices().map(\.language)))
+    case "speak":
+      guard let id = arguments["id"] as? Int, let text = arguments["text"] as? String,
+        let tag = arguments["tag"] as? String, let voice = AVSpeechSynthesisVoice(language: tag)
+      else { return result(false) }
+      // Heard with the ring switch on silent, as a reader who taps Listen means to hear it, over other sound lowered.
+      let session = AVAudioSession.sharedInstance()
+      try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+      try? session.setActive(true)
+      // The words being said are cut; their id comes back as done.
+      if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
+      let utterance = AVSpeechUtterance(string: text)
+      utterance.voice = voice
+      utterance.rate = Float(arguments["rate"] as? Double ?? Double(AVSpeechUtteranceDefaultSpeechRate))
+      ids[ObjectIdentifier(utterance)] = id
+      synthesizer.speak(utterance)
+      result(true)
+    case "stop":
+      synthesizer.stopSpeaking(at: .immediate)
+      result(nil)
+    default:
+      result(FlutterMethodNotImplemented)
+    }
+  }
+
+  private func done(_ utterance: AVSpeechUtterance) {
+    guard let id = ids.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+    channel.invokeMethod("done", arguments: id)
+    // Other sound comes back up once nothing is said: a moment later, as the next part follows at once.
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+      guard let self, self.ids.isEmpty, !self.synthesizer.isSpeaking else { return }
+      try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+  }
+
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+    done(utterance)
+  }
+
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+    done(utterance)
   }
 }
 

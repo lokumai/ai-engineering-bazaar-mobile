@@ -636,6 +636,46 @@ class S {
     return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
   }
 
+  /// `Listen`
+  String get listen {
+    return Intl.message('Listen', name: 'listen', desc: '', args: []);
+  }
+
+  /// `Play`
+  String get listen_play {
+    return Intl.message('Play', name: 'listen_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get listen_pause {
+    return Intl.message('Pause', name: 'listen_pause', desc: '', args: []);
+  }
+
+  /// `Previous paragraph`
+  String get listen_back {
+    return Intl.message('Previous paragraph', name: 'listen_back', desc: '', args: []);
+  }
+
+  /// `Next paragraph`
+  String get listen_next {
+    return Intl.message('Next paragraph', name: 'listen_next', desc: '', args: []);
+  }
+
+  /// `Speed {rate}`
+  String listen_speed(String rate) {
+    return Intl.message('Speed $rate', name: 'listen_speed', desc: '', args: [rate]);
+  }
+
+  /// `Stop listening`
+  String get listen_stop {
+    return Intl.message('Stop listening', name: 'listen_stop', desc: '', args: []);
+  }
+
+  /// `{at} of {count}`
+  String listen_part(int at, int count) {
+    return Intl.message('$at of $count', name: 'listen_part', desc: '', args: [at, count]);
+  }
+
   /// `Previous match`
   String get reader_find_previous {
     return Intl.message('Previous match', name: 'reader_find_previous', desc: '', args: []);

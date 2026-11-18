@@ -253,6 +253,14 @@ void main() {
     await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
   });
 
+  test('createSpeech reads aloud with the phone\'s own engine: no engine, no voice (plan 15.1)', () async {
+    final speech = const AppDependencies().createSpeech();
+    expect(speech, isA<PhoneSpeechPort>());
+    expect(await speech.canSpeak('en'), isFalse);
+    await expectLater(speech.speak('Hello.', language: 'en', rate: 1), completes);
+    await expectLater(speech.stop(), completes);
+  });
+
   // The next launch opens on the page colour of the look the reader reads in (the owner, 2026-11-15).
   test('createLaunchGround names the look on the native channel, light or dark', () async {
     final calls = <MethodCall>[];
