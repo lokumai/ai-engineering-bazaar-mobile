@@ -11,7 +11,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
-import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
@@ -227,8 +226,9 @@ class _LevelCard extends StatelessWidget {
 }
 
 /// One module of an open level (web `CourseCompletion.tsx:187-276`, the progress page's row, plan 1AB): the completion
-/// toggle when the module is written in [track], a dashed ring that says Planned when it is not, then the title, the
-/// length and the way in, which open the module in [track]; no number (the owner, 2026-11-18).
+/// toggle when the module is written in [track], a dashed ring that says Planned when it is not, then the title, its
+/// minutes at the row's end and the way in, which open the module in [track]; no number, no word count (the owner,
+/// 2026-11-18).
 class _ModuleRow extends StatelessWidget {
   const _ModuleRow({super.key, required this.track, required this.index, required this.row});
 
@@ -244,8 +244,18 @@ class _ModuleRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final minHeight = minTapTarget(theme.platform);
-    // The words beside the minutes, as under the module's title; the minutes alone without a word count.
-    final length = moduleLength(s, row, context.watch<LanguageCubit>().state) ?? durationLabel(s, row.minutes);
+    // The minutes alone, no word count (the owner, 2026-11-18); a planned module has none.
+    final length = row.drawn ? durationLabel(s, row.minutes) : null;
+    // Large text puts the minutes under the title, which would leave the title too little room beside them.
+    final under = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final title = Text(
+      row.title,
+      // The web's faint ink fails the text contrast guideline, so a planned row reads muted.
+      style: theme.textTheme.bodyLarge?.copyWith(color: row.drawn ? colors.onSurfaceTitle : colors.onSurfaceMuted),
+    );
+    final minutes = length == null
+        ? null
+        : Text(length, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted));
     final Widget leading;
     if (row.drawn) {
       void toggle() => context.read<RecordBloc>().add(completionToggled(index, row.key, track, revision: null));
@@ -290,22 +300,25 @@ class _ModuleRow extends StatelessWidget {
                   child: Row(
                     spacing: AppSpacing.sm,
                     children: [
+                      // The minutes at the row's end, before the way in, so every row's stand in one column
+                      // whatever the title's length, on the title's first line when it wraps (the owner,
+                      // 2026-11-18).
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 2,
-                          children: [
-                            // The web's faint ink fails the text contrast guideline, so a planned row reads muted.
-                            Text(
-                              row.title,
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: row.drawn ? colors.onSurfaceTitle : colors.onSurfaceMuted,
+                        child: under
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 2,
+                                children: [title, ?minutes],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                spacing: AppSpacing.md,
+                                children: [
+                                  Expanded(child: title),
+                                  ?minutes,
+                                ],
                               ),
-                            ),
-                            if (length != null && row.drawn)
-                              Text(length, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                          ],
-                        ),
                       ),
                       // The way in, as on Practice's rows (the owner, 2026-11-18).
                       ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
