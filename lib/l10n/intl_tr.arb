@@ -99,6 +99,7 @@
   "listen_next": "Sonraki paragraf",
   "listen_speed": "Hız {rate}",
   "listen_stop": "Dinlemeyi bitir",
+  "listen_open": "Sesli okunuyor: {title}. Aç",
   "listen_part": "{at} / {count}",
   "reader_find_previous": "Önceki eşleşme",
   "reader_find_next": "Sonraki eşleşme",

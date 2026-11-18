@@ -671,6 +671,11 @@ class S {
     return Intl.message('Stop listening', name: 'listen_stop', desc: '', args: []);
   }
 
+  /// `Read aloud: {title}. Open it`
+  String listen_open(String title) {
+    return Intl.message('Read aloud: $title. Open it', name: 'listen_open', desc: '', args: [title]);
+  }
+
   /// `{at} of {count}`
   String listen_part(int at, int count) {
     return Intl.message('$at of $count', name: 'listen_part', desc: '', args: [at, count]);

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/presentation/listen_bar.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/caravan_icon.dart';
 import 'package:ai_engineering_bazaar/app/shell/floating_dock.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -342,87 +344,107 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
         if (!didPop && atTabRoot) _onDestinationSelected(0);
       },
       child: Scaffold(
-        body: Column(
-          children: [
-            // The status strip stays; the bar and the band fold up with the navigation while a module is read.
-            const BazaarStatusStrip(),
-            ClipRect(
-              child: AnimatedAlign(
-                alignment: Alignment.bottomCenter,
-                heightFactor: chromeHidden ? 0 : 1,
-                duration: motion,
-                curve: BazaarMotion.bazaar,
-                child: ExcludeSemantics(
-                  key: _topChromeKey,
-                  excluding: chromeHidden,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BazaarBar(
-                        statusStrip: false,
-                        title: _title(index, context.watch<LanguageCubit>().state),
-                        accent: _accent(context, index),
-                        // The bar sits above the shell's navigator, so the router goes back, to the catalog.
-                        onBack: pushed ? _back : null,
-                      ),
-                      const LatticeBand(thin: true),
-                    ],
+        // With the navigation shown, it stands over the screen's foot and keeps it: the page, its player and the bars
+        // over the navigation take none of it, which left a gap under the player (the owner, 2026-11-18). Folded away
+        // while a module is read, it is theirs.
+        body: MediaQuery.removePadding(
+          context: context,
+          removeBottom: !chromeHidden,
+          child: Column(
+            children: [
+              // The status strip stays; the bar and the band fold up with the navigation while a module is read.
+              const BazaarStatusStrip(),
+              ClipRect(
+                child: AnimatedAlign(
+                  alignment: Alignment.bottomCenter,
+                  heightFactor: chromeHidden ? 0 : 1,
+                  duration: motion,
+                  curve: BazaarMotion.bazaar,
+                  child: ExcludeSemantics(
+                    key: _topChromeKey,
+                    excluding: chromeHidden,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BazaarBar(
+                          statusStrip: false,
+                          title: _title(index, context.watch<LanguageCubit>().state),
+                          accent: _accent(context, index),
+                          // The bar sits above the shell's navigator, so the router goes back, to the catalog.
+                          onBack: pushed ? _back : null,
+                        ),
+                        const LatticeBand(thin: true),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // The status strip already keeps the page clear of the status bar.
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: _onScroll,
-                child: MediaQuery.removePadding(
-                  context: context,
-                  removeTop: true,
-                  child: Stack(
-                    children: [
-                      FloatingRoom(
-                        // The button's height and its gap from the page's foot, so a page's end scrolls clear of it.
-                        room: assistantShown ? 76 : 0,
-                        child: KeyedSubtree(
-                          key: _pageKey,
-                          // A module's page is wider, for its sections beside its text on a tablet (plan 12.10).
-                          child: ReadableWidth(
-                            maxWidth: _onModule ? ReadableWidth.withSections : ReadableWidth.text,
-                            child: widget.child,
-                          ),
-                        ),
-                      ),
-                      if (assistantShown)
-                        Positioned.fill(
-                          child: FloatingDock(
-                            size: BazaarShell.assistantSize,
-                            at: _assistantAt,
-                            onRest: (at) => _assistantAt = at,
-                            // Where the Apprentice comes out of for its tour, left empty while it walks (plan 11.3).
-                            child: TourTarget(
-                              spot: TourSpots.assistant,
-                              child: Visibility(
-                                visible: !TourRobotOut.of(context),
-                                maintainState: true,
-                                maintainAnimation: true,
-                                maintainSize: true,
-                                child: widget.assistant!,
-                              ),
+              // The status strip already keeps the page clear of the status bar.
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _onScroll,
+                  // The shell's own context is above the Scaffold: the screen's foot is taken off here too.
+                  child: MediaQuery.removePadding(
+                    context: context,
+                    removeTop: true,
+                    removeBottom: !chromeHidden,
+                    child: Stack(
+                      children: [
+                        FloatingRoom(
+                          // The button's height and its gap from the page's foot, so a page's end scrolls clear of it.
+                          room: assistantShown ? 76 : 0,
+                          child: KeyedSubtree(
+                            key: _pageKey,
+                            // A module's page is wider, for its sections beside its text on a tablet (plan 12.10).
+                            child: ReadableWidth(
+                              maxWidth: _onModule ? ReadableWidth.withSections : ReadableWidth.text,
+                              child: widget.child,
                             ),
                           ),
                         ),
-                    ],
+                        if (assistantShown)
+                          Positioned.fill(
+                            child: FloatingDock(
+                              size: BazaarShell.assistantSize,
+                              at: _assistantAt,
+                              onRest: (at) => _assistantAt = at,
+                              // Where the Apprentice comes out of for its tour, left empty while it walks (plan 11.3).
+                              child: TourTarget(
+                                spot: TourSpots.assistant,
+                                child: Visibility(
+                                  visible: !TourRobotOut.of(context),
+                                  maintainState: true,
+                                  maintainAnimation: true,
+                                  maintainSize: true,
+                                  child: widget.assistant!,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Over the navigation, under the thumb; the page and the round button stand above it.
-            if (bandShown)
-              TourTarget(
-                spot: TourSpots.band,
-                child: ReadableWidth(child: widget.band!),
-              ),
-          ],
+              // The module read aloud, while the reader is elsewhere: a thin bar over the band and the navigation (the
+              // owner, 2026-11-18). On the module itself its player stands at the page's foot.
+              if (media.viewInsets.bottom == 0)
+                BlocBuilder<ListenCubit, ListenState>(
+                  builder: (context, state) => switch (state) {
+                    final ListenOn on when widget.location != BazaarPaths.module(on.track, on.module) => ReadableWidth(
+                      child: ListenBar(state: on, onOpen: () => context.push(BazaarPaths.module(on.track, on.module))),
+                    ),
+                    ListenOn() || ListenIdle() => const SizedBox.shrink(),
+                  },
+                ),
+              // Over the navigation, under the thumb; the page and the round button stand above it.
+              if (bandShown)
+                TourTarget(
+                  spot: TourSpots.band,
+                  child: ReadableWidth(child: widget.band!),
+                ),
+            ],
+          ),
         ),
         // The bar slides out under the screen's foot as its height closes, so the page grows into the room it leaves.
         bottomNavigationBar: ClipRect(

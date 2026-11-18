@@ -380,6 +380,14 @@
     }
   },
   "listen_stop": "Stop listening",
+  "listen_open": "Read aloud: {title}. Open it",
+  "@listen_open": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "listen_part": "{at} of {count}",
   "@listen_part": {
     "placeholders": {

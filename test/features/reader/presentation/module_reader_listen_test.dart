@@ -4,7 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -21,20 +21,32 @@ import '../../../support/content_builders.dart';
 
 /// Listen to a module (plan 15.1).
 
-/// A voice that says each text until the test ends it with [finish], or a stop cuts it.
+/// A phone handed every text of a speak at once, which says one until the test moves it on with [finish], or a stop
+/// cuts them all.
 final class _Voice implements ISpeech {
   _Voice({this.speaks = true});
 
   final bool speaks;
-  final said = <String>[];
+
+  /// Each speak's texts.
+  final handed = <List<String>>[];
   final asked = <String>[];
   int stops = 0;
+  List<String> _texts = const [];
+  int _at = 0;
+  void Function(int index)? _onPart;
   Completer<void>? _saying;
 
+  /// The text being said now; null while none is.
+  String? get saying => _saying == null ? null : _texts[_at];
+
+  /// The phone moves on to the next text, or ends after the last.
   void finish() {
     final saying = _saying;
+    if (saying == null) return;
+    if (++_at < _texts.length) return _onPart?.call(_at);
     _saying = null;
-    saying?.complete();
+    saying.complete();
   }
 
   @override
@@ -44,15 +56,25 @@ final class _Voice implements ISpeech {
   }
 
   @override
-  Future<void> speak(String text, {required String language, required double rate}) {
-    said.add(text);
+  Future<void> speak(
+    List<String> texts, {
+    required String language,
+    required double rate,
+    required void Function(int index) onPart,
+  }) {
+    handed.add(texts);
+    _texts = texts;
+    _at = 0;
+    _onPart = onPart..call(0);
     return (_saying = Completer<void>()).future;
   }
 
   @override
   Future<void> stop() async {
     stops++;
-    finish();
+    final saying = _saying;
+    _saying = null;
+    saying?.complete();
   }
 }
 
@@ -144,14 +166,15 @@ void main() {
 
     await tester.tap(_listen);
     await tester.pumpAndSettle();
-    expect(voice.said, ['Why tools.']);
-    expect(find.text('1 of 33'), findsOneWidget, reason: 'the code is passed over');
+    expect(voice.saying, 'Why tools.');
+    expect(voice.handed.single, hasLength(33), reason: 'every part handed at once, the code passed over');
+    expect(find.text('1 of 33'), findsOneWidget);
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Why tools'))), isTrue);
     expect(_listen, findsNothing, reason: 'the player stands in for it');
 
     voice.finish();
     await tester.pumpAndSettle();
-    expect(voice.said.last, 'Models call tools.');
+    expect(voice.saying, 'Models call tools.');
     expect(find.text('2 of 33'), findsOneWidget);
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Models call tools.'))), isTrue);
 
@@ -188,27 +211,47 @@ void main() {
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Far down.'))), isTrue);
   });
 
-  testWidgets('the reading pauses when the app leaves the screen, and stops when the module is left', (tester) async {
+  testWidgets('the reading goes on when the app leaves the screen, and when the module is left (the owner, '
+      '2026-11-18)', (tester) async {
     final voice = _Voice();
     final router = await pump(tester, voice);
     await tester.tap(_listen);
     await tester.pumpAndSettle();
 
-    // A hidden app draws no frames: the pause shows once it is back.
     tester.binding
       ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
-      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    voice.finish();
+    tester.binding
       ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
       ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Play'), findsOneWidget);
+    expect(find.byTooltip('Pause'), findsOneWidget, reason: 'still reading');
+    expect(find.text('2 of 33'), findsOneWidget, reason: 'it went on while the app was off the screen');
 
-    await tester.tap(_toggle);
-    await tester.pumpAndSettle();
     final stops = voice.stops;
     router.go('/elsewhere');
     await tester.pumpAndSettle();
-    expect(voice.stops, greaterThan(stops));
+    expect(voice.stops, stops, reason: 'leaving the module does not stop it');
+    expect(voice.saying, 'Models call tools.');
+
+    router.go('/reader');
+    await tester.pumpAndSettle();
+    expect(find.text('2 of 33'), findsOneWidget, reason: 'back on the module, where the voice is, not at its head');
+    expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Models call tools.'))), isTrue);
+    expect(voice.handed, hasLength(1), reason: 'not started again');
+  });
+
+  testWidgets('the player is one thin row on the page\'s ground (the owner, 2026-11-18)', (tester) async {
+    await pump(tester, _Voice());
+    await tester.tap(_listen);
+    await tester.pumpAndSettle();
+    final player = find.byKey(const ValueKey('listen-player'));
+    expect(tester.getSize(player).height, lessThanOrEqualTo(60));
+    final page =
+        tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor ??
+        Theme.of(tester.element(player)).scaffoldBackgroundColor;
+    expect(tester.widget<ColoredBox>(player).color, page);
   });
 
   testWidgets('the player meets the platform guidelines', (tester) async {

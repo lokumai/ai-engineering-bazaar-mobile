@@ -123,6 +123,8 @@ lib/
     theme/                                      ThemeChoiceCubit (light or dark; light until chosen), IThemeStore,
                                                 appearance_name.dart: the choice kept on the device, never in the
                                                 record; ILaunchGround: the look named to the phone for its launch screen
+    listen/                                     the module read aloud, for the whole app (plan 15): spoken_parts.dart, the
+                                                ISpeech port, ListenCubit, the bar over the navigation elsewhere (ListenBar)
     reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
@@ -140,19 +142,22 @@ lib/
     utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
-                                                app fills with the Apprentice's corner), Practice (Today's review, the
-                                                glossary and a quiz waiting; home_practice.dart), the modules later on, the
+                                                app fills with the Apprentice's corner), Practice from the first launch
+                                                (Today's review, a quiz waiting and the glossary; home_practice.dart), the
+                                                modules later on, the
                                                 path; the band over the navigation with the module to read now
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views,
-                                                the bubble with a tapped term's definition; a module read aloud (plan 15:
-                                                spoken_parts.dart, the ISpeech port, ListenCubit, the player)
+                                                the bubble with a tapped term's definition; the player of a module read
+                                                aloud (plan 15); a module read to its end marked completed as it is left
+                                                (read_enough.dart)
     quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
                                                 the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
-                                                `/practice` (Today's review, Wrong answers, the quizzes by level) and its
-                                                sessions (ReviewSessionCubit, options shuffled in Practice only)
+                                                `/practice` (the endless review, Wrong answers, A module in 2 minutes, the
+                                                Glossary, the quizzes by level) and its sessions (ReviewSessionCubit,
+                                                options shuffled in Practice only)
     settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the

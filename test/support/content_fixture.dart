@@ -24,7 +24,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart'
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mocktail/mocktail.dart';

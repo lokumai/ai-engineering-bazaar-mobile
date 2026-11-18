@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:ai_engineering_bazaar/features/reader/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/spoken_parts.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/spoken_parts.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/completion_row.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/contents_sheet.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/find_bar.dart';
@@ -201,9 +200,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   Map<TextInline, List<TermMark>> _marks = const {};
   (ModuleDoc, StudyNotesReady)? _marksOf;
 
-  /// The module read aloud (plan 15.1), made anew for each document drawn with a body; null for a planned one.
-  ListenCubit? _listen;
-  ModuleDoc? _listenOf;
+  /// The parts of [_partsOf] the voice reads (plan 15), worked out once for each document drawn; none for a planned
+  /// one. The reading itself is the app's ([ListenCubit]): it goes on as the reader leaves the module (the owner,
+  /// 2026-11-18).
+  List<SpokenPart> _parts = const [];
+  ModuleDoc? _partsOf;
+
+  /// Whether the phone has a voice for [_voiceFor], the module's language; null until it answers.
+  bool? _voice;
+  String? _voiceFor;
 
   /// The place in the body of the block read aloud now; null while none is.
   final _spoken = ValueNotifier<int?>(null);
@@ -211,8 +216,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// The key of each block of the body, by its place, to follow the voice.
   final _blockKeys = <int, GlobalKey>{};
 
-  /// Pauses the reading aloud when the app leaves the screen; playing with the screen off is for later (plan 15.2). It
-  /// stops [_onScreen] meanwhile too.
+  /// Stops [_onScreen] while the app is off the screen; the reading aloud goes on (the owner, 2026-11-18).
   late final AppLifecycleListener _lifecycle;
 
   /// How long the module has been on the screen in this visit; over every visit with the place's [ReadingPlace.seconds].
@@ -238,36 +242,45 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void initState() {
     super.initState();
     _onScreen.start();
-    _lifecycle = AppLifecycleListener(
-      onHide: () {
-        _listen?.pause();
-        _onScreen.stop();
-      },
-      onShow: _onScreen.start,
-    );
+    _lifecycle = AppLifecycleListener(onHide: _onScreen.stop, onShow: _onScreen.start);
   }
 
-  /// The reading aloud of [doc], made when a document with a body is first drawn.
-  ListenCubit? _listenFor(BuildContext context, ModuleDoc doc) {
+  /// The parts of [doc] to read aloud, worked out when a document with a body is first drawn, and the phone asked for a
+  /// voice in its language.
+  List<SpokenPart> _partsFor(BuildContext context, ModuleDoc doc) {
     final body = doc.body;
-    if (body == null) return null;
-    if (_listen case final listen? when identical(_listenOf, doc) || _listenOf == doc) return listen;
-    unawaited(_listen?.close());
-    _blockKeys.clear();
-    _spoken.value = null;
-    _listenOf = doc;
-    final listen = _listen = ListenCubit(speech: context.read<ISpeech>(), parts: spokenParts(body), language: doc.lang);
-    unawaited(listen.check());
-    return listen;
+    if (body == null) return const [];
+    if (!identical(_partsOf, doc) && _partsOf != doc) {
+      _blockKeys.clear();
+      _spoken.value = null;
+      _partsOf = doc;
+      _parts = spokenParts(body);
+    }
+    final language = doc.lang;
+    if (_voiceFor != language) {
+      _voiceFor = language;
+      _voice = null;
+      unawaited(
+        context.read<ListenCubit>().canSpeak(language).then((can) {
+          if (mounted && _voiceFor == language) setState(() => _voice = can);
+        }),
+      );
+    }
+    return _parts;
   }
+
+  /// Whether [state] reads the module drawn.
+  bool _readsThis(ListenState state) => switch ((state, _partsOf)) {
+    (final ListenOn on, final doc?) => on.reads(doc.key, doc.track),
+    _ => false,
+  };
 
   GlobalKey _blockKey(int index) => _blockKeys.putIfAbsent(index, GlobalKey.new);
 
   /// Marks the block read now and brings it near the page's top as the voice moves on to it.
   void _followVoice(BuildContext context, ListenState state) {
-    final parts = _listen?.parts;
     final block = switch (state) {
-      ListenOn(:final index) when parts != null => parts[index].block,
+      ListenOn(:final index) when _readsThis(state) && index < _parts.length => _parts[index].block,
       _ => null,
     };
     if (_spoken.value == block) return;
@@ -373,7 +386,6 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void dispose() {
     _leave();
     _lifecycle.dispose();
-    unawaited(_listen?.close());
     _spoken.dispose();
     _finder?.dispose();
     _readProgress.dispose();
@@ -589,7 +601,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _schedulePlace();
     final finder = _finderFor(doc);
     _scheduleFindStart();
-    final listen = _listenFor(context, doc);
+    final parts = _partsFor(context, doc);
+    final listen = context.read<ListenCubit>();
+    // Back on the module being read aloud, the page goes to where the voice is.
+    if (_spoken.value == null && _readsThis(listen.state)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _followVoice(context, listen.state);
+      });
+    }
 
     final index = switch (context.read<ContentBloc>().state) {
       ContentReady(:final index) => index,
@@ -708,25 +727,32 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   },
                                   style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
                                 ),
-                                // Listen, with a voice for the module's language (plan 15.1).
-                                if (listen != null)
+                                // Listen, with a voice for the module's language (plan 15.1), unless it is being read.
+                                if (_voice == true && parts.isNotEmpty)
                                   BlocBuilder<ListenCubit, ListenState>(
-                                    bloc: listen,
-                                    builder: (context, state) => switch (state) {
-                                      ListenOff() => Align(
-                                        alignment: AlignmentDirectional.centerStart,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 8),
-                                          child: OutlinedButton.icon(
-                                            key: const ValueKey('reader-listen'),
-                                            onPressed: listen.start,
-                                            icon: const Icon(Icons.headphones_rounded, size: 18),
-                                            label: Text(s.listen),
+                                    buildWhen: (before, now) => _readsThis(before) != _readsThis(now),
+                                    builder: (context, state) => _readsThis(state)
+                                        ? const SizedBox.shrink()
+                                        : Align(
+                                            alignment: AlignmentDirectional.centerStart,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(top: 8),
+                                              child: OutlinedButton.icon(
+                                                key: const ValueKey('reader-listen'),
+                                                onPressed: () => listen.start(
+                                                  ListenSession(
+                                                    module: doc.key,
+                                                    track: doc.track,
+                                                    title: doc.title,
+                                                    language: doc.lang,
+                                                    parts: parts,
+                                                  ),
+                                                ),
+                                                icon: const Icon(Icons.headphones_rounded, size: 18),
+                                                label: Text(s.listen),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      ListenChecking() || ListenNone() || ListenOn() => const SizedBox.shrink(),
-                                    },
                                   ),
                               ],
                               const SizedBox(height: 24),
@@ -747,7 +773,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                     child: BlockList(
                                       blocks: body,
                                       render: render,
-                                      spoken: listen == null ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                      spoken: parts.isEmpty ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
                                     ),
                                   ),
                                 )
@@ -799,12 +825,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                 ),
               ),
               // The player while the module is read aloud (plan 15.1).
-              if (listen != null)
+              if (parts.isNotEmpty)
                 BlocBuilder<ListenCubit, ListenState>(
-                  bloc: listen,
                   builder: (context, state) => switch (state) {
-                    final ListenOn on => ListenPlayer(state: on),
-                    ListenChecking() || ListenNone() || ListenOff() => const SizedBox.shrink(),
+                    final ListenOn on when _readsThis(on) => ListenPlayer(state: on),
+                    ListenOn() || ListenIdle() => const SizedBox.shrink(),
                   },
                 ),
             ],
@@ -824,11 +849,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         ],
       ),
     );
-    if (listen == null) return page;
-    return BlocProvider<ListenCubit>.value(
-      value: listen,
-      child: BlocListener<ListenCubit, ListenState>(listener: _followVoice, child: page),
-    );
+    if (parts.isEmpty) return page;
+    return BlocListener<ListenCubit, ListenState>(listener: _followVoice, child: page);
   }
 
   /// The module's text, with its sections beside it when the page is wide enough for both, an iPad in landscape (plan

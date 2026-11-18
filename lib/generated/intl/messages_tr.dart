@@ -90,79 +90,81 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m33(count) => "${Intl.plural(count, one: '1 modül', other: '${count} modül')}";
 
-  static String m34(at, count) => "${at} / ${count}";
+  static String m34(title) => "Sesli okunuyor: ${title}. Aç";
 
-  static String m35(rate) => "Hız ${rate}";
+  static String m35(at, count) => "${at} / ${count}";
 
-  static String m36(level) => "Seviye ${level}";
+  static String m36(rate) => "Hız ${rate}";
 
-  static String m37(value) => "kayıp ${value}";
+  static String m37(level) => "Seviye ${level}";
 
-  static String m38(level) => "Seviye ${level} için bir modül okut";
+  static String m38(value) => "kayıp ${value}";
 
-  static String m39(count) => "${count} bitmiş modül bekliyor";
+  static String m39(level) => "Seviye ${level} için bir modül okut";
 
-  static String m40(words) => "Diyor ki: ${words}";
+  static String m40(count) => "${count} bitmiş modül bekliyor";
 
-  static String m41(level) => "Çırak, seviye ${level}. Sevmek için dokun.";
+  static String m41(words) => "Diyor ki: ${words}";
 
-  static String m42(count, level) => "Seviye ${level} için ${count}";
+  static String m42(level) => "Çırak, seviye ${level}. Sevmek için dokun.";
 
-  static String m43(count) =>
+  static String m43(count, level) => "Seviye ${level} için ${count}";
+
+  static String m44(count) =>
       "${Intl.plural(count, zero: 'Önce bir modülü tamamla', other: 'Tamamlanan ${count} modül')}";
 
-  static String m44(count) => "${Intl.plural(count, zero: 'Henüz terim yok', other: '${count} terim')}";
+  static String m45(count) => "${Intl.plural(count, zero: 'Henüz terim yok', other: '${count} terim')}";
 
-  static String m45(right, total) => "Son cevaplarda ${total} sorudan ${right} doğru";
+  static String m46(right, total) => "Son cevaplarda ${total} sorudan ${right} doğru";
 
-  static String m46(count, minutes) =>
+  static String m47(count, minutes) =>
       "${Intl.plural(count, one: '1 kart', other: '${count} kart')}, yaklaşık ${minutes} dk";
 
-  static String m47(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
+  static String m48(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
 
-  static String m48(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
+  static String m49(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
 
-  static String m49(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
+  static String m50(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
 
-  static String m50(index, count) => "Soru ${index} / ${count}";
+  static String m51(index, count) => "Soru ${index} / ${count}";
 
-  static String m51(previous, best, total) => "Bir önceki: ${previous} / ${total}. En iyi: ${best} / ${total}.";
+  static String m52(previous, best, total) => "Bir önceki: ${previous} / ${total}. En iyi: ${best} / ${total}.";
 
-  static String m52(score, total) => "${score} / ${total}";
+  static String m53(score, total) => "${score} / ${total}";
 
-  static String m53(count) => "Bu modülün ana noktalarına dair ${count} soru";
+  static String m54(count) => "Bu modülün ana noktalarına dair ${count} soru";
 
-  static String m54(letter) => "Bu değil. Doğru cevap ${letter}.";
+  static String m55(letter) => "Bu değil. Doğru cevap ${letter}.";
 
-  static String m55(date) => "${date} tarihinde tamamlandı";
+  static String m56(date) => "${date} tarihinde tamamlandı";
 
-  static String m56(position, total) => "${total} eşleşmeden ${position}.";
+  static String m57(position, total) => "${total} eşleşmeden ${position}.";
 
-  static String m57(minutes) => "${minutes} dk";
+  static String m58(minutes) => "${minutes} dk";
 
-  static String m58(number, count) => "MODÜL ${number} / ${count}";
+  static String m59(number, count) => "MODÜL ${number} / ${count}";
 
-  static String m59(label) => "${label} · Planlandı";
+  static String m60(label) => "${label} · Planlandı";
 
-  static String m60(hash, date) => "Rev. ${hash} · ${date}";
+  static String m61(hash, date) => "Rev. ${hash} · ${date}";
 
-  static String m61(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
+  static String m62(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
 
-  static String m62(step, count) => "Kart ${step}/${count}";
+  static String m63(step, count) => "Kart ${step}/${count}";
 
-  static String m63(right, total) => "${total} karttan ${right} tanesi doğru";
+  static String m64(right, total) => "${total} karttan ${right} tanesi doğru";
 
-  static String m64(section) => "Bu konu şurada: ${section}";
+  static String m65(section) => "Bu konu şurada: ${section}";
 
-  static String m65(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
+  static String m66(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
-  static String m66(step, count) => "${step} / ${count}";
+  static String m67(step, count) => "${step} / ${count}";
 
-  static String m67(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m68(name, level) => "${name}, ${level}. seviyede açılır";
 
-  static String m68(name) => "${name}, giyili";
+  static String m69(name) => "${name}, giyili";
 
-  static String m69(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m70(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -384,10 +386,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen": MessageLookupByLibrary.simpleMessage("Dinle"),
     "listen_back": MessageLookupByLibrary.simpleMessage("Önceki paragraf"),
     "listen_next": MessageLookupByLibrary.simpleMessage("Sonraki paragraf"),
-    "listen_part": m34,
+    "listen_open": m34,
+    "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("Duraklat"),
     "listen_play": MessageLookupByLibrary.simpleMessage("Sürdür"),
-    "listen_speed": m35,
+    "listen_speed": m36,
     "listen_stop": MessageLookupByLibrary.simpleMessage("Dinlemeyi bitir"),
     "loading": MessageLookupByLibrary.simpleMessage("Yükleniyor"),
     "module_planned": MessageLookupByLibrary.simpleMessage("Planlandı"),
@@ -425,23 +428,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_feed": MessageLookupByLibrary.simpleMessage("Token yedir"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("halüsinasyon"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("Saçmalayabilen oyuncak bir model."),
-    "pocket_level": m36,
+    "pocket_level": m37,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("seviye"),
-    "pocket_loss": m37,
+    "pocket_loss": m38,
     "pocket_loss_empty": MessageLookupByLibrary.simpleMessage("Eğri ilk beslemeyle başlar."),
     "pocket_loss_title": MessageLookupByLibrary.simpleMessage("Eğitim kaybı"),
-    "pocket_next_module": m38,
+    "pocket_next_module": m39,
     "pocket_read_module": MessageLookupByLibrary.simpleMessage("Bitirdiğin bir modülü okut"),
     "pocket_read_none": MessageLookupByLibrary.simpleMessage("Bir modülü bitirince onu da okuyabilir."),
-    "pocket_read_waiting": m39,
+    "pocket_read_waiting": m40,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Baştan başlat"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
       "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar. Kurs ve ilerlemen olduğu gibi kalır.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Kalsın"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Çırak baştan başlasın mı?"),
-    "pocket_says": m40,
-    "pocket_stage_label": m41,
+    "pocket_says": m41,
+    "pocket_stage_label": m42,
     "pocket_stat_modules": MessageLookupByLibrary.simpleMessage("okunan modül"),
     "pocket_stat_tokens": MessageLookupByLibrary.simpleMessage("yenen token"),
     "pocket_stat_words": MessageLookupByLibrary.simpleMessage("bilinen kelime"),
@@ -462,9 +465,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_status_unreadable": MessageLookupByLibrary.simpleMessage("Şu an bir modülü okuyamadı. Sonra yine dene."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Sıcaklık"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Çırak"),
-    "pocket_to_next": m42,
+    "pocket_to_next": m43,
     "practice_brief": MessageLookupByLibrary.simpleMessage("2 dakikada bir modül"),
-    "practice_brief_count": m43,
+    "practice_brief_count": m44,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın bir modülün özeti ve temel terimleri, kart kart.",
     ),
@@ -473,12 +476,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Rastgele sorular ve terimler, istediğin kadar. Aynısı yeniden de gelebilir.",
     ),
     "practice_glossary": MessageLookupByLibrary.simpleMessage("Sözlük"),
-    "practice_glossary_count": m44,
-    "practice_latest": m45,
+    "practice_glossary_count": m45,
+    "practice_latest": m46,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("Seviyelere göre quizler"),
     "practice_start": MessageLookupByLibrary.simpleMessage("Başla"),
     "practice_today": MessageLookupByLibrary.simpleMessage("Günün tekrarı"),
-    "practice_today_cards": m46,
+    "practice_today_cards": m47,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("Bugünlük bu kadar"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("Sıradaki kartlar yarın gelir."),
     "practice_today_none": MessageLookupByLibrary.simpleMessage("Bugün tekrar edecek bir şey yok"),
@@ -487,7 +490,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Yanlışlarım"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
-    "practice_wrong_count": m47,
+    "practice_wrong_count": m48,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
@@ -540,28 +543,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Sorulara dön"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Doğru."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Bitti"),
-    "quiz_list_count": m48,
-    "quiz_list_taken": m49,
+    "quiz_list_count": m49,
+    "quiz_list_taken": m50,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
-    "quiz_progress": m50,
+    "quiz_progress": m51,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", doğru"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", yanlış"),
-    "quiz_score_before": m51,
-    "quiz_score_count": m52,
+    "quiz_score_before": m52,
+    "quiz_score_count": m53,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("doğru cevap"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("Sonuçları gör"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Baştan başla"),
-    "quiz_subtitle": m53,
+    "quiz_subtitle": m54,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Bu modülle ilgili sorular"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage("Bu quiz açılamadı. Kapatıp daha sonra yeniden dene."),
-    "quiz_wrong": m54,
+    "quiz_wrong": m55,
     "reader_auto_completed": MessageLookupByLibrary.simpleMessage("Tamamlandı olarak işaretlendi"),
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Kısmen yazıldı"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Yalnızca bölüm planı"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Başlamadan önce"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Kapat"),
-    "reader_completed_on": m55,
+    "reader_completed_on": m56,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Modülü tamamlama"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("İçindekiler"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("Kursun sonu"),
@@ -570,22 +573,22 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Arama işaretlerini kaldır"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Sonraki eşleşme"),
-    "reader_find_position": m56,
+    "reader_find_position": m57,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("Önceki eşleşme"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Bu modülü tamamlandı olarak işaretle"),
-    "reader_minutes": m57,
-    "reader_module_of": m58,
+    "reader_minutes": m58,
+    "reader_module_of": m59,
     "reader_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage(
       "Bu modülün Herkes için sürümü henüz planlama aşamasında.",
     ),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("Neler yapabileceksin"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("Bu sayfada"),
-    "reader_pager_planned": m59,
+    "reader_pager_planned": m60,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için sürümünü oku"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("Yeniden dene"),
-    "reader_revision": m60,
+    "reader_revision": m61,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Madde"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Bölüm planı"),
@@ -609,7 +612,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("Rahat"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("Sıkı"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("Geniş"),
-    "record_not_saved": m61,
+    "record_not_saved": m62,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("kayıt, uygulamanın yazabileceğinden büyük"),
@@ -623,9 +626,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_back_home": MessageLookupByLibrary.simpleMessage("Ana sayfaya dön"),
     "review_empty": MessageLookupByLibrary.simpleMessage("Gösterilecek kart yok."),
     "review_finish": MessageLookupByLibrary.simpleMessage("Bitir"),
-    "review_progress": m62,
-    "review_result": m63,
-    "review_section_link": m64,
+    "review_progress": m63,
+    "review_result": m64,
+    "review_section_link": m65,
     "review_term": MessageLookupByLibrary.simpleMessage("Terim"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("Bu hangi terim?"),
     "settings": MessageLookupByLibrary.simpleMessage("Ayarlar"),
@@ -652,7 +655,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "Uygulama her açılışta siteye daha yeni bir sürüm olup olmadığını sorar.",
     ),
-    "settings_refresh_failed": m65,
+    "settings_refresh_failed": m66,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Uygulama açıldığından beri kontrol edilmedi"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Yeni içerik, uygulamanın daha yeni bir sürümünü gerektiriyor. Almak için uygulamayı güncelle.",
@@ -702,17 +705,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
-    "tour_step": m66,
+    "tour_step": m67,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Bir sekme aç, sana orayı göstereyim."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m67,
-    "wardrobe_item_worn": m68,
+    "wardrobe_item_locked": m68,
+    "wardrobe_item_worn": m69,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m69,
+    "wardrobe_preview": m70,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

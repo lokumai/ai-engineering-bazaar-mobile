@@ -99,6 +99,7 @@
   "listen_next": "بند بعدی",
   "listen_speed": "سرعت {rate}",
   "listen_stop": "پایان گوش دادن",
+  "listen_open": "در حال خواندن: {title}. باز کردن",
   "listen_part": "{at} از {count}",
   "reader_find_previous": "مورد قبلی",
   "reader_find_next": "مورد بعدی",

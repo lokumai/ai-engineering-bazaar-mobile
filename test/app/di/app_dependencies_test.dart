@@ -257,7 +257,7 @@ void main() {
     final speech = const AppDependencies().createSpeech();
     expect(speech, isA<PhoneSpeechPort>());
     expect(await speech.canSpeak('en'), isFalse);
-    await expectLater(speech.speak('Hello.', language: 'en', rate: 1), completes);
+    await expectLater(speech.speak(['Hello.'], language: 'en', rate: 1, onPart: (_) {}), completes);
     await expectLater(speech.stop(), completes);
   });
 

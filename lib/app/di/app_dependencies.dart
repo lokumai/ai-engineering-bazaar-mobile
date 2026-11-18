@@ -47,7 +47,7 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/speech/phone_speech.dart';
 
 /// Builds the infrastructure the app runs on; a test subclass overrides the factories with doubles.
@@ -470,8 +470,12 @@ final class PhoneSpeechPort implements ISpeech {
   Future<bool> canSpeak(String language) => _speech.canSpeak(language);
 
   @override
-  Future<void> speak(String text, {required String language, required double rate}) =>
-      _speech.speak(text, language: language, rate: rate);
+  Future<void> speak(
+    List<String> texts, {
+    required String language,
+    required double rate,
+    required void Function(int index) onPart,
+  }) => _speech.speak(texts, language: language, rate: rate, onPart: onPart);
 
   @override
   Future<void> stop() => _speech.stop();

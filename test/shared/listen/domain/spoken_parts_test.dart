@@ -1,4 +1,4 @@
-import 'package:ai_engineering_bazaar/features/reader/domain/spoken_parts.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/spoken_parts.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -10,14 +10,19 @@ const _channel = MethodChannel(PhoneSpeech.name);
 
 final _messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
-/// The native side naming the words with [id] as done.
-Future<void> _done(int id) async {
+/// The native side calling [method] with [arguments].
+Future<void> _native(String method, Object? arguments) async {
   await _messenger.handlePlatformMessage(
     _channel.name,
-    const StandardMethodCodec().encodeMethodCall(MethodCall('done', id)),
+    const StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments)),
     (_) {},
   );
 }
+
+/// The native side naming the words with [id] as done.
+Future<void> _done(int id) => _native('done', id);
+
+void _none(int index) {}
 
 void main() {
   setUpAll(() => TestEnv.autoReset = false);
@@ -51,24 +56,35 @@ void main() {
     test('a failing engine, or none, has no voice, and its words end at once', () async {
       native(fails: true);
       expect(await PhoneSpeech().canSpeak('en'), isFalse);
-      await expectLater(PhoneSpeech().speak('Hello.', language: 'en', rate: 1), completes);
+      await expectLater(PhoneSpeech().speak(['Hello.'], language: 'en', rate: 1, onPart: _none), completes);
       await expectLater(PhoneSpeech().stop(), completes);
 
       _messenger.setMockMethodCallHandler(_channel, null);
       expect(await PhoneSpeech().canSpeak('en'), isFalse);
-      await expectLater(PhoneSpeech().speak('Hello.', language: 'en', rate: 1), completes);
+      await expectLater(PhoneSpeech().speak(['Hello.'], language: 'en', rate: 1, onPart: _none), completes);
       await expectLater(PhoneSpeech().stop(), completes);
     });
 
-    test('says the words with an id, and ends them when the phone names that id done', () async {
+    test('hands the phone every text with an id, follows each start, and ends them when the phone names that id done '
+        '(the owner, 2026-11-18)', () async {
       native();
       final speech = PhoneSpeech();
       var firstEnded = false;
       var secondEnded = false;
-      unawaited(speech.speak('Bir.', language: 'tr', rate: 1.25).then((_) => firstEnded = true));
-      final second = speech.speak('İki.', language: 'tr', rate: 1.25)..then((_) => secondEnded = true);
+      final started = <int>[];
+      unawaited(speech.speak(['Bir.'], language: 'tr', rate: 1.25, onPart: _none).then((_) => firstEnded = true));
+      final second = speech.speak(['İki.', 'Üç.'], language: 'tr', rate: 1.25, onPart: started.add)
+        ..then((_) => secondEnded = true);
       await pumpEventQueue();
-      expect(calls.last.arguments, {'id': 2, 'text': 'İki.', 'tag': 'tr-TR', 'rate': 1.25});
+      expect(calls.last.arguments, {
+        'id': 2,
+        'texts': ['İki.', 'Üç.'],
+        'tag': 'tr-TR',
+        'rate': 1.25,
+      });
+      await _native('part', {'id': 2, 'index': 1});
+      await _native('part', {'id': 1, 'index': 0});
+      expect(started, [1], reason: "another speak's start is not this one's");
 
       await _done(1);
       await pumpEventQueue();
@@ -80,13 +96,13 @@ void main() {
 
     test('words the phone does not start end at once', () async {
       native(starts: false);
-      await expectLater(PhoneSpeech().speak('Hello.', language: 'en', rate: 1), completes);
+      await expectLater(PhoneSpeech().speak(['Hello.'], language: 'en', rate: 1, onPart: _none), completes);
     });
 
     test('a stop ends every word asked for', () async {
       native();
       final speech = PhoneSpeech();
-      final saying = speech.speak('Hello.', language: 'en', rate: 1);
+      final saying = speech.speak(['Hello.'], language: 'en', rate: 1, onPart: _none);
       await pumpEventQueue();
       await speech.stop();
       await expectLater(saying, completes);

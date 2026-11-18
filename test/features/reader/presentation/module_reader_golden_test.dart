@@ -12,7 +12,8 @@ import 'package:alchemist/alchemist.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,7 +94,6 @@ Widget _reader({required bool dark}) {
         providers: [
           RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
           RepositoryProvider<IContentRepository>.value(value: _repository()),
-          RepositoryProvider<ISpeech>.value(value: const NoSpeech()),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -102,6 +102,7 @@ Widget _reader({required bool dark}) {
             BlocProvider<RecordBloc>.value(value: readyRecordBloc()),
             BlocProvider<ReadingStyleCubit>(create: (_) => ReadingStyleCubit()),
             BlocProvider<StudyNotesCubit>(create: (_) => StudyNotesCubit(repository: _repository())),
+            BlocProvider<ListenCubit>(create: (_) => ListenCubit(speech: const NoSpeech())),
           ],
           child: const ModuleReaderView(),
         ),

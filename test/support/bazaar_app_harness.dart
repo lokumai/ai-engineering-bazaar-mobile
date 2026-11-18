@@ -36,7 +36,8 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
-import 'package:ai_engineering_bazaar/features/reader/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -175,6 +176,7 @@ Widget bazaarTestApp({
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+        BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
         if (caravan != null)
           BlocProvider<CaravanCubit>.value(value: caravan)
         else

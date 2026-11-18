@@ -9,9 +9,11 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 /// TextToSpeech) and `AppDelegate.swift` (iOS's AVSpeechSynthesizer) answer: the app's own channel, as no speech
 /// plugin ships a Swift package and iOS takes no CocoaPods. Every voice is the phone's; nothing leaves it.
 ///
-/// Each speak carries an id, which the native side names back in `done` once those words are said, cut or failed, so
-/// the end of words cut by a stop is never taken for the end of the words after them. A call that fails is logged and
-/// reads as no voice, or as said.
+/// A speak hands the phone every text at once, in the best voice it has for the language, so it reads on with the
+/// screen off (the owner, 2026-11-18). It carries an id, which the native side names back in `part` with the place of
+/// each text as it starts, and in `done` once the last is said, or they are cut or failed, so the end of words cut by a
+/// stop is never taken for the end of the words after them. A call that fails is logged and reads as no voice, or as
+/// said.
 final class PhoneSpeech {
   PhoneSpeech([this._channel = const MethodChannel(name)]) {
     _channel.setMethodCallHandler(_heard);
@@ -27,16 +29,23 @@ final class PhoneSpeech {
 
   final MethodChannel _channel;
 
-  /// The words being said, by id, each completed once they end.
-  final _saying = <int, Completer<void>>{};
+  /// The words being said, by id, each completed once they end, with where each text's start is told.
+  final _saying = <int, (Completer<void>, void Function(int index))>{};
   int _lastId = 0;
 
   Future<void> _heard(MethodCall call) async {
-    if (call case MethodCall(method: 'done', arguments: final int id)) _end(id);
+    switch (call) {
+      case MethodCall(method: 'done', arguments: final int id):
+        _end(id);
+      case MethodCall(method: 'part', arguments: {'id': final int id, 'index': final int index}):
+        _saying[id]?.$2(index);
+      default:
+        break;
+    }
   }
 
   void _end(int id) {
-    final saying = _saying.remove(id);
+    final saying = _saying.remove(id)?.$1;
     if (saying != null && !saying.isCompleted) saying.complete();
   }
 
@@ -54,15 +63,22 @@ final class PhoneSpeech {
     }
   }
 
-  /// Says [text] in [language] at [rate] times the voice's pace; completes once it is said, stopped or failed. The
-  /// native side cuts any words still being said.
-  Future<void> speak(String text, {required String language, required double rate}) async {
+  /// Says [texts] one after another in [language] at [rate] times the voice's pace, telling [onPart] the place of each
+  /// as it starts; completes once the last is said, or they are stopped or failed. The native side cuts any words still
+  /// being said.
+  Future<void> speak(
+    List<String> texts, {
+    required String language,
+    required double rate,
+    required void Function(int index) onPart,
+  }) async {
     final id = ++_lastId;
-    final saying = _saying[id] = Completer<void>();
+    final saying = Completer<void>();
+    _saying[id] = (saying, onPart);
     try {
       final started = await _channel.invokeMethod<bool>('speak', {
         'id': id,
-        'text': text,
+        'texts': texts,
         'tag': tags[language] ?? language,
         'rate': engineRate(rate, defaultTargetPlatform),
       });

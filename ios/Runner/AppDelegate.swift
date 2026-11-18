@@ -97,8 +97,11 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   private let channel: FlutterMethodChannel
   private let synthesizer = AVSpeechSynthesizer()
 
-  /// The id of the words each utterance says.
-  private var ids: [ObjectIdentifier: Int] = [:]
+  /// The speak each utterance belongs to, its place in it and whether it is the last.
+  private var parts: [ObjectIdentifier: (id: Int, index: Int, last: Bool)] = [:]
+
+  /// The speaks whose end has been told, so a cut queue tells it once.
+  private var ended: Set<Int> = []
 
   init(messenger: FlutterBinaryMessenger) {
     channel = FlutterMethodChannel(name: Speech.channel, binaryMessenger: messenger)
@@ -115,6 +118,24 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
     }
   }
 
+  /// The best voice the phone has for [tag], such as `tr-TR` (the owner, 2026-11-18): a premium or enhanced one the
+  /// reader downloaded in Settings, Accessibility, Spoken Content, Voices, before the compact one iOS ships; of the
+  /// tag's own country first, then of its language; never a novelty voice.
+  static func bestVoice(for tag: String) -> AVSpeechSynthesisVoice? {
+    let wanted = tag.lowercased().replacingOccurrences(of: "_", with: "-")
+    let language = wanted.split(separator: "-").first.map(String.init) ?? wanted
+    let voices = AVSpeechSynthesisVoice.speechVoices().filter { voice in
+      if #available(iOS 17.0, *), voice.voiceTraits.contains(.isNoveltyVoice) { return false }
+      let code = voice.language.lowercased().replacingOccurrences(of: "_", with: "-")
+      return code == wanted || code.hasPrefix(language + "-") || code == language
+    }
+    func rank(_ voice: AVSpeechSynthesisVoice) -> (Int, Int) {
+      let country = voice.language.lowercased().replacingOccurrences(of: "_", with: "-") == wanted ? 1 : 0
+      return (country, voice.quality.rawValue)
+    }
+    return voices.max { rank($0) < rank($1) } ?? AVSpeechSynthesisVoice(language: tag)
+  }
+
   private func handle(_ call: FlutterMethodCall, _ result: FlutterResult) {
     let arguments = call.arguments as? [String: Any] ?? [:]
     switch call.method {
@@ -122,45 +143,69 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       guard let language = arguments["language"] as? String else { return result(false) }
       result(Speech.hasVoice(for: language, among: AVSpeechSynthesisVoice.speechVoices().map(\.language)))
     case "speak":
-      guard let id = arguments["id"] as? Int, let text = arguments["text"] as? String,
-        let tag = arguments["tag"] as? String, let voice = AVSpeechSynthesisVoice(language: tag)
+      guard let id = arguments["id"] as? Int, let texts = arguments["texts"] as? [String], !texts.isEmpty,
+        let tag = arguments["tag"] as? String, let voice = Speech.bestVoice(for: tag)
       else { return result(false) }
-      // Heard with the ring switch on silent, as a reader who taps Listen means to hear it, over other sound lowered.
+      // Heard with the ring switch on silent and with the screen off, as a reader who taps Listen means to hear it,
+      // over other sound lowered; Info.plist's audio background mode keeps it going once the app leaves the screen.
       let session = AVAudioSession.sharedInstance()
       try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
       try? session.setActive(true)
-      // The words being said are cut; their id comes back as done.
+      // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
-      let utterance = AVSpeechUtterance(string: text)
-      utterance.voice = voice
-      utterance.rate = Float(arguments["rate"] as? Double ?? Double(AVSpeechUtteranceDefaultSpeechRate))
-      ids[ObjectIdentifier(utterance)] = id
-      synthesizer.speak(utterance)
+      endAll()
+      let rate = Float(arguments["rate"] as? Double ?? Double(AVSpeechUtteranceDefaultSpeechRate))
+      // Every part queued at once: the phone reads on from one to the next without the app.
+      for (index, text) in texts.enumerated() {
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = voice
+        utterance.rate = rate
+        utterance.postUtteranceDelay = 0.15
+        parts[ObjectIdentifier(utterance)] = (id, index, index == texts.count - 1)
+        synthesizer.speak(utterance)
+      }
       result(true)
     case "stop":
       synthesizer.stopSpeaking(at: .immediate)
+      endAll()
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
   }
 
-  private func done(_ utterance: AVSpeechUtterance) {
-    guard let id = ids.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+  /// Tells the end of every speak still queued, once each.
+  private func endAll() {
+    let ids = Set(parts.values.map(\.id))
+    parts.removeAll()
+    for id in ids { end(id) }
+  }
+
+  private func end(_ id: Int) {
+    guard ended.insert(id).inserted else { return }
     channel.invokeMethod("done", arguments: id)
-    // Other sound comes back up once nothing is said: a moment later, as the next part follows at once.
+    // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-      guard let self, self.ids.isEmpty, !self.synthesizer.isSpeaking else { return }
+      guard let self, self.parts.isEmpty, !self.synthesizer.isSpeaking else { return }
       try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
   }
 
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+    guard let part = parts[ObjectIdentifier(utterance)] else { return }
+    channel.invokeMethod("part", arguments: ["id": part.id, "index": part.index])
+  }
+
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-    done(utterance)
+    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+    if part.last { end(part.id) }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-    done(utterance)
+    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+    let id = part.id
+    parts = parts.filter { $0.value.id != id }
+    end(id)
   }
 }
 
