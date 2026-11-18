@@ -2828,9 +2828,9 @@ class S {
     );
   }
 
-  /// `From {modules}`
-  String practice_today_from(String modules) {
-    return Intl.message('From $modules', name: 'practice_today_from', desc: '', args: [modules]);
+  /// `{done} of {total} done today`
+  String practice_today_meter(int done, int total) {
+    return Intl.message('$done of $total done today', name: 'practice_today_meter', desc: '', args: [done, total]);
   }
 
   /// `Start`
@@ -3010,16 +3010,6 @@ class S {
   /// `Quizzes by level`
   String get practice_quizzes {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);
-  }
-
-  /// `Today's review, {count, plural, =1{1 card} other{{count} cards}}`
-  String home_review(int count) {
-    return Intl.message(
-      'Today\'s review, ${Intl.plural(count, one: '1 card', other: '$count cards')}',
-      name: 'home_review',
-      desc: '',
-      args: [count],
-    );
   }
 
   /// `Card {step} of {count}`

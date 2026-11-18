@@ -74,7 +74,11 @@ void main() {
     final (router, review) = await _pump(tester, record: _completed(['alpha/first']));
 
     expect(find.descendant(of: _today, matching: find.text('2 cards, about 1 min')), findsOneWidget);
-    expect(find.descendant(of: _today, matching: find.text('From First Module')), findsOneWidget);
+    expect(
+      find.descendant(of: _today, matching: find.text('First Module')),
+      findsOneWidget,
+      reason: 'its module',
+    );
     await _tap(tester, find.byKey(const Key('practice-today-start')));
     expect(router.state.uri.path, '/practice/review');
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
@@ -101,10 +105,7 @@ void main() {
     expect(router.state.uri.path, '/practice');
     expect(find.descendant(of: _today, matching: find.text('That is all for today')), findsOneWidget);
     expect(find.descendant(of: _today, matching: find.byKey(const Key('practice-today-wrong'))), findsOneWidget);
-    expect(
-      find.descendant(of: find.byKey(const Key('practice-wrong')), matching: find.text('1 question')),
-      findsOneWidget,
-    );
+    expect(find.descendant(of: find.byKey(const Key('practice-wrong')), matching: find.text('1')), findsOneWidget);
   });
 
   testWidgets('Wrong answers lists the questions answered wrong by level, and Answer them all asks them (plan 13.4)', (
@@ -120,8 +121,8 @@ void main() {
     await _tap(tester, find.byKey(const Key('practice-wrong')));
     expect(router.state.uri.path, '/practice/wrong');
     expect(find.byType(NavigationBar), findsOneWidget, reason: 'a page of the tab');
-    expect(find.text('Alpha Level'), findsOneWidget);
-    expect(find.text('Beta Level'), findsOneWidget);
+    expect(find.textContaining('Alpha Level', findRichText: true), findsOneWidget);
+    expect(find.textContaining('Beta Level', findRichText: true), findsOneWidget);
     expect(
       tester.getTopLeft(find.byKey(const ValueKey('wrong-alpha/first#0'))).dy,
       lessThan(tester.getTopLeft(find.byKey(const ValueKey('wrong-beta/fourth#1'))).dy),
@@ -249,21 +250,18 @@ void main() {
       quiz: _items,
     );
     final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    expect(
-      find.descendant(of: find.byKey(const Key('practice-brief')), matching: find.text('1 completed module')),
-      findsOneWidget,
-    );
+    expect(find.bySemanticsLabel('A module in 2 minutes, 1 completed module'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('practice-brief')));
     expect(router.state.uri.path, '/practice/brief');
     await _tap(tester, find.byKey(const ValueKey('brief-alpha/first')));
     expect(router.state.uri.path, '/practice/brief/alpha/first');
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen');
 
-    expect(find.text('1 of 4'), findsOneWidget, reason: 'two points, one card of terms, the end');
+    expect(find.bySemanticsLabel('1 of 4'), findsOneWidget, reason: 'two points, one card of terms, the end');
     expect(find.text('Lanterns carry light.', findRichText: true), findsOneWidget);
     await tester.drag(find.byKey(const ValueKey('brief-pager')), const Offset(-300, 0));
     await tester.pumpAndSettle();
-    expect(find.text('2 of 4'), findsOneWidget, reason: 'a swipe goes on');
+    expect(find.bySemanticsLabel('2 of 4'), findsOneWidget, reason: 'a swipe goes on');
     expect(find.text('Wicks draw oil.', findRichText: true), findsOneWidget);
     await _tap(tester, find.byKey(const Key('brief-next')));
     expect(find.text('Wick'), findsOneWidget);
@@ -280,7 +278,7 @@ void main() {
   ) async {
     final (router, review) = await _pump(tester, doc: _termsDoc());
     expect(
-      find.descendant(of: find.byKey(const Key('practice-glossary')), matching: find.text('2 terms')),
+      find.bySemanticsLabel('Glossary, 2 terms'),
       findsOneWidget,
       reason: 'the same names in every module: one entry each',
     );

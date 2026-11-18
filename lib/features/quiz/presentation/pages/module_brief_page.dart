@@ -3,6 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart' hide Block;
 
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_frame.dart';
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/level_group.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -99,6 +103,8 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
       _ => null,
     };
     final title = index?.module(widget.moduleKey)?.tracks[track]?.titleIn(language) ?? S.of(context).practice_brief;
+    final position = index?.levels.indexWhere((level) => level.slug == index.module(widget.moduleKey)?.level) ?? -1;
+    final hue = levelHue(context, position < 0 ? 0 : position);
     final notes = switch (context.watch<StudyNotesCubit>().state) {
       final StudyNotesReady ready when ready.track == track && ready.language == language => ready.of(widget.moduleKey),
       _ => null,
@@ -106,14 +112,15 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
     return StudyNotesLoader(
       child: QuizFrame(
         title: title,
-        child: notes == null ? const Center(child: CircularProgressIndicator()) : _cards(context, briefCards(notes)),
+        child: notes == null
+            ? const Center(child: CircularProgressIndicator())
+            : _cards(context, briefCards(notes), hue),
       ),
     );
   }
 
-  Widget _cards(BuildContext context, List<BriefCard> cards) {
+  Widget _cards(BuildContext context, List<BriefCard> cards, Color hue) {
     final s = S.of(context);
-    final colors = context.bazaarColors;
     final last = cards.length - 1;
     return Column(
       children: [
@@ -123,9 +130,13 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
             controller: _pager,
             itemCount: cards.length,
             onPageChanged: (page) => setState(() => _page = page),
-            itemBuilder: (context, page) => Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-              child: _CardView(card: cards[page], moduleKey: widget.moduleKey),
+            // A card is as tall as its text, the edges of the cards still to come under it; a long one scrolls.
+            itemBuilder: (context, page) => SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+              child: _Deck(
+                under: (last - page).clamp(0, 2),
+                child: _CardView(card: cards[page], moduleKey: widget.moduleKey, hue: hue),
+              ),
             ),
           ),
         ),
@@ -140,10 +151,16 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
                 icon: const Icon(Icons.chevron_left),
               ),
               Expanded(
-                child: Text(
-                  s.brief_step(_page + 1, cards.length),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurface),
+                child: Semantics(
+                  label: s.brief_step(_page + 1, cards.length),
+                  excludeSemantics: true,
+                  child: SegmentMeter(
+                    done: _page + 1,
+                    total: cards.length,
+                    color: hue,
+                    semanticLabel: s.brief_step(_page + 1, cards.length),
+                    height: 6,
+                  ),
                 ),
               ),
               IconButton(
@@ -160,70 +177,134 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
   }
 }
 
-/// One card on a raised card, its content scrolling when it is longer than the screen.
+/// The card on top of the cards still to come, [under] of their edges showing below it: decoration.
+class _Deck extends StatelessWidget {
+  const _Deck({required this.under, required this.child});
+
+  final int under;
+  final Widget child;
+
+  static const double _edge = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    return Padding(
+      padding: EdgeInsets.only(bottom: _edge * under),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (var depth = under; depth >= 1; depth--)
+            Positioned(
+              left: AppSpacing.md * depth,
+              right: AppSpacing.md * depth,
+              top: _edge * depth,
+              bottom: -_edge * depth,
+              child: ExcludeSemantics(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceRaised,
+                    border: Border.all(color: colors.line),
+                    borderRadius: BazaarCard.radiusOf(BazaarCardShape.leaf),
+                  ),
+                ),
+              ),
+            ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+/// One card on a leaf card in the level's hue: its kind, then a point of the Summary in the display face, a few terms
+/// with their definitions, or the way to the quiz.
 class _CardView extends StatelessWidget {
-  const _CardView({required this.card, required this.moduleKey});
+  const _CardView({required this.card, required this.moduleKey, required this.hue});
 
   final BriefCard card;
   final String moduleKey;
+  final Color hue;
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final label = switch (card) {
-      SummaryCard() => s.brief_summary,
-      TermsCard() => s.brief_terms,
-      EndCard() => null,
+    final (label, icon) = switch (card) {
+      SummaryCard() => (s.brief_summary, Icons.notes_rounded),
+      TermsCard() => (s.brief_terms, Icons.sort_by_alpha_rounded),
+      EndCard() => (null, Icons.check_rounded),
     };
-    final body = TextStyle(fontSize: BazaarType.lead.size, height: 1.5, color: colors.onSurface);
+    final body = displayFace(TextStyle(fontSize: BazaarType.lead.size, height: 1.45, color: colors.onSurfaceTitle))!
+        .copyWith(fontWeight: FontWeight.w400);
     return BazaarCard(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpacing.md,
-          children: [
-            if (label != null) Text(label, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
-            ...switch (card) {
-              SummaryCard(:final block) => [
-                switch (block) {
-                  ParagraphBlock(:final inlines) => InlineText(inlines: inlines, style: body, onLink: (_) {}),
-                  _ => _BlockView(block: block),
-                },
+      shape: BazaarCardShape.leaf,
+      accent: hue,
+      tint: hue,
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppSpacing.md,
+        children: [
+          if (label != null)
+            Row(
+              spacing: AppSpacing.sm,
+              children: [
+                PracticeDisc(hue: hue, icon: icon),
+                Text(label, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
               ],
-              TermsCard(:final terms) => [
-                for (final term in terms)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 2,
-                    children: [
-                      Text(term.name, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
-                      InlineText(
-                        inlines: term.definition,
-                        style: TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface),
-                        onLink: (_) {},
-                      ),
-                    ],
-                  ),
-              ],
-              EndCard(:final hasQuiz) => [
-                Text(s.brief_end, style: body),
-                if (hasQuiz)
-                  FilledButton(
-                    key: const Key('brief-take-quiz'),
-                    onPressed: () => context.push(BazaarPaths.quiz(moduleKey)),
-                    child: Text(s.brief_take_quiz),
-                  ),
-                OutlinedButton(
-                  key: const Key('brief-open-module'),
-                  onPressed: () => context.push(BazaarPaths.module(context.read<TrackCubit>().state, moduleKey)),
-                  child: Text(s.brief_open_module),
+            ),
+          ...switch (card) {
+            SummaryCard(:final block) => [
+              switch (block) {
+                ParagraphBlock(:final inlines) => InlineText(inlines: inlines, style: body, onLink: (_) {}),
+                _ => _BlockView(block: block),
+              },
+            ],
+            TermsCard(:final terms) => [
+              for (final (i, term) in terms.indexed) ...[
+                if (i > 0) const ExcludeSemantics(child: DashedRule(thickness: 1)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      term.name,
+                      style: displayFace(theme.textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle),
+                    ),
+                    InlineText(
+                      inlines: term.definition,
+                      style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
+                      onLink: (_) {},
+                    ),
+                  ],
                 ),
               ],
-            },
-          ],
-        ),
+            ],
+            EndCard(:final hasQuiz) => [
+              const SizedBox(height: AppSpacing.sm),
+              const Center(
+                child: PracticeDisc(hue: BazaarFixedColors.success, icon: Icons.check_rounded),
+              ),
+              Text(s.brief_end, textAlign: TextAlign.center, style: body),
+              const SizedBox(height: AppSpacing.xs),
+              if (hasQuiz)
+                FilledButton.icon(
+                  key: const Key('brief-take-quiz'),
+                  onPressed: () => context.push(BazaarPaths.quiz(moduleKey)),
+                  icon: const Icon(Icons.arrow_forward),
+                  iconAlignment: IconAlignment.end,
+                  label: Text(s.brief_take_quiz),
+                ),
+              OutlinedButton(
+                key: const Key('brief-open-module'),
+                onPressed: () => context.push(BazaarPaths.module(context.read<TrackCubit>().state, moduleKey)),
+                child: Text(s.brief_open_module),
+              ),
+            ],
+          },
+        ],
       ),
     );
   }

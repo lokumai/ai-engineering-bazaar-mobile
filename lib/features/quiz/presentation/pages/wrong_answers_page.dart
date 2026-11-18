@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/level_group.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -70,52 +71,48 @@ class _WrongAnswers extends StatelessWidget {
         else if (wrong.isEmpty)
           Text(s.practice_wrong_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
         else ...[
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FilledButton(
-              key: WrongAnswersPage.allKey,
-              onPressed: () => context.push(BazaarPaths.practiceWrongAll),
-              child: Text(s.practice_wrong_all),
-            ),
+          FilledButton.icon(
+            key: WrongAnswersPage.allKey,
+            onPressed: () => context.push(BazaarPaths.practiceWrongAll),
+            icon: const Icon(Icons.replay_rounded),
+            label: Text('${s.practice_wrong_all} (${wrong.length})'),
           ),
           for (final MapEntry(key: slug, value: keys) in levels.entries) ...[
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              spacing: AppSpacing.sm,
-              children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: levelHue(context, index?.levels.indexWhere((level) => level.slug == slug) ?? 0),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    index?.level(slug)?.title ?? slug,
-                    style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            BazaarRows(
-              children: [
+            const SizedBox(height: AppSpacing.md),
+            PracticeLevelGroup(
+              position: index?.levels.indexWhere((level) => level.slug == slug) ?? -1,
+              title: index?.level(slug)?.title ?? slug,
+              count: s.practice_wrong_count(keys.length),
+              rows: [
                 for (final key in keys)
                   if (notes.of(moduleOfKey(key))?.quiz.elementAtOrNull(indexOfKey(key)) case final item?)
-                    BazaarRow(
+                    MergeSemantics(
                       key: WrongAnswersPage.rowKey(key),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 2,
-                        children: [
-                          Text(item.question, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface)),
-                          Text(
-                            index?.module(moduleOfKey(key))?.tracks[track]?.titleIn(language) ?? moduleOfKey(key),
-                            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                          ),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: AppSpacing.md,
+                          children: [
+                            PracticeDisc(hue: colors.fault, icon: Icons.close_rounded),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 4,
+                                children: [
+                                  Text(
+                                    item.question,
+                                    style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle),
+                                  ),
+                                  Text(
+                                    _moduleLine(index, moduleOfKey(key), track, language),
+                                    style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
               ],
@@ -125,4 +122,11 @@ class _WrongAnswers extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The module [key]'s number and title in [track], as Practice's quiz rows print them.
+String _moduleLine(BundleIndex? index, String key, Track track, String language) {
+  final module = index?.module(key);
+  if (module == null) return key;
+  return '${module.number.toString().padLeft(2, '0')}  ${module.tracks[track]?.titleIn(language) ?? key}';
 }

@@ -7,7 +7,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_plan.dart';
@@ -30,18 +30,31 @@ class HomeReviewRow extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final title = s.home_review(cards);
+    final title = s.practice_today;
     final minutes = s.practice_today_cards(cards, reviewMinutes(cards));
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
-      child: BazaarRow(
+      // Practice's deck in small: a leaf card with the primary edge, as Today's review is drawn there.
+      child: BazaarCard(
         key: const Key('home-review'),
+        shape: BazaarCardShape.leaf,
+        accent: colors.primary,
         onTap: () => context.push(BazaarPaths.practiceReview),
         semanticLabel: '$title, $minutes',
+        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
         child: Row(
           spacing: AppSpacing.md,
           children: [
-            Icon(Icons.style_rounded, color: colors.primary),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(colors.primary.withValues(alpha: 0.12), colors.surface),
+                shape: BoxShape.circle,
+                border: Border.all(color: colors.primary, width: 2),
+              ),
+              child: Icon(Icons.style_rounded, size: 18, color: colors.onSurfaceTitle),
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +65,7 @@ class HomeReviewRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
+            Icon(Icons.arrow_forward, size: 20, color: colors.primary),
           ],
         ),
       ),

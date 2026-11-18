@@ -1401,11 +1401,14 @@
       }
     }
   },
-  "practice_today_from": "From {modules}",
-  "@practice_today_from": {
+  "practice_today_meter": "{done} of {total} done today",
+  "@practice_today_meter": {
     "placeholders": {
-      "modules": {
-        "type": "String"
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
   },
@@ -1468,14 +1471,6 @@
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
-  "home_review": "Today's review, {count, plural, =1{1 card} other{{count} cards}}",
-  "@home_review": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "review_progress": "Card {step} of {count}",
   "@review_progress": {
     "placeholders": {

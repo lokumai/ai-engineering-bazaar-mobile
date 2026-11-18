@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/level_group.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -65,37 +65,71 @@ class _BriefList extends StatelessWidget {
         else if (modules.isEmpty)
           Text(s.practice_brief_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
         else
-          BazaarRows(
-            children: [
-              for (final key in modules)
-                if (index?.module(key) case final module?)
-                  BazaarRow(
-                    key: BriefListPage.rowKey(key),
-                    onTap: () => context.push(BazaarPaths.practiceBriefOf(key)),
-                    child: Row(
-                      spacing: AppSpacing.md,
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: levelHue(context, index!.levels.indexWhere((level) => level.slug == module.level)),
-                            shape: BoxShape.circle,
+          for (final MapEntry(key: slug, value: keys) in _byLevel(modules).entries) ...[
+            PracticeLevelGroup(
+              position: index?.levels.indexWhere((level) => level.slug == slug) ?? -1,
+              title: index?.level(slug)?.title ?? slug,
+              count: s.level_module_count(keys.length),
+              rows: [
+                for (final key in keys)
+                  if (index?.module(key) case final module?)
+                    Semantics(
+                      key: BriefListPage.rowKey(key),
+                      button: true,
+                      child: InkWell(
+                        onTap: () => context.push(BazaarPaths.practiceBriefOf(key)),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.lg,
+                            AppSpacing.md,
+                            AppSpacing.md,
+                            AppSpacing.md,
+                          ),
+                          child: Row(
+                            spacing: AppSpacing.md,
+                            children: [
+                              const PracticeDisc(hue: BazaarFixedColors.caution, icon: Icons.timer_outlined),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 2,
+                                  children: [
+                                    Text(
+                                      module.tracks[track]?.titleIn(language) ?? key,
+                                      style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle),
+                                    ),
+                                    Text(
+                                      [
+                                        module.number.toString().padLeft(2, '0'),
+                                        if ((notes as StudyNotesReady).of(key) case final brief?
+                                            when brief.terms.isNotEmpty)
+                                          s.practice_glossary_count(brief.terms.length),
+                                      ].join('  ·  '),
+                                      style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
+                            ],
                           ),
                         ),
-                        Expanded(
-                          child: Text(
-                            module.tracks[track]?.titleIn(language) ?? key,
-                            style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle),
-                          ),
-                        ),
-                        Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
-                      ],
+                      ),
                     ),
-                  ),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
       ],
     );
   }
+}
+
+/// [keys] by their level's slug, each level in the order its first module comes.
+Map<String, List<String>> _byLevel(List<String> keys) {
+  final levels = <String, List<String>>{};
+  for (final key in keys) {
+    levels.putIfAbsent(key.split('/').first, () => []).add(key);
+  }
+  return levels;
 }

@@ -82,87 +82,85 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(percent) => "${percent}٪ خوانده شده";
 
-  static String m30(count) => "مرور امروز، ${Intl.plural(count, one: '1 کارت', other: '${count} کارت')}";
+  static String m30(minutes, words) => "${minutes} دقیقه مطالعه · ${words} کلمه";
 
-  static String m31(minutes, words) => "${minutes} دقیقه مطالعه · ${words} کلمه";
+  static String m31(approved, total) => "${approved}/${total} تکمیل‌شده";
 
-  static String m32(approved, total) => "${approved}/${total} تکمیل‌شده";
+  static String m32(total) => "--/${total} تکمیل‌شده";
 
-  static String m33(total) => "--/${total} تکمیل‌شده";
+  static String m33(count) => "${Intl.plural(count, one: '1 درس', other: '${count} درس')}";
 
-  static String m34(count) => "${Intl.plural(count, one: '1 درس', other: '${count} درس')}";
+  static String m34(level) => "سطح ${level}";
 
-  static String m35(level) => "سطح ${level}";
+  static String m35(value) => "خطا ${value}";
 
-  static String m36(value) => "خطا ${value}";
+  static String m36(level) => "برای سطح ${level} یک درس بخوان";
 
-  static String m37(level) => "برای سطح ${level} یک درس بخوان";
+  static String m37(count) => "${count} ماژول تمام‌شده منتظر است";
 
-  static String m38(count) => "${count} ماژول تمام‌شده منتظر است";
+  static String m38(words) => "می‌گوید: ${words}";
 
-  static String m39(words) => "می‌گوید: ${words}";
+  static String m39(level) => "شاگرد، سطح ${level}. برای نوازش ضربه بزنید.";
 
-  static String m40(level) => "شاگرد، سطح ${level}. برای نوازش ضربه بزنید.";
+  static String m40(count, level) => "${count} تا سطح ${level}";
 
-  static String m41(count, level) => "${count} تا سطح ${level}";
-
-  static String m42(count) =>
+  static String m41(count) =>
       "${Intl.plural(count, zero: 'اول یک درس را تکمیل کنید', other: '${count} درس تکمیل‌شده')}";
 
-  static String m43(count) => "${Intl.plural(count, zero: 'هنوز اصطلاحی نیست', other: '${count} اصطلاح')}";
+  static String m42(count) => "${Intl.plural(count, zero: 'هنوز اصطلاحی نیست', other: '${count} اصطلاح')}";
 
-  static String m44(count, minutes) =>
+  static String m43(count, minutes) =>
       "${Intl.plural(count, one: '1 کارت', other: '${count} کارت')}، حدود ${minutes} دقیقه";
 
-  static String m45(modules) => "از ${modules}";
+  static String m44(done, total) => "امروز ${done} از ${total} کارت انجام شد";
 
-  static String m46(count) => "${Intl.plural(count, zero: 'الان هیچ', one: '1 پرسش', other: '${count} پرسش')}";
+  static String m45(count) => "${Intl.plural(count, zero: 'الان هیچ', one: '1 پرسش', other: '${count} پرسش')}";
 
-  static String m47(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
+  static String m46(count) => "${Intl.plural(count, one: '1 آزمون', other: '${count} آزمون')}";
 
-  static String m48(taken, total) => "${taken} از ${total} آزمون حل شده";
+  static String m47(taken, total) => "${taken} از ${total} آزمون حل شده";
 
-  static String m49(index, count) => "پرسش ${index} از ${count}";
+  static String m48(index, count) => "پرسش ${index} از ${count}";
 
-  static String m50(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
+  static String m49(previous, best, total) => "دفعهٔ قبل: ${previous} از ${total}. بهترین: ${best} از ${total}.";
 
-  static String m51(score, total) => "${score} از ${total}";
+  static String m50(score, total) => "${score} از ${total}";
 
-  static String m52(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
+  static String m51(last, best, total) => "آخرین ${last} از ${total} · بهترین ${best} از ${total}";
 
-  static String m53(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
+  static String m52(count) => "${count} پرسش دربارهٔ نکته‌های اصلی این درس";
 
-  static String m54(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
+  static String m53(letter) => "این گزینه نیست. پاسخ درست ${letter} است.";
 
-  static String m55(date) => "تکمیل‌شده در ${date}";
+  static String m54(date) => "تکمیل‌شده در ${date}";
 
-  static String m56(position, total) => "مورد ${position} از ${total}";
+  static String m55(position, total) => "مورد ${position} از ${total}";
 
-  static String m57(minutes) => "${minutes} دقیقه";
+  static String m56(minutes) => "${minutes} دقیقه";
 
-  static String m58(number, count) => "درس ${number} از ${count}";
+  static String m57(number, count) => "درس ${number} از ${count}";
 
-  static String m59(label) => "${label} · برنامه‌ریزی‌شده";
+  static String m58(label) => "${label} · برنامه‌ریزی‌شده";
 
-  static String m60(hash, date) => "ویرایش ${hash} · ${date}";
+  static String m59(hash, date) => "ویرایش ${hash} · ${date}";
 
-  static String m61(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
+  static String m60(reason) => "ذخیره نشد: ${reason}. برای نگه داشتن آن، در یک فایل پشتیبان بگیرید.";
 
-  static String m62(step, count) => "کارت ${step} از ${count}";
+  static String m61(step, count) => "کارت ${step} از ${count}";
 
-  static String m63(right, total) => "${right} از ${total} درست";
+  static String m62(right, total) => "${right} از ${total} درست";
 
-  static String m64(section) => "این در اینجاست: ${section}";
+  static String m63(section) => "این در اینجاست: ${section}";
 
-  static String m65(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
+  static String m64(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
-  static String m66(step, count) => "${step} / ${count}";
+  static String m65(step, count) => "${step} / ${count}";
 
-  static String m67(name, level) => "${name}، در سطح ${level} باز می‌شود";
+  static String m66(name, level) => "${name}، در سطح ${level} باز می‌شود";
 
-  static String m68(name) => "${name}، پوشیده";
+  static String m67(name) => "${name}، پوشیده";
 
-  static String m69(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
+  static String m68(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -353,7 +351,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_daily_title": MessageLookupByLibrary.simpleMessage("کارت امروز"),
     "home_path": MessageLookupByLibrary.simpleMessage("مسیر شما"),
     "home_read_percent": m29,
-    "home_review": m30,
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("دیدن کل کاتالوگ"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("درس بعدی"),
     "image_expand": MessageLookupByLibrary.simpleMessage("نمایش تصویر در تمام صفحه"),
@@ -375,11 +372,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_owner": MessageLookupByLibrary.simpleMessage("مالک"),
     "legal_phone": MessageLookupByLibrary.simpleMessage("تلفن"),
     "legal_title": MessageLookupByLibrary.simpleMessage("اطلاعات حقوقی"),
-    "length_minutes_words": m31,
-    "level_completed": m32,
-    "level_completed_pending": m33,
+    "length_minutes_words": m30,
+    "level_completed": m31,
+    "level_completed_pending": m32,
     "level_general_notes": MessageLookupByLibrary.simpleMessage("یادداشت‌های کلی"),
-    "level_module_count": m34,
+    "level_module_count": m33,
     "loading": MessageLookupByLibrary.simpleMessage("در حال بارگذاری"),
     "module_planned": MessageLookupByLibrary.simpleMessage("برنامه‌ریزی‌شده"),
     "nav_caravan": MessageLookupByLibrary.simpleMessage("کاروان"),
@@ -416,23 +413,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_feed": MessageLookupByLibrary.simpleMessage("توکن بده"),
     "pocket_hallucinating": MessageLookupByLibrary.simpleMessage("توهم"),
     "pocket_lede": MessageLookupByLibrary.simpleMessage("مدلی اسباب‌بازی که شاید پرت بگوید."),
-    "pocket_level": m35,
+    "pocket_level": m34,
     "pocket_level_word": MessageLookupByLibrary.simpleMessage("سطح"),
-    "pocket_loss": m36,
+    "pocket_loss": m35,
     "pocket_loss_empty": MessageLookupByLibrary.simpleMessage("منحنی با نخستین خوراک آغاز می‌شود."),
     "pocket_loss_title": MessageLookupByLibrary.simpleMessage("خطای آموزش"),
-    "pocket_next_module": m37,
+    "pocket_next_module": m36,
     "pocket_read_module": MessageLookupByLibrary.simpleMessage("خواندن ماژولی که تمام کردی"),
     "pocket_read_none": MessageLookupByLibrary.simpleMessage("ماژولی را تمام کن تا آن را هم بخواند."),
-    "pocket_read_waiting": m38,
+    "pocket_read_waiting": m37,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("شروع از نو"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
       "همه توکن‌هایی را که خوانده فراموش می‌کند و دوباره از سطح 0 شروع می‌کند. دوره و پیشرفتت همان‌طور می‌ماند.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("بماند"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("شاگرد از نو شروع شود؟"),
-    "pocket_says": m39,
-    "pocket_stage_label": m40,
+    "pocket_says": m38,
+    "pocket_stage_label": m39,
     "pocket_stat_modules": MessageLookupByLibrary.simpleMessage("ماژول خوانده"),
     "pocket_stat_tokens": MessageLookupByLibrary.simpleMessage("توکن خورده"),
     "pocket_stat_words": MessageLookupByLibrary.simpleMessage("واژهٔ آشنا"),
@@ -455,29 +452,29 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("شاگرد"),
-    "pocket_to_next": m41,
+    "pocket_to_next": m40,
     "practice_brief": MessageLookupByLibrary.simpleMessage("یک درس در 2 دقیقه"),
-    "practice_brief_count": m42,
+    "practice_brief_count": m41,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "خلاصه و اصطلاح‌های کلیدی درسی که تکمیل کرده‌اید، کارت به کارت.",
     ),
     "practice_glossary": MessageLookupByLibrary.simpleMessage("واژه‌نامه"),
-    "practice_glossary_count": m43,
+    "practice_glossary_count": m42,
     "practice_go_wrong": MessageLookupByLibrary.simpleMessage("رفتن به پاسخ‌های نادرست"),
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("آزمون‌ها بر اساس سطح"),
     "practice_start": MessageLookupByLibrary.simpleMessage("شروع"),
     "practice_today": MessageLookupByLibrary.simpleMessage("مرور امروز"),
-    "practice_today_cards": m44,
+    "practice_today_cards": m43,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("برای امروز همین بود"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("کارت‌های بعدی فردا می‌آیند."),
-    "practice_today_from": m45,
+    "practice_today_meter": m44,
     "practice_today_none": MessageLookupByLibrary.simpleMessage("امروز چیزی برای مرور نیست"),
     "practice_today_none_lede": MessageLookupByLibrary.simpleMessage(
       "پرسش‌های درس‌هایی که تکمیل می‌کنید اینجا می‌آیند، هر روز چندتا.",
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("پاسخ‌های نادرست"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("به همه پاسخ دهید"),
-    "practice_wrong_count": m46,
+    "practice_wrong_count": m45,
     "practice_wrong_lede": MessageLookupByLibrary.simpleMessage(
       "هر پرسشی که نادرست پاسخ داده‌اید، بر اساس سطح. دو بار پشت سر هم درست، و از فهرست بیرون می‌رود.",
     ),
@@ -533,30 +530,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("بازگشت به پرسش‌ها"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("درست است."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("تمام"),
-    "quiz_list_count": m47,
-    "quiz_list_taken": m48,
+    "quiz_list_count": m46,
+    "quiz_list_taken": m47,
     "quiz_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
-    "quiz_progress": m49,
+    "quiz_progress": m48,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage("، درست"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage("، نادرست"),
-    "quiz_score_before": m50,
-    "quiz_score_count": m51,
-    "quiz_score_line": m52,
+    "quiz_score_before": m49,
+    "quiz_score_count": m50,
+    "quiz_score_line": m51,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
-    "quiz_subtitle": m53,
+    "quiz_subtitle": m52,
     "quiz_title": MessageLookupByLibrary.simpleMessage("پرسش‌های این درس"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "این آزمون باز نشد. آن را ببندید و بعداً دوباره امتحان کنید.",
     ),
-    "quiz_wrong": m54,
+    "quiz_wrong": m53,
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("بخشی نوشته شده"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("فقط برنامهٔ بخش‌ها"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("پیش از شروع"),
     "reader_close": MessageLookupByLibrary.simpleMessage("بستن"),
-    "reader_completed_on": m55,
+    "reader_completed_on": m54,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("تکمیل درس"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("فهرست مطالب"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("پایان دوره"),
@@ -565,20 +562,20 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("حذف نشانه‌های جستجو"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("مورد بعدی"),
-    "reader_find_position": m56,
+    "reader_find_position": m55,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("مورد قبلی"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("علامت زدن این درس به‌عنوان تکمیل‌شده"),
-    "reader_minutes": m57,
-    "reader_module_of": m58,
+    "reader_minutes": m56,
+    "reader_module_of": m57,
     "reader_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("نسخهٔ «برای همه»ی این درس برنامه‌ریزی شده است."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("آنچه خواهید توانست انجام دهید"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("در این صفحه"),
-    "reader_pager_planned": m59,
+    "reader_pager_planned": m58,
     "reader_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("خواندن نسخهٔ «برای مهندسان»"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("دوباره تلاش کنید"),
-    "reader_revision": m60,
+    "reader_revision": m59,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("توضیح"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("مورد"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("برنامهٔ بخش‌ها"),
@@ -602,7 +599,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("راحت"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("فشرده"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("باز"),
-    "record_not_saved": m61,
+    "record_not_saved": m60,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("حجم سابقه بیشتر از حدی است که برنامه می‌نویسد"),
@@ -615,9 +612,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_back": MessageLookupByLibrary.simpleMessage("بازگشت به تمرین"),
     "review_empty": MessageLookupByLibrary.simpleMessage("کارتی برای نمایش نیست."),
     "review_finish": MessageLookupByLibrary.simpleMessage("پایان"),
-    "review_progress": m62,
-    "review_result": m63,
-    "review_section_link": m64,
+    "review_progress": m61,
+    "review_result": m62,
+    "review_section_link": m63,
     "review_term": MessageLookupByLibrary.simpleMessage("اصطلاح"),
     "review_term_knew": MessageLookupByLibrary.simpleMessage("می‌دانستم"),
     "review_term_not_yet": MessageLookupByLibrary.simpleMessage("هنوز نه"),
@@ -648,7 +645,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "برنامه هر بار که باز می‌شود، از سایت نسخهٔ جدیدتر را می‌پرسد.",
     ),
-    "settings_refresh_failed": m65,
+    "settings_refresh_failed": m64,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("از زمان باز شدن برنامه بررسی نشده است"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "محتوای جدیدتر به نسخهٔ جدیدتری از برنامه نیاز دارد. برای دریافت آن، برنامه را به‌روزرسانی کنید.",
@@ -717,7 +714,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
-    "tour_step": m66,
+    "tour_step": m65,
     "tour_tabs": MessageLookupByLibrary.simpleMessage(
       "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، تمرین و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
     ),
@@ -726,10 +723,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
-    "wardrobe_item_locked": m67,
-    "wardrobe_item_worn": m68,
+    "wardrobe_item_locked": m66,
+    "wardrobe_item_worn": m67,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
-    "wardrobe_preview": m69,
+    "wardrobe_preview": m68,
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),

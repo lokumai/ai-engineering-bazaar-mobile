@@ -1,21 +1,40 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:ai_engineering_bazaar/features/quiz/application/review_session.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/section_finder.dart';
 import 'package:ai_engineering_bazaar/features/quiz/presentation/widgets/quiz_option.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
-import 'package:go_router/go_router.dart';
 
-/// A Practice session's page by the [ReviewSessionCubit]'s state: the card shown, or the results.
+/// The hue of the level the module [moduleKey] is in; the primary ink while the content is not there.
+Color _hueOf(BuildContext context, String moduleKey) {
+  final index = switch (context.watch<ContentBloc>().state) {
+    ContentReady(:final index) => index,
+    _ => null,
+  };
+  final level = index?.module(moduleKey)?.level;
+  final position = index?.levels.indexWhere((entry) => entry.slug == level) ?? -1;
+  return position < 0 ? context.bazaarColors.primary : levelHue(context, position);
+}
+
+/// A Practice session's page by the [ReviewSessionCubit]'s state: the card shown with Next under it, or the results.
+/// A card is drawn as the app draws a level's: on a card in its level's hue (the owner, 2026-11-18).
 class ReviewSessionView extends StatefulWidget {
   const ReviewSessionView({super.key});
 
@@ -41,20 +60,20 @@ class _ReviewSessionViewState extends State<ReviewSessionView> {
       listener: (_, _) => WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _focus.requestFocus();
       }),
-      builder: (context, state) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-        child: switch (state) {
-          ReviewAt() => _CardView(at: state, focus: _focus),
-          ReviewFinished() => _Results(finished: state),
-        },
-      ),
+      builder: (context, state) => switch (state) {
+        ReviewAt() => _CardPage(at: state, focus: _focus),
+        ReviewFinished() => SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+          child: _Results(finished: state),
+        ),
+      },
     );
   }
 }
 
-/// The card shown, with Next or Finish once it is answered.
-class _CardView extends StatelessWidget {
-  const _CardView({required this.at, required this.focus});
+/// The card shown under the session's steps, and Next or Finish at the foot, once it is answered.
+class _CardPage extends StatelessWidget {
+  const _CardPage({required this.at, required this.focus});
 
   final ReviewAt at;
   final FocusNode focus;
@@ -62,34 +81,38 @@ class _CardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
     final item = cubit.items[at.index];
     final last = at.index == cubit.items.length - 1;
+    final hue = _hueOf(context, item.moduleKey);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          s.review_progress(at.index + 1, cubit.items.length),
-          style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurface),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _Steps(at: at, count: cubit.items.length),
+                const SizedBox(height: AppSpacing.md),
+                switch (item) {
+                  QuestionItem() => _QuestionCard(item: item, at: at, focus: focus, hue: hue),
+                  TermItem() => _TermCard(item: item, at: at, focus: focus, hue: hue),
+                },
+              ],
+            ),
+          ),
         ),
-        Text(
-          item.moduleTitle,
-          style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        switch (item) {
-          QuestionItem() => _QuestionCard(item: item, at: at, focus: focus),
-          TermItem() => _TermCard(item: item, at: at, focus: focus),
-        },
-        const SizedBox(height: AppSpacing.md),
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: FilledButton(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          child: FilledButton.icon(
             key: const Key('review-next'),
             onPressed: at.answered ? cubit.next : null,
-            child: Text(last ? s.review_finish : s.quiz_next),
+            icon: Icon(last ? Icons.check : Icons.arrow_forward),
+            iconAlignment: IconAlignment.end,
+            label: Text(last ? s.review_finish : s.quiz_next),
           ),
         ),
       ],
@@ -97,12 +120,97 @@ class _CardView extends StatelessWidget {
   }
 }
 
+/// The session's steps: one dot per card, green once right and rust once wrong, the current one ringed, and which card
+/// of how many in words.
+class _Steps extends StatelessWidget {
+  const _Steps({required this.at, required this.count});
+
+  final ReviewAt at;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final colors = context.bazaarColors;
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.xs,
+      children: [
+        ExcludeSemantics(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [for (var i = 0; i < count; i++) _StepDot(result: at.results[i], current: i == at.index)],
+          ),
+        ),
+        Text(
+          s.review_progress(at.index + 1, count),
+          style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurfaceMuted),
+        ),
+      ],
+    );
+  }
+}
+
+/// One step: open (a ring), right (`success`) or wrong (`fault`); the current one larger and ringed in `primary`.
+class _StepDot extends StatelessWidget {
+  const _StepDot({required this.result, required this.current});
+
+  final bool? result;
+  final bool current;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.bazaarColors;
+    final fill = switch (result) {
+      null => null,
+      true => BazaarFixedColors.success,
+      false => colors.fault,
+    };
+    final size = current ? 14.0 : 10.0;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: fill,
+        border: Border.all(color: current ? colors.primary : (fill ?? colors.lineStrong), width: current ? 2 : 1),
+      ),
+    );
+  }
+}
+
+/// The card's head inside its card: its kind and module, after the level's key.
+class _CardHead extends StatelessWidget {
+  const _CardHead({required this.kind, required this.module, required this.hue});
+
+  final String? kind;
+  final String module;
+  final Color hue;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.bazaarColors;
+    final style = theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted);
+    return Row(
+      spacing: 6,
+      children: [
+        LevelKey(color: hue, size: 8),
+        Expanded(child: Text(kind == null ? module : '$kind · $module', style: style)),
+      ],
+    );
+  }
+}
+
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({required this.item, required this.at, required this.focus});
+  const _QuestionCard({required this.item, required this.at, required this.focus, required this.hue});
 
   final QuestionItem item;
   final ReviewAt at;
   final FocusNode focus;
+  final Color hue;
 
   @override
   Widget build(BuildContext context) {
@@ -115,11 +223,29 @@ class _QuestionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Focus(
-          focusNode: focus,
-          child: Text(
-            quiz.question,
-            style: TextStyle(fontSize: BazaarType.lead.size, fontWeight: FontWeight.w600, color: colors.onSurfaceTitle),
+        BazaarCard(
+          shape: BazaarCardShape.leaf,
+          accent: hue,
+          tint: hue,
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.sm,
+            children: [
+              _CardHead(kind: null, module: item.moduleTitle, hue: hue),
+              Focus(
+                focusNode: focus,
+                child: Text(
+                  quiz.question,
+                  style: TextStyle(
+                    fontSize: BazaarType.lead.size,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                    color: colors.onSurfaceTitle,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -185,7 +311,9 @@ class _SectionLink extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
           child: Row(
+            spacing: 6,
             children: [
+              Icon(Icons.menu_book_outlined, color: colors.primary, size: 18),
               Flexible(
                 child: Text(
                   label,
@@ -205,12 +333,15 @@ class _SectionLink extends StatelessWidget {
   }
 }
 
+/// A term as a card to turn: the term large on an arch card in its level's hue; a tap on the card shows its definition
+/// under a rule, then Not yet and Knew it, side by side.
 class _TermCard extends StatelessWidget {
-  const _TermCard({required this.item, required this.at, required this.focus});
+  const _TermCard({required this.item, required this.at, required this.focus, required this.hue});
 
   final TermItem item;
   final ReviewAt at;
   final FocusNode focus;
+  final Color hue;
 
   @override
   Widget build(BuildContext context) {
@@ -219,67 +350,128 @@ class _TermCard extends StatelessWidget {
     final colors = context.bazaarColors;
     final cubit = context.read<ReviewSessionCubit>();
     final result = at.results[at.index];
-    return Column(
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    final duration = reduced ? Duration.zero : BazaarMotion.fold;
+    final face = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      spacing: AppSpacing.sm,
       children: [
-        Text(s.review_term, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
+        _CardHead(kind: s.review_term, module: item.moduleTitle, hue: hue),
+        const SizedBox(height: AppSpacing.xl),
         Focus(
           focusNode: focus,
           child: Text(
             item.term.name,
-            style: TextStyle(fontSize: BazaarType.lead.size, fontWeight: FontWeight.w600, color: colors.onSurfaceTitle),
+            textAlign: TextAlign.center,
+            style: displayFace(theme.textTheme.headlineSmall)?.copyWith(color: colors.onSurfaceTitle),
           ),
         ),
-        if (!at.revealed)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: OutlinedButton(
-              key: const Key('review-term-show'),
-              onPressed: cubit.reveal,
-              child: Text(s.review_term_show),
-            ),
-          )
-        else ...[
-          Semantics(
-            liveRegion: true,
-            child: InlineText(
-              inlines: item.term.definition,
-              style: TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface),
-              // A definition's link would leave the session; it is read here, not followed.
-              onLink: (_) {},
-            ),
+        const SizedBox(height: AppSpacing.lg),
+        AnimatedSize(
+          duration: duration,
+          curve: BazaarMotion.bazaar,
+          alignment: Alignment.topCenter,
+          child: AnimatedSwitcher(
+            duration: duration,
+            child: at.revealed
+                ? Column(
+                    key: const ValueKey('definition'),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: AppSpacing.md,
+                    children: [
+                      const ExcludeSemantics(child: DashedRule()),
+                      Semantics(
+                        liveRegion: true,
+                        child: InlineText(
+                          inlines: item.term.definition,
+                          style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
+                          // A definition's link would leave the session; it is read here, not followed.
+                          onLink: (_) {},
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    key: const ValueKey('hint'),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 6,
+                    children: [
+                      Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
+                      Flexible(
+                        child: Text(
+                          s.review_term_show,
+                          style: theme.textTheme.labelLarge?.copyWith(color: colors.primary),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
-          if (result == null)
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                OutlinedButton(
+        ),
+        const SizedBox(height: AppSpacing.sm),
+      ],
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      spacing: AppSpacing.md,
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 200),
+          child: BazaarCard(
+            key: at.revealed ? null : const Key('review-term-show'),
+            shape: BazaarCardShape.arch,
+            accent: hue,
+            tint: hue,
+            onTap: at.revealed ? null : cubit.reveal,
+            semanticLabel: at.revealed ? null : '${s.review_term}: ${item.term.name}. ${s.review_term_show}',
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+            child: face,
+          ),
+        ),
+        if (at.revealed && result == null)
+          Row(
+            spacing: AppSpacing.md,
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
                   key: const Key('review-term-not-yet'),
                   onPressed: () => cubit.judge(knew: false),
-                  child: Text(s.review_term_not_yet),
+                  icon: Icon(Icons.replay_rounded, color: colors.fault),
+                  label: Text(s.review_term_not_yet),
                 ),
-                FilledButton.tonal(
+              ),
+              Expanded(
+                child: FilledButton.icon(
                   key: const Key('review-term-knew'),
                   onPressed: () => cubit.judge(knew: true),
-                  child: Text(s.review_term_knew),
+                  icon: const Icon(Icons.check),
+                  label: Text(s.review_term_knew),
                 ),
-              ],
-            )
-          else
-            Text(
-              result ? s.review_term_knew : s.review_term_not_yet,
-              style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-            ),
-        ],
+              ),
+            ],
+          )
+        else if (result != null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 6,
+            children: [
+              Icon(
+                result ? Icons.check : Icons.replay_rounded,
+                size: 20,
+                color: result ? BazaarFixedColors.success : colors.fault,
+              ),
+              Text(
+                result ? s.review_term_knew : s.review_term_not_yet,
+                style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
+              ),
+            ],
+          ),
       ],
     );
   }
 }
 
-/// The results: how many were right, as a dial and in words, and the way back to Practice.
+/// The results: how many were right as the module quiz's dial and in words, each card with a check or a cross, and
+/// the way back to Practice.
 class _Results extends StatelessWidget {
   const _Results({required this.finished});
 
@@ -290,22 +482,63 @@ class _Results extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
+    final items = context.read<ReviewSessionCubit>().items;
     final total = finished.results.length;
     final line = s.review_result(finished.right, total);
+    final style = TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface);
+    final numbers = math.max(24.0, (quizTextSize(context, '$total.', style).width + 4).ceilToDouble());
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: AppSpacing.lg,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CompletionDial(
-          done: finished.right,
-          total: total,
-          color: BazaarFixedColors.success,
-          center: '${finished.right}/$total',
-          semanticLabel: line,
+        Center(
+          child: CompletionDial(
+            done: finished.right,
+            total: total,
+            color: BazaarFixedColors.success,
+            center: '${finished.right}/$total',
+            semanticLabel: line,
+            size: 120,
+            ring: 12,
+          ),
         ),
+        const SizedBox(height: AppSpacing.lg),
         ExcludeSemantics(
-          child: Text(line, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
+          child: Text(
+            line,
+            textAlign: TextAlign.center,
+            style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.onSurfaceTitle),
+          ),
         ),
+        const SizedBox(height: AppSpacing.lg),
+        for (var i = 0; i < items.length && i < total; i++)
+          MergeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpacing.sm,
+                children: [
+                  SizedBox(
+                    width: numbers,
+                    child: Text('${i + 1}.', style: style),
+                  ),
+                  Icon(
+                    finished.results[i] ?? false ? Icons.check : Icons.close,
+                    size: 20,
+                    color: finished.results[i] ?? false ? BazaarFixedColors.success : colors.fault,
+                    semanticLabel: finished.results[i] ?? false ? s.quiz_recap_correct : s.quiz_recap_wrong,
+                  ),
+                  Expanded(
+                    child: Text(switch (items[i]) {
+                      QuestionItem(:final item) => item.question,
+                      TermItem(:final term) => term.name,
+                    }, style: style),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        const SizedBox(height: AppSpacing.lg),
         FilledButton(
           key: const Key('review-back'),
           onPressed: () => Navigator.maybePop(context),

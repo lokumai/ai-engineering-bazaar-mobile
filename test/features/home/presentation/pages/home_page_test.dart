@@ -235,7 +235,7 @@ void main() {
     final router = await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), repository: repository);
 
     final row = find.byKey(const Key('home-review'), skipOffstage: false);
-    expect(find.text("Today's review, 4 cards", skipOffstage: false), findsOneWidget, reason: 'two questions each');
+    expect(find.text('4 cards, about 2 min', skipOffstage: false), findsOneWidget, reason: 'two questions each');
     expect(find.text('Quizzes to practise', skipOffstage: false), findsNothing, reason: 'the three rows are gone');
     await _tap(tester, row);
     expect(_path(router), '/practice/review');
