@@ -169,6 +169,9 @@ class _Card extends StatelessWidget {
   /// Brings the next card in turn.
   final VoidCallback onAnother;
 
+  /// How fast a swipe across the card must be, in logical pixels a second, to bring another.
+  static const _swipeSpeed = 200.0;
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -176,7 +179,7 @@ class _Card extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final read = BazaarCard(
       key: const ValueKey('home-daily-card'),
-      accent: hue,
+      // No edge of colour along its top: the level's key by the module's name carries the hue (the owner, 2026-11-18).
       onTap: onTap,
       semanticLabel: [
         '${card.heading}. ${card.lead} ${card.module}',
@@ -185,7 +188,14 @@ class _Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(card.heading, style: displayFace(textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle)),
+          // Room at its end for Show another in the card's corner.
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 28),
+            child: Text(
+              card.heading,
+              style: displayFace(textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle),
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             card.lead,
@@ -220,19 +230,25 @@ class _Card extends StatelessWidget {
         ],
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    // The next card in turn (plan 14.1): a swipe across the card, or the mark in its corner, which stands over the card
+    // so a screen reader hears it apart from the card (the owner, 2026-11-18: no row of its own under the card).
+    return Stack(
       children: [
-        read,
-        // Under the card, at its start: the next card in turn (plan 14.1). The tour's Apprentice stands at the end
-        // side of Home's head, so it never hides the button.
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: TextButton.icon(
+        GestureDetector(
+          key: const ValueKey('home-daily-swipe'),
+          onHorizontalDragEnd: (details) {
+            if ((details.primaryVelocity ?? 0).abs() >= _swipeSpeed) onAnother();
+          },
+          child: read,
+        ),
+        PositionedDirectional(
+          top: 2,
+          end: 2,
+          child: IconButton(
             key: const ValueKey('home-daily-another'),
+            tooltip: s.home_daily_another,
             onPressed: onAnother,
-            icon: const Icon(Icons.autorenew_rounded, size: 18),
-            label: Text(s.home_daily_another),
+            icon: Icon(Icons.autorenew_rounded, size: 20, color: colors.onSurfaceMuted),
           ),
         ),
       ],

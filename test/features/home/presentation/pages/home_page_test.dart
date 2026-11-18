@@ -19,6 +19,7 @@ import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
@@ -109,6 +110,12 @@ void main() {
     expect(find.text('Later on'), findsOneWidget);
     expect(find.text('Second Module'), findsOneWidget);
     expect(find.text('Fourth Module', skipOffstage: false), findsOneWidget);
+    expect(
+      find.byIcon(Icons.menu_book_outlined, skipOffstage: false),
+      findsWidgets,
+      reason: "each module later on marked by a book, not its number (the owner, 2026-11-18)",
+    );
+    expect(find.text('02', skipOffstage: false), findsNothing, reason: 'no number');
     expect(find.text('Levels'), findsNothing, reason: 'plan 1P: the levels live on the catalog');
     expect(find.byType(CompletionDial), findsNothing);
     expect(
@@ -239,7 +246,7 @@ void main() {
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets("Practice under its heading: Today's review, the glossary and a quiz waiting (plan 13.2, 13.17)", (
+  testWidgets("Practice under its heading: Today's review, a quiz waiting, then the glossary (plan 13.2, 13.17)", (
     tester,
   ) async {
     final repository = missingContentRepository();
@@ -257,16 +264,33 @@ void main() {
     final heading = find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false);
     expect(heading, findsOneWidget, reason: "Practice's own heading, not the tab's name");
     final tops = [
-      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row, glossary, waiting])
+      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row, waiting, glossary])
         tester.getTopLeft(finder).dy,
       tester.getTopLeft(find.text('Later on', skipOffstage: false)).dy,
     ];
-    expect(tops, [...tops]..sort(), reason: "the day's card, Practice's heading, its three, then Later on");
+    expect(
+      tops,
+      [...tops]..sort(),
+      reason:
+          "the day's card, Practice's heading, Today's review, the quiz, the glossary, then Later on (the owner, "
+          '2026-11-18)',
+    );
+    expect(
+      find.descendant(of: waiting, matching: find.byIcon(Icons.quiz_outlined)),
+      findsOneWidget,
+      reason: "a quiz's mark, no module number (the owner, 2026-11-18)",
+    );
+    expect(
+      find.descendant(of: waiting, matching: find.text('01')),
+      findsNothing,
+      reason: 'no number',
+    );
     expect(
       find.descendant(of: row, matching: find.byIcon(Icons.school_rounded)),
       findsOneWidget,
       reason: "the tab's cap",
     );
+    expect(tester.widget<BazaarCard>(row).accent, isNull, reason: 'no edge of colour on top (the owner, 2026-11-18)');
     expect(find.byKey(const Key('practice-wrong'), skipOffstage: false), findsNothing, reason: "Practice's own");
     expect(find.byKey(const Key('practice-brief'), skipOffstage: false), findsNothing, reason: "Practice's own");
 
@@ -344,17 +368,24 @@ void main() {
     expect(_path(router), '/', reason: 'nothing to start');
   });
 
-  testWidgets('no Practice before a module is completed', (tester) async {
+  testWidgets("Practice from the first launch: the first module's review and quiz wait (the owner, 2026-11-18)", (
+    tester,
+  ) async {
     final repository = missingContentRepository();
     when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
-    await _pumpHome(tester, repository: repository);
-    expect(find.byKey(const Key('home-review'), skipOffstage: false), findsNothing);
-    expect(find.byKey(const Key('home-glossary'), skipOffstage: false), findsNothing);
+    final router = await _pumpHome(tester, repository: repository);
+
+    final row = find.byKey(const Key('home-review'), skipOffstage: false);
+    expect(row, findsOneWidget, reason: 'nothing completed yet, the review draws on the first module');
+    expect(find.byKey(const Key('home-glossary'), skipOffstage: false), findsOneWidget);
+    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
     expect(
-      find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false),
-      findsNothing,
-      reason: 'no heading',
+      find.descendant(of: waiting, matching: find.textContaining('First Module', findRichText: true)),
+      findsOneWidget,
+      reason: "the first module's quiz",
     );
+    await _tap(tester, waiting);
+    expect(_path(router), '/quiz/alpha/first');
   });
 }
 

@@ -11,7 +11,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
@@ -23,8 +22,9 @@ import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 
 /// Home's Practice (plan 13.2, 13.17), under the day's card with its own heading: Today's review on its card, then the
-/// glossary and the first quiz not yet taken as rows. Wrong answers and A module in 2 minutes stay the Practice tab's own (the owner,
-/// 2026-11-18). Nothing shows before a module is completed, or while the notes are being read.
+/// first quiz not yet taken and the glossary as rows. Wrong answers and A module in 2 minutes stay the Practice tab's
+/// own (the owner, 2026-11-18). It shows from the first launch, drawing on the first module before any is completed;
+/// nothing while the notes are being read.
 class HomePractice extends StatelessWidget {
   const HomePractice({super.key, required this.track, required this.language});
 
@@ -35,13 +35,13 @@ class HomePractice extends StatelessWidget {
   Widget build(BuildContext context) {
     final pool = reviewPoolOf(context, track, language);
     final notes = context.watch<StudyNotesCubit>().state;
-    if (pool == null || pool.completed.isEmpty || notes is! StudyNotesReady) return const SizedBox.shrink();
+    if (pool == null || pool.studied.isEmpty || notes is! StudyNotesReady) return const SizedBox.shrink();
     final history = context.watch<ReviewBloc>().state.history;
     final scores = context.watch<QuizScoresBloc>().state;
     final today = dayNumber(clock.now());
     final cards = pool.today(history, today).length;
     final waiting = quizWaiting(
-      pool.completed,
+      pool.studied,
       quizLength: (key) => notes.of(key)?.quiz.length ?? 0,
       finished: (key) => scores.of(key) != null,
       history: history,
@@ -59,8 +59,8 @@ class HomePractice extends StatelessWidget {
           // (the owner, 2026-11-18).
           BazaarRows(
             children: [
-              const _GlossaryRow(),
               if (waiting != null) _QuizWaitingRow(moduleKey: waiting, track: track, language: language),
+              const _GlossaryRow(),
             ],
           ),
         ],
@@ -92,7 +92,7 @@ class _Disc extends StatelessWidget {
   }
 }
 
-/// Today's review as Practice's deck in small: a leaf card with the primary edge. With cards left a tap starts them, and
+/// Today's review on a leaf card, the section's one card, with no edge in a hue (the owner, 2026-11-18). With cards left a tap starts them, and
 /// the results lead back to Home; once the day's are done, or with none, it says so and stays (plan 13.17).
 class _TodayCard extends StatelessWidget {
   const _TodayCard({required this.cards, required this.done});
@@ -116,7 +116,6 @@ class _TodayCard extends StatelessWidget {
     return BazaarCard(
       key: open ? const Key('home-review') : const Key('home-review-rest'),
       shape: BazaarCardShape.leaf,
-      accent: colors.primary,
       // Its results lead back to Home, where it was opened (the owner, 2026-11-18).
       onTap: open ? () => context.push(BazaarPaths.practiceReviewFromHome) : null,
       semanticLabel: '$title, $detail',
@@ -173,8 +172,9 @@ class _GlossaryRow extends StatelessWidget {
   }
 }
 
-/// "Quiz waiting" as a row on the page's ground, drawn as Later on's: the first completed module whose quiz is not
-/// taken, its number, its title, and under it the level's key with "Quiz waiting"; a tap opens its quiz (plan 13.17).
+/// "Quiz waiting" as a row on the page's ground, drawn as Later on's: the first module studied whose quiz is not taken,
+/// the quiz mark in its level's hue in place of a number (the owner, 2026-11-18), its title, and under it "Quiz
+/// waiting"; a tap opens its quiz (plan 13.17).
 class _QuizWaitingRow extends StatelessWidget {
   const _QuizWaitingRow({required this.moduleKey, required this.track, required this.language});
 
@@ -202,29 +202,14 @@ class _QuizWaitingRow extends StatelessWidget {
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          if (module != null)
-            Text(
-              module.number.toString().padLeft(2, '0'),
-              style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-            ),
+          Icon(Icons.quiz_outlined, size: 22, color: hue),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 2,
               children: [
                 Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
-                Row(
-                  spacing: 6,
-                  children: [
-                    LevelKey(color: hue, size: 8),
-                    Flexible(
-                      child: Text(
-                        s.home_quiz_waiting,
-                        style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
-                      ),
-                    ),
-                  ],
-                ),
+                Text(s.home_quiz_waiting, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
               ],
             ),
           ),
