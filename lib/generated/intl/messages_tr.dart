@@ -662,54 +662,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
-    "tour_band": MessageLookupByLibrary.simpleMessage(
-      "Okuyacağın modül hep burada, parmağının ucunda: yarım bıraktığın ya da sıradaki.",
-    ),
-    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
-      "Kervan, yapay zekâ tarihindeki akımların arasından geçiyor. Her durak bir akım, onu anlatan modüller de yanında.",
-    ),
-    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage(
-      "Kervanı ilerletmek için burayı kaydır ya da bir durağa dokun.",
-    ),
+    "tour_band": MessageLookupByLibrary.simpleMessage("Okuyacağın modül hep burada."),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),
     "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
-      "Bütün seviyeler ve modüller burada. Bitirdiğin modüllerin yanına işaret konur.",
+      "Bütün seviyeler ve modüller. Bitirdiklerin işaretlenir.",
     ),
-    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
-      "Aradığın konuyu buraya yaz. Sonuçlar modül modül gelir; istersen seviye seçip filtreleyebilirsin.",
-    ),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage("Her konuyu buradan ara."),
     "tour_done": MessageLookupByLibrary.simpleMessage("Anladım"),
-    "tour_hello": MessageLookupByLibrary.simpleMessage(
-      "Merhaba, ben Çırak. Burada yapay zekâ mühendisliğini seviye seviye, modül modül öğreneceksin. İstersen sana kısaca etrafı gezdireyim?",
-    ),
+    "tour_hello": MessageLookupByLibrary.simpleMessage("Merhaba, ben Çırak. Seni biraz gezdireyim mi?"),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "Sıradaki modüller burada, altında da seviyelerdeki ilerlemen. Bir modülü tamamladığında bunların üstünde Pratik çıkar: Günün tekrarı, sözlük ve bekleyen quiz.",
+      "Sıradaki modüller burada. Bir modül bitirince Pratik de gelir.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "Burası benim köşem. Her gün sana kurstan bir parça getiriyorum, okumak için karta dokunman yeter. Canın isterse benimle sohbet de edebilirsin.",
+      "Her gün sana bir bölüm getiririm. Okumak için dokun ya da başkasını iste.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Şimdi değil"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Devam"),
-    "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "Günün tekrarı, tamamladığın modüllerden her gün birkaç soru ve terim getirir. Yanlışların, 2 dakikada bir modül ve sözlük hemen altında.",
-    ),
-    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
-      "Her seviyenin quizleri burada. Bir seviye aç, quiz çöz; dilediğin kadar tekrar çözebilirsin.",
-    ),
+    "tour_practice_today": MessageLookupByLibrary.simpleMessage("Bitirdiğin modüllerden her gün birkaç soru ve terim."),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage("Her seviyenin quizleri. İstediğin kadar çöz."),
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
-      "Burası benim gardırobum. Bana başka şapkalar ve gövdeler giydirebilir, uygulamanın simgesini değiştirebilirsin. Seviyem yükseldikçe yenileri açılır.",
+      "Gardırobum: beni giydir ya da uygulamanın simgesini değiştir.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
-      "Bu turu yeniden izlemek istersen \"Bazaar nasıl işler\" sayfasından başlatabilirsin.",
-    ),
-    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
-      "Okuma yolunu, uygulamanın dilini, görünümünü ve modüllerin yazı boyutunu buradan değiştirebilirsin.",
-    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
     "tour_step": m65,
-    "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "Sekmeler aşağıda: Katalog, Kervan, Pratik ve Ayarlar. Hangisini açarsan orada neler yapabileceğini anlatırım.",
-    ),
+    "tour_tabs": MessageLookupByLibrary.simpleMessage("Bir sekme aç, sana orayı göstereyim."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),

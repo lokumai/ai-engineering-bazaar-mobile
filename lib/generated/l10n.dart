@@ -2623,14 +2623,9 @@ class S {
     );
   }
 
-  /// `Hi, I'm the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?`
+  /// `Hi, I'm the Apprentice. Shall I show you around?`
   String get tour_hello {
-    return Intl.message(
-      'Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?',
-      name: 'tour_hello',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Hi, I\'m the Apprentice. Shall I show you around?', name: 'tour_hello', desc: '', args: []);
   }
 
   /// `Show me around`
@@ -2658,134 +2653,104 @@ class S {
     return Intl.message('Skip the tour', name: 'tour_skip', desc: '', args: []);
   }
 
-  /// `This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.`
+  /// `I bring you a section every day. Tap it to read, or ask for another.`
   String get tour_home_head {
     return Intl.message(
-      'This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.',
+      'I bring you a section every day. Tap it to read, or ask for another.',
       name: 'tour_home_head',
       desc: '',
       args: [],
     );
   }
 
-  /// `The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today's review, the glossary and a quiz waiting.`
+  /// `The next modules wait here. Practice joins them once you complete one.`
   String get tour_home_after {
     return Intl.message(
-      'The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today\'s review, the glossary and a quiz waiting.',
+      'The next modules wait here. Practice joins them once you complete one.',
       name: 'tour_home_after',
       desc: '',
       args: [],
     );
   }
 
-  /// `The module to read now is always here, under your thumb: the one you left half read, or the next one.`
+  /// `The module to read now is always here.`
   String get tour_band {
-    return Intl.message(
-      'The module to read now is always here, under your thumb: the one you left half read, or the next one.',
-      name: 'tour_band',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('The module to read now is always here.', name: 'tour_band', desc: '', args: []);
   }
 
-  /// `Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I'll show you what it does.`
+  /// `Open a tab and I'll show you around it.`
   String get tour_tabs {
-    return Intl.message(
-      'Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I\'ll show you what it does.',
-      name: 'tour_tabs',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Open a tab and I\'ll show you around it.', name: 'tour_tabs', desc: '', args: []);
   }
 
-  /// `Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.`
+  /// `Search any topic here.`
   String get tour_catalog_search {
-    return Intl.message(
-      'Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.',
-      name: 'tour_catalog_search',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Search any topic here.', name: 'tour_catalog_search', desc: '', args: []);
   }
 
-  /// `Every level and its modules are here. A module you complete is marked as done.`
+  /// `Every level and module. Completed ones get a mark.`
   String get tour_catalog_levels {
     return Intl.message(
-      'Every level and its modules are here. A module you complete is marked as done.',
+      'Every level and module. Completed ones get a mark.',
       name: 'tour_catalog_levels',
       desc: '',
       args: [],
     );
   }
 
-  /// `The Caravan travels the timeline of AI's trends. Each stop is one trend, with the modules that teach it.`
+  /// `The Caravan travels through the trends of AI.`
   String get tour_caravan_stage {
     return Intl.message(
-      'The Caravan travels the timeline of AI\'s trends. Each stop is one trend, with the modules that teach it.',
+      'The Caravan travels through the trends of AI.',
       name: 'tour_caravan_stage',
       desc: '',
       args: [],
     );
   }
 
-  /// `Slide along here, or tap a stop, to move the caravan.`
+  /// `Slide here, or tap a stop, to move along.`
   String get tour_caravan_strip {
-    return Intl.message(
-      'Slide along here, or tap a stop, to move the caravan.',
-      name: 'tour_caravan_strip',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Slide here, or tap a stop, to move along.', name: 'tour_caravan_strip', desc: '', args: []);
   }
 
-  /// `Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.`
+  /// `A few questions and terms a day from the modules you completed.`
   String get tour_practice_today {
     return Intl.message(
-      'Today\'s review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.',
+      'A few questions and terms a day from the modules you completed.',
       name: 'tour_practice_today',
       desc: '',
       args: [],
     );
   }
 
-  /// `Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.`
+  /// `Each level's quizzes. Take them as often as you like.`
   String get tour_quiz_level {
     return Intl.message(
-      'Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.',
+      'Each level\'s quizzes. Take them as often as you like.',
       name: 'tour_quiz_level',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your track, the app's language, its look and the text size of the modules are chosen here.`
+  /// `Track, language, look and text size.`
   String get tour_settings_reading {
-    return Intl.message(
-      'Your track, the app\'s language, its look and the text size of the modules are chosen here.',
-      name: 'tour_settings_reading',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Track, language, look and text size.', name: 'tour_settings_reading', desc: '', args: []);
   }
 
-  /// `This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.`
+  /// `My wardrobe: dress me up, or change the app icon.`
   String get tour_settings_customize {
     return Intl.message(
-      'This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.',
+      'My wardrobe: dress me up, or change the app icon.',
       name: 'tour_settings_customize',
       desc: '',
       args: [],
     );
   }
 
-  /// `Want this tour again? It waits in How the bazaar works.`
+  /// `This tour waits in How the bazaar works.`
   String get tour_settings_guide {
-    return Intl.message(
-      'Want this tour again? It waits in How the bazaar works.',
-      name: 'tour_settings_guide',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('This tour waits in How the bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
   }
 
   /// `Take the tour again`

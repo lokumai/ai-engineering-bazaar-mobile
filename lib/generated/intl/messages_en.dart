@@ -663,52 +663,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
-    "tour_band": MessageLookupByLibrary.simpleMessage(
-      "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
-    ),
-    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
-      "The Caravan travels the timeline of AI\'s trends. Each stop is one trend, with the modules that teach it.",
-    ),
-    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide along here, or tap a stop, to move the caravan."),
-    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
-      "Every level and its modules are here. A module you complete is marked as done.",
-    ),
-    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
-      "Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.",
-    ),
+    "tour_band": MessageLookupByLibrary.simpleMessage("The module to read now is always here."),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("The Caravan travels through the trends of AI."),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide here, or tap a stop, to move along."),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage("Every level and module. Completed ones get a mark."),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage("Search any topic here."),
     "tour_done": MessageLookupByLibrary.simpleMessage("Got it"),
-    "tour_hello": MessageLookupByLibrary.simpleMessage(
-      "Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
-    ),
+    "tour_hello": MessageLookupByLibrary.simpleMessage("Hi, I\'m the Apprentice. Shall I show you around?"),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "The modules after it wait here, and your path through the levels under them. Once you complete a module, Practice shows above them: Today\'s review, the glossary and a quiz waiting.",
+      "The next modules wait here. Practice joins them once you complete one.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
+      "I bring you a section every day. Tap it to read, or ask for another.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("Later"),
     "tour_next": MessageLookupByLibrary.simpleMessage("Next"),
     "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "Today\'s review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
+      "A few questions and terms a day from the modules you completed.",
     ),
-    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
-      "Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
-    ),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage("Each level\'s quizzes. Take them as often as you like."),
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
-      "This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.",
+      "My wardrobe: dress me up, or change the app icon.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
-      "Want this tour again? It waits in How the bazaar works.",
-    ),
-    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
-      "Your track, the app\'s language, its look and the text size of the modules are chosen here.",
-    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Track, language, look and text size."),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
     "tour_step": m65,
-    "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I\'ll show you what it does.",
-    ),
+    "tour_tabs": MessageLookupByLibrary.simpleMessage("Open a tab and I\'ll show you around it."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),

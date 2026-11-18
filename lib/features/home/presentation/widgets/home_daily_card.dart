@@ -224,9 +224,10 @@ class _Card extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         read,
-        // Under the card, at its end: the next card in turn (plan 14.1).
+        // Under the card, at its start: the next card in turn (plan 14.1). The tour's Apprentice stands at the end
+        // side of Home's head, so it never hides the button.
         Align(
-          alignment: AlignmentDirectional.centerEnd,
+          alignment: AlignmentDirectional.centerStart,
           child: TextButton.icon(
             key: const ValueKey('home-daily-another'),
             onPressed: onAnother,

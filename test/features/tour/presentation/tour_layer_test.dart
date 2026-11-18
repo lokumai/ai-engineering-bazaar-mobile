@@ -6,13 +6,17 @@ import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../support/accessibility.dart';
+import '../../../mocks/mock_classes.dart';
 import '../../../support/bazaar_app_harness.dart';
+import '../../../support/content_builders.dart';
 import '../../welcome/presentation/welcome_track_fit_harness.dart' show loadFace, robotoFiles;
 
 /// The Apprentice's tour (plan 11.3).
@@ -29,6 +33,7 @@ Future<(GoRouter, MemoryTourStore)> _pump(
   String at = '/',
   Locale locale = const Locale('en'),
   bool reduced = false,
+  MockContentRepository? repository,
 }) async {
   tester.view.physicalSize = const Size(393, 852);
   tester.view.devicePixelRatio = 1;
@@ -39,7 +44,7 @@ Future<(GoRouter, MemoryTourStore)> _pump(
   await tour.load();
   final router = AppRouterFactory(initialLocation: at).create();
   addTearDown(router.dispose);
-  final app = bazaarTestApp(router: router, tour: tour, locale: locale);
+  final app = bazaarTestApp(router: router, tour: tour, locale: locale, repository: repository);
   await tester.pumpWidget(reduced ? _Reduced(child: app) : app);
   await _walk(tester);
   return (router, store);
@@ -81,9 +86,7 @@ Rect _spot(WidgetTester tester, String spot) {
   return box.localToGlobal(Offset.zero) & box.size;
 }
 
-const _hello =
-    "Hi, I'm the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall "
-    'I show you around?';
+const _hello = "Hi, I'm the Apprentice. Shall I show you around?";
 
 void main() {
   testWidgets('a reader never offered the tour sees none, on any page', (tester) async {
@@ -127,10 +130,10 @@ void main() {
     expect(_asking, findsNothing);
 
     final steps = [
-      (TourSpots.homeHead, 'This is my corner.'),
-      (TourSpots.homeAfter, 'The modules after it wait here'),
-      (TourSpots.band, 'The module to read now is always here'),
-      (TourSpots.tabs, 'Down here are the tabs'),
+      (TourSpots.homeHead, 'I bring you a section every day.'),
+      (TourSpots.homeAfter, 'The next modules wait here.'),
+      (TourSpots.band, 'The module to read now is always here.'),
+      (TourSpots.tabs, "Open a tab and I'll show you around it."),
     ];
     Offset? robotWas;
     for (final (i, (spot, words)) in steps.indexed) {
@@ -148,15 +151,39 @@ void main() {
     expect(store.kept, const TourRecord(guiding: true, seen: {'home'}));
   });
 
+  for (final locale in const [Locale('en'), Locale('fa')]) {
+    testWidgets("on Home's head it leaves Show another in sight, which the words name (${locale.languageCode})", (
+      tester,
+    ) async {
+      final repository = missingContentRepository();
+      when(() => repository.readModuleDoc(any())).thenAnswer(
+        (_) async => testDoc(
+          body: [
+            const HeadingBlock(
+              depth: 2,
+              id: 'why',
+              mark: null,
+              inlines: [TextInline(text: 'Why tools')],
+            ),
+            const ParagraphBlock(inlines: [TextInline(text: 'Models call tools.')], lead: false),
+          ],
+        ),
+      );
+      await _pump(tester, record: const TourRecord(guiding: true), locale: locale, repository: repository);
+      final another = tester.getRect(find.byKey(const ValueKey('home-daily-another')));
+      expect(tester.getRect(_robot).overlaps(another), isFalse);
+    });
+  }
+
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
     final (_, store) = await _pump(tester, record: const TourRecord(guiding: true, seen: {'home'}));
     expect(_scrim, findsNothing, reason: 'Home was shown');
 
     await _tap(tester, find.text('Catalog').last);
-    expect(find.textContaining('Look for any topic here.'), findsOneWidget);
+    expect(find.textContaining('Search any topic here.'), findsOneWidget);
     expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('Every level and its modules'), findsOneWidget);
+    expect(find.textContaining('Every level and module.'), findsOneWidget);
     // The levels fill the screen, so the bubble lies over their foot: high enough to reach, off the navigation.
     expect(tester.getRect(_next).bottom, lessThan(852 * (1 - TourLayer.overFoot)));
     expect(tester.getRect(_next).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top - 60));
@@ -174,7 +201,7 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home'}),
       at: '/practice',
     );
-    expect(find.textContaining("Today's review brings back"), findsOneWidget);
+    expect(find.textContaining('A few questions and terms a day'), findsOneWidget);
 
     await _tap(tester, _skip);
     expect(_scrim, findsNothing);
@@ -217,7 +244,7 @@ void main() {
 
     // Practice has two places: Today's review, then the first level.
     await _tap(tester, _next);
-    expect(find.textContaining('quizzes are here'), findsOneWidget);
+    expect(find.textContaining("Each level's quizzes."), findsOneWidget);
     await tester.tap(_next);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
@@ -247,12 +274,12 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
       at: '/settings',
     );
-    expect(find.textContaining('Your track, the app'), findsOneWidget);
+    expect(find.textContaining('Track, language, look and text size.'), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('This is my wardrobe.'), findsOneWidget);
+    expect(find.textContaining('My wardrobe:'), findsOneWidget);
     expect(_dots(2, 3), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('Want this tour again?'), findsOneWidget);
+    expect(find.textContaining('This tour waits in How the bazaar works.'), findsOneWidget);
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
     await _tap(tester, _next);
     expect(store.kept.seen, hasLength(5));
@@ -268,7 +295,7 @@ void main() {
     await _tap(tester, find.byKey(const ValueKey('guide-replay-tour')));
 
     expect(router.state.uri.path, '/');
-    expect(find.textContaining('This is my corner.'), findsOneWidget);
+    expect(find.textContaining('I bring you a section every day.'), findsOneWidget);
     expect(store.kept, const TourRecord(guiding: true));
   });
 
@@ -358,7 +385,7 @@ void main() {
     final handle = tester.ensureSemantics();
     await _pump(tester, record: const TourRecord(guiding: true));
 
-    expect(find.semantics.byLabel(RegExp('This is my corner')), findsOne);
+    expect(find.semantics.byLabel(RegExp('I bring you a section every day')), findsOne);
     expect(find.semantics.byLabel('Later on'), findsNothing, reason: 'the page under it is left out');
     handle.dispose();
   });

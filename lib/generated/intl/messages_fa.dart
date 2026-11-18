@@ -668,54 +668,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
     "settings_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
-    "tour_band": MessageLookupByLibrary.simpleMessage(
-      "ماژولی که الان باید بخوانید همیشه اینجاست، زیر انگشتتان: همانی که نیمه‌کاره ماند، یا ماژول بعدی.",
-    ),
-    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage(
-      "کاروان در خط زمانی جریان‌های هوش مصنوعی سفر می‌کند. هر ایستگاه یک جریان است، همراه ماژول‌هایی که آن را آموزش می‌دهند.",
-    ),
-    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage(
-      "برای حرکت کاروان، اینجا را بکشید یا روی یک ایستگاه بزنید.",
-    ),
-    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
-      "همهٔ سطح‌ها و ماژول‌هایشان اینجا هستند. ماژولی که تمام کنید علامت می‌خورد.",
-    ),
-    "tour_catalog_search": MessageLookupByLibrary.simpleMessage(
-      "هر موضوعی را اینجا جستجو کنید. نتیجه‌ها ماژول به ماژول کنار هم می‌آیند و می‌توانید آن‌ها را به سطح‌های دلخواه محدود کنید.",
-    ),
+    "tour_band": MessageLookupByLibrary.simpleMessage("ماژولی که الان باید بخوانید همیشه اینجاست."),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("کاروان از میان جریان‌های هوش مصنوعی می‌گذرد."),
+    "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("برای حرکت، اینجا را بکشید یا روی ایستگاهی بزنید."),
+    "tour_catalog_levels": MessageLookupByLibrary.simpleMessage("همهٔ سطح‌ها و ماژول‌ها. تکمیل‌شده‌ها علامت می‌خورند."),
+    "tour_catalog_search": MessageLookupByLibrary.simpleMessage("هر موضوعی را اینجا جستجو کنید."),
     "tour_done": MessageLookupByLibrary.simpleMessage("فهمیدم"),
-    "tour_hello": MessageLookupByLibrary.simpleMessage(
-      "سلام، من شاگردم. این یک برنامهٔ آموزشی است: مهندسی هوش مصنوعی را سطح به سطح و ماژول به ماژول یاد می‌دهیم. می‌خواهید همه‌جا را نشانتان بدهم؟",
-    ),
+    "tour_hello": MessageLookupByLibrary.simpleMessage("سلام، من شاگردم. همه‌جا را نشانتان بدهم؟"),
     "tour_home_after": MessageLookupByLibrary.simpleMessage(
-      "ماژول‌های بعدی اینجا منتظرند و مسیر شما در سطح‌ها زیرشان است. وقتی درسی را تکمیل کنید، تمرین بالای آن‌ها می‌آید: مرور امروز، واژه‌نامه و آزمونی که در انتظار است.",
+      "ماژول‌های بعدی اینجا هستند. با تکمیل یک ماژول، تمرین هم می‌آید.",
     ),
     "tour_home_head": MessageLookupByLibrary.simpleMessage(
-      "این گوشهٔ من است. هر روز بخشی از دوره را برایتان می‌آورم: برای خواندنش روی کارت بزنید. هر وقت خواستید با من گفتگو کنید.",
+      "هر روز بخشی برایتان می‌آورم. برای خواندن بزنید یا یکی دیگر بخواهید.",
     ),
     "tour_later": MessageLookupByLibrary.simpleMessage("بعدا"),
     "tour_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "tour_practice_today": MessageLookupByLibrary.simpleMessage(
-      "مرور امروز هر روز چند پرسش و اصطلاح از درس‌هایی که تکمیل کرده‌اید برمی‌گرداند. پاسخ‌های نادرست، یک درس در 2 دقیقه و واژه‌نامه زیر آن هستند.",
+      "هر روز چند پرسش و اصطلاح از ماژول‌هایی که تکمیل کرده‌اید.",
     ),
-    "tour_quiz_level": MessageLookupByLibrary.simpleMessage(
-      "آزمون‌های هر سطح اینجا هستند. سطحی را باز کنید، آزمونی بدهید و هر چند بار خواستید تکرارش کنید.",
-    ),
+    "tour_quiz_level": MessageLookupByLibrary.simpleMessage("آزمون‌های هر سطح. هر چند بار خواستید بدهید."),
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
-      "این کمد لباس من است. کلاه و بدن دیگری تنم کنید یا نماد برنامه را عوض کنید؛ با بالا رفتن سطحم چیزهای تازه باز می‌شود.",
+      "کمد لباس من: لباسم را عوض کنید یا نماد برنامه را.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage(
-      "دوباره این گشت را می‌خواهید؟ در «بازار چطور کار می‌کند» منتظر شماست.",
-    ),
-    "tour_settings_reading": MessageLookupByLibrary.simpleMessage(
-      "مسیر، زبان برنامه، ظاهر آن و اندازهٔ متن ماژول‌ها را اینجا انتخاب می‌کنید.",
-    ),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("این گشت در «بازار چطور کار می‌کند» است."),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("مسیر، زبان، ظاهر و اندازهٔ متن."),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
     "tour_step": m65,
-    "tour_tabs": MessageLookupByLibrary.simpleMessage(
-      "پایین صفحه زبانه‌ها هستند: کاتالوگ، کاروان، تمرین و تنظیمات. یکی را باز کنید تا نشانتان بدهم چه کاری می‌کند.",
-    ),
+    "tour_tabs": MessageLookupByLibrary.simpleMessage("زبانه‌ای را باز کنید تا آنجا را نشانتان بدهم."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
