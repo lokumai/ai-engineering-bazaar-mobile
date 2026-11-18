@@ -6,11 +6,8 @@ abstract final class TourSpots {
   /// Home's head: the Apprentice's corner with the day's card, or the card alone.
   static const homeHead = 'home.head';
 
-  /// Home's Practice: Today's review, the quiz waiting and the glossary.
+  /// Home's Practice: Today's review and the glossary.
   static const homePractice = 'home.practice';
-
-  /// Home's modules later on.
-  static const homeAfter = 'home.after';
 
   /// The band over the navigation with the module to read now.
   static const band = 'shell.band';
@@ -30,7 +27,7 @@ abstract final class TourSpots {
   /// The Caravan's strip of stops under the stage.
   static const caravanStrip = 'caravan.strip';
 
-  /// Practice's Today's review, at the tab's head (plan 13.11).
+  /// Practice's endless review, at the tab's head (plan 13.11; the owner, 2026-11-18).
   static const practiceToday = 'practice.today';
 
   /// Practice's first level of quizzes.

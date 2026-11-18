@@ -13,8 +13,6 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
 import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
@@ -246,7 +244,7 @@ void main() {
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
 
-  testWidgets("Practice under its heading: Today's review, a quiz waiting, then the glossary (plan 13.2, 13.17)", (
+  testWidgets("Practice under its heading: Today's review, then the glossary; no quiz waiting (plan 13.2, 13.17)", (
     tester,
   ) async {
     final repository = missingContentRepository();
@@ -255,7 +253,6 @@ void main() {
 
     final row = find.byKey(const Key('home-review'), skipOffstage: false);
     final glossary = find.byKey(const Key('home-glossary'), skipOffstage: false);
-    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
     expect(
       find.descendant(of: row, matching: find.textContaining('cards, about')),
       findsOneWidget,
@@ -264,27 +261,21 @@ void main() {
     final heading = find.descendant(of: find.byType(ListView), matching: find.text('Practice'), skipOffstage: false);
     expect(heading, findsOneWidget, reason: "Practice's own heading, not the tab's name");
     final tops = [
-      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row, waiting, glossary])
+      for (final finder in [find.byType(HomeDailyCard, skipOffstage: false), heading, row, glossary])
         tester.getTopLeft(finder).dy,
       tester.getTopLeft(find.text('Later on', skipOffstage: false)).dy,
     ];
     expect(
       tops,
       [...tops]..sort(),
-      reason:
-          "the day's card, Practice's heading, Today's review, the quiz, the glossary, then Later on (the owner, "
-          '2026-11-18)',
+      reason: "the day's card, Practice's heading, Today's review, the glossary, then Later on (the owner, 2026-11-18)",
     );
     expect(
-      find.descendant(of: waiting, matching: find.byIcon(Icons.quiz_outlined)),
-      findsOneWidget,
-      reason: "a quiz's mark, no module number (the owner, 2026-11-18)",
-    );
-    expect(
-      find.descendant(of: waiting, matching: find.text('01')),
+      find.byKey(const Key('home-quiz-waiting'), skipOffstage: false),
       findsNothing,
-      reason: 'no number',
+      reason: "the quizzes are Practice's (the owner, 2026-11-18)",
     );
+    expect(find.byIcon(Icons.quiz_outlined, skipOffstage: false), findsNothing);
     expect(
       find.descendant(of: row, matching: find.byIcon(Icons.school_rounded)),
       findsOneWidget,
@@ -294,24 +285,16 @@ void main() {
     expect(find.byKey(const Key('practice-wrong'), skipOffstage: false), findsNothing, reason: "Practice's own");
     expect(find.byKey(const Key('practice-brief'), skipOffstage: false), findsNothing, reason: "Practice's own");
 
-    for (final part in [glossary, waiting]) {
-      expect(
-        tester.widget(part),
-        isA<BazaarRow>(),
-        reason: "a row on the page's ground, as Later on's: one card in the section (the owner, 2026-11-18)",
-      );
-    }
+    expect(
+      tester.widget(glossary),
+      isA<BazaarRow>(),
+      reason: "a row on the page's ground, as Later on's: one card in the section (the owner, 2026-11-18)",
+    );
     expect(
       find.descendant(of: glossary, matching: find.textContaining('terms')),
       findsNothing,
       reason: 'its name alone (the owner, 2026-11-18)',
     );
-    expect(
-      find.descendant(of: waiting, matching: find.textContaining('First Module', findRichText: true)),
-      findsOneWidget,
-      reason: "the first completed module in the course's order",
-    );
-    expect(find.byKey(const Key('home-quiz-waiting'), skipOffstage: false), findsOneWidget, reason: 'one row');
 
     await _tap(tester, row);
     expect(_path(router), '/practice/review');
@@ -319,29 +302,6 @@ void main() {
     await tester.pumpAndSettle();
     await _tap(tester, glossary);
     expect(_path(router), '/practice/glossary');
-    router.go('/');
-    await tester.pumpAndSettle();
-    await _tap(tester, waiting);
-    expect(_path(router), '/quiz/alpha/first');
-  });
-
-  testWidgets('the quiz waiting is the next one once a quiz is finished, and none once all are', (tester) async {
-    final repository = missingContentRepository();
-    when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
-    final scores = QuizScoresBloc(
-      store: MemoryQuizScoreStore({'alpha/first': const QuizScore(last: 2, best: 2, total: 2)}),
-    )..add(const QuizScoresStarted());
-    addTearDown(scores.close);
-    await _pumpHome(tester, record: _completed(['alpha/first', 'beta/fourth']), repository: repository, scores: scores);
-    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
-    expect(
-      find.descendant(of: waiting, matching: find.textContaining('Fourth Module', findRichText: true)),
-      findsOneWidget,
-    );
-
-    scores.add(const QuizScoreRecorded(key: 'beta/fourth', right: 1, total: 2));
-    await tester.pumpAndSettle();
-    expect(waiting, findsNothing);
   });
 
   testWidgets("once the day's cards are done, Today's review stays and says so (plan 13.17)", (tester) async {
@@ -368,7 +328,7 @@ void main() {
     expect(_path(router), '/', reason: 'nothing to start');
   });
 
-  testWidgets("Practice from the first launch: the first module's review and quiz wait (the owner, 2026-11-18)", (
+  testWidgets("Practice from the first launch: the first module's review waits (the owner, 2026-11-18)", (
     tester,
   ) async {
     final repository = missingContentRepository();
@@ -378,14 +338,8 @@ void main() {
     final row = find.byKey(const Key('home-review'), skipOffstage: false);
     expect(row, findsOneWidget, reason: 'nothing completed yet, the review draws on the first module');
     expect(find.byKey(const Key('home-glossary'), skipOffstage: false), findsOneWidget);
-    final waiting = find.byKey(const Key('home-quiz-waiting'), skipOffstage: false);
-    expect(
-      find.descendant(of: waiting, matching: find.textContaining('First Module', findRichText: true)),
-      findsOneWidget,
-      reason: "the first module's quiz",
-    );
-    await _tap(tester, waiting);
-    expect(_path(router), '/quiz/alpha/first');
+    await _tap(tester, row);
+    expect(_path(router), '/practice/review');
   });
 }
 

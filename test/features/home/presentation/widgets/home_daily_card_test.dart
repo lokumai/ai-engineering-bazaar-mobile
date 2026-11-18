@@ -118,8 +118,8 @@ void main() {
       expect(find.text('Today\'s card'), findsNothing, reason: 'it has no name of its own (plan 14.1)');
       expect(
         tester.widget<BazaarCard>(_card).accent,
-        isNull,
-        reason: 'no edge of colour on top (the owner, 2026-11-18)',
+        isNotNull,
+        reason: "its level's hue along its top, the card the Apprentice shows keeps it (the owner, 2026-11-18)",
       );
       await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
     });

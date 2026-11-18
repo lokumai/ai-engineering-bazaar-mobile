@@ -641,6 +641,11 @@ class S {
     return Intl.message('Listen', name: 'listen', desc: '', args: []);
   }
 
+  /// `Resume listening`
+  String get listen_resume {
+    return Intl.message('Resume listening', name: 'listen_resume', desc: '', args: []);
+  }
+
   /// `Play`
   String get listen_play {
     return Intl.message('Play', name: 'listen_play', desc: '', args: []);
@@ -2713,19 +2718,14 @@ class S {
     );
   }
 
-  /// `A few questions and terms a day, a quiz to take, and the glossary.`
+  /// `A few questions and terms a day, and the glossary.`
   String get tour_home_practice {
     return Intl.message(
-      'A few questions and terms a day, a quiz to take, and the glossary.',
+      'A few questions and terms a day, and the glossary.',
       name: 'tour_home_practice',
       desc: '',
       args: [],
     );
-  }
-
-  /// `The next modules wait here.`
-  String get tour_home_after {
-    return Intl.message('The next modules wait here.', name: 'tour_home_after', desc: '', args: []);
   }
 
   /// `The module to read now is always here.`
@@ -2743,10 +2743,10 @@ class S {
     return Intl.message('Search any topic here.', name: 'tour_catalog_search', desc: '', args: []);
   }
 
-  /// `Each level opens to its modules. Completed ones get a mark.`
+  /// `Tap a level to see its modules. The ones you complete are marked.`
   String get tour_catalog_levels {
     return Intl.message(
-      'Each level opens to its modules. Completed ones get a mark.',
+      'Tap a level to see its modules. The ones you complete are marked.',
       name: 'tour_catalog_levels',
       desc: '',
       args: [],
@@ -2826,16 +2826,6 @@ class S {
   /// `Endless review`
   String get practice_endless {
     return Intl.message('Endless review', name: 'practice_endless', desc: '', args: []);
-  }
-
-  /// `Questions and terms at random, as long as you like. The same one may come again.`
-  String get practice_endless_lede {
-    return Intl.message(
-      'Questions and terms at random, as long as you like. The same one may come again.',
-      name: 'practice_endless_lede',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min`
@@ -3070,11 +3060,6 @@ class S {
   /// `This is in: {section}`
   String review_section_link(String section) {
     return Intl.message('This is in: $section', name: 'review_section_link', desc: '', args: [section]);
-  }
-
-  /// `Quiz waiting`
-  String get home_quiz_waiting {
-    return Intl.message('Quiz waiting', name: 'home_quiz_waiting', desc: '', args: []);
   }
 }
 

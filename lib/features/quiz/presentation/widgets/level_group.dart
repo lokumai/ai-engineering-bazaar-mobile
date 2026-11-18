@@ -30,6 +30,7 @@ class PracticeLevelGroup extends StatelessWidget {
     final hue = levelHue(context, position < 0 ? 0 : position);
     return BazaarCard(
       shape: BazaarCardShape.arch,
+      accent: hue,
       tint: hue,
       padding: EdgeInsets.zero,
       child: Column(

@@ -179,7 +179,8 @@ class _Card extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final read = BazaarCard(
       key: const ValueKey('home-daily-card'),
-      // No edge of colour along its top: the level's key by the module's name carries the hue (the owner, 2026-11-18).
+      // Its level's hue along its top: the one card on Home that keeps it (the owner, 2026-11-18).
+      accent: hue,
       onTap: onTap,
       semanticLabel: [
         '${card.heading}. ${card.lead} ${card.module}',

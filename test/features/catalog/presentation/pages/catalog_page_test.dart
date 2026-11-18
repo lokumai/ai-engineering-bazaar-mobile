@@ -76,6 +76,25 @@ void main() {
     expect(_inOverview('Fourth Module'), findsNothing, reason: 'beta starts closed');
   });
 
+  testWidgets("a module's row has no number, and the way in at its end, as Practice's rows (the owner, 2026-11-18)", (
+    tester,
+  ) async {
+    await _pumpCatalog(tester);
+    for (final key in ['alpha/first', 'alpha/second', 'alpha/third']) {
+      final row = find.byKey(CatalogOverview.rowKey(key));
+      expect(
+        find.descendant(of: row, matching: find.textContaining(RegExp(r'^0\d$'))),
+        findsNothing,
+        reason: key,
+      );
+      expect(
+        find.descendant(of: row, matching: find.byIcon(Icons.chevron_right)),
+        findsOneWidget,
+        reason: key,
+      );
+    }
+  });
+
   testWidgets('a level opens its modules under it, and a second tap closes them', (tester) async {
     await _pumpCatalog(tester);
 

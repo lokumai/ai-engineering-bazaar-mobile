@@ -490,8 +490,8 @@ void main() {
     expect(typing(), isFalse, reason: 'a tap elsewhere puts the keyboard away');
   });
 
-  testWidgets("the tab's head is the endless review, with no edge of colour; Today's review is Home's "
-      '(the owner, 2026-11-18)', (tester) async {
+  testWidgets("the tab's head is the endless review, the one card with an edge of colour, no words under its name; "
+      "Today's review is Home's (the owner, 2026-11-18)", (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _endless, matching: find.text('Endless review')), findsOneWidget);
     expect(find.text("Today's review"), findsNothing);
@@ -500,8 +500,15 @@ void main() {
       findsOneWidget,
       reason: 'before any module is completed it draws on the first',
     );
-    for (final card in tester.widgetList<BazaarCard>(find.byType(BazaarCard))) {
-      expect(card.accent, isNull, reason: 'no edge of colour along a top');
+    final deck = find.descendant(of: _endless, matching: find.byType(BazaarCard));
+    expect(tester.widget<BazaarCard>(deck).accent, isNotNull, reason: 'the endless review keeps its edge');
+    expect(find.textContaining('at random'), findsNothing, reason: 'its name says it');
+    for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary']) {
+      final card = tester.widget<BazaarCard>(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.byType(BazaarCard)),
+      );
+      expect(card.accent, isNull, reason: '$tile: no edge of colour along its top');
+      expect(card.tint, isNotNull, reason: '$tile: washed in its hue, as before');
     }
   });
 
@@ -513,6 +520,11 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
     expect(find.text('Endless review'), findsOneWidget);
     expect(find.textContaining('Card 1 of'), findsNothing, reason: 'no end to count to');
+    expect(
+      tester.widget<BazaarCard>(find.byType(BazaarCard).first).accent,
+      isNotNull,
+      reason: "a card keeps its level's edge along its top (the owner, 2026-11-18)",
+    );
 
     // More cards than the module's two questions: it goes on, a card drawn again.
     for (var i = 0; i < 4; i++) {

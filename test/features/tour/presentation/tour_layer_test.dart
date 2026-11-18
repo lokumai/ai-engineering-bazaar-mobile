@@ -86,9 +86,6 @@ Rect _spot(WidgetTester tester, String spot) {
   return box.localToGlobal(Offset.zero) & box.size;
 }
 
-/// The widget the tour's place [TourSpots.catalogLevels] marks.
-Widget _target(WidgetTester tester) => TourTarget.contextOf(TourSpots.catalogLevels)!.widget;
-
 const _hello = "Hi, I'm the Apprentice. Shall I show you around?";
 
 void main() {
@@ -134,19 +131,18 @@ void main() {
 
     final steps = [
       (TourSpots.homeHead, 'I bring you a section every day.'),
-      (TourSpots.homeAfter, 'The next modules wait here.'),
       (TourSpots.band, 'The module to read now is always here.'),
       (TourSpots.tabs, "Open a tab and I'll show you around it."),
     ];
     Offset? robotWas;
     for (final (i, (spot, words)) in steps.indexed) {
       expect(find.textContaining(words), findsOneWidget, reason: spot);
-      expect(_dots(i + 1, 4), findsOneWidget);
+      expect(_dots(i + 1, 3), findsOneWidget, reason: 'no stop at Later on (the owner, 2026-11-18)');
       expect(_hole(tester), _spot(tester, spot).intersect(Offset.zero & const Size(393, 852)), reason: spot);
       final robot = tester.getCenter(_robot);
       expect(robot, isNot(robotWas), reason: 'it walked to $spot');
       robotWas = robot;
-      expect(_says(i == 3 ? 'Got it' : 'Next'), findsOneWidget);
+      expect(_says(i == 2 ? 'Got it' : 'Next'), findsOneWidget);
       await _tap(tester, _next);
     }
 
@@ -165,9 +161,9 @@ void main() {
     );
     await _pump(tester, record: const TourRecord(guiding: true), repository: repository);
 
-    expect(_dots(1, 5), findsOneWidget, reason: 'five places: the head, Practice, Later on, the band, the tabs');
+    expect(_dots(1, 4), findsOneWidget, reason: 'four places: the head, Practice, the band, the tabs');
     await _tap(tester, _next);
-    expect(find.textContaining('A few questions and terms a day, a quiz to take'), findsOneWidget);
+    expect(find.textContaining('A few questions and terms a day, and the glossary.'), findsOneWidget);
     expect(_hole(tester), _spot(tester, TourSpots.homePractice).intersect(Offset.zero & const Size(393, 852)));
     expect(_hole(tester)!.height, lessThan(300), reason: 'Practice alone');
   });
@@ -204,15 +200,15 @@ void main() {
     expect(find.textContaining('Search any topic here.'), findsOneWidget);
     expect(_dots(1, 2), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('Each level opens to its modules.'), findsOneWidget);
-    // The ring holds the first level's head alone, not the whole page (the owner, 2026-11-18).
+    expect(find.textContaining('Tap a level to see its modules.'), findsOneWidget);
+    // The ring holds the first level whole, as Practice's first level, not the whole page (the owner, 2026-11-18).
     final ring = _hole(tester)!;
-    expect(ring.height, lessThan(140), reason: "one level's head");
     expect(ring, _spot(tester, TourSpots.catalogLevels));
+    expect(ring, tester.getRect(find.byKey(const ValueKey('catalog-level-alpha'))), reason: 'the first level, whole');
     expect(
-      find.descendant(of: find.byKey(const ValueKey('catalog-level-alpha')), matching: find.byWidget(_target(tester))),
-      findsOneWidget,
-      reason: 'the first level',
+      ring.bottom,
+      lessThan(tester.getRect(find.byKey(const ValueKey('catalog-level-beta'), skipOffstage: false)).top),
+      reason: 'the first level alone',
     );
     expect(tester.getRect(_next).bottom, lessThan(tester.getRect(find.byType(NavigationBar)).top - 60));
     await _tap(tester, _next);
@@ -365,8 +361,8 @@ void main() {
     }
   });
 
-  // Plan 13.11: the Quiz tab's stop gave way to Practice's two, Today's review with its rows, then the first level;
-  // each rings its whole place, with the Apprentice on the screen and Next above the navigation, in each language.
+  // Plan 13.11: the Quiz tab's stop gave way to Practice's two, the endless review, then the first level; each rings
+  // its whole place, with the Apprentice on the screen and Next above the navigation, in each language.
   group("Practice's stops in a real face", () {
     setUpAll(() => loadFace('Roboto', robotoFiles()));
     for (final (name, size, insets) in [
@@ -375,16 +371,27 @@ void main() {
     ]) {
       for (final locale in const [Locale('en'), Locale('tr'), Locale('fa')]) {
         testWidgets('on a $name in ${locale.languageCode}', (tester) async {
+          // Modules with a quiz, so the endless review shows Start, as on a phone.
+          final repository = missingContentRepository();
+          when(() => repository.readModuleDoc(any())).thenAnswer(
+            (_) async => testDoc(
+              quiz: const [
+                QuizItem(question: 'Q1', options: ['One', 'Two'], answer: 0, explain: 'E1'),
+              ],
+            ),
+          );
+          // The phone's insets from the start, as on a phone: set after, the ring was left where the page stood.
+          tester.view.padding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          tester.view.viewPadding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
+          addTearDown(tester.view.reset);
           await _pump(
             tester,
             record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'settings'}),
             at: '/practice',
             locale: locale,
+            repository: repository,
           );
           tester.view.physicalSize = size;
-          tester.view.padding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
-          tester.view.viewPadding = FakeViewPadding(top: insets.$1, bottom: insets.$2);
-          addTearDown(tester.view.reset);
           await _walk(tester);
           final screen = Offset.zero & size;
           for (final spot in [TourSpots.practiceToday, TourSpots.quizLevel]) {
@@ -392,9 +399,25 @@ void main() {
             final hole = _hole(tester)!;
             final place = _spot(tester, spot);
             expect(hole.height, moreOrLessEquals(place.height, epsilon: 1), reason: '$spot: the whole place ringed');
+            expect(hole.top, moreOrLessEquals(place.top, epsilon: 1), reason: '$spot: on its place');
             expect(screen.contains(tester.getRect(_robot).topLeft), isTrue, reason: '$spot: the Apprentice on screen');
             final next = tester.getRect(_next);
             expect(next.bottom, lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy), reason: spot);
+            if (spot == TourSpots.practiceToday) {
+              // The first stop rings the endless review alone: with the tiles in it, the Apprentice stood on
+              // "Wrong answers" on a small phone (the owner's round, 2026-11-18).
+              expect(place, tester.getRect(find.byKey(const Key('practice-endless'))));
+              for (final part in [
+                find.byIcon(Icons.all_inclusive_rounded),
+                find.byKey(const Key('practice-endless-start')),
+              ]) {
+                expect(
+                  tester.getRect(_robot).overlaps(tester.getRect(part)),
+                  isFalse,
+                  reason: '$part in view ${tester.getRect(_robot)} ${tester.getRect(part)} $place $hole',
+                );
+              }
+            }
             if (spot != TourSpots.quizLevel) await _tap(tester, _next);
           }
         });

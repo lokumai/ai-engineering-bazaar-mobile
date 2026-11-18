@@ -245,6 +245,7 @@ class _QuestionCard extends StatelessWidget {
       children: [
         BazaarCard(
           shape: BazaarCardShape.leaf,
+          accent: hue,
           tint: hue,
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
           child: Column(
@@ -417,6 +418,7 @@ class _TermCard extends StatelessWidget {
       children: [
         BazaarCard(
           shape: BazaarCardShape.leaf,
+          accent: hue,
           tint: hue,
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
           child: Column(

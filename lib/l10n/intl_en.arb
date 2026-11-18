@@ -367,6 +367,7 @@
   "reader_contents": "Contents",
   "@reader_contents": {},
   "listen": "Listen",
+  "listen_resume": "Resume listening",
   "listen_play": "Play",
   "listen_pause": "Pause",
   "listen_back": "Previous paragraph",
@@ -1372,16 +1373,14 @@
   "@tour_skip": {},
   "tour_home_head": "I bring you a section every day. Tap it to read, or swipe for another.",
   "@tour_home_head": {},
-  "tour_home_practice": "A few questions and terms a day, a quiz to take, and the glossary.",
-  "tour_home_after": "The next modules wait here.",
-  "@tour_home_after": {},
+  "tour_home_practice": "A few questions and terms a day, and the glossary.",
   "tour_band": "The module to read now is always here.",
   "@tour_band": {},
   "tour_tabs": "Open a tab and I'll show you around it.",
   "@tour_tabs": {},
   "tour_catalog_search": "Search any topic here.",
   "@tour_catalog_search": {},
-  "tour_catalog_levels": "Each level opens to its modules. Completed ones get a mark.",
+  "tour_catalog_levels": "Tap a level to see its modules. The ones you complete are marked.",
   "@tour_catalog_levels": {},
   "tour_caravan_stage": "The Caravan travels through the trends of AI.",
   "@tour_caravan_stage": {},
@@ -1412,7 +1411,6 @@
   },
   "practice_today": "Today's review",
   "practice_endless": "Endless review",
-  "practice_endless_lede": "Questions and terms at random, as long as you like. The same one may come again.",
   "practice_today_cards": "{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min",
   "@practice_today_cards": {
     "placeholders": {
@@ -1528,6 +1526,5 @@
         "type": "String"
       }
     }
-  },
-  "home_quiz_waiting": "Quiz waiting"
+  }
 }

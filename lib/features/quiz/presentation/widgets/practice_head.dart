@@ -11,16 +11,16 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 
-/// Practice's head (plan 13.2): the endless review as a deck of cards, its name, what it does and Start (the owner,
-/// 2026-11-18: Today's review stays Home's); then Wrong answers, A module in 2 minutes and the Glossary side by side on
-/// the page's ground, a hairline between each, each with its mark in its hue and its count.
+/// Practice's head (plan 13.2): the endless review as a deck of cards, its name and Start (the owner,
+/// 2026-11-18: Today's review stays Home's); then Wrong answers, A module in 2 minutes and the Glossary side by side,
+/// each a card washed in its hue with its mark and its count.
 class PracticeHead extends StatelessWidget {
   const PracticeHead({super.key, required this.track});
 
@@ -40,10 +40,14 @@ class PracticeHead extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _EndlessDeck(
-          key: const Key('practice-endless'),
-          ready: pool != null,
-          cards: pool == null ? 0 : pool.questions.length + pool.newTerms.length,
+        // The tour's first stop on Practice: the endless review alone, so the Apprentice stands clear of the tiles.
+        TourTarget(
+          spot: TourSpots.practiceToday,
+          child: _EndlessDeck(
+            key: const Key('practice-endless'),
+            ready: pool != null,
+            cards: pool == null ? 0 : pool.questions.length + pool.newTerms.length,
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         _Tiles(
@@ -82,8 +86,9 @@ class PracticeHead extends StatelessWidget {
   }
 }
 
-/// The endless review as the top card of a deck, two more cards' edges under it, with no edge of colour along its top
-/// (the owner, 2026-11-18): its name, what it does and Start, once there are [cards] to draw from.
+/// The endless review as the top card of a deck, two more cards' edges under it, the one card on Practice with an edge
+/// of colour along its top (the owner, 2026-11-18): its name, and Start once there are [cards] to draw from; no words on what it does, its name
+/// says it.
 class _EndlessDeck extends StatelessWidget {
   const _EndlessDeck({super.key, required this.ready, required this.cards});
 
@@ -103,6 +108,7 @@ class _EndlessDeck extends StatelessWidget {
     final colors = context.bazaarColors;
     final top = BazaarCard(
       shape: BazaarCardShape.leaf,
+      accent: colors.primary,
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,8 +129,6 @@ class _EndlessDeck extends StatelessWidget {
               ),
             ],
           ),
-          if (ready)
-            Text(s.practice_endless_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
           if (ready && cards > 0) ...[
             const SizedBox(height: AppSpacing.xs),
             FilledButton.icon(
@@ -167,8 +171,7 @@ class _EndlessDeck extends StatelessWidget {
   }
 }
 
-/// The tiles side by side on the page's ground, a hairline between each, each as tall as the tallest; one under
-/// another, a hairline between, when the text is large.
+/// The tiles side by side, each as tall as the tallest; one under another when the text is large.
 class _Tiles extends StatelessWidget {
   const _Tiles({required this.tiles});
 
@@ -177,23 +180,21 @@ class _Tiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
-    if (stacked) return BazaarRows(children: tiles);
+    if (stacked) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: AppSpacing.md, children: tiles);
+    }
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final (i, tile) in tiles.indexed) ...[
-            if (i > 0) const VerticalDivider(width: 1, thickness: 0.5, indent: 8, endIndent: 8),
-            Expanded(child: tile),
-          ],
-        ],
+        spacing: AppSpacing.md,
+        children: [for (final tile in tiles) Expanded(child: tile)],
       ),
     );
   }
 }
 
-/// One of Practice's tiles, with no frame (the owner, 2026-11-18): its mark in [hue], its count large and its name; a
-/// tap opens its page.
+/// One of Practice's tiles: an arch card washed in [hue], with no edge of colour along its top (the owner, 2026-11-18),
+/// its mark, its count large and its name; a tap opens its page.
 class _Tile extends StatelessWidget {
   const _Tile({
     super.key,
@@ -207,7 +208,7 @@ class _Tile extends StatelessWidget {
 
   final IconData icon;
 
-  /// The ring of its mark; never its text (spec 3.8).
+  /// Its wash and the ring of its mark; never its text (spec 3.8).
   final Color hue;
   final int count;
   final String title;
@@ -220,10 +221,12 @@ class _Tile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    return BazaarRow(
+    return BazaarCard(
+      shape: BazaarCardShape.arch,
+      tint: hue,
       onTap: onTap,
       semanticLabel: '$title, $detail',
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

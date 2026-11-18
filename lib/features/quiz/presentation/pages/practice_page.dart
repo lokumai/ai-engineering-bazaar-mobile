@@ -21,7 +21,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/latest_answers.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -75,10 +75,8 @@ class PracticePage extends StatelessWidget {
           // (review round 4), and without it Practice and the catalog open alike.
           SectionRule(title: s.nav_practice),
           const SizedBox(height: AppSpacing.md),
-          TourTarget(
-            spot: TourSpots.practiceToday,
-            child: PracticeHead(track: track),
-          ),
+          // The tour's first stop rings the endless review alone (PracticeHead).
+          PracticeHead(track: track),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.practice_quizzes),
           const SizedBox(height: AppSpacing.md),

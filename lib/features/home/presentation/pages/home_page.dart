@@ -17,7 +17,6 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
-import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -64,31 +63,21 @@ class HomePage extends StatelessWidget {
           if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
           // The day's card, a section of a module to read today (plan 11.1).
           HomeDailyCard(frame: dailyFrame),
-          // Practice under its own heading, after the day's card (plan 13.2, 13.17): Today's review, the glossary and a
-          // quiz waiting; none before a module is completed.
+          // Practice under its own heading, after the day's card (plan 13.2, 13.17): Today's review and the glossary,
+          // from the first launch.
           HomePractice(track: track, language: language),
           // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
           // card says the track is completed.
           if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
           if (overview.after.isNotEmpty) ...[
-            TourTarget(
-              spot: TourSpots.homeAfter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SectionRule(title: s.home_after),
-                  const SizedBox(height: 12),
-                  BazaarRows(
-                    children: [
-                      for (final entry in overview.after)
-                        HomeAfterRow(
-                          entry: entry,
-                          onTap: () => context.push(BazaarPaths.module(track, entry.module.key)),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+            // No stop of the tour here: the rows say what they are (the owner, 2026-11-18).
+            SectionRule(title: s.home_after),
+            const SizedBox(height: 12),
+            BazaarRows(
+              children: [
+                for (final entry in overview.after)
+                  HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
+              ],
             ),
             const SizedBox(height: 10),
           ],

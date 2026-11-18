@@ -118,8 +118,8 @@ class _LevelCard extends StatelessWidget {
   final bool open;
   final VoidCallback onToggle;
 
-  /// Whether it is the first level shown, whose head the tour rings: one level, not the whole page (the owner,
-  /// 2026-11-18).
+  /// Whether it is the first level shown, which the tour rings whole, as Practice's first level: one level, not the
+  /// whole page (the owner, 2026-11-18).
   final bool first;
 
   @override
@@ -135,7 +135,7 @@ class _LevelCard extends StatelessWidget {
         ? s.level_completed_pending(level.total)
         : s.level_completed(count.approved, count.total);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
-    return BazaarCard(
+    final card = BazaarCard(
       shape: BazaarCardShape.arch,
       accent: hue,
       tint: hue,
@@ -143,64 +143,61 @@ class _LevelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Ringed(
-            first: first,
-            child: Semantics(
-              button: true,
-              expanded: open,
-              label: [level.title, lead, meter, if (planned) s.module_planned].join(', '),
-              excludeSemantics: true,
+          Semantics(
+            button: true,
+            expanded: open,
+            label: [level.title, lead, meter, if (planned) s.module_planned].join(', '),
+            excludeSemantics: true,
+            onTap: onToggle,
+            child: InkWell(
               onTap: onToggle,
-              child: InkWell(
-                onTap: onToggle,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    AppSpacing.md,
-                  ),
-                  child: Row(
-                    spacing: AppSpacing.md,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 2,
-                          children: [
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${moduleNumber(position + 1)}  ',
-                                    style: TextStyle(color: colors.onSurfaceMuted),
-                                  ),
-                                  TextSpan(text: level.title),
-                                ],
-                              ),
-                              style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
+                child: Row(
+                  spacing: AppSpacing.md,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 2,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${moduleNumber(position + 1)}  ',
+                                  style: TextStyle(color: colors.onSurfaceMuted),
+                                ),
+                                TextSpan(text: level.title),
+                              ],
                             ),
-                            Text(lead, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                            if (planned) ...[const SizedBox(height: AppSpacing.xs), _Tag(text: s.module_planned)],
-                          ],
-                        ),
+                            style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
+                          ),
+                          Text(lead, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                          if (planned) ...[const SizedBox(height: AppSpacing.xs), _Tag(text: s.module_planned)],
+                        ],
                       ),
-                      CompletionDial(
-                        done: count?.approved ?? 0,
-                        total: count?.total ?? level.total,
-                        color: hue,
-                        center: count == null
-                            ? s.catalog_level_dial(catalogNoReading, level.total)
-                            : s.catalog_level_dial(count.approved.toString(), count.total),
-                        semanticLabel: meter,
-                      ),
-                      AnimatedRotation(
-                        turns: open ? 0.5 : 0,
-                        duration: duration,
-                        child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
-                      ),
-                    ],
-                  ),
+                    ),
+                    CompletionDial(
+                      done: count?.approved ?? 0,
+                      total: count?.total ?? level.total,
+                      color: hue,
+                      center: count == null
+                          ? s.catalog_level_dial(catalogNoReading, level.total)
+                          : s.catalog_level_dial(count.approved.toString(), count.total),
+                      semanticLabel: meter,
+                    ),
+                    AnimatedRotation(
+                      turns: open ? 0.5 : 0,
+                      duration: duration,
+                      child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -225,12 +222,13 @@ class _LevelCard extends StatelessWidget {
         ],
       ),
     );
+    return first ? TourTarget(spot: TourSpots.catalogLevels, child: card) : card;
   }
 }
 
 /// One module of an open level (web `CourseCompletion.tsx:187-276`, the progress page's row, plan 1AB): the completion
-/// toggle when the module is written in [track], a dashed ring that says Planned when it is not, then the number, the
-/// title and the length, which open the module in [track].
+/// toggle when the module is written in [track], a dashed ring that says Planned when it is not, then the title, the
+/// length and the way in, which open the module in [track]; no number (the owner, 2026-11-18).
 class _ModuleRow extends StatelessWidget {
   const _ModuleRow({super.key, required this.track, required this.index, required this.row});
 
@@ -292,10 +290,6 @@ class _ModuleRow extends StatelessWidget {
                   child: Row(
                     spacing: AppSpacing.sm,
                     children: [
-                      Text(
-                        moduleNumber(row.number),
-                        style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-                      ),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,6 +307,8 @@ class _ModuleRow extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // The way in, as on Practice's rows (the owner, 2026-11-18).
+                      ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
                     ],
                   ),
                 ),
@@ -344,15 +340,4 @@ class _Tag extends StatelessWidget {
       ),
     );
   }
-}
-
-/// [child] marked for the tour's ring when [first], as it is.
-class _Ringed extends StatelessWidget {
-  const _Ringed({required this.first, required this.child});
-
-  final bool first;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => first ? TourTarget(spot: TourSpots.catalogLevels, child: child) : child;
 }

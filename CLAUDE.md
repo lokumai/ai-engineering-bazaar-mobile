@@ -108,7 +108,7 @@ lib/
                                                 app's own quiz scores, never in the record
     review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
                                                 and its file shape, IReviewStore, ReviewBloc, review_plan.dart (Today's
-                                                review, Wrong answers) and quiz_waiting.dart (the first quiz not taken);
+                                                review, Wrong answers) and latest_answers.dart (a quiz's latest answers);
                                                 the app's own, never in the record
     study/                                      a module's Key Terms, Summary and quiz found by place and shape
                                                 (module_notes.dart), where a text uses a term (term_marks.dart), the

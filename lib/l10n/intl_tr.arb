@@ -93,6 +93,7 @@
   "block_table_region": "Tablo {number}",
   "reader_contents": "İçindekiler",
   "listen": "Dinle",
+  "listen_resume": "Kaldığın yerden dinle",
   "listen_play": "Sürdür",
   "listen_pause": "Duraklat",
   "listen_back": "Önceki paragraf",
@@ -385,12 +386,11 @@
   "tour_done": "Anladım",
   "tour_skip": "Turu geç",
   "tour_home_head": "Her gün sana bir bölüm getiririm. Okumak için dokun, başkası için kaydır.",
-  "tour_home_practice": "Her gün birkaç soru ve terim, bekleyen quiz ve sözlük.",
-  "tour_home_after": "Sıradaki modüller burada.",
+  "tour_home_practice": "Her gün birkaç soru ve terim, bir de sözlük.",
   "tour_band": "Okuyacağın modül hep burada.",
   "tour_tabs": "Bir sekme aç, sana orayı göstereyim.",
   "tour_catalog_search": "Her konuyu buradan ara.",
-  "tour_catalog_levels": "Her seviye modüllerine açılır. Bitirdiklerin işaretlenir.",
+  "tour_catalog_levels": "Bir seviyeye dokununca modülleri açılır. Tamamladığın modüller işaretli görünür.",
   "tour_caravan_stage": "Kervan, yapay zekâ akımlarının arasından geçer.",
   "tour_caravan_strip": "İlerlemek için kaydır ya da bir durağa dokun.",
   "tour_practice_today": "Burada istediğin kadar pratik yap.",
@@ -402,7 +402,6 @@
   "tour_step": "{step} / {count}",
   "practice_today": "Günün tekrarı",
   "practice_endless": "Sınırsız tekrar",
-  "practice_endless_lede": "Rastgele sorular ve terimler, istediğin kadar. Aynısı yeniden de gelebilir.",
   "practice_today_cards": "{count, plural, =1{1 kart} other{{count} kart}}, yaklaşık {minutes} dk",
   "practice_start": "Başla",
   "practice_today_none": "Bugün tekrar edecek bir şey yok",
@@ -440,6 +439,5 @@
   "review_back": "Pratik'e dön",
   "review_back_home": "Ana sayfaya dön",
   "review_empty": "Gösterilecek kart yok.",
-  "review_section_link": "Bu konu şurada: {section}",
-  "home_quiz_waiting": "Bekleyen quiz"
+  "review_section_link": "Bu konu şurada: {section}"
 }
