@@ -461,7 +461,7 @@ Its own PR (the owner). The Quiz tab becomes Practice (Pratik, تمرین), one 
 
 After Phase 13, whose history it reads.
 
-- [ ] **14.1 A card the Apprentice shows.** "Today's card" loses its name: the bubble at Home's head is a card the Apprentice picks, the day's card on the day's first look, and "Show another" lets it pick another.
+- [x] **14.1 A card the Apprentice shows.** "Today's card" loses its name: the bubble at Home's head is a card the Apprentice picks, the day's card on the day's first look, and "Show another" lets it pick another.
 - [ ] **14.2 The Apprentice asks.** At most once a day, and only with a review question due, the bubble asks it instead, with its options. Right feeds the Apprentice a meal; wrong shows the explanation and the way to its section; the answer counts in Practice.
 - [ ] **14.3 The tour.** Home's first stop fitted to both bubbles; the question's is taller.
 

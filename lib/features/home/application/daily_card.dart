@@ -1,6 +1,7 @@
-/// The day's card on Home (plan 11.1, the owner, 2026-11-16): one section of one module, its heading and its first
-/// sentences, which the Apprentice offers at the head of Home. The same card all day, another the next: it is chosen by
-/// the day, not by chance, so every opening of the app that day shows it.
+/// The card on Home (plan 11.1, 14.1, the owner, 2026-11-16): one section of one module, its heading and its first
+/// sentences, which the Apprentice offers at the head of Home. The day's first look shows the same card all day, another
+/// the next: it is chosen by the day, not by chance, so every opening of the app that day starts on it. Show another
+/// goes on to the next one in turn.
 ///
 /// It is chosen in two steps. [dailyChoice] picks the module from the index and the record, which are at hand; the
 /// module's document is then read, and [dailyCardOf] picks the section from it.
@@ -38,7 +39,8 @@ const int dailyOpenCount = 3;
 
 /// The module of [day]'s card in [track]: one of the modules completed, which it recalls, or of the next
 /// [dailyOpenCount] not completed, which it teases, all by number, each written in the track and in [language]. The
-/// days go round them in turn. Null when there is none, as with a course not written in [language].
+/// days go round them in turn, and each Show another ([another] times today) takes the next one after the day's. Null
+/// when there is none, as with a course not written in [language].
 ///
 /// A module completed on [day] itself counts as not completed yet, as it was when the day began: the card the day
 /// opened on stays all day, finished or not (the owner, 2026-11-16).
@@ -48,6 +50,7 @@ DailyChoice? dailyChoice(
   RecordData record, {
   required String language,
   required int day,
+  int another = 0,
 }) {
   final view = trackView(record, track);
   final facts = [...curriculumFor(index, track).modules]..sort((a, b) => a.number.compareTo(b.number));
@@ -71,8 +74,9 @@ DailyChoice? dailyChoice(
       if (index.module(key)?.tracks[track]?.docs[language] case final path?) (key: key, path: path),
   ];
   if (pool.isEmpty) return null;
-  final picked = pool[day % pool.length];
-  return DailyChoice(moduleKey: picked.key, docPath: picked.path, turn: day ~/ pool.length);
+  final at = day + another;
+  final picked = pool[at % pool.length];
+  return DailyChoice(moduleKey: picked.key, docPath: picked.path, turn: at ~/ pool.length);
 }
 
 /// The day's card, read from its module's document.

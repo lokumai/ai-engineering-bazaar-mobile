@@ -350,9 +350,9 @@ class S {
     return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
   }
 
-  /// `Today's card`
-  String get home_daily_title {
-    return Intl.message('Today\'s card', name: 'home_daily_title', desc: '', args: []);
+  /// `Show another`
+  String get home_daily_another {
+    return Intl.message('Show another', name: 'home_daily_another', desc: '', args: []);
   }
 
   /// `Completed`

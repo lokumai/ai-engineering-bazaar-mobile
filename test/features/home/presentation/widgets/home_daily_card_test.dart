@@ -103,12 +103,7 @@ void main() {
       await _pumpHome(tester);
 
       expect(_card, findsOneWidget);
-      for (final text in [
-        'Today\'s card',
-        'Why tools',
-        'Models call tools. They read what comes back.',
-        'First Module',
-      ]) {
+      for (final text in ['Why tools', 'Models call tools. They read what comes back.', 'First Module']) {
         expect(
           find.descendant(of: _card, matching: find.text(text)),
           findsOneWidget,
@@ -116,18 +111,47 @@ void main() {
         );
       }
       expect(
-        find.bySemanticsLabel('Today\'s card: Why tools. Models call tools. They read what comes back. First Module'),
+        find.bySemanticsLabel('Why tools. Models call tools. They read what comes back. First Module'),
         findsOneWidget,
       );
+      expect(find.text('Today\'s card'), findsNothing, reason: 'it has no name of its own (plan 14.1)');
       await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
     });
   });
 
-  testWidgets('the card says what it is in Turkish', (tester) async {
+  testWidgets('Show another brings the next card in turn, the last one standing while it is read (plan 14.1)', (
+    tester,
+  ) async {
+    await withClock(_dayZero, () async {
+      final repository = _titledCourse();
+      await _pumpHome(tester, repository: repository);
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/first')), findsOneWidget);
+      final slow = Completer<ModuleDoc>();
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) => slow.future);
+
+      await tester.tap(find.byKey(const ValueKey('home-daily-another')));
+      await tester.pump();
+      expect(
+        find.descendant(of: _card, matching: find.text('Module alpha/first')),
+        findsOneWidget,
+        reason: 'the last card stays while the next is read, so Home does not jump',
+      );
+      slow.complete(
+        testDoc(
+          title: 'Module alpha/second',
+          body: [_p('An opening.'), _h('why', 'Why tools'), _p('Models call tools.')],
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/second')), findsOneWidget);
+    });
+  });
+
+  testWidgets('Show another says so in Turkish', (tester) async {
     await withClock(_dayZero, () async {
       await _pumpHome(tester, locale: const Locale('tr'));
 
-      expect(find.descendant(of: _card, matching: find.text('Bugünün kartı')), findsOneWidget);
+      expect(find.text('Başka göster'), findsOneWidget);
     });
   });
 

@@ -129,5 +129,13 @@ void main() {
       expect(lead.length, lessThanOrEqualTo(41));
       expect(lead.contains('wor…'), isFalse, reason: 'it is cut between words');
     });
+
+    test("Show another takes the next module after the day's, in turn, and comes round (plan 14.1)", () {
+      final index = catalogFixtureIndex();
+      final day = dailyChoice(index, Track.engineers, RecordData.empty, language: 'en', day: 0)!;
+      final next = dailyChoice(index, Track.engineers, RecordData.empty, language: 'en', day: 0, another: 1)!;
+      expect(next, isNot(day));
+      expect(next, dailyChoice(index, Track.engineers, RecordData.empty, language: 'en', day: 1));
+    });
   });
 }
