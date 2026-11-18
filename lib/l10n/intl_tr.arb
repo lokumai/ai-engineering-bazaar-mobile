@@ -402,6 +402,7 @@
   "tour_step": "{step} / {count}",
   "practice_today": "Günün tekrarı",
   "practice_endless": "Sınırsız tekrar",
+  "practice_endless_lede": "Okuduklarını istediğin kadar pekiştir.",
   "practice_today_cards": "{count, plural, =1{1 kart} other{{count} kart}}, yaklaşık {minutes} dk",
   "practice_start": "Başla",
   "practice_today_none": "Bugün tekrar edecek bir şey yok",
@@ -439,5 +440,6 @@
   "review_back": "Pratik'e dön",
   "review_back_home": "Ana sayfaya dön",
   "review_empty": "Gösterilecek kart yok.",
-  "review_section_link": "Bu konu şurada: {section}"
+  "review_section_link": "Bu konu şurada: {section}",
+  "home_quiz_waiting": "Bekleyen quiz"
 }

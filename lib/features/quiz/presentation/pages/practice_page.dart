@@ -21,7 +21,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/review/domain/latest_answers.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -294,8 +294,9 @@ class _QuizRow extends StatelessWidget {
   }
 }
 
-/// Each question's latest answer as one segment: green when right, red when wrong, the sunken track when never
-/// answered. Decoration: the row says it in words.
+/// The latest answers counted from the start, as a meter: a green segment for each right, then a red one for each
+/// wrong, then the sunken track for each never answered, whichever questions they were (the owner, 2026-11-18: a
+/// question answered in a review lit its own place, in the middle). Decoration: the row says it in words.
 class _AnswerMeter extends StatelessWidget {
   const _AnswerMeter({required this.answers});
 
@@ -313,7 +314,11 @@ class _AnswerMeter extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          for (final (index, answer) in answers.indexed)
+          for (final (index, answer) in [
+            ...answers.where((answer) => answer == true),
+            ...answers.where((answer) => answer == false),
+            ...answers.where((answer) => answer == null),
+          ].indexed)
             Container(
               // One key per question, which says its answer: answer-<index>-right, -wrong or -none.
               key: ValueKey(

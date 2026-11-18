@@ -221,7 +221,7 @@ void main() {
 
     review.add(const ReviewAnswered(key: 'alpha/first#1', right: false, length: 2, inReview: true));
     await tester.pumpAndSettle();
-    expect(_segments(tester, 'alpha/first'), ['none', 'wrong'], reason: 'a wrong answer in a review shows at once');
+    expect(_segments(tester, 'alpha/first'), ['wrong', 'none'], reason: 'a wrong answer in a review shows at once');
     expect(
       find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check)),
       findsNothing,
@@ -243,6 +243,11 @@ void main() {
     review.add(const ReviewAnswered(key: 'alpha/second#0', right: false, length: 2, inReview: true));
     await tester.pumpAndSettle();
     expect(_segments(tester, 'alpha/second'), ['wrong', 'none']);
+
+    // The second question answered right in a review fills from the start, not its own place (the owner, 2026-11-18).
+    review.add(const ReviewAnswered(key: 'alpha/second#1', right: true, length: 2, inReview: true));
+    await tester.pumpAndSettle();
+    expect(_segments(tester, 'alpha/second'), ['right', 'wrong']);
     expect(find.text('2/2'), findsOneWidget, reason: 'a quiz answered in Practice counts as taken in the level dial');
   });
 

@@ -490,7 +490,7 @@ void main() {
     expect(typing(), isFalse, reason: 'a tap elsewhere puts the keyboard away');
   });
 
-  testWidgets("the tab's head is the endless review, the one card with an edge of colour, no words under its name; "
+  testWidgets("the tab's head is the endless review, the one card with an edge of colour, a short line under its name; "
       "Today's review is Home's (the owner, 2026-11-18)", (tester) async {
     await _pump(tester);
     expect(find.descendant(of: _endless, matching: find.text('Endless review')), findsOneWidget);
@@ -502,7 +502,11 @@ void main() {
     );
     final deck = find.descendant(of: _endless, matching: find.byType(BazaarCard));
     expect(tester.widget<BazaarCard>(deck).accent, isNotNull, reason: 'the endless review keeps its edge');
-    expect(find.textContaining('at random'), findsNothing, reason: 'its name says it');
+    expect(
+      find.descendant(of: _endless, matching: find.text("Practice what you've read, as long as you like.")),
+      findsOneWidget,
+      reason: 'a short line, not that a card may come again (the owner, 2026-11-18)',
+    );
     for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary']) {
       final card = tester.widget<BazaarCard>(
         find.descendant(of: find.byKey(Key(tile)), matching: find.byType(BazaarCard)),

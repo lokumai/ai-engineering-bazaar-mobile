@@ -2828,6 +2828,16 @@ class S {
     return Intl.message('Endless review', name: 'practice_endless', desc: '', args: []);
   }
 
+  /// `Practice what you've read, as long as you like.`
+  String get practice_endless_lede {
+    return Intl.message(
+      'Practice what you\'ve read, as long as you like.',
+      name: 'practice_endless_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min`
   String practice_today_cards(int count, int minutes) {
     return Intl.message(
@@ -3060,6 +3070,11 @@ class S {
   /// `This is in: {section}`
   String review_section_link(String section) {
     return Intl.message('This is in: $section', name: 'review_section_link', desc: '', args: [section]);
+  }
+
+  /// `Quiz waiting`
+  String get home_quiz_waiting {
+    return Intl.message('Quiz waiting', name: 'home_quiz_waiting', desc: '', args: []);
   }
 }
 

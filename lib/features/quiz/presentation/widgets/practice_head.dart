@@ -18,7 +18,7 @@ import 'package:ai_engineering_bazaar/shared/review/presentation/review_pool_of.
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 
-/// Practice's head (plan 13.2): the endless review as a deck of cards, its name and Start (the owner,
+/// Practice's head (plan 13.2): the endless review as a deck of cards, its name, a line and Start (the owner,
 /// 2026-11-18: Today's review stays Home's); then Wrong answers, A module in 2 minutes and the Glossary side by side,
 /// each a card washed in its hue with its mark and its count.
 class PracticeHead extends StatelessWidget {
@@ -87,8 +87,8 @@ class PracticeHead extends StatelessWidget {
 }
 
 /// The endless review as the top card of a deck, two more cards' edges under it, the one card on Practice with an edge
-/// of colour along its top (the owner, 2026-11-18): its name, and Start once there are [cards] to draw from; no words on what it does, its name
-/// says it.
+/// of colour along its top (the owner, 2026-11-18): its name, a short line on what it is, and Start once there are [cards] to
+/// draw from.
 class _EndlessDeck extends StatelessWidget {
   const _EndlessDeck({super.key, required this.ready, required this.cards});
 
@@ -129,6 +129,9 @@ class _EndlessDeck extends StatelessWidget {
               ),
             ],
           ),
+          // A short line on what it is, never that a card may come again (the owner, 2026-11-18).
+          if (ready)
+            Text(s.practice_endless_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
           if (ready && cards > 0) ...[
             const SizedBox(height: AppSpacing.xs),
             FilledButton.icon(

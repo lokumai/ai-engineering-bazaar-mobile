@@ -402,6 +402,7 @@
   "tour_step": "{step} / {count}",
   "practice_today": "مرور امروز",
   "practice_endless": "مرور بی‌پایان",
+  "practice_endless_lede": "آنچه خوانده‌اید را هر قدر بخواهید تمرین کنید.",
   "practice_today_cards": "{count, plural, =1{1 کارت} other{{count} کارت}}، حدود {minutes} دقیقه",
   "practice_start": "شروع",
   "practice_today_none": "امروز چیزی برای مرور نیست",
@@ -439,5 +440,6 @@
   "review_back": "بازگشت به تمرین",
   "review_back_home": "بازگشت به خانه",
   "review_empty": "کارتی برای نمایش نیست.",
-  "review_section_link": "این در اینجاست: {section}"
+  "review_section_link": "این در اینجاست: {section}",
+  "home_quiz_waiting": "آزمون در انتظار"
 }

@@ -1411,6 +1411,7 @@
   },
   "practice_today": "Today's review",
   "practice_endless": "Endless review",
+  "practice_endless_lede": "Practice what you've read, as long as you like.",
   "practice_today_cards": "{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min",
   "@practice_today_cards": {
     "placeholders": {
@@ -1526,5 +1527,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "home_quiz_waiting": "Quiz waiting"
 }
