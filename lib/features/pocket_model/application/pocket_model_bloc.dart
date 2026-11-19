@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_t
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/module_sentences.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/signature.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
 import 'package:clock/clock.dart';
@@ -373,6 +374,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final count = lm.read(sentences, topic: found, sections: text.sections);
         final model = ready.model.readAt(found, count, now);
         lm.level = model.level;
+        final signed = ready.model.level < signatureLevel && model.level >= signatureLevel;
         await _store.save(model);
         emit(
           ready.copyWith(
@@ -381,7 +383,9 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             known: lm.known,
             read: sentences.first,
             action: model.level > ready.model.level ? PocketAction.levelUp : PocketAction.studied,
-            clearSpeech: true,
+            // The module that takes it to [signatureLevel] has it say who wrote it, once (the owner, 2026-11-19).
+            speech: signed ? (tokens: signatureIn(lm.language), hallucinating: false) : null,
+            clearSpeech: !signed,
           ),
         );
       case PocketModelPetted():
@@ -435,12 +439,17 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// What it says: overfit, the word it read most, again and again; with a [kind], its own talk to the reader of that
   /// kind ([TinyLm.talk]); otherwise what its language model writes. Once it has read modules, it speaks of one of
   /// them (the last read a third of the time, else any), thinks over more sentences the more it read
-  /// ([TinyLm.thoughtsFor]), and from level 3 now and then tells it as one tells a friend ("did you know").
+  /// ([TinyLm.thoughtsFor]), and from level 3 now and then tells it as one tells a friend ("did you know"). From
+  /// [signatureLevel], one time in [signatureOdds] it says who wrote it instead.
   Babble _say(double temperature, {required bool overfit, String? kind}) {
     final lm = _lm!;
     final word = lm.favourite;
     if (overfit && word != null) {
       return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
+    }
+    // Past [signatureLevel], now and then it says who wrote it (the owner, 2026-11-19).
+    if (lm.level >= signatureLevel && _random.nextInt(signatureOdds) == 0) {
+      return (tokens: signatureIn(lm.language), hallucinating: false);
     }
     if (kind != null) {
       final said = lm.talk(kind, temperature: temperature, random: _random, recent: _recent);

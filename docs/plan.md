@@ -542,6 +542,7 @@ On `feature/pre-release-fixes`, from main at 15f585a (PR #17 merged). A review o
 - [x] **19.10 Android waits while another app holds the sound.** A speak while a call holds the audio focus is not said; it comes back as an interruption, and the player pauses on its part.
 - [x] **19.11 The Caravan's trends are real (the owner).** The trends and their strength are the author's; only their readings have no address yet. The notice says their articles and resources are coming soon; the card's badge reads Resources soon and its chips name their kind (Article, Video, Tool, Repository).
 - [x] **19.12 Not done here.** The Apprentice's model work on the UI thread and the hash of large downloaded images (measure first); a refresh on mobile data (a product choice); the Legal text on images used without a licence (the web team's decision); small screens in the tests (below, Later).
+- [x] **19.13 The author's signature (the owner).** The module that takes the Apprentice to level 20, well past its wardrobe's last piece, has it say who wrote it, once; from then on one chat in 50 says it (`domain/signature.dart`). Nothing announces it.
 
 ## Later, kept on purpose (the owner, 2026-11-17)
 
