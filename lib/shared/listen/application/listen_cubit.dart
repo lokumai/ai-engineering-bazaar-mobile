@@ -94,6 +94,9 @@ final class ListenCubit extends Cubit<ListenState> {
   /// Ends a pause that has lasted [restAfter].
   Timer? _rest;
 
+  /// The places a reset of all progress erased, which its undo brings back (plan 20.7).
+  Map<String, ListenPlace>? _erased;
+
   /// Reads the places kept; a module's Listen asked before it ends sees none.
   Future<void> load() async {
     final kept = await _store.load();
@@ -101,6 +104,24 @@ final class ListenCubit extends Cubit<ListenState> {
     _places = {...kept, ..._places};
     // The module's Listen reads the places as the state changes: one emit for them to be seen.
     if (state case ListenIdle(:final rate)) emit(ListenIdle(rate: rate, loaded: true));
+  }
+
+  /// Erases where every module was left and the parts heard, with a reset of all progress (plan 20.7), so a module is
+  /// not marked completed by parts heard before it; [again] keeps what the undo of the reset before brings back. A
+  /// module being read goes on, its parts heard from now.
+  void erase({required bool again}) {
+    if (!again || _erased == null) _erased = _places;
+    _places = {};
+    unawaited(_store.save(_places));
+  }
+
+  /// Brings back the places the reset erased, with those kept since on top.
+  void undoErase() {
+    final erased = _erased;
+    if (erased == null) return;
+    _erased = null;
+    _places = {...erased, ..._places};
+    unawaited(_store.save(_places));
   }
 
   /// The part the module [module] of [track] goes on from when started, null for its head; null while it is read.

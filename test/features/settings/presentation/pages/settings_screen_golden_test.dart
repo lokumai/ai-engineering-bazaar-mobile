@@ -22,6 +22,8 @@ import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_store.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,6 +71,7 @@ Widget _screen({required bool dark}) {
         BlocProvider<QuizScoresBloc>(create: (_) => QuizScoresBloc(store: MemoryQuizScoreStore())),
         BlocProvider<ReviewBloc>(create: (_) => ReviewBloc(store: MemoryReviewStore())),
         BlocProvider<ReadingPlacesBloc>(create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())),
+        BlocProvider<ListenCubit>(create: (_) => ListenCubit(speech: const NoSpeech())),
       ],
       child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
     ),
