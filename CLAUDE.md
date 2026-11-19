@@ -102,7 +102,9 @@ lib/
                                                 scanner; AppDelegate.swift: the app's camera screen)
     transfer/deflate_transfer_packer.dart       a progress link's payload: raw DEFLATE in base64url
     speech/phone_speech.dart                    the phone's own voice, which reads a module aloud: the app's own channel
-                                                (Speech.kt, AppDelegate.swift)
+                                                (Speech.kt, AppDelegate.swift); on Android ListenService.kt keeps it
+                                                reading in the background
+    haptics/haptics_channel.dart                Android's touch feedback (Haptics.kt); iOS keeps Flutter's own
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
                                                 word rules (search_text.dart)
@@ -148,10 +150,12 @@ lib/
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
     navigation/tab_switch.dart                  marks a move to another tab, whose pages come in and go out at once
-    design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink
+    design_system/                              bazaar_tokens.g.dart (generated), bazaar_theme.dart, fonts, diagram frame ink,
+                                                the phone's bars (system_bars.dart), each phone's share mark (share_icon.dart)
     design_system/widgets/                      lattice band, level hue and key, completion dial, segment meter, card, section
                                                 rule, segmented control, the readable width that holds a tablet's page to a
                                                 phone's measure
+    haptics/haptics.dart                        IHaptics and context.haptic: the touch feedback, by kind
     utils/external_link.dart                    openExternalLink, the only importer of url_launcher
     utils/app_orientations.dart                 portrait on a phone, every orientation on a tablet
     utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review

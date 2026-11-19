@@ -7,6 +7,8 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- On Android a module read aloud goes on with the screen off and the app in the background, with a notice that names it and has Pause; Back on Home leaves the app running. Other sound is lowered while it reads, and a call pauses it.
+- On Android the Apprentice's and the Caravan's touch feedback is a soft tap like the iPhone's, on phones that can play one, and none on others.
 - Feedback in Settings: the web's anonymous Google Form, opened in the browser, in every build. The app sends nothing to it, and Privacy and legal says so.
 - Progress moves between the website and the phone by a link that carries it, with no server: the website's Progress page shows it as a code the phone's camera opens in the app, and Send to the website in Settings shares it to open on the computer. Adding it keeps everything already there.
 - The site's module, level and catalog pages open in the app, and a module shares its page on the site from the icon under its title.
@@ -60,6 +62,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- Settings' section The website is now Transfer.
+- On Android the navigation bar shows the page under it, its buttons readable in both looks, and the share icon is Android's own.
+- On Android Listen's paces sound as on the iPhone, with the same short pause between parts, and a very long part is read in pieces.
+- Persian text is set in Vazirmatn on both phones, as on the website.
+- On Android the app's settings, quiz scores, reading places and the Apprentice go to the phone's backup and a new phone with the progress.
 - Completing a module For Engineers no longer completes its For Everyone version: each track is completed on its own, as on the website, so a progress link counts the same on both.
 - The module to read now, the one left half read or else the next one, is in a band over the bottom navigation on Home, the catalog and the Quiz tab, under the thumb; Home no longer has a card at its head, and After that is Later on.
 - The catalog's search folds a module with more than one hit to its best one, unfolded with a tap, and can be kept to some levels.
@@ -112,6 +119,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- On Android, Open on the web from the app goes to the browser instead of coming back to the app, a link from another app no longer opens a second copy of it, and the catalog's Turkish and Persian links open in the app.
 - Persian headings are set in Vazirmatn's own bold face rather than a thickened regular one.
 - A broken link in a module says it could not be opened instead of failing, links open only on the web, mail and the phone, and a download from the site is capped at 32 MB.
 - The reset asks for the word in the interface's language: SİL in Turkish, حذف in Persian. ERASE still works in every language.
