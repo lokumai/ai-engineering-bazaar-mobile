@@ -160,7 +160,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(count) => "${Intl.plural(count, zero: 'هیچ ماژولی تکمیل نشده', other: '${count} ماژول تکمیل‌شده')}";
+  static String m68(count) => "${Intl.plural(count, other: '${count} ماژول تکمیل‌شده')}";
 
   static String m69(count) => "${Intl.plural(count, other: '${count} مورد از فهرست بررسی علامت خورده')}";
 

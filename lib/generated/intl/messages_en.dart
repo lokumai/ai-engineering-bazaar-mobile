@@ -161,8 +161,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(count) =>
-      "${Intl.plural(count, zero: 'No module completed', one: '1 module completed', other: '${count} modules completed')}";
+  static String m68(count) => "${Intl.plural(count, one: '1 module completed', other: '${count} modules completed')}";
 
   static String m69(count) =>
       "${Intl.plural(count, one: '1 checklist item ticked', other: '${count} checklist items ticked')}";

@@ -1545,7 +1545,7 @@
   "home_quiz_waiting": "Quiz waiting",
   "transfer_title": "Progress from a link",
   "@transfer_title": {},
-  "transfer_completed": "{count, plural, =0{No module completed} =1{1 module completed} other{{count} modules completed}}",
+  "transfer_completed": "{count, plural, =1{1 module completed} other{{count} modules completed}}",
   "@transfer_completed": {
     "placeholders": {
       "count": {

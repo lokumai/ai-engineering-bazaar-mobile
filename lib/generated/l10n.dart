@@ -3122,11 +3122,10 @@ class S {
     return Intl.message('Progress from a link', name: 'transfer_title', desc: '', args: []);
   }
 
-  /// `{count, plural, =0{No module completed} =1{1 module completed} other{{count} modules completed}}`
+  /// `{count, plural, =1{1 module completed} other{{count} modules completed}}`
   String transfer_completed(int count) {
     return Intl.plural(
       count,
-      zero: 'No module completed',
       one: '1 module completed',
       other: '$count modules completed',
       name: 'transfer_completed',

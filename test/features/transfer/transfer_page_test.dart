@@ -77,7 +77,7 @@ void main() {
       _recordAnswering(TransferMergeResult.added, []),
     );
 
-    expect(find.text('No module completed'), findsNWidgets(2));
+    expect(find.text('0 modules completed'), findsNWidgets(2), reason: 'as the website says it');
     expect(find.text('1 checklist item ticked'), findsOneWidget);
     expect(find.text('2 checklist items ticked'), findsOneWidget);
   });

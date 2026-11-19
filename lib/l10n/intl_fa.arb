@@ -447,7 +447,7 @@
   "review_section_link": "این در اینجاست: {section}",
   "home_quiz_waiting": "آزمون در انتظار",
   "transfer_title": "پیشرفت از یک پیوند",
-  "transfer_completed": "{count, plural, =0{هیچ ماژولی تکمیل نشده} other{{count} ماژول تکمیل‌شده}}",
+  "transfer_completed": "{count, plural, other{{count} ماژول تکمیل‌شده}}",
   "transfer_ticked": "{count, plural, other{{count} مورد از فهرست بررسی علامت خورده}}",
   "transfer_keeps": "افزودن آن همه‌چیزِ این گوشی را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
   "transfer_add": "افزودن به پیشرفت این گوشی",
