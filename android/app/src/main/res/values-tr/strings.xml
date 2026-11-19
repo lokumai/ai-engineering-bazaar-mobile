@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="listen_channel">Dinle</string>
+    <string name="listen_reading">Sesli okunuyor</string>
+    <string name="listen_pause">Duraklat</string>
+</resources>

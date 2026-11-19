@@ -59,10 +59,49 @@ class SpeechVoiceTest {
     }
 
     @Test
-    fun anUtteranceIdReadsBackItsSpeakItsPlaceAndWhetherItIsTheLast() {
-        assertEquals(Triple(7, 3, true), Speech.parse(Speech.utterance(7, 3, last = true)))
-        assertEquals(Triple(7, 0, false), Speech.parse(Speech.utterance(7, 0, last = false)))
+    fun anUtteranceIdReadsBackItsSpeakItsPlaceWhetherItIsTheLastAndItsPiece() {
+        assertEquals(Speech.Part(7, 3, true, 0, 1), Speech.parse(Speech.utterance(7, 3, last = true)))
+        assertEquals(Speech.Part(7, 0, false, 1, 3), Speech.parse(Speech.utterance(7, 0, last = false, piece = 1, pieces = 3)))
         assertNull(Speech.parse("7"))
+        assertNull(Speech.parse("gap"))
         assertNull(Speech.parse(null))
+    }
+
+    @Test
+    fun aTextsStartIsItsFirstPiecesAndItsEndItsLastPieces() {
+        val first = Speech.Part(1, 0, true, 0, 2)
+        val second = Speech.Part(1, 0, true, 1, 2)
+        assertEquals(true to false, first.starts to first.ends)
+        assertEquals(false to true, second.starts to second.ends)
+    }
+}
+
+/** A text longer than the engine takes, said in pieces ([Speech.pieces], plan 18.4). */
+class SpeechPiecesTest {
+    @Test
+    fun aTextThatFitsIsOnePiece() {
+        assertEquals(listOf("One. Two."), Speech.pieces("One. Two.", 20))
+    }
+
+    @Test
+    fun aLongTextEndsEachPieceAtASentencesEnd() {
+        assertEquals(listOf("One two three.", "Four five six."), Speech.pieces("One two three. Four five six.", 20))
+    }
+
+    @Test
+    fun withNoSentenceEndInReachItEndsAtASpace() {
+        assertEquals(listOf("aaaa bbbb cccc", "dddd"), Speech.pieces("aaaa bbbb cccc dddd", 15))
+    }
+
+    @Test
+    fun aWordLongerThanAPieceIsCut() {
+        assertEquals(listOf("abcde", "fghij", "k"), Speech.pieces("abcdefghijk", 5))
+    }
+
+    @Test
+    fun persianSentencesEndAtTheirOwnMark() {
+        val pieces = Speech.pieces("یک دو سه؟ چهار پنج شش", 12)
+        assertEquals("یک دو سه؟", pieces.first())
+        assertTrue(pieces.all { it.length <= 12 })
     }
 }

@@ -5,13 +5,19 @@ abstract interface class ISpeech {
 
   /// Says [texts] one after another in [language] at [rate], 1 the voice's own pace, in the best voice the phone has
   /// for it, telling [onPart] the place in [texts] of each as it starts. The phone holds them all, so they go on with
-  /// the screen off (the owner, 2026-11-18). Completes once the last is said, or they are stopped, or fail.
+  /// the screen off (the owner, 2026-11-18); [title], the module's, names the reading where the phone shows it (Android's
+  /// notice, plan 18.1). Completes once the last is said, or they are stopped, or fail.
   Future<void> speak(
     List<String> texts, {
     required String language,
     required double rate,
     required void Function(int index) onPart,
+    String title = '',
   });
+
+  /// Each time the phone stopped the reading itself: another app took the sound, as a call does, or the reader pressed
+  /// Pause where the phone shows the reading (plan 18.3). The player pauses where it was.
+  Stream<void> get interruptions;
 
   /// Stops what is being said, and what waits to be.
   Future<void> stop();
@@ -30,7 +36,11 @@ final class NoSpeech implements ISpeech {
     required String language,
     required double rate,
     required void Function(int index) onPart,
+    String title = '',
   }) async {}
+
+  @override
+  Stream<void> get interruptions => const Stream.empty();
 
   @override
   Future<void> stop() async {}

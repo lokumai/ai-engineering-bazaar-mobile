@@ -20,8 +20,8 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -105,7 +105,7 @@ class _CaravanPageState extends State<CaravanPage> {
     return BlocConsumer<CaravanCubit, CaravanState>(
       listenWhen: (before, after) => before.selected != after.selected,
       listener: (context, state) {
-        HapticFeedback.selectionClick();
+        context.haptic(HapticKind.selection);
         setState(() => _direction = state.selected >= (_lastSelected ?? 0) ? 1 : -1);
         // A tour moves the caravan too; the hint has done its work once anything moves it.
         _moved = true;

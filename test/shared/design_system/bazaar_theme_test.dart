@@ -91,6 +91,21 @@ void main() {
     );
   });
 
+  test('Persian falls back to Vazirmatn in every style, on both phones (plan 18.10)', () {
+    for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+      final styles = bazaarTheme(brightness: Brightness.light, platform: platform).textTheme;
+      for (final style in [
+        styles.bodyLarge,
+        styles.bodyMedium,
+        styles.titleMedium,
+        styles.labelSmall,
+        styles.titleLarge,
+      ]) {
+        expect(style!.fontFamilyFallback, [diagramFontFamily], reason: '$platform');
+      }
+    }
+  });
+
   test('page transitions honour reduced motion on both platforms', () {
     final builders = bazaarTheme(
       brightness: Brightness.light,

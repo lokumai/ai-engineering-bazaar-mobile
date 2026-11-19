@@ -48,6 +48,7 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.d
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
@@ -92,6 +93,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<ISpeech>(create: (_) => dependencies.createSpeech()),
+        RepositoryProvider<IHaptics>(create: (_) => dependencies.createHaptics()),
         RepositoryProvider<ILinkSource>(create: (_) => dependencies.createLinkSource()),
         RepositoryProvider<IShareSheet>(create: (_) => dependencies.createShareSheet()),
         RepositoryProvider<ICodeScanner>(create: (_) => dependencies.createCodeScanner()),

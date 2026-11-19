@@ -3206,9 +3206,9 @@ class S {
     return Intl.message('Send to the website', name: 'data_send_to_website', desc: '', args: []);
   }
 
-  /// `The website`
+  /// `Transfer`
   String get settings_website {
-    return Intl.message('The website', name: 'settings_website', desc: '', args: []);
+    return Intl.message('Transfer', name: 'settings_website', desc: '', args: []);
   }
 
   /// `From the website to this phone`

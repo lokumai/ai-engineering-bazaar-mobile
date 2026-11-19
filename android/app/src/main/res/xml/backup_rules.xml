@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Backup rules for Android 11 (API 30) and lower, see data_extraction_rules.xml for the reason:
-     only the reader's progress in files/record/ is backed up. -->
+<!-- Backup rules for Android 11 (API 30) and lower, see data_extraction_rules.xml for the reason: the app's own
+     folders under files/ are backed up, never the content cache. -->
 <full-backup-content>
     <include domain="file" path="record/"/>
+    <include domain="file" path="flags/"/>
+    <include domain="file" path="quiz/"/>
+    <include domain="file" path="reading/"/>
+    <include domain="file" path="listen/"/>
+    <include domain="file" path="toy/"/>
 </full-backup-content>

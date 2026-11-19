@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/system_bars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,9 +101,7 @@ class _WelcomeStingState extends State<WelcomeSting> with SingleTickerProviderSt
             ignoring: leaving,
             child: AnnotatedRegion<SystemUiOverlayStyle>(
               // The status bar lies over the ground.
-              value: (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
-                statusBarColor: Colors.transparent,
-              ),
+              value: systemBarsOn(darkGround: dark),
               child: ExcludeSemantics(
                 child: AnimatedBuilder(
                   animation: _leave,

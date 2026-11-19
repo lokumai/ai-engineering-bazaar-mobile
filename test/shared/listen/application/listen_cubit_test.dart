@@ -14,8 +14,12 @@ final class _Voice implements ISpeech {
 
   final bool speaks;
 
-  /// Each speak's texts, language and rate.
+  /// Each speak's texts, language and rate, and its title.
   final handed = <(List<String>, String, double)>[];
+  final titles = <String>[];
+
+  /// The phone's own stops: another app took the sound, or Pause on its notice.
+  final interrupted = StreamController<void>.broadcast();
   int stops = 0;
   int asked = 0;
   Completer<void>? _saying;
@@ -43,11 +47,16 @@ final class _Voice implements ISpeech {
     required String language,
     required double rate,
     required void Function(int index) onPart,
+    String title = '',
   }) {
     handed.add((texts, language, rate));
+    titles.add(title);
     _onPart = onPart;
     return (_saying = Completer<void>()).future;
   }
+
+  @override
+  Stream<void> get interruptions => interrupted.stream;
 
   @override
   Future<void> stop() async {
@@ -141,6 +150,18 @@ void main() {
       expect(voice.handed.last.$1, ['Two.', 'Three.']);
       voice.reach(1);
       expect(listen.state, on(2), reason: "the phone's place counts from where it was handed the rest");
+    });
+
+    test("the phone's own stop, a call or the notice's Pause, pauses on the part; the title names the notice "
+        '(plan 18.1, 18.3)', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      expect(voice.titles.single, 'First');
+      voice.reach(1);
+      voice.interrupted.add(null);
+      await _settle();
+      expect(listen.state, on(1, playing: false));
     });
 
     test('next and back move a part, playing or paused; next after the last stops', () async {

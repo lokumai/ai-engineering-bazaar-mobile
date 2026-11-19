@@ -457,7 +457,7 @@
   "transfer_unreadable": "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
   "transfer_empty": "Bu bağlantıda ilerleme yok.",
   "data_send_to_website": "Web sitesine gönder",
-  "settings_website": "Web sitesi",
+  "settings_website": "Transfer",
   "website_from_title": "Web sitesinden bu telefona",
   "website_from_text": "Web sitesinde üstteki Progress'i aç ve Move to the app'i seç. Çıkan kodu bu telefonla okut.",
   "website_scan": "Kodu okut",

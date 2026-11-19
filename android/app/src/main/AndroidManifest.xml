@@ -3,25 +3,35 @@
          https://docs.flutter.dev/data-and-backend/networking. The debug and profile manifests declare
          it only for the Flutter tool, so release builds must not depend on a plugin merging it in. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Backup is on so the reader's progress follows them to a new device through Auto Backup and
-         device-to-device transfer. The rules in res/xml include only files/record/, where the app keeps
-         record.json, so the content cache and every other file stay on this device. -->
+    <!-- Listen reads on with the screen off and the app in the background, as on iOS (plan 18.1): ListenService is a
+         media playback foreground service while the phone's voice reads. No notification permission is asked: without
+         it Android 13 and later only hide the service's notice, and the reading goes on. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <!-- The robot's touch feedback (Haptics.kt, plan 18.12): Android's own short effects, as soft as iOS's taps. -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Backup is on so the reader's progress, choices and the app's own files follow them to a new device through
+         Auto Backup and device-to-device transfer, as iOS restores Application Support (plan 18.8). The rules in
+         res/xml include the app's folders under files/ one by one, so the content cache stays on this device. -->
     <application
         android:label="Bazaar"
         android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
-        android:dataExtractionRules="@xml/data_extraction_rules">
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+            <!-- One activity only (plan 18.5): a link from another app reaches the one running through onNewIntent
+                 instead of starting a second copy, with a second engine writing the same record files. -->
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
@@ -36,8 +46,8 @@
               android:name="flutter_deeplinking_enabled"
               android:value="false"
               />
-            <!-- The site's pages the app opens itself (plan 17.2): modules, levels and catalogs of both tracks, in every
-                 language, and the progress transfer. The same list is in the site's apple-app-site-association; the
+            <!-- The site's pages the app opens itself (plan 17.2): modules in every language and the catalogs of both
+                 tracks (the site has them in English only), and the progress transfer. The same list is in the site's apple-app-site-association; the
                  site's assetlinks.json names this app, which Android checks (autoVerify) before it opens them here.
                  The links reach lib/infrastructure/links/link_channel.dart through Links.kt, never the router. -->
             <intent-filter android:autoVerify="true">
@@ -55,6 +65,12 @@
                 <data android:pathPrefix="/sheets/"/>
                 <data android:pathPrefix="/everyone/sheets/"/>
                 <data android:pathPrefix="/transfer/"/>
+                <!-- The same pages written without the closing slash, which SiteLink reads too (plan 18.9). -->
+                <data android:path="/courses"/>
+                <data android:path="/everyone/courses"/>
+                <data android:path="/sheets"/>
+                <data android:path="/everyone/sheets"/>
+                <data android:path="/transfer"/>
             </intent-filter>
             <!-- The app's own scheme, which the site's transfer page offers as "Open in the Bazaar app" (plan 17.1). -->
             <intent-filter>
@@ -64,6 +80,11 @@
                 <data android:scheme="aibazaar" android:host="transfer"/>
             </intent-filter>
         </activity>
+        <!-- Keeps the app running while the phone's voice reads a module aloud (Speech.kt, plan 18.1). -->
+        <service
+            android:name=".ListenService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"/>
         <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
              Exactly one is enabled: the fez on the cream ground, the default, until the reader chooses another, and
              then the one chosen (AppIconSwitch.kt, when the app goes to the background). -->
@@ -375,6 +396,13 @@
              the services it names. -->
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
+        <!-- The browsers, so a page of the site the app opens on the web goes to one and not back to the app, whose
+             app links claim it (Links.kt, plan 18.7). -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
 </manifest>

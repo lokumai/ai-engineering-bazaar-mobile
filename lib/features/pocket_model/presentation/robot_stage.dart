@@ -6,8 +6,8 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_ou
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/robot_outfit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_robot_painter.dart';
 import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -237,7 +237,7 @@ class RobotStageState extends State<RobotStage> with SingleTickerProviderStateMi
 
   /// A pet: one of eight turns at random, as on the pocket model's sheet; three in a row send its hat flying.
   void pet() {
-    HapticFeedback.selectionClick();
+    context.haptic(HapticKind.selection);
     _pets
       ..removeWhere((at) => _time - at > 1.5)
       ..add(_time);

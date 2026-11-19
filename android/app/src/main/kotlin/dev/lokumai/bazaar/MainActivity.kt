@@ -24,6 +24,9 @@ class MainActivity : FlutterActivity() {
     /** The phone's QR code scanner (plan 17.5). */
     private var codeScanner: CodeScanner? = null
 
+    /** The robot's touch feedback (plan 18.12). */
+    private var haptics: Haptics? = null
+
     /** Whether this activity is made again from a saved state, whose intent's link was handed over already. */
     private var restored = false
 
@@ -64,11 +67,33 @@ class MainActivity : FlutterActivity() {
         speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger)
         // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the one the app was opened
         // with waits for it.
-        links = Links(flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
+        links = Links(this, flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
         // lib/infrastructure/share/share_channel.dart shares a module's address and a progress link.
         shareSheet = ShareSheet(this, flutterEngine.dartExecutor.binaryMessenger)
         // lib/infrastructure/scanner/code_scanner_channel.dart reads the website's code in the app.
         codeScanner = CodeScanner(this, flutterEngine.dartExecutor.binaryMessenger)
+        // lib/infrastructure/haptics/haptics_channel.dart plays the robot's touch feedback.
+        haptics = Haptics(this, flutterEngine.dartExecutor.binaryMessenger)
+    }
+
+    /**
+     * Back on Home, where the app has no page to go back to, puts the app in the background instead of closing it, as
+     * Android's own launcher apps do since Android 12 (plan 18.2): a module read aloud goes on, and the next open comes
+     * back where the reader was, without the opening.
+     */
+    override fun popSystemNavigator(): Boolean {
+        moveTaskToBack(true)
+        return true
+    }
+
+    /**
+     * Back always goes through Flutter, so it reaches [popSystemNavigator] on Home too. With predictive back (Android 13
+     * and later opted in, every app from Android 16) Flutter hands Back at its root to the system, which finished the
+     * activity (seen on Android 16, 2026-11-19). The cost: no preview of the launcher behind Home while the gesture is
+     * held; the app's own pages keep theirs.
+     */
+    override fun setFrameworkHandlesBack(frameworkHandlesBack: Boolean) {
+        super.setFrameworkHandlesBack(true)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -86,6 +111,8 @@ class MainActivity : FlutterActivity() {
         shareSheet = null
         codeScanner?.close()
         codeScanner = null
+        haptics?.close()
+        haptics = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

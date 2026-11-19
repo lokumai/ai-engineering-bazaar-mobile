@@ -80,7 +80,8 @@ void main() {
         'id': 2,
         'texts': ['İki.', 'Üç.'],
         'tag': 'tr-TR',
-        'rate': 1.25,
+        'rate': 1.35,
+        'title': '',
       });
       await _native('part', {'id': 2, 'index': 1});
       await _native('part', {'id': 1, 'index': 0});
@@ -109,8 +110,32 @@ void main() {
       expect(calls.last.method, 'stop');
     });
 
-    test("each engine's rate for a pace: Android's the multiple itself, iOS's in quarter steps", () {
-      expect(PhoneSpeech.engineRate(1.5, TargetPlatform.android), 1.5);
+    test('hands the phone the title, which its notice names (plan 18.1)', () async {
+      native();
+      unawaited(PhoneSpeech().speak(['Hello.'], language: 'en', rate: 1, title: 'Tokens', onPart: _none));
+      await pumpEventQueue();
+      expect((calls.last.arguments as Map)['title'], 'Tokens');
+    });
+
+    test("the phone's own stop of the words being said is an interruption; another's is not (plan 18.3)", () async {
+      native();
+      final speech = PhoneSpeech();
+      var interruptions = 0;
+      final listening = speech.interruptions.listen((_) => interruptions++);
+      addTearDown(listening.cancel);
+      unawaited(speech.speak(['Hello.'], language: 'en', rate: 1, onPart: _none));
+      await pumpEventQueue();
+      await _native('interrupted', 9);
+      await _native('interrupted', 1);
+      await pumpEventQueue();
+      expect(interruptions, 1);
+    });
+
+    test("each engine's rate for a pace: Android's iOS's measured pace, iOS's in quarter steps (plan 18.13)", () {
+      expect(PhoneSpeech.engineRate(1, TargetPlatform.android), 1);
+      expect(PhoneSpeech.engineRate(0.75, TargetPlatform.android), 0.91);
+      expect(PhoneSpeech.engineRate(1.25, TargetPlatform.android), 1.35);
+      expect(PhoneSpeech.engineRate(1.5, TargetPlatform.android), 1.71);
       expect(PhoneSpeech.engineRate(1, TargetPlatform.iOS), 0.5);
       expect(PhoneSpeech.engineRate(1.5, TargetPlatform.iOS), 0.625);
       expect(PhoneSpeech.engineRate(0.75, TargetPlatform.iOS), 0.4375);
