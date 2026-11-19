@@ -343,6 +343,12 @@ void main() {
       );
       expect(region.value.statusBarIconBrightness, icons, reason: 'Android, $brightness');
       expect(region.value.statusBarBrightness, brightness, reason: 'iOS, $brightness');
+      expect(
+        (region.value.systemNavigationBarColor, region.value.systemNavigationBarIconBrightness),
+        (const Color(0x00000000), icons),
+        reason: "Android's navigation bar shows the page under it, its buttons readable on it (plan 18.6)",
+      );
+      expect(region.value.systemNavigationBarContrastEnforced, isFalse);
       final ground = Theme.of(tester.element(strip)).scaffoldBackgroundColor;
       expect(tester.widget<ColoredBox>(find.descendant(of: strip, matching: find.byType(ColoredBox))).color, ground);
       expect(tester.getBottomLeft(strip).dy, tester.getTopLeft(find.byType(BazaarBar)).dy);

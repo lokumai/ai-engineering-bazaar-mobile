@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/system_bars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -106,9 +107,7 @@ class BazaarStatusStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final style = (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
-      statusBarColor: Colors.transparent,
-    );
+    final style = systemBarsOn(darkGround: dark);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: style,
       child: ColoredBox(

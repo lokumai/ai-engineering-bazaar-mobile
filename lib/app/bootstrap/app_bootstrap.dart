@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/system_bars.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,6 +62,7 @@ class AppBootstrap {
     Bloc.observer = kDebugMode ? TimeTravelBlocObserver() : AppBlocObserver();
 
     await SystemChrome.setPreferredOrientations(appOrientations());
+    await drawUnderSystemBars();
 
     // The chosen app icon, read before the first frame, so the opening starts in its colours rather than the
     // default's (a few flag files; a file not read counts as no choice).

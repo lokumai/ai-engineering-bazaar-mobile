@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/about/presentation/widgets/about_
 import 'package:ai_engineering_bazaar/features/about/presentation/widgets/about_reveal.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/system_bars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -250,10 +251,7 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
     final shot = _shots[_index];
     final dawn = shot is _Motto;
     final ink = dawn ? AboutPalette.dawnInk : AboutPalette.ink;
-    final overlay = (dawn ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light).copyWith(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: _ground(shot),
-    );
+    final overlay = systemBarsOn(darkGround: !dawn);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlay,
       child: Material(

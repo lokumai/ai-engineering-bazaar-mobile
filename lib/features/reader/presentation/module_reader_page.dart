@@ -50,6 +50,7 @@ import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -737,7 +738,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                     IconButton(
                                       key: const ValueKey('reader-share'),
                                       tooltip: s.reader_share,
-                                      icon: Icon(Icons.ios_share_outlined, size: 20, color: colors.onSurfaceMuted),
+                                      icon: Icon(shareIcon(context), size: 20, color: colors.onSurfaceMuted),
                                       onPressed: () => context.read<IShareSheet>().share(
                                         '${doc.title}\n${context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath)}',
                                       ),

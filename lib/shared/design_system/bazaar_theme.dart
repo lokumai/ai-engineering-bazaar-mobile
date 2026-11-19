@@ -119,9 +119,12 @@ ThemeData bazaarTheme({required Brightness brightness, required TargetPlatform p
 }
 
 /// The Material text styles on the Bazaar type steps: the step's size, its line height only when the web sets one, the
-/// tracking factor times the size where a tracking token exists, and the weight (an app design choice).
+/// tracking factor times the size where a tracking token exists, and the weight (an app design choice). Persian, which
+/// neither sans face carries, falls back to Vazirmatn as the web gives it, so it reads alike on both phones rather than
+/// in each one's own Arabic face (plan 18.10).
 TextTheme _textTheme(TextTheme base) {
   TextStyle? step(TextStyle? style, TypeStep step, FontWeight weight, [double? tracking]) => style?.copyWith(
+    fontFamilyFallback: const [diagramFontFamily],
     fontSize: step.size,
     height: step.height ?? style.height,
     letterSpacing: tracking == null ? style.letterSpacing : tracking * step.size,

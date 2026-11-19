@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -90,7 +91,7 @@ class _WebsiteSectionView extends StatelessWidget {
             action: OutlinedButton.icon(
               key: const ValueKey('settings-send-to-website'),
               onPressed: send == WebsiteLinkState.sending ? null : () => context.read<WebsiteLinkCubit>().send(),
-              icon: const Icon(Icons.ios_share_outlined),
+              icon: Icon(shareIcon(context)),
               label: Text(s.data_send_to_website),
             ),
             line: sendLine,
