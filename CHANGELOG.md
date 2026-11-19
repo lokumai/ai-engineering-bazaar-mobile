@@ -63,7 +63,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
-- The Caravan says its trends are real and their articles and resources are coming soon, not that they are sample data.
+- The Caravan says each trend's articles and resources are coming soon, not that the trends are sample data.
 - Privacy and legal says the app has no account, no ads and no tracking, and that on Android Scan the code is Google's code scanner, which sends Google its own diagnostics. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
 - A release writes only warnings and errors to the console, and never the pages opened.
 - Settings' section The website is now Transfer.

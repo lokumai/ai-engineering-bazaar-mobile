@@ -108,12 +108,12 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `These trends are real. The articles and resources for each are coming soon.`
+  /// `The articles and resources for each trend are coming soon.`
   String get caravan_sample_notice {
     return Intl.message(
-      'These trends are real. The articles and resources for each are coming soon.',
+      'The articles and resources for each trend are coming soon.',
       name: 'caravan_sample_notice',
-      desc: 'The notice over the Caravan: the trends are the author\'s and real; their readings have no address yet (the owner, 2026-11-19).',
+      desc: 'The notice over the Caravan: the trends\' readings have no address yet (the owner, 2026-11-19).',
       args: [],
     );
   }

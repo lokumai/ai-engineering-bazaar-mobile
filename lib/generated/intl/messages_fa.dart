@@ -222,9 +222,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_reading": MessageLookupByLibrary.simpleMessage("برای خواندن"),
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("مقاله"),
     "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("منابع به‌زودی"),
-    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "این ترندها واقعی‌اند. مقاله‌ها و منابع هر کدام به‌زودی می‌آیند.",
-    ),
+    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage("مقاله‌ها و منابع هر ترند به‌زودی می‌آیند."),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("مخزن"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("ابزار"),
     "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("ویدیو"),

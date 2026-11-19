@@ -24,9 +24,9 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_sample_notice": "These trends are real. The articles and resources for each are coming soon.",
+  "caravan_sample_notice": "The articles and resources for each trend are coming soon.",
   "@caravan_sample_notice": {
-    "description": "The notice over the Caravan: the trends are the author's and real; their readings have no address yet (the owner, 2026-11-19)."
+    "description": "The notice over the Caravan: the trends' readings have no address yet (the owner, 2026-11-19)."
   },
   "caravan_stage_label": "The caravan at {title}",
   "@caravan_stage_label": {

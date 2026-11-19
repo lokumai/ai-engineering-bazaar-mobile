@@ -10,7 +10,7 @@
   "nav_practice": "Pratik",
   "nav_settings": "Ayarlar",
   "nav_caravan": "Kervan",
-  "caravan_sample_notice": "Bu trendler gerçek. Her birinin makaleleri ve kaynakları çok yakında.",
+  "caravan_sample_notice": "Her trendin makaleleri ve kaynakları çok yakında.",
   "caravan_stage_label": "Kervan {title} durağında",
   "caravan_stop_of": "Durak {index} / {count}",
   "caravan_previous": "Önceki durak",

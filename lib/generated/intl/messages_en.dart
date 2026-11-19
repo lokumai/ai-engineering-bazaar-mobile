@@ -223,7 +223,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Article"),
     "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Resources soon"),
     "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "These trends are real. The articles and resources for each are coming soon.",
+      "The articles and resources for each trend are coming soon.",
     ),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Repository"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Tool"),
