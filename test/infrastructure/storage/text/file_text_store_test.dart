@@ -67,4 +67,11 @@ void main() {
     expect(await store().read(), isNull);
     await store().delete();
   });
+
+  // Plan 20.5: path_provider throws its own errors, not a FileSystemException, when the phone gives no folder.
+  test('a base directory that fails with another error reads as null', () async {
+    final none = FileTextStore(baseDirectory: () async => throw StateError('no folder'), path: 'quiz/scores.json');
+
+    expect(await none.read(), isNull);
+  });
 }

@@ -25,7 +25,9 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final IWelcomeStore _store;
 
   Future<void> _onStarted(WelcomeStarted event, Emitter<WelcomeState> emit) async {
-    if (await _store.seen()) {
+    // A flag that cannot be read counts as not seen: Welcome asks again rather than leave an empty page (plan 20.5).
+    final seen = await _store.seen().then((seen) => seen, onError: (Object _) => false);
+    if (seen) {
       emit(const WelcomeDone());
     } else {
       emit(WelcomeChoosingTrack(story: event.story));

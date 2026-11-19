@@ -21,7 +21,24 @@ final class _MemoryWelcomeStore implements IWelcomeStore {
   }
 }
 
+/// A store whose read fails, as one whose folder the phone does not give.
+final class _FailingWelcomeStore implements IWelcomeStore {
+  @override
+  Future<bool> seen() => Future.error(StateError('no folder'));
+
+  @override
+  Future<void> markSeen() async {}
+}
+
 void main() {
+  // Plan 20.5: a read that fails asks for the language and the track, never an empty page for ever.
+  blocTest<WelcomeBloc, WelcomeState>(
+    'a flag that cannot be read counts as not seen',
+    build: () => WelcomeBloc(store: _FailingWelcomeStore()),
+    act: (bloc) => bloc.add(const WelcomeStarted()),
+    expect: () => [const WelcomeChoosingTrack()],
+  );
+
   test('starts checking', () {
     expect(WelcomeBloc(store: _MemoryWelcomeStore()).state, const WelcomeChecking());
   });

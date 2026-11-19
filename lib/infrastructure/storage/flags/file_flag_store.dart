@@ -18,7 +18,7 @@ final class FileFlagStore {
   Directory? _resolved;
 
   Future<File> _file(String name) async {
-    final directory = _resolved ??= Directory('${(await _baseDirectory()).path}/flags');
+    final directory = _resolved ??= Directory('${(await _folder(_baseDirectory)).path}/flags');
     return File('${directory.path}/$name');
   }
 
@@ -50,5 +50,17 @@ final class FileFlagStore {
     } on FileSystemException catch (error) {
       _log.warn('flag {} not cleared: {}', [name, error]);
     }
+  }
+}
+
+/// The app's folder from [baseDirectory]; one the phone does not give (path_provider throws its own errors) fails as a
+/// file that cannot be opened, so a flag reads as not set rather than leave Welcome waiting (plan 20.5).
+Future<Directory> _folder(Future<Directory> Function() baseDirectory) async {
+  try {
+    return await baseDirectory();
+  } on FileSystemException {
+    rethrow;
+  } on Object catch (error) {
+    throw FileSystemException('no app folder: $error');
   }
 }
