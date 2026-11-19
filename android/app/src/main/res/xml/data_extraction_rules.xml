@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Backup rules for Android 12 (API 31) and higher, see
-     https://developer.android.com/identity/data/autobackup. The reader's progress lives in files/record/
-     (Application Support, written by FileRecordRepository) and follows the reader to a new device through
-     cloud backup and device-to-device transfer. With an include rule only the included files are copied,
-     so the content cache and everything else stay on this device. -->
+     https://developer.android.com/identity/data/autobackup. The app keeps its own files under Application Support
+     (files/ on Android), each kind in its folder, and all of them follow the reader to a new device through cloud
+     backup and device-to-device transfer, as iOS restores Application Support (plan 18.8): the progress (record/), the
+     choices made in the app (flags/: Welcome seen, track, language, look, icon, reading style, tour), the quiz scores
+     and Practice's history (quiz/), where each module was left and heard (reading/, listen/) and the Apprentice and
+     its outfit (toy/). With include rules only these are copied; the content cache lives in the cache directory, which
+     is never backed up. A folder added under Application Support is added here too (android_manifest_test). -->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="file" path="record/"/>
+        <include domain="file" path="flags/"/>
+        <include domain="file" path="quiz/"/>
+        <include domain="file" path="reading/"/>
+        <include domain="file" path="listen/"/>
+        <include domain="file" path="toy/"/>
     </cloud-backup>
     <device-transfer>
         <include domain="file" path="record/"/>
+        <include domain="file" path="flags/"/>
+        <include domain="file" path="quiz/"/>
+        <include domain="file" path="reading/"/>
+        <include domain="file" path="listen/"/>
+        <include domain="file" path="toy/"/>
     </device-transfer>
 </data-extraction-rules>

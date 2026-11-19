@@ -75,6 +75,41 @@ void main() {
     expect(rules, isNot(contains('<exclude')));
   });
 
+  test("every folder of the app's own under files/ goes to a backup and a new phone, never the cache (plan 18.8)", () {
+    const folders = ['record', 'flags', 'quiz', 'reading', 'listen', 'toy'];
+    final extraction = _readWithoutXmlComments(dataExtractionRulesPath);
+    for (final section in ['cloud-backup', 'device-transfer']) {
+      final rules = _contentsOf(section, extraction).join();
+      for (final folder in folders) {
+        expect(rules, contains('<include domain="file" path="$folder/"/>'), reason: '$section $folder');
+      }
+    }
+    final backup = _readWithoutXmlComments(backupRulesPath);
+    for (final folder in folders) {
+      expect(backup, contains('<include domain="file" path="$folder/"/>'), reason: folder);
+    }
+  });
+
+  test('one activity takes every link, and Back leaves with a preview of Home (plan 18.5, 18.15)', () {
+    final manifest = _readWithoutXmlComments(manifestPath);
+    expect(manifest, contains('android:launchMode="singleTask"'));
+    expect(manifest, contains('android:enableOnBackInvokedCallback="true"'));
+  });
+
+  test("the site's links open in the app in every language, and the pages without a slash too (plan 18.9)", () {
+    final manifest = _readWithoutXmlComments(manifestPath);
+    for (final language in ['', '/tr', '/fa']) {
+      for (final track in ['', '/everyone']) {
+        for (final page in ['courses', 'sheets']) {
+          expect(manifest, contains('<data android:pathPrefix="$language$track/$page/"/>'));
+        }
+      }
+    }
+    for (final path in ['/courses', '/everyone/courses', '/sheets', '/everyone/sheets', '/transfer']) {
+      expect(manifest, contains('<data android:path="$path"/>'));
+    }
+  });
+
   // A32: the app loads content over https only. The platform defaults already refuse cleartext; these pin them.
   test('no manifest allows cleartext traffic', () {
     final manifests = Directory('android/app/src')

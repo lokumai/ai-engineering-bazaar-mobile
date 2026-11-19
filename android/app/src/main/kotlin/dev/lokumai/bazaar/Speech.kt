@@ -1,6 +1,9 @@
 package dev.lokumai.bazaar
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
@@ -13,29 +16,65 @@ import java.util.Locale
 
 /**
  * The phone's own voice, which reads a module aloud (plan 15), on the channel lib/infrastructure/speech/phone_speech.dart
- * calls: `canSpeak` with a language, `speak` with an id, the texts, the tag and the rate, and `stop`. A speak queues
- * every text with the engine at once, in the best voice installed for the language, so the reading goes on with the
- * screen off (the owner, 2026-11-18). Each text's start goes back in `part` with the speak's id and its place, and the
- * id in `done` once the last is said, or they are cut or failed. The engine starts on the first call and is shut down
- * with the activity; nothing leaves the phone.
+ * calls: `canSpeak` with a language, `speak` with an id, the texts, the tag, the rate and the module's title, and
+ * `stop`. A speak queues every text with the engine at once, in the best voice installed for the language, so the
+ * reading goes on with the screen off (the owner, 2026-11-18). Each text's start goes back in `part` with the speak's id
+ * and its place, and the id in `done` once the last is said, or they are cut or failed. The engine starts on the first
+ * call and is shut down with the activity; nothing leaves the phone.
+ *
+ * As on iOS (plan 18): ListenService keeps the app running while it reads; other sound is lowered while it speaks and
+ * comes back a moment after; a short pause follows each text; a text longer than the engine takes is said in pieces;
+ * and when another app takes the sound for itself, as a call does, or the reader presses Pause on the notice, the
+ * reading stops and `interrupted` tells the Dart side, which pauses where it was.
  */
 class Speech(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     companion object {
         const val CHANNEL = "dev.lokumai.bazaar/speech"
 
+        /** The pause after each text, as iOS's `postUtteranceDelay`. */
+        const val GAP_MS = 150L
+
+        /** How long other sound waits after the last word before it comes back up, as on iOS. */
+        const val RELEASE_MS = 600L
+
         /** Whether [locale] has a voice by the engine's own answer to [TextToSpeech.isLanguageAvailable]. */
         fun available(answer: Int): Boolean = answer >= TextToSpeech.LANG_AVAILABLE
 
-        /** The utterance id of the text at [index] of the speak [id]. */
-        fun utterance(id: Int, index: Int, last: Boolean): String = "$id:$index:${if (last) 1 else 0}"
+        /** The utterance id of piece [piece] of [pieces] of the text at [index] of the speak [id]. */
+        fun utterance(id: Int, index: Int, last: Boolean, piece: Int = 0, pieces: Int = 1): String =
+            "$id:$index:${if (last) 1 else 0}:$piece:$pieces"
 
-        /** The speak's id, the text's place and whether it is the last, from an utterance id; null for another's. */
-        fun parse(utterance: String?): Triple<Int, Int, Boolean>? {
+        /** What an utterance id names; null for another's, such as the pause after a text. */
+        fun parse(utterance: String?): Part? {
             val parts = utterance?.split(':') ?: return null
-            if (parts.size != 3) return null
-            val id = parts[0].toIntOrNull() ?: return null
-            val index = parts[1].toIntOrNull() ?: return null
-            return Triple(id, index, parts[2] == "1")
+            if (parts.size != 5) return null
+            val numbers = listOf(parts[0], parts[1], parts[3], parts[4]).map { it.toIntOrNull() ?: return null }
+            return Part(numbers[0], numbers[1], parts[2] == "1", numbers[2], numbers[3])
+        }
+
+        /**
+         * [text] cut into pieces of at most [max] characters, each ending at a sentence's end where one falls in the
+         * second half of the piece, else at a space, else where it must; one piece when it fits. Android's engine
+         * refuses a text longer than its `getMaxSpeechInputLength` (4000), and a list or a callout is one text.
+         */
+        fun pieces(text: String, max: Int): List<String> {
+            if (text.length <= max) return listOf(text)
+            val out = mutableListOf<String>()
+            var rest = text
+            while (rest.length > max) {
+                val window = rest.substring(0, max)
+                val sentence = Regex("""[.!?؟۔…:;]\s""").findAll(window).lastOrNull()?.range?.last
+                val space = window.lastIndexOf(' ')
+                val cut = when {
+                    sentence != null && sentence >= max / 2 -> sentence
+                    space >= max / 2 -> space
+                    else -> max
+                }
+                out.add(rest.substring(0, cut).trim())
+                rest = rest.substring(cut).trimStart()
+            }
+            if (rest.isNotBlank()) out.add(rest)
+            return out.filter { it.isNotEmpty() }
         }
 
         /**
@@ -52,6 +91,15 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                         { -it.value.latency },
                     ),
                 )?.index
+    }
+
+    /** A piece of a text: the speak [id], the text's place [index], whether it is the [last] text, and its piece. */
+    data class Part(val id: Int, val index: Int, val last: Boolean, val piece: Int, val pieces: Int) {
+        /** The text's first piece, whose start is the text's. */
+        val starts get() = piece == 0
+
+        /** The text's last piece, whose end is the text's. */
+        val ends get() = piece == pieces - 1
     }
 
     /** What [best] weighs of a voice, apart from the framework's [Voice]. */
@@ -75,15 +123,44 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** The speaks whose end has been told, so a cut queue tells it once. */
     private val ended = mutableSetOf<Int>()
 
+    /** The speak being read, if any. */
+    private var current: Int? = null
+
+    private val audio = context.getSystemService(AudioManager::class.java)
+    private val attributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+        .build()
+
+    /** Another app took the sound for itself, as a call does: the reading pauses where it was. */
+    private val focus = AudioManager.OnAudioFocusChangeListener { change ->
+        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            main.post { interrupt() }
+        }
+    }
+
+    /** Asks the others to lower their sound while the voice speaks, as iOS's `.duckOthers`. */
+    private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+        .setAudioAttributes(attributes)
+        .setOnAudioFocusChangeListener(focus, main)
+        .build()
+
+    private val release = Runnable {
+        if (current != null) return@Runnable
+        audio?.abandonAudioFocusRequest(focusRequest)
+        ListenService.stop(context)
+    }
+
     private val progress = object : UtteranceProgressListener() {
         override fun onStart(utteranceId: String?) {
-            val (id, index, _) = parse(utteranceId) ?: return
-            main.post { channel.invokeMethod("part", mapOf("id" to id, "index" to index)) }
+            val part = parse(utteranceId) ?: return
+            if (!part.starts) return
+            main.post { channel.invokeMethod("part", mapOf("id" to part.id, "index" to part.index)) }
         }
 
         override fun onDone(utteranceId: String?) {
-            val (id, _, last) = parse(utteranceId) ?: return
-            if (last) done(id)
+            val part = parse(utteranceId) ?: return
+            if (part.last && part.ends) done(part.id)
         }
 
         @Deprecated("Deprecated in Java")
@@ -94,13 +171,33 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         override fun onStop(utteranceId: String?, interrupted: Boolean) = cut(utteranceId)
     }
 
+    init {
+        ListenService.onPause = { main.post { interrupt() } }
+    }
+
     private fun cut(utteranceId: String?) {
-        val (id, _, _) = parse(utteranceId) ?: return
-        done(id)
+        val part = parse(utteranceId) ?: return
+        done(part.id)
     }
 
     private fun done(id: Int) {
-        main.post { if (ended.add(id)) channel.invokeMethod("done", id) }
+        main.post {
+            if (!ended.add(id)) return@post
+            channel.invokeMethod("done", id)
+            if (current == id) {
+                current = null
+                // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
+                main.removeCallbacks(release)
+                main.postDelayed(release, RELEASE_MS)
+            }
+        }
+    }
+
+    /** Stops the reading for the reader or another app, and tells the Dart side, which pauses where it was. */
+    private fun interrupt() {
+        val id = current ?: return
+        channel.invokeMethod("interrupted", id)
+        engine?.stop()
     }
 
     /** Runs [action] on the main thread once the engine has started, starting it on the first call. */
@@ -112,6 +209,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
             main.post {
                 started = status
                 engine?.setOnUtteranceProgressListener(progress)
+                engine?.setAudioAttributes(attributes)
                 waiting.forEach { it() }
                 waiting.clear()
             }
@@ -148,6 +246,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 val texts = call.argument<List<String>>("texts") ?: emptyList()
                 val tag = call.argument<String>("tag") ?: return result.error("no-tag", null, null)
                 val rate = call.argument<Double>("rate") ?: 1.0
+                val title = call.argument<String>("title").orEmpty()
                 whenStarted { tts ->
                     val locale = Locale.forLanguageTag(tag)
                     if (tts == null || texts.isEmpty() || !available(tts.setLanguage(locale))) {
@@ -155,12 +254,29 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                     }
                     pickVoice(tts, locale)
                     tts.setSpeechRate(rate.toFloat())
+                    main.removeCallbacks(release)
+                    current = id
+                    audio?.requestAudioFocus(focusRequest)
+                    ListenService.start(context, title)
                     // The first flushes the words being said, whose speak then comes back as done; the rest queue.
+                    val max = runCatching { TextToSpeech.getMaxSpeechInputLength() }.getOrDefault(4000)
                     var queued = true
+                    var flush = true
                     texts.forEachIndexed { index, text ->
-                        val mode = if (index == 0) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                        val utterance = utterance(id, index, index == texts.size - 1)
-                        queued = queued && tts.speak(text, mode, null, utterance) == TextToSpeech.SUCCESS
+                        val last = index == texts.size - 1
+                        val pieces = pieces(text, max)
+                        pieces.forEachIndexed { piece, words ->
+                            val mode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+                            flush = false
+                            val utterance = utterance(id, index, last, piece, pieces.size)
+                            queued = queued && tts.speak(words, mode, null, utterance) == TextToSpeech.SUCCESS
+                        }
+                        if (!last) tts.playSilentUtterance(GAP_MS, TextToSpeech.QUEUE_ADD, "gap")
+                    }
+                    if (!queued) {
+                        // Nothing half said: what was queued is cut, and the speak comes back as done.
+                        tts.stop()
+                        done(id)
                     }
                     result.success(queued)
                 }
@@ -176,6 +292,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Shuts the engine down with the activity. */
     fun close() {
         channel.setMethodCallHandler(null)
+        ListenService.onPause = null
+        main.removeCallbacks(release)
+        current = null
+        audio?.abandonAudioFocusRequest(focusRequest)
+        ListenService.stop(context)
         engine?.shutdown()
         engine = null
         started = null

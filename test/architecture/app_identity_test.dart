@@ -32,8 +32,10 @@ void main() {
         for (final name in [
           'AppIconSwitch',
           'CodeScanner',
+          'Haptics',
           'LaunchGround',
           'Links',
+          'ListenService',
           'MainActivity',
           'MainApplication',
           'NativeScrubPatterns',
@@ -45,6 +47,7 @@ void main() {
           '$kotlinMain/$name.kt',
         for (final name in [
           'AppIconSwitchTest',
+          'HapticsTest',
           'LaunchGroundTest',
           'NativeSentryScrubberTest',
           'NativeSentryTest',

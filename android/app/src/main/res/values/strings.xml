@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The words of the notice Android shows while a module is read aloud (ListenService.kt, plan 18.1). Android picks
+     them by the phone's language, as it does for every notice; values-tr and values-fa hold the same three. -->
+<resources>
+    <string name="listen_channel">Listen</string>
+    <string name="listen_reading">Reading aloud</string>
+    <string name="listen_pause">Pause</string>
+</resources>

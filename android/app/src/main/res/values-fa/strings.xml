@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="listen_channel">گوش دادن</string>
+    <string name="listen_reading">در حال خواندن با صدای بلند</string>
+    <string name="listen_pause">مکث</string>
+</resources>
