@@ -91,6 +91,8 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                           ],
                         ),
                       ),
+                      // A little more air under the two figures, the rest a little lower (the owner, 2026-11-19).
+                      const SizedBox(height: 16),
                       Semantics(
                         header: true,
                         child: Text(
