@@ -11,7 +11,12 @@ enum TourPage {
   /// Practice (plan 13.11): its head, then the quizzes by level. Named anew from the Quiz tab's page, so a reader who
   /// saw that one is shown Practice too.
   practice([TourSpots.practiceToday, TourSpots.quizLevel]),
-  settings([TourSpots.settingsReading, TourSpots.settingsCustomize, TourSpots.settingsGuide]);
+  settings([
+    TourSpots.settingsReading,
+    TourSpots.settingsCustomize,
+    TourSpots.settingsWebsite,
+    TourSpots.settingsGuide,
+  ]);
 
   const TourPage(this.spots);
 

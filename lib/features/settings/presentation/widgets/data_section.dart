@@ -14,7 +14,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The reader's data on the Settings page (plan 1AB; the web's `DataPanel.tsx` on `/profile`, Decision A8): the
-/// quarantine notice, the write notice when a write failed, then the data line with Back up, Restore and Reset.
+/// quarantine notice, the write notice when a write failed, then the data line with Back up, Restore and Reset, and
+/// the website line with Send to the website.
 ///
 /// It owns the [DataBloc] of its flows, and asks before a pending restore replaces the record.
 class DataSection extends StatelessWidget {

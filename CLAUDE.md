@@ -74,6 +74,7 @@ lib/
                                                 under the opening, behind Welcome's steps on the first launch
     bootstrap/                                  boot order, Sentry gate, CONTENT_BASE_URL check (main_local)
     di/app_dependencies.dart, app_scope.dart    the only place infrastructure is constructed; providers
+    links/incoming_links.dart                   opens the site's links the phone hands the app, under Welcome (plan 17.2)
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
@@ -94,6 +95,12 @@ lib/
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
     theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
+    links/link_channel.dart                     the site's links the phone hands the app (Links.kt, AppDelegate.swift's
+                                                scene delegate); Flutter's deep linking stays off
+    share/share_channel.dart                    the phone's share sheet (ShareSheet.kt, AppDelegate.swift)
+    scanner/code_scanner_channel.dart           the website's QR code read in the app (CodeScanner.kt: Google's code
+                                                scanner; AppDelegate.swift: the app's camera screen)
+    transfer/deflate_transfer_packer.dart       a progress link's payload: raw DEFLATE in base64url
     speech/phone_speech.dart                    the phone's own voice, which reads a module aloud: the app's own channel
                                                 (Speech.kt, AppDelegate.swift)
   shared/
@@ -103,7 +110,9 @@ lib/
     content/presentation/                       block and inline renderers, diagram, logo and image widgets, quiz_slot.dart,
                                                 the marks of the words searched (text_find.dart), the glossary's terms
                                                 dotted in a module's text (term_scope.dart)
-    record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports
+    record/domain/                              constants, envelope, normaliser, instant, writer, reducers, selectors, ports,
+                                                transfer.dart (a progress link's compact text, shared with the web, and
+                                                its merge, which only adds)
     record/application/                         RecordBloc, curriculumFor
     record/presentation/record_write_notice.dart  the write-failure line shared by the reader and Settings
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
@@ -133,6 +142,8 @@ lib/
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
+    site_links/                                 SiteLink (the site's pages and transfers the app opens), ILinkSource,
+                                                IShareSheet and ICodeScanner
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
@@ -162,7 +173,8 @@ lib/
                                                 `/practice` (the endless review, Wrong answers, Recap, the
                                                 Glossary, the quizzes by level) and its sessions (ReviewSessionCubit,
                                                 options shuffled in Practice only)
-    settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
+    settings/                                   track, language, the reading settings page, the app icon page, the website (scan the
+                                                site's code, send progress to it), the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)
@@ -171,6 +183,8 @@ lib/
     guide/                                      How the bazaar works, at `/settings/guide`, with Take the tour again
     tour/                                       the Apprentice's tour for a first run (TourCubit, TourLayer over the shell);
                                                 pages mark its places with shared/tour/tour_target.dart (TourTarget, TourSpots)
+    transfer/                                   a progress link opened in the app at `/transfer`, full screen (plan 17.1):
+                                                TransferBloc, what the link carries, Add to this phone's progress
     caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
                                                 the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)

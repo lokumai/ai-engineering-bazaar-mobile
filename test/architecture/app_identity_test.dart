@@ -31,12 +31,15 @@ void main() {
       expect(sources.map((file) => file.path).toSet(), {
         for (final name in [
           'AppIconSwitch',
+          'CodeScanner',
           'LaunchGround',
+          'Links',
           'MainActivity',
           'MainApplication',
           'NativeScrubPatterns',
           'NativeSentry',
           'NativeSentryScrubber',
+          'ShareSheet',
           'Speech',
         ])
           '$kotlinMain/$name.kt',

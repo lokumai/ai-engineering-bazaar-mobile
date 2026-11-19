@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/domain/site_owner.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/website_section.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/inline_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/labeled_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/reading_style_row.dart';
@@ -203,6 +204,12 @@ class _SettingsView extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: AppSpacing.xl),
+          // How progress moves between the website and this phone, above the phone's own (plan 17.1, 17.5; the
+          // owner, 2026-11-19); the tour stops at it.
+          SectionRule(title: s.settings_website),
+          const SizedBox(height: AppSpacing.md),
+          const TourTarget(spot: TourSpots.settingsWebsite, child: WebsiteSection()),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.settings_data),
           const SizedBox(height: AppSpacing.md),

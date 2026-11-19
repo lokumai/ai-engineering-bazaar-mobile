@@ -12,15 +12,11 @@ final class RecordStarted extends RecordEvent {
 /// The reader toggled the completion of [key] on [track]; [revision] is the track's `revision.hash` from the reader,
 /// null from the progress page (Decision A35). Build it with `completionToggled`, which fills [everyone].
 final class CompletionToggled extends RecordEvent {
-  const CompletionToggled({required this.key, required this.revision, required this.track, this.everyone});
+  const CompletionToggled({required this.key, required this.revision, required this.track});
 
   final String key;
   final String? revision;
   final Track track;
-
-  /// The For Everyone version that a For Engineers completion completes as well, when it is written (plan 1V); null
-  /// otherwise. Removing a completion never touches it.
-  final EveryoneCompletion? everyone;
 }
 
 /// The reader ticked the checklist item [index] of [key] on [track], or took the tick away (web `ChecklistIsland`).
@@ -33,14 +29,6 @@ final class ChecklistItemToggled extends RecordEvent {
   final int index;
   final bool ticked;
   final Track track;
-}
-
-/// The For Everyone version of a module, completed along with its For Engineers version (plan 1V).
-final class EveryoneCompletion {
-  const EveryoneCompletion({required this.revision});
-
-  /// The For Everyone `revision.hash`, null where the caller passes none (A35).
-  final String? revision;
 }
 
 /// A backup starts at [at]: mark the day, write, and complete [reply] with the export bytes (spec 3.3.10).
@@ -67,6 +55,29 @@ final class RecordReplaced extends RecordEvent {
   /// Completes with true once [data] replaced the record, and with false when it did not: an erase was waiting in the
   /// queue, or the record was not read yet.
   final Completer<bool>? reply;
+}
+
+/// The progress of a transfer link added to the record (plan 17.1): it only adds (`mergeTransfer`), is written at once
+/// with no day stamp of its own, and an open undo closes, as a restore.
+final class TransferMerged extends RecordEvent {
+  const TransferMerged({required this.progress, required this.reply});
+
+  final TransferProgress progress;
+
+  /// Completes with what became of [progress].
+  final Completer<TransferMergeResult> reply;
+}
+
+/// What became of a transfer's progress.
+enum TransferMergeResult {
+  /// Something was added and written.
+  added,
+
+  /// The record already held all of it; nothing was written.
+  nothingNew,
+
+  /// Nothing was added: an erase waited in the queue, the record was not read yet, or the write failed.
+  notAdded,
 }
 
 /// The reader confirmed an erase at [at] (spec 3.3.11, Decision A41).

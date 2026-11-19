@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
 import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -258,72 +259,30 @@ void main() {
     });
   });
 
-  group('plan 1V: a For Engineers completion completes For Everyone too', () {
-    const carried = CompletionToggled(
-      key: 'alpha/first',
-      revision: 'a1b2c3d',
-      track: Track.engineers,
-      everyone: EveryoneCompletion(revision: 'e5f6a7b'),
-    );
-
-    test('completing For Engineers signs both, each with its own revision', () async {
+  // Plan 17.4 (the owner, 2026-11-19): each track is completed on its own, as on the website; 1V, which completed For
+  // Everyone along with For Engineers, is undone so the two never disagree.
+  group('plan 17.4: each track is completed on its own', () {
+    test('completing For Engineers leaves For Everyone as it was', () async {
       await _withClock(() async {
         final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(carried);
-        await pumpEventQueue();
-
-        final raw = _ready(bloc).record.raw;
-        expect(((raw['sheets']! as Map)['alpha/first'] as Map)['signedRevision'], 'a1b2c3d');
-        final everyone = (raw['everyoneSheets']! as Map)['alpha/first'] as Map;
-        expect(everyone['signedOff'], _now);
-        expect(everyone['signedRevision'], 'e5f6a7b');
-        await bloc.close();
-      });
-    });
-
-    test('undoing For Engineers leaves For Everyone completed', () async {
-      await _withClock(() async {
-        final bloc = await _started(_MemoryRecordRepository());
-        bloc
-          ..add(carried)
-          ..add(carried);
+        bloc.add(const CompletionToggled(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers));
         await pumpEventQueue();
 
         final record = _ready(bloc).record;
-        expect(record.signedOff('alpha/first', Track.engineers), isNull);
-        expect(record.signedOff('alpha/first', Track.everyone), _now);
+        expect(record.signedOff('alpha/first', Track.engineers), _now);
+        expect(record.signedOff('alpha/first', Track.everyone), isNull);
+        expect(record.raw['everyoneSheets'], isEmpty);
         await bloc.close();
       });
     });
 
-    test('a For Everyone completion already there is kept as it was', () async {
+    test('completing For Everyone leaves For Engineers as it was', () async {
       await _withClock(() async {
         final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(const CompletionToggled(key: 'alpha/first', revision: 'old1234', track: Track.everyone));
-        await pumpEventQueue();
-        final before = (_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'];
-
-        bloc.add(carried);
+        bloc.add(const CompletionToggled(key: 'alpha/first', revision: null, track: Track.everyone));
         await pumpEventQueue();
 
-        expect((_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'], before);
-        await bloc.close();
-      });
-    });
-
-    test('completing For Everyone never completes For Engineers', () async {
-      await _withClock(() async {
-        final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(
-          const CompletionToggled(
-            key: 'alpha/first',
-            revision: null,
-            track: Track.everyone,
-            everyone: EveryoneCompletion(revision: null),
-          ),
-        );
-        await pumpEventQueue();
-
+        expect(_ready(bloc).record.signedOff('alpha/first', Track.everyone), _now);
         expect(_ready(bloc).record.raw['sheets'], isEmpty);
         await bloc.close();
       });
@@ -476,6 +435,66 @@ void main() {
           ..add(RecordReplaced(data: _signed, reply: dropped))
           ..add(RecordErased(at: _t));
         expect(await dropped.future, isFalse, reason: 'an erase waits behind it, and wins');
+        await bloc.close();
+      });
+    });
+  });
+
+  group('a transfer (plan 17.1)', () {
+    const progress = TransferProgress(
+      engineers: {
+        'beta/second': TransferSheet(signedOff: '2026-03-01T10:00:00.000Z', signedRevision: 'bbbb', ticks: []),
+      },
+      everyone: {},
+      days: ['2026-03-01'],
+    );
+
+    test('adds what is new, writes it at once with no day of its own, and closes an open undo', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final reply = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: reply));
+        expect(await reply.future, TransferMergeResult.added);
+        final record = _ready(bloc).record;
+        expect(record.signedOff('alpha/first', Track.engineers), _now, reason: 'nothing here is removed');
+        expect(record.signedOff('beta/second', Track.engineers), '2026-03-01T10:00:00.000Z');
+        expect(record.days, ['2026-03-01', '2026-03-14'], reason: 'no stamp of the day the transfer came');
+        expect(repository.writes, hasLength(1));
+        await bloc.close();
+      });
+    });
+
+    test('writes nothing when the record already holds it all', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final first = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: first));
+        await first.future;
+        final again = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: again));
+        expect(await again.future, TransferMergeResult.nothingNew);
+        expect(repository.writes, hasLength(1));
+        await bloc.close();
+      });
+    });
+
+    test('is not added with an erase waiting, nor when the write fails', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final dropped = Completer<TransferMergeResult>();
+        bloc
+          ..add(TransferMerged(progress: progress, reply: dropped))
+          ..add(RecordErased(at: _t));
+        expect(await dropped.future, TransferMergeResult.notAdded);
+        await pumpEventQueue();
+
+        repository.nextResult = WriteResult.quota;
+        final failed = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: failed));
+        expect(await failed.future, TransferMergeResult.notAdded);
         await bloc.close();
       });
     });

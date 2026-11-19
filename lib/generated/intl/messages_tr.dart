@@ -160,11 +160,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m68(count) => "${Intl.plural(count, other: '${count} modül tamamlandı')}";
 
-  static String m69(name) => "${name}, giyili";
+  static String m69(count) => "${Intl.plural(count, other: '${count} kontrol listesi maddesi işaretli')}";
 
-  static String m70(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m70(name, level) => "${name}, ${level}. seviyede açılır";
+
+  static String m71(name) => "${name}, giyili";
+
+  static String m72(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -299,6 +303,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("Bu dosya açılamadı."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Dosyadan geri yüklendi."),
+    "data_send_empty": MessageLookupByLibrary.simpleMessage(
+      "Henüz gönderilecek bir şey yok: tamamlanan ya da işaretlenen modül yok.",
+    ),
+    "data_send_failed": MessageLookupByLibrary.simpleMessage("Paylaşım menüsü açılmadı."),
+    "data_send_to_website": MessageLookupByLibrary.simpleMessage("Web sitesine gönder"),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Geri al"),
@@ -596,6 +605,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Bölüm planı"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Bölümler"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("Herkes için yazılanlara bak"),
+    "reader_share": MessageLookupByLibrary.simpleMessage("Bu modülü paylaş"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Kursun başı"),
     "reading_note": MessageLookupByLibrary.simpleMessage("Bu ayarlar modül metnini değiştirir, menüleri değil."),
     "reading_preview": MessageLookupByLibrary.simpleMessage("Önizleme"),
@@ -682,6 +692,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("Web sitesi"),
     "tour_band": MessageLookupByLibrary.simpleMessage("Okuyacağın modül hep burada."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),
@@ -704,19 +715,53 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "Web sitesindeki ilerlemeni buraya getir ya da buradakini oraya gönder.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
     "tour_step": m67,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Bir sekme aç, sana orayı göstereyim."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("Bu telefondaki ilerlemeye ekle"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("Eklendi. Bu telefondan hiçbir şey silinmedi."),
+    "transfer_completed": m68,
+    "transfer_empty": MessageLookupByLibrary.simpleMessage("Bu bağlantıda ilerleme yok."),
+    "transfer_keeps": MessageLookupByLibrary.simpleMessage(
+      "Eklemek bu telefondakileri korur: buradan hiçbir şey silinmez.",
+    ),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage("Eklenmedi. Yeniden denemek için bağlantıyı tekrar aç."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu telefonda zaten var."),
+    "transfer_ticked": m69,
+    "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),
+    "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
+      "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
+    ),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m68,
-    "wardrobe_item_worn": m69,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m70,
+    "wardrobe_preview": m72,
+    "website_from_text": MessageLookupByLibrary.simpleMessage(
+      "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu telefonla okut.",
+    ),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("Web sitesinden bu telefona"),
+    "website_scan": MessageLookupByLibrary.simpleMessage("Kodu okut"),
+    "website_scan_denied": MessageLookupByLibrary.simpleMessage(
+      "Uygulamanın kamera izni yok. Telefonun Ayarlar\'ından izin ver ya da kodu Kamera uygulamasıyla okut.",
+    ),
+    "website_scan_failed": MessageLookupByLibrary.simpleMessage("Kamera açılmadı. Kodu Kamera uygulamasıyla okut."),
+    "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
+      "Bu kod web sitesinden gelen bir ilerleme bağlantısı değil.",
+    ),
+    "website_scan_title": MessageLookupByLibrary.simpleMessage("Web sitesindeki kodu okut"),
+    "website_to_text": MessageLookupByLibrary.simpleMessage(
+      "İlerlemeni bir bağlantı olarak gönder, sonra bağlantıyı bilgisayarda aç.",
+    ),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("Bu telefondan web sitesine"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

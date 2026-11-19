@@ -9,6 +9,8 @@ import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_choice_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -90,6 +92,10 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
         RepositoryProvider<ISpeech>(create: (_) => dependencies.createSpeech()),
+        RepositoryProvider<ILinkSource>(create: (_) => dependencies.createLinkSource()),
+        RepositoryProvider<IShareSheet>(create: (_) => dependencies.createShareSheet()),
+        RepositoryProvider<ICodeScanner>(create: (_) => dependencies.createCodeScanner()),
+        RepositoryProvider<ITransferPacker>(create: (_) => dependencies.createTransferPacker()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),

@@ -12,7 +12,6 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.d
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
-import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter/material.dart';
@@ -211,8 +210,7 @@ class _LevelCard extends StatelessWidget {
                     children: [
                       Divider(height: 1, color: colors.line),
                       const SizedBox(height: AppSpacing.xs),
-                      for (final row in rows)
-                        _ModuleRow(key: CatalogOverview.rowKey(row.key), track: track, index: index, row: row),
+                      for (final row in rows) _ModuleRow(key: CatalogOverview.rowKey(row.key), track: track, row: row),
                       const SizedBox(height: AppSpacing.xs),
                     ],
                   )
@@ -230,12 +228,9 @@ class _LevelCard extends StatelessWidget {
 /// minutes at the row's end and the way in, which open the module in [track]; no number, no word count (the owner,
 /// 2026-11-18).
 class _ModuleRow extends StatelessWidget {
-  const _ModuleRow({super.key, required this.track, required this.index, required this.row});
+  const _ModuleRow({super.key, required this.track, required this.row});
 
   final Track track;
-
-  /// The index the toggle reads the module's For Everyone version from (plan 1V).
-  final BundleIndex index;
   final CatalogRow row;
 
   @override
@@ -258,7 +253,7 @@ class _ModuleRow extends StatelessWidget {
         : Text(length, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted));
     final Widget leading;
     if (row.drawn) {
-      void toggle() => context.read<RecordBloc>().add(completionToggled(index, row.key, track, revision: null));
+      void toggle() => context.read<RecordBloc>().add(CompletionToggled(key: row.key, track: track, revision: null));
       // The name says which module and what a tap does; the checked state says whether it is complete.
       leading = Semantics(
         container: true,

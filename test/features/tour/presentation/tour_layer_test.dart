@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart'
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
+import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -292,7 +293,8 @@ void main() {
     expect(_buttonDrawn(tester), isTrue);
   });
 
-  testWidgets('Settings: the reading choices, then the guide, which takes the tour again from Home', (tester) async {
+  testWidgets('Settings: the reading choices, the wardrobe, the website, then the guide, which takes the tour again '
+      'from Home', (tester) async {
     final (router, store) = await _pump(
       tester,
       record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
@@ -301,7 +303,12 @@ void main() {
     expect(find.textContaining('Track, language, look and text size.'), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('My wardrobe:'), findsOneWidget);
-    expect(_dots(2, 3), findsOneWidget);
+    expect(_dots(2, 4), findsOneWidget);
+    await _tap(tester, _next);
+    // Plan 17.1: how progress moves between the app and the website.
+    expect(find.textContaining('Bring your progress from the website here'), findsOneWidget);
+    expect(_hole(tester), isNotNull, reason: 'the website section was scrolled into view');
+    expect(_dots(3, 4), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('This tour waits in How the bazaar works.'), findsOneWidget);
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
@@ -325,7 +332,7 @@ void main() {
 
   // Plan 12.12: Settings' Reading grew a row and its rows moved onto one line; each stop still rings its whole place,
   // the Apprentice stays on the screen and Next stays above the navigation, measured in Roboto on a small Android and
-  // an iPhone, in each language.
+  // an iPhone, in each language. Plan 17.1 adds the website's line between Customize and the guide.
   group('Settings\' stops in a real face', () {
     setUpAll(() => loadFace('Roboto', robotoFiles()));
     for (final (name, size, insets) in [
@@ -346,7 +353,7 @@ void main() {
           addTearDown(tester.view.reset);
           await _walk(tester);
           final screen = Offset.zero & size;
-          for (final spot in [TourSpots.settingsReading, TourSpots.settingsCustomize, TourSpots.settingsGuide]) {
+          for (final spot in TourPage.settings.spots) {
             await _walk(tester);
             final hole = _hole(tester)!;
             final place = _spot(tester, spot);

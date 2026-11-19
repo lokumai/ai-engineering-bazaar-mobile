@@ -160,11 +160,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(name, level) => "${name}، در سطح ${level} باز می‌شود";
+  static String m68(count) => "${Intl.plural(count, other: '${count} ماژول تکمیل‌شده')}";
 
-  static String m69(name) => "${name}، پوشیده";
+  static String m69(count) => "${Intl.plural(count, other: '${count} مورد از فهرست بررسی علامت خورده')}";
 
-  static String m70(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
+  static String m70(name, level) => "${name}، در سطح ${level} باز می‌شود";
+
+  static String m71(name) => "${name}، پوشیده";
+
+  static String m72(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -299,6 +303,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("این فایل باز نشد."),
     "data_restored": MessageLookupByLibrary.simpleMessage("از فایل بازیابی شد."),
+    "data_send_empty": MessageLookupByLibrary.simpleMessage(
+      "هنوز چیزی برای فرستادن نیست: هیچ ماژولی تکمیل یا علامت‌گذاری نشده.",
+    ),
+    "data_send_failed": MessageLookupByLibrary.simpleMessage("منوی اشتراک‌گذاری باز نشد."),
+    "data_send_to_website": MessageLookupByLibrary.simpleMessage("فرستادن به وب‌سایت"),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("چیزی روی این دستگاه ثبت نشده است"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("برگرداندن"),
@@ -598,6 +607,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("برنامهٔ بخش‌ها"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("بخش‌ها"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("دیدن آنچه «برای همه» نوشته شده است"),
+    "reader_share": MessageLookupByLibrary.simpleMessage("اشتراک‌گذاری این ماژول"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("آغاز دوره"),
     "reading_note": MessageLookupByLibrary.simpleMessage("این تنظیمات متن ماژول‌ها را تغییر می‌دهد، نه منوها را."),
     "reading_preview": MessageLookupByLibrary.simpleMessage("پیش‌نمایش"),
@@ -688,6 +698,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
     "settings_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("وب‌سایت"),
     "tour_band": MessageLookupByLibrary.simpleMessage("ماژولی که الان باید بخوانید همیشه اینجاست."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("کاروان از میان جریان‌های هوش مصنوعی می‌گذرد."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("برای حرکت، اینجا را بکشید یا روی ایستگاهی بزنید."),
@@ -710,19 +721,53 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("این گشت در «بازار چطور کار می‌کند» است."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("مسیر، زبان، ظاهر و اندازهٔ متن."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "پیشرفتتان را از وب‌سایت به اینجا بیاورید یا از اینجا به آنجا بفرستید.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
     "tour_step": m67,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("زبانه‌ای را باز کنید تا آنجا را نشانتان بدهم."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("افزودن به پیشرفت این گوشی"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("افزوده شد. چیزی از این گوشی پاک نشد."),
+    "transfer_completed": m68,
+    "transfer_empty": MessageLookupByLibrary.simpleMessage("این پیوند پیشرفتی با خود ندارد."),
+    "transfer_keeps": MessageLookupByLibrary.simpleMessage(
+      "افزودن آن همه‌چیزِ این گوشی را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
+    ),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage(
+      "افزوده نشد. برای تلاش دوباره، پیوند را دوباره باز کنید.",
+    ),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این گوشی هست."),
+    "transfer_ticked": m69,
+    "transfer_title": MessageLookupByLibrary.simpleMessage("پیشرفت از یک پیوند"),
+    "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
+      "این پیوند خوانده نمی‌شود. یک پیوند تازه در صفحهٔ Progress وب‌سایت بسازید.",
+    ),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
-    "wardrobe_item_locked": m68,
-    "wardrobe_item_worn": m69,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
-    "wardrobe_preview": m70,
+    "wardrobe_preview": m72,
+    "website_from_text": MessageLookupByLibrary.simpleMessage(
+      "در وب‌سایت، Progress را در بالای صفحه باز کنید و Move to the app را بزنید. کدی را که نشان می‌دهد با این گوشی اسکن کنید.",
+    ),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("از وب‌سایت به این گوشی"),
+    "website_scan": MessageLookupByLibrary.simpleMessage("اسکن کد"),
+    "website_scan_denied": MessageLookupByLibrary.simpleMessage(
+      "برنامه اجازهٔ استفاده از دوربین را ندارد. در تنظیمات گوشی اجازه دهید یا کد را با برنامهٔ دوربین اسکن کنید.",
+    ),
+    "website_scan_failed": MessageLookupByLibrary.simpleMessage("دوربین باز نشد. کد را با برنامهٔ دوربین اسکن کنید."),
+    "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage("این کد پیوند پیشرفتی از وب‌سایت نیست."),
+    "website_scan_title": MessageLookupByLibrary.simpleMessage("کد وب‌سایت را اسکن کنید"),
+    "website_to_text": MessageLookupByLibrary.simpleMessage(
+      "پیشرفت خود را به‌صورت یک پیوند بفرستید و سپس آن را روی رایانه باز کنید.",
+    ),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("از این گوشی به وب‌سایت"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),

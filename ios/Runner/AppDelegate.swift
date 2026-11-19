@@ -43,6 +43,12 @@ import UIKit
   /// The phone's voice, which reads a module aloud (plan 15.1).
   private var speech: Speech?
 
+  /// The links the phone hands the app (plan 17.2).
+  private var links: Links?
+
+  /// The phone's QR code scanner (plan 17.5).
+  private var codeScanner: CodeScanner?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -84,6 +90,254 @@ import UIKit
       }
     // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
     speech = Speech(messenger: registrar.messenger())
+    // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the scene hands them over, the one
+    // the app was opened with included.
+    let links = Links(messenger: registrar.messenger())
+    registrar.addSceneDelegate(links)
+    self.links = links
+    // lib/infrastructure/share/share_channel.dart shares a module's address and a progress link.
+    FlutterMethodChannel(name: "dev.lokumai.bazaar/share", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { call, result in
+        guard call.method == "share" else { return result(FlutterMethodNotImplemented) }
+        guard let text = call.arguments as? String, !text.isEmpty, let presenter = ShareSheet.presenter() else {
+          return result(FlutterError(code: "no-sheet", message: nil, details: nil))
+        }
+        ShareSheet.show(text, from: presenter)
+        result(nil)
+      }
+    // lib/infrastructure/scanner/code_scanner_channel.dart reads the website's code in the app.
+    codeScanner = CodeScanner(messenger: registrar.messenger())
+  }
+}
+
+/// The links the phone hands the app (plan 17.2), on the channel lib/infrastructure/links/link_channel.dart listens to:
+/// the site's pages its apple-app-site-association names (universal links, once the Associated Domains entitlement is
+/// on: Runner.entitlements) and the app's own scheme `aibazaar://transfer` (Info.plist), which the site's transfer page
+/// offers. Flutter's own deep linking stays off (Info.plist), so no link reaches the router.
+///
+/// A link that comes before the Dart side asks waits; `ready` gives the ones waiting and from then on each comes as
+/// `link`.
+final class Links: NSObject, FlutterSceneLifeCycleDelegate {
+  private let channel: FlutterMethodChannel
+  private var waiting: [String] = []
+  private var ready = false
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "dev.lokumai.bazaar/links", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self, call.method == "ready" else { return result(FlutterMethodNotImplemented) }
+      self.ready = true
+      result(self.waiting)
+      self.waiting.removeAll()
+    }
+  }
+
+  private func receive(_ url: URL?) {
+    guard let link = url?.absoluteString else { return }
+    if ready {
+      channel.invokeMethod("link", arguments: link)
+    } else {
+      waiting.append(link)
+    }
+  }
+
+  private func receive(_ activity: NSUserActivity) -> Bool {
+    guard activity.activityType == NSUserActivityTypeBrowsingWeb, let url = activity.webpageURL else { return false }
+    receive(url)
+    return true
+  }
+
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions?
+  ) -> Bool {
+    guard let options = connectionOptions else { return false }
+    var handled = false
+    for context in options.urlContexts {
+      receive(context.url)
+      handled = true
+    }
+    for activity in options.userActivities where receive(activity) {
+      handled = true
+    }
+    return handled
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    for context in URLContexts {
+      receive(context.url)
+    }
+    return !URLContexts.isEmpty
+  }
+
+  func scene(_ scene: UIScene, continue userActivity: NSUserActivity) -> Bool {
+    receive(userActivity)
+  }
+}
+
+/// The phone's share sheet (plan 17.3): the text is offered to the phone's apps; nothing is sent until the reader picks
+/// one.
+enum ShareSheet {
+  /// The screen on top, which presents the sheet.
+  static func presenter() -> UIViewController? {
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+      .first { $0.isKeyWindow }
+    var top = window?.rootViewController
+    while let shown = top?.presentedViewController {
+      top = shown
+    }
+    return top
+  }
+
+  static func show(_ text: String, from presenter: UIViewController) {
+    let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+    // On an iPad the sheet is a popover, which needs a place: the middle of the screen, with no arrow.
+    if let popover = sheet.popoverPresentationController {
+      popover.sourceView = presenter.view
+      popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+      popover.permittedArrowDirections = []
+    }
+    presenter.present(sheet, animated: true)
+  }
+}
+
+/// The phone's QR code scanner (plan 17.5), on the channel lib/infrastructure/scanner/code_scanner_channel.dart calls:
+/// `available`, and `scan` with the screen's title, which answers the code's text, or nil when the reader went back
+/// (Cancel). The camera screen is the app's own (AVFoundation, QR codes only); iOS asks the reader once for the camera
+/// (Info.plist NSCameraUsageDescription), and a camera not allowed answers `denied`. No picture is kept; nothing leaves
+/// the phone.
+final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
+  private let channel: FlutterMethodChannel
+  private var pending: FlutterResult?
+  private var session: AVCaptureSession?
+  private weak var screen: UIViewController?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "dev.lokumai.bazaar/scanner", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self else { return result(FlutterMethodNotImplemented) }
+      switch call.method {
+      case "available":
+        result(AVCaptureDevice.default(for: .video) != nil)
+      case "scan":
+        self.start(title: call.arguments as? String ?? "", result: result)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func start(title: String, result: @escaping FlutterResult) {
+    guard pending == nil else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
+    switch AVCaptureDevice.authorizationStatus(for: .video) {
+    case .authorized:
+      open(title: title, result: result)
+    case .notDetermined:
+      AVCaptureDevice.requestAccess(for: .video) { granted in
+        DispatchQueue.main.async {
+          if granted {
+            self.open(title: title, result: result)
+          } else {
+            result(FlutterError(code: "denied", message: nil, details: nil))
+          }
+        }
+      }
+    default:
+      result(FlutterError(code: "denied", message: nil, details: nil))
+    }
+  }
+
+  private func open(title: String, result: @escaping FlutterResult) {
+    let session = AVCaptureSession()
+    let output = AVCaptureMetadataOutput()
+    guard let device = AVCaptureDevice.default(for: .video),
+      let input = try? AVCaptureDeviceInput(device: device),
+      session.canAddInput(input), session.canAddOutput(output),
+      let presenter = ShareSheet.presenter()
+    else {
+      return result(FlutterError(code: "no-camera", message: nil, details: nil))
+    }
+    session.addInput(input)
+    session.addOutput(output)
+    output.setMetadataObjectsDelegate(self, queue: .main)
+    output.metadataObjectTypes = [.qr]
+    let navigation = UINavigationController(
+      rootViewController: ScannerScreen(session: session, title: title) { [weak self] in self?.finish(nil) })
+    navigation.modalPresentationStyle = .fullScreen
+    navigation.overrideUserInterfaceStyle = .dark
+    pending = result
+    self.session = session
+    screen = navigation
+    presenter.present(navigation, animated: true)
+    DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
+  }
+
+  func metadataOutput(
+    _ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection
+  ) {
+    let code = metadataObjects.compactMap { ($0 as? AVMetadataMachineReadableCodeObject)?.stringValue }.first
+    guard let code else { return }
+    finish(code)
+  }
+
+  private func finish(_ text: String?) {
+    guard let result = pending else { return }
+    pending = nil
+    let session = self.session
+    self.session = nil
+    DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
+    screen?.dismiss(animated: true)
+    screen = nil
+    result(text)
+  }
+}
+
+/// The camera screen of [CodeScanner]: the camera's picture across the screen, a square to aim with, the title and
+/// Cancel above.
+final class ScannerScreen: UIViewController {
+  private let session: AVCaptureSession
+  private let onCancel: () -> Void
+  private var preview: AVCaptureVideoPreviewLayer?
+  private let aim = CAShapeLayer()
+
+  init(session: AVCaptureSession, title: String, onCancel: @escaping () -> Void) {
+    self.session = session
+    self.onCancel = onCancel
+    super.init(nibName: nil, bundle: nil)
+    navigationItem.title = title
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    view.backgroundColor = .black
+    let preview = AVCaptureVideoPreviewLayer(session: session)
+    preview.videoGravity = .resizeAspectFill
+    view.layer.addSublayer(preview)
+    self.preview = preview
+    aim.strokeColor = UIColor.white.cgColor
+    aim.fillColor = UIColor.clear.cgColor
+    aim.lineWidth = 3
+    view.layer.addSublayer(aim)
+  }
+
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    preview?.frame = view.bounds
+    let side = min(view.bounds.width, view.bounds.height) * 0.65
+    let square = CGRect(x: view.bounds.midX - side / 2, y: view.bounds.midY - side / 2, width: side, height: side)
+    aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
+  }
+
+  @objc private func cancel() {
+    onCancel()
   }
 }
 

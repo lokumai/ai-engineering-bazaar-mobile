@@ -1405,6 +1405,8 @@
   "@tour_settings_reading": {},
   "tour_settings_customize": "My wardrobe: dress me up, or change the app icon.",
   "@tour_settings_customize": {},
+  "tour_settings_website": "Bring your progress from the website here, or send it there.",
+  "@tour_settings_website": {},
   "tour_settings_guide": "This tour waits in How the bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
@@ -1540,5 +1542,65 @@
       }
     }
   },
-  "home_quiz_waiting": "Quiz waiting"
+  "home_quiz_waiting": "Quiz waiting",
+  "transfer_title": "Progress from a link",
+  "@transfer_title": {},
+  "transfer_completed": "{count, plural, =1{1 module completed} other{{count} modules completed}}",
+  "@transfer_completed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "transfer_ticked": "{count, plural, =1{1 checklist item ticked} other{{count} checklist items ticked}}",
+  "@transfer_ticked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "transfer_keeps": "Adding it keeps everything on this phone: nothing here is removed.",
+  "@transfer_keeps": {},
+  "transfer_add": "Add to this phone's progress",
+  "@transfer_add": {},
+  "transfer_added": "Added. Nothing on this phone was removed.",
+  "@transfer_added": {},
+  "transfer_nothing_new": "Nothing new: this phone already has all of it.",
+  "@transfer_nothing_new": {},
+  "transfer_not_added": "Not added. Open the link again to try once more.",
+  "@transfer_not_added": {},
+  "transfer_unreadable": "This link cannot be read. Make a new one on the website's Progress page.",
+  "@transfer_unreadable": {},
+  "transfer_empty": "This link carries no progress.",
+  "@transfer_empty": {},
+  "data_send_to_website": "Send to the website",
+  "@data_send_to_website": {},
+  "settings_website": "The website",
+  "@settings_website": {},
+  "website_from_title": "From the website to this phone",
+  "@website_from_title": {},
+  "website_from_text": "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+  "@website_from_text": {},
+  "website_scan": "Scan the code",
+  "@website_scan": {},
+  "website_scan_title": "Scan the website's code",
+  "@website_scan_title": {},
+  "website_scan_not_a_link": "That code is not a progress link from the website.",
+  "@website_scan_not_a_link": {},
+  "website_scan_denied": "The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.",
+  "@website_scan_denied": {},
+  "website_scan_failed": "The camera did not open. Scan the code with the Camera app instead.",
+  "@website_scan_failed": {},
+  "website_to_title": "From this phone to the website",
+  "@website_to_title": {},
+  "website_to_text": "Send your progress as a link, then open the link on the computer.",
+  "@website_to_text": {},
+  "data_send_empty": "Nothing to send yet: no module is completed or ticked.",
+  "@data_send_empty": {},
+  "data_send_failed": "The share menu did not open.",
+  "@data_send_failed": {},
+  "reader_share": "Share this module",
+  "@reader_share": {}
 }

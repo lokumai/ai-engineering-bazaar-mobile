@@ -161,11 +161,16 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(name, level) => "${name}, unlocks at level ${level}";
+  static String m68(count) => "${Intl.plural(count, one: '1 module completed', other: '${count} modules completed')}";
 
-  static String m69(name) => "${name}, worn";
+  static String m69(count) =>
+      "${Intl.plural(count, one: '1 checklist item ticked', other: '${count} checklist items ticked')}";
 
-  static String m70(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m70(name, level) => "${name}, unlocks at level ${level}";
+
+  static String m71(name) => "${name}, worn";
+
+  static String m72(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -298,6 +303,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
+    "data_send_empty": MessageLookupByLibrary.simpleMessage("Nothing to send yet: no module is completed or ticked."),
+    "data_send_failed": MessageLookupByLibrary.simpleMessage("The share menu did not open."),
+    "data_send_to_website": MessageLookupByLibrary.simpleMessage("Send to the website"),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
@@ -595,6 +603,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
+    "reader_share": MessageLookupByLibrary.simpleMessage("Share this module"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
     "reading_note": MessageLookupByLibrary.simpleMessage("These settings change a module\'s text, not the menus."),
     "reading_preview": MessageLookupByLibrary.simpleMessage("Preview"),
@@ -683,6 +692,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("The website"),
     "tour_band": MessageLookupByLibrary.simpleMessage("The module to read now is always here."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("The Caravan travels through the trends of AI."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide here, or tap a stop, to move along."),
@@ -705,21 +715,57 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Track, language, look and text size."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "Bring your progress from the website here, or send it there.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
     "tour_step": m67,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Open a tab and I\'ll show you around it."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("Add to this phone\'s progress"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("Added. Nothing on this phone was removed."),
+    "transfer_completed": m68,
+    "transfer_empty": MessageLookupByLibrary.simpleMessage("This link carries no progress."),
+    "transfer_keeps": MessageLookupByLibrary.simpleMessage(
+      "Adding it keeps everything on this phone: nothing here is removed.",
+    ),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage("Not added. Open the link again to try once more."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this phone already has all of it."),
+    "transfer_ticked": m69,
+    "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
+    "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
+      "This link cannot be read. Make a new one on the website\'s Progress page.",
+    ),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m68,
-    "wardrobe_item_worn": m69,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m70,
+    "wardrobe_preview": m72,
+    "website_from_text": MessageLookupByLibrary.simpleMessage(
+      "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+    ),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("From the website to this phone"),
+    "website_scan": MessageLookupByLibrary.simpleMessage("Scan the code"),
+    "website_scan_denied": MessageLookupByLibrary.simpleMessage(
+      "The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.",
+    ),
+    "website_scan_failed": MessageLookupByLibrary.simpleMessage(
+      "The camera did not open. Scan the code with the Camera app instead.",
+    ),
+    "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
+      "That code is not a progress link from the website.",
+    ),
+    "website_scan_title": MessageLookupByLibrary.simpleMessage("Scan the website\'s code"),
+    "website_to_text": MessageLookupByLibrary.simpleMessage(
+      "Send your progress as a link, then open the link on the computer.",
+    ),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("From this phone to the website"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),

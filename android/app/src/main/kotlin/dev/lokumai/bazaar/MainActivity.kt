@@ -1,5 +1,6 @@
 package dev.lokumai.bazaar
 
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
@@ -14,7 +15,20 @@ class MainActivity : FlutterActivity() {
     /** The phone's voice, which reads a module aloud (plan 15.1). */
     private var speech: Speech? = null
 
+    /** The links the phone hands the app (plan 17.2). */
+    private var links: Links? = null
+
+    /** The phone's share sheet (plan 17.3). */
+    private var shareSheet: ShareSheet? = null
+
+    /** The phone's QR code scanner (plan 17.5). */
+    private var codeScanner: CodeScanner? = null
+
+    /** Whether this activity is made again from a saved state, whose intent's link was handed over already. */
+    private var restored = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        restored = savedInstanceState != null
         super.onCreate(savedInstanceState)
         // Until Flutter's first frame the window shows; it takes the ground of the reader's look, where the opening starts.
         window.setBackgroundDrawable(ColorDrawable(getColor(LaunchGround.ground(this))))
@@ -48,11 +62,30 @@ class MainActivity : FlutterActivity() {
         handleLaunchGround(flutterEngine)
         // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
         speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger)
+        // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the one the app was opened
+        // with waits for it.
+        links = Links(flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
+        // lib/infrastructure/share/share_channel.dart shares a module's address and a progress link.
+        shareSheet = ShareSheet(this, flutterEngine.dartExecutor.binaryMessenger)
+        // lib/infrastructure/scanner/code_scanner_channel.dart reads the website's code in the app.
+        codeScanner = CodeScanner(this, flutterEngine.dartExecutor.binaryMessenger)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        links?.receive(intent)
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         speech?.close()
         speech = null
+        links?.close()
+        links = null
+        shareSheet?.close()
+        shareSheet = null
+        codeScanner?.close()
+        codeScanner = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

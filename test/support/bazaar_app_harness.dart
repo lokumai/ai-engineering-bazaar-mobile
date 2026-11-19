@@ -42,6 +42,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -109,7 +112,8 @@ MockContentRepository missingContentRepository() {
 
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
 /// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], [backupGateway] and
-/// [recordRepository] (which the Settings page's data line reads) to fresh mocks, [speech] to no voice, and the web
+/// [recordRepository] (which the Settings page's data line reads) to fresh mocks, [speech] to no voice, [shareSheet] to
+/// none, and the web
 /// links use [testContentBaseUrl]. The interface is in [locale], English by default.
 Widget bazaarTestApp({
   required GoRouter router,
@@ -135,6 +139,8 @@ Widget bazaarTestApp({
   RobotLevelCubit? robotLevel,
   ReadingStyleCubit? readingStyle,
   ISpeech? speech,
+  IShareSheet? shareSheet,
+  ICodeScanner? codeScanner,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -148,6 +154,10 @@ Widget bazaarTestApp({
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
       RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
       RepositoryProvider<ISpeech>.value(value: speech ?? const NoSpeech()),
+      RepositoryProvider<IShareSheet>.value(value: shareSheet ?? const NoShareSheet()),
+      RepositoryProvider<ICodeScanner>.value(value: codeScanner ?? const NoCodeScanner()),
+      RepositoryProvider<ILinkSource>.value(value: const NoLinkSource()),
+      RepositoryProvider<ITransferPacker>.value(value: const DeflateTransferPacker()),
     ],
     child: MultiBlocProvider(
       providers: [

@@ -51,6 +51,9 @@ abstract final class BazaarPaths {
 
   static const settings = '/settings';
 
+  /// A progress transfer link opened in the app (plan 17.1), full screen; the payload goes as the route's extra.
+  static const transfer = '/transfer';
+
   static const _everyone = 'everyone';
   static const _sheets = 'sheets';
   static const _courses = 'courses';
