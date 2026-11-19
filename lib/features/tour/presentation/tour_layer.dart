@@ -539,7 +539,8 @@ class _Bubble extends StatelessWidget {
         side: BorderSide(color: colors.line),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 14, 12, 8),
+        // The wider gap at the start of the line, mirrored in Persian (plan 19.6).
+        padding: const EdgeInsetsDirectional.fromSTEB(18, 14, 12, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
