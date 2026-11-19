@@ -46,8 +46,8 @@
               android:name="flutter_deeplinking_enabled"
               android:value="false"
               />
-            <!-- The site's pages the app opens itself (plan 17.2): modules, levels and catalogs of both tracks, in every
-                 language, and the progress transfer. The same list is in the site's apple-app-site-association; the
+            <!-- The site's pages the app opens itself (plan 17.2): modules in every language and the catalogs of both
+                 tracks (the site has them in English only), and the progress transfer. The same list is in the site's apple-app-site-association; the
                  site's assetlinks.json names this app, which Android checks (autoVerify) before it opens them here.
                  The links reach lib/infrastructure/links/link_channel.dart through Links.kt, never the router. -->
             <intent-filter android:autoVerify="true">
@@ -64,10 +64,6 @@
                 <data android:pathPrefix="/fa/everyone/courses/"/>
                 <data android:pathPrefix="/sheets/"/>
                 <data android:pathPrefix="/everyone/sheets/"/>
-                <data android:pathPrefix="/tr/sheets/"/>
-                <data android:pathPrefix="/fa/sheets/"/>
-                <data android:pathPrefix="/tr/everyone/sheets/"/>
-                <data android:pathPrefix="/fa/everyone/sheets/"/>
                 <data android:pathPrefix="/transfer/"/>
                 <!-- The same pages written without the closing slash, which SiteLink reads too (plan 18.9). -->
                 <data android:path="/courses"/>

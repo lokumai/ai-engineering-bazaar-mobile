@@ -119,7 +119,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
-- On Android, Open on the web from the app goes to the browser instead of coming back to the app, a link from another app no longer opens a second copy of it, and the catalog's Turkish and Persian links open in the app.
+- On Android, Open on the web from the app goes to the browser instead of coming back to the app, and a link from another app no longer opens a second copy of it.
 - Persian headings are set in Vazirmatn's own bold face rather than a thickened regular one.
 - A broken link in a module says it could not be opened instead of failing, links open only on the web, mail and the phone, and a download from the site is capped at 32 MB.
 - The reset asks for the word in the interface's language: SİL in Turkish, حذف in Persian. ERASE still works in every language.

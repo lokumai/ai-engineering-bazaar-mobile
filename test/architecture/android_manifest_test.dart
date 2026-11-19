@@ -96,15 +96,17 @@ void main() {
     expect(manifest, contains('android:enableOnBackInvokedCallback="true"'));
   });
 
-  test("the site's links open in the app in every language, and the pages without a slash too (plan 18.9)", () {
+  test("the site's links open in the app, and the pages without a slash too (plan 18.9)", () {
     final manifest = _readWithoutXmlComments(manifestPath);
-    for (final language in ['', '/tr', '/fa']) {
-      for (final track in ['', '/everyone']) {
-        for (final page in ['courses', 'sheets']) {
-          expect(manifest, contains('<data android:pathPrefix="$language$track/$page/"/>'));
-        }
+    for (final track in ['', '/everyone']) {
+      for (final language in ['', '/tr', '/fa']) {
+        expect(manifest, contains('<data android:pathPrefix="$language$track/courses/"/>'));
       }
+      // The catalog is English only on the site: no /tr/sheets/ or /fa/sheets/ page to claim.
+      expect(manifest, contains('<data android:pathPrefix="$track/sheets/"/>'));
     }
+    expect(manifest, isNot(contains('/tr/sheets/')));
+    expect(manifest, isNot(contains('/fa/sheets/')));
     for (final path in ['/courses', '/everyone/courses', '/sheets', '/everyone/sheets', '/transfer']) {
       expect(manifest, contains('<data android:path="$path"/>'));
     }
