@@ -73,7 +73,9 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
             Expanded(
               child: ReadableWidth(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  // The step sits a little lower, the figures with it (the owner, 2026-11-19); it still fits an
+                  // iPhone's 852 points.
+                  padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     // The whole step fits a phone with no scrolling (the owner, 2026-11-14); the app icon is
@@ -91,8 +93,6 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                           ],
                         ),
                       ),
-                      // A little more air under the two figures, the rest a little lower (the owner, 2026-11-19).
-                      const SizedBox(height: 16),
                       Semantics(
                         header: true,
                         child: Text(

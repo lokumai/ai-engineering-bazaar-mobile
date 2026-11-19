@@ -523,7 +523,7 @@ On `feature/android-ios-parity`, from main at 9b05cc7 (PR #16 merged). The owner
 - [x] **18.14 Android's share mark.** The share icons (a module's, Settings') are Android's three joined dots on Android and the box with an arrow on iOS (`shareIcon`).
 - [x] **18.15 Predictive back.** `android:enableOnBackInvokedCallback="true"`: Android 13 and later preview the page behind while the back gesture is held.
 - [x] **18.16 Not done (the owner).** iOS's body text, a little thin in Avenir Next, stays as it is; Android keeps Roboto, since Avenir Next may not be bundled.
-- [x] **18.18 Welcome's first step a little lower (the owner, 2026-11-19).** 16 more under the two figures, which stay where they were.
+- [x] **18.18 Welcome's first step a little lower (the owner, 2026-11-19).** The whole step, the two figures with it, 10 lower; it still fits an iPhone's 852 points.
 - [x] **18.17 Transfer (the owner, 2026-11-19).** Settings' section The website is now Transfer (Transfer in Turkish, انتقال in Persian).
 
 ## Later, kept on purpose (the owner, 2026-11-17)
