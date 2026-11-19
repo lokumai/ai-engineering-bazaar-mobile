@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/features/home/application/daily_card_cubit
 import 'package:ai_engineering_bazaar/features/home/application/daily_card.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -17,7 +18,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
-import 'package:flutter/widgets.dart' show Locale, Scrollable, Size, Text, ValueKey;
+import 'package:flutter/widgets.dart' show Locale, Offset, Scrollable, Size, Text, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -103,12 +104,7 @@ void main() {
       await _pumpHome(tester);
 
       expect(_card, findsOneWidget);
-      for (final text in [
-        'Today\'s card',
-        'Why tools',
-        'Models call tools. They read what comes back.',
-        'First Module',
-      ]) {
+      for (final text in ['Why tools', 'Models call tools. They read what comes back.', 'First Module']) {
         expect(
           find.descendant(of: _card, matching: find.text(text)),
           findsOneWidget,
@@ -116,18 +112,76 @@ void main() {
         );
       }
       expect(
-        find.bySemanticsLabel('Today\'s card: Why tools. Models call tools. They read what comes back. First Module'),
+        find.bySemanticsLabel('Why tools. Models call tools. They read what comes back. First Module'),
         findsOneWidget,
+      );
+      expect(find.text('Today\'s card'), findsNothing, reason: 'it has no name of its own (plan 14.1)');
+      expect(
+        tester.widget<BazaarCard>(_card).accent,
+        isNotNull,
+        reason: "its level's hue along its top, the card the Apprentice shows keeps it (the owner, 2026-11-18)",
       );
       await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
     });
   });
 
-  testWidgets('the card says what it is in Turkish', (tester) async {
+  testWidgets('Show another brings the next card in turn, the last one standing while it is read (plan 14.1)', (
+    tester,
+  ) async {
+    await withClock(_dayZero, () async {
+      final repository = _titledCourse();
+      await _pumpHome(tester, repository: repository);
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/first')), findsOneWidget);
+      final slow = Completer<ModuleDoc>();
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) => slow.future);
+
+      await tester.tap(find.byKey(const ValueKey('home-daily-another')));
+      await tester.pump();
+      expect(
+        find.descendant(of: _card, matching: find.text('Module alpha/first')),
+        findsOneWidget,
+        reason: 'the last card stays while the next is read, so Home does not jump',
+      );
+      slow.complete(
+        testDoc(
+          title: 'Module alpha/second',
+          body: [_p('An opening.'), _h('why', 'Why tools'), _p('Models call tools.')],
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/second')), findsOneWidget);
+    });
+  });
+
+  testWidgets('Show another is an icon in the corner, named in Turkish (the owner, 2026-11-18)', (tester) async {
     await withClock(_dayZero, () async {
       await _pumpHome(tester, locale: const Locale('tr'));
 
-      expect(find.descendant(of: _card, matching: find.text('Bugünün kartı')), findsOneWidget);
+      expect(find.byTooltip('Başka göster'), findsOneWidget);
+      expect(find.text('Başka göster'), findsNothing, reason: 'no line of its own under the card');
+      final icon = tester.getRect(find.byKey(const ValueKey('home-daily-another')));
+      final card = tester.getRect(_card);
+      expect(icon.top - card.top, lessThan(16), reason: 'at the top');
+      expect(icon.right, greaterThan(card.right - 60), reason: 'at the end');
+    });
+  });
+
+  testWidgets('a swipe across the card brings another; a slow drag does not (the owner, 2026-11-18)', (tester) async {
+    await withClock(_dayZero, () async {
+      await _pumpHome(tester, repository: _titledCourse());
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/first')), findsOneWidget);
+
+      await tester.timedDrag(_card, const Offset(-120, 0), const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: _card, matching: find.text('Module alpha/first')),
+        findsOneWidget,
+        reason: 'slow',
+      );
+
+      await tester.fling(_card, const Offset(-200, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: _card, matching: find.text('Module alpha/second')), findsOneWidget);
     });
   });
 

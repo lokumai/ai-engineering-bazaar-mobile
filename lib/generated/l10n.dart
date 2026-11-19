@@ -350,9 +350,9 @@ class S {
     return Intl.message('Every written module is complete.', name: 'home_all_complete', desc: '', args: []);
   }
 
-  /// `Today's card`
-  String get home_daily_title {
-    return Intl.message('Today\'s card', name: 'home_daily_title', desc: '', args: []);
+  /// `Show another`
+  String get home_daily_another {
+    return Intl.message('Show another', name: 'home_daily_another', desc: '', args: []);
   }
 
   /// `Completed`
@@ -636,6 +636,56 @@ class S {
     return Intl.message('Contents', name: 'reader_contents', desc: '', args: []);
   }
 
+  /// `Listen`
+  String get listen {
+    return Intl.message('Listen', name: 'listen', desc: '', args: []);
+  }
+
+  /// `Resume listening`
+  String get listen_resume {
+    return Intl.message('Resume listening', name: 'listen_resume', desc: '', args: []);
+  }
+
+  /// `Play`
+  String get listen_play {
+    return Intl.message('Play', name: 'listen_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get listen_pause {
+    return Intl.message('Pause', name: 'listen_pause', desc: '', args: []);
+  }
+
+  /// `Previous paragraph`
+  String get listen_back {
+    return Intl.message('Previous paragraph', name: 'listen_back', desc: '', args: []);
+  }
+
+  /// `Next paragraph`
+  String get listen_next {
+    return Intl.message('Next paragraph', name: 'listen_next', desc: '', args: []);
+  }
+
+  /// `Speed {rate}`
+  String listen_speed(String rate) {
+    return Intl.message('Speed $rate', name: 'listen_speed', desc: '', args: [rate]);
+  }
+
+  /// `Stop listening`
+  String get listen_stop {
+    return Intl.message('Stop listening', name: 'listen_stop', desc: '', args: []);
+  }
+
+  /// `Read aloud: {title}. Open it`
+  String listen_open(String title) {
+    return Intl.message('Read aloud: $title. Open it', name: 'listen_open', desc: '', args: [title]);
+  }
+
+  /// `{at} of {count}`
+  String listen_part(int at, int count) {
+    return Intl.message('$at of $count', name: 'listen_part', desc: '', args: [at, count]);
+  }
+
   /// `Previous match`
   String get reader_find_previous {
     return Intl.message('Previous match', name: 'reader_find_previous', desc: '', args: []);
@@ -734,6 +784,11 @@ class S {
   /// `Completed {date}`
   String reader_completed_on(String date) {
     return Intl.message('Completed $date', name: 'reader_completed_on', desc: '', args: [date]);
+  }
+
+  /// `Marked as completed`
+  String get reader_auto_completed {
+    return Intl.message('Marked as completed', name: 'reader_auto_completed', desc: '', args: []);
   }
 
   /// `Previous`
@@ -2623,14 +2678,9 @@ class S {
     );
   }
 
-  /// `Hi, I'm the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?`
+  /// `Hi, I'm the Apprentice. Shall I show you around?`
   String get tour_hello {
-    return Intl.message(
-      'Hi, I\'m the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?',
-      name: 'tour_hello',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Hi, I\'m the Apprentice. Shall I show you around?', name: 'tour_hello', desc: '', args: []);
   }
 
   /// `Show me around`
@@ -2658,134 +2708,99 @@ class S {
     return Intl.message('Skip the tour', name: 'tour_skip', desc: '', args: []);
   }
 
-  /// `This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.`
+  /// `I bring you a section every day. Tap it to read, or swipe for another.`
   String get tour_home_head {
     return Intl.message(
-      'This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.',
+      'I bring you a section every day. Tap it to read, or swipe for another.',
       name: 'tour_home_head',
       desc: '',
       args: [],
     );
   }
 
-  /// `The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.`
-  String get tour_home_after {
+  /// `A few questions and terms a day, and the glossary.`
+  String get tour_home_practice {
     return Intl.message(
-      'The modules after it wait here, and your path through the levels under them. Once you complete a module, Today\'s review shows above them, under Practice.',
-      name: 'tour_home_after',
+      'A few questions and terms a day, and the glossary.',
+      name: 'tour_home_practice',
       desc: '',
       args: [],
     );
   }
 
-  /// `The module to read now is always here, under your thumb: the one you left half read, or the next one.`
+  /// `The module to read now is always here.`
   String get tour_band {
-    return Intl.message(
-      'The module to read now is always here, under your thumb: the one you left half read, or the next one.',
-      name: 'tour_band',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('The module to read now is always here.', name: 'tour_band', desc: '', args: []);
   }
 
-  /// `Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I'll show you what it does.`
+  /// `Open a tab and I'll show you around it.`
   String get tour_tabs {
-    return Intl.message(
-      'Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I\'ll show you what it does.',
-      name: 'tour_tabs',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Open a tab and I\'ll show you around it.', name: 'tour_tabs', desc: '', args: []);
   }
 
-  /// `Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.`
+  /// `Search any topic here.`
   String get tour_catalog_search {
-    return Intl.message(
-      'Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.',
-      name: 'tour_catalog_search',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Search any topic here.', name: 'tour_catalog_search', desc: '', args: []);
   }
 
-  /// `Every level and its modules are here. A module you complete is marked as done.`
+  /// `Tap a level to see its modules. The ones you complete are marked.`
   String get tour_catalog_levels {
     return Intl.message(
-      'Every level and its modules are here. A module you complete is marked as done.',
+      'Tap a level to see its modules. The ones you complete are marked.',
       name: 'tour_catalog_levels',
       desc: '',
       args: [],
     );
   }
 
-  /// `The Caravan travels the timeline of AI's trends. Each stop is one trend, with the modules that teach it.`
+  /// `The Caravan travels through the trends of AI.`
   String get tour_caravan_stage {
     return Intl.message(
-      'The Caravan travels the timeline of AI\'s trends. Each stop is one trend, with the modules that teach it.',
+      'The Caravan travels through the trends of AI.',
       name: 'tour_caravan_stage',
       desc: '',
       args: [],
     );
   }
 
-  /// `Slide along here, or tap a stop, to move the caravan.`
+  /// `Slide here, or tap a stop, to move along.`
   String get tour_caravan_strip {
-    return Intl.message(
-      'Slide along here, or tap a stop, to move the caravan.',
-      name: 'tour_caravan_strip',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Slide here, or tap a stop, to move along.', name: 'tour_caravan_strip', desc: '', args: []);
   }
 
-  /// `Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.`
+  /// `Practice here for as long as you like.`
   String get tour_practice_today {
-    return Intl.message(
-      'Today\'s review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.',
-      name: 'tour_practice_today',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Practice here for as long as you like.', name: 'tour_practice_today', desc: '', args: []);
   }
 
-  /// `Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.`
+  /// `Each level's quizzes. Take them as often as you like.`
   String get tour_quiz_level {
     return Intl.message(
-      'Each level\'s quizzes are here. Open a level, take a quiz, and take it again as often as you like.',
+      'Each level\'s quizzes. Take them as often as you like.',
       name: 'tour_quiz_level',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your track, the app's language, its look and the text size of the modules are chosen here.`
+  /// `Track, language, look and text size.`
   String get tour_settings_reading {
-    return Intl.message(
-      'Your track, the app\'s language, its look and the text size of the modules are chosen here.',
-      name: 'tour_settings_reading',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Track, language, look and text size.', name: 'tour_settings_reading', desc: '', args: []);
   }
 
-  /// `This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.`
+  /// `My wardrobe: dress me up, or change the app icon.`
   String get tour_settings_customize {
     return Intl.message(
-      'This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.',
+      'My wardrobe: dress me up, or change the app icon.',
       name: 'tour_settings_customize',
       desc: '',
       args: [],
     );
   }
 
-  /// `Want this tour again? It waits in How the bazaar works.`
+  /// `This tour waits in How the bazaar works.`
   String get tour_settings_guide {
-    return Intl.message(
-      'Want this tour again? It waits in How the bazaar works.',
-      name: 'tour_settings_guide',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('This tour waits in How the bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
   }
 
   /// `Take the tour again`
@@ -2808,6 +2823,21 @@ class S {
     return Intl.message('Today\'s review', name: 'practice_today', desc: '', args: []);
   }
 
+  /// `Endless review`
+  String get practice_endless {
+    return Intl.message('Endless review', name: 'practice_endless', desc: '', args: []);
+  }
+
+  /// `Practice what you've read, as long as you like.`
+  String get practice_endless_lede {
+    return Intl.message(
+      'Practice what you\'ve read, as long as you like.',
+      name: 'practice_endless_lede',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min`
   String practice_today_cards(int count, int minutes) {
     return Intl.message(
@@ -2816,11 +2846,6 @@ class S {
       desc: '',
       args: [count, minutes],
     );
-  }
-
-  /// `{done} of {total} done today`
-  String practice_today_meter(int done, int total) {
-    return Intl.message('$done of $total done today', name: 'practice_today_meter', desc: '', args: [done, total]);
   }
 
   /// `Start`
@@ -2853,11 +2878,6 @@ class S {
     return Intl.message('The next cards come tomorrow.', name: 'practice_today_done_lede', desc: '', args: []);
   }
 
-  /// `Go to Wrong answers`
-  String get practice_go_wrong {
-    return Intl.message('Go to Wrong answers', name: 'practice_go_wrong', desc: '', args: []);
-  }
-
   /// `Wrong answers`
   String get practice_wrong {
     return Intl.message('Wrong answers', name: 'practice_wrong', desc: '', args: []);
@@ -2886,9 +2906,9 @@ class S {
     return Intl.message('No wrong answers now.', name: 'practice_wrong_none', desc: '', args: []);
   }
 
-  /// `A module in 2 minutes`
+  /// `Recap`
   String get practice_brief {
-    return Intl.message('A module in 2 minutes', name: 'practice_brief', desc: '', args: []);
+    return Intl.message('Recap', name: 'practice_brief', desc: '', args: []);
   }
 
   /// `{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}`
@@ -3017,19 +3037,9 @@ class S {
     return Intl.message('Term', name: 'review_term', desc: '', args: []);
   }
 
-  /// `Show the definition`
-  String get review_term_show {
-    return Intl.message('Show the definition', name: 'review_term_show', desc: '', args: []);
-  }
-
-  /// `Knew it`
-  String get review_term_knew {
-    return Intl.message('Knew it', name: 'review_term_knew', desc: '', args: []);
-  }
-
-  /// `Not yet`
-  String get review_term_not_yet {
-    return Intl.message('Not yet', name: 'review_term_not_yet', desc: '', args: []);
+  /// `Which term is this?`
+  String get review_term_ask {
+    return Intl.message('Which term is this?', name: 'review_term_ask', desc: '', args: []);
   }
 
   /// `Finish`
@@ -3060,6 +3070,11 @@ class S {
   /// `This is in: {section}`
   String review_section_link(String section) {
     return Intl.message('This is in: $section', name: 'review_section_link', desc: '', args: [section]);
+  }
+
+  /// `Quiz waiting`
+  String get home_quiz_waiting {
+    return Intl.message('Quiz waiting', name: 'home_quiz_waiting', desc: '', args: []);
   }
 }
 

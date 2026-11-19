@@ -4,12 +4,11 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.dart';
-import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// One module that comes after the next one (plan 1P): its number, title, level, and its minutes and words as the
-/// catalog's rows print them (the minutes alone where the content has no word count); a tap opens it.
+/// One module that comes after the next one (plan 1P): a book in its level's hue, its title, level and minutes; no word count, which
+/// crowded the row (the owner, 2026-11-18). A tap opens it.
 class HomeAfterRow extends StatelessWidget {
   const HomeAfterRow({super.key, required this.entry, required this.onTap});
 
@@ -21,18 +20,15 @@ class HomeAfterRow extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final language = context.watch<LanguageCubit>().state;
-    final length = homeModuleLength(s, entry, language) ?? homeDurationLabel(s, entry.module.minutes);
+    final length = homeDurationLabel(s, entry.module.minutes);
     final line = [entry.level.title, ?length].join(' · ');
     return BazaarRow(
       onTap: onTap,
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          Text(
-            homeModuleNumber(entry.module.number),
-            style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
-          ),
+          // A book in the level's hue in place of the module's number (the owner, 2026-11-18).
+          Icon(Icons.menu_book_outlined, size: 22, color: levelHue(context, entry.position)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

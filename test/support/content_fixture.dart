@@ -24,6 +24,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart'
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mocktail/mocktail.dart';
@@ -126,6 +128,12 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   IAppIconSwitch createAppIconSwitch() => const NoAppIconSwitch();
+
+  @override
+  ISpeech createSpeech() => const NoSpeech();
+
+  @override
+  IListenPlaceStore createListenPlaceStore() => MemoryListenPlaceStore();
 
   @override
   IQuizScoreStore createQuizScoreStore() => MemoryQuizScoreStore();

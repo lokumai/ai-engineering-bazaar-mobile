@@ -160,8 +160,8 @@
   },
   "home_all_complete": "Every written module is complete.",
   "@home_all_complete": {},
-  "home_daily_title": "Today's card",
-  "@home_daily_title": {},
+  "home_daily_another": "Show another",
+  "@home_daily_another": {},
   "home_daily_completed": "Completed",
   "@home_daily_completed": {},
   "home_after": "Later on",
@@ -366,6 +366,40 @@
   },
   "reader_contents": "Contents",
   "@reader_contents": {},
+  "listen": "Listen",
+  "listen_resume": "Resume listening",
+  "listen_play": "Play",
+  "listen_pause": "Pause",
+  "listen_back": "Previous paragraph",
+  "listen_next": "Next paragraph",
+  "listen_speed": "Speed {rate}",
+  "@listen_speed": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "listen_stop": "Stop listening",
+  "listen_open": "Read aloud: {title}. Open it",
+  "@listen_open": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listen_part": "{at} of {count}",
+  "@listen_part": {
+    "placeholders": {
+      "at": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reader_find_previous": "Previous match",
   "@reader_find_previous": {},
   "reader_find_next": "Next match",
@@ -435,6 +469,7 @@
       }
     }
   },
+  "reader_auto_completed": "Marked as completed",
   "reader_previous": "Previous",
   "@reader_previous": {},
   "reader_next": "Next",
@@ -1324,7 +1359,7 @@
       }
     }
   },
-  "tour_hello": "Hi, I'm the Apprentice. This is a learning app: we teach AI engineering level by level, module by module. Shall I show you around?",
+  "tour_hello": "Hi, I'm the Apprentice. Shall I show you around?",
   "@tour_hello": {},
   "tour_show_me": "Show me around",
   "@tour_show_me": {},
@@ -1336,30 +1371,29 @@
   "@tour_done": {},
   "tour_skip": "Skip the tour",
   "@tour_skip": {},
-  "tour_home_head": "This is my corner. Every day I bring you a section of the course: tap the card to read it. You can chat with me any time.",
+  "tour_home_head": "I bring you a section every day. Tap it to read, or swipe for another.",
   "@tour_home_head": {},
-  "tour_home_after": "The modules after it wait here, and your path through the levels under them. Once you complete a module, Today's review shows above them, under Practice.",
-  "@tour_home_after": {},
-  "tour_band": "The module to read now is always here, under your thumb: the one you left half read, or the next one.",
+  "tour_home_practice": "A few questions and terms a day, and the glossary.",
+  "tour_band": "The module to read now is always here.",
   "@tour_band": {},
-  "tour_tabs": "Down here are the tabs: the Catalog, the Caravan, Practice and Settings. Open one and I'll show you what it does.",
+  "tour_tabs": "Open a tab and I'll show you around it.",
   "@tour_tabs": {},
-  "tour_catalog_search": "Look for any topic here. The hits gather by module, and you can keep them to the levels you choose.",
+  "tour_catalog_search": "Search any topic here.",
   "@tour_catalog_search": {},
-  "tour_catalog_levels": "Every level and its modules are here. A module you complete is marked as done.",
+  "tour_catalog_levels": "Tap a level to see its modules. The ones you complete are marked.",
   "@tour_catalog_levels": {},
-  "tour_caravan_stage": "The Caravan travels the timeline of AI's trends. Each stop is one trend, with the modules that teach it.",
+  "tour_caravan_stage": "The Caravan travels through the trends of AI.",
   "@tour_caravan_stage": {},
-  "tour_caravan_strip": "Slide along here, or tap a stop, to move the caravan.",
+  "tour_caravan_strip": "Slide here, or tap a stop, to move along.",
   "@tour_caravan_strip": {},
-  "tour_practice_today": "Today's review brings back a few questions and terms a day from the modules you completed. Wrong answers, a module in 2 minutes and the glossary are under it.",
-  "tour_quiz_level": "Each level's quizzes are here. Open a level, take a quiz, and take it again as often as you like.",
+  "tour_practice_today": "Practice here for as long as you like.",
+  "tour_quiz_level": "Each level's quizzes. Take them as often as you like.",
   "@tour_quiz_level": {},
-  "tour_settings_reading": "Your track, the app's language, its look and the text size of the modules are chosen here.",
+  "tour_settings_reading": "Track, language, look and text size.",
   "@tour_settings_reading": {},
-  "tour_settings_customize": "This is my wardrobe. Dress me in other hats and bodies, or change the app icon; more open up as my level grows.",
+  "tour_settings_customize": "My wardrobe: dress me up, or change the app icon.",
   "@tour_settings_customize": {},
-  "tour_settings_guide": "Want this tour again? It waits in How the bazaar works.",
+  "tour_settings_guide": "This tour waits in How the bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
   "@guide_replay_tour": {},
@@ -1376,6 +1410,8 @@
     }
   },
   "practice_today": "Today's review",
+  "practice_endless": "Endless review",
+  "practice_endless_lede": "Practice what you've read, as long as you like.",
   "practice_today_cards": "{count, plural, =1{1 card} other{{count} cards}}, about {minutes} min",
   "@practice_today_cards": {
     "placeholders": {
@@ -1387,23 +1423,11 @@
       }
     }
   },
-  "practice_today_meter": "{done} of {total} done today",
-  "@practice_today_meter": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "practice_start": "Start",
   "practice_today_none": "Nothing to review today",
   "practice_today_none_lede": "The questions of the modules you complete come here, a few each day.",
   "practice_today_done": "That is all for today",
   "practice_today_done_lede": "The next cards come tomorrow.",
-  "practice_go_wrong": "Go to Wrong answers",
   "practice_wrong": "Wrong answers",
   "practice_wrong_count": "{count, plural, =0{None now} =1{1 question} other{{count} questions}}",
   "@practice_wrong_count": {
@@ -1415,7 +1439,7 @@
   },
   "practice_wrong_all": "Answer them all",
   "practice_wrong_none": "No wrong answers now.",
-  "practice_brief": "A module in 2 minutes",
+  "practice_brief": "Recap",
   "practice_brief_count": "{count, plural, =0{Complete a module first} =1{1 completed module} other{{count} completed modules}}",
   "@practice_brief_count": {
     "placeholders": {
@@ -1480,9 +1504,7 @@
     }
   },
   "review_term": "Term",
-  "review_term_show": "Show the definition",
-  "review_term_knew": "Knew it",
-  "review_term_not_yet": "Not yet",
+  "review_term_ask": "Which term is this?",
   "review_finish": "Finish",
   "review_result": "{right} of {total} right",
   "@review_result": {
@@ -1505,5 +1527,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "home_quiz_waiting": "Quiz waiting"
 }

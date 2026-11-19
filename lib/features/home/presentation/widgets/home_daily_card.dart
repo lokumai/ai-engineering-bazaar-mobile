@@ -27,10 +27,11 @@ import 'package:go_router/go_router.dart';
 /// What frames the day's card at Home's head: the [card], null while there is none to show; null for nothing at all.
 typedef DailyCardFrame = Widget? Function(BuildContext context, Widget? card);
 
-/// The day's card at Home's head (plan 11.1): a section of a module, its heading, its first sentences and its module
-/// with its level's hue; a tap opens the module at that section. It is handed to [frame], which the app fills with the
-/// Apprentice presenting it (plan 11.2); with no frame it stands alone. Whatever stands there keeps a gap under it, and
-/// nothing takes no room.
+/// The card at Home's head (plan 11.1, 14.1): a section of a module, its heading, its first sentences and its module
+/// with its level's hue; a tap opens the module at that section, and Show another brings the next card in turn. It has
+/// no name of its own: it is what the Apprentice shows. It is handed to [frame], which the app fills with the Apprentice
+/// presenting it (plan 11.2); with no frame it stands alone. Whatever stands there keeps a gap under it, and nothing
+/// takes no room. While another card's module is read, the last one stays, so Home does not jump.
 ///
 /// The day is read again at local midnight and when the app comes back from the background, so a Home left open
 /// overnight shows the new day's card.
@@ -50,6 +51,12 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
   bool get wantKeepAlive => true;
 
   late int _day = dayNumber(clock.now());
+
+  /// How many times Show another was pressed on [_day].
+  int _another = 0;
+
+  /// The card last shown, kept while the next one is read.
+  Widget? _last;
   Timer? _midnight;
   late final AppLifecycleListener _lifecycle;
 
@@ -74,7 +81,12 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
   /// Takes the day it is now, when it has turned.
   void _turn() {
     final day = dayNumber(clock.now());
-    if (day != _day && mounted) setState(() => _day = day);
+    if (day != _day && mounted) {
+      setState(() {
+        _day = day;
+        _another = 0;
+      });
+    }
   }
 
   @override
@@ -98,7 +110,7 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
     if (index == null || record == null) return _framed(context, null);
     final track = context.watch<TrackCubit>().state;
     final language = context.watch<LanguageCubit>().state;
-    final choice = dailyChoice(index, track, record, language: language, day: _day);
+    final choice = dailyChoice(index, track, record, language: language, day: _day, another: _another);
     // Finished since the day began, it stays the day's card, marked completed.
     final completed = choice != null && trackView(record, track).signedOff(choice.moduleKey, Track.engineers) != null;
     final position = choice == null
@@ -110,7 +122,7 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
       create: (context) => DailyCardCubit(repository: context.read<IContentRepository>())..load(choice),
       child: BlocBuilder<DailyCardCubit, DailyCardState>(
         builder: (context, state) => _framed(context, switch (state) {
-          DailyCardShown(:final card) => _Card(
+          DailyCardShown(:final card) => _last = _Card(
             card: card,
             hue: levelHue(context, position),
             completed: completed,
@@ -118,8 +130,10 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
               BazaarPaths.module(track, card.moduleKey),
               extra: ReaderTarget(fragment: card.sectionId, glance: true),
             ),
+            onAnother: () => setState(() => _another++),
           ),
-          DailyCardLoading() || DailyCardNone() => null,
+          DailyCardLoading() => _last,
+          DailyCardNone() => _last = null,
         }),
       ),
     );
@@ -137,7 +151,13 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
 }
 
 class _Card extends StatelessWidget {
-  const _Card({required this.card, required this.hue, required this.completed, required this.onTap});
+  const _Card({
+    required this.card,
+    required this.hue,
+    required this.completed,
+    required this.onTap,
+    required this.onAnother,
+  });
 
   final DailyCard card;
   final Color hue;
@@ -146,25 +166,37 @@ class _Card extends StatelessWidget {
   final bool completed;
   final VoidCallback onTap;
 
+  /// Brings the next card in turn.
+  final VoidCallback onAnother;
+
+  /// How fast a swipe across the card must be, in logical pixels a second, to bring another.
+  static const _swipeSpeed = 200.0;
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final colors = context.bazaarColors;
     final textTheme = Theme.of(context).textTheme;
-    return BazaarCard(
+    final read = BazaarCard(
       key: const ValueKey('home-daily-card'),
+      // Its level's hue along its top: the one card on Home that keeps it (the owner, 2026-11-18).
       accent: hue,
       onTap: onTap,
       semanticLabel: [
-        '${s.home_daily_title}: ${card.heading}. ${card.lead} ${card.module}',
+        '${card.heading}. ${card.lead} ${card.module}',
         if (completed) '. ${s.home_daily_completed}',
       ].join(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(s.home_daily_title, style: textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted)),
-          const SizedBox(height: 6),
-          Text(card.heading, style: displayFace(textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle)),
+          // Room at its end for Show another in the card's corner.
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 28),
+            child: Text(
+              card.heading,
+              style: displayFace(textTheme.titleMedium)?.copyWith(color: colors.onSurfaceTitle),
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             card.lead,
@@ -198,6 +230,29 @@ class _Card extends StatelessWidget {
           ),
         ],
       ),
+    );
+    // The next card in turn (plan 14.1): a swipe across the card, or the mark in its corner, which stands over the card
+    // so a screen reader hears it apart from the card (the owner, 2026-11-18: no row of its own under the card).
+    return Stack(
+      children: [
+        GestureDetector(
+          key: const ValueKey('home-daily-swipe'),
+          onHorizontalDragEnd: (details) {
+            if ((details.primaryVelocity ?? 0).abs() >= _swipeSpeed) onAnother();
+          },
+          child: read,
+        ),
+        PositionedDirectional(
+          top: 2,
+          end: 2,
+          child: IconButton(
+            key: const ValueKey('home-daily-another'),
+            tooltip: s.home_daily_another,
+            onPressed: onAnother,
+            icon: Icon(Icons.autorenew_rounded, size: 20, color: colors.onSurfaceMuted),
+          ),
+        ),
+      ],
     );
   }
 }

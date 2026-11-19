@@ -37,9 +37,16 @@ void main() {
           'NativeScrubPatterns',
           'NativeSentry',
           'NativeSentryScrubber',
+          'Speech',
         ])
           '$kotlinMain/$name.kt',
-        for (final name in ['AppIconSwitchTest', 'LaunchGroundTest', 'NativeSentryScrubberTest', 'NativeSentryTest'])
+        for (final name in [
+          'AppIconSwitchTest',
+          'LaunchGroundTest',
+          'NativeSentryScrubberTest',
+          'NativeSentryTest',
+          'SpeechTest',
+        ])
           '$kotlinTest/$name.kt',
       });
       for (final source in sources) {

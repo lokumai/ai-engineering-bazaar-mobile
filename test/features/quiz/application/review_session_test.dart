@@ -16,19 +16,6 @@ void main() {
     forms: ['Lantern'],
     definition: [TextInline(text: 'a light you carry.')],
   );
-  final notes = StudyNotesReady(
-    track: Track.engineers,
-    language: 'en',
-    modules: const [
-      ModuleNotes(
-        moduleKey: 'alpha/first',
-        quiz: [item, item],
-        terms: [term],
-        sections: [NoteSection(id: 'lamps', title: 'Lamps', text: 'Night falls. A lantern lights the road.')],
-      ),
-    ],
-  );
-
   group('shuffled (plan 13.6)', () {
     test('moves the answer with its option, and keeps every option', () {
       for (var seed = 0; seed < 20; seed++) {
@@ -46,22 +33,114 @@ void main() {
   });
 
   group('reviewItems', () {
-    test('a question with its module quiz length, a term, and nothing for a key the notes do not hold', () {
+    test(
+      'a question with its module quiz length, a term asked as one, and nothing for a key the notes do not hold',
+      () {
+        final items = reviewItems(
+          ['alpha/first#1', 'term:engineers/alpha/first#0', 'alpha/first#9', 'gone/module#0'],
+          _notes([
+            ModuleNotes(
+              moduleKey: 'alpha/first',
+              quiz: const [item, item],
+              terms: [term, _term('alpha/first', 1, 'Wick')],
+              termsHeading: 'words',
+            ),
+          ]),
+          titleOf: (key) => 'Title of $key',
+          random: Random(1),
+        );
+        expect(items, hasLength(2));
+        expect((items[0] as QuestionItem).length, 2);
+        expect(items[0].moduleTitle, 'Title of alpha/first');
+        final asked = items[1] as TermItem;
+        expect(asked.term, term);
+        expect(asked.options.toSet(), {'Lantern', 'Wick'});
+        expect(asked.options[asked.answer], 'Lantern');
+        expect(asked.termsHeading, 'words', reason: 'the verdict links to the Key Terms');
+      },
+    );
+
+    test('a term with no other term to set beside it is not asked (plan 13.16)', () {
       final items = reviewItems(
-        ['alpha/first#1', 'term:engineers/alpha/first#0', 'alpha/first#9', 'gone/module#0'],
-        notes,
-        titleOf: (key) => 'Title of $key',
+        ['term:engineers/alpha/first#0'],
+        _notes([
+          const ModuleNotes(moduleKey: 'alpha/first', terms: [term]),
+        ]),
+        titleOf: (key) => key,
         random: Random(1),
       );
-      expect(items, hasLength(2));
-      expect((items[0] as QuestionItem).length, 2);
-      expect(items[0].moduleTitle, 'Title of alpha/first');
-      expect((items[1] as TermItem).term, term);
+      expect(items, isEmpty);
+    });
+  });
+
+  group('drawItem (the owner, 2026-11-18)', () {
+    final notes = _notes([
+      const ModuleNotes(moduleKey: 'alpha/first', quiz: [item, item]),
+    ]);
+    test('one of the keys at random, never the last one again while another can be drawn', () {
+      final seen = <String>{};
+      for (var seed = 0; seed < 30; seed++) {
+        final drawn = drawItem(
+          ['alpha/first#0', 'alpha/first#1'],
+          notes,
+          titleOf: (key) => key,
+          random: Random(seed),
+          last: 'alpha/first#0',
+        );
+        expect(drawn!.key, 'alpha/first#1');
+        seen.add(drawItem(['alpha/first#0', 'alpha/first#1'], notes, titleOf: (key) => key, random: Random(seed))!.key);
+      }
+      expect(seen, {'alpha/first#0', 'alpha/first#1'}, reason: 'either, with no last');
+    });
+
+    test('a single key comes again; none the notes hold draws nothing', () {
       expect(
-        (items[1] as TermItem).usage?.text,
-        'A lantern lights the road.',
-        reason: 'the sentence of the module that uses it (the owner, 2026-11-18)',
+        drawItem(['alpha/first#0'], notes, titleOf: (key) => key, random: Random(1), last: 'alpha/first#0')!.key,
+        'alpha/first#0',
       );
+      expect(drawItem(['gone/module#0', 'alpha/first#7'], notes, titleOf: (key) => key, random: Random(1)), isNull);
+    });
+  });
+
+  group('termChoices (plan 13.16)', () {
+    final notes = _notes([
+      ModuleNotes(
+        moduleKey: 'alpha/first',
+        terms: [term, _term('alpha/first', 1, 'Wick'), _term('alpha/first', 2, 'LANTERN')],
+      ),
+      ModuleNotes(
+        moduleKey: 'alpha/second',
+        terms: [_term('alpha/second', 0, 'Glass'), _term('alpha/second', 1, 'Hook')],
+      ),
+      ModuleNotes(moduleKey: 'beta/third', terms: [_term('beta/third', 0, 'Oil'), _term('beta/third', 1, 'Bowl')]),
+    ]);
+
+    test('four names: its own, its module\'s first, then its level\'s, never a name twice in any case', () {
+      for (var seed = 0; seed < 20; seed++) {
+        final choices = termChoices(term, notes, Random(seed))!;
+        expect(choices.options, hasLength(termOptions));
+        expect(choices.options[choices.answer], 'Lantern');
+        expect(choices.options, contains('Wick'), reason: 'its module first');
+        expect(choices.options, isNot(contains('LANTERN')), reason: 'its own name in another case');
+        expect(
+          choices.options.where((name) => name == 'Glass' || name == 'Hook'),
+          hasLength(2),
+          reason: 'then its level',
+        );
+        expect(choices.options, isNot(anyOf(contains('Oil'), contains('Bowl'))), reason: 'the level filled the four');
+      }
+    });
+
+    test('the other levels fill what its own cannot', () {
+      final choices = termChoices(_term('beta/third', 0, 'Oil'), notes, Random(3))!;
+      expect(choices.options, hasLength(termOptions));
+      expect(choices.options, contains('Bowl'));
+      expect(choices.options[choices.answer], 'Oil');
+    });
+
+    test('the right name stands in every place across shuffles', () {
+      final places = {for (var seed = 0; seed < 40; seed++) termChoices(term, notes, Random(seed))!.answer};
+      expect(places, {0, 1, 2, 3});
     });
   });
 
@@ -86,29 +165,70 @@ void main() {
       expect((cubit.state as ReviewFinished).right, 1);
     });
 
-    test('a term shows its definition when asked, then is known or not yet, which goes on to the next card', () {
+    test('a term is answered as a question: one pick, graded, then Next (plan 13.16)', () {
       final answers = <bool>[];
-      const card = TermItem(key: 'term:engineers/alpha/first#0', moduleTitle: 'First', term: term);
+      const card = TermItem(
+        key: 'term:engineers/alpha/first#0',
+        moduleTitle: 'First',
+        term: term,
+        options: ['Wick', 'Lantern', 'Glass'],
+        answer: 1,
+      );
       final cubit = ReviewSessionCubit([card, card], onAnswered: (_, right) => answers.add(right));
       addTearDown(cubit.close);
 
-      cubit.judge(knew: true);
-      expect(answers, isEmpty, reason: 'not before the definition shows');
+      cubit.next();
+      expect((cubit.state as ReviewAt).index, 0, reason: 'not answered yet');
       cubit.pick(0);
-      expect(answers, isEmpty, reason: 'a term has no options');
-      cubit.reveal();
-      expect((cubit.state as ReviewAt).revealed, isTrue);
-      cubit.judge(knew: false);
-      expect(answers, [false]);
-      expect(
-        cubit.state,
-        const ReviewAt(index: 1, results: [false, null]),
-        reason: 'the answer is the way on: no Next for a term (the owner, 2026-11-18)',
-      );
-      cubit.reveal();
-      cubit.judge(knew: true);
+      cubit.pick(1);
+      expect(answers, [false], reason: 'the first answer is final');
+      expect(cubit.state, const ReviewAt(index: 0, results: [false, null], pick: 0));
+      cubit.next();
+      cubit.pick(1);
+      cubit.next();
       expect(answers, [false, true]);
-      expect(cubit.state, const ReviewFinished(results: [false, true]), reason: 'after the last, the results');
+      expect(cubit.state, const ReviewFinished(results: [false, true]));
+    });
+
+    test('endless: Next after the last card draws another, and Finish ends with the cards answered '
+        '(the owner, 2026-11-18)', () {
+      QuestionItem question(int i) => QuestionItem(key: 'alpha/first#$i', moduleTitle: 'First', item: item, length: 9);
+      var drawn = 0;
+      final cubit = ReviewSessionCubit(
+        [question(0)],
+        onAnswered: (_, _) {},
+        draw: (last) {
+          drawn++;
+          return question(int.parse(last.key.split('#').last) + 1);
+        },
+      );
+      addTearDown(cubit.close);
+      expect(cubit.endless, isTrue);
+
+      for (var i = 0; i < 3; i++) {
+        cubit
+          ..pick(2)
+          ..next();
+      }
+      expect(cubit.state, const ReviewAt(index: 3, results: [true, true, true, null]));
+      expect(cubit.items.map((card) => card.key), ['alpha/first#0', 'alpha/first#1', 'alpha/first#2', 'alpha/first#3']);
+      expect(drawn, 3);
+
+      cubit.finish();
+      expect(cubit.state, const ReviewFinished(results: [true, true, true]), reason: 'the card unanswered left out');
+      expect(cubit.items, hasLength(3));
+    });
+
+    test('a session of fixed cards draws none and is not endless', () {
+      final cubit = ReviewSessionCubit([
+        QuestionItem(key: 'alpha/first#0', moduleTitle: 'First', item: item, length: 1),
+      ], onAnswered: (_, _) {});
+      addTearDown(cubit.close);
+      expect(cubit.endless, isFalse);
+      cubit
+        ..pick(2)
+        ..next();
+      expect(cubit.state, const ReviewFinished(results: [true]));
     });
 
     test('a session needs a card', () {
@@ -116,3 +236,14 @@ void main() {
     });
   });
 }
+
+StudyNotesReady _notes(List<ModuleNotes> modules) =>
+    StudyNotesReady(track: Track.engineers, language: 'en', modules: modules);
+
+GlossaryTerm _term(String moduleKey, int index, String name) => GlossaryTerm(
+  moduleKey: moduleKey,
+  index: index,
+  name: name,
+  forms: [name],
+  definition: [TextInline(text: 'what $name is.')],
+);

@@ -36,6 +36,8 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/robot_level/robot_level_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -107,8 +109,8 @@ MockContentRepository missingContentRepository() {
 
 /// The app's providers and [MaterialApp.router] over [router], without the app gate: [content] and [record] default to
 /// ready blocs, [track] to a new [TrackCubit], [repository] to [missingContentRepository], [backupGateway] and
-/// [recordRepository] (which the Settings page's data line reads) to fresh mocks, and the web links use
-/// [testContentBaseUrl]. The interface is in [locale], English by default.
+/// [recordRepository] (which the Settings page's data line reads) to fresh mocks, [speech] to no voice, and the web
+/// links use [testContentBaseUrl]. The interface is in [locale], English by default.
 Widget bazaarTestApp({
   required GoRouter router,
   ContentBloc? content,
@@ -132,6 +134,7 @@ Widget bazaarTestApp({
   TourCubit? tour,
   RobotLevelCubit? robotLevel,
   ReadingStyleCubit? readingStyle,
+  ISpeech? speech,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -144,6 +147,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
       RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
+      RepositoryProvider<ISpeech>.value(value: speech ?? const NoSpeech()),
     ],
     child: MultiBlocProvider(
       providers: [
@@ -172,6 +176,7 @@ Widget bazaarTestApp({
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+        BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
         if (caravan != null)
           BlocProvider<CaravanCubit>.value(value: caravan)
         else

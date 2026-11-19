@@ -155,8 +155,8 @@ class QuizVerdict extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(item.explain, style: style),
+          // A term asked in Practice has no explanation of its own (plan 13.16).
+          if (item.explain.isNotEmpty) ...[const SizedBox(height: 6), Text(item.explain, style: style)],
           if (footer case final footer?) ...[const SizedBox(height: 8), footer],
         ],
       ),

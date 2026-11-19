@@ -77,9 +77,11 @@ lib/
     dev_console/                                dev console; debug only
     router/app_router.dart                      route table; not_found_page.dart
     shell/bazaar_shell.dart                     ShellRoute scaffold: status strip, bar (back, level hue and title on level and
-                                                module pages; empty on the tabs), thin lattice band, bottom navigation of icons
-                                                with small names (Home, Catalog, the Caravan's horse, Practice, Settings;
-                                                shared/design_system/widgets/caravan_icon.dart)
+                                                module pages; empty on the tabs), no lattice band (Welcome's only),
+                                                bottom navigation of icons with small names (Home, Catalog, the
+                                                Caravan's horse, Practice, Settings;
+                                                shared/design_system/widgets/caravan_icon.dart); listen_completion.dart
+                                                marks a module heard whole completed, with Undo
   core/                                         logging, security scrubber, analytics interface
   infrastructure/
     config/environment.dart                     AppConfig with contentBaseUrl
@@ -92,6 +94,8 @@ lib/
     backup/platform_backup_gateway.dart         file_picker behind IBackupGateway
     app_icon/app_icon_channel.dart              the app icon's native channel (MainActivity.kt, AppDelegate.swift)
     theme/launch_ground_channel.dart            the launch ground's native channel (LaunchGround.kt, AppDelegate.swift)
+    speech/phone_speech.dart                    the phone's own voice, which reads a module aloud: the app's own channel
+                                                (Speech.kt, AppDelegate.swift)
   shared/
     content/domain/                             Track, entities, ContentParser, exceptions, IContentRepository, the search's
                                                 word rules (search_text.dart)
@@ -105,12 +109,14 @@ lib/
     quiz_scores/                                QuizScore and its file shape, IQuizScoreStore, QuizScoresBloc (plan 1W): the
                                                 app's own quiz scores, never in the record
     review/                                     Practice's history (plan 13.1): ReviewCard (Leitner boxes), ReviewHistory
-                                                and its file shape, IReviewStore, ReviewBloc, and review_plan.dart (Today's
-                                                review, Wrong answers); the app's own, never in the record
+                                                and its file shape, IReviewStore, ReviewBloc, review_plan.dart (Today's
+                                                review, Wrong answers) and quiz_waiting.dart (the first quiz not taken);
+                                                the app's own, never in the record
     study/                                      a module's Key Terms, Summary and quiz found by place and shape
-                                                (module_notes.dart), where a text uses a term (term_marks.dart),
-                                                StudyNotesCubit that reads them for a track and
-                                                language, StudyNotesLoader that asks for them under the pages that show them
+                                                (module_notes.dart), where a text uses a term (term_marks.dart), the
+                                                glossary of a track (glossary.dart), StudyNotesCubit that reads them for a
+                                                track and language, StudyNotesLoader that asks for them under the pages
+                                                that show them
     app_icon/                                   BazaarIcon (the robot app icons, on dark or cream), AppIconCubit, its store and
                                                 switch ports: the icon on the home screen;
                                                 presentation/: AppIconRow and AppIconChoices, which Settings shows
@@ -119,6 +125,10 @@ lib/
     theme/                                      ThemeChoiceCubit (light or dark; light until chosen), IThemeStore,
                                                 appearance_name.dart: the choice kept on the device, never in the
                                                 record; ILaunchGround: the look named to the phone for its launch screen
+    listen/                                     the module read aloud, for the whole app (plan 15): spoken_parts.dart, the
+                                                ISpeech port, ListenCubit, the bar over the navigation elsewhere (ListenBar),
+                                                listen_place.dart (where each module was left and the parts heard, kept on
+                                                the device under listen/places.json, never in the record)
     reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
@@ -136,17 +146,22 @@ lib/
     utils/local_day.dart                        the reader's own day (dayNumber), for Home's card and Practice's review
   features/
     home/                                       Home at `/`: the day's card (daily_card.dart, HomeDailyCard, in a frame the
-                                                app fills with the Apprentice's corner), the modules later on, the row to
-                                                Today's review, the path; the band over the navigation with the module to read now
+                                                app fills with the Apprentice's corner), Practice from the first launch
+                                                (Today's review, a quiz waiting and the glossary; home_practice.dart), the
+                                                modules later on, the
+                                                path; the band over the navigation with the module to read now
                                                 (HomeContinueBand, set by the shell)
     catalog/                                    catalog root at `/sheets` with the progress (stats, dials, completion marks,
                                                 legend), the search over the module documents, and the level page (Cards)
     reader/                                     ModuleReaderBloc, reader page, contents sheet, planned and not-written views,
-                                                the bubble with a tapped term's definition
+                                                the bubble with a tapped term's definition; the player of a module read
+                                                aloud (plan 15); a module read to its end marked completed as it is left
+                                                (read_enough.dart)
     quiz/                                       Practice (plan 13; the code keeps the name quiz): QuizCubit, the quiz card,
                                                 the full-screen quiz at `/quiz/<level>/<module>`, the Practice tab at
-                                                `/practice` (Today's review, Wrong answers, the quizzes by level) and its
-                                                sessions (ReviewSessionCubit, options shuffled in Practice only)
+                                                `/practice` (the endless review, Wrong answers, Recap, the
+                                                Glossary, the quizzes by level) and its sessions (ReviewSessionCubit,
+                                                options shuffled in Practice only)
     settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the

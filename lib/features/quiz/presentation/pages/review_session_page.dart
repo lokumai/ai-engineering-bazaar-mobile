@@ -25,6 +25,10 @@ enum ReviewKind {
 
   /// Every question in Wrong answers (plan 13.4).
   wrong,
+
+  /// The Practice tab's endless review (the owner, 2026-11-18): questions and terms of the modules studied, drawn at
+  /// random, repeats and all, until the reader ends it; it counts toward no day.
+  endless,
 }
 
 /// A Practice session full screen, over the shell (plan 13.3, 13.4): the cards of [kind], fixed when the page opens, so
@@ -49,12 +53,16 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   /// The cards, once the notes are read.
   List<ReviewItem>? _items;
 
+  /// How an endless session draws its next card; null for the others.
+  ReviewItem? Function(ReviewItem last)? _draw;
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final title = switch (widget.kind) {
       ReviewKind.today => s.practice_today,
       ReviewKind.wrong => s.practice_wrong,
+      ReviewKind.endless => s.practice_endless,
     };
     return StudyNotesLoader(
       child: QuizFrame(title: title, child: _body(context)),
@@ -86,6 +94,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
             inReview: counted,
           ),
         ),
+        draw: _draw,
       ),
       child: ReviewSessionView(fromHome: widget.fromHome),
     );
@@ -103,15 +112,19 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
       _ => null,
     };
     final history = context.read<ReviewBloc>().state.history;
+    String titleOf(String key) => index?.module(key)?.tracks[track]?.titleIn(language) ?? key;
+    final random = widget.random ?? Random();
+    if (widget.kind == ReviewKind.endless) {
+      final keys = [...pool.questions, ...pool.newTerms];
+      ReviewItem? draw({String? last}) => drawItem(keys, notes, titleOf: titleOf, random: random, last: last);
+      _draw = (last) => draw(last: last.key);
+      return [?draw()];
+    }
     final keys = switch (widget.kind) {
       ReviewKind.today => pool.today(history, dayNumber(clock.now())),
       ReviewKind.wrong => pool.wrong(history),
+      ReviewKind.endless => const <String>[],
     };
-    return reviewItems(
-      keys,
-      notes,
-      titleOf: (key) => index?.module(key)?.tracks[track]?.titleIn(language) ?? key,
-      random: widget.random ?? Random(),
-    );
+    return reviewItems(keys, notes, titleOf: titleOf, random: random);
   }
 }

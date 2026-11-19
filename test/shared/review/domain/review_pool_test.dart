@@ -19,6 +19,7 @@ void main() {
     final record = signOff(RecordData.empty, 'alpha/second', 'abc1234', '2026-11-17T10:00:00.000Z');
     final pool = reviewPool(track: Track.engineers, record: record, modules: modules);
     expect(pool.completed, ['alpha/second']);
+    expect(pool.studied, ['alpha/second']);
     expect(pool.questions, ['alpha/second#0']);
     expect(pool.everyQuestion, ['alpha/first#0', 'alpha/first#1', 'alpha/second#0']);
     expect(pool.terms, ['term:engineers/alpha/second#0']);
@@ -36,4 +37,30 @@ void main() {
     final record = signOff(RecordData.empty, 'alpha/second', 'abc1234', '2026-11-17T10:00:00.000Z');
     expect(reviewPool(track: Track.everyone, record: record, modules: modules).completed, isEmpty);
   });
+
+  test(
+    'before any module is completed, review draws on the first with a question or a term (the owner, 2026-11-18)',
+    () {
+      final pool = reviewPool(
+        track: Track.engineers,
+        record: RecordData.empty,
+        modules: const [
+          ModuleNotes(moduleKey: 'alpha/zero'),
+          ...modules,
+        ],
+      );
+      expect(pool.completed, isEmpty);
+      expect(pool.studied, ['alpha/first'], reason: 'a module with nothing to ask is passed over');
+      expect(pool.questions, ['alpha/first#0', 'alpha/first#1']);
+      expect(pool.newTerms, isEmpty);
+      expect(
+        reviewPool(
+          track: Track.engineers,
+          record: RecordData.empty,
+          modules: const [ModuleNotes(moduleKey: 'a/b')],
+        ).studied,
+        isEmpty,
+      );
+    },
+  );
 }

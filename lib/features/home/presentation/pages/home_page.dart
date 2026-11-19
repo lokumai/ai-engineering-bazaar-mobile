@@ -3,7 +3,7 @@ import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_co
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_after_row.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
-import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_review_row.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
@@ -17,7 +17,6 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
-import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -64,42 +63,25 @@ class HomePage extends StatelessWidget {
           if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
           // The day's card, a section of a module to read today (plan 11.1).
           HomeDailyCard(frame: dailyFrame),
-          // Practice's review of the day under its own heading, after the day's card (plan 13.2, the owner 2026-11-18);
-          // none when it has no card today.
-          HomeReviewRow(track: track, language: language),
+          // Practice under its own heading, after the day's card (plan 13.2, 13.17): Today's review and the glossary,
+          // from the first launch.
+          HomePractice(track: track, language: language),
           // The module to read now is in the band over the navigation, under the thumb (plan 10.4); with none left, the
           // card says the track is completed.
           if (overview.next == null) ...[HomeCompleteCard(track: track), const SizedBox(height: 26)],
           if (overview.after.isNotEmpty) ...[
-            TourTarget(
-              spot: TourSpots.homeAfter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SectionRule(title: s.home_after),
-                  const SizedBox(height: 12),
-                  BazaarRows(
-                    children: [
-                      for (final entry in overview.after)
-                        HomeAfterRow(
-                          entry: entry,
-                          onTap: () => context.push(BazaarPaths.module(track, entry.module.key)),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+            // No stop of the tour here: the rows say what they are (the owner, 2026-11-18).
+            SectionRule(title: s.home_after),
+            const SizedBox(height: 12),
+            BazaarRows(
+              children: [
+                for (final entry in overview.after)
+                  HomeAfterRow(entry: entry, onTap: () => context.push(BazaarPaths.module(track, entry.module.key))),
+              ],
             ),
             const SizedBox(height: 10),
           ],
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              // The Catalog tab's page, as the tab opens it.
-              onPressed: () => context.go(BazaarPaths.catalog(track)),
-              child: Text(s.home_see_catalog),
-            ),
-          ),
+          // No link to the catalog under Later on: the Catalog tab is one tap away (the owner, 2026-11-18).
           if (overview.levels.isNotEmpty) ...[
             const SizedBox(height: 22),
             SectionRule(title: s.home_path),

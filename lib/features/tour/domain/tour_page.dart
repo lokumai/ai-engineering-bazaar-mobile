@@ -4,7 +4,7 @@ import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 /// A page the Apprentice's tour shows (plan 11.3): the first page of each tab, and the places on it it points at, in
 /// order.
 enum TourPage {
-  home([TourSpots.homeHead, TourSpots.homeAfter, TourSpots.band, TourSpots.tabs]),
+  home([TourSpots.homeHead, TourSpots.homePractice, TourSpots.band, TourSpots.tabs]),
   catalog([TourSpots.catalogSearch, TourSpots.catalogLevels]),
   caravan([TourSpots.caravanStage, TourSpots.caravanStrip]),
 

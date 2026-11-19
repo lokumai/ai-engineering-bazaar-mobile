@@ -45,6 +45,8 @@ import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.d
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_store.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 
 /// Provides what [dependencies] holds to the widget tree below it, and starts [ContentBloc] and [RecordBloc] at once
 /// (spec 3.7). It also provides the current track ([TrackCubit], which reads the chosen one at once) and the site's address ([WebLinks]).
@@ -87,6 +89,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ILaunchGround>(create: (_) => dependencies.createLaunchGround()),
         RepositoryProvider<IAppIconStore>(create: (_) => dependencies.createAppIconStore()),
         RepositoryProvider<IAppIconSwitch>(create: (_) => dependencies.createAppIconSwitch()),
+        RepositoryProvider<ISpeech>(create: (_) => dependencies.createSpeech()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
@@ -134,6 +137,11 @@ class AppScope extends StatelessWidget {
           // The words in the catalog's search, kept the same way.
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
+          // The module read aloud, for the whole app: it goes on across the tabs and with the screen off (plan 15).
+          BlocProvider<ListenCubit>(
+            create: (context) =>
+                ListenCubit(speech: context.read<ISpeech>(), store: dependencies.createListenPlaceStore())..load(),
+          ),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
           // The pocket model's level, which unlocks the app icons as its wardrobe (plan 9.10): read from its store,

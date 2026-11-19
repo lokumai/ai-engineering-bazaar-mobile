@@ -125,20 +125,19 @@ Future<void> _tapStatusBar(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('a tab\'s page has an empty bar, and the lattice band under the status strip; no track switch', (
-    tester,
-  ) async {
+  testWidgets('a tab\'s page has an empty bar and no lattice band, the page right under the status strip; no track '
+      'switch (the owner, 2026-11-18)', (tester) async {
     await _pumpAt(tester, '/sheets', TrackCubit());
 
     final bar = find.byType(BazaarBar);
     expect(find.descendant(of: bar, matching: find.byType(Text)), findsNothing);
     expect(find.descendant(of: bar, matching: find.byType(Image)), findsNothing);
     expect(tester.getSize(bar).height, 0);
-    expect(find.byType(LatticeBand), findsOneWidget);
+    expect(find.byType(LatticeBand), findsNothing, reason: 'most apps have no band under the status bar');
     expect(
-      tester.getTopLeft(find.byType(LatticeBand)).dy,
+      tester.getTopLeft(find.byType(ListView).first).dy,
       tester.getBottomLeft(find.byType(BazaarStatusStrip)).dy,
-      reason: 'right under the strip',
+      reason: 'the page right under the strip',
     );
     expect(find.text('For Everyone'), findsNothing, reason: 'plan 1L: no switch on the pages');
   });
@@ -243,7 +242,7 @@ void main() {
     final full = _navHeight(tester);
     final bar = _barHeight(tester);
     expect(full, greaterThan(0));
-    expect(bar, greaterThanOrEqualTo(LatticeBand.thinHeight));
+    expect(bar, greaterThanOrEqualTo(BazaarBar.height));
 
     await _scroll(tester, -10);
     expect(_navHeight(tester), full, reason: 'a short move leaves it');

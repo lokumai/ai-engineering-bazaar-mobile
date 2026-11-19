@@ -8,10 +8,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/completion_dial.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/widgets/quiz_disc.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -21,7 +20,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/curriculum_for.d
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
+import 'package:ai_engineering_bazaar/shared/review/domain/quiz_waiting.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
@@ -32,13 +31,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// The Practice tab at `/practice` (plan 13.2), once the Quiz tab (plan 1AC): one place to go over what was read. At its
-/// head Today's review and Wrong answers, then every module's quiz, grouped by level, each opening the quiz full screen
-/// without the reader. The current track's modules are listed, each under its title in that track: a module has one
-/// quiz on both tracks (web D137).
+/// head the endless review and three tiles (PracticeHead), then every module's quiz, grouped by level, each opening the
+/// quiz full screen without the reader. The current track's modules are listed, each under its title in that track: a
+/// module has one quiz on both tracks (web D137).
 ///
-/// Each level is an arch card in its hue, as in the catalog (owner, 2026-11-10): a tap opens its quizzes under it and a
-/// second tap closes them; several levels may be open at once. The level of the next module to read in the current
-/// track starts open, and what the reader opens or closes stays while the app runs ([QuizFoldCubit]).
+/// Each level is a row on the page's ground with its key in its hue, as Later on's rows are, not a card (the owner,
+/// 2026-11-18): a tap opens its quizzes under it and a second tap closes them; several levels may be open at once. The
+/// level of the next module to read in the current track starts open, and what the reader opens or closes stays while
+/// the app runs ([QuizFoldCubit]).
 class PracticePage extends StatelessWidget {
   const PracticePage({super.key});
 
@@ -74,14 +74,14 @@ class PracticePage extends StatelessWidget {
           // (review round 4), and without it Practice and the catalog open alike.
           SectionRule(title: s.nav_practice),
           const SizedBox(height: AppSpacing.md),
-          TourTarget(
-            spot: TourSpots.practiceToday,
-            child: PracticeHead(index: index, track: track),
-          ),
+          // The tour's first stop rings the endless review alone (PracticeHead).
+          PracticeHead(track: track),
           const SizedBox(height: AppSpacing.xl),
           SectionRule(title: s.practice_quizzes),
           const SizedBox(height: AppSpacing.md),
           for (final (position, level) in quizLevels(index, track).indexed) ...[
+            // A hairline between each two levels, rows on the page's ground (the owner, 2026-11-18).
+            if (position > 0) const Divider(height: 1, thickness: 0.5),
             // The Apprentice's tour points at the first level (plan 11.3).
             TourTarget(
               spot: position == 0 ? TourSpots.quizLevel : '${TourSpots.quizLevel}.$position',
@@ -95,7 +95,6 @@ class PracticePage extends StatelessWidget {
                 onToggle: () => fold.toggle(level.level.slug, upNext),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
           ],
         ],
       ),
@@ -103,7 +102,8 @@ class PracticePage extends StatelessWidget {
   }
 }
 
-/// One level: its number, title and count of quizzes on an arch card in its hue, and its quizzes under it when open.
+/// One level as a row: its key in its hue, title and count of quizzes, the dial of quizzes taken and the fold's
+/// chevron; its quizzes under it when open.
 class _LevelCard extends StatelessWidget {
   const _LevelCard({
     super.key,
@@ -140,76 +140,59 @@ class _LevelCard extends StatelessWidget {
     final meter = s.quiz_list_taken(taken, total);
     final hue = levelHue(context, level.position);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
-    return BazaarCard(
-      shape: BazaarCardShape.arch,
-      accent: hue,
-      tint: hue,
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(
-            button: true,
-            expanded: open,
-            label: '${level.level.title}, $count, $meter',
-            excludeSemantics: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          expanded: open,
+          label: '${level.level.title}, $count, $meter',
+          excludeSemantics: true,
+          onTap: onToggle,
+          child: InkWell(
             onTap: onToggle,
-            child: InkWell(
-              onTap: onToggle,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.md, AppSpacing.md),
-                child: Row(
-                  spacing: AppSpacing.md,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 2,
-                        children: [
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '${_number(level.position + 1)}  ',
-                                  style: TextStyle(color: colors.onSurfaceMuted),
-                                ),
-                                TextSpan(text: level.level.title),
-                              ],
-                            ),
-                            style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
-                          ),
-                          Text(count, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-                        ],
-                      ),
+            borderRadius: const BorderRadius.all(BazaarRadii.md),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(4, AppSpacing.md, 0, AppSpacing.md),
+              child: Row(
+                spacing: AppSpacing.md,
+                children: [
+                  LevelKey(color: hue, size: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 2,
+                      children: [
+                        Text(
+                          level.level.title,
+                          style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle),
+                        ),
+                        Text(count, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+                      ],
                     ),
-                    // The catalog's dial: how many of the level's quizzes were taken on this device.
-                    CompletionDial(
-                      done: taken,
-                      total: total,
-                      color: hue,
-                      center: '$taken/$total',
-                      semanticLabel: meter,
-                    ),
-                    AnimatedRotation(
-                      turns: open ? 0.5 : 0,
-                      duration: duration,
-                      child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
-                    ),
-                  ],
-                ),
+                  ),
+                  // The catalog's dial: how many of the level's quizzes were taken on this device.
+                  CompletionDial(done: taken, total: total, color: hue, center: '$taken/$total', semanticLabel: meter),
+                  AnimatedRotation(
+                    turns: open ? 0.5 : 0,
+                    duration: duration,
+                    child: Icon(Icons.expand_more, color: colors.onSurfaceMuted),
+                  ),
+                ],
               ),
             ),
           ),
-          AnimatedSize(
-            duration: duration,
-            curve: BazaarMotion.bazaar,
-            alignment: Alignment.topCenter,
-            child: open
-                ? Column(
+        ),
+        AnimatedSize(
+          duration: duration,
+          curve: BazaarMotion.bazaar,
+          alignment: Alignment.topCenter,
+          child: open
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Divider(height: 1, color: colors.line),
-                      const SizedBox(height: AppSpacing.xs),
                       for (final module in level.modules)
                         _QuizRow(
                           key: PracticePage.rowKey(module.key),
@@ -219,21 +202,19 @@ class _LevelCard extends StatelessWidget {
                           score: scores.of(module.key),
                           latest: latestAnswers(history, module.key),
                         ),
-                      const SizedBox(height: AppSpacing.xs),
                     ],
-                  )
-                : const SizedBox(width: double.infinity),
-          ),
-        ],
-      ),
+                  ),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
     );
   }
 }
 
-/// One module's quiz in an open level: the question disc in the level's hue, or the catalog's check once every
-/// question's latest answer is right; the number and title, with one segment per question once any is answered, green
-/// for right and red for wrong as last answered, in the module's quiz or in Practice (the owner, 2026-11-18); and an
-/// arrow. One button as a whole. A quiz finished before Practice kept answers shows its last score instead.
+/// One module's quiz in an open level, with no mark before it (the owner, 2026-11-18): the title, with no number, with
+/// one segment per question once any is answered, green for right and red for wrong as last answered, in the module's
+/// quiz or in Practice (the owner, 2026-11-18); where it stands at its end; and an arrow. One button as a whole. A quiz finished before Practice kept answers shows its last score instead.
 class _QuizRow extends StatelessWidget {
   const _QuizRow({
     super.key,
@@ -247,7 +228,7 @@ class _QuizRow extends StatelessWidget {
   final ModuleEntry module;
   final Track track;
 
-  /// The level's hue, which rings the question disc.
+  /// The level's hue, which rings a quiz not yet taken.
   final Color hue;
 
   /// The score kept on this device; null for a quiz never finished.
@@ -261,7 +242,6 @@ class _QuizRow extends StatelessWidget {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final number = _number(module.number);
     final title = module.tracks[track]!.titleIn(context.watch<LanguageCubit>().state);
     final score = this.score;
     final answers = latest ?? (score == null ? null : [for (var i = 0; i < score.total; i++) i < score.last]);
@@ -270,28 +250,18 @@ class _QuizRow extends StatelessWidget {
     final line = answers == null ? null : s.practice_latest(right, answers.length);
     return Semantics(
       button: true,
-      label: [('$number $title'), if (perfect) s.quiz_all_right, ?line].join(', '),
+      label: [title, if (perfect) s.quiz_all_right, ?line].join(', '),
       excludeSemantics: true,
       child: InkWell(
         onTap: () => context.push(BazaarPaths.quiz(module.key)),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(theme.platform)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+            // Under the level's title, past its key.
+            padding: const EdgeInsetsDirectional.fromSTEB(20, AppSpacing.sm, 0, AppSpacing.sm),
             child: Row(
               spacing: AppSpacing.md,
               children: [
-                if (perfect)
-                  // The catalog's completed disc: every question right as last answered.
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: const BoxDecoration(color: BazaarFixedColors.success, shape: BoxShape.circle),
-                    child: const Icon(Icons.check, size: 18, color: Colors.white),
-                  )
-                else
-                  QuizDisc(hue: hue),
-                Text(number, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,6 +272,7 @@ class _QuizRow extends StatelessWidget {
                     ],
                   ),
                 ),
+                _QuizStatus(answers: answers, right: right, hue: hue),
                 Icon(Icons.chevron_right, color: colors.onSurfaceMuted),
               ],
             ),
@@ -312,8 +283,52 @@ class _QuizRow extends StatelessWidget {
   }
 }
 
-/// Each question's latest answer as one segment: green when right, red when wrong, the sunken track when never
-/// answered. Decoration: the row says it in words.
+/// Where a quiz stands, at its row's end (the owner, 2026-11-18): an empty ring in the level's [hue] while none of its
+/// questions is answered, the right ones out of all once any is, and the catalog's green check once every one is right.
+/// Decoration: the row says it in words.
+class _QuizStatus extends StatelessWidget {
+  const _QuizStatus({required this.answers, required this.right, required this.hue});
+
+  final List<bool?>? answers;
+  final int right;
+  final Color hue;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.bazaarColors;
+    final answers = this.answers;
+    return ExcludeSemantics(
+      child: switch (answers) {
+        null => Container(
+          key: const Key('quiz-status-new'),
+          width: 20,
+          height: 20,
+          margin: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: hue, width: 2),
+          ),
+        ),
+        _ when right == answers.length => const Icon(
+          Icons.check_circle,
+          key: Key('quiz-status-perfect'),
+          size: 24,
+          color: BazaarFixedColors.success,
+        ),
+        _ => Text(
+          '$right/${answers.length}',
+          key: const Key('quiz-status-count'),
+          style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceTitle, fontWeight: FontWeight.w700),
+        ),
+      },
+    );
+  }
+}
+
+/// The latest answers counted from the start, as a meter: a green segment for each right, then a red one for each
+/// wrong, then the sunken track for each never answered, whichever questions they were (the owner, 2026-11-18: a
+/// question answered in a review lit its own place, in the middle). Decoration: the row says it in words.
 class _AnswerMeter extends StatelessWidget {
   const _AnswerMeter({required this.answers});
 
@@ -331,7 +346,11 @@ class _AnswerMeter extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          for (final (index, answer) in answers.indexed)
+          for (final (index, answer) in [
+            ...answers.where((answer) => answer == true),
+            ...answers.where((answer) => answer == false),
+            ...answers.where((answer) => answer == null),
+          ].indexed)
             Container(
               // One key per question, which says its answer: answer-<index>-right, -wrong or -none.
               key: ValueKey(
@@ -357,17 +376,3 @@ class _AnswerMeter extends StatelessWidget {
     );
   }
 }
-
-/// Each question's latest answer of the module [moduleKey]'s quiz in [history], null for one never answered; null when
-/// none is answered, or the history holds no length for the quiz.
-List<bool?>? latestAnswers(ReviewHistory history, String moduleKey) {
-  final length = history.lengths[moduleKey];
-  if (length == null) return null;
-  final answers = [
-    for (var i = 0; i < length; i++) history.cards[questionKey(moduleKey, i)]?.answers.lastOrNull?.right,
-  ];
-  return answers.every((answer) => answer == null) ? null : answers;
-}
-
-/// A level's or a module's number in two digits, as the catalog prints it.
-String _number(int number) => number.toString().padLeft(2, '0');

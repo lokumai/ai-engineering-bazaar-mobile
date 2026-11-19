@@ -1,7 +1,11 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
@@ -65,7 +69,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-final _today = find.byKey(const Key('practice-today'));
+final _endless = find.byKey(const Key('practice-endless'));
+
+/// Opens Today's review, which Home offers (the owner, 2026-11-18: the Practice tab's head is the endless review).
+Future<void> _startToday(WidgetTester tester) async {
+  unawaited(GoRouter.of(tester.element(find.byType(NavigationBar))).push(BazaarPaths.practiceReview));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets("Today's review offers the completed modules' questions, and a session asks them once each", (
@@ -73,13 +83,7 @@ void main() {
   ) async {
     final (router, review) = await _pump(tester, record: _completed(['alpha/first']));
 
-    expect(find.descendant(of: _today, matching: find.text('2 cards, about 1 min')), findsOneWidget);
-    expect(
-      find.descendant(of: _today, matching: find.text('First Module')),
-      findsOneWidget,
-      reason: 'its module',
-    );
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _startToday(tester);
     expect(router.state.uri.path, '/practice/review');
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
     expect(find.text('Card 1 of 2'), findsOneWidget);
@@ -103,8 +107,6 @@ void main() {
 
     await _tap(tester, find.byKey(const Key('review-back')));
     expect(router.state.uri.path, '/practice');
-    expect(find.descendant(of: _today, matching: find.text('That is all for today')), findsOneWidget);
-    expect(find.descendant(of: _today, matching: find.byKey(const Key('practice-today-wrong'))), findsOneWidget);
     expect(find.descendant(of: find.byKey(const Key('practice-wrong')), matching: find.text('1')), findsOneWidget);
   });
 
@@ -180,7 +182,7 @@ void main() {
       ],
     );
     final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _startToday(tester);
     await _tap(tester, find.text('Water'));
     expect(find.text('This is in: Oil'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('review-section-link')));
@@ -206,7 +208,7 @@ void main() {
       ],
     );
     await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _startToday(tester);
     await _tap(tester, find.text('Paraffin'));
     expect(find.text('Correct.'), findsOneWidget);
     expect(find.byKey(const Key('review-section-link')), findsNothing);
@@ -246,27 +248,46 @@ void main() {
       quiz: _items,
     );
     final (_, review) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    expect(find.descendant(of: _today, matching: find.textContaining('4 cards')), findsOneWidget);
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _startToday(tester);
     expect(find.text('Q1'), findsOneWidget, reason: 'a question first');
     await _tap(tester, find.text('One'));
     await _tap(tester, find.byKey(const Key('review-next')));
 
     expect(find.text('Card 2 of 4'), findsOneWidget);
-    expect(find.text('Wick'), findsOneWidget, reason: 'then a term');
+    expect(find.text('Which term is this?'), findsOneWidget, reason: 'then a term, asked as a question (plan 13.16)');
+    expect(find.text('what burns.', findRichText: true), findsOneWidget, reason: 'its definition, shown at once');
     expect(
       find.text('The wick draws the oil up.', findRichText: true),
-      findsOneWidget,
-      reason: "the module's sentence",
+      findsNothing,
+      reason: "no module's sentence (the owner, 2026-11-18)",
     );
-    expect(find.text('what burns.', findRichText: true), findsNothing, reason: 'the definition waits for a tap');
-    expect(find.byKey(const Key('review-term-knew')), findsNothing);
-    await _tap(tester, find.byKey(const Key('review-term-show')));
-    expect(find.text('what burns.', findRichText: true), findsOneWidget);
-    expect(find.byKey(const Key('review-next')), findsNothing, reason: 'no Next for a term (the owner, 2026-11-18)');
-    await _tap(tester, find.byKey(const Key('review-term-knew')));
-    expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isTrue);
-    expect(find.text('Card 3 of 4'), findsOneWidget, reason: 'Knew it counts the answer and goes on');
+    expect(find.byKey(const Key('review-next')), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.byKey(const Key('review-next'))).onPressed, isNull, reason: 'not answered');
+    await _tap(tester, find.text('Glass'));
+    expect(find.textContaining('Not this one.'), findsOneWidget);
+    expect(find.text('This is in: First Module'), findsOneWidget, reason: "a way to the module's Key Terms");
+    expect(review.state.history.cards['term:engineers/alpha/first#0']!.answers.single.right, isFalse);
+    expect(review.state.history.cards['term:engineers/alpha/first#0']!.wrong, isTrue, reason: 'back tomorrow');
+    await _tap(tester, find.byKey(const Key('review-next')));
+    expect(find.text('Card 3 of 4'), findsOneWidget);
+  });
+
+  testWidgets("a term's way to its module opens the Key Terms with the term marked (plan 13.16)", (tester) async {
+    final (router, _) = await _pump(
+      tester,
+      record: _completed(['alpha/first']),
+      doc: _termsDoc(),
+      at: '/practice/review',
+    );
+    // The day's cards: a question, then a term.
+    await _tap(tester, find.text('One'));
+    await _tap(tester, find.byKey(const Key('review-next')));
+    await _tap(tester, find.text('Wick'));
+    expect(find.text('Correct.'), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('review-section-link')));
+    expect(router.state.uri.path, '/courses/alpha/first');
+    final target = router.state.extra! as ReaderTarget;
+    expect((target.fragment, target.query, target.glance), ('words', 'Wick', true));
   });
 
   testWidgets("a question's Next sits under its verdict, as in a module's quiz, and a new card starts at its top "
@@ -274,7 +295,7 @@ void main() {
     await _pump(tester, record: _completed(['alpha/first']));
     tester.view.physicalSize = const Size(400, 420);
     await tester.pumpAndSettle();
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _startToday(tester);
     await _tap(tester, find.text('Three'));
 
     final next = find.byKey(const Key('review-next'));
@@ -363,7 +384,7 @@ void main() {
       quiz: _items,
     );
     final (router, _) = await _pump(tester, record: _completed(['alpha/first']), doc: doc);
-    expect(find.bySemanticsLabel('A module in 2 minutes, 1 completed module'), findsOneWidget);
+    expect(find.bySemanticsLabel('Recap, 1 completed module'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('practice-brief')));
     expect(router.state.uri.path, '/practice/brief');
     await _tap(tester, find.byKey(const ValueKey('brief-alpha/first')));
@@ -469,17 +490,123 @@ void main() {
     expect(typing(), isFalse, reason: 'a tap elsewhere puts the keyboard away');
   });
 
-  testWidgets('with no module completed, there is nothing to review today', (tester) async {
+  testWidgets("the tab's head is the endless review, the one card with an edge of colour, a short line under its name; "
+      "Today's review is Home's (the owner, 2026-11-18)", (tester) async {
     await _pump(tester);
-    expect(find.descendant(of: _today, matching: find.text('Nothing to review today')), findsOneWidget);
-    expect(find.byKey(const Key('practice-today-start')), findsNothing);
-    expect(find.byKey(const Key('practice-today-wrong')), findsNothing, reason: 'no wrong answer either');
+    expect(find.descendant(of: _endless, matching: find.text('Endless review')), findsOneWidget);
+    expect(find.text("Today's review"), findsNothing);
+    expect(
+      find.byKey(const Key('practice-endless-start')),
+      findsOneWidget,
+      reason: 'before any module is completed it draws on the first',
+    );
+    final deck = find.descendant(of: _endless, matching: find.byType(BazaarCard));
+    expect(tester.widget<BazaarCard>(deck).accent, isNotNull, reason: 'the endless review keeps its edge');
+    expect(
+      find.descendant(of: _endless, matching: find.text("Practice what you've read, as long as you like.")),
+      findsOneWidget,
+      reason: 'a short line, not that a card may come again (the owner, 2026-11-18)',
+    );
+    for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary']) {
+      expect(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.byType(BazaarCard)),
+        findsNothing,
+        reason: '$tile: no card with an edge of colour along its top',
+      );
+      final shape =
+          tester
+                  .widget<Material>(find.descendant(of: find.byKey(Key(tile)), matching: find.byType(Material)).first)
+                  .shape!
+              as RoundedRectangleBorder;
+      expect(shape.side.width, 1.5, reason: '$tile: edged in its hue, to read as a button (the owner, 2026-11-18)');
+      expect(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.byIcon(Icons.arrow_forward_rounded)),
+        findsOneWidget,
+        reason: '$tile: an arrow',
+      );
+    }
+    final wrong = tester.getRect(find.byKey(const Key('practice-wrong')));
+    final brief = tester.getRect(find.byKey(const Key('practice-brief')));
+    final glossary = tester.getRect(find.byKey(const Key('practice-glossary')));
+    expect(wrong.width, closeTo(brief.width + glossary.width + 12, 1), reason: 'Wrong answers across the width');
+    expect(brief.top, greaterThan(wrong.bottom), reason: 'the other two under it');
+    expect(brief.top, glossary.top, reason: 'side by side');
+    expect(
+      brief.height,
+      closeTo(wrong.height, 1),
+      reason: 'as tall as Wrong answers, their names beside their marks (the owner, 2026-11-18)',
+    );
+    for (final tile in ['practice-brief', 'practice-glossary']) {
+      expect(
+        find.descendant(of: find.byKey(Key(tile)), matching: find.textContaining(RegExp(r'^\d+$'))),
+        findsNothing,
+        reason: '$tile: no count, which said nothing (the owner, 2026-11-18)',
+      );
+    }
+    expect(
+      find.descendant(of: find.byKey(const Key('practice-wrong')), matching: find.textContaining(RegExp(r'^\d+$'))),
+      findsOneWidget,
+      reason: 'Wrong answers keeps its count',
+    );
+    final start = tester.getRect(find.byKey(const Key('practice-endless-start')));
+    final card = tester.getRect(_endless);
+    expect(start.width, greaterThan(card.width * 0.8), reason: 'Start across the card (the owner, 2026-11-18)');
+  });
+
+  testWidgets('with large text the tiles stand one under another, none overflowing', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, record: _completed(['alpha/first']));
+    final rects = [
+      for (final tile in ['practice-wrong', 'practice-brief', 'practice-glossary'])
+        tester.getRect(find.byKey(Key(tile), skipOffstage: false)),
+    ];
+    expect(rects[1].top, greaterThan(rects[0].bottom));
+    expect(rects[2].top, greaterThan(rects[1].bottom));
+    expect(rects[1].width, rects[0].width, reason: 'each across the width');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the endless review draws card after card, repeats and all, until Finish, and counts toward no day '
+      '(the owner, 2026-11-18)', (tester) async {
+    final (router, review) = await _pump(tester, record: _completed(['alpha/first']));
+    await _tap(tester, find.byKey(const Key('practice-endless-start')));
+    expect(router.state.uri.path, '/practice/endless');
+    expect(find.byType(NavigationBar), findsNothing, reason: 'full screen, outside the shell');
+    expect(find.text('Endless review'), findsOneWidget);
+    expect(find.textContaining('Card 1 of'), findsNothing, reason: 'no end to count to');
+    expect(
+      tester.widget<BazaarCard>(find.byType(BazaarCard).first).accent,
+      isNotNull,
+      reason: "a card keeps its level's edge along its top (the owner, 2026-11-18)",
+    );
+
+    // More cards than the module's two questions: it goes on, a card drawn again.
+    for (var i = 0; i < 4; i++) {
+      await _tap(tester, find.text(find.text('Q1').evaluate().isNotEmpty ? 'One' : 'Two'));
+      expect(find.text('Next'), findsOneWidget, reason: 'never Finish in its place');
+      await _tap(tester, find.byKey(const Key('review-next')));
+    }
+    expect(tester.widget<Text>(find.byKey(const Key('review-tally'))).data, '4 of 4 right');
+
+    await _tap(tester, find.byKey(const Key('review-end')));
+    expect(find.text('4 of 4 right'), findsOneWidget, reason: 'the card left unanswered is not counted');
+    expect(review.state.history.doneOn(dayNumber(DateTime.now())), 0, reason: "not Today's review");
+    await _tap(tester, find.byKey(const Key('review-back')));
+    expect(router.state.uri.path, '/practice');
+  });
+
+  testWidgets('Finish before any answer goes back to Practice', (tester) async {
+    final (router, _) = await _pump(tester, record: _completed(['alpha/first']));
+    await _tap(tester, find.byKey(const Key('practice-endless-start')));
+    await _tap(tester, find.byKey(const Key('review-end')));
+    expect(router.state.uri.path, '/practice');
   });
 
   testWidgets('the head and a session meet the platform guidelines', variant: bazaarPlatforms, (tester) async {
     await _pump(tester, record: _completed(['alpha/first']), platform: defaultTargetPlatform);
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
-    await _tap(tester, find.byKey(const Key('practice-today-start')));
+    await _tap(tester, find.byKey(const Key('practice-endless-start')));
     await _tap(tester, find.text('One'));
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });

@@ -105,43 +105,4 @@ void main() {
     );
     expect(text.text.substring(marks[text]!.single.start, marks[text]!.single.end), 'token');
   });
-
-  group('termUsage (the owner, 2026-11-18: a term card shows the sentence that uses it)', () {
-    ModuleNotes notes(List<String> texts) => ModuleNotes(
-      moduleKey: 'alpha/first',
-      sections: [for (final (i, text) in texts.indexed) NoteSection(id: 's$i', title: 'S$i', text: text)],
-    );
-
-    test('the first sentence that uses the term as a whole word, in any case, with where it stands', () {
-      final usage = termUsage(
-        notes(['A lamp needs oil. Wicked weather came. The WICK draws the oil up! It burns.', 'A wick again.']),
-        wick,
-      );
-      expect(usage, const TermUsage(text: 'The WICK draws the oil up!', start: 4, end: 8));
-    });
-
-    test('a later section when the first does not use it; null when none does', () {
-      expect(termUsage(notes(['Nothing here.', 'Trim the wick.']), wick)?.text, 'Trim the wick.');
-      expect(termUsage(notes(['Nothing here.']), wick), isNull);
-    });
-
-    test('a longer form before a shorter one, and a Persian question mark ends a sentence', () {
-      final usage = termUsage(
-        notes(['چرا؟ The context window fills.']),
-        _term('Window', forms: ['context window', 'window']),
-      );
-      expect(usage, const TermUsage(text: 'The context window fills.', start: 4, end: 18));
-    });
-
-    test('a long sentence is cut to whole words around the term, with an ellipsis where it was cut', () {
-      final words = List.generate(60, (i) => 'word$i');
-      final sentence = [...words.take(30), 'wick', ...words.skip(30)].join(' ');
-      final usage = termUsage(notes(['$sentence.']), wick)!;
-      expect(usage.text.length, lessThanOrEqualTo(usageLength + 4));
-      expect(usage.text, startsWith('… word'));
-      expect(usage.text, endsWith(' …'));
-      expect(usage.text.substring(usage.start, usage.end), 'wick');
-      expect(usage.text.split(' ').skip(1).take(1).single, matches(RegExp(r'^word\d+$')), reason: 'a whole word');
-    });
-  });
 }

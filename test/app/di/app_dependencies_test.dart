@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -253,6 +254,14 @@ void main() {
     await expectLater(const AppDependencies().createAppIconSwitch().choose(BazaarIcon.antennaCream), completes);
   });
 
+  test('createSpeech reads aloud with the phone\'s own engine: no engine, no voice (plan 15.1)', () async {
+    final speech = const AppDependencies().createSpeech();
+    expect(speech, isA<PhoneSpeechPort>());
+    expect(await speech.canSpeak('en'), isFalse);
+    await expectLater(speech.speak(['Hello.'], language: 'en', rate: 1, onPart: (_) {}), completes);
+    await expectLater(speech.stop(), completes);
+  });
+
   // The next launch opens on the page colour of the look the reader reads in (the owner, 2026-11-15).
   test('createLaunchGround names the look on the native channel, light or dark', () async {
     final calls = <MethodCall>[];
@@ -451,6 +460,32 @@ void main() {
     await store.save(const {});
     expect(File('${root.path}/reading/places.json').existsSync(), isFalse, reason: 'no places, no file');
   });
+
+  test(
+    'createListenPlaceStore keeps where each module read aloud was left in one file (the owner, 2026-11-18)',
+    () async {
+      final root = Directory.systemTemp.createTempSync('listen_place_store_test_');
+      addTearDown(() => root.deleteSync(recursive: true));
+      final dependencies = AppDependencies(
+        appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+        supportDirectory: () async => root,
+      );
+
+      final store = dependencies.createListenPlaceStore();
+      expect(store, isA<FileListenPlaceStore>());
+      expect(await store.load(), isEmpty);
+
+      final places = {
+        'engineers/alpha/first': const ListenPlace(count: 4, index: 2, heard: {0, 1}),
+      };
+      await store.save(places);
+      expect(await dependencies.createListenPlaceStore().load(), places, reason: 'kept for the next start');
+      expect(File('${root.path}/listen/places.json').existsSync(), isTrue);
+
+      await store.save(const {});
+      expect(File('${root.path}/listen/places.json').existsSync(), isFalse, reason: 'no places, no file');
+    },
+  );
 
   test('the backup goes through the platform gateway', () {
     const dependencies = AppDependencies(appConfig: AppConfig.test(contentBaseUrl: testContentBaseUrl));
