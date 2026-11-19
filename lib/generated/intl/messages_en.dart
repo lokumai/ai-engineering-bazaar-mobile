@@ -497,6 +497,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",
     ),
+    "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
+      "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
+    ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
@@ -639,6 +642,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_customize": MessageLookupByLibrary.simpleMessage("Customize"),
     "settings_data": MessageLookupByLibrary.simpleMessage("Your progress"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Developer console"),
+    "settings_feedback_form": MessageLookupByLibrary.simpleMessage("Feedback"),
+    "settings_feedback_form_hint": MessageLookupByLibrary.simpleMessage("An anonymous form, opened in the browser"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Language"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Licences"),
     "settings_off": MessageLookupByLibrary.simpleMessage("Off"),

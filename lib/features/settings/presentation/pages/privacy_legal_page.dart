@@ -39,6 +39,8 @@ class PrivacyLegalPage extends StatelessWidget {
                 _Link(label: s.privacy_github_pages, uri: LegalLinks.githubPages),
                 _Link(label: s.privacy_github_statement, uri: LegalLinks.githubPrivacy),
                 if (crashReports) _Paragraph(s.privacy_crash),
+                // Feedback in Settings opens the web's form in the browser; the app sends nothing to it.
+                _Paragraph(s.privacy_feedback_form),
                 _Paragraph(s.privacy_contact),
                 _Link(label: SiteOwner.email, uri: LegalLinks.email),
                 _Link(label: s.privacy_site_note, uri: context.read<WebLinks>().privacy),

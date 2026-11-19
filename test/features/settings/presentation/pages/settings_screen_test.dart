@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/features/settings/domain/site_owner.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
@@ -28,6 +29,7 @@ import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../../../../support/bazaar_app_harness.dart';
 import '../../../../support/catalog_fixture_index.dart';
+import '../../../../support/url_launcher_stub.dart';
 
 /// A [MockContentBloc] that stays at [ContentReady] over [index] (default [catalogFixtureIndex]) with [origin],
 /// [notice] and [refresh].
@@ -427,6 +429,71 @@ void main() {
     expect(find.text('AI Engineering Bazaar'), findsWidgets);
   });
 
+  // Plan 16.1: the web's anonymous form (`FEEDBACK_URL`), in the browser, in every build, apart from Report a problem.
+  group('Feedback', () {
+    testWidgets('opens the web\'s anonymous form in the browser, in a build that sends no crash reports', (
+      tester,
+    ) async {
+      final calls = stubOpeningUrlLauncher(canLaunch: false);
+      await _pump(tester);
+
+      final row = find.byKey(settingsFeedbackFormKey);
+      await tester.ensureVisible(row);
+      await tester.pump();
+      expect(find.text('Report a problem'), findsNothing);
+      expect(find.descendant(of: row, matching: find.text('Feedback')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.text('An anonymous form, opened in the browser')), findsOneWidget);
+      // The mark of a link that leaves the app, not the arrow of a page in it.
+      expect(find.descendant(of: row, matching: find.byIcon(Icons.open_in_new)), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.byIcon(Icons.chevron_right)), findsNothing);
+      expect(
+        tester.getSemantics(row),
+        isSemantics(isButton: true, label: 'Feedback\nAn anonymous form, opened in the browser'),
+      );
+
+      await tester.tap(row);
+      await tester.pump();
+
+      expect(calls.launchedUrls, ['https://forms.gle/U4oXwczTx3nmv3kGA']);
+      expect(calls.launchedUrls.single, LegalLinks.feedbackForm.toString());
+    });
+
+    for (final (locale, name, hint) in const [
+      ('en', 'Feedback', 'An anonymous form, opened in the browser'),
+      ('tr', 'Geri bildirim', 'Tarayıcıda açılan anonim bir form'),
+      ('fa', 'بازخورد', 'فرمی بی\u200cنام که در مرورگر باز می\u200cشود'),
+    ]) {
+      testWidgets('is named in $locale', (tester) async {
+        await tester.pumpWidget(bazaarTestApp(router: _router(), content: _contentBloc(), locale: Locale(locale)));
+        await tester.pump();
+
+        final row = find.byKey(settingsFeedbackFormKey);
+        expect(find.descendant(of: row, matching: find.text(name)), findsOneWidget);
+        expect(find.descendant(of: row, matching: find.text(hint)), findsOneWidget);
+      });
+    }
+
+    testWidgets('stands under Report a problem, which keeps its arrow, when the build sends crash reports', (
+      tester,
+    ) async {
+      final router = GoRouter(
+        initialLocation: '/settings',
+        routes: [GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen(feedback: true))],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(bazaarTestApp(router: router, content: _contentBloc()));
+      await tester.pump();
+
+      final report = find.ancestor(of: find.text('Report a problem'), matching: find.byType(InkWell));
+      final form = find.byKey(settingsFeedbackFormKey);
+      await tester.ensureVisible(form);
+      await tester.pump();
+      expect(tester.getTopLeft(form).dy, greaterThan(tester.getTopLeft(report).dy));
+      expect(find.descendant(of: report, matching: find.byIcon(Icons.chevron_right)), findsOneWidget);
+      expect(find.descendant(of: report, matching: find.byIcon(Icons.open_in_new)), findsNothing);
+    });
+  });
+
   testWidgets('the developer console button is there only with a callback', (tester) async {
     await _pump(tester);
     expect(find.text('Developer console'), findsNothing);
@@ -452,7 +519,12 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    for (final target in [find.text('Check for updates'), find.text('Licences'), find.text('Developer console')]) {
+    for (final target in [
+      find.text('Check for updates'),
+      find.text('Feedback'),
+      find.text('Licences'),
+      find.text('Developer console'),
+    ]) {
       await tester.ensureVisible(target);
       await tester.pump();
       expectHittable(tester, target);

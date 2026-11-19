@@ -1920,6 +1920,16 @@ class S {
     );
   }
 
+  /// `Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.`
+  String get privacy_feedback_form {
+    return Intl.message(
+      'Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.',
+      name: 'privacy_feedback_form',
+      desc: 'Privacy: the feedback form is Google\'s, opened by the reader; the app sends nothing to it.',
+      args: [],
+    );
+  }
+
   /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
   String get privacy_crash {
     return Intl.message(
@@ -1978,6 +1988,26 @@ class S {
   /// `The report was not sent. Try again later.`
   String get feedback_failed {
     return Intl.message('The report was not sent. Try again later.', name: 'feedback_failed', desc: '', args: []);
+  }
+
+  /// `Feedback`
+  String get settings_feedback_form {
+    return Intl.message(
+      'Feedback',
+      name: 'settings_feedback_form',
+      desc: 'Settings, About: the row that opens the web\'s anonymous feedback form in the browser (web FEEDBACK_URL); not Report a problem, which sends from the app.',
+      args: [],
+    );
+  }
+
+  /// `An anonymous form, opened in the browser`
+  String get settings_feedback_form_hint {
+    return Intl.message(
+      'An anonymous form, opened in the browser',
+      name: 'settings_feedback_form_hint',
+      desc: 'Under Feedback in Settings: what the row opens, so it reads apart from Report a problem.',
+      args: [],
+    );
   }
 
   /// `Legal`

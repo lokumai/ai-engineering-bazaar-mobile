@@ -2,133 +2,78 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The AI Engineering Bazaar course as an app for Android and iOS.
-It reads the course offline from a bundled snapshot of the site's content bundle, `https://ai-bazaar.lokum.dev/api/v1/`, and refreshes it when the site publishes a newer one.
-Both tracks are in it: For Engineers and For Everyone.
-The interface and the modules are in English, Turkish and Persian (right to left); a module not yet translated opens in English.
-Progress stays on the device, in the web's record format, and the app imports and exports the web's file.
-There is no account, no analytics and no advertising.
+The [AI Engineering Bazaar](https://ai-bazaar.lokum.dev/) course as an app for Android and iOS: short, practical modules on AI engineering, readable offline, in English, Turkish and Persian.
+The course is written in the web repo, [lokumai/ai-engineering-bazaar](https://github.com/lokumai/ai-engineering-bazaar); the app reads what the site publishes.
+No account, no analytics, no ads.
 
-The web repo, [lokumai/ai-engineering-bazaar](https://github.com/lokumai/ai-engineering-bazaar), is the only producer of content.
-The app maps what the bundle publishes to widgets and derives no fact the bundle does not carry (D111); a missing fact is a change proposed to the web.
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/home.webp" width="240" alt="Home: the Apprentice with the day's card, Practice and the modules later on"><br><sub>Home</sub></td>
+    <td align="center"><img src="docs/images/reader-term.webp" width="240" alt="A module in the reader, a dotted term's definition open over the text"><br><sub>The reader</sub></td>
+    <td align="center"><img src="docs/images/catalog.webp" width="240" alt="The catalog: search, and each level with its modules and progress"><br><sub>Catalog</sub></td>
+  </tr>
+</table>
 
-## Status
+## What is in it
 
-Version `1.0.0+1`, before the first store release.
-What is done and what is left: [docs/plan.md](docs/plan.md).
-What the app must do: [docs/requirements.md](docs/requirements.md).
-What changed: [CHANGELOG.md](CHANGELOG.md).
+- **Welcome.** The Apprentice, the app's small robot in a fez, opens the bazaar; the first launch asks for the language, the track (For Engineers or For Everyone) and Light or Dark, with the story of the Bazaar one tap away.
+- **Home.** The Apprentice's corner with the day's card from a module, Practice (Today's review, a quiz waiting, the glossary), the modules later on, and a band to go on reading.
+- **Catalog.** Every level with your progress, and a search over the modules' titles, headings and text.
+- **The reader.** Contents, quiz and checklist; images and diagrams full screen; the glossary's terms dotted in the text, a tap shows the definition; **Listen** reads the module aloud with the phone's own voice, offline; text size and line spacing.
+- **Practice.** An endless review of questions and terms, Wrong answers, Recap, the Glossary and the quizzes by level.
+- **Caravan.** A shadow play along the road of AI engineering's trends since 2022 (sample trends until the content bundle carries them).
+- **The Apprentice.** A tiny language model that trains on the phone; as it rises in level its wardrobe opens, and each robot can be the app icon, on a cream or dark ground.
+- **A tour** of the app on a first run, taken again from Settings.
+- **Three languages:** English, Turkish and Persian (right to left); a module not yet translated opens in English.
+- **Offline first.** The course ships as a snapshot of the site's content bundle; a newer one downloads in the background, checked by sha256, and is used only once complete.
+- **Your progress stays on the device,** in the web's record format: back it up, restore it from the website's file, or reset it.
 
-## Requirements
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/practice-dark.webp" width="240" alt="Practice in the dark theme: the endless review, Wrong answers, Recap, the Glossary and the quizzes by level"><br><sub>Practice</sub></td>
+    <td align="center"><img src="docs/images/caravan-dark.webp" width="240" alt="The Caravan: puppets on the road of AI engineering's trends"><br><sub>Caravan</sub></td>
+    <td align="center"><img src="docs/images/appicon-dark.webp" width="240" alt="The app icons: the Apprentice's robots on a cream or dark ground, unlocked by level"><br><sub>App icons</sub></td>
+  </tr>
+</table>
 
-- [fvm](https://fvm.app/) with Flutter 3.47.7 (Dart ^3.13.5); every command below runs through `fvm`.
-- JDK 17 for Android.
-- Xcode on macOS for iOS.
+## Build and run
 
-## Run
+You need [fvm](https://fvm.app/) with Flutter 3.47.7, JDK 17 for Android and Xcode for iOS.
 
 ```shell
 fvm flutter pub get
+fvm flutter run --target lib/main/main_prod.dart        # content from https://ai-bazaar.lokum.dev/
 fvm flutter run --target lib/main/main_local.dart --dart-define=CONTENT_BASE_URL=https://ai-bazaar.lokum.dev/
 ```
 
-Any https preview of the site works as `CONTENT_BASE_URL`.
-`main_local` refuses to start without it, or with a base that is not https or lacks the trailing slash.
-The app allows no cleartext traffic, so use the live site or an https preview rather than a local http server.
+`main_local` takes any https preview of the site as `CONTENT_BASE_URL`, with its trailing slash.
+The bundled snapshot is refreshed with `tool/refresh_content_snapshot.dart`, then `tool/generate_tokens.dart`; never by hand.
+On the maintainers' machine builds and full test runs go through `heavy `, a shared memory cap; elsewhere run them as they are.
+Running on your own iPhone, the content refresh, strings, tests and the commit gate: [docs/development.md](docs/development.md); the architecture and its rules: [CLAUDE.md](CLAUDE.md).
+What is done and what is next: [docs/plan.md](docs/plan.md); what changed: [CHANGELOG.md](CHANGELOG.md).
+
+## Privacy and crash reports
+
+The app collects no personal data; the site's [privacy note](https://ai-bazaar.lokum.dev/legend/#privacy) covers it too.
+Only a prod release built with a Sentry DSN sends anything: crash reports, hangs, how long the app took to open, release-health sessions, and what a reader sends under Report a problem.
+Every report is scrubbed on the device; the Sentry project is in the EU region and keeps no IP address. No route names, screenshots, replay or other traces are sent.
+The DSN stays out of git, in a `sentry_dsn.json` beside `pubspec.yaml`:
 
 ```shell
-fvm flutter run --target lib/main/main_prod.dart
+echo '{"SENTRY_DSN": "<the project DSN>"}' > sentry_dsn.json
+fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
 ```
 
-`main_prod` uses `https://ai-bazaar.lokum.dev/`.
+Feedback in Settings opens the web's anonymous Google Form in the browser; the app sends nothing to it.
+What each store's form declares: [docs/store-privacy.md](docs/store-privacy.md).
 
-### On your own iPhone
+## Contributing
 
-Connect the phone to the Mac, trust the Mac on the phone and turn on Developer Mode (Settings, Privacy and Security, after Xcode has paired with the phone once).
-In Xcode, give the Runner target your own team and a bundle identifier of your own under Signing and Capabilities; keep that change local.
-Then run from the Mac's own Terminal, since signing reads the login keychain, which a remote shell cannot open:
+A mistake in a module belongs to the [web repo](https://github.com/lokumai/ai-engineering-bazaar); something the app shows wrong belongs here.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-```shell
-fvm flutter run --release -d <device id> --target lib/main/main_prod.dart
-```
+## Licence
 
-`xcrun devicectl list devices` names the device id.
-An app signed with a free Apple ID runs for seven days.
-
-## Content
-
-The app opens the bundled snapshot, then checks the site at every launch and from Check for updates in Settings.
-A newer bundle is downloaded in the background, each file checked by its sha256, and is used only once every file is on the device, so a lost connection never leaves a mixed set and reading never waits on the network.
-A download cut off by closing the app goes on where it stopped at the next launch.
-
-### Refresh the snapshot
-
-```shell
-fvm dart run tool/refresh_content_snapshot.dart --base-url https://ai-bazaar.lokum.dev/ --content-version <hex>
-```
-
-The tool writes `assets/content/` (the snapshot) and `test/fixtures/record_conformance/v1.json` (the record conformance fixture).
-Both are its output and are committed; never edit them by hand.
-
-### Regenerate the tokens
-
-```shell
-fvm dart run tool/generate_tokens.dart
-```
-
-Run it after every snapshot refresh.
-It writes `lib/shared/design_system/bazaar_tokens.g.dart` from the snapshot's `tokens.json`, and `tokens_generated_test` fails when the two differ.
-
-## Strings
-
-Every string of the interface is in `lib/l10n/intl_en.arb`, `intl_tr.arb` and `intl_fa.arb`.
-After editing them:
-
-```shell
-fvm dart run intl_utils:generate
-fvm dart format lib/generated --line-length=120
-```
-
-## Tests
-
-```shell
-fvm flutter test                                         # the whole suite
-fvm flutter test test/path/to/specific_test.dart         # one file
-fvm flutter test --tags golden --update-goldens          # regenerate the goldens
-fvm flutter test integration_test -d <device>            # device tests on an emulator, simulator or phone
-```
-
-The `Device tests` workflow runs the device tests on an Android emulator and an iOS simulator when it is dispatched.
-How the suite is built and how to add to it: [docs/testing-architecture.md](docs/testing-architecture.md).
-
-The gate every commit passes:
-
-```shell
-fvm dart format . --line-length=120 --set-exit-if-changed && fvm flutter analyze && fvm flutter test --coverage && scripts/check_coverage.sh coverage/lcov.info 90
-```
-
-CI runs the same steps, then builds the release APK and app bundle, runs the Android JVM tests and builds iOS without signing.
-The coverage check fails below 90% of the hand-written lines, and when there is no coverage file to read.
-
-### Heavy commands
-
-On the maintainers' machine every build, full test suite, gate chain, and anything that starts an emulator, simulator or browser runs through `heavy`, a local wrapper that puts the command in a shared memory and CPU cap, one full gate at a time: for example `heavy fvm flutter test`.
-Exit 137 is that cap, so run less at once and never raise it.
-Elsewhere, run the commands as they are.
-
-## Privacy
-
-The app collects no personal data.
-The site's privacy note covers the app too: <https://ai-bazaar.lokum.dev/legend/#privacy>.
-Sentry starts only in a prod build with a `SENTRY_DSN` define, and sends crash reports, hangs, how long the app took to open, release-health sessions and what a reader sends under Report a problem; nothing else: no other performance trace, no route names, no screenshots, no replay.
-The app scrubs every report and every breadcrumb before it leaves the device. On iOS the native SDK records only app hangs and sessions of its own (no native crash handler, breadcrumbs, watchdog or failed request events).
-The Sentry project is `lokumai/ai-bazaar-mobile`, in the EU region, with IP addresses not stored and the server-side scrubbing on.
-The DSN is kept out of git: a release build that sends crash reports reads it from a `sentry_dsn.json` beside `pubspec.yaml`, `{"SENTRY_DSN": "<the project's DSN>"}`, with `--dart-define-from-file=sentry_dsn.json`.
-The iOS privacy manifest and both stores' forms list what is sent, linked to no one and for the app's functioning: see [docs/store-privacy.md](docs/store-privacy.md).
-
-## Licences
-
-The app is under the MIT License, see [LICENSE](LICENSE).
-Vazirmatn (regular and bold), the diagram font and the Persian headings' face, is under the SIL Open Font License, see [assets/fonts/OFL.txt](assets/fonts/OFL.txt).
-Fraunces, the face of the app's headings, is under the same licence, see [assets/fonts/OFL-Fraunces.txt](assets/fonts/OFL-Fraunces.txt).
+The app is under the [MIT License](LICENSE).
+Vazirmatn and Fraunces are under the SIL Open Font License ([assets/fonts/OFL.txt](assets/fonts/OFL.txt), [assets/fonts/OFL-Fraunces.txt](assets/fonts/OFL-Fraunces.txt)).
 The course content is under the web repo's licence.

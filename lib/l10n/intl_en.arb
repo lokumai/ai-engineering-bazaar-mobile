@@ -984,6 +984,10 @@
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
+  "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
+  "@privacy_feedback_form": {
+    "description": "Privacy: the feedback form is Google's, opened by the reader; the app sends nothing to it."
+  },
   "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
   "@privacy_crash": {},
   "privacy_contact": "For any question about personal data, write to us.",
@@ -1002,6 +1006,14 @@
   "@feedback_sent": {},
   "feedback_failed": "The report was not sent. Try again later.",
   "@feedback_failed": {},
+  "settings_feedback_form": "Feedback",
+  "@settings_feedback_form": {
+    "description": "Settings, About: the row that opens the web's anonymous feedback form in the browser (web FEEDBACK_URL); not Report a problem, which sends from the app."
+  },
+  "settings_feedback_form_hint": "An anonymous form, opened in the browser",
+  "@settings_feedback_form_hint": {
+    "description": "Under Feedback in Settings: what the row opens, so it reads apart from Report a problem."
+  },
   "legal_title": "Legal",
   "@legal_title": {},
   "legal_owner": "Owner",

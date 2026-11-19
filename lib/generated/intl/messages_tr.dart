@@ -498,6 +498,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
     ),
+    "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
+      "Ayarlar\'daki Geri bildirim, tarayıcında Google\'ın anonim bir formunu açar; uygulama bu forma hiçbir şey göndermez.",
+    ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
@@ -640,6 +643,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_customize": MessageLookupByLibrary.simpleMessage("Kişiselleştir"),
     "settings_data": MessageLookupByLibrary.simpleMessage("İlerlemen"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("Geliştirici konsolu"),
+    "settings_feedback_form": MessageLookupByLibrary.simpleMessage("Geri bildirim"),
+    "settings_feedback_form_hint": MessageLookupByLibrary.simpleMessage("Tarayıcıda açılan anonim bir form"),
     "settings_language": MessageLookupByLibrary.simpleMessage("Dil"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("Lisanslar"),
     "settings_off": MessageLookupByLibrary.simpleMessage("Kapalı"),

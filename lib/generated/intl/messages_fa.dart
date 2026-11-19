@@ -500,6 +500,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
     ),
+    "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
+      "«بازخورد» در تنظیمات، فرمی بی‌نام از Google را در مرورگر شما باز می‌کند و برنامه چیزی به آن نمی‌فرستد.",
+    ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
@@ -642,6 +645,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_customize": MessageLookupByLibrary.simpleMessage("شخصی‌سازی"),
     "settings_data": MessageLookupByLibrary.simpleMessage("پیشرفت شما"),
     "settings_dev_console": MessageLookupByLibrary.simpleMessage("کنسول توسعه‌دهنده"),
+    "settings_feedback_form": MessageLookupByLibrary.simpleMessage("بازخورد"),
+    "settings_feedback_form_hint": MessageLookupByLibrary.simpleMessage("فرمی بی‌نام که در مرورگر باز می‌شود"),
     "settings_language": MessageLookupByLibrary.simpleMessage("زبان"),
     "settings_licences": MessageLookupByLibrary.simpleMessage("مجوزها"),
     "settings_off": MessageLookupByLibrary.simpleMessage("خاموش"),

@@ -14,6 +14,7 @@ A change to what Sentry sends is a change here, in the iOS privacy manifest (`io
 - Sentry stores no IP address (project `lokumai/ai-bazaar-mobile`, EU region, server-side scrubbing on).
 - Not sent: what the reader reads or answers, route names, screenshots, view hierarchy, Session Replay, an account, an advertising id.
 - The course download from the site on GitHub Pages, which logs IP addresses as GitHub's own record.
+- **Feedback** in Settings (in every build, with or without the DSN) opens the web's anonymous Google Form (`https://forms.gle/U4oXwczTx3nmv3kGA`, the site's `FEEDBACK_URL`) in the browser, by the reader's own choice. The app sends nothing to it, embeds nothing and reads nothing back; the form is Google's and what a reader writes there goes to Google, not through the app. The app does not collect it, so neither store's form declares anything for it.
 
 ## App Store Connect: App Privacy
 
