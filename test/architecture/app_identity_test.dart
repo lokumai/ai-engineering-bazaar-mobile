@@ -32,11 +32,13 @@ void main() {
         for (final name in [
           'AppIconSwitch',
           'LaunchGround',
+          'Links',
           'MainActivity',
           'MainApplication',
           'NativeScrubPatterns',
           'NativeSentry',
           'NativeSentryScrubber',
+          'ShareSheet',
           'Speech',
         ])
           '$kotlinMain/$name.kt',

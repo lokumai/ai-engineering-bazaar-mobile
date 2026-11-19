@@ -26,6 +26,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mocktail/mocktail.dart';
@@ -131,6 +132,12 @@ class FixtureAppDependencies extends AppDependencies {
 
   @override
   ISpeech createSpeech() => const NoSpeech();
+
+  @override
+  ILinkSource createLinkSource() => const NoLinkSource();
+
+  @override
+  IShareSheet createShareSheet() => const NoShareSheet();
 
   @override
   IListenPlaceStore createListenPlaceStore() => MemoryListenPlaceStore();

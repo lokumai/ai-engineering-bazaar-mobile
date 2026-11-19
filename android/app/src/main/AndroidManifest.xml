@@ -36,6 +36,33 @@
               android:name="flutter_deeplinking_enabled"
               android:value="false"
               />
+            <!-- The site's pages the app opens itself (plan 17.2): modules, levels and catalogs of both tracks, in every
+                 language, and the progress transfer. The same list is in the site's apple-app-site-association; the
+                 site's assetlinks.json names this app, which Android checks (autoVerify) before it opens them here.
+                 The links reach lib/infrastructure/links/link_channel.dart through Links.kt, never the router. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="ai-bazaar.lokum.dev"/>
+                <data android:pathPrefix="/courses/"/>
+                <data android:pathPrefix="/everyone/courses/"/>
+                <data android:pathPrefix="/tr/courses/"/>
+                <data android:pathPrefix="/fa/courses/"/>
+                <data android:pathPrefix="/tr/everyone/courses/"/>
+                <data android:pathPrefix="/fa/everyone/courses/"/>
+                <data android:pathPrefix="/sheets/"/>
+                <data android:pathPrefix="/everyone/sheets/"/>
+                <data android:pathPrefix="/transfer/"/>
+            </intent-filter>
+            <!-- The app's own scheme, which the site's transfer page offers as "Open in the Bazaar app" (plan 17.1). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="aibazaar" android:host="transfer"/>
+            </intent-filter>
         </activity>
         <!-- The launcher entries, one for each app icon the reader can choose in Settings (lib/shared/app_icon/).
              Exactly one is enabled: the fez on the cream ground, the default, until the reader chooses another, and

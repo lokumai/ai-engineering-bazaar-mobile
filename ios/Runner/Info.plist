@@ -28,6 +28,17 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>dev.lokumai.bazaar.transfer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>aibazaar</string>
+			</array>
+		</dict>
+	</array>
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>

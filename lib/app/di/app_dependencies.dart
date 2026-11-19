@@ -50,6 +50,11 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/speech/phone_speech.dart';
+import 'package:ai_engineering_bazaar/infrastructure/links/link_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/share/share_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 
 /// Builds the infrastructure the app runs on; a test subclass overrides the factories with doubles.
 class AppDependencies {
@@ -115,6 +120,15 @@ class AppDependencies {
 
   /// The phone's own voice, which reads a module aloud (plan 15.1).
   ISpeech createSpeech() => PhoneSpeechPort(PhoneSpeech());
+
+  /// The site's links the phone hands the app (plan 17.2), over the native channel.
+  ILinkSource createLinkSource() => ChannelLinkSource(LinkChannel());
+
+  /// The phone's share sheet (plan 17.3), over the native channel.
+  IShareSheet createShareSheet() => const ChannelShareSheet(ShareChannel());
+
+  /// Packs and unpacks a progress transfer's payload (plan 17.1).
+  ITransferPacker createTransferPacker() => const DeflateTransferPacker();
 
   /// Where each module read aloud was left and which parts were heard, as one file under
   /// [supportDirectory]`/listen/places.json`, apart from the record (the owner, 2026-11-18).
@@ -502,6 +516,29 @@ final class PhoneSpeechPort implements ISpeech {
 
   @override
   Future<void> stop() => _speech.stop();
+}
+
+/// The site's links over the native channel.
+final class ChannelLinkSource implements ILinkSource {
+  const ChannelLinkSource(this._channel);
+
+  final LinkChannel _channel;
+
+  @override
+  Future<List<Uri>> takeWaiting() => _channel.takeWaiting();
+
+  @override
+  Stream<Uri> get links => _channel.links;
+}
+
+/// The phone's share sheet over the native channel.
+final class ChannelShareSheet implements IShareSheet {
+  const ChannelShareSheet(this._channel);
+
+  final ShareChannel _channel;
+
+  @override
+  Future<bool> share(String text) => _channel.share(text);
 }
 
 /// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.

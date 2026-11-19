@@ -43,6 +43,9 @@ import UIKit
   /// The phone's voice, which reads a module aloud (plan 15.1).
   private var speech: Speech?
 
+  /// The links the phone hands the app (plan 17.2).
+  private var links: Links?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -84,6 +87,114 @@ import UIKit
       }
     // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
     speech = Speech(messenger: registrar.messenger())
+    // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the scene hands them over, the one
+    // the app was opened with included.
+    let links = Links(messenger: registrar.messenger())
+    registrar.addSceneDelegate(links)
+    self.links = links
+    // lib/infrastructure/share/share_channel.dart shares a module's address and a progress link.
+    FlutterMethodChannel(name: "dev.lokumai.bazaar/share", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { call, result in
+        guard call.method == "share" else { return result(FlutterMethodNotImplemented) }
+        guard let text = call.arguments as? String, !text.isEmpty, let presenter = ShareSheet.presenter() else {
+          return result(FlutterError(code: "no-sheet", message: nil, details: nil))
+        }
+        ShareSheet.show(text, from: presenter)
+        result(nil)
+      }
+  }
+}
+
+/// The links the phone hands the app (plan 17.2), on the channel lib/infrastructure/links/link_channel.dart listens to:
+/// the site's pages its apple-app-site-association names (universal links, once the Associated Domains entitlement is
+/// on: Runner.entitlements) and the app's own scheme `aibazaar://transfer` (Info.plist), which the site's transfer page
+/// offers. Flutter's own deep linking stays off (Info.plist), so no link reaches the router.
+///
+/// A link that comes before the Dart side asks waits; `ready` gives the ones waiting and from then on each comes as
+/// `link`.
+final class Links: NSObject, FlutterSceneLifeCycleDelegate {
+  private let channel: FlutterMethodChannel
+  private var waiting: [String] = []
+  private var ready = false
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "dev.lokumai.bazaar/links", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self, call.method == "ready" else { return result(FlutterMethodNotImplemented) }
+      self.ready = true
+      result(self.waiting)
+      self.waiting.removeAll()
+    }
+  }
+
+  private func receive(_ url: URL?) {
+    guard let link = url?.absoluteString else { return }
+    if ready {
+      channel.invokeMethod("link", arguments: link)
+    } else {
+      waiting.append(link)
+    }
+  }
+
+  private func receive(_ activity: NSUserActivity) -> Bool {
+    guard activity.activityType == NSUserActivityTypeBrowsingWeb, let url = activity.webpageURL else { return false }
+    receive(url)
+    return true
+  }
+
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions?
+  ) -> Bool {
+    guard let options = connectionOptions else { return false }
+    var handled = false
+    for context in options.urlContexts {
+      receive(context.url)
+      handled = true
+    }
+    for activity in options.userActivities where receive(activity) {
+      handled = true
+    }
+    return handled
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    for context in URLContexts {
+      receive(context.url)
+    }
+    return !URLContexts.isEmpty
+  }
+
+  func scene(_ scene: UIScene, continue userActivity: NSUserActivity) -> Bool {
+    receive(userActivity)
+  }
+}
+
+/// The phone's share sheet (plan 17.3): the text is offered to the phone's apps; nothing is sent until the reader picks
+/// one.
+enum ShareSheet {
+  /// The screen on top, which presents the sheet.
+  static func presenter() -> UIViewController? {
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+      .first { $0.isKeyWindow }
+    var top = window?.rootViewController
+    while let shown = top?.presentedViewController {
+      top = shown
+    }
+    return top
+  }
+
+  static func show(_ text: String, from presenter: UIViewController) {
+    let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+    // On an iPad the sheet is a popover, which needs a place: the middle of the screen, with no arrow.
+    if let popover = sheet.popoverPresentationController {
+      popover.sourceView = presenter.view
+      popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+      popover.permittedArrowDirections = []
+    }
+    presenter.present(sheet, animated: true)
   }
 }
 
