@@ -64,7 +64,8 @@ class AppRouterFactory {
       // reaches the engine as the platform's default route even with deep linking off, and go_router 18.1.1 would
       // prefer it to initialLocation (`router.dart:621-639`).
       overridePlatformDefaultLocation: true,
-      debugLogDiagnostics: true,
+      // The router's own log names every location, a module's key among them: debug builds only (plan 19.4).
+      debugLogDiagnostics: kDebugMode,
       errorPageBuilder: (context, state) {
         // The page tells the user in the app language; the router's own error, in English, goes to the log.
         _log.warn('No page for location {}: {}', [state.uri, state.error]);

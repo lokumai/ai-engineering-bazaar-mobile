@@ -14,7 +14,7 @@ void main() {
       log.info("info");
       log.warn("warn");
       log.error("error");
-      expect(log.toString(), "AppLogger(Logger, info, simple)");
+      expect(log.toString(), "AppLogger(Logger, warning, simple)");
     });
 
     test("Logger test with name", () {
@@ -26,7 +26,7 @@ void main() {
       log.info("info");
       log.warn("warn");
       log.error("error");
-      expect(log.toString(), "AppLogger(logger_test.dart, info, simple)");
+      expect(log.toString(), "AppLogger(logger_test.dart, warning, simple)");
     });
 
     test("Logger Test with parameters", () {
@@ -38,7 +38,7 @@ void main() {
       log.info("info");
       log.warn("warn");
       log.error("error");
-      expect(log.toString(), "AppLogger(logger_test.dart, info, simple)");
+      expect(log.toString(), "AppLogger(logger_test.dart, warning, simple)");
     });
 
     test("Logger Test with parameters dev env", () {
