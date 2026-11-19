@@ -24,9 +24,9 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_sample_notice": "Content is coming soon. Until then these trends are sample data.",
+  "caravan_sample_notice": "These trends are real. The articles and resources for each are coming soon.",
   "@caravan_sample_notice": {
-    "description": "The notice over the Caravan while it draws the web's sample trends, as the web's notice says (web CaravanPage.tsx)."
+    "description": "The notice over the Caravan: the trends are the author's and real; their readings have no address yet (the owner, 2026-11-19)."
   },
   "caravan_stage_label": "The caravan at {title}",
   "@caravan_stage_label": {
@@ -101,16 +101,18 @@
   },
   "caravan_reading": "To read",
   "@caravan_reading": {},
-  "caravan_sample_articles": "Sample article",
+  "caravan_sample_articles": "Article",
   "@caravan_sample_articles": {},
-  "caravan_sample_videos": "Sample video",
+  "caravan_sample_videos": "Video",
   "@caravan_sample_videos": {},
-  "caravan_sample_tools": "Sample tool",
+  "caravan_sample_tools": "Tool",
   "@caravan_sample_tools": {},
-  "caravan_sample_repositories": "Sample repository",
+  "caravan_sample_repositories": "Repository",
   "@caravan_sample_repositories": {},
-  "caravan_sample_badge": "Sample",
-  "@caravan_sample_badge": {},
+  "caravan_sample_badge": "Resources soon",
+  "@caravan_sample_badge": {
+    "description": "The mark on a trend's card while its readings have no address yet."
+  },
   "caravan_all_trends": "All trends",
   "@caravan_all_trends": {},
   "caravan_search": "Search the trends",

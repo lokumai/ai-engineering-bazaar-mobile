@@ -108,12 +108,12 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Content is coming soon. Until then these trends are sample data.`
+  /// `These trends are real. The articles and resources for each are coming soon.`
   String get caravan_sample_notice {
     return Intl.message(
-      'Content is coming soon. Until then these trends are sample data.',
+      'These trends are real. The articles and resources for each are coming soon.',
       name: 'caravan_sample_notice',
-      desc: 'The notice over the Caravan while it draws the web\'s sample trends, as the web\'s notice says (web CaravanPage.tsx).',
+      desc: 'The notice over the Caravan: the trends are the author\'s and real; their readings have no address yet (the owner, 2026-11-19).',
       args: [],
     );
   }
@@ -223,29 +223,34 @@ class S {
     return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
   }
 
-  /// `Sample article`
+  /// `Article`
   String get caravan_sample_articles {
-    return Intl.message('Sample article', name: 'caravan_sample_articles', desc: '', args: []);
+    return Intl.message('Article', name: 'caravan_sample_articles', desc: '', args: []);
   }
 
-  /// `Sample video`
+  /// `Video`
   String get caravan_sample_videos {
-    return Intl.message('Sample video', name: 'caravan_sample_videos', desc: '', args: []);
+    return Intl.message('Video', name: 'caravan_sample_videos', desc: '', args: []);
   }
 
-  /// `Sample tool`
+  /// `Tool`
   String get caravan_sample_tools {
-    return Intl.message('Sample tool', name: 'caravan_sample_tools', desc: '', args: []);
+    return Intl.message('Tool', name: 'caravan_sample_tools', desc: '', args: []);
   }
 
-  /// `Sample repository`
+  /// `Repository`
   String get caravan_sample_repositories {
-    return Intl.message('Sample repository', name: 'caravan_sample_repositories', desc: '', args: []);
+    return Intl.message('Repository', name: 'caravan_sample_repositories', desc: '', args: []);
   }
 
-  /// `Sample`
+  /// `Resources soon`
   String get caravan_sample_badge {
-    return Intl.message('Sample', name: 'caravan_sample_badge', desc: '', args: []);
+    return Intl.message(
+      'Resources soon',
+      name: 'caravan_sample_badge',
+      desc: 'The mark on a trend\'s card while its readings have no address yet.',
+      args: [],
+    );
   }
 
   /// `All trends`
