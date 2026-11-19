@@ -400,6 +400,7 @@
   "tour_quiz_level": "آزمون‌های هر سطح. هر چند بار خواستید بدهید.",
   "tour_settings_reading": "مسیر، زبان، ظاهر و اندازهٔ متن.",
   "tour_settings_customize": "کمد لباس من: لباسم را عوض کنید یا نماد برنامه را.",
+  "tour_settings_website": "پیشرفتتان را از اینجا بین برنامه و وب‌سایت جابه‌جا کنید.",
   "tour_settings_guide": "این گشت در «بازار چطور کار می‌کند» است.",
   "guide_replay_tour": "دوباره گشت بزنیم",
   "tour_step": "{step} / {count}",

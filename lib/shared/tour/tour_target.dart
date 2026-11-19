@@ -39,6 +39,9 @@ abstract final class TourSpots {
   /// Settings' Customize: the Apprentice's button, the app icon and its wardrobe.
   static const settingsCustomize = 'settings.customize';
 
+  /// Settings' line on the website: how progress moves between the app and the site (plan 17.1).
+  static const settingsWebsite = 'settings.website';
+
   /// Settings' way to the guide, where the tour is taken again.
   static const settingsGuide = 'settings.guide';
 

@@ -716,6 +716,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Track, language, look and text size."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "Move your progress between the app and the website here.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
     "tour_step": m67,

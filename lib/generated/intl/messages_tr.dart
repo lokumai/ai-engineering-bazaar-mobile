@@ -716,6 +716,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "Uygulama ile web sitesi arasında ilerlemeni buradan taşırsın.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
     "tour_step": m67,

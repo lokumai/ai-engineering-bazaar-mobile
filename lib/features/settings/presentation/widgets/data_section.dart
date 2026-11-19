@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
+import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -65,8 +66,8 @@ class _DataWithBloc extends StatelessWidget {
               onBackUp: () => context.read<DataBloc>().add(const BackupRequested()),
             ),
           DataLine(),
-          // How progress moves between this phone and the website (plan 17.1).
-          const WebsiteLine(),
+          // How progress moves between this phone and the website (plan 17.1); the tour stops at it.
+          const TourTarget(spot: TourSpots.settingsWebsite, child: WebsiteLine()),
         ],
       ),
     );

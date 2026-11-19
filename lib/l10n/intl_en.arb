@@ -1405,6 +1405,8 @@
   "@tour_settings_reading": {},
   "tour_settings_customize": "My wardrobe: dress me up, or change the app icon.",
   "@tour_settings_customize": {},
+  "tour_settings_website": "Move your progress between the app and the website here.",
+  "@tour_settings_website": {},
   "tour_settings_guide": "This tour waits in How the bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",

@@ -8,7 +8,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 ### Added
 
 - Feedback in Settings: the web's anonymous Google Form, opened in the browser, in every build. The app sends nothing to it, and Privacy and legal says so.
-- Progress moves between the website and the phone by a link that carries it, with no server: the website's Progress page shows it as a code the phone's camera opens in the app, and Send to the website in Settings shares it to open on the computer. Adding it keeps everything already there.
+- Progress moves between the website and the phone by a link that carries it, with no server: the website's Progress page shows it as a code the phone's camera opens in the app, and Send to the website in Settings shares it to open on the computer. Adding it keeps everything already there. The tour shows the way in Settings.
 - The site's module, level and catalog pages open in the app, and a module shares its page on the site from the icon under its title.
 - Today's card at Home's head: each day a section of a module, its heading and first sentences, presented by the Apprentice from its corner, where its level, Chat and its button sit; a tap opens the module at that section.
 - A tour for a first run: once Welcome is over the Apprentice comes out of its button and asks whether to show the reader around, then walks to each part of Home and of each tab the first time it is opened, its wardrobe in Settings included, saying in a speech bubble what it is, and walks back into its button at the end. Skip ends the tour. How the bazaar works takes it again, its button always in sight.

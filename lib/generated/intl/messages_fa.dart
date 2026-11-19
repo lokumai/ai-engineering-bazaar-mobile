@@ -722,6 +722,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("این گشت در «بازار چطور کار می‌کند» است."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("مسیر، زبان، ظاهر و اندازهٔ متن."),
+    "tour_settings_website": MessageLookupByLibrary.simpleMessage(
+      "پیشرفتتان را از اینجا بین برنامه و وب‌سایت جابه‌جا کنید.",
+    ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("نشانم بده"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("رد کردن گشت"),
     "tour_step": m67,

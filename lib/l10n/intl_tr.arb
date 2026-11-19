@@ -400,6 +400,7 @@
   "tour_quiz_level": "Her seviyenin quizleri. İstediğin kadar çöz.",
   "tour_settings_reading": "Yol, dil, görünüm ve yazı boyutu.",
   "tour_settings_customize": "Gardırobum: beni giydir ya da uygulamanın simgesini değiştir.",
+  "tour_settings_website": "Uygulama ile web sitesi arasında ilerlemeni buradan taşırsın.",
   "tour_settings_guide": "Bu tur \"Bazaar nasıl işler\" sayfasında.",
   "guide_replay_tour": "Turu baştan izle",
   "tour_step": "{step} / {count}",

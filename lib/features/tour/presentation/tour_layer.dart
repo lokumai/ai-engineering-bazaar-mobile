@@ -422,6 +422,7 @@ class _TourLayerState extends State<TourLayer> {
     TourSpots.quizLevel => s.tour_quiz_level,
     TourSpots.settingsReading => s.tour_settings_reading,
     TourSpots.settingsCustomize => s.tour_settings_customize,
+    TourSpots.settingsWebsite => s.tour_settings_website,
     TourSpots.settingsGuide => s.tour_settings_guide,
     _ => '',
   };

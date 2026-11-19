@@ -2828,6 +2828,16 @@ class S {
     );
   }
 
+  /// `Move your progress between the app and the website here.`
+  String get tour_settings_website {
+    return Intl.message(
+      'Move your progress between the app and the website here.',
+      name: 'tour_settings_website',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `This tour waits in How the bazaar works.`
   String get tour_settings_guide {
     return Intl.message('This tour waits in How the bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
