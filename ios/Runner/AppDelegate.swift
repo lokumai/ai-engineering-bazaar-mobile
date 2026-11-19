@@ -46,6 +46,9 @@ import UIKit
   /// The links the phone hands the app (plan 17.2).
   private var links: Links?
 
+  /// The phone's QR code scanner (plan 17.5).
+  private var codeScanner: CodeScanner?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -102,6 +105,8 @@ import UIKit
         ShareSheet.show(text, from: presenter)
         result(nil)
       }
+    // lib/infrastructure/scanner/code_scanner_channel.dart reads the website's code in the app.
+    codeScanner = CodeScanner(messenger: registrar.messenger())
   }
 }
 
@@ -195,6 +200,144 @@ enum ShareSheet {
       popover.permittedArrowDirections = []
     }
     presenter.present(sheet, animated: true)
+  }
+}
+
+/// The phone's QR code scanner (plan 17.5), on the channel lib/infrastructure/scanner/code_scanner_channel.dart calls:
+/// `available`, and `scan` with the screen's title, which answers the code's text, or nil when the reader went back
+/// (Cancel). The camera screen is the app's own (AVFoundation, QR codes only); iOS asks the reader once for the camera
+/// (Info.plist NSCameraUsageDescription), and a camera not allowed answers `denied`. No picture is kept; nothing leaves
+/// the phone.
+final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
+  private let channel: FlutterMethodChannel
+  private var pending: FlutterResult?
+  private var session: AVCaptureSession?
+  private weak var screen: UIViewController?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "dev.lokumai.bazaar/scanner", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self else { return result(FlutterMethodNotImplemented) }
+      switch call.method {
+      case "available":
+        result(AVCaptureDevice.default(for: .video) != nil)
+      case "scan":
+        self.start(title: call.arguments as? String ?? "", result: result)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func start(title: String, result: @escaping FlutterResult) {
+    guard pending == nil else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
+    switch AVCaptureDevice.authorizationStatus(for: .video) {
+    case .authorized:
+      open(title: title, result: result)
+    case .notDetermined:
+      AVCaptureDevice.requestAccess(for: .video) { granted in
+        DispatchQueue.main.async {
+          if granted {
+            self.open(title: title, result: result)
+          } else {
+            result(FlutterError(code: "denied", message: nil, details: nil))
+          }
+        }
+      }
+    default:
+      result(FlutterError(code: "denied", message: nil, details: nil))
+    }
+  }
+
+  private func open(title: String, result: @escaping FlutterResult) {
+    let session = AVCaptureSession()
+    let output = AVCaptureMetadataOutput()
+    guard let device = AVCaptureDevice.default(for: .video),
+      let input = try? AVCaptureDeviceInput(device: device),
+      session.canAddInput(input), session.canAddOutput(output),
+      let presenter = ShareSheet.presenter()
+    else {
+      return result(FlutterError(code: "no-camera", message: nil, details: nil))
+    }
+    session.addInput(input)
+    session.addOutput(output)
+    output.setMetadataObjectsDelegate(self, queue: .main)
+    output.metadataObjectTypes = [.qr]
+    let navigation = UINavigationController(
+      rootViewController: ScannerScreen(session: session, title: title) { [weak self] in self?.finish(nil) })
+    navigation.modalPresentationStyle = .fullScreen
+    navigation.overrideUserInterfaceStyle = .dark
+    pending = result
+    self.session = session
+    screen = navigation
+    presenter.present(navigation, animated: true)
+    DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
+  }
+
+  func metadataOutput(
+    _ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection
+  ) {
+    let code = metadataObjects.compactMap { ($0 as? AVMetadataMachineReadableCodeObject)?.stringValue }.first
+    guard let code else { return }
+    finish(code)
+  }
+
+  private func finish(_ text: String?) {
+    guard let result = pending else { return }
+    pending = nil
+    let session = self.session
+    self.session = nil
+    DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
+    screen?.dismiss(animated: true)
+    screen = nil
+    result(text)
+  }
+}
+
+/// The camera screen of [CodeScanner]: the camera's picture across the screen, a square to aim with, the title and
+/// Cancel above.
+final class ScannerScreen: UIViewController {
+  private let session: AVCaptureSession
+  private let onCancel: () -> Void
+  private var preview: AVCaptureVideoPreviewLayer?
+  private let aim = CAShapeLayer()
+
+  init(session: AVCaptureSession, title: String, onCancel: @escaping () -> Void) {
+    self.session = session
+    self.onCancel = onCancel
+    super.init(nibName: nil, bundle: nil)
+    navigationItem.title = title
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    view.backgroundColor = .black
+    let preview = AVCaptureVideoPreviewLayer(session: session)
+    preview.videoGravity = .resizeAspectFill
+    view.layer.addSublayer(preview)
+    self.preview = preview
+    aim.strokeColor = UIColor.white.cgColor
+    aim.fillColor = UIColor.clear.cgColor
+    aim.lineWidth = 3
+    view.layer.addSublayer(aim)
+  }
+
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    preview?.frame = view.bounds
+    let side = min(view.bounds.width, view.bounds.height) * 0.65
+    let square = CGRect(x: view.bounds.midX - side / 2, y: view.bounds.midY - side / 2, width: side, height: side)
+    aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
+  }
+
+  @objc private func cancel() {
+    onCancel()
   }
 }
 

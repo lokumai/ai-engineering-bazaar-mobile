@@ -140,6 +140,9 @@ class FixtureAppDependencies extends AppDependencies {
   IShareSheet createShareSheet() => const NoShareSheet();
 
   @override
+  ICodeScanner createCodeScanner() => const NoCodeScanner();
+
+  @override
   IListenPlaceStore createListenPlaceStore() => MemoryListenPlaceStore();
 
   @override

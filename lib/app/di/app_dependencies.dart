@@ -52,6 +52,7 @@ import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/speech/phone_speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/links/link_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/share/share_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/scanner/code_scanner_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
@@ -126,6 +127,9 @@ class AppDependencies {
 
   /// The phone's share sheet (plan 17.3), over the native channel.
   IShareSheet createShareSheet() => const ChannelShareSheet(ShareChannel());
+
+  /// The phone's QR code scanner (plan 17.5), over the native channel.
+  ICodeScanner createCodeScanner() => const ChannelCodeScanner(CodeScannerChannel());
 
   /// Packs and unpacks a progress transfer's payload (plan 17.1).
   ITransferPacker createTransferPacker() => const DeflateTransferPacker();
@@ -539,6 +543,24 @@ final class ChannelShareSheet implements IShareSheet {
 
   @override
   Future<bool> share(String text) => _channel.share(text);
+}
+
+/// The phone's QR code scanner over the native channel.
+final class ChannelCodeScanner implements ICodeScanner {
+  const ChannelCodeScanner(this._channel);
+
+  final CodeScannerChannel _channel;
+
+  @override
+  Future<bool> available() => _channel.available();
+
+  @override
+  Future<ScanOutcome> scan(String title) async => switch (await _channel.scan(title)) {
+    (text: final String text, error: _) => ScanRead(text),
+    (text: null, error: null) => const ScanCancelled(),
+    (text: null, error: 'denied') => const ScanDenied(),
+    (text: null, error: _) => const ScanFailed(),
+  };
 }
 
 /// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.

@@ -79,6 +79,9 @@ tasks.withType<Test>().configureEach {
 }
 
 dependencies {
+    // Settings' Scan the code (plan 17.5): Google's code scanner, whose camera screen Google Play services shows, so the
+    // app asks for no camera permission.
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     testImplementation("junit:junit:4.13.2")
     // Reads test/fixtures/native_scrub_cases.json, which the Dart scrubber test runs too.
     testImplementation("com.google.code.gson:gson:2.13.2")

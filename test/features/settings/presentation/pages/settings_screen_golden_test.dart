@@ -52,6 +52,7 @@ Widget _screen({required bool dark}) {
       RepositoryProvider<IBackupGateway>.value(value: MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: MockRecordRepository()),
       RepositoryProvider<IShareSheet>.value(value: const NoShareSheet()),
+      RepositoryProvider<ICodeScanner>.value(value: const NoCodeScanner()),
       RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
       RepositoryProvider<ITransferPacker>.value(value: const DeflateTransferPacker()),
     ],

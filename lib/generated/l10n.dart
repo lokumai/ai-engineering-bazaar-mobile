@@ -2828,10 +2828,10 @@ class S {
     );
   }
 
-  /// `Move your progress between the app and the website here.`
+  /// `Bring your progress from the website here, or send it there.`
   String get tour_settings_website {
     return Intl.message(
-      'Move your progress between the app and the website here.',
+      'Bring your progress from the website here, or send it there.',
       name: 'tour_settings_website',
       desc: '',
       args: [],
@@ -3190,24 +3190,84 @@ class S {
     return Intl.message('This link carries no progress.', name: 'transfer_empty', desc: '', args: []);
   }
 
-  /// `The website`
-  String get data_website_title {
-    return Intl.message('The website', name: 'data_website_title', desc: '', args: []);
+  /// `Send to the website`
+  String get data_send_to_website {
+    return Intl.message('Send to the website', name: 'data_send_to_website', desc: '', args: []);
   }
 
-  /// `Send your progress to the website as a link and open it on the computer. To bring the website's progress here, choose Move to the app on its Progress page and scan the code with this phone's camera.`
-  String get data_website_text {
+  /// `The website`
+  String get settings_website {
+    return Intl.message('The website', name: 'settings_website', desc: '', args: []);
+  }
+
+  /// `From the website to this phone`
+  String get website_from_title {
+    return Intl.message('From the website to this phone', name: 'website_from_title', desc: '', args: []);
+  }
+
+  /// `On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.`
+  String get website_from_text {
     return Intl.message(
-      'Send your progress to the website as a link and open it on the computer. To bring the website\'s progress here, choose Move to the app on its Progress page and scan the code with this phone\'s camera.',
-      name: 'data_website_text',
+      'On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.',
+      name: 'website_from_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Send to the website`
-  String get data_send_to_website {
-    return Intl.message('Send to the website', name: 'data_send_to_website', desc: '', args: []);
+  /// `Scan the code`
+  String get website_scan {
+    return Intl.message('Scan the code', name: 'website_scan', desc: '', args: []);
+  }
+
+  /// `Scan the website's code`
+  String get website_scan_title {
+    return Intl.message('Scan the website\'s code', name: 'website_scan_title', desc: '', args: []);
+  }
+
+  /// `That code is not a progress link from the website.`
+  String get website_scan_not_a_link {
+    return Intl.message(
+      'That code is not a progress link from the website.',
+      name: 'website_scan_not_a_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.`
+  String get website_scan_denied {
+    return Intl.message(
+      'The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.',
+      name: 'website_scan_denied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The camera did not open. Scan the code with the Camera app instead.`
+  String get website_scan_failed {
+    return Intl.message(
+      'The camera did not open. Scan the code with the Camera app instead.',
+      name: 'website_scan_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `From this phone to the website`
+  String get website_to_title {
+    return Intl.message('From this phone to the website', name: 'website_to_title', desc: '', args: []);
+  }
+
+  /// `Send your progress as a link, then open the link on the computer.`
+  String get website_to_text {
+    return Intl.message(
+      'Send your progress as a link, then open the link on the computer.',
+      name: 'website_to_text',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Nothing to send yet: no module is completed or ticked.`

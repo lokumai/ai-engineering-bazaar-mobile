@@ -94,6 +94,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<ISpeech>(create: (_) => dependencies.createSpeech()),
         RepositoryProvider<ILinkSource>(create: (_) => dependencies.createLinkSource()),
         RepositoryProvider<IShareSheet>(create: (_) => dependencies.createShareSheet()),
+        RepositoryProvider<ICodeScanner>(create: (_) => dependencies.createCodeScanner()),
         RepositoryProvider<ITransferPacker>(create: (_) => dependencies.createTransferPacker()),
         RepositoryProvider<IQuizScoreStore>(create: (_) => dependencies.createQuizScoreStore()),
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),

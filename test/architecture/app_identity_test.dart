@@ -31,6 +31,7 @@ void main() {
       expect(sources.map((file) => file.path).toSet(), {
         for (final name in [
           'AppIconSwitch',
+          'CodeScanner',
           'LaunchGround',
           'Links',
           'MainActivity',

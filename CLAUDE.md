@@ -98,6 +98,8 @@ lib/
     links/link_channel.dart                     the site's links the phone hands the app (Links.kt, AppDelegate.swift's
                                                 scene delegate); Flutter's deep linking stays off
     share/share_channel.dart                    the phone's share sheet (ShareSheet.kt, AppDelegate.swift)
+    scanner/code_scanner_channel.dart           the website's QR code read in the app (CodeScanner.kt: Google's code
+                                                scanner; AppDelegate.swift: the app's camera screen)
     transfer/deflate_transfer_packer.dart       a progress link's payload: raw DEFLATE in base64url
     speech/phone_speech.dart                    the phone's own voice, which reads a module aloud: the app's own channel
                                                 (Speech.kt, AppDelegate.swift)
@@ -140,8 +142,8 @@ lib/
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
-    site_links/                                 SiteLink (the site's pages and transfers the app opens), ILinkSource and
-                                                IShareSheet
+    site_links/                                 SiteLink (the site's pages and transfers the app opens), ILinkSource,
+                                                IShareSheet and ICodeScanner
     navigation/bazaar_paths.dart                route paths and the track switch mapping
     navigation/web_links.dart                   contentBaseUrl for shared widgets and features
     navigation/reader_target.dart               a module page's heading and words searched, passed as the route's extra
@@ -171,7 +173,8 @@ lib/
                                                 `/practice` (the endless review, Wrong answers, Recap, the
                                                 Glossary, the quizzes by level) and its sessions (ReviewSessionCubit,
                                                 options shuffled in Practice only)
-    settings/                                   track, language, the reading settings page, the app icon page, the data (DataBloc, data line, quarantine notice, dialogs),
+    settings/                                   track, language, the reading settings page, the app icon page, the website (scan the
+                                                site's code, send progress to it), the data (DataBloc, data line, quarantine notice, dialogs),
                                                 content status, Check for updates, licences, debug dev-console button
     welcome/                                    the opening (WelcomeSting, the robot the app passes in), WelcomeBloc, its store port and the
                                                 first-launch steps (language and track, then the story the app passes in)

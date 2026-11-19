@@ -21,6 +21,9 @@ class MainActivity : FlutterActivity() {
     /** The phone's share sheet (plan 17.3). */
     private var shareSheet: ShareSheet? = null
 
+    /** The phone's QR code scanner (plan 17.5). */
+    private var codeScanner: CodeScanner? = null
+
     /** Whether this activity is made again from a saved state, whose intent's link was handed over already. */
     private var restored = false
 
@@ -64,6 +67,8 @@ class MainActivity : FlutterActivity() {
         links = Links(flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
         // lib/infrastructure/share/share_channel.dart shares a module's address and a progress link.
         shareSheet = ShareSheet(this, flutterEngine.dartExecutor.binaryMessenger)
+        // lib/infrastructure/scanner/code_scanner_channel.dart reads the website's code in the app.
+        codeScanner = CodeScanner(this, flutterEngine.dartExecutor.binaryMessenger)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -79,6 +84,8 @@ class MainActivity : FlutterActivity() {
         links = null
         shareSheet?.close()
         shareSheet = null
+        codeScanner?.close()
+        codeScanner = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

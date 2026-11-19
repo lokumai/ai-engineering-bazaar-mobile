@@ -28,6 +28,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera reads the code the website shows, to bring your progress into the app. No picture is kept.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

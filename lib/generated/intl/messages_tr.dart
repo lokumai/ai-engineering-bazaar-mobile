@@ -309,10 +309,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Geri al"),
-    "data_website_text": MessageLookupByLibrary.simpleMessage(
-      "İlerlemeni web sitesine bir bağlantı olarak gönder ve bilgisayarda aç. Sitedeki ilerlemeyi buraya getirmek için sitenin Progress sayfasında Move to the app\'i seç ve kodu bu telefonun kamerasıyla okut.",
-    ),
-    "data_website_title": MessageLookupByLibrary.simpleMessage("Web sitesi"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Diyagramı tam ekran aç"),
     "duration_hours": m24,
     "duration_hours_minutes": m25,
@@ -694,6 +690,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("Web sitesi"),
     "tour_band": MessageLookupByLibrary.simpleMessage("Okuyacağın modül hep burada."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),
@@ -717,7 +714,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
-      "Uygulama ile web sitesi arasında ilerlemeni buradan taşırsın.",
+      "Web sitesindeki ilerlemeni buraya getir ya da buradakini oraya gönder.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
@@ -745,6 +742,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_item_worn": m70,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
     "wardrobe_preview": m71,
+    "website_from_text": MessageLookupByLibrary.simpleMessage(
+      "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu telefonla okut.",
+    ),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("Web sitesinden bu telefona"),
+    "website_scan": MessageLookupByLibrary.simpleMessage("Kodu okut"),
+    "website_scan_denied": MessageLookupByLibrary.simpleMessage(
+      "Uygulamanın kamera izni yok. Telefonun Ayarlar\'ından izin ver ya da kodu Kamera uygulamasıyla okut.",
+    ),
+    "website_scan_failed": MessageLookupByLibrary.simpleMessage("Kamera açılmadı. Kodu Kamera uygulamasıyla okut."),
+    "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
+      "Bu kod web sitesinden gelen bir ilerleme bağlantısı değil.",
+    ),
+    "website_scan_title": MessageLookupByLibrary.simpleMessage("Web sitesindeki kodu okut"),
+    "website_to_text": MessageLookupByLibrary.simpleMessage(
+      "İlerlemeni bir bağlantı olarak gönder, sonra bağlantıyı bilgisayarda aç.",
+    ),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("Bu telefondan web sitesine"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

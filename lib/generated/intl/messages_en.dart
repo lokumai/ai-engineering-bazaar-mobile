@@ -307,10 +307,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
-    "data_website_text": MessageLookupByLibrary.simpleMessage(
-      "Send your progress to the website as a link and open it on the computer. To bring the website\'s progress here, choose Move to the app on its Progress page and scan the code with this phone\'s camera.",
-    ),
-    "data_website_title": MessageLookupByLibrary.simpleMessage("The website"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
     "duration_hours": m24,
     "duration_hours_minutes": m25,
@@ -694,6 +690,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("The website"),
     "tour_band": MessageLookupByLibrary.simpleMessage("The module to read now is always here."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("The Caravan travels through the trends of AI."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide here, or tap a stop, to move along."),
@@ -717,7 +714,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Track, language, look and text size."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
-      "Move your progress between the app and the website here.",
+      "Bring your progress from the website here, or send it there.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
@@ -747,6 +744,25 @@ class MessageLookup extends MessageLookupByLibrary {
       "Each level of the apprentice unlocks something new to wear.",
     ),
     "wardrobe_preview": m71,
+    "website_from_text": MessageLookupByLibrary.simpleMessage(
+      "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+    ),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("From the website to this phone"),
+    "website_scan": MessageLookupByLibrary.simpleMessage("Scan the code"),
+    "website_scan_denied": MessageLookupByLibrary.simpleMessage(
+      "The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.",
+    ),
+    "website_scan_failed": MessageLookupByLibrary.simpleMessage(
+      "The camera did not open. Scan the code with the Camera app instead.",
+    ),
+    "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
+      "That code is not a progress link from the website.",
+    ),
+    "website_scan_title": MessageLookupByLibrary.simpleMessage("Scan the website\'s code"),
+    "website_to_text": MessageLookupByLibrary.simpleMessage(
+      "Send your progress as a link, then open the link on the computer.",
+    ),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("From this phone to the website"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),
