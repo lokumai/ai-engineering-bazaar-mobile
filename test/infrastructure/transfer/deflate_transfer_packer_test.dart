@@ -36,4 +36,15 @@ void main() {
     expect(bomb.length, lessThan(transferMaxPayload));
     expect(packer.unpack(bomb), isNull);
   });
+
+  // Plan 20.2: the limit is counted as the bytes come out, so a link made to inflate to many megabytes is refused
+  // before it is held whole.
+  test('refuses a payload of the largest size that inflates to megabytes, and takes one just at the limit', () {
+    final zeros = packer.pack('0' * (transferMaxText * 40));
+    expect(zeros.length, lessThan(transferMaxPayload));
+    expect(packer.unpack(zeros), isNull);
+
+    expect(packer.unpack(packer.pack('0' * transferMaxText)), hasLength(transferMaxText));
+    expect(packer.unpack(packer.pack('0' * (transferMaxText + 1))), isNull);
+  });
 }
