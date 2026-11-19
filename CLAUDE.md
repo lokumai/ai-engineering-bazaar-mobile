@@ -189,8 +189,8 @@ lib/
                                                 pages mark its places with shared/tour/tour_target.dart (TourTarget, TourSpots)
     transfer/                                   a progress link opened in the app at `/transfer`, full screen (plan 17.1):
                                                 TransferBloc, what the link carries, Add to this phone's progress
-    caravan/                                    the Caravan tab at `/caravan`, coming soon until the bundle carries
-                                                the web's timeline
+    caravan/                                    the Caravan tab at `/caravan`: the trends held in the app until the
+                                                bundle carries the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
 tool/                                           refresh_content_snapshot.dart, generate_tokens.dart, build_content_fixture.dart,
                                                 render_app_icons.dart (fvm flutter test tool/render_app_icons.dart)

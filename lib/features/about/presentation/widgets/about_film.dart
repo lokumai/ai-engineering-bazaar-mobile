@@ -319,7 +319,7 @@ class _AboutFilmState extends State<AboutFilm> with TickerProviderStateMixin {
                   ),
                   SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 8, 0),
+                      padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 8, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [

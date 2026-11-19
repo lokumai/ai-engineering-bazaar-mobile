@@ -24,10 +24,6 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_sample_notice": "The articles and resources for each trend are coming soon.",
-  "@caravan_sample_notice": {
-    "description": "The notice over the Caravan: the trends' readings have no address yet (the owner, 2026-11-19)."
-  },
   "caravan_stage_label": "The caravan at {title}",
   "@caravan_stage_label": {
     "description": "The stage's name for a screen reader: the caravan at the chosen trend.",
@@ -109,10 +105,6 @@
   "@caravan_sample_tools": {},
   "caravan_sample_repositories": "Repository",
   "@caravan_sample_repositories": {},
-  "caravan_sample_badge": "Resources soon",
-  "@caravan_sample_badge": {
-    "description": "The mark on a trend's card while its readings have no address yet."
-  },
   "caravan_all_trends": "All trends",
   "@caravan_all_trends": {},
   "caravan_search": "Search the trends",
@@ -370,6 +362,7 @@
   "@reader_contents": {},
   "listen": "Listen",
   "listen_resume": "Resume listening",
+  "listen_no_voice": "This phone has no voice for this language. Add one in the phone's Settings to listen.",
   "listen_play": "Play",
   "listen_pause": "Pause",
   "listen_back": "Previous paragraph",
@@ -982,7 +975,7 @@
   "@privacy_title": {},
   "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
-  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},

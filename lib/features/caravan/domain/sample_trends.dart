@@ -5,8 +5,9 @@ import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_trend.dart
 /// delete this file then.
 ///
 /// They are the web's (`src/components/caravan/sample-trends.ts`), and the trends and their strength are the author's
-/// and real (the owner, 2026-11-19); no reading has an address yet, and the page says the articles and resources are
-/// coming soon. The Turkish and Persian words are the app's translation of the web's English.
+/// and real (the owner, 2026-11-19); no reading has an address yet, and the app shows none until the web gives them, with
+/// no word of one to come (plan 20.4: App Review reads "coming soon" as unfinished). The Turkish and Persian words are
+/// the app's translation of the web's English.
 abstract final class SampleCaravan {
   /// The month the road starts.
   static final DateTime first = DateTime.utc(2022, 11);

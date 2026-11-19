@@ -221,8 +221,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_previous": MessageLookupByLibrary.simpleMessage("ایستگاه قبلی"),
     "caravan_reading": MessageLookupByLibrary.simpleMessage("برای خواندن"),
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("مقاله"),
-    "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("منابع به‌زودی"),
-    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage("مقاله‌ها و منابع هر ترند به‌زودی می‌آیند."),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("مخزن"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("ابزار"),
     "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("ویدیو"),
@@ -393,6 +391,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen": MessageLookupByLibrary.simpleMessage("گوش دادن"),
     "listen_back": MessageLookupByLibrary.simpleMessage("بند قبلی"),
     "listen_next": MessageLookupByLibrary.simpleMessage("بند بعدی"),
+    "listen_no_voice": MessageLookupByLibrary.simpleMessage(
+      "این گوشی برای این زبان صدایی ندارد. برای گوش دادن، از تنظیمات گوشی یک صدا اضافه کنید.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("مکث"),
@@ -516,7 +517,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد و هیچ داده شخصی جمع نمی‌کند. آنچه می‌فرستد و مقصد آن، در ادامه آمده است.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما فقط روی همین دستگاه ذخیره می‌شوند. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
+      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود گوشی ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
     ),
     "privacy_scanner": MessageLookupByLibrary.simpleMessage(
       "در اندروید، «اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند. در آیفون، خود برنامه کد را می‌خواند و چیزی از گوشی خارج نمی‌شود.",

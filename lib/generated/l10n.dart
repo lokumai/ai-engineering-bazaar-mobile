@@ -108,16 +108,6 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `The articles and resources for each trend are coming soon.`
-  String get caravan_sample_notice {
-    return Intl.message(
-      'The articles and resources for each trend are coming soon.',
-      name: 'caravan_sample_notice',
-      desc: 'The notice over the Caravan: the trends\' readings have no address yet (the owner, 2026-11-19).',
-      args: [],
-    );
-  }
-
   /// `The caravan at {title}`
   String caravan_stage_label(String title) {
     return Intl.message(
@@ -241,16 +231,6 @@ class S {
   /// `Repository`
   String get caravan_sample_repositories {
     return Intl.message('Repository', name: 'caravan_sample_repositories', desc: '', args: []);
-  }
-
-  /// `Resources soon`
-  String get caravan_sample_badge {
-    return Intl.message(
-      'Resources soon',
-      name: 'caravan_sample_badge',
-      desc: 'The mark on a trend\'s card while its readings have no address yet.',
-      args: [],
-    );
   }
 
   /// `All trends`
@@ -649,6 +629,16 @@ class S {
   /// `Resume listening`
   String get listen_resume {
     return Intl.message('Resume listening', name: 'listen_resume', desc: '', args: []);
+  }
+
+  /// `This phone has no voice for this language. Add one in the phone's Settings to listen.`
+  String get listen_no_voice {
+    return Intl.message(
+      'This phone has no voice for this language. Add one in the phone\'s Settings to listen.',
+      name: 'listen_no_voice',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Play`
@@ -1905,10 +1895,10 @@ class S {
     );
   }
 
-  /// `Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.`
+  /// `Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.`
   String get privacy_on_device {
     return Intl.message(
-      'Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.',
+      'Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.',
       name: 'privacy_on_device',
       desc: '',
       args: [],
