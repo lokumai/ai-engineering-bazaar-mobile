@@ -20,6 +20,10 @@ final class _Voice implements ISpeech {
 
   /// The phone's own stops: another app took the sound, or Pause on its notice.
   final interrupted = StreamController<void>.broadcast();
+  final resumed = StreamController<void>.broadcast();
+
+  /// What the phone was asked to show, in order.
+  final shown = <ShownReading?>[];
   int stops = 0;
   int asked = 0;
   Completer<void>? _saying;
@@ -57,6 +61,12 @@ final class _Voice implements ISpeech {
 
   @override
   Stream<void> get interruptions => interrupted.stream;
+
+  @override
+  Stream<void> get resumes => resumed.stream;
+
+  @override
+  Future<void> show(ShownReading? reading) async => shown.add(reading);
 
   @override
   Future<void> stop() async {
@@ -162,6 +172,28 @@ void main() {
       voice.interrupted.add(null);
       await _settle();
       expect(listen.state, on(1, playing: false));
+    });
+
+    test('the phone shows the reading while there is one, and Play there goes on from the part (plan 19.8)', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(1);
+      voice.interrupted.add(null);
+      await _settle();
+      expect(listen.state, on(1, playing: false));
+      voice.resumed.add(null);
+      await _settle();
+      expect(listen.state, on(1));
+      expect(voice.handed.last.$1, ['Two.', 'Three.']);
+      listen.stop();
+      await _settle();
+      expect(voice.shown, [
+        (title: 'First', playing: true),
+        (title: 'First', playing: false),
+        (title: 'First', playing: true),
+        null,
+      ]);
     });
 
     test('next and back move a part, playing or paused; next after the last stops', () async {

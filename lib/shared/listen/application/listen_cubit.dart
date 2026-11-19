@@ -50,9 +50,23 @@ final class ListenCubit extends Cubit<ListenState> {
     // The phone stopped the reading itself (a call, or Pause on Android's notice): the player pauses where it was,
     // as the reader's own Pause does (plan 18.3).
     _interruptions = _speech.interruptions.listen((_) => pause());
+    // Play on the lock screen or the headphones goes on from the part (plan 19.8).
+    _resumes = _speech.resumes.listen((_) => resume());
+    // The phone shows the reading on its lock screen and to the headphones' buttons while there is one (plan 19.8).
+    _shown = stream
+        .map<ShownReading?>(
+          (state) => switch (state) {
+            ListenOn(:final title, :final playing) => (title: title, playing: playing),
+            ListenIdle() => null,
+          },
+        )
+        .distinct()
+        .listen((reading) => unawaited(_speech.show(reading)));
   }
 
   late final StreamSubscription<void> _interruptions;
+  late final StreamSubscription<void> _resumes;
+  late final StreamSubscription<ShownReading?> _shown;
 
   /// How long a pause lasts before the reading ends, its place kept.
   final Duration restAfter;
@@ -253,6 +267,9 @@ final class ListenCubit extends Cubit<ListenState> {
   Future<void> close() {
     _cut();
     unawaited(_interruptions.cancel());
+    unawaited(_resumes.cancel());
+    unawaited(_shown.cancel());
+    unawaited(_speech.show(null));
     return super.close();
   }
 }

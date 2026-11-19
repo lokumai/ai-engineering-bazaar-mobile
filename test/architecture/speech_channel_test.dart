@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// and picks the best voice installed; iOS reads on with the screen off (the owner, 2026-11-18).
 void main() {
   String read(String path) => File(path).readAsStringSync();
-  const methods = ['canSpeak', 'speak', 'stop'];
+  const methods = ['canSpeak', 'speak', 'stop', 'show'];
 
   test('Android answers on the channel, starts with the engine and shuts down with it', () {
     final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
@@ -54,6 +54,41 @@ void main() {
         expect(strings, contains('<string name="$name">'), reason: '$values $name');
       }
     }
+  });
+
+  test('the lock screen and the headphones reach the player on both phones, and a call pauses it (plan 19.8)', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    expect(speech, contains('MediaSession(context, "Listen")'));
+    expect(speech, contains('control("play")'));
+    expect(speech, contains('control("pause")'));
+    expect(speech, contains('channel.invokeMethod("control", command)'));
+    expect(speech, contains('ListenService.session = session.sessionToken'));
+    expect(read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt'), contains('style.setMediaSession'));
+
+    final swift = read('ios/Runner/AppDelegate.swift');
+    expect(swift, contains('AVAudioSession.interruptionNotification'));
+    expect(swift, contains('channel.invokeMethod("interrupted", arguments: id)'));
+    expect(swift, contains('MPNowPlayingInfoCenter.default().nowPlayingInfo'));
+    for (final command in ['playCommand', 'pauseCommand', 'togglePlayPauseCommand']) {
+      expect(swift, contains('center.$command.addTarget'), reason: command);
+    }
+    expect(swift, contains('channel.invokeMethod("control", arguments: command)'));
+
+    final dart = read('lib/infrastructure/speech/phone_speech.dart');
+    expect(dart, contains("method: 'control', arguments: 'pause'"));
+    expect(dart, contains("method: 'control', arguments: 'play'"));
+  });
+
+  test('Android keeps a reading started in the app and says nothing while another app holds the sound '
+      '(plan 19.9, 19.10)', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    final speak = speech.indexOf('"speak" ->');
+    expect(
+      speech.indexOf('ListenService.start(context, title)', speak),
+      lessThan(speech.indexOf('whenStarted { tts ->', speak)),
+      reason: 'the service starts before the engine answers',
+    );
+    expect(speech, contains('if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)'));
   });
 
   test("Android 11 and later show the app the phone's speech engine", () {

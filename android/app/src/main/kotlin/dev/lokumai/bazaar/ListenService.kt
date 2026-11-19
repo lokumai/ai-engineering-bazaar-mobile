@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
+import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
 
@@ -20,7 +21,8 @@ import android.os.IBinder
  * Android shows a foreground service as a notice: the module's title, the words "Reading aloud" and a Pause, which the
  * reader may hide; Android 13 and later hide it unless the app may post notifications, which it never asks for, and the
  * reading goes on all the same. Pause comes back to Speech.kt as an interruption, which the Dart side reads as the
- * player's own pause, so the place is kept.
+ * player's own pause, so the place is kept. The notice names the reading's MediaSession, so the lock screen shows it
+ * with its controls (plan 19.8).
  */
 class ListenService : Service() {
     companion object {
@@ -31,6 +33,9 @@ class ListenService : Service() {
 
         /** Told when the reader presses Pause on the notice. */
         var onPause: (() -> Unit)? = null
+
+        /** The reading's MediaSession, which the notice names so the lock screen shows its controls (plan 19.8). */
+        var session: MediaSession.Token? = null
 
         /** Starts the service, or names [title] to the one running. Fails quietly where Android refuses a start. */
         fun start(context: Context, title: String) {
@@ -103,7 +108,11 @@ class ListenService : Service() {
                     pause,
                 ).build(),
             )
-            .setStyle(Notification.MediaStyle().setShowActionsInCompactView(0))
+            .setStyle(
+                Notification.MediaStyle().setShowActionsInCompactView(0).also { style ->
+                    session?.let { style.setMediaSession(it) }
+                },
+            )
             .build()
     }
 }

@@ -74,6 +74,12 @@ final class _Voice implements ISpeech {
   Stream<void> get interruptions => const Stream.empty();
 
   @override
+  Stream<void> get resumes => const Stream.empty();
+
+  @override
+  Future<void> show(ShownReading? reading) async {}
+
+  @override
   Future<void> stop() async {
     stops++;
     final saying = _saying;
