@@ -1553,6 +1553,14 @@
       }
     }
   },
+  "transfer_ticked": "{count, plural, =1{1 checklist item ticked} other{{count} checklist items ticked}}",
+  "@transfer_ticked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "transfer_keeps": "Adding it keeps everything on this phone: nothing here is removed.",
   "@transfer_keeps": {},
   "transfer_add": "Add to this phone's progress",

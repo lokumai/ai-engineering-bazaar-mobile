@@ -89,6 +89,8 @@ class _TransferView extends StatelessWidget {
                               children: [
                                 Text(name, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurfaceTitle)),
                                 Text(s.transfer_completed(progress.completed(track)), style: muted),
+                                if (progress.ticked(track) > 0)
+                                  Text(s.transfer_ticked(progress.ticked(track)), style: muted),
                               ],
                             ),
                           ),

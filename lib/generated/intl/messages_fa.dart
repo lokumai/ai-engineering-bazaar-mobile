@@ -162,11 +162,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m68(count) => "${Intl.plural(count, zero: 'هیچ ماژولی تکمیل نشده', other: '${count} ماژول تکمیل‌شده')}";
 
-  static String m69(name, level) => "${name}، در سطح ${level} باز می‌شود";
+  static String m69(count) => "${Intl.plural(count, other: '${count} مورد از فهرست بررسی علامت خورده')}";
 
-  static String m70(name) => "${name}، پوشیده";
+  static String m70(name, level) => "${name}، در سطح ${level} باز می‌شود";
 
-  static String m71(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
+  static String m71(name) => "${name}، پوشیده";
+
+  static String m72(hat, head, body) => "ربات: ${hat}، ${head}، ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -739,6 +741,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "افزوده نشد. برای تلاش دوباره، پیوند را دوباره باز کنید.",
     ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این گوشی هست."),
+    "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("پیشرفت از یک پیوند"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "این پیوند خوانده نمی‌شود. یک پیوند تازه در صفحهٔ Progress وب‌سایت بسازید.",
@@ -746,10 +749,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("بدن"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("کلاه"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("سر"),
-    "wardrobe_item_locked": m69,
-    "wardrobe_item_worn": m70,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
-    "wardrobe_preview": m71,
+    "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
       "در وب‌سایت، Progress را در بالای صفحه باز کنید و Move to the app را بزنید. کدی را که نشان می‌دهد با این گوشی اسکن کنید.",
     ),

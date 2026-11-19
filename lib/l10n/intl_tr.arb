@@ -448,6 +448,7 @@
   "home_quiz_waiting": "Bekleyen quiz",
   "transfer_title": "Bağlantıdaki ilerleme",
   "transfer_completed": "{count, plural, =0{Tamamlanan modül yok} other{{count} modül tamamlandı}}",
+  "transfer_ticked": "{count, plural, other{{count} kontrol listesi maddesi işaretli}}",
   "transfer_keeps": "Eklemek bu telefondakileri korur: buradan hiçbir şey silinmez.",
   "transfer_add": "Bu telefondaki ilerlemeye ekle",
   "transfer_added": "Eklendi. Bu telefondan hiçbir şey silinmedi.",

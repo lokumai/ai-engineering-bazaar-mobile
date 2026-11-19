@@ -162,11 +162,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m68(count) => "${Intl.plural(count, zero: 'Tamamlanan modül yok', other: '${count} modül tamamlandı')}";
 
-  static String m69(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m69(count) => "${Intl.plural(count, other: '${count} kontrol listesi maddesi işaretli')}";
 
-  static String m70(name) => "${name}, giyili";
+  static String m70(name, level) => "${name}, ${level}. seviyede açılır";
 
-  static String m71(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m71(name) => "${name}, giyili";
+
+  static String m72(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -731,6 +733,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage("Eklenmedi. Yeniden denemek için bağlantıyı tekrar aç."),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu telefonda zaten var."),
+    "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
@@ -738,10 +741,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m69,
-    "wardrobe_item_worn": m70,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m71,
+    "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
       "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu telefonla okut.",
     ),

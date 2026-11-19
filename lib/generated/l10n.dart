@@ -3135,6 +3135,18 @@ class S {
     );
   }
 
+  /// `{count, plural, =1{1 checklist item ticked} other{{count} checklist items ticked}}`
+  String transfer_ticked(int count) {
+    return Intl.plural(
+      count,
+      one: '1 checklist item ticked',
+      other: '$count checklist items ticked',
+      name: 'transfer_ticked',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Adding it keeps everything on this phone: nothing here is removed.`
   String get transfer_keeps {
     return Intl.message(

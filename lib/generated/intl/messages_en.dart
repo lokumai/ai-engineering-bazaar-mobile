@@ -164,11 +164,14 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m68(count) =>
       "${Intl.plural(count, zero: 'No module completed', one: '1 module completed', other: '${count} modules completed')}";
 
-  static String m69(name, level) => "${name}, unlocks at level ${level}";
+  static String m69(count) =>
+      "${Intl.plural(count, one: '1 checklist item ticked', other: '${count} checklist items ticked')}";
 
-  static String m70(name) => "${name}, worn";
+  static String m70(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m71(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m71(name) => "${name}, worn";
+
+  static String m72(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -731,6 +734,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage("Not added. Open the link again to try once more."),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this phone already has all of it."),
+    "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "This link cannot be read. Make a new one on the website\'s Progress page.",
@@ -738,12 +742,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m69,
-    "wardrobe_item_worn": m70,
+    "wardrobe_item_locked": m70,
+    "wardrobe_item_worn": m71,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m71,
+    "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
       "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
     ),

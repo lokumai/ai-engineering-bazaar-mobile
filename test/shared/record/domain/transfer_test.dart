@@ -60,6 +60,8 @@ void main() {
       expect(progress.days, ['2026-11-01', '2026-11-02']);
       expect(progress.completed(Track.engineers), 1);
       expect(progress.completed(Track.everyone), 1);
+      expect(progress.ticked(Track.engineers), 3);
+      expect(progress.ticked(Track.everyone), 0);
     });
 
     test('encode then decode keeps the progress', () {

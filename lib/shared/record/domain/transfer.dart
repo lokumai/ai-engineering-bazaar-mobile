@@ -65,6 +65,10 @@ final class TransferProgress extends Equatable {
   /// The modules of [track] completed in this transfer.
   int completed(Track track) => _of(track).values.where((sheet) => sheet.signedOff != null).length;
 
+  /// The checklist items ticked in [track], over every module (the owner, 2026-11-19: a link of ticks alone must not
+  /// read as empty).
+  int ticked(Track track) => _of(track).values.fold(0, (sum, sheet) => sum + sheet.ticks.length);
+
   /// Whether the transfer carries no progress at all.
   bool get isEmpty => engineers.isEmpty && everyone.isEmpty && days.isEmpty;
 

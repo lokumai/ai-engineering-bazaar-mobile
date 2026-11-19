@@ -57,6 +57,7 @@ void main() {
     expect(find.text('Progress from a link'), findsOneWidget);
     expect(find.text('For Engineers'), findsOneWidget);
     expect(find.text('1 module completed'), findsNWidgets(2));
+    expect(find.text('2 checklist items ticked'), findsOneWidget, reason: 'For Everyone carries no tick, so no line');
     expect(merged, isEmpty, reason: 'nothing is added on open');
     await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
 
@@ -66,6 +67,19 @@ void main() {
     expect(merged.single.progress.engineers.keys, ['alpha/first', 'alpha/second']);
     expect(find.text('Added. Nothing on this phone was removed.'), findsOneWidget);
     expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+
+  // The owner, 2026-11-19: a link of ticks alone must not read as an empty one.
+  testWidgets('a link of ticks alone says the ticks, not only that no module is completed', (tester) async {
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack('{"v":1,"e":{"a/b":["","",[0]]},"y":{"a/b":["","",[1,2]]},"d":[]}'),
+      _recordAnswering(TransferMergeResult.added, []),
+    );
+
+    expect(find.text('No module completed'), findsNWidgets(2));
+    expect(find.text('1 checklist item ticked'), findsOneWidget);
+    expect(find.text('2 checklist items ticked'), findsOneWidget);
   });
 
   testWidgets('says when there was nothing new', (tester) async {
