@@ -332,6 +332,7 @@ final class ScannerScreen: UIViewController {
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     preview?.frame = view.bounds
+    turnPicture()
     let side = min(view.bounds.width, view.bounds.height) * 0.65
     let square = CGRect(x: view.bounds.midX - side / 2, y: view.bounds.midY - side / 2, width: side, height: side)
     aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
@@ -339,6 +340,32 @@ final class ScannerScreen: UIViewController {
 
   @objc private func cancel() {
     onCancel()
+  }
+
+  /// Turns the camera's picture with the screen, so it stands upright on an iPad held sideways or an iPhone turned
+  /// (plan 20.9); the camera gives it upright for a phone held straight only.
+  private func turnPicture() {
+    guard let connection = preview?.connection,
+      let orientation = view.window?.windowScene?.interfaceOrientation
+    else { return }
+    if #available(iOS 17.0, *) {
+      let angle: CGFloat =
+        switch orientation {
+        case .landscapeRight: 0
+        case .landscapeLeft: 180
+        case .portraitUpsideDown: 270
+        default: 90
+        }
+      if connection.isVideoRotationAngleSupported(angle) { connection.videoRotationAngle = angle }
+    } else if connection.isVideoOrientationSupported {
+      connection.videoOrientation =
+        switch orientation {
+        case .landscapeRight: .landscapeRight
+        case .landscapeLeft: .landscapeLeft
+        case .portraitUpsideDown: .portraitUpsideDown
+        default: .portrait
+        }
+    }
   }
 }
 
@@ -374,14 +401,31 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
     NotificationCenter.default.addObserver(
       self, selector: #selector(interrupted(_:)), name: AVAudioSession.interruptionNotification,
       object: AVAudioSession.sharedInstance())
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(routeChanged(_:)), name: AVAudioSession.routeChangeNotification,
+      object: AVAudioSession.sharedInstance())
   }
 
   /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was.
   @objc private func interrupted(_ notification: Notification) {
     guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
-      AVAudioSession.InterruptionType(rawValue: raw) == .began,
-      let id = parts.values.first?.id
+      AVAudioSession.InterruptionType(rawValue: raw) == .began
     else { return }
+    pauseReading()
+  }
+
+  /// The headphones were taken off or lost, as Bluetooth ones whose battery ran out: the reading pauses rather than go
+  /// on aloud through the speaker (plan 20.3).
+  @objc private func routeChanged(_ notification: Notification) {
+    guard let raw = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+      AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable
+    else { return }
+    DispatchQueue.main.async { [weak self] in self?.pauseReading() }
+  }
+
+  /// Stops the words being said and tells the Dart side, which pauses where it was.
+  private func pauseReading() {
+    guard let id = parts.values.first?.id else { return }
     channel.invokeMethod("interrupted", arguments: id)
     synthesizer.stopSpeaking(at: .immediate)
     endAll()
@@ -466,10 +510,17 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       // `.duckOthers` does) nowhere on the lock screen, the status bar or the headphones (plan 19.8).
       let session = AVAudioSession.sharedInstance()
       try? session.setCategory(.playback, mode: .spokenAudio, options: [])
-      try? session.setActive(true)
+      let active = (try? session.setActive(true)) != nil
       // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
       endAll()
+      guard active else {
+        // A call holds the sound: nothing is said, and the player waits on its part, as if the call had come during
+        // the reading, as on Android (plan 20.8).
+        channel.invokeMethod("interrupted", arguments: id)
+        end(id)
+        return result(true)
+      }
       let rate = Float(arguments["rate"] as? Double ?? Double(AVSpeechUtteranceDefaultSpeechRate))
       // Every part queued at once: the phone reads on from one to the next without the app.
       for (index, text) in texts.enumerated() {

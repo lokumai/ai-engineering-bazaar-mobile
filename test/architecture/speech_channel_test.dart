@@ -32,9 +32,10 @@ void main() {
     expect(speech, contains('ListenService.stop(context)'));
     expect(
       speech,
-      contains('AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK'),
-      reason: "other sound lowered, as iOS's",
+      contains('AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)'),
+      reason: 'other sound pauses while it reads, as on iOS (plan 20.11)',
     );
+    expect(speech, isNot(contains('MAY_DUCK')));
     expect(speech, contains('channel.invokeMethod("interrupted", id)'));
     expect(speech, contains('TextToSpeech.getMaxSpeechInputLength()'), reason: 'a long text said in pieces');
     expect(speech, contains('tts.playSilentUtterance(GAP_MS'), reason: "iOS's pause after each text");
@@ -126,5 +127,22 @@ void main() {
 
   test('the tags the Dart side speaks in are the content languages', () {
     expect(PhoneSpeech.tags, {'en': 'en-US', 'tr': 'tr-TR', 'fa': 'fa-IR'});
+  });
+
+  test('Listen stops safely, pauses when the headphones go, waits for a call on iOS too (plan 20.1, 20.3, 20.8)', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    expect(speech, contains('AudioManager.ACTION_AUDIO_BECOMING_NOISY'), reason: 'headphones taken off');
+    expect(speech, contains('context.unregisterReceiver(noisy)'));
+    expect(speech, contains('main.postDelayed(release, RELEASE_MS)'));
+    final service = read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt');
+    expect(service, contains('stopWhenStarted = true'), reason: 'a stop before the foreground start waits for it');
+    expect(service, contains('Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)'));
+    expect(service, isNot(contains('getLaunchIntentForPackage')), reason: 'an icon change turns the old entry off');
+
+    final ios = read('ios/Runner/AppDelegate.swift');
+    expect(ios, contains('AVAudioSession.routeChangeNotification'));
+    expect(ios, contains('.oldDeviceUnavailable'));
+    expect(ios, contains('let active = (try? session.setActive(true)) != nil'));
+    expect(ios, contains('connection.videoRotationAngle = angle'), reason: "the scanner's picture turns (plan 20.9)");
   });
 }
