@@ -18,7 +18,10 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 7. New features in the app | Done on `feature/phase-4` (the owner, 2026-11-11), with the bug hunt's fixes (7.4) |
 | 9. The Caravan's journey and Home's pocket model | On `feature/caravan-and-toy`, a trial the owner keeps or drops after trying it (2026-11-14) |
 | 16. Small items | Done (PR #15, merged as 0e2801c) |
-| 17. The website and the phone | On `feature/web-links` (2026-11-19) |
+| 17. The website and the phone | Done (PR #16) |
+| 18. Android as the iPhone | Done (PR #17) |
+| 19. Before the release | Done (PR #18, merged as c75c49e) |
+| 20. The second review | On `feature/review-fixes` (2026-11-19) |
 
 ## Phase 0: the reader (done)
 
@@ -543,6 +546,25 @@ On `feature/pre-release-fixes`, from main at 15f585a (PR #17 merged). A review o
 - [x] **19.11 The Caravan's trends are real (the owner).** The trends and their strength are the author's; only their readings have no address yet. The notice says their articles and resources are coming soon; the card's badge reads Resources soon and its chips name their kind (Article, Video, Tool, Repository).
 - [x] **19.12 Not done here.** The Apprentice's model work on the UI thread and the hash of large downloaded images (measure first); a refresh on mobile data (a product choice); the Legal text on images used without a licence (the web team's decision); small screens in the tests (below, Later).
 - [x] **19.13 The author's signature (the owner).** The module that takes the Apprentice to level 23, well past its wardrobe's last piece, has it say who wrote it, once; from then on one chat in 100 says it (`domain/signature.dart`). Nothing announces it.
+
+## Phase 20: the second review (the owner, 2026-11-19)
+
+On `feature/review-fixes`, from main at c75c49e (PR #18 merged). A second full review of the app, by another model, found no new blocker and 16 points; the owner chose to fix the five it marked for before the release and eight of the others here, before the release PR, and to keep three for later. The review is kept in `~/projects/ai-bazaar/reviews/fable-review-2-2026-11-19.md`, outside the repo.
+
+- [x] **20.1 Android: a speak that fails at once no longer ends the app.** The service starts with the speak (19.9); when the engine then refuses the language in the same step, it was stopped before it came to the foreground, which Android answers by ending the app. Speech.kt now lets the release stop it a moment later, and `ListenService.stop` waits for a start still pending, stopping the service once it is in the foreground.
+- [x] **20.2 A transfer link's size is counted as it inflates.** The limit of 262144 bytes (19.7's neighbour) was checked only after the whole payload had inflated: a link of 16384 characters could inflate to megabytes first. A sink of the app's own counts the bytes as they come out and stops past the limit.
+- [x] **20.3 The headphones taken off pause the reading.** Android listens for `ACTION_AUDIO_BECOMING_NOISY` and iOS for a route change whose old device is gone; both pause the player on its part, as a call does, rather than read on through the speaker.
+- [x] **20.4 The Caravan says nothing of what is to come (the owner).** App Review reads "coming soon" as unfinished: the notice and the Resources soon badge are gone, the cards stay as they were, and their readings come when the web gives them. The App Review notes say so to the reviewer.
+- [x] **20.5 Welcome never waits for ever.** A flag that cannot be read counts as not seen, and the flag store and the text store read as nothing when the phone gives no folder at all (path_provider's own errors, not a FileSystemException): 19.5's fix for the boot reads, carried to Welcome and the stores.
+- [x] **20.6 A module with no voice for its language says so.** Where Listen would stand, a line says the phone has no voice for the language and that one is added in the phone's settings (often Persian on Android), rather than Listen missing without a word.
+- [x] **20.7 Reset erases what was heard.** The reset of all progress erases where each module read aloud was left and the parts heard, and its undo brings them back, so parts heard before a reset never mark a module completed after it.
+- [x] **20.8 iOS: a speak while a call holds the sound waits, as on Android (19.10).** When the audio session cannot be made active, nothing is queued and the player pauses on its part. To be checked with a real call on the owner's iPhone.
+- [x] **20.9 iOS: the scanner's picture turns with the screen**, on an iPad held sideways or an iPhone turned.
+- [x] **20.10 Android: the notice opens the app after an icon change.** It names the activity itself, not the launcher's entry, which the icon change turns off.
+- [x] **20.11 Android takes the sound as iOS does (the owner).** `AUDIOFOCUS_GAIN`: other sound pauses while a module is read aloud, rather than being lowered for minutes.
+- [x] **20.12 One more Persian padding**, in the About film's top row (`EdgeInsetsDirectional`).
+- [x] **20.13 Privacy and legal names the phone's own backup.** The progress, scores and settings are on the device and in the phone's own backup when it is on; the app sends them nowhere else. The data line keeps the web's words.
+- [x] **20.14 Kept for after the release.** A speak that does not start closes the player without a word (20.1 and 20.6 take most of it); the notice's words follow the phone's language, not the app's; the work on the UI thread, to be measured on a slow phone first.
 
 ## Later, kept on purpose (the owner, 2026-11-17)
 
