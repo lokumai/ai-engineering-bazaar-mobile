@@ -106,19 +106,14 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     switch (event) {
       case RecordStarted():
         return;
-      case CompletionToggled(:final key, :final revision, :final track, :final everyone):
+      case CompletionToggled(:final key, :final revision, :final track):
         if (_pendingErases > 0) return;
         final now = nowIso();
         final signing = current.record.signedOff(key, track) == null;
         RecordData toggled(RecordData record) {
           if (!signing) return record.signedOff(key, track) == null ? record : unsign(record, key, track: track);
-          final signed = record.signedOff(key, track) == null
-              ? signOff(record, key, revision, now, track: track)
-              : record;
-          // A For Engineers completion completes the For Everyone version too, never the reverse (plan 1V).
-          return everyone != null && track == Track.engineers && signed.signedOff(key, Track.everyone) == null
-              ? signOff(signed, key, everyone.revision, now, track: Track.everyone)
-              : signed;
+          // Each track is completed on its own, as on the website (plan 17.4; 1V is undone).
+          return record.signedOff(key, track) == null ? signOff(record, key, revision, now, track: track) : record;
         }
 
         if (current.undo != null) _sinceErase.add(toggled);

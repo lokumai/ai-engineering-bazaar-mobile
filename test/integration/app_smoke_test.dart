@@ -234,8 +234,8 @@ void main() {
       expect(state, isA<RecordReady>());
       final record = (state as RecordReady).record;
       expect(record.signedOff('alpha/first', Track.engineers), _signed);
-      // The fixture's For Everyone version is written, so it is completed along with For Engineers (plan 1V).
-      expect(record.signedMap(Track.everyone), {'alpha/first': _signed});
+      // Each track is completed on its own, as on the website (plan 17.4).
+      expect(record.signedMap(Track.everyone), isEmpty);
     }),
   );
 }

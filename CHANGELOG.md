@@ -59,6 +59,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- Completing a module For Engineers no longer completes its For Everyone version: each track is completed on its own, as on the website, so a progress link counts the same on both.
 - The module to read now, the one left half read or else the next one, is in a band over the bottom navigation on Home, the catalog and the Quiz tab, under the thumb; Home no longer has a card at its head, and After that is Later on.
 - The catalog's search folds a module with more than one hit to its best one, unfolded with a tap, and can be kept to some levels.
 - Asked to chat while asleep, the Apprentice wakes and answers at once.

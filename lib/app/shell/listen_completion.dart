@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 
 /// A module heard whole, every part read aloud to its end over one sitting or many, is marked completed as a module
@@ -30,10 +29,9 @@ class ListenCompletion extends StatelessWidget {
         RecordLoading() => true,
       };
       if (index == null || completed) return;
-      final toggle = completionToggled(
-        index,
-        heard.module,
-        heard.track,
+      final toggle = CompletionToggled(
+        key: heard.module,
+        track: heard.track,
         revision: index.module(heard.module)?.tracks[heard.track]?.revision?.hash,
       );
       record.add(toggle);

@@ -259,72 +259,30 @@ void main() {
     });
   });
 
-  group('plan 1V: a For Engineers completion completes For Everyone too', () {
-    const carried = CompletionToggled(
-      key: 'alpha/first',
-      revision: 'a1b2c3d',
-      track: Track.engineers,
-      everyone: EveryoneCompletion(revision: 'e5f6a7b'),
-    );
-
-    test('completing For Engineers signs both, each with its own revision', () async {
+  // Plan 17.4 (the owner, 2026-11-19): each track is completed on its own, as on the website; 1V, which completed For
+  // Everyone along with For Engineers, is undone so the two never disagree.
+  group('plan 17.4: each track is completed on its own', () {
+    test('completing For Engineers leaves For Everyone as it was', () async {
       await _withClock(() async {
         final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(carried);
-        await pumpEventQueue();
-
-        final raw = _ready(bloc).record.raw;
-        expect(((raw['sheets']! as Map)['alpha/first'] as Map)['signedRevision'], 'a1b2c3d');
-        final everyone = (raw['everyoneSheets']! as Map)['alpha/first'] as Map;
-        expect(everyone['signedOff'], _now);
-        expect(everyone['signedRevision'], 'e5f6a7b');
-        await bloc.close();
-      });
-    });
-
-    test('undoing For Engineers leaves For Everyone completed', () async {
-      await _withClock(() async {
-        final bloc = await _started(_MemoryRecordRepository());
-        bloc
-          ..add(carried)
-          ..add(carried);
+        bloc.add(const CompletionToggled(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers));
         await pumpEventQueue();
 
         final record = _ready(bloc).record;
-        expect(record.signedOff('alpha/first', Track.engineers), isNull);
-        expect(record.signedOff('alpha/first', Track.everyone), _now);
+        expect(record.signedOff('alpha/first', Track.engineers), _now);
+        expect(record.signedOff('alpha/first', Track.everyone), isNull);
+        expect(record.raw['everyoneSheets'], isEmpty);
         await bloc.close();
       });
     });
 
-    test('a For Everyone completion already there is kept as it was', () async {
+    test('completing For Everyone leaves For Engineers as it was', () async {
       await _withClock(() async {
         final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(const CompletionToggled(key: 'alpha/first', revision: 'old1234', track: Track.everyone));
-        await pumpEventQueue();
-        final before = (_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'];
-
-        bloc.add(carried);
+        bloc.add(const CompletionToggled(key: 'alpha/first', revision: null, track: Track.everyone));
         await pumpEventQueue();
 
-        expect((_ready(bloc).record.raw['everyoneSheets']! as Map)['alpha/first'], before);
-        await bloc.close();
-      });
-    });
-
-    test('completing For Everyone never completes For Engineers', () async {
-      await _withClock(() async {
-        final bloc = await _started(_MemoryRecordRepository());
-        bloc.add(
-          const CompletionToggled(
-            key: 'alpha/first',
-            revision: null,
-            track: Track.everyone,
-            everyone: EveryoneCompletion(revision: null),
-          ),
-        );
-        await pumpEventQueue();
-
+        expect(_ready(bloc).record.signedOff('alpha/first', Track.everyone), _now);
         expect(_ready(bloc).record.raw['sheets'], isEmpty);
         await bloc.close();
       });

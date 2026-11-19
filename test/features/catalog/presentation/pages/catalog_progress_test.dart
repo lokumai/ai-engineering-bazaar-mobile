@@ -144,7 +144,7 @@ void main() {
     expect(find.bySemanticsLabel('Complete Second Module'), findsOneWidget);
   });
 
-  testWidgets('a For Engineers completion completes For Everyone too, never the reverse (plan 1V)', (tester) async {
+  testWidgets('each track is completed on its own, as on the website (plan 17.4)', (tester) async {
     final repository = _MemoryRecordRepository();
     final record = RecordBloc(repository: repository)..add(const RecordStarted());
     addTearDown(record.close);
@@ -154,14 +154,14 @@ void main() {
     await _tap(tester, find.bySemanticsLabel('Complete First Module'));
     expect(find.text('1/3'), findsOneWidget);
     expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
-    expect(repository.lastWritten, contains('"everyoneSheets":{"alpha/first":{"signedOff":"'));
+    expect(repository.lastWritten, contains('"everyoneSheets":{}'));
 
     await _pump(tester, location: '/everyone/sheets', record: record);
-    expect(find.text('1/3'), findsOneWidget, reason: 'carried over from For Engineers');
+    expect(find.text('0/3'), findsOneWidget, reason: 'For Engineers does not complete For Everyone');
     await _open(tester, 'Alpha Level');
     await _tap(tester, find.bySemanticsLabel('Complete First Story'));
-    expect(find.text('0/3'), findsOneWidget);
-    expect(repository.lastWritten, contains('"sheets":{"alpha/first":{"signedOff":"'));
+    expect(find.text('1/3'), findsOneWidget);
+    expect(repository.lastWritten, contains('"everyoneSheets":{"alpha/first":{"signedOff":"'));
 
     await _pump(tester, record: record);
     expect(find.text('1/3'), findsOneWidget, reason: 'a For Everyone toggle leaves For Engineers as it is');

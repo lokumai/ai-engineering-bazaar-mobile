@@ -34,7 +34,6 @@ import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/utils/grouped_number.dart';
-import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/domain/read_enough.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
@@ -415,7 +414,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
       return;
     }
-    final toggle = completionToggled(leaving.index, doc.key, doc.track, revision: leaving.revision);
+    final toggle = CompletionToggled(key: doc.key, track: doc.track, revision: leaving.revision);
     record.add(toggle);
     widget.onPlace?.call(null);
     final messenger = leaving.messenger;
@@ -622,7 +621,6 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             doc: doc,
             minutes: entry.minutes,
             revision: entry.tracks[doc.track]?.revision?.hash,
-            index: index,
             record: context.read<RecordBloc>(),
             messenger: ScaffoldMessenger.maybeOf(context),
             said: s.reader_auto_completed,
@@ -956,7 +954,6 @@ final class _Leaving {
     required this.doc,
     required this.minutes,
     required this.revision,
-    required this.index,
     required this.record,
     required this.messenger,
     required this.said,
@@ -970,7 +967,6 @@ final class _Leaving {
 
   /// The revision its completion carries (A35).
   final String? revision;
-  final BundleIndex index;
   final RecordBloc record;
   final ScaffoldMessengerState? messenger;
 

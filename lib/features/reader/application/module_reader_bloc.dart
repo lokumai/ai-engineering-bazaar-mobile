@@ -7,7 +7,6 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
-import 'package:ai_engineering_bazaar/shared/record/application/completion_toggled.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 
 part 'reader_event.dart';
@@ -90,7 +89,7 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
     }
     final doc = current.doc;
     _recordBloc.add(
-      completionToggled(_index, doc.key, doc.track, revision: current.entry.tracks[doc.track]?.revision?.hash),
+      CompletionToggled(key: doc.key, track: doc.track, revision: current.entry.tracks[doc.track]?.revision?.hash),
     );
   }
 }

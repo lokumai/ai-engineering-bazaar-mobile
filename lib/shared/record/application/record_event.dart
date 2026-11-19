@@ -12,15 +12,11 @@ final class RecordStarted extends RecordEvent {
 /// The reader toggled the completion of [key] on [track]; [revision] is the track's `revision.hash` from the reader,
 /// null from the progress page (Decision A35). Build it with `completionToggled`, which fills [everyone].
 final class CompletionToggled extends RecordEvent {
-  const CompletionToggled({required this.key, required this.revision, required this.track, this.everyone});
+  const CompletionToggled({required this.key, required this.revision, required this.track});
 
   final String key;
   final String? revision;
   final Track track;
-
-  /// The For Everyone version that a For Engineers completion completes as well, when it is written (plan 1V); null
-  /// otherwise. Removing a completion never touches it.
-  final EveryoneCompletion? everyone;
 }
 
 /// The reader ticked the checklist item [index] of [key] on [track], or took the tick away (web `ChecklistIsland`).
@@ -33,14 +29,6 @@ final class ChecklistItemToggled extends RecordEvent {
   final int index;
   final bool ticked;
   final Track track;
-}
-
-/// The For Everyone version of a module, completed along with its For Engineers version (plan 1V).
-final class EveryoneCompletion {
-  const EveryoneCompletion({required this.revision});
-
-  /// The For Everyone `revision.hash`, null where the caller passes none (A35).
-  final String? revision;
 }
 
 /// A backup starts at [at]: mark the day, write, and complete [reply] with the export bytes (spec 3.3.10).
