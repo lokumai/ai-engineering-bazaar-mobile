@@ -698,7 +698,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("دانلودشده از وب‌سایت"),
     "settings_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),
     "settings_track": MessageLookupByLibrary.simpleMessage("مخاطب"),
-    "settings_website": MessageLookupByLibrary.simpleMessage("وب‌سایت"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("انتقال"),
     "tour_band": MessageLookupByLibrary.simpleMessage("ماژولی که الان باید بخوانید همیشه اینجاست."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("کاروان از میان جریان‌های هوش مصنوعی می‌گذرد."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("برای حرکت، اینجا را بکشید یا روی ایستگاهی بزنید."),

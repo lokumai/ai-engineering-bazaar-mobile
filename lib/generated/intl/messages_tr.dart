@@ -692,7 +692,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Web sitesinden indirildi"),
     "settings_story": MessageLookupByLibrary.simpleMessage("Bazaar\'ın hikâyesi"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
-    "settings_website": MessageLookupByLibrary.simpleMessage("Web sitesi"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("Transfer"),
     "tour_band": MessageLookupByLibrary.simpleMessage("Okuyacağın modül hep burada."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),

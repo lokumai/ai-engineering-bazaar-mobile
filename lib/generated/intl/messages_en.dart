@@ -692,7 +692,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_source_downloaded": MessageLookupByLibrary.simpleMessage("Downloaded from the website"),
     "settings_story": MessageLookupByLibrary.simpleMessage("The story of the Bazaar"),
     "settings_track": MessageLookupByLibrary.simpleMessage("Audience"),
-    "settings_website": MessageLookupByLibrary.simpleMessage("The website"),
+    "settings_website": MessageLookupByLibrary.simpleMessage("Transfer"),
     "tour_band": MessageLookupByLibrary.simpleMessage("The module to read now is always here."),
     "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("The Caravan travels through the trends of AI."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("Slide here, or tap a stop, to move along."),
