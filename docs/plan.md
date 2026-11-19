@@ -17,6 +17,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 6. Release | Later |
 | 7. New features in the app | Done on `feature/phase-4` (the owner, 2026-11-11), with the bug hunt's fixes (7.4) |
 | 9. The Caravan's journey and Home's pocket model | On `feature/caravan-and-toy`, a trial the owner keeps or drops after trying it (2026-11-14) |
+| 16. Small items | On `feature/small-items` (2026-11-19) |
 
 ## Phase 0: the reader (done)
 
@@ -480,6 +481,12 @@ After Phase 13, whose history it reads.
 - [x] **Listening, second look.** The bar over the navigation takes the band's place while it shows, and the band is back once it leaves. A module stopped, paused for two minutes, or put aside for another keeps its place while the app runs; its Listen says Resume listening and goes on from there. Read to its end, it starts from its head again.
 - [x] **Third look.** Home's quiz waiting is back as a row with its title alone, no words under it. A quiz's answers on Practice fill from the start: the right ones, then the wrong, then those not answered, whichever questions they were. The endless review has a short line under its name. A module read aloud keeps its place on the device, and once every part is heard to its end, over one sitting or many, it is marked completed with Undo; a part skipped with Next does not count. The catalog's rows give the minutes alone, at the row's end in one column, under the title with large text. The lattice band under the status bar is gone everywhere but Welcome; the reading bar stays.
 - [x] **Fourth look.** The endless review has more room, a larger mark and name, and Start across it. Wrong answers (Hatalı cevaplar in Turkish, once Yanlışlarım) is a tile across the width, Recap (Özet in Turkish; the new, shorter name of A module in 2 minutes) and the Glossary two short tiles under it, their names beside their marks and no count, which said nothing; each is washed and edged in its hue, with a filled mark and an arrow, so it reads as a button; with large text all three are wide, one under another. A quiz's row has no question mark before it: at its end an empty ring until a question is answered, then the right ones out of all, and a green check once all are right.
+
+## Phase 16: small items
+
+On `feature/small-items`, from main after PR #14 (2026-11-19).
+
+- [x] **16.1 Feedback in Settings.** The web added a Feedback link to its footer (`src/lib/site.ts` `FEEDBACK_URL`): an anonymous Google Form, opened by the reader's own choice, to which the site sends nothing. Settings' About has the same row, Feedback (Geri bildirim, بازخورد), under Report a problem and in every build, since it needs no Sentry: a line under its name says it is an anonymous form opened in the browser, and the mark of a link that leaves the app stands where Report a problem keeps its arrow, so the two read apart. It opens `LegalLinks.feedbackForm` through `openExternalLink`, which opens any https address (forms.gle sends on to docs.google.com in the browser). Privacy and legal says in one sentence that the app sends nothing to the form; `docs/store-privacy.md` says why nothing is declared for it. The tour's Settings stop rings How the bazaar works, above the new row, so it did not move; its tests pass as they were, and the Settings goldens end above About.
 
 ## Later, kept on purpose (the owner, 2026-11-17)
 

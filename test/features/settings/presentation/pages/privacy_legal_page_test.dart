@@ -75,6 +75,23 @@ void main() {
     );
   }
 
+  // Plan 16.1: Feedback opens the web's form in the browser; the note says the app sends nothing to it, in every build.
+  for (final crashReports in [false, true]) {
+    testWidgets('the note says Feedback is a Google form the app sends nothing to, crash reports $crashReports', (
+      tester,
+    ) async {
+      await _pump(tester, crashReports: crashReports);
+
+      expect(
+        find.text(
+          'Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.',
+          skipOffstage: false,
+        ),
+        findsOneWidget,
+      );
+    });
+  }
+
   testWidgets('the page meets the platform guidelines', (tester) async {
     await _pump(tester, crashReports: true, platform: defaultTargetPlatform);
 

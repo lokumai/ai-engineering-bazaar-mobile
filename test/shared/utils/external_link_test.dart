@@ -59,6 +59,19 @@ void main() {
     }
   });
 
+  // Plan 16.1: Settings' Feedback opens the web's form, which forms.gle sends on to docs.google.com in the browser.
+  group("the feedback form's addresses open", () {
+    for (final link in ['https://forms.gle/U4oXwczTx3nmv3kGA', 'https://docs.google.com/forms/d/e/form/viewform']) {
+      testWidgets('$link opens with no message', (tester) async {
+        final calls = stubOpeningUrlLauncher(canLaunch: false);
+        await pumpLinkButton(tester, open: (context) => openExternalLink(context, Uri.parse(link)));
+
+        await expectTapShowsNoMessage(tester, find.byType(TextButton));
+        expect(calls.launchedUrls, [link]);
+      });
+    }
+  });
+
   group('only the web, mail and the phone open (review G)', () {
     for (final link in ['file:///etc/hosts', 'intent://scan#Intent;end', 'javascript:alert(1)']) {
       testWidgets('$link is refused and named in a message', (tester) async {

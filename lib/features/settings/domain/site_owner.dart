@@ -11,8 +11,13 @@ abstract final class SiteOwner {
   static const phone = '+90 216 688 45 46';
 }
 
-/// The pages the privacy note and the legal note point at, as the web links them (web `src/lib/site.ts`).
+/// The pages Settings, the privacy note and the legal note point at, as the web links them (web `src/lib/site.ts`).
 abstract final class LegalLinks {
+  /// Where a reader sends feedback: the web's anonymous Google Form (`FEEDBACK_URL`), opened in the browser by the
+  /// reader's own choice. The app sends nothing to it, so the privacy note's promise holds; it redirects to
+  /// `docs.google.com`, which the browser opens, not the app.
+  static final feedbackForm = Uri.parse('https://forms.gle/U4oXwczTx3nmv3kGA');
+
   /// GitHub's own sentence that a Pages site logs every visitor's IP address.
   static final githubPages = Uri.parse(
     'https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages',

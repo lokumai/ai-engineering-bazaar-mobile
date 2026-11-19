@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
+import 'package:ai_engineering_bazaar/features/settings/domain/site_owner.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/inline_setting.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/labeled_setting.dart';
@@ -23,6 +24,7 @@ import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/floating_room.dart';
+import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +32,8 @@ import 'package:go_router/go_router.dart';
 /// The Settings page (spec 3.6.1 row `settings`, Decision A8): the content notice, the track the reader chose (plan 1L,
 /// the one place it changes after Welcome), the reader's data with Back up, Restore and Reset (plan 1AB: the progress
 /// page that held them is gone), the content status with Check for updates (spec 3.4.2 to 3.4.4), the privacy and
-/// legal notes (plan 3.4), Report a problem when [feedback] is set, the licences, and
+/// legal notes (plan 3.4), Report a problem when [feedback] is set, Feedback (the web's anonymous form, in the
+/// browser; plan 16.1), the licences, and
 /// the developer console when [openDevConsole] is set.
 ///
 /// The redesign draws each section as a card under a section rule, with the same content (plan Phase 1H). Only
@@ -43,6 +46,9 @@ Key settingsLanguageKey(String language) => ValueKey('settings-language-$languag
 Key settingsAppearanceKey(ThemeMode mode) => ValueKey('settings-appearance-${mode.name}');
 
 Key settingsTrackKey(Track track) => ValueKey('settings-track-${track.id}');
+
+/// The key of the Feedback row, which opens the web's anonymous form in the browser.
+const settingsFeedbackFormKey = Key('settings-feedback-form');
 
 /// The key of the pocket model's button's [shown] segment.
 Key settingsPocketKey({required bool shown}) => ValueKey('settings-pocket-${shown ? 'on' : 'off'}');
@@ -261,6 +267,15 @@ class _SettingsView extends StatelessWidget {
               ),
               if (feedback)
                 _Page(label: s.feedback_title, onTap: () => context.push(ApplicationRoutesConstants.feedback)),
+              // The web's anonymous form, in the browser: a line under its name and the mark of a link that leaves
+              // the app, so it reads apart from Report a problem, which sends from the app.
+              _Page(
+                key: settingsFeedbackFormKey,
+                label: s.settings_feedback_form,
+                hint: s.settings_feedback_form_hint,
+                leavesApp: true,
+                onTap: () => openExternalLink(context, LegalLinks.feedbackForm),
+              ),
               _Page(
                 label: s.settings_licences,
                 onTap: () => showLicensePage(context: context, applicationName: s.app_title),
@@ -371,24 +386,43 @@ class _WardrobeRow extends StatelessWidget {
 }
 
 /// A page that About opens: its name and an arrow, one row straight on the page, the whole row the button.
+///
+/// With [leavesApp] the arrow gives way to the mark of a link opened outside the app, and [hint] says under the name
+/// where it goes.
 class _Page extends StatelessWidget {
-  const _Page({required this.label, required this.onTap});
+  const _Page({super.key, required this.label, required this.onTap, this.hint, this.leavesApp = false});
 
   final String label;
   final VoidCallback onTap;
+  final String? hint;
+  final bool leavesApp;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
+    final textTheme = Theme.of(context).textTheme;
+    final hint = this.hint;
     return BazaarRow(
       onTap: onTap,
       child: Row(
         spacing: AppSpacing.md,
         children: [
           Expanded(
-            child: Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: textTheme.bodyLarge?.copyWith(color: colors.onSurfaceTitle)),
+                if (hint != null) Text(hint, style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
+              ],
+            ),
           ),
-          ExcludeSemantics(child: Icon(Icons.chevron_right, color: colors.onSurfaceMuted)),
+          ExcludeSemantics(
+            child: Icon(
+              leavesApp ? Icons.open_in_new : Icons.chevron_right,
+              size: leavesApp ? 20 : null,
+              color: colors.onSurfaceMuted,
+            ),
+          ),
         ],
       ),
     );
