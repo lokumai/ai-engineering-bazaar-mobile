@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/features/transfer/presentation/transfer_pa
 import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +30,7 @@ MockRecordBloc _recordAnswering(TransferMergeResult result, List<TransferMerged>
   return bloc;
 }
 
-Future<void> _pump(WidgetTester tester, String payload, RecordBloc record) async {
+GoRouter _router(String payload) {
   final router = GoRouter(
     routes: [
       GoRoute(
@@ -39,7 +40,17 @@ Future<void> _pump(WidgetTester tester, String payload, RecordBloc record) async
     ],
   );
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, record: record));
+  return router;
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  String payload,
+  RecordBloc record, {
+  TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
+}) async {
+  await tester.pumpWidget(bazaarTestApp(router: _router(payload), record: record, platform: platform, locale: locale));
   await tester.pumpAndSettle();
 }
 
@@ -97,5 +108,47 @@ void main() {
     await _pump(tester, 'not-a-payload', _recordAnswering(TransferMergeResult.added, []));
     expect(find.text("This link cannot be read. Make a new one on the website's Progress page."), findsOneWidget);
     expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+
+  testWidgets('meets the platform guidelines', (tester) async {
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.added, []),
+      platform: defaultTargetPlatform,
+    );
+    await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  }, variant: bazaarPlatforms);
+
+  testWidgets('at text scale 2 the counts wrap and Add stays whole and reachable', (tester) async {
+    await pumpAtTextScale(
+      tester,
+      bazaarTestApp(
+        router: _router(const DeflateTransferPacker().pack(_compact)),
+        record: _recordAnswering(TransferMergeResult.added, []),
+      ),
+      scale: 2.0,
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull, reason: 'no overflow');
+    expect(find.text('2 checklist items ticked'), findsOneWidget);
+    // The page is a lazy list: at this scale Add is built only once scrolled to.
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('transfer-add')), 200);
+    await tester.pumpAndSettle();
+    expectHittable(tester, find.byKey(const ValueKey('transfer-add')));
+  });
+
+  testWidgets('reads in Turkish and in Persian, right to left', (tester) async {
+    final packed = const DeflateTransferPacker().pack(_compact);
+    await _pump(tester, packed, _recordAnswering(TransferMergeResult.added, []), locale: const Locale('tr'));
+    expect(find.text('Bağlantıdaki ilerleme'), findsOneWidget);
+    expect(find.text('1 modül tamamlandı'), findsNWidgets(2));
+    expect(find.text('2 kontrol listesi maddesi işaretli'), findsOneWidget);
+
+    await _pump(tester, packed, _recordAnswering(TransferMergeResult.added, []), locale: const Locale('fa'));
+    expect(find.text('پیشرفت از یک پیوند'), findsOneWidget);
+    expect(find.text('2 مورد از فهرست بررسی علامت خورده'), findsOneWidget);
+    expect(Directionality.of(tester.element(find.text('پیشرفت از یک پیوند'))), TextDirection.rtl);
   });
 }
