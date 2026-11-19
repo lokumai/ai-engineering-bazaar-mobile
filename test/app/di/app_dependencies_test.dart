@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/infrastructure/app_icon/app_icon_channel.dart';
+import 'package:ai_engineering_bazaar/infrastructure/haptics/haptics_channel.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ai_engineering_bazaar/infrastructure/theme/launch_ground_channel.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style.dart';
@@ -231,6 +234,32 @@ void main() {
     await const AppDependencies().createAppIconSwitch().choose(BazaarIcon.beanieDark);
 
     expect(calls.map((call) => (call.method, call.arguments)), [('choose', 'beanieDark')]);
+  });
+
+  test('createHaptics plays over the app\'s channel on Android and with Flutter\'s own on iOS (plan 18.12)', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel(HapticsChannel.name),
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+    addTearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel(HapticsChannel.name),
+        null,
+      );
+    });
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    await const AppDependencies().createHaptics().play(HapticKind.heavy);
+    expect(calls.map((call) => (call.method, call.arguments)), [('play', 'heavy')]);
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    expect(const AppDependencies().createHaptics(), isA<FlutterHaptics>());
+    debugDefaultTargetPlatformOverride = null;
   });
 
   test('a failed icon change is logged, never thrown', () async {

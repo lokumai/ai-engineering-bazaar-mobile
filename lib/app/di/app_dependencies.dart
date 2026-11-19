@@ -50,6 +50,8 @@ import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
 import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/infrastructure/speech/phone_speech.dart';
+import 'package:ai_engineering_bazaar/infrastructure/haptics/haptics_channel.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
 import 'package:ai_engineering_bazaar/infrastructure/links/link_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/share/share_channel.dart';
 import 'package:ai_engineering_bazaar/infrastructure/scanner/code_scanner_channel.dart';
@@ -121,6 +123,10 @@ class AppDependencies {
 
   /// The phone's own voice, which reads a module aloud (plan 15.1).
   ISpeech createSpeech() => PhoneSpeechPort(PhoneSpeech());
+
+  /// The touch feedback (plan 18.12): Flutter's own on iOS, the app's channel on Android.
+  IHaptics createHaptics() =>
+      defaultTargetPlatform == TargetPlatform.android ? const ChannelHaptics(HapticsChannel()) : const FlutterHaptics();
 
   /// The site's links the phone hands the app (plan 17.2), over the native channel.
   ILinkSource createLinkSource() => ChannelLinkSource(LinkChannel());
@@ -524,6 +530,16 @@ final class PhoneSpeechPort implements ISpeech {
 
   @override
   Future<void> stop() => _speech.stop();
+}
+
+/// Android's touch feedback over the native channel.
+final class ChannelHaptics implements IHaptics {
+  const ChannelHaptics(this._channel);
+
+  final HapticsChannel _channel;
+
+  @override
+  Future<void> play(HapticKind kind) => _channel.play(kind.name);
 }
 
 /// The site's links over the native channel.

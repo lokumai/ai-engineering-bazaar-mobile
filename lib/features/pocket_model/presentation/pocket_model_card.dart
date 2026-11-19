@@ -22,9 +22,9 @@ import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.da
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:clock/clock.dart';
+import 'package:ai_engineering_bazaar/shared/haptics/haptics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
@@ -214,11 +214,11 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     _known = state.known;
     switch (state.action) {
       case PocketAction.fed:
-        HapticFeedback.lightImpact();
+        context.haptic(HapticKind.light);
         _eatAt = _time;
         if (!reduced) _eat(state, learnt);
       case PocketAction.levelUp:
-        HapticFeedback.mediumImpact();
+        context.haptic(HapticKind.medium);
         _eatAt = _time;
         _joyAt = _time + 0.6;
         _hopAt = _time + 0.6;
@@ -227,10 +227,10 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           _confetti();
         }
       case PocketAction.overfit || PocketAction.refused:
-        HapticFeedback.heavyImpact();
+        context.haptic(HapticKind.heavy);
         if (!reduced) _sparks();
       case PocketAction.petted:
-        HapticFeedback.selectionClick();
+        context.haptic(HapticKind.selection);
         _joyAt = _time;
         // Two or three quick pets while it has spoken close its bubble.
         if (state.speech != null && _petJustNow) {
@@ -242,14 +242,14 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           _pet();
         }
       case PocketAction.woke:
-        HapticFeedback.selectionClick();
+        context.haptic(HapticKind.selection);
         _joyAt = _time;
         _hopAt = _time;
       case PocketAction.recovered:
         _joyAt = _time;
       case PocketAction.studied:
         // A module read: a feast.
-        HapticFeedback.mediumImpact();
+        context.haptic(HapticKind.medium);
         _eatAt = _time;
         _joyAt = _time + 0.9;
         if (!reduced) {
