@@ -486,7 +486,7 @@ void main() {
     test('from its level on, a chat now and then says it, about one in $signatureOdds', () {
       run(MemoryPocketModelStore(readMany(signatureLevel - PocketModel.feedLevels)), (async, bloc) {
         final count = signed(bloc, async, 1000);
-        expect(count, inInclusiveRange(5, 40));
+        expect(count, inInclusiveRange(2, 25));
       });
     });
 

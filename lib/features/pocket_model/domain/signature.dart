@@ -3,10 +3,10 @@
 library;
 
 /// The level at which the robot says it, once, as it reaches it; from then on now and then when asked to chat.
-const signatureLevel = 20;
+const signatureLevel = 23;
 
 /// Past [signatureLevel], one chat in this many is the signature.
-const signatureOdds = 50;
+const signatureOdds = 100;
 
 /// The signature in each of the app's languages, as the robot's words; the name is the same in all three.
 const signatures = {
