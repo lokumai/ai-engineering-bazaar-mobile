@@ -526,8 +526,27 @@ On `feature/android-ios-parity`, from main at 9b05cc7 (PR #16 merged). The owner
 - [x] **18.18 Welcome's first step a little lower (the owner, 2026-11-19).** The whole step, the two figures with it, 10 lower; it still fits an iPhone's 852 points.
 - [x] **18.17 Transfer (the owner, 2026-11-19).** Settings' section The website is now Transfer (Transfer in Turkish, انتقال in Persian).
 
+## Phase 19: before the release (the owner, 2026-11-19)
+
+On `feature/pre-release-fixes`, from main at 15f585a (PR #17 merged). A review of the whole app before the stores found 16 points; the owner chose to close 11 here, before the release PR, and keep the rest for later.
+
+- [x] **19.1 The privacy manifest names what the app reads.** iOS's privacy manifest declares the app's own UserDefaults (reason CA92.1: the launch screen's ground and the icon, read and written by the app only) and the installation id Sentry's sessions carry (Device ID, linked to no one, no tracking), as Play's form does.
+- [x] **19.2 No ads, no tracking.** Privacy and legal, the README and the store answers said the app has no analytics, which Sentry's sessions contradict; they now say no account, no ads and no tracking, and that no personal data is collected.
+- [x] **19.3 Google's code scanner.** On Android Scan the code is Google's code scanner, which sends Google its own diagnostics (device and app details, an installation id, how it performed). Privacy and legal says so after the GitHub links; `docs/store-privacy.md` declares it on Play (Diagnostics and Device IDs, for app functionality and analytics) and on Apple's form.
+- [x] **19.4 A release logs less.** The console of a release writes warnings and errors only, and the router names its locations, a module's key among them, in debug builds only.
+- [x] **19.5 The app always starts.** The icon, the look and the language chosen are read at start; one that cannot be read (a folder refused) counts as none, logged, and the app starts rather than hang on the launch screen.
+- [x] **19.6 Persian paddings.** The tour's bubble and the glossary's rows had a larger gap on one side; in Persian it is now on the right side (`EdgeInsetsDirectional`).
+- [x] **19.7 A transfer link's instant.** A link whose instant is past the end of the year 9999 (253402300799999 ms) is refused, so the record never holds a time its own grammar rejects. The web's `transfer.ts` needs the same bound.
+- [x] **19.8 Lock screen, headphones and calls.** `ListenCubit` names the reading to the phone (`show`: its title and whether it plays, nothing once it ends). On Android a MediaSession holds it, which the notice names; on iOS Now Playing and the remote commands. Play and Pause on the lock screen, the Control Center or the headphones come back as `control` and play or pause the player. On Android a paused reading keeps its notice, which says Paused and has Play, until the player ends the pause after two minutes, so it can be played again from the lock screen and the shade. On iOS a call or another app's sound now pauses the reading where it was, as on Android (18.3). On iOS the reading takes the sound for itself, as a podcast does: other sound pauses while it reads rather than being lowered (`.duckOthers` dropped), since iOS shows no app that mixes with others on the lock screen or in the status bar (the owner's iPhone, 2026-11-19). Not on Android: the headphones' buttons, which Android hands to the app that last played sound, and the phone's voice plays in its engine's own app (Android 16 emulator: no media button session).
+- [x] **19.9 Android's service starts at once.** `ListenService` starts with the speak, while the reader still sees the app, not once the engine answers: Android refuses a foreground service started from the background, and a reader who left during the engine's first start lost the reading. It stops again if the engine cannot speak.
+- [x] **19.10 Android waits while another app holds the sound.** A speak while a call holds the audio focus is not said; it comes back as an interruption, and the player pauses on its part.
+- [x] **19.11 The Caravan's trends are real (the owner).** The trends and their strength are the author's; only their readings have no address yet. The notice says their articles and resources are coming soon; the card's badge reads Resources soon and its chips name their kind (Article, Video, Tool, Repository).
+- [x] **19.12 Not done here.** The Apprentice's model work on the UI thread and the hash of large downloaded images (measure first); a refresh on mobile data (a product choice); the Legal text on images used without a licence (the web team's decision); small screens in the tests (below, Later).
+- [x] **19.13 The author's signature (the owner).** The module that takes the Apprentice to level 23, well past its wardrobe's last piece, has it say who wrote it, once; from then on one chat in 100 says it (`domain/signature.dart`). Nothing announces it.
+
 ## Later, kept on purpose (the owner, 2026-11-17)
 
 - Notes and highlights, with a diagram collection; unsure it is needed.
 - A home-screen widget; a daily reminder (notifications annoy the owner).
+- Small screens in the tests (the review of 2026-11-19, the owner: maybe later): the accessibility harness checks every page at 390 x 844; add 320 x 568 and 360 x 640 for the busiest pages (Home, Welcome, Practice, the player) at text scale 2.
 - Parked, probably never: a concept lab (a tokenizer, two vectors and cosine similarity, picking chunks for recall and precision, building a tool call's JSON).

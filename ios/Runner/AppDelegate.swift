@@ -1,5 +1,6 @@
 import AVFoundation
 import Flutter
+import MediaPlayer
 import UIKit
 
 @main
@@ -345,6 +346,11 @@ final class ScannerScreen: UIViewController {
 /// lib/infrastructure/speech/phone_speech.dart calls: `canSpeak` with a language, `speak` with an id, the words, the tag
 /// and the rate, and `stop`. Each speak's id goes back in `done` once its words are said or cut. Nothing leaves the
 /// phone.
+///
+/// A call or another app's sound that takes the phone's audio cuts the reading, and `interrupted` with its id tells the
+/// Dart side, which pauses where it was (plan 19.8). The Dart side names the reading in `show` (its title and whether it
+/// plays, or null once it ends), which the lock screen, the Control Center and the headphones show and answer: Play and
+/// Pause come back as `control` `play` or `pause`.
 final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   static let channel = "dev.lokumai.bazaar/speech"
 
@@ -357,11 +363,65 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   /// The speaks whose end has been told, so a cut queue tells it once.
   private var ended: Set<Int> = []
 
+  /// The lock screen's and the headphones' commands, answered while a reading is shown.
+  private var commands: [Any] = []
+
   init(messenger: FlutterBinaryMessenger) {
     channel = FlutterMethodChannel(name: Speech.channel, binaryMessenger: messenger)
     super.init()
     synthesizer.delegate = self
     channel.setMethodCallHandler { [weak self] call, result in self?.handle(call, result) }
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(interrupted(_:)), name: AVAudioSession.interruptionNotification,
+      object: AVAudioSession.sharedInstance())
+  }
+
+  /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was.
+  @objc private func interrupted(_ notification: Notification) {
+    guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+      AVAudioSession.InterruptionType(rawValue: raw) == .began,
+      let id = parts.values.first?.id
+    else { return }
+    channel.invokeMethod("interrupted", arguments: id)
+    synthesizer.stopSpeaking(at: .immediate)
+    endAll()
+  }
+
+  /// Names the reading to the lock screen and the headphones, [title] and whether it is [playing], or nothing.
+  private func show(title: String?, playing: Bool) {
+    let center = MPRemoteCommandCenter.shared()
+    guard let title else {
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+      for command in [center.playCommand, center.pauseCommand, center.togglePlayPauseCommand] {
+        command.removeTarget(nil)
+        command.isEnabled = false
+      }
+      commands.removeAll()
+      return
+    }
+    if commands.isEmpty {
+      commands = [
+        center.playCommand.addTarget { [weak self] _ in self?.control("play") ?? .commandFailed },
+        center.pauseCommand.addTarget { [weak self] _ in self?.control("pause") ?? .commandFailed },
+        center.togglePlayPauseCommand.addTarget { [weak self] _ in
+          let playing = (MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate]
+            as? Double ?? 0) > 0
+          return self?.control(playing ? "pause" : "play") ?? .commandFailed
+        },
+      ]
+      for command in [center.playCommand, center.pauseCommand, center.togglePlayPauseCommand] {
+        command.isEnabled = true
+      }
+    }
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+      MPMediaItemPropertyTitle: title,
+      MPNowPlayingInfoPropertyPlaybackRate: playing ? 1.0 : 0.0,
+    ]
+  }
+
+  private func control(_ command: String) -> MPRemoteCommandHandlerStatus {
+    channel.invokeMethod("control", arguments: command)
+    return .success
   }
 
   /// Whether a voice of the phone speaks [language], a language code such as `tr`.
@@ -400,10 +460,12 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       guard let id = arguments["id"] as? Int, let texts = arguments["texts"] as? [String], !texts.isEmpty,
         let tag = arguments["tag"] as? String, let voice = Speech.bestVoice(for: tag)
       else { return result(false) }
-      // Heard with the ring switch on silent and with the screen off, as a reader who taps Listen means to hear it,
-      // over other sound lowered; Info.plist's audio background mode keeps it going once the app leaves the screen.
+      // Heard with the ring switch on silent and with the screen off, as a reader who taps Listen means to hear it;
+      // Info.plist's audio background mode keeps it going once the app leaves the screen. The sound is the app's alone,
+      // as a podcast's: other sound pauses rather than lowers, since iOS shows an app that mixes with others (as
+      // `.duckOthers` does) nowhere on the lock screen, the status bar or the headphones (plan 19.8).
       let session = AVAudioSession.sharedInstance()
-      try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+      try? session.setCategory(.playback, mode: .spokenAudio, options: [])
       try? session.setActive(true)
       // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
@@ -422,6 +484,10 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
     case "stop":
       synthesizer.stopSpeaking(at: .immediate)
       endAll()
+      result(nil)
+    case "show":
+      let reading = call.arguments as? [String: Any]
+      show(title: reading?["title"] as? String, playing: reading?["playing"] as? Bool ?? false)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)

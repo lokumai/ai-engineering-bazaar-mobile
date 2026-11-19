@@ -4,6 +4,9 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.media.MediaMetadata
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
@@ -26,6 +29,12 @@ import java.util.Locale
  * comes back a moment after; a short pause follows each text; a text longer than the engine takes is said in pieces;
  * and when another app takes the sound for itself, as a call does, or the reader presses Pause on the notice, the
  * reading stops and `interrupted` tells the Dart side, which pauses where it was.
+ *
+ * The Dart side names the reading in `show` (its title and whether it plays, or null once it ends), which a
+ * MediaSession holds, so the headphones' buttons and the lock screen's controls (where the notice may show) reach the
+ * player: `control` `pause` or `play` (plan 19.8). The service starts with the speak itself, before the engine answers,
+ * so a reader who leaves the app at once keeps the reading (plan 19.9); and while another app holds the sound, as a call
+ * does, a speak is not said but comes back as interrupted, so the player waits on its part (plan 19.10).
  */
 class Speech(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     companion object {
@@ -145,10 +154,56 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         .setOnAudioFocusChangeListener(focus, main)
         .build()
 
+    /** The reading as the phone shows it to the headphones and the lock screen (plan 19.8). */
+    private val session = MediaSession(context, "Listen").apply {
+        setCallback(
+            object : MediaSession.Callback() {
+                override fun onPlay() = control("play")
+
+                override fun onPause() = control("pause")
+
+                override fun onStop() = control("pause")
+            },
+            main,
+        )
+    }
+
+    private fun control(command: String) {
+        channel.invokeMethod("control", command)
+    }
+
+    /** Whether a reading is shown, playing or paused: its notice stays while it is (plan 19.8). */
+    private var shown = false
+
+    /**
+     * Names the reading to the session and the notice: [title] and whether it is [playing], or nothing when [title] is
+     * null, which ends the notice once nothing is said.
+     */
+    private fun show(title: String?, playing: Boolean) {
+        shown = title != null
+        if (title == null) {
+            session.isActive = false
+            ListenService.session = null
+            if (current == null) ListenService.stop(context)
+            return
+        }
+        session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
+        session.setPlaybackState(
+            PlaybackState.Builder()
+                .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or PlaybackState.ACTION_PLAY_PAUSE)
+                .setState(if (playing) PlaybackState.STATE_PLAYING else PlaybackState.STATE_PAUSED, 0, 1f)
+                .build(),
+        )
+        session.isActive = true
+        ListenService.session = session.sessionToken
+        ListenService.show(context, title, playing)
+    }
+
     private val release = Runnable {
         if (current != null) return@Runnable
         audio?.abandonAudioFocusRequest(focusRequest)
-        ListenService.stop(context)
+        // A paused reading keeps its notice and its Play until it ends (plan 19.8).
+        if (!shown) ListenService.stop(context)
     }
 
     private val progress = object : UtteranceProgressListener() {
@@ -173,6 +228,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
 
     init {
         ListenService.onPause = { main.post { interrupt() } }
+        ListenService.onPlay = { main.post { control("play") } }
     }
 
     private fun cut(utteranceId: String?) {
@@ -247,17 +303,31 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 val tag = call.argument<String>("tag") ?: return result.error("no-tag", null, null)
                 val rate = call.argument<Double>("rate") ?: 1.0
                 val title = call.argument<String>("title").orEmpty()
+                // At once, while the reader still sees the app: Android refuses a foreground service started from the
+                // background, as a reader who leaves while the engine starts would have it (plan 19.9).
+                main.removeCallbacks(release)
+                ListenService.start(context, title)
                 whenStarted { tts ->
                     val locale = Locale.forLanguageTag(tag)
                     if (tts == null || texts.isEmpty() || !available(tts.setLanguage(locale))) {
+                        if (current == null) ListenService.stop(context)
                         return@whenStarted result.success(false)
                     }
                     pickVoice(tts, locale)
                     tts.setSpeechRate(rate.toFloat())
                     main.removeCallbacks(release)
                     current = id
-                    audio?.requestAudioFocus(focusRequest)
-                    ListenService.start(context, title)
+                    val focus = audio?.requestAudioFocus(focusRequest) ?: AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                    if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        // Another app holds the sound, as a call does: nothing is said, and the player waits on its
+                        // part, as if the call had come during the reading (plan 19.10).
+                        tts.stop()
+                        main.post {
+                            interrupt()
+                            done(id)
+                        }
+                        return@whenStarted result.success(true)
+                    }
                     // The first flushes the words being said, whose speak then comes back as done; the rest queue.
                     val max = runCatching { TextToSpeech.getMaxSpeechInputLength() }.getOrDefault(4000)
                     var queued = true
@@ -285,6 +355,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 engine?.stop()
                 result.success(null)
             }
+            "show" -> {
+                val reading = call.arguments as? Map<*, *>
+                show(reading?.get("title") as? String, reading?.get("playing") as? Boolean ?: false)
+                result.success(null)
+            }
             else -> result.notImplemented()
         }
     }
@@ -292,7 +367,10 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Shuts the engine down with the activity. */
     fun close() {
         channel.setMethodCallHandler(null)
+        show(null, false)
+        session.release()
         ListenService.onPause = null
+        ListenService.onPlay = null
         main.removeCallbacks(release)
         current = null
         audio?.abandonAudioFocusRequest(focusRequest)

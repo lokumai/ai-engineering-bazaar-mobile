@@ -16,8 +16,17 @@ abstract interface class ISpeech {
   });
 
   /// Each time the phone stopped the reading itself: another app took the sound, as a call does, or the reader pressed
-  /// Pause where the phone shows the reading (plan 18.3). The player pauses where it was.
+  /// Pause where the phone shows the reading, on the lock screen, the notice or the headphones (plan 18.3, 19.8). The
+  /// player pauses where it was.
   Stream<void> get interruptions;
+
+  /// Each time the reader pressed Play where the phone shows the reading: the lock screen or the headphones (plan
+  /// 19.8). The player goes on from its part.
+  Stream<void> get resumes;
+
+  /// What the phone shows of the reading on its lock screen and to the headphones' buttons: the module's [ShownReading]
+  /// title and whether it plays, or nothing once the reading ends (plan 19.8).
+  Future<void> show(ShownReading? reading);
 
   /// Stops what is being said, and what waits to be.
   Future<void> stop();
@@ -43,5 +52,14 @@ final class NoSpeech implements ISpeech {
   Stream<void> get interruptions => const Stream.empty();
 
   @override
+  Stream<void> get resumes => const Stream.empty();
+
+  @override
+  Future<void> show(ShownReading? reading) async {}
+
+  @override
   Future<void> stop() async {}
 }
+
+/// The reading as the phone shows it (plan 19.8): the module's [title], and whether it [playing] or is paused.
+typedef ShownReading = ({String title, bool playing});

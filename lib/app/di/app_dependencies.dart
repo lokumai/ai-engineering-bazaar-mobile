@@ -529,6 +529,12 @@ final class PhoneSpeechPort implements ISpeech {
   Stream<void> get interruptions => _speech.interruptions;
 
   @override
+  Stream<void> get resumes => _speech.resumes;
+
+  @override
+  Future<void> show(ShownReading? reading) => _speech.show(title: reading?.title, playing: reading?.playing ?? false);
+
+  @override
   Future<void> stop() => _speech.stop();
 }
 

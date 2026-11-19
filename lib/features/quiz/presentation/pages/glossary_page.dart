@@ -227,7 +227,13 @@ class _EntryView extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: minTapTarget(theme.platform)),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.md, AppSpacing.md),
+                // The wider gap before the term, mirrored in Persian (plan 19.6).
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
                 child: Row(
                   children: [
                     Expanded(

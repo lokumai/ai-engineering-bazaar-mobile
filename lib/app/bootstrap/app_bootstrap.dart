@@ -66,12 +66,13 @@ class AppBootstrap {
 
     // The chosen app icon, read before the first frame, so the opening starts in its colours rather than the
     // default's (a few flag files; a file not read counts as no choice).
-    final appIcon = await appDependencies.createAppIconStore().chosen() ?? BazaarIcon.defaultIcon;
+    // A read that fails in any way counts as no choice, so the app always starts (plan 19.5).
+    final appIcon = await chosenOrNone(appDependencies.createAppIconStore().chosen) ?? BazaarIcon.defaultIcon;
     // The chosen look too, so the first frame is on its page colour, as the launch screen was (the owner, 2026-11-15).
-    final themeMode = await appDependencies.createThemeStore().chosen() ?? ThemeMode.light;
+    final themeMode = await chosenOrNone(appDependencies.createThemeStore().chosen) ?? ThemeMode.light;
     // The chosen language too, so the first frame is not in the phone's for a moment (the owner, 2026-11-16). None
     // chosen, the phone's language is taken.
-    final language = await appDependencies.createLanguageStore().chosen();
+    final language = await chosenOrNone(appDependencies.createLanguageStore().chosen);
 
     log.info('Starting app with env: {}', [config.environment.name]);
 
@@ -84,5 +85,18 @@ class AppBootstrap {
       appRunner: () =>
           runApp(App(dependencies: appDependencies, appIcon: appIcon, themeMode: themeMode, language: language)),
     );
+  }
+}
+
+/// What [read] answers, or null when it fails in any way: a choice the boot reads before the first frame must never keep
+/// the app on its launch screen (plan 19.5). The stores catch a file that cannot be read; this also catches a support
+/// directory the phone does not give, or anything else.
+@visibleForTesting
+Future<T?> chosenOrNone<T>(Future<T?> Function() read) async {
+  try {
+    return await read();
+  } on Object catch (error) {
+    AppLogger.getLogger('AppBootstrap').warn('a choice not read at start: {}', [error.runtimeType]);
+    return null;
   }
 }

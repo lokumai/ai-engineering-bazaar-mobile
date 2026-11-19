@@ -131,6 +131,34 @@ void main() {
       expect(interruptions, 1);
     });
 
+    test('Play and Pause on the lock screen or the headphones reach the player (plan 19.8)', () async {
+      native();
+      final speech = PhoneSpeech();
+      var paused = 0;
+      var resumed = 0;
+      final pauses = speech.interruptions.listen((_) => paused++);
+      final resumes = speech.resumes.listen((_) => resumed++);
+      addTearDown(pauses.cancel);
+      addTearDown(resumes.cancel);
+      await _native('control', 'pause');
+      await _native('control', 'play');
+      await _native('control', 'skip');
+      await pumpEventQueue();
+      expect((paused, resumed), (1, 1));
+    });
+
+    test('shows the reading to the phone, or nothing once it ends (plan 19.8)', () async {
+      native();
+      final speech = PhoneSpeech();
+      await speech.show(title: 'Tokens', playing: true);
+      expect(calls.last.method, 'show');
+      expect(calls.last.arguments, {'title': 'Tokens', 'playing': true});
+      await speech.show();
+      expect((calls.last.method, calls.last.arguments), ('show', null));
+      native(fails: true);
+      await expectLater(speech.show(title: 'Tokens'), completes);
+    });
+
     test("each engine's rate for a pace: Android's iOS's measured pace, iOS's in quarter steps (plan 18.13)", () {
       expect(PhoneSpeech.engineRate(1, TargetPlatform.android), 1);
       expect(PhoneSpeech.engineRate(0.75, TargetPlatform.android), 0.91);

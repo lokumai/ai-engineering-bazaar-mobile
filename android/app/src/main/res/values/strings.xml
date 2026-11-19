@@ -5,4 +5,6 @@
     <string name="listen_channel">Listen</string>
     <string name="listen_reading">Reading aloud</string>
     <string name="listen_pause">Pause</string>
+    <string name="listen_play">Play</string>
+    <string name="listen_paused">Paused</string>
 </resources>

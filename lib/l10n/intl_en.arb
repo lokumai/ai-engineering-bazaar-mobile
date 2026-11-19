@@ -24,9 +24,9 @@
   "@nav_settings": {},
   "nav_caravan": "Caravan",
   "@nav_caravan": {},
-  "caravan_sample_notice": "Content is coming soon. Until then these trends are sample data.",
+  "caravan_sample_notice": "The articles and resources for each trend are coming soon.",
   "@caravan_sample_notice": {
-    "description": "The notice over the Caravan while it draws the web's sample trends, as the web's notice says (web CaravanPage.tsx)."
+    "description": "The notice over the Caravan: the trends' readings have no address yet (the owner, 2026-11-19)."
   },
   "caravan_stage_label": "The caravan at {title}",
   "@caravan_stage_label": {
@@ -101,16 +101,18 @@
   },
   "caravan_reading": "To read",
   "@caravan_reading": {},
-  "caravan_sample_articles": "Sample article",
+  "caravan_sample_articles": "Article",
   "@caravan_sample_articles": {},
-  "caravan_sample_videos": "Sample video",
+  "caravan_sample_videos": "Video",
   "@caravan_sample_videos": {},
-  "caravan_sample_tools": "Sample tool",
+  "caravan_sample_tools": "Tool",
   "@caravan_sample_tools": {},
-  "caravan_sample_repositories": "Sample repository",
+  "caravan_sample_repositories": "Repository",
   "@caravan_sample_repositories": {},
-  "caravan_sample_badge": "Sample",
-  "@caravan_sample_badge": {},
+  "caravan_sample_badge": "Resources soon",
+  "@caravan_sample_badge": {
+    "description": "The mark on a trend's card while its readings have no address yet."
+  },
   "caravan_all_trends": "All trends",
   "@caravan_all_trends": {},
   "caravan_search": "Search the trends",
@@ -978,12 +980,16 @@
   },
   "privacy_title": "Privacy",
   "@privacy_title": {},
-  "privacy_no_data": "This app collects no personal data. It has no account, no analytics and no ads.",
+  "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
   "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
+  "privacy_scanner": "On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
+  "@privacy_scanner": {
+    "description": "Privacy: Scan the code on Android is Google's code scanner, which sends Google its own diagnostics (plan 19.3)."
+  },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {
     "description": "Privacy: the feedback form is Google's, opened by the reader; the app sends nothing to it."

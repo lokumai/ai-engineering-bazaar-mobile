@@ -1,14 +1,12 @@
 import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_road.dart';
 import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_trend.dart';
 
-/// PLACEHOLDER, NOT CONTENT. The Caravan's sample trends, until the bundle carries the author's (web D116,
-/// `api/v1/caravan/<lang>.json`); delete this file then.
+/// The Caravan's trends, held in the app until the bundle carries them (web D116, `api/v1/caravan/<lang>.json`);
+/// delete this file then.
 ///
-/// These are the web's own sample (`src/components/caravan/sample-trends.ts`, the round-5 mockup's trends), which the
-/// web draws while `mini-courses/caravan/trends.yaml` holds none, and says so. Nothing here was researched, measured
-/// or checked: the strength is a shape ([strengthShape]), no reading has an address, and the page says it is sample
-/// data. The Turkish and Persian words are the app's translation of the web's English sample, so the design can be
-/// seen in every language of the app (the owner, 2026-11-14: "the content is not important, the design is").
+/// They are the web's (`src/components/caravan/sample-trends.ts`), and the trends and their strength are the author's
+/// and real (the owner, 2026-11-19); no reading has an address yet, and the page says the articles and resources are
+/// coming soon. The Turkish and Persian words are the app's translation of the web's English.
 abstract final class SampleCaravan {
   /// The month the road starts.
   static final DateTime first = DateTime.utc(2022, 11);

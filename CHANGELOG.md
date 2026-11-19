@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
+- Play and Pause for a module read aloud on the lock screen, on both phones, and in the iPhone's Control Center and on its headphones. On Android a paused reading keeps its notice, with Play, for two minutes. On iOS other sound now pauses while a module is read aloud, rather than being lowered.
 - On Android a module read aloud goes on with the screen off and the app in the background, with a notice that names it and has Pause; Back on Home leaves the app running. Other sound is lowered while it reads, and a call pauses it.
 - On Android the Apprentice's and the Caravan's touch feedback is a soft tap like the iPhone's, on phones that can play one, and none on others.
 - Feedback in Settings: the web's anonymous Google Form, opened in the browser, in every build. The app sends nothing to it, and Privacy and legal says so.
@@ -16,7 +17,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Today's card at Home's head: each day a section of a module, its heading and first sentences, presented by the Apprentice from its corner, where its level, Chat and its button sit; a tap opens the module at that section.
 - A tour for a first run: once Welcome is over the Apprentice comes out of its button and asks whether to show the reader around, then walks to each part of Home and of each tab the first time it is opened, its wardrobe in Settings included, saying in a speech bubble what it is, and walks back into its button at the end. Skip ends the tour. How the bazaar works takes it again, its button always in sight.
 - The Apprentice (Çırak in Turkish, شاگرد in Persian), a pocket model: a small robot in a fez to train when bored, with a small language model of its own on the phone. Fed tokens, it reads a few words of its text at a time, rises in level and knows more words, and its loss on sentences it never read falls; asked, it writes, from noise to the sentences it read to sentences of its own, cold and repetitive or hot and hallucinating by its temperature, and it repeats itself less. It can read the modules the reader finished, which makes its loss fall and its speech more varied. It lives in a round button in the corner of Home, which opens it in a sheet and which can be dragged or thrown to bounce off the screen's edges; a module it reads ends with its quiz's questions and right answers; once it has read modules it speaks of one of them, and the more it read, the more sentences it weighs before it says the smoothest; a pet, a feed and a question each have several turns. Fed too fast it overfits; left for hours it grows hungry, then falls asleep until tapped. Once it has read many modules it keeps each sentence to one section of a module, often starts as the course does and finishes what it says. Each module it reads is one level, and it leaves out what means nothing without a picture or points elsewhere, and says the module's sentences word for word less often. It also talks to the reader as a friend: hello, thanks after a module, good morning, that it is hungry, a question or a cheer, in words and sentences that grow with its level unannounced, and from level 3 it now and then tells what it read as one tells a friend; cold, it keeps to its likeliest sentence. A pet, a feed, its talking and its idle moments each have several turns (a spin, hops, heart eyes, a stretch, a hum), it answers in about half the time, beside its face, and what it has read is counted at the foot of its sheet. Settings' Customize section holds the app icon, a switch for its button and its wardrobe, where it changes its hat, its head and its body, a new one unlocked at each level, and keeps its size in any of them. It is kept on the device.
-- The Caravan tab is a journey: the web's shadow play, where a caravan of puppets walks the road of AI engineering's trends since 2022 and stands at the chosen trend's stall, with a strip of the whole road and the trend's card under it. The arrows, a swipe on the card, a drag of the road, a tap on a stall or on the strip, All trends with a search and the years, and Tour the road move it. The trends are the web's sample until the content bundle carries the Caravan, and the page says the content is coming soon. The strip under the stage shows only the years.
+- The Caravan tab is a journey: the web's shadow play, where a caravan of puppets walks the road of AI engineering's trends since 2022 and stands at the chosen trend's stall, with a strip of the whole road and the trend's card under it. The arrows, a swipe on the card, a drag of the road, a tap on a stall or on the strip, All trends with a search and the years, and Tour the road move it. The trends are real, held in the app until the content bundle carries the Caravan, and the page says their articles and resources are coming soon. The strip under the stage shows only the years.
 - App icon in Settings' Customize section: the pocket model's robot in one of its hats or heads, on the dark or the cream ground, chosen above the robots; the fez on cream is the default, and each other robot unlocks as its parts do in the robot's wardrobe. The chosen one becomes the icon on the home screen (on Android once the app is left; on iOS the phone confirms it) the launch screen takes its ground (on Android 13 and later and on iOS, from the launch after the change).
 - Welcome's first step ends in Start learning, which opens the app, with the story button under it; the first launch opens Home, as every launch does.
 - Appearance in Settings and on Welcome's first step: Light or Dark. The app opens light until the reader chooses, whatever the phone's setting, and keeps the choice on the device.
@@ -62,6 +63,9 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The Caravan says each trend's articles and resources are coming soon, not that the trends are sample data.
+- Privacy and legal says the app has no account, no ads and no tracking, and that on Android Scan the code is Google's code scanner, which sends Google its own diagnostics. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
+- A release writes only warnings and errors to the console, and never the pages opened.
 - Settings' section The website is now Transfer.
 - On Android the navigation bar shows the page under it, its buttons readable in both looks, and the share icon is Android's own.
 - On Android Listen's paces sound as on the iPhone, with the same short pause between parts, and a very long part is read in pieces.
@@ -119,6 +123,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- On iOS a call pauses a module read aloud where it was, as on Android.
+- On Android a reading started just before leaving the app goes on, and one started during a call waits on its part.
+- The app starts even when a choice kept on the device cannot be read.
+- A progress link with a time past the year 9999 is refused.
+- In Persian the tour's bubble and the glossary's rows have their larger gap on the right side.
 - On Android, Open on the web from the app goes to the browser instead of coming back to the app, and a link from another app no longer opens a second copy of it.
 - Persian headings are set in Vazirmatn's own bold face rather than a thickened regular one.
 - A broken link in a module says it could not be opened instead of failing, links open only on the web, mail and the phone, and a download from the site is capped at 32 MB.

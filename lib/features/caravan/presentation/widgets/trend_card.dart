@@ -30,7 +30,7 @@ class TrendCard extends StatelessWidget {
   final CaravanStop stop;
   final List<CaravanModule> modules;
 
-  /// Whether the trend is the sample's, which the card says.
+  /// Whether the trend's readings have no address yet, which the card says.
   final bool sample;
   final ValueChanged<String> onOpenModule;
   final VoidCallback onNext;
@@ -181,7 +181,7 @@ class _Strength extends StatelessWidget {
   }
 }
 
-/// A reading the trend points to. The sample has no address for any, so each is a placeholder, not a link.
+/// A reading the trend points to. None has an address yet, so each names its kind, not a link.
 class _SourceChip extends StatelessWidget {
   const _SourceChip({required this.kind});
 

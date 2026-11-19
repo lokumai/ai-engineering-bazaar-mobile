@@ -108,12 +108,12 @@ class S {
     return Intl.message('Caravan', name: 'nav_caravan', desc: '', args: []);
   }
 
-  /// `Content is coming soon. Until then these trends are sample data.`
+  /// `The articles and resources for each trend are coming soon.`
   String get caravan_sample_notice {
     return Intl.message(
-      'Content is coming soon. Until then these trends are sample data.',
+      'The articles and resources for each trend are coming soon.',
       name: 'caravan_sample_notice',
-      desc: 'The notice over the Caravan while it draws the web\'s sample trends, as the web\'s notice says (web CaravanPage.tsx).',
+      desc: 'The notice over the Caravan: the trends\' readings have no address yet (the owner, 2026-11-19).',
       args: [],
     );
   }
@@ -223,29 +223,34 @@ class S {
     return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
   }
 
-  /// `Sample article`
+  /// `Article`
   String get caravan_sample_articles {
-    return Intl.message('Sample article', name: 'caravan_sample_articles', desc: '', args: []);
+    return Intl.message('Article', name: 'caravan_sample_articles', desc: '', args: []);
   }
 
-  /// `Sample video`
+  /// `Video`
   String get caravan_sample_videos {
-    return Intl.message('Sample video', name: 'caravan_sample_videos', desc: '', args: []);
+    return Intl.message('Video', name: 'caravan_sample_videos', desc: '', args: []);
   }
 
-  /// `Sample tool`
+  /// `Tool`
   String get caravan_sample_tools {
-    return Intl.message('Sample tool', name: 'caravan_sample_tools', desc: '', args: []);
+    return Intl.message('Tool', name: 'caravan_sample_tools', desc: '', args: []);
   }
 
-  /// `Sample repository`
+  /// `Repository`
   String get caravan_sample_repositories {
-    return Intl.message('Sample repository', name: 'caravan_sample_repositories', desc: '', args: []);
+    return Intl.message('Repository', name: 'caravan_sample_repositories', desc: '', args: []);
   }
 
-  /// `Sample`
+  /// `Resources soon`
   String get caravan_sample_badge {
-    return Intl.message('Sample', name: 'caravan_sample_badge', desc: '', args: []);
+    return Intl.message(
+      'Resources soon',
+      name: 'caravan_sample_badge',
+      desc: 'The mark on a trend\'s card while its readings have no address yet.',
+      args: [],
+    );
   }
 
   /// `All trends`
@@ -1890,10 +1895,10 @@ class S {
     return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
   }
 
-  /// `This app collects no personal data. It has no account, no analytics and no ads.`
+  /// `This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.`
   String get privacy_no_data {
     return Intl.message(
-      'This app collects no personal data. It has no account, no analytics and no ads.',
+      'This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.',
       name: 'privacy_no_data',
       desc: '',
       args: [],
@@ -1916,6 +1921,16 @@ class S {
       'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
       name: 'privacy_download',
       desc: '',
+      args: [],
+    );
+  }
+
+  /// `On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.`
+  String get privacy_scanner {
+    return Intl.message(
+      'On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.',
+      name: 'privacy_scanner',
+      desc: 'Privacy: Scan the code on Android is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3).',
       args: [],
     );
   }

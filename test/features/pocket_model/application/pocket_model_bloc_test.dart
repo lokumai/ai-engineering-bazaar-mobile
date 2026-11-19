@@ -5,9 +5,11 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_m
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_corpus.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/signature.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -447,5 +449,58 @@ void main() {
       });
     }
     expect(thanked, greaterThan(4));
+  });
+
+  // The owner, 2026-11-19: the author's name, found only by a reader who keeps going.
+  group('the signature', () {
+    /// A model fed to the top that read [count] modules the test cannot open, so its level is 7 + [count].
+    PocketModel readMany(int count) => PocketModel(
+      tokens: PocketModel.levels.last,
+      readings: [for (var i = 0; i < count; i++) PocketReading(key: 'gone/$i', at: PocketModel.levels.last, tokens: 1)],
+      lastFed: noon,
+    );
+
+    /// How many of [chats] chats are the signature.
+    int signed(PocketModelBloc bloc, FakeAsync async, int chats) {
+      var count = 0;
+      for (var i = 0; i < chats; i++) {
+        bloc.add(const PocketModelAsked());
+        async.flushMicrotasks();
+        if (listEquals(ready(bloc).speech?.tokens, signatureIn('en'))) count++;
+      }
+      return count;
+    }
+
+    test('the module that takes it to its level has it say who wrote it, once', () {
+      final store = MemoryPocketModelStore(readMany(signatureLevel - PocketModel.feedLevels - 1));
+      run(store, (async, bloc) {
+        expect(ready(bloc).model.level, signatureLevel - 1);
+        bloc.add(const PocketModelModuleRead('alpha/first'));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.level, signatureLevel);
+        expect(ready(bloc).action, PocketAction.levelUp);
+        expect(ready(bloc).speech?.tokens, ['Arda', 'Cengaver', 'wrote', 'me']);
+      });
+    });
+
+    test('from its level on, a chat now and then says it, about one in $signatureOdds', () {
+      run(MemoryPocketModelStore(readMany(signatureLevel - PocketModel.feedLevels)), (async, bloc) {
+        final count = signed(bloc, async, 1000);
+        expect(count, inInclusiveRange(2, 25));
+      });
+    });
+
+    test('below its level, it never says it', () {
+      run(MemoryPocketModelStore(readMany(signatureLevel - PocketModel.feedLevels - 1)), (async, bloc) {
+        expect(signed(bloc, async, 1000), 0);
+      });
+    });
+
+    test('it says it in the app\'s language, the name the same in each', () {
+      for (final language in ['en', 'tr', 'fa']) {
+        expect(signatureIn(language), containsAllInOrder(['Arda', 'Cengaver']), reason: language);
+      }
+      expect(signatureIn('de'), signatureIn('en'));
+    });
   });
 }

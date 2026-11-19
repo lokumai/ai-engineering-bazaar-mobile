@@ -93,7 +93,8 @@ void main() {
 
     // Apple asks every app for a privacy manifest; this one says the app tracks nothing, and lists what a prod build
     // with a SENTRY_DSN sends (docs/store-privacy.md): crash data, performance data (how long the app took to open),
-    // other diagnostic data (hangs), product interaction (the sessions of release health: the app's launches) and
+    // other diagnostic data (hangs), product interaction (the sessions of release health: the app's launches), the
+    // installation id of those sessions (device id) and
     // customer support (Report a problem), none linked to the user or used for tracking, all for the app's functioning.
     test('the privacy manifest says no tracking and lists what Sentry sends, and ships in the app', () {
       final manifest = File('ios/Runner/PrivacyInfo.xcprivacy').readAsStringSync();
@@ -104,15 +105,25 @@ void main() {
         'NSPrivacyCollectedDataTypePerformanceData',
         'NSPrivacyCollectedDataTypeOtherDiagnosticData',
         'NSPrivacyCollectedDataTypeProductInteraction',
+        'NSPrivacyCollectedDataTypeDeviceID',
         'NSPrivacyCollectedDataTypeCustomerSupport',
       ]);
-      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').allMatches(manifest), hasLength(5));
-      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').allMatches(manifest), hasLength(5));
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<false/>').allMatches(manifest), hasLength(6));
+      expect(RegExp(r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false/>').allMatches(manifest), hasLength(6));
       expect(
         RegExp(r'<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>').allMatches(manifest),
-        hasLength(5),
+        hasLength(6),
       );
       expect(manifest, isNot(contains('NSPrivacyCollectedDataTypePurposeAnalytics')));
+      // The app's own UserDefaults (the launch picture's ground, AppDelegate.swift) is a required-reason API: CA92.1,
+      // read and written by the app itself only (plan 19.1).
+      expect(
+        RegExp(
+          r'<string>NSPrivacyAccessedAPICategoryUserDefaults</string>\s*<key>NSPrivacyAccessedAPITypeReasons</key>\s*'
+          r'<array>\s*<string>CA92\.1</string>\s*</array>',
+        ).hasMatch(manifest),
+        isTrue,
+      );
 
       final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
       expect(RegExp(r'/\* PrivacyInfo.xcprivacy in Resources \*/,').allMatches(project), hasLength(1));

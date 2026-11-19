@@ -34,10 +34,14 @@ final class PhoneSpeech {
   int _lastId = 0;
 
   final _interruptions = StreamController<void>.broadcast();
+  final _resumes = StreamController<void>.broadcast();
 
-  /// Each time the phone stopped the reading itself (`interrupted`, Android, plan 18.3): another app took the sound, as
-  /// a call does, or the reader pressed Pause on the notice.
+  /// Each time the phone stopped the reading itself (`interrupted`, plan 18.3): another app took the sound, as a call
+  /// does; or the reader pressed Pause on the lock screen, the notice or the headphones (`control` `pause`, plan 19.8).
   Stream<void> get interruptions => _interruptions.stream;
+
+  /// Each time the reader pressed Play on the lock screen or the headphones (`control` `play`, plan 19.8).
+  Stream<void> get resumes => _resumes.stream;
 
   Future<void> _heard(MethodCall call) async {
     switch (call) {
@@ -47,6 +51,10 @@ final class PhoneSpeech {
         _saying[id]?.$2(index);
       case MethodCall(method: 'interrupted', arguments: final int id) when _saying.containsKey(id):
         _interruptions.add(null);
+      case MethodCall(method: 'control', arguments: 'pause'):
+        _interruptions.add(null);
+      case MethodCall(method: 'control', arguments: 'play'):
+        _resumes.add(null);
       default:
         break;
     }
@@ -100,6 +108,18 @@ final class PhoneSpeech {
       _end(id);
     }
     return saying.future;
+  }
+
+  /// Shows the reading on the phone's lock screen and to the headphones' buttons, [title] and whether it is [playing],
+  /// or nothing when [title] is null (plan 19.8). A phone that cannot show it shows nothing.
+  Future<void> show({String? title, bool playing = false}) async {
+    try {
+      await _channel.invokeMethod<void>('show', title == null ? null : {'title': title, 'playing': playing});
+    } on PlatformException catch (error) {
+      _log.warn('reading not shown: {}', [error.code]);
+    } on MissingPluginException {
+      // Nothing to show it on.
+    }
   }
 
   /// Stops what is being said; every word asked for ends.

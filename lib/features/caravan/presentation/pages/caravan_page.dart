@@ -29,10 +29,10 @@ import 'package:go_router/go_router.dart';
 /// moment, as the web's shadow play (web M91, D116, C4), made for a phone (the owner, 2026-11-14: "inspired by the web,
 /// not the same design; a phone cannot have the web's scroll").
 ///
-/// From the top: the page's name and the notice that the trends are a sample; the stage, where the caravan walks the
-/// road and stands at the chosen trend's stall; the strip of the whole road; the stop's buttons (previous, next, a tour
-/// that walks the road on its own, and every trend in a sheet); and the chosen trend's card, which a swipe turns to
-/// the next or the previous stop. Every way of moving chooses a stop in [CaravanCubit], and the caravan walks there.
+/// From the top: the page's name and the notice that the trends' resources are coming soon; the stage, where the
+/// caravan walks the road and stands at the chosen trend's stall; the strip of the whole road; the stop's buttons
+/// (previous, next, a tour that walks the road on its own, and every trend in a sheet); and the chosen trend's card,
+/// which a swipe turns to the next or the previous stop. Every way of moving chooses a stop in [CaravanCubit], and the caravan walks there.
 ///
 /// The trends are the web's sample until the bundle carries the author's (`SampleCaravan`); the road is drawn from
 /// them in the app's language.

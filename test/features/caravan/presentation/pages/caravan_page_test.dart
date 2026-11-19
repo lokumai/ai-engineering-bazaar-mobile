@@ -57,13 +57,13 @@ void main() {
     await _pump(tester);
 
     expect(find.descendant(of: find.byType(ListView), matching: find.text('Caravan')), findsOneWidget);
-    expect(find.text('Content is coming soon. Until then these trends are sample data.'), findsOneWidget);
+    expect(find.text('The articles and resources for each trend are coming soon.'), findsOneWidget);
     expect(find.byType(CaravanStage), findsOneWidget);
     expect(find.byType(CaravanStrip), findsOneWidget);
     expect(find.text('Stop 1 of 22'), findsOneWidget);
     expect(_cardTitle(tester), _trends.first.title);
     expect(find.text('NOV 2022 TO FEB 2023'), findsOneWidget);
-    expect(find.text('Sample'), findsOneWidget);
+    expect(find.text('Resources soon'), findsOneWidget);
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
   });
 

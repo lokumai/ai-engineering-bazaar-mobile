@@ -41,7 +41,9 @@ class AppLogger {
   }
 
   static void configure({required bool isProduction, bool logToFile = false, LogFormat logFormat = LogFormat.simple}) {
-    _level = isProduction ? Level.info : Level.debug;
+    // A release writes only warnings and errors to the device's log, which any app with log access could read (plan
+    // 19.4); a debug build writes everything from debug up.
+    _level = isProduction ? Level.warning : Level.debug;
     _logFormat = logFormat;
     final simple = SimplePrinter(printTime: true);
     final pretty = PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime, methodCount: 2);

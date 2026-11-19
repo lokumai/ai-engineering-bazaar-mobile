@@ -192,6 +192,12 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
+    test('a choice that cannot be read at start counts as none, so the app still starts (plan 19.5)', () async {
+      expect(await chosenOrNone<String>(() async => 'fa'), 'fa');
+      expect(await chosenOrNone<String>(() async => throw StateError('no support directory')), isNull);
+      expect(await chosenOrNone<String>(() async => throw const FormatException()), isNull);
+    });
+
     // Spec 3.7: main_local without --dart-define=CONTENT_BASE_URL fails at start, before anything is built.
     testWidgets('refuses a config without a content base URL', (tester) async {
       final sentry = _RecordingSentryStart(const AppConfig(environment: Environment.dev, contentBaseUrl: ''));

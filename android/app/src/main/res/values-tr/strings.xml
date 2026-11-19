@@ -3,4 +3,6 @@
     <string name="listen_channel">Dinle</string>
     <string name="listen_reading">Sesli okunuyor</string>
     <string name="listen_pause">Duraklat</string>
+    <string name="listen_play">Sürdür</string>
+    <string name="listen_paused">Duraklatıldı</string>
 </resources>
