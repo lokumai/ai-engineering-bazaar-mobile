@@ -306,8 +306,8 @@ void main() {
     expect(_dots(2, 4), findsOneWidget);
     await _tap(tester, _next);
     // Plan 17.1: how progress moves between the app and the website.
-    expect(find.textContaining('between the app and the website here.'), findsOneWidget);
-    expect(_hole(tester), isNotNull, reason: 'the website line was scrolled into view');
+    expect(find.textContaining('Bring your progress from the website here'), findsOneWidget);
+    expect(_hole(tester), isNotNull, reason: 'the website section was scrolled into view');
     expect(_dots(3, 4), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('This tour waits in How the bazaar works.'), findsOneWidget);
