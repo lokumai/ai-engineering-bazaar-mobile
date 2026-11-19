@@ -136,6 +136,16 @@ void main() {
       expect(find.text('transfer abc'), findsOneWidget);
     });
 
+    // The owner's iPhone, 2026-11-19: the site's code from a test server on the computer carries its address.
+    testWidgets('a progress link from a copy of the site, over http with a port, is read too', (tester) async {
+      await _pump(tester, scanner: _Scanner(const ScanRead('http://192.168.1.107:3111/transfer/#t=lan')));
+
+      await tester.tap(find.byKey(const ValueKey('settings-scan-code')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('transfer lan'), findsOneWidget);
+    });
+
     testWidgets("the app's own scheme is read too", (tester) async {
       await _pump(tester, scanner: _Scanner(const ScanRead('aibazaar://transfer#t=xyz')));
 
@@ -147,6 +157,11 @@ void main() {
 
     for (final (name, outcome, line) in [
       ('another code', const ScanRead('https://example.com/'), 'That code is not a progress link from the website.'),
+      (
+        "another site's page that is not a transfer",
+        const ScanRead('http://192.168.1.107:3111/courses/'),
+        'That code is not a progress link from the website.',
+      ),
       (
         'a page of the site that is not a transfer',
         ScanRead('${testContentBaseUrl}courses/'),

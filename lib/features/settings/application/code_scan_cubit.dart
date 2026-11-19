@@ -42,9 +42,20 @@ final class CodeScanCubit extends Cubit<CodeScanState> {
     if (state.status == CodeScanStatus.found) emit(state.copyWith(status: CodeScanStatus.idle));
   }
 
+  /// The link in a code. The site builds its code from the address it is opened at, so a code from a copy of the site
+  /// (a test server on the computer, http and a port) carries another address: a transfer page is read at any address,
+  /// since its progress is in the link and nothing is added before the reader's press. Other pages keep the site's
+  /// own address.
   SiteLink? _linkIn(String text) {
     final uri = Uri.tryParse(text.trim());
-    return uri == null ? null : SiteLink.parse(uri, _site);
+    if (uri == null) return null;
+    final link = SiteLink.parse(uri, _site);
+    if (link != null || !uri.isScheme('http') && !uri.isScheme('https')) return link;
+    final onSite = SiteLink.parse(
+      Uri(scheme: 'https', host: _site.host, path: uri.path, fragment: uri.fragment),
+      _site,
+    );
+    return onSite is SiteTransfer ? onSite : null;
   }
 }
 
