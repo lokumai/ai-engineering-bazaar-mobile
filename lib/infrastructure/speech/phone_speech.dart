@@ -33,12 +33,20 @@ final class PhoneSpeech {
   final _saying = <int, (Completer<void>, void Function(int index))>{};
   int _lastId = 0;
 
+  final _interruptions = StreamController<void>.broadcast();
+
+  /// Each time the phone stopped the reading itself (`interrupted`, Android, plan 18.3): another app took the sound, as
+  /// a call does, or the reader pressed Pause on the notice.
+  Stream<void> get interruptions => _interruptions.stream;
+
   Future<void> _heard(MethodCall call) async {
     switch (call) {
       case MethodCall(method: 'done', arguments: final int id):
         _end(id);
       case MethodCall(method: 'part', arguments: {'id': final int id, 'index': final int index}):
         _saying[id]?.$2(index);
+      case MethodCall(method: 'interrupted', arguments: final int id) when _saying.containsKey(id):
+        _interruptions.add(null);
       default:
         break;
     }
@@ -71,6 +79,7 @@ final class PhoneSpeech {
     required String language,
     required double rate,
     required void Function(int index) onPart,
+    String title = '',
   }) async {
     final id = ++_lastId;
     final saying = Completer<void>();
@@ -81,6 +90,7 @@ final class PhoneSpeech {
         'texts': texts,
         'tag': tags[language] ?? language,
         'rate': engineRate(rate, defaultTargetPlatform),
+        'title': title,
       });
       if (started != true) _end(id);
     } on PlatformException catch (error) {
@@ -106,9 +116,24 @@ final class PhoneSpeech {
     }
   }
 
-  /// The engine's rate for [rate] times the voice's own pace: Android's TextToSpeech takes the multiple as it is;
-  /// iOS's AVSpeechUtterance takes 0.5 as the voice's pace and rises much faster, so its steps are a quarter as large.
+  /// The engine's rate for [rate], a step of the player's paces: iOS's AVSpeechUtterance takes 0.5 as the voice's pace
+  /// and rises much faster, so its steps are a quarter as large; Android's TextToSpeech takes a plain multiple, given
+  /// here as the pace iOS reads each step at, so both phones read alike (plan 18.13).
   @visibleForTesting
-  static double engineRate(double rate, TargetPlatform platform) =>
-      platform == TargetPlatform.iOS ? 0.5 + (rate - 1) / 4 : rate;
+  static double engineRate(double rate, TargetPlatform platform) {
+    final ios = 0.5 + (rate - 1) / 4;
+    if (platform == TargetPlatform.iOS) return ios;
+    return androidPace(rate);
+  }
+
+  /// The pace iOS reads each of the player's steps at, measured on Apple's voices in English and Turkish
+  /// (2026-11-19: the same text read at 0.4375, 0.5, 0.5625 and 0.625 took 0.91, 1, 1.35 and 1.71 of the time at 0.5,
+  /// inverted), as the multiple Android's engine takes.
+  @visibleForTesting
+  static double androidPace(double rate) => switch (rate) {
+    0.75 => 0.91,
+    1.25 => 1.35,
+    1.5 => 1.71,
+    _ => rate,
+  };
 }

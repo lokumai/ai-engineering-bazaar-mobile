@@ -47,11 +47,15 @@ final class _Voice implements ISpeech {
     required String language,
     required double rate,
     required void Function(int index) onPart,
+    String title = '',
   }) {
     handed.add(texts);
     _onPart = onPart;
     return (_saying = Completer<void>()).future;
   }
+
+  @override
+  Stream<void> get interruptions => const Stream.empty();
 
   @override
   Future<void> stop() async {

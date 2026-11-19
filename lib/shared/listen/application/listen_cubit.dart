@@ -46,7 +46,13 @@ final class ListenSession extends Equatable {
 final class ListenCubit extends Cubit<ListenState> {
   ListenCubit({required this._speech, IListenPlaceStore? store, this.restAfter = const Duration(minutes: 2)})
     : _store = store ?? MemoryListenPlaceStore(),
-      super(const ListenIdle(rate: 1));
+      super(const ListenIdle(rate: 1)) {
+    // The phone stopped the reading itself (a call, or Pause on Android's notice): the player pauses where it was,
+    // as the reader's own Pause does (plan 18.3).
+    _interruptions = _speech.interruptions.listen((_) => pause());
+  }
+
+  late final StreamSubscription<void> _interruptions;
 
   /// How long a pause lasts before the reading ends, its place kept.
   final Duration restAfter;
@@ -227,6 +233,7 @@ final class ListenCubit extends Cubit<ListenState> {
       [for (final part in session.parts.skip(from)) part.text],
       language: session.language,
       rate: _rate,
+      title: session.title,
       onPart: (index) {
         if (turn != _turn || isClosed) return;
         final at = from + index;
@@ -245,6 +252,7 @@ final class ListenCubit extends Cubit<ListenState> {
   @override
   Future<void> close() {
     _cut();
+    unawaited(_interruptions.cancel());
     return super.close();
   }
 }
