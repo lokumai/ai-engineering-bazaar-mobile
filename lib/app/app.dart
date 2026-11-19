@@ -7,6 +7,7 @@ import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart'
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_gate.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_stage.dart';
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
+import 'package:ai_engineering_bazaar/app/links/incoming_links.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
@@ -85,7 +86,8 @@ class _AppState extends State<App> {
                   story: (onDone) => AboutWelcomeStep(onDone: onDone),
                   // The Apprentice offers its tour after a first run's Welcome only (plan 11.3).
                   onFirstRun: () => context.read<TourCubit>().offer(),
-                  child: child!,
+                  // The site's links open in the app once Welcome is done (plan 17.2).
+                  child: IncomingLinks(router: _router, child: child!),
                 ),
               ),
             ),

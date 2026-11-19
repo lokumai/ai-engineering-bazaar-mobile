@@ -1,0 +1,87 @@
+@Tags(['widget'])
+library;
+
+import 'package:ai_engineering_bazaar/features/transfer/presentation/transfer_page.dart';
+import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../support/accessibility.dart';
+import '../../support/bazaar_app_harness.dart';
+
+const _compact =
+    '{"v":1,"e":{"alpha/first":["mvz1mz0r","a1b2c3d",[0]],"alpha/second":["","",[1]]},"y":{"alpha/first":["mvz1mz0r","",[]]},"d":[]}';
+
+/// A record bloc that answers every transfer with [result].
+MockRecordBloc _recordAnswering(TransferMergeResult result, List<TransferMerged> merged) {
+  final bloc = MockRecordBloc();
+  whenListen(bloc, const Stream<RecordState>.empty(), initialState: const RecordLoading());
+  when(() => bloc.add(any())).thenAnswer((invocation) {
+    if (invocation.positionalArguments.first case final TransferMerged event) {
+      merged.add(event);
+      event.reply.complete(result);
+    }
+  });
+  return bloc;
+}
+
+Future<void> _pump(WidgetTester tester, String payload, RecordBloc record) async {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, _) => TransferPage(payload: payload),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+  await tester.pumpWidget(bazaarTestApp(router: router, record: record));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  setUpAll(() => registerFallbackValue(const RecordStarted()));
+
+  testWidgets('shows what the link carries by track, and adds it only when asked (plan 17.1)', (tester) async {
+    final merged = <TransferMerged>[];
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.added, merged),
+    );
+
+    expect(find.text('Progress from a link'), findsOneWidget);
+    expect(find.text('For Engineers'), findsOneWidget);
+    expect(find.text('1 module completed'), findsNWidgets(2));
+    expect(merged, isEmpty, reason: 'nothing is added on open');
+    await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
+
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+
+    expect(merged.single.progress.engineers.keys, ['alpha/first', 'alpha/second']);
+    expect(find.text('Added. Nothing on this phone was removed.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+
+  testWidgets('says when there was nothing new', (tester) async {
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.nothingNew, []),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('Nothing new: this phone already has all of it.'), findsOneWidget);
+  });
+
+  testWidgets('a link it cannot read offers nothing to add', (tester) async {
+    await _pump(tester, 'not-a-payload', _recordAnswering(TransferMergeResult.added, []));
+    expect(find.text("This link cannot be read. Make a new one on the website's Progress page."), findsOneWidget);
+    expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+}

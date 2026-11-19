@@ -444,5 +444,20 @@
   "review_back_home": "Ana sayfaya dön",
   "review_empty": "Gösterilecek kart yok.",
   "review_section_link": "Bu konu şurada: {section}",
-  "home_quiz_waiting": "Bekleyen quiz"
+  "home_quiz_waiting": "Bekleyen quiz",
+  "transfer_title": "Bağlantıdaki ilerleme",
+  "transfer_completed": "{count, plural, =0{Tamamlanan modül yok} other{{count} modül tamamlandı}}",
+  "transfer_keeps": "Eklemek bu telefondakileri korur: buradan hiçbir şey silinmez.",
+  "transfer_add": "Bu telefondaki ilerlemeye ekle",
+  "transfer_added": "Eklendi. Bu telefondan hiçbir şey silinmedi.",
+  "transfer_nothing_new": "Yeni bir şey yok: hepsi bu telefonda zaten var.",
+  "transfer_not_added": "Eklenmedi. Yeniden denemek için bağlantıyı tekrar aç.",
+  "transfer_unreadable": "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
+  "transfer_empty": "Bu bağlantıda ilerleme yok.",
+  "data_website_title": "Web sitesi",
+  "data_website_text": "İlerlemeni web sitesine bir bağlantı olarak gönder ve bilgisayarda aç. Sitedeki ilerlemeyi buraya getirmek için sitenin Progress sayfasında Move to the app'i seç ve kodu bu telefonun kamerasıyla okut.",
+  "data_send_to_website": "Web sitesine gönder",
+  "data_send_empty": "Henüz gönderilecek bir şey yok: tamamlanan ya da işaretlenen modül yok.",
+  "data_send_failed": "Paylaşım menüsü açılmadı.",
+  "reader_share": "Bu modülü paylaş"
 }

@@ -32,6 +32,7 @@ import 'package:ai_engineering_bazaar/features/quiz/presentation/pages/wrong_ans
 import 'package:ai_engineering_bazaar/features/quiz/presentation/quiz_panel.dart';
 import 'package:ai_engineering_bazaar/features/reader/presentation/module_reader_page.dart';
 import 'package:ai_engineering_bazaar/features/settings/navigation/settings_routes.dart';
+import 'package:ai_engineering_bazaar/features/transfer/navigation/transfer_routes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/components/app_page_transition.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -178,6 +179,8 @@ class AppRouterFactory {
           '/quiz/:level/:module',
           (state) => QuizPage(moduleKey: '${state.pathParameters['level']}/${state.pathParameters['module']}'),
         ),
+        // A progress transfer link opened in the app, full screen over the shell (plan 17.1).
+        ...TransferFeatureRoutes.routes(),
         // The web's catalog paths that are not pages of their own here.
         GoRoute(path: '/courses', redirect: (_, _) => BazaarPaths.catalogEngineers),
         GoRoute(

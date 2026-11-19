@@ -161,11 +161,14 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m67(step, count) => "${step} / ${count}";
 
-  static String m68(name, level) => "${name}, unlocks at level ${level}";
+  static String m68(count) =>
+      "${Intl.plural(count, zero: 'No module completed', one: '1 module completed', other: '${count} modules completed')}";
 
-  static String m69(name) => "${name}, worn";
+  static String m69(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m70(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m70(name) => "${name}, worn";
+
+  static String m71(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -298,9 +301,16 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
+    "data_send_empty": MessageLookupByLibrary.simpleMessage("Nothing to send yet: no module is completed or ticked."),
+    "data_send_failed": MessageLookupByLibrary.simpleMessage("The share menu did not open."),
+    "data_send_to_website": MessageLookupByLibrary.simpleMessage("Send to the website"),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
+    "data_website_text": MessageLookupByLibrary.simpleMessage(
+      "Send your progress to the website as a link and open it on the computer. To bring the website\'s progress here, choose Move to the app on its Progress page and scan the code with this phone\'s camera.",
+    ),
+    "data_website_title": MessageLookupByLibrary.simpleMessage("The website"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
     "duration_hours": m24,
     "duration_hours_minutes": m25,
@@ -595,6 +605,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
     "reader_sections": MessageLookupByLibrary.simpleMessage("Sections"),
     "reader_see_everyone": MessageLookupByLibrary.simpleMessage("See what is written For Everyone"),
+    "reader_share": MessageLookupByLibrary.simpleMessage("Share this module"),
     "reader_start_of_course": MessageLookupByLibrary.simpleMessage("Start of the course"),
     "reading_note": MessageLookupByLibrary.simpleMessage("These settings change a module\'s text, not the menus."),
     "reading_preview": MessageLookupByLibrary.simpleMessage("Preview"),
@@ -711,15 +722,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Open a tab and I\'ll show you around it."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("Add to this phone\'s progress"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("Added. Nothing on this phone was removed."),
+    "transfer_completed": m68,
+    "transfer_empty": MessageLookupByLibrary.simpleMessage("This link carries no progress."),
+    "transfer_keeps": MessageLookupByLibrary.simpleMessage(
+      "Adding it keeps everything on this phone: nothing here is removed.",
+    ),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage("Not added. Open the link again to try once more."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this phone already has all of it."),
+    "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
+    "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
+      "This link cannot be read. Make a new one on the website\'s Progress page.",
+    ),
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m68,
-    "wardrobe_item_worn": m69,
+    "wardrobe_item_locked": m69,
+    "wardrobe_item_worn": m70,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
       "Each level of the apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m70,
+    "wardrobe_preview": m71,
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),

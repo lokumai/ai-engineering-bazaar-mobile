@@ -3106,6 +3106,119 @@ class S {
   String get home_quiz_waiting {
     return Intl.message('Quiz waiting', name: 'home_quiz_waiting', desc: '', args: []);
   }
+
+  /// `Progress from a link`
+  String get transfer_title {
+    return Intl.message('Progress from a link', name: 'transfer_title', desc: '', args: []);
+  }
+
+  /// `{count, plural, =0{No module completed} =1{1 module completed} other{{count} modules completed}}`
+  String transfer_completed(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No module completed',
+      one: '1 module completed',
+      other: '$count modules completed',
+      name: 'transfer_completed',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Adding it keeps everything on this phone: nothing here is removed.`
+  String get transfer_keeps {
+    return Intl.message(
+      'Adding it keeps everything on this phone: nothing here is removed.',
+      name: 'transfer_keeps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to this phone's progress`
+  String get transfer_add {
+    return Intl.message('Add to this phone\'s progress', name: 'transfer_add', desc: '', args: []);
+  }
+
+  /// `Added. Nothing on this phone was removed.`
+  String get transfer_added {
+    return Intl.message('Added. Nothing on this phone was removed.', name: 'transfer_added', desc: '', args: []);
+  }
+
+  /// `Nothing new: this phone already has all of it.`
+  String get transfer_nothing_new {
+    return Intl.message(
+      'Nothing new: this phone already has all of it.',
+      name: 'transfer_nothing_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not added. Open the link again to try once more.`
+  String get transfer_not_added {
+    return Intl.message(
+      'Not added. Open the link again to try once more.',
+      name: 'transfer_not_added',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This link cannot be read. Make a new one on the website's Progress page.`
+  String get transfer_unreadable {
+    return Intl.message(
+      'This link cannot be read. Make a new one on the website\'s Progress page.',
+      name: 'transfer_unreadable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This link carries no progress.`
+  String get transfer_empty {
+    return Intl.message('This link carries no progress.', name: 'transfer_empty', desc: '', args: []);
+  }
+
+  /// `The website`
+  String get data_website_title {
+    return Intl.message('The website', name: 'data_website_title', desc: '', args: []);
+  }
+
+  /// `Send your progress to the website as a link and open it on the computer. To bring the website's progress here, choose Move to the app on its Progress page and scan the code with this phone's camera.`
+  String get data_website_text {
+    return Intl.message(
+      'Send your progress to the website as a link and open it on the computer. To bring the website\'s progress here, choose Move to the app on its Progress page and scan the code with this phone\'s camera.',
+      name: 'data_website_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send to the website`
+  String get data_send_to_website {
+    return Intl.message('Send to the website', name: 'data_send_to_website', desc: '', args: []);
+  }
+
+  /// `Nothing to send yet: no module is completed or ticked.`
+  String get data_send_empty {
+    return Intl.message(
+      'Nothing to send yet: no module is completed or ticked.',
+      name: 'data_send_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The share menu did not open.`
+  String get data_send_failed {
+    return Intl.message('The share menu did not open.', name: 'data_send_failed', desc: '', args: []);
+  }
+
+  /// `Share this module`
+  String get reader_share {
+    return Intl.message('Share this module', name: 'reader_share', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

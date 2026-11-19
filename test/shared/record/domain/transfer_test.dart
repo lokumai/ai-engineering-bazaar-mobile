@@ -35,15 +35,15 @@ void main() {
     test('reads the vector: completions with their instants and revisions, ticks, days', () {
       final progress = _decoded(_vector['compactJson']! as String);
       expect(
-        progress.engineers['fundamentals/llms'],
+        progress.engineers['alpha/first'],
         const TransferSheet(signedOff: '2026-11-02T09:15:30.123Z', signedRevision: 'a1b2c3d', ticks: [0, 2]),
       );
       expect(
-        progress.engineers['fundamentals/tokens'],
+        progress.engineers['alpha/second'],
         const TransferSheet(signedOff: null, signedRevision: null, ticks: [1]),
       );
-      expect(progress.engineers, isNot(contains('ecosystem/rag')));
-      expect(progress.everyone['fundamentals/llms']!.signedRevision, '0f0e0d0');
+      expect(progress.engineers, isNot(contains('beta/third')));
+      expect(progress.everyone['alpha/first']!.signedRevision, '0f0e0d0');
       expect(progress.days, ['2026-11-01', '2026-11-02']);
       expect(progress.completed(Track.engineers), 1);
       expect(progress.completed(Track.everyone), 1);
@@ -53,7 +53,7 @@ void main() {
       final record = _record(_vector['recordData']! as Map<String, Object?>);
       final progress = _decoded(encodeTransfer(record));
       expect(mergeTransfer(RecordData.empty, progress).signedMap(Track.engineers), record.signedMap(Track.engineers));
-      expect(mergeTransfer(RecordData.empty, progress).ticks('fundamentals/llms', Track.engineers), {0, 2});
+      expect(mergeTransfer(RecordData.empty, progress).ticks('alpha/first', Track.engineers), {0, 2});
     });
 
     test('refuses the whole text when any part fails', () {
