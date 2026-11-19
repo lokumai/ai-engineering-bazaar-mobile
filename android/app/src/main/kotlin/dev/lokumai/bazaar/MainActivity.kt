@@ -86,6 +86,16 @@ class MainActivity : FlutterActivity() {
         return true
     }
 
+    /**
+     * Back always goes through Flutter, so it reaches [popSystemNavigator] on Home too. With predictive back (Android 13
+     * and later opted in, every app from Android 16) Flutter hands Back at its root to the system, which finished the
+     * activity (seen on Android 16, 2026-11-19). The cost: no preview of the launcher behind Home while the gesture is
+     * held; the app's own pages keep theirs.
+     */
+    override fun setFrameworkHandlesBack(frameworkHandlesBack: Boolean) {
+        super.setFrameworkHandlesBack(true)
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
