@@ -29,6 +29,19 @@ void main() {
       expect(encodeTransfer(record), '{"v":1,"e":{"a/b":["2026-11-02","",[]]},"y":{},"d":[]}');
       expect(encodeTransfer(RecordData.empty), '{"v":1,"e":{},"y":{},"d":[]}');
     });
+
+    // PROTOCOL.md: base36 only for a canonical instant at or after 1970; an earlier one has negative milliseconds,
+    // whose base36 holds a '-', so it travels as its own text and reads back the same.
+    test('carries an instant before 1970 as its own text, and reads it back', () {
+      final record = _record({
+        'sheets': {
+          'a/b': {'signedOff': '1969-12-31T23:59:59.000Z', 'signedRevision': 'abcd'},
+        },
+      });
+      final text = encodeTransfer(record);
+      expect(text, '{"v":1,"e":{"a/b":["1969-12-31T23:59:59.000Z","abcd",[]]},"y":{},"d":[]}');
+      expect(_decoded(text).engineers['a/b']!.signedOff, '1969-12-31T23:59:59.000Z');
+    });
   });
 
   group('decodeTransfer', () {
@@ -54,6 +67,21 @@ void main() {
       final progress = _decoded(encodeTransfer(record));
       expect(mergeTransfer(RecordData.empty, progress).signedMap(Track.engineers), record.signedMap(Track.engineers));
       expect(mergeTransfer(RecordData.empty, progress).ticks('alpha/first', Track.engineers), {0, 2});
+    });
+
+    // PROTOCOL.md's leniency, as the website reads a link: unknown keys are passed over, a revision with no
+    // completion is dropped, and ticks and days out of order or repeated are sorted once each.
+    test('reads leniently what the website reads leniently', () {
+      final progress = _decoded(
+        '{"v":1,"x":true,"e":{"a/b":["","abcd",[3,1,3]]},"y":{},"d":["2026-11-02","2026-11-01","2026-11-02"]}',
+      );
+      expect(progress.engineers['a/b'], const TransferSheet(signedOff: null, signedRevision: null, ticks: [1, 3]));
+      expect(progress.days, ['2026-11-01', '2026-11-02']);
+    });
+
+    test('an entry with neither a completion nor a tick adds nothing', () {
+      final progress = _decoded('{"v":1,"e":{"a/b":["","",[]]},"y":{},"d":[]}');
+      expect(identical(mergeTransfer(RecordData.empty, progress), RecordData.empty), isTrue);
     });
 
     test('refuses the whole text when any part fails', () {
