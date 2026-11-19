@@ -978,12 +978,16 @@
   },
   "privacy_title": "Privacy",
   "@privacy_title": {},
-  "privacy_no_data": "This app collects no personal data. It has no account, no analytics and no ads.",
+  "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
   "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
+  "privacy_scanner": "On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
+  "@privacy_scanner": {
+    "description": "Privacy: Scan the code on Android is Google's code scanner, which sends Google its own diagnostics (plan 19.3)."
+  },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {
     "description": "Privacy: the feedback form is Google's, opened by the reader; the app sends nothing to it."

@@ -1890,10 +1890,10 @@ class S {
     return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
   }
 
-  /// `This app collects no personal data. It has no account, no analytics and no ads.`
+  /// `This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.`
   String get privacy_no_data {
     return Intl.message(
-      'This app collects no personal data. It has no account, no analytics and no ads.',
+      'This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.',
       name: 'privacy_no_data',
       desc: '',
       args: [],
@@ -1916,6 +1916,16 @@ class S {
       'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
       name: 'privacy_download',
       desc: '',
+      args: [],
+    );
+  }
+
+  /// `On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.`
+  String get privacy_scanner {
+    return Intl.message(
+      'On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.',
+      name: 'privacy_scanner',
+      desc: 'Privacy: Scan the code on Android is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3).',
       args: [],
     );
   }

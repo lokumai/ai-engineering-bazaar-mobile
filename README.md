@@ -4,7 +4,7 @@
 
 The [AI Engineering Bazaar](https://ai-bazaar.lokum.dev/) course as an app for Android and iOS: short, practical modules on AI engineering, readable offline, in English, Turkish and Persian.
 The course is written in the web repo, [lokumai/ai-engineering-bazaar](https://github.com/lokumai/ai-engineering-bazaar); the app reads what the site publishes.
-No account, no analytics, no ads.
+No account, no ads, no tracking.
 
 <table>
   <tr>
@@ -64,6 +64,7 @@ echo '{"SENTRY_DSN": "<the project DSN>"}' > sentry_dsn.json
 fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
 ```
 
+On Android, Scan the code is Google's code scanner from Google Play services, which sends Google the device's model and system, the app's version, an installation id and how the scan went, as Google's own record.
 Feedback in Settings opens the web's anonymous Google Form in the browser; the app sends nothing to it.
 What each store's form declares: [docs/store-privacy.md](docs/store-privacy.md).
 

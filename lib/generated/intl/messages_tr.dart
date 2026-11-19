@@ -513,10 +513,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "Bu uygulama kişisel veri toplamaz. Hesap, analiz aracı ve reklam yoktur.",
+      "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
+    ),
+    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
+      "Android\'de Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır. iPhone\'da kodu uygulama kendisi okur; telefondan hiçbir şey çıkmaz.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("Sitedeki gizlilik notu"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),

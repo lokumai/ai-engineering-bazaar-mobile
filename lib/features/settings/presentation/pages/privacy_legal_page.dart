@@ -38,6 +38,8 @@ class PrivacyLegalPage extends StatelessWidget {
                 _Paragraph(s.privacy_download),
                 _Link(label: s.privacy_github_pages, uri: LegalLinks.githubPages),
                 _Link(label: s.privacy_github_statement, uri: LegalLinks.githubPrivacy),
+                // Scan the code on Android is Google's code scanner, which sends Google its own diagnostics (plan 19.3).
+                _Paragraph(s.privacy_scanner),
                 if (crashReports) _Paragraph(s.privacy_crash),
                 // Feedback in Settings opens the web's form in the browser; the app sends nothing to it.
                 _Paragraph(s.privacy_feedback_form),

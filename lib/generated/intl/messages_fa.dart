@@ -515,10 +515,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "این برنامه هیچ داده شخصی جمع نمی‌کند. حساب کاربری، ابزار تحلیل و تبلیغ ندارد.",
+      "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد و هیچ داده شخصی جمع نمی‌کند. آنچه می‌فرستد و مقصد آن، در ادامه آمده است.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما فقط روی همین دستگاه ذخیره می‌شوند. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
+    ),
+    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
+      "در اندروید، «اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند. در آیفون، خود برنامه کد را می‌خواند و چیزی از گوشی خارج نمی‌شود.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("یادداشت حریم خصوصی در وب‌سایت"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("حریم خصوصی"),

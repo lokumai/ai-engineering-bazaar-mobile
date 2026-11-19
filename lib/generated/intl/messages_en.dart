@@ -511,10 +511,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "This app collects no personal data. It has no account, no analytics and no ads.",
+      "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+    ),
+    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
+      "On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("The privacy note on the website"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Privacy"),
