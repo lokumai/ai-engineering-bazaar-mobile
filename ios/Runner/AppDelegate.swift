@@ -460,10 +460,12 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       guard let id = arguments["id"] as? Int, let texts = arguments["texts"] as? [String], !texts.isEmpty,
         let tag = arguments["tag"] as? String, let voice = Speech.bestVoice(for: tag)
       else { return result(false) }
-      // Heard with the ring switch on silent and with the screen off, as a reader who taps Listen means to hear it,
-      // over other sound lowered; Info.plist's audio background mode keeps it going once the app leaves the screen.
+      // Heard with the ring switch on silent and with the screen off, as a reader who taps Listen means to hear it;
+      // Info.plist's audio background mode keeps it going once the app leaves the screen. The sound is the app's alone,
+      // as a podcast's: other sound pauses rather than lowers, since iOS shows an app that mixes with others (as
+      // `.duckOthers` does) nowhere on the lock screen, the status bar or the headphones (plan 19.8).
       let session = AVAudioSession.sharedInstance()
-      try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+      try? session.setCategory(.playback, mode: .spokenAudio, options: [])
       try? session.setActive(true)
       // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }

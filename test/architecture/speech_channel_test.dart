@@ -77,6 +77,11 @@ void main() {
       expect(swift, contains('center.$command.addTarget'), reason: command);
     }
     expect(swift, contains('channel.invokeMethod("control", arguments: command)'));
+    expect(
+      swift,
+      contains('setCategory(.playback, mode: .spokenAudio, options: [])'),
+      reason: 'an app that mixes with other sound is never the one the lock screen shows',
+    );
 
     final dart = read('lib/infrastructure/speech/phone_speech.dart');
     expect(dart, contains("method: 'control', arguments: 'pause'"));
