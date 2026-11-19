@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
 import 'package:ai_engineering_bazaar/shared/utils/event_transformers.dart';
 
 part 'record_event.dart';
@@ -82,6 +83,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         reply.complete(false);
       case RecordReplaced(:final reply?) when !reply.isCompleted:
         reply.complete(false);
+      case TransferMerged(:final reply) when !reply.isCompleted:
+        reply.complete(TransferMergeResult.notAdded);
       case BackupStarted(:final reply) when !reply.isCompleted:
         reply.completeError(StateError('the backup could not be made'));
       default:
@@ -156,6 +159,33 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           emit,
         );
         reply?.complete(true);
+      case TransferMerged(:final progress, :final reply):
+        if (_pendingErases > 0) {
+          reply.complete(TransferMergeResult.notAdded);
+          return;
+        }
+        final merged = mergeTransfer(current.record, progress);
+        if (identical(merged, current.record)) {
+          reply.complete(TransferMergeResult.nothingNew);
+          return;
+        }
+        _closeUndo();
+        await _commit(
+          RecordReady(
+            record: current.record,
+            writeState: current.writeState,
+            quarantine: current.quarantine,
+            quarantineKept: current.quarantineKept,
+            launchReadFailed: current.launchReadFailed,
+            undo: null,
+          ),
+          merged,
+          emit,
+        );
+        reply.complete(switch (state) {
+          RecordReady(writeState: WriteSaved()) => TransferMergeResult.added,
+          _ => TransferMergeResult.notAdded,
+        });
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
       case EraseUndone(:final reply):
@@ -203,6 +233,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         reply.completeError(StateError('the record is not read yet'));
       case RecordReplaced(:final reply):
         reply?.complete(false);
+      case TransferMerged(:final reply):
+        reply.complete(TransferMergeResult.notAdded);
       default:
         break;
     }

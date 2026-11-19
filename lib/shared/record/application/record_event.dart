@@ -69,6 +69,29 @@ final class RecordReplaced extends RecordEvent {
   final Completer<bool>? reply;
 }
 
+/// The progress of a transfer link added to the record (plan 17.1): it only adds (`mergeTransfer`), is written at once
+/// with no day stamp of its own, and an open undo closes, as a restore.
+final class TransferMerged extends RecordEvent {
+  const TransferMerged({required this.progress, required this.reply});
+
+  final TransferProgress progress;
+
+  /// Completes with what became of [progress].
+  final Completer<TransferMergeResult> reply;
+}
+
+/// What became of a transfer's progress.
+enum TransferMergeResult {
+  /// Something was added and written.
+  added,
+
+  /// The record already held all of it; nothing was written.
+  nothingNew,
+
+  /// Nothing was added: an erase waited in the queue, the record was not read yet, or the write failed.
+  notAdded,
+}
+
 /// The reader confirmed an erase at [at] (spec 3.3.11, Decision A41).
 ///
 /// [reply] completes with true once the record is erased, and with false when the files could not be deleted or the

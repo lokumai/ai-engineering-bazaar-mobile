@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
 import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -476,6 +477,66 @@ void main() {
           ..add(RecordReplaced(data: _signed, reply: dropped))
           ..add(RecordErased(at: _t));
         expect(await dropped.future, isFalse, reason: 'an erase waits behind it, and wins');
+        await bloc.close();
+      });
+    });
+  });
+
+  group('a transfer (plan 17.1)', () {
+    const progress = TransferProgress(
+      engineers: {
+        'beta/second': TransferSheet(signedOff: '2026-03-01T10:00:00.000Z', signedRevision: 'bbbb', ticks: []),
+      },
+      everyone: {},
+      days: ['2026-03-01'],
+    );
+
+    test('adds what is new, writes it at once with no day of its own, and closes an open undo', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final reply = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: reply));
+        expect(await reply.future, TransferMergeResult.added);
+        final record = _ready(bloc).record;
+        expect(record.signedOff('alpha/first', Track.engineers), _now, reason: 'nothing here is removed');
+        expect(record.signedOff('beta/second', Track.engineers), '2026-03-01T10:00:00.000Z');
+        expect(record.days, ['2026-03-01', '2026-03-14'], reason: 'no stamp of the day the transfer came');
+        expect(repository.writes, hasLength(1));
+        await bloc.close();
+      });
+    });
+
+    test('writes nothing when the record already holds it all', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final first = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: first));
+        await first.future;
+        final again = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: again));
+        expect(await again.future, TransferMergeResult.nothingNew);
+        expect(repository.writes, hasLength(1));
+        await bloc.close();
+      });
+    });
+
+    test('is not added with an erase waiting, nor when the write fails', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final dropped = Completer<TransferMergeResult>();
+        bloc
+          ..add(TransferMerged(progress: progress, reply: dropped))
+          ..add(RecordErased(at: _t));
+        expect(await dropped.future, TransferMergeResult.notAdded);
+        await pumpEventQueue();
+
+        repository.nextResult = WriteResult.quota;
+        final failed = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: failed));
+        expect(await failed.future, TransferMergeResult.notAdded);
         await bloc.close();
       });
     });
