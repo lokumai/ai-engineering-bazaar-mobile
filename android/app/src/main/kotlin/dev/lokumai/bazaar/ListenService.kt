@@ -22,7 +22,8 @@ import android.os.IBinder
  * reader may hide; Android 13 and later hide it unless the app may post notifications, which it never asks for, and the
  * reading goes on all the same. Pause comes back to Speech.kt as an interruption, which the Dart side reads as the
  * player's own pause, so the place is kept. The notice names the reading's MediaSession, so the lock screen shows it
- * with its controls (plan 19.8).
+ * with its controls; a paused reading keeps its notice, which says Paused and has Play, until the reading ends
+ * (plan 19.8).
  */
 class ListenService : Service() {
     companion object {
@@ -30,9 +31,17 @@ class ListenService : Service() {
         private const val NOTICE_ID = 15
         private const val EXTRA_TITLE = "title"
         private const val ACTION_PAUSE = "dev.lokumai.bazaar.listen.PAUSE"
+        private const val ACTION_PLAY = "dev.lokumai.bazaar.listen.PLAY"
+        private const val EXTRA_PLAYING = "playing"
+
+        /** Whether the service runs, so a paused reading's notice is changed in place, never started again. */
+        private var running = false
 
         /** Told when the reader presses Pause on the notice. */
         var onPause: (() -> Unit)? = null
+
+        /** Told when the reader presses Play on the notice of a paused reading (plan 19.8). */
+        var onPlay: (() -> Unit)? = null
 
         /** The reading's MediaSession, which the notice names so the lock screen shows its controls (plan 19.8). */
         var session: MediaSession.Token? = null
@@ -43,8 +52,72 @@ class ListenService : Service() {
             runCatching { context.startForegroundService(intent) }
         }
 
+        /**
+         * Names [title], playing or paused, on the notice of the service running (plan 19.8): a paused reading keeps
+         * its notice, with Play, until it ends.
+         */
+        fun show(context: Context, title: String, playing: Boolean) {
+            if (!running) return
+            val service = context.applicationContext
+            runCatching {
+                service.getSystemService(NotificationManager::class.java)
+                    .notify(NOTICE_ID, notice(service, title, playing))
+            }
+        }
+
         fun stop(context: Context) {
             runCatching { context.stopService(Intent(context, ListenService::class.java)) }
+        }
+
+        private fun notice(context: Context, title: String, playing: Boolean): Notification {
+            val manager = context.getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    CHANNEL_ID,
+                    context.getString(R.string.listen_channel),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                    setSound(null, null)
+                },
+            )
+            val open = PendingIntent.getActivity(
+                context,
+                0,
+                context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    ?: Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val (action, icon, label) = if (playing) {
+                Triple(ACTION_PAUSE, R.drawable.ic_listen_pause, R.string.listen_pause)
+            } else {
+                Triple(ACTION_PLAY, R.drawable.ic_listen_play, R.string.listen_play)
+            }
+            val press = PendingIntent.getService(
+                context,
+                if (playing) 1 else 2,
+                Intent(context, ListenService::class.java).setAction(action),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+            return Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_listen)
+                .setContentTitle(title.ifEmpty { context.getString(R.string.listen_reading) })
+                .setContentText(context.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
+                .setContentIntent(open)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setCategory(Notification.CATEGORY_TRANSPORT)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .addAction(
+                    Notification.Action.Builder(Icon.createWithResource(context, icon), context.getString(label), press)
+                        .build(),
+                )
+                .setStyle(
+                    Notification.MediaStyle().setShowActionsInCompactView(0).also { style ->
+                        session?.let { style.setMediaSession(it) }
+                    },
+                )
+                .build()
         }
     }
 
@@ -55,8 +128,13 @@ class ListenService : Service() {
             onPause?.invoke()
             return START_NOT_STICKY
         }
+        if (intent?.action == ACTION_PLAY) {
+            onPlay?.invoke()
+            return START_NOT_STICKY
+        }
         val title = intent?.getStringExtra(EXTRA_TITLE).orEmpty()
-        val notice = notice(title)
+        val notice = notice(this, title, intent?.getBooleanExtra(EXTRA_PLAYING, true) ?: true)
+        running = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         } else {
@@ -66,53 +144,14 @@ class ListenService : Service() {
         return START_NOT_STICKY
     }
 
+    override fun onDestroy() {
+        running = false
+        super.onDestroy()
+    }
+
     /** The reader swiped the app away: the reading ends with it, as on iOS. */
     override fun onTaskRemoved(rootIntent: Intent?) {
         onPause?.invoke()
         stopSelf()
-    }
-
-    private fun notice(title: String): Notification {
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, getString(R.string.listen_channel), NotificationManager.IMPORTANCE_LOW).apply {
-                setShowBadge(false)
-                setSound(null, null)
-            },
-        )
-        val open = PendingIntent.getActivity(
-            this,
-            0,
-            packageManager.getLaunchIntentForPackage(packageName) ?: Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
-        val pause = PendingIntent.getService(
-            this,
-            1,
-            Intent(this, ListenService::class.java).setAction(ACTION_PAUSE),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-        return Notification.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_listen)
-            .setContentTitle(title.ifEmpty { getString(R.string.listen_reading) })
-            .setContentText(getString(R.string.listen_reading))
-            .setContentIntent(open)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setCategory(Notification.CATEGORY_TRANSPORT)
-            .setVisibility(Notification.VISIBILITY_PUBLIC)
-            .addAction(
-                Notification.Action.Builder(
-                    Icon.createWithResource(this, R.drawable.ic_listen_pause),
-                    getString(R.string.listen_pause),
-                    pause,
-                ).build(),
-            )
-            .setStyle(
-                Notification.MediaStyle().setShowActionsInCompactView(0).also { style ->
-                    session?.let { style.setMediaSession(it) }
-                },
-            )
-            .build()
     }
 }

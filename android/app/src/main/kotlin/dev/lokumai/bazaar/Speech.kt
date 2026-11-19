@@ -172,11 +172,19 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         channel.invokeMethod("control", command)
     }
 
-    /** Names the reading to the session: [title] and whether it [playing], or nothing when [title] is null. */
+    /** Whether a reading is shown, playing or paused: its notice stays while it is (plan 19.8). */
+    private var shown = false
+
+    /**
+     * Names the reading to the session and the notice: [title] and whether it is [playing], or nothing when [title] is
+     * null, which ends the notice once nothing is said.
+     */
     private fun show(title: String?, playing: Boolean) {
+        shown = title != null
         if (title == null) {
             session.isActive = false
             ListenService.session = null
+            if (current == null) ListenService.stop(context)
             return
         }
         session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
@@ -188,12 +196,14 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         )
         session.isActive = true
         ListenService.session = session.sessionToken
+        ListenService.show(context, title, playing)
     }
 
     private val release = Runnable {
         if (current != null) return@Runnable
         audio?.abandonAudioFocusRequest(focusRequest)
-        ListenService.stop(context)
+        // A paused reading keeps its notice and its Play until it ends (plan 19.8).
+        if (!shown) ListenService.stop(context)
     }
 
     private val progress = object : UtteranceProgressListener() {
@@ -218,6 +228,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
 
     init {
         ListenService.onPause = { main.post { interrupt() } }
+        ListenService.onPlay = { main.post { control("play") } }
     }
 
     private fun cut(utteranceId: String?) {
@@ -359,6 +370,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         show(null, false)
         session.release()
         ListenService.onPause = null
+        ListenService.onPlay = null
         main.removeCallbacks(release)
         current = null
         audio?.abandonAudioFocusRequest(focusRequest)

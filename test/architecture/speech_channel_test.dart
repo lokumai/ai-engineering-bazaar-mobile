@@ -50,7 +50,7 @@ void main() {
     expect(service, contains('ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK'));
     for (final values in ['values', 'values-tr', 'values-fa']) {
       final strings = read('android/app/src/main/res/$values/strings.xml');
-      for (final name in ['listen_channel', 'listen_reading', 'listen_pause']) {
+      for (final name in ['listen_channel', 'listen_reading', 'listen_pause', 'listen_play', 'listen_paused']) {
         expect(strings, contains('<string name="$name">'), reason: '$values $name');
       }
     }
@@ -63,7 +63,11 @@ void main() {
     expect(speech, contains('control("pause")'));
     expect(speech, contains('channel.invokeMethod("control", command)'));
     expect(speech, contains('ListenService.session = session.sessionToken'));
-    expect(read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt'), contains('style.setMediaSession'));
+    final service = read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt');
+    expect(service, contains('style.setMediaSession'));
+    expect(service, contains('R.string.listen_paused'), reason: 'a paused reading keeps its notice, with Play');
+    expect(speech, contains('if (!shown) ListenService.stop(context)'));
+    expect(speech, contains('ListenService.onPlay = { main.post { control("play") } }'));
 
     final swift = read('ios/Runner/AppDelegate.swift');
     expect(swift, contains('AVAudioSession.interruptionNotification'));

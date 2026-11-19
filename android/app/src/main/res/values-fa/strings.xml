@@ -3,4 +3,6 @@
     <string name="listen_channel">گوش دادن</string>
     <string name="listen_reading">در حال خواندن با صدای بلند</string>
     <string name="listen_pause">مکث</string>
+    <string name="listen_play">پخش</string>
+    <string name="listen_paused">متوقف شده</string>
 </resources>

@@ -7,7 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Added
 
-- Play and Pause for a module read aloud on the lock screen, the Control Center and the headphones, on both phones.
+- Play and Pause for a module read aloud on the lock screen, on both phones, and in the iPhone's Control Center and on its headphones. On Android a paused reading keeps its notice, with Play, for two minutes.
 - On Android a module read aloud goes on with the screen off and the app in the background, with a notice that names it and has Pause; Back on Home leaves the app running. Other sound is lowered while it reads, and a call pauses it.
 - On Android the Apprentice's and the Caravan's touch feedback is a soft tap like the iPhone's, on phones that can play one, and none on others.
 - Feedback in Settings: the web's anonymous Google Form, opened in the browser, in every build. The app sends nothing to it, and Privacy and legal says so.
