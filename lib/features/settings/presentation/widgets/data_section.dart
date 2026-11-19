@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.da
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_line.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_notice.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
+import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/website_line.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
@@ -14,7 +15,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The reader's data on the Settings page (plan 1AB; the web's `DataPanel.tsx` on `/profile`, Decision A8): the
-/// quarantine notice, the write notice when a write failed, then the data line with Back up, Restore and Reset.
+/// quarantine notice, the write notice when a write failed, then the data line with Back up, Restore and Reset, and
+/// the website line with Send to the website.
 ///
 /// It owns the [DataBloc] of its flows, and asks before a pending restore replaces the record.
 class DataSection extends StatelessWidget {
@@ -63,6 +65,8 @@ class _DataWithBloc extends StatelessWidget {
               onBackUp: () => context.read<DataBloc>().add(const BackupRequested()),
             ),
           DataLine(),
+          // How progress moves between this phone and the website (plan 17.1).
+          const WebsiteLine(),
         ],
       ),
     );

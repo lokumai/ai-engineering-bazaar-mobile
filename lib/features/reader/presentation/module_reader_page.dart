@@ -50,6 +50,7 @@ import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit
 import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -716,16 +717,34 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                               ),
                               if (written) ...[
                                 const SizedBox(height: 8),
-                                Text(
-                                  // The minutes and the words as the module's web page prints them under its title (web D128).
-                                  switch (doc.words) {
-                                    final words? => s.length_minutes_words(
-                                      entry.minutes,
-                                      groupedNumber(words, doc.lang),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        // The minutes and the words as the module's web page prints them under its
+                                        // title (web D128).
+                                        switch (doc.words) {
+                                          final words? => s.length_minutes_words(
+                                            entry.minutes,
+                                            groupedNumber(words, doc.lang),
+                                          ),
+                                          null => s.reader_minutes(entry.minutes),
+                                        },
+                                        style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
+                                      ),
                                     ),
-                                    null => s.reader_minutes(entry.minutes),
-                                  },
-                                  style: TextStyle(fontSize: BazaarType.item.size, color: colors.onSurfaceMuted),
+                                    // The module's page on the site, at the address the bundle gives it (D111), through
+                                    // the phone's share sheet (plan 17.3); the site's links open in the app where it is
+                                    // installed (plan 17.2).
+                                    IconButton(
+                                      key: const ValueKey('reader-share'),
+                                      tooltip: s.reader_share,
+                                      icon: Icon(Icons.ios_share_outlined, size: 20, color: colors.onSurfaceMuted),
+                                      onPressed: () => context.read<IShareSheet>().share(
+                                        '${doc.title}\n${context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath)}',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 // Listen, with a voice for the module's language (plan 15.1), unless it is being read;
                                 // once listened to, it goes on from where it was left (the owner, 2026-11-18).

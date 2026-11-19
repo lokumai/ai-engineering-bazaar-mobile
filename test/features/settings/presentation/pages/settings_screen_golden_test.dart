@@ -1,6 +1,10 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
+import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/settings_screen.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -22,6 +26,7 @@ import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../support/content_fixture.dart';
 import '../../../../mocks/mock_classes.dart';
 import '../../../../support/bazaar_app_harness.dart';
 import '../../../../support/catalog_fixture_index.dart';
@@ -46,6 +51,9 @@ Widget _screen({required bool dark}) {
     providers: [
       RepositoryProvider<IBackupGateway>.value(value: MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: MockRecordRepository()),
+      RepositoryProvider<IShareSheet>.value(value: const NoShareSheet()),
+      RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
+      RepositoryProvider<ITransferPacker>.value(value: const DeflateTransferPacker()),
     ],
     child: MultiBlocProvider(
       providers: [

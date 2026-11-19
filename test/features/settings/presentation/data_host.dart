@@ -6,6 +6,10 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/transfer.dart';
+import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../mocks/mock_classes.dart';
 import '../../../support/bazaar_app_harness.dart';
+import '../../../support/content_fixture.dart';
 
 /// A [MockDataBloc] that starts at [initial] and then takes each state added to the returned controller.
 (MockDataBloc, StreamController<DataState>) dataBlocAt([DataState initial = const DataState()]) {
@@ -54,12 +59,21 @@ Future<void> pumpDataHost(
   Widget child, {
   required DataBloc data,
   RecordBloc? record,
+  IShareSheet? shareSheet,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
 }) async {
   await tester.pumpWidget(
-    dataHost(child, data: data, record: record, brightness: brightness, platform: platform, locale: locale),
+    dataHost(
+      child,
+      data: data,
+      record: record,
+      shareSheet: shareSheet,
+      brightness: brightness,
+      platform: platform,
+      locale: locale,
+    ),
   );
   await tester.pump();
 }
@@ -69,6 +83,7 @@ Widget dataHost(
   Widget child, {
   required DataBloc data,
   RecordBloc? record,
+  IShareSheet? shareSheet,
   Brightness brightness = Brightness.light,
   TargetPlatform platform = TargetPlatform.android,
   Locale locale = const Locale('en'),
@@ -85,13 +100,20 @@ Widget dataHost(
     ],
     supportedLocales: S.delegate.supportedLocales,
     locale: locale,
-    home: MultiBlocProvider(
+    home: MultiRepositoryProvider(
       providers: [
-        BlocProvider<DataBloc>.value(value: data),
-        BlocProvider<RecordBloc>.value(value: record ?? recordBlocAt()),
+        RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
+        RepositoryProvider<IShareSheet>.value(value: shareSheet ?? const NoShareSheet()),
+        RepositoryProvider<ITransferPacker>.value(value: const DeflateTransferPacker()),
       ],
-      child: Scaffold(
-        body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: child),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<DataBloc>.value(value: data),
+          BlocProvider<RecordBloc>.value(value: record ?? recordBlocAt()),
+        ],
+        child: Scaffold(
+          body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: child),
+        ),
       ),
     ),
   );
