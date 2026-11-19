@@ -207,9 +207,14 @@ String? _unpackInstant(String packed) {
   if (packed.contains('-')) return asInstant(packed);
   if (!_base36.hasMatch(packed)) return null;
   final ms = int.tryParse(packed, radix: 36);
-  if (ms == null || ms > 8640000000000000) return null;
+  // The record's instants are years 0000 to 9999 (asInstant); a later one prints as `+275760-...`, which the record
+  // would refuse, so such a link is refused whole (plan 19.7).
+  if (ms == null || ms > _lastInstantMs) return null;
   return _isoOf(ms);
 }
+
+/// 9999-12-31T23:59:59.999Z, the last instant the record's grammar takes.
+const _lastInstantMs = 253402300799999;
 
 List<String>? _days(Object? value) {
   if (value is! List) return null;

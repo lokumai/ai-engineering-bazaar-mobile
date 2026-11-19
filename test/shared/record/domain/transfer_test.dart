@@ -32,6 +32,11 @@ void main() {
 
     // PROTOCOL.md: base36 only for a canonical instant at or after 1970; an earlier one has negative milliseconds,
     // whose base36 holds a '-', so it travels as its own text and reads back the same.
+    test('reads the last instant of the year 9999, the last the record takes (plan 19.7)', () {
+      final read = _decoded('{"v":1,"e":{"a/b":["2htner8qnz","",[]]},"y":{},"d":[]}');
+      expect(read.engineers['a/b']!.signedOff, '9999-12-31T23:59:59.999Z');
+    });
+
     test('carries an instant before 1970 as its own text, and reads it back', () {
       final record = _record({
         'sheets': {
@@ -100,6 +105,8 @@ void main() {
         '{"v":1,"e":{"a/b":["","",[10000]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["","",["1"]]},"y":{},"d":[]}',
         '{"v":1,"e":{},"y":{},"d":["2026-02-30"]}',
+        // An instant past the year 9999 (plan 19.7): the record's grammar would refuse its text.
+        '{"v":1,"e":{"a/b":["2htner8qo0","",[]]},"y":{},"d":[]}',
       ];
       for (final text in refused) {
         expect(decodeTransfer(text), isNull, reason: text);
