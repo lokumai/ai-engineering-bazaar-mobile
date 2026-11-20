@@ -127,3 +127,13 @@ The bundle is `build/app/outputs/bundle/release/app-release.aab`.
 ### iOS
 
 Archive in Xcode on the Mac, with the team's account signed in: `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`, then upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
+
+Then give Sentry the build's symbols, so an app hang reported by iOS shows the app's own frames by name rather than as addresses (Dart crash reports do not need them):
+
+```shell
+SENTRY_AUTH_TOKEN=<token> sentry-cli debug-files upload --org <org> --project <project> \
+  build/ios/archive/Runner.xcarchive/dSYMs
+```
+
+The token stays out of the repo, as `sentry_dsn.json` does; `.sentryclirc` and `sentry.properties` are ignored.
+Build a store binary only with these commands, never from Xcode's menu after a `flutter run`: Xcode reuses the last run's target and defines.
