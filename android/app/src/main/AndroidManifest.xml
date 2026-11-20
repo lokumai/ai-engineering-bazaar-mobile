@@ -14,7 +14,7 @@
          Auto Backup and device-to-device transfer, as iOS restores Application Support (plan 18.8). The rules in
          res/xml include the app's folders under files/ one by one, so the content cache stays on this device. -->
     <application
-        android:label="Bazaar"
+        android:label="AI Bazaar"
         android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="true"

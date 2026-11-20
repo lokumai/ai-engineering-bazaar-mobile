@@ -4,7 +4,7 @@ import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_sta
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the identity of owner decision 4 and spec 3.13: application id `dev.lokumai.bazaar`, launcher label
-/// "Bazaar", the Kotlin sources in the `dev.lokumai.bazaar` package, and the native Sentry channel named after the
+/// "AI Bazaar" (the owner, 2026-11-19: the stores' name is AI Engineering Bazaar, too long under an icon), the Kotlin sources in the `dev.lokumai.bazaar` package, and the native Sentry channel named after the
 /// application id on both sides. Nothing in a build fails when one of these drifts.
 void main() {
   const kotlinMain = 'android/app/src/main/kotlin/dev/lokumai/bazaar';
@@ -18,8 +18,11 @@ void main() {
       expect(gradle, contains('applicationId = "dev.lokumai.bazaar"'));
     });
 
-    test('the launcher label is Bazaar', () {
-      expect(File('android/app/src/main/AndroidManifest.xml').readAsStringSync(), contains('android:label="Bazaar"'));
+    test('the launcher label is AI Bazaar', () {
+      expect(
+        File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+        contains('android:label="AI Bazaar"'),
+      );
     });
 
     // Plan 21.1: the stores refuse a release signed with the debug key, and the upload key never enters git.
@@ -100,13 +103,12 @@ void main() {
       ]);
     });
 
-    // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label too.
-    test('CFBundleDisplayName and CFBundleName are Bazaar', () {
+    // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label; CFBundleName stays the short one.
+    test('CFBundleDisplayName is AI Bazaar and CFBundleName is Bazaar', () {
       final plist = File('ios/Runner/Info.plist').readAsStringSync();
 
-      for (final key in ['CFBundleDisplayName', 'CFBundleName']) {
-        expect(RegExp('<key>$key</key>\\s*<string>Bazaar</string>').hasMatch(plist), isTrue, reason: key);
-      }
+      expect(RegExp(r'<key>CFBundleDisplayName</key>\s*<string>AI Bazaar</string>').hasMatch(plist), isTrue);
+      expect(RegExp(r'<key>CFBundleName</key>\s*<string>Bazaar</string>').hasMatch(plist), isTrue);
     });
 
     // Apple asks every app for a privacy manifest; this one says the app tracks nothing, and lists what a prod build
