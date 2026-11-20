@@ -22,6 +22,24 @@ void main() {
       expect(File('android/app/src/main/AndroidManifest.xml').readAsStringSync(), contains('android:label="Bazaar"'));
     });
 
+    // Plan 21.1: the stores refuse a release signed with the debug key, and the upload key never enters git.
+    test('a release is signed with the upload key named in android/key.properties, which git ignores', () {
+      final gradle = File('android/app/build.gradle.kts').readAsStringSync();
+      expect(gradle, contains('rootProject.file("key.properties")'));
+      expect(gradle, contains('signingConfigs.getByName("release")'));
+
+      final ignore = Process.runSync('git', [
+        'check-ignore',
+        '--no-index',
+        'android/key.properties',
+        'upload-keystore.jks',
+        'release.keystore',
+        'AuthKey.p8',
+        '.env',
+      ]);
+      expect((ignore.stdout as String).trim().split('\n'), hasLength(5), reason: '${ignore.stdout}${ignore.stderr}');
+    });
+
     test('every Kotlin source sits in dev/lokumai/bazaar and declares that package', () {
       final sources = Directory('android/app/src')
           .listSync(recursive: true)

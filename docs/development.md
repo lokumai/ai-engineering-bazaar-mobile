@@ -99,3 +99,31 @@ On the maintainers' machine every build, full test suite, gate chain, and anythi
 Exit 137 is that cap, so run less at once and never raise it.
 Elsewhere, run the commands as they are.
 
+
+## Release
+
+The version is in `pubspec.yaml`: the name before the `+` is what the stores show, and the number after it goes up by one at every upload to either store.
+
+### Android
+
+The upload key lives outside the repo, with a copy kept where the maintainers keep their secrets; Google Play holds the app's signing key itself (Play App Signing).
+`android/key.properties` points at it and is kept out of git:
+
+```properties
+storeFile=/absolute/path/to/upload-keystore.jks
+storePassword=<the keystore's password>
+keyAlias=upload
+keyPassword=<the key's password>
+```
+
+Without the file a release is signed with the debug key, which the stores refuse; the build says so in a warning.
+
+```shell
+fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
+```
+
+The bundle is `build/app/outputs/bundle/release/app-release.aab`.
+
+### iOS
+
+Archive in Xcode on the Mac, with the team's account signed in: `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`, then upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
