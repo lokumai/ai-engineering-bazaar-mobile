@@ -510,8 +510,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
     ),
-    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
-      "On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
+    "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
+      "Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.",
+    ),
+    "privacy_scanner_ios": MessageLookupByLibrary.simpleMessage(
+      "Scan the code reads the code in the app itself, and nothing leaves the device.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("The privacy note on the website"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Privacy"),

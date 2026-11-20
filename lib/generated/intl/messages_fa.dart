@@ -514,8 +514,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود گوشی ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
     ),
-    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
-      "در اندروید، «اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند. در آیفون، خود برنامه کد را می‌خواند و چیزی از گوشی خارج نمی‌شود.",
+    "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
+      "«اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند.",
+    ),
+    "privacy_scanner_ios": MessageLookupByLibrary.simpleMessage(
+      "«اسکن کد» کد را در خود برنامه می‌خواند و چیزی از دستگاه خارج نمی‌شود.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("یادداشت حریم خصوصی در وب‌سایت"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("حریم خصوصی"),

@@ -969,9 +969,13 @@
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
-  "privacy_scanner": "On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
-  "@privacy_scanner": {
-    "description": "Privacy: Scan the code on Android is Google's code scanner, which sends Google its own diagnostics (plan 19.3)."
+  "privacy_scanner_android": "Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.",
+  "@privacy_scanner_android": {
+    "description": "Privacy, on Android: Scan the code is Google's code scanner, which sends Google its own diagnostics (plan 19.3). Names no other platform (App Store guideline 2.3.10)."
+  },
+  "privacy_scanner_ios": "Scan the code reads the code in the app itself, and nothing leaves the device.",
+  "@privacy_scanner_ios": {
+    "description": "Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10)."
   },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {

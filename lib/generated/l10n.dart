@@ -1890,12 +1890,22 @@ class S {
     );
   }
 
-  /// `On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.`
-  String get privacy_scanner {
+  /// `Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.`
+  String get privacy_scanner_android {
     return Intl.message(
-      'On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.',
-      name: 'privacy_scanner',
-      desc: 'Privacy: Scan the code on Android is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3).',
+      'Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.',
+      name: 'privacy_scanner_android',
+      desc: 'Privacy, on Android: Scan the code is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3). Names no other platform (App Store guideline 2.3.10).',
+      args: [],
+    );
+  }
+
+  /// `Scan the code reads the code in the app itself, and nothing leaves the device.`
+  String get privacy_scanner_ios {
+    return Intl.message(
+      'Scan the code reads the code in the app itself, and nothing leaves the device.',
+      name: 'privacy_scanner_ios',
+      desc: 'Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10).',
       args: [],
     );
   }
