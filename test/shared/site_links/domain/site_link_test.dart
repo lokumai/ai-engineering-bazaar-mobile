@@ -44,6 +44,10 @@ void main() {
         'https://example.test/transfer/',
         'https://example.test/everyone/transfer/#t=abc',
         'aibazaar://other#t=abc',
+        // escapes that are not UTF-8, as a link cut short
+        'aibazaar://transfer#t=%ff',
+        'aibazaar://transfer#t=%E0%A4%A',
+        'https://example.test/transfer/#t=%E0%A4',
         'mailto:someone@example.test',
       ]) {
         expect(_parse(link), isNull, reason: link);
