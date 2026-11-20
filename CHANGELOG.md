@@ -5,8 +5,13 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-20
+
+The first release on the App Store and Google Play.
+
 ### Added
 
+- On iOS the camera's question, asked once for Scan the code, is in Turkish and Persian as well as English.
 - A module with no voice for its language says where Listen would be that the phone has none, and that one is added in the phone's settings.
 - Play and Pause for a module read aloud on the lock screen, on both phones, and in the iPhone's Control Center and on its headphones. On Android a paused reading keeps its notice, with Play, for two minutes. On iOS other sound now pauses while a module is read aloud, rather than being lowered.
 - On Android a module read aloud goes on with the screen off and the app in the background, with a notice that names it and has Pause; Back on Home leaves the app running. Other sound pauses while it reads, as on iOS; a call, or headphones taken off, pause it.
@@ -64,6 +69,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Changed
 
+- The name under the icon is AI Bazaar, on both phones; the stores call the app AI Engineering Bazaar.
 - Privacy and legal says the progress, scores and settings are on the device and in the phone's own backup when it is on, and that the app sends them nowhere else.
 - The Caravan no longer shows a notice or a badge of resources to come.
 - The Caravan says each trend's articles and resources are coming soon, not that the trends are sample data.

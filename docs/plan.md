@@ -14,7 +14,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 3. Parity with the website | 3.2 to 3.9 done; 3.1 ships the Caravan's maintenance page, and its wait for the web is set aside (the owner, 2026-11-12) |
 | 4. Owner follow-ups from PR #1 | 4.1, 4.2 and 4.6 done; the iOS checks (4.3, 4.4) next, on the owner's Mac; 4.7 set aside; 4.8 later |
 | 5. Web changes the app needs | 5.1, 5.2, 5.4 and 5.5 done; the rest set aside (the owner, 2026-11-12) |
-| 6. Release | Later |
+| 6. Release | Phase 21 |
 | 7. New features in the app | Done on `feature/phase-4` (the owner, 2026-11-11), with the bug hunt's fixes (7.4) |
 | 9. The Caravan's journey and Home's pocket model | On `feature/caravan-and-toy`, a trial the owner keeps or drops after trying it (2026-11-14) |
 | 16. Small items | Done (PR #15, merged as 0e2801c) |
@@ -22,6 +22,7 @@ The project is at the demo stage: the reader works end to end, and a store relea
 | 18. Android as the iPhone | Done (PR #17) |
 | 19. Before the release | Done (PR #18, merged as c75c49e) |
 | 20. The second review | On `feature/review-fixes` (2026-11-19) |
+| 21. The release | On `feature/release`, from `feature/review-fixes` (2026-11-20) |
 
 ## Phase 0: the reader (done)
 
@@ -273,12 +274,12 @@ The owner takes 5.1 to 5.8 to the web team on 2026-11-11, with two questions: wh
 
 The owner's manager started opening the store accounts on 2026-11-11.
 
-- [ ] **6.1** Release signing: an upload keystore, `key.properties` kept out of git, and CI secrets. Release builds are signed with the debug key today (`android/app/build.gradle.kts`).
+- [x] **6.1** (21.1) Release signing: an upload keystore, `key.properties` kept out of git, and CI secrets. Release builds are signed with the debug key today (`android/app/build.gradle.kts`).
 - [ ] **6.2** Store listings, the privacy text and the data safety answers (see 4.4).
   - The app collects no personal data: no account, no analytics, no advertising, the progress on the device. Crash reports are on since 2026-11-13 (the owner), and with them hangs, how long the app took to open, release-health sessions and Report a problem in Settings (the owner, after the manager, 2026-11-13; detailed usage data stays off): Sentry project `lokumai/ai-bazaar-mobile`, sponsored plan, EU region, IP addresses not stored. The stores' forms and the iOS privacy manifest list these, none linked to the user, none for tracking, all for the app's functioning; the answers field by field: `docs/store-privacy.md`. The site's note gains them in web PR #128.
   - iOS export compliance: `Info.plist` says the app uses no encryption beyond the system's HTTPS (`ITSAppUsesNonExemptEncryption` false), so App Store Connect does not ask at every upload.
   - The stores ask for a public privacy policy address. The site's note is at `https://ai-bazaar.lokum.dev/legend/#privacy` (web D122); it speaks of the site, so the web team may add a line on the app.
-- [ ] **6.3** Version and changelog for the first release. The version is `1.0.0+1` since 2026-11-12 (8.8); the changelog's Unreleased section becomes 1.0.0 when it ships.
+- [x] **6.3** (21.4) Version and changelog for the first release. The version is `1.0.0+1` since 2026-11-12 (8.8); the changelog's Unreleased section becomes 1.0.0 when it ships.
 
 ## How each step is done
 
@@ -565,6 +566,18 @@ On `feature/review-fixes`, from main at c75c49e (PR #18 merged). A second full r
 - [x] **20.12 One more Persian padding**, in the About film's top row (`EdgeInsetsDirectional`).
 - [x] **20.13 Privacy and legal names the phone's own backup.** The progress, scores and settings are on the device and in the phone's own backup when it is on; the app sends them nowhere else. The data line keeps the web's words.
 - [x] **20.14 Kept for after the release.** A speak that does not start closes the player without a word (20.1 and 20.6 take most of it); the notice's words follow the phone's language, not the app's; the work on the UI thread, to be measured on a slow phone first.
+
+## Phase 21: the release (the owner, 2026-11-20)
+
+On `feature/release`, from `feature/review-fixes` (Phase 20), which merges first. What the stores need from the code; the store pages themselves are filled by hand in App Store Connect and the Play Console.
+
+- [x] **21.1 Release signing.** `android/app/build.gradle.kts` signs a release with the upload key that `android/key.properties` names; both stay out of git, and without the file the release falls back to the debug key with a warning. Google Play holds the app's signing key (Play App Signing). How to build: `docs/development.md`, Release. The keystore itself is made with the owner.
+- [x] **21.2 The camera's question in Turkish and Persian.** `ios/Runner/tr.lproj` and `fa.lproj` hold `InfoPlist.strings` with `NSCameraUsageDescription`, in the Runner's resources, and the project knows both regions; English stays in `Info.plist` (17.5 left this for now).
+- [x] **21.3 AI Bazaar under the icon** (the owner, 2026-11-19): the Android label and iOS `CFBundleDisplayName`; `CFBundleName` stays Bazaar.
+- [x] **21.4 Version 1.0.0, build 1**, and the changelog's 1.0.0 section.
+- [x] **21.5 Secrets out of git.** `.gitignore` names keystores, `key.properties`, `.env` files, the App Store Connect key (`.p8`), certificates (`.p12`), provisioning profiles and the Sentry CLI's settings.
+- [ ] **21.6 The Apple team.** `DEVELOPMENT_TEAM` in the project once the company's Apple account is paid and its Team ID is known; the owner's Mac keeps its own until then.
+- [ ] **21.7 Store texts, screenshots and the Play foreground-service video**, outside the repo's code: the texts to paste are drafted in `~/projects/ai-bazaar/store/`.
 
 ## Later, kept on purpose (the owner, 2026-11-17)
 
