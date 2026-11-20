@@ -95,16 +95,6 @@
   "@caravan_in_course": {
     "description": "The modules of the course on a trend's subject."
   },
-  "caravan_reading": "To read",
-  "@caravan_reading": {},
-  "caravan_sample_articles": "Article",
-  "@caravan_sample_articles": {},
-  "caravan_sample_videos": "Video",
-  "@caravan_sample_videos": {},
-  "caravan_sample_tools": "Tool",
-  "@caravan_sample_tools": {},
-  "caravan_sample_repositories": "Repository",
-  "@caravan_sample_repositories": {},
   "caravan_all_trends": "All trends",
   "@caravan_all_trends": {},
   "caravan_search": "Search the trends",

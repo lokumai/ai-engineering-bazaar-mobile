@@ -208,31 +208,6 @@ class S {
     );
   }
 
-  /// `To read`
-  String get caravan_reading {
-    return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
-  }
-
-  /// `Article`
-  String get caravan_sample_articles {
-    return Intl.message('Article', name: 'caravan_sample_articles', desc: '', args: []);
-  }
-
-  /// `Video`
-  String get caravan_sample_videos {
-    return Intl.message('Video', name: 'caravan_sample_videos', desc: '', args: []);
-  }
-
-  /// `Tool`
-  String get caravan_sample_tools {
-    return Intl.message('Tool', name: 'caravan_sample_tools', desc: '', args: []);
-  }
-
-  /// `Repository`
-  String get caravan_sample_repositories {
-    return Intl.message('Repository', name: 'caravan_sample_repositories', desc: '', args: []);
-  }
-
   /// `All trends`
   String get caravan_all_trends {
     return Intl.message('All trends', name: 'caravan_all_trends', desc: '', args: []);
