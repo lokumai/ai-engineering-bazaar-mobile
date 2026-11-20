@@ -72,11 +72,11 @@ The first release on the App Store and Google Play.
 - The name under the icon is AI Bazaar, on both phones; the stores call the app AI Engineering Bazaar.
 - On Android a navigation app's spoken turn pauses a module read aloud, which goes on once the turn is said, rather than talking over it.
 - A Caravan card ends with the course's modules: its readings show once the website gives them addresses.
-- A crash report no longer names the module or level whose content failed to open.
+- A crash report no longer names the module, level or course picture whose content failed to open, and the device log names a content object by its hash.
 - Privacy and legal says the progress, scores and settings are on the device and in the phone's own backup when it is on, and that the app sends them nowhere else.
 - The Caravan no longer shows a notice or a badge of resources to come.
 - The Caravan says each trend's articles and resources are coming soon, not that the trends are sample data.
-- Privacy and legal says the app has no account, no ads and no tracking, and that on Android Scan the code is Google's code scanner, which sends Google its own diagnostics. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
+- Privacy and legal says the app has no account, no ads and no tracking, and how Scan the code works on the phone it runs on: on Android Google's code scanner, which sends Google its own diagnostics; on iOS the app's own camera screen, from which nothing leaves the device. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
 - A release writes only warnings and errors to the console, and never the pages opened.
 - Settings' section The website is now Transfer.
 - On Android the navigation bar shows the page under it, its buttons readable in both looks, and the share icon is Android's own.
@@ -138,6 +138,9 @@ The first release on the App Store and Google Play.
 - A module read aloud pauses when the headphones are taken off or lost, on both phones, rather than going on through the speaker; on iOS a module started during a call waits, as on Android.
 - On Android a module whose language the phone's voice refuses no longer ends the app, and the notice opens the app after the icon was changed.
 - On Android a module stopped while read aloud always ends its notice, whatever the phone's voice engine.
+- On Android headphones taken off during a navigation prompt keep the reading paused, rather than reading on through the speaker when the prompt ends.
+- A progress link cut short in the middle of a character is ignored, rather than ending in an error.
+- The app starts even when the phone does not give its version.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
