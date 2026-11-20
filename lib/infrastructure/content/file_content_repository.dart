@@ -262,13 +262,14 @@ final class FileContentRepository implements IContentRepository {
     try {
       bytes = await File('${opened.store.path}/objects/$sha256Name').readAsBytes();
     } on FileSystemException catch (error) {
-      // Gone, or there and unreadable: either way the object is missing, which every reader of it handles.
-      if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sitePath, error]);
+      // Gone, or there and unreadable: either way the object is missing, which every reader of it handles. The log
+      // names the object, not the site path, which would name the module read (review 4, finding 7).
+      if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sha256Name, error]);
       throw ContentMissingException(sitePath);
     }
     if (sha256.convert(bytes).toString() != sha256Name) {
       await File('${opened.store.path}/corrupt').writeAsString('');
-      _log.error('content object does not match its sha256: {}', [sitePath]);
+      _log.error('content object does not match its sha256: {}', [sha256Name]);
       throw ContentCorruptException(sitePath);
     }
     return bytes;

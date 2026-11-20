@@ -208,9 +208,10 @@ void _scrubUser(SentryUser user) {
 /// Masks emails, JWTs and the other secrets [maskSecrets] finds in [value].
 String _maskText(String value) => _maskReading(maskEmails(maskSecrets(value)));
 
-/// A content path under `modules/` or `levels/` names what the reader opened; a report keeps only that it was one
-/// (review 3, finding 9), as `privacy_crash` says a crash report holds nothing of what is read.
-final _readingPath = RegExp(r'(api/v1/(?:modules|levels)/)[^\s,;)\]"]+');
+/// A content path under `modules/` or `levels/`, or a course picture under `course-images/`, names what the reader
+/// opened; a report keeps only that it was one (review 3, finding 9; review 4, finding 7), as `privacy_crash` says a
+/// crash report holds nothing of what is read.
+final _readingPath = RegExp(r'(api/v1/(?:modules|levels)/|course-images/)[^\s,;)\]"]+');
 
 String _maskReading(String value) => value.replaceAllMapped(_readingPath, (m) => '${m[1]}$secretMask');
 
