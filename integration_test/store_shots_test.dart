@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/reader/application/module_reader_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/figure_view.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -58,6 +59,30 @@ void main() {
   Future<void> scrollBy(WidgetTester tester, double dy) async {
     await tester.drag(find.byType(Scrollable).first, Offset(0, -dy));
     await settleFor(tester, const Duration(milliseconds: 800));
+  }
+
+  // The next figure (a diagram or a picture) is brought up whole, with its caption, over the bars: a shorter phone than the iPhone leaves
+  // it under the fold. The page moves by exactly what is needed (a drag would fling past it); a figure not built yet
+  // is reached by a few short moves.
+  Future<void> showFigure(WidgetTester tester) async {
+    final screen = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final limit = screen - 150;
+    final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    Future<void> moveBy(double dy) async {
+      position.jumpTo((position.pixels + dy).clamp(position.minScrollExtent, position.maxScrollExtent));
+      await settleFor(tester, const Duration(milliseconds: 800));
+    }
+
+    for (var attempt = 0; attempt < 4; attempt++) {
+      for (final element in find.byType(FigureView).evaluate()) {
+        final rect = tester.getRect(find.byElementPredicate((e) => e == element));
+        if (rect.top < 0) continue;
+        final below = rect.bottom + 8 - limit;
+        if (below > 0) await moveBy(below);
+        return;
+      }
+      await moveBy(200);
+    }
   }
 
   testWidgets('the store screenshots', (tester) async {
@@ -124,6 +149,7 @@ void main() {
 
       await openModule(pictured.key);
       await scrollBy(tester, 1400);
+      await showFigure(tester);
       await shot(tester, '$language-02-module-text');
 
       await open(tester, BazaarPaths.catalogEngineers);
