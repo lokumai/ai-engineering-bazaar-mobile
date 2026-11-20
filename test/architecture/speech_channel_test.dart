@@ -37,6 +37,9 @@ void main() {
     );
     expect(speech, isNot(contains('MAY_DUCK')));
     expect(speech, contains('channel.invokeMethod("interrupted", id)'));
+    expect(speech, contains('AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->'), reason: 'a short prompt pauses it');
+    expect(speech, contains('if (current != null || ducked) return@Runnable'), reason: "the prompt's end comes back");
+    expect(speech, contains('current?.let { done(it) }'), reason: 'a stop ends the speak without the engine');
     expect(speech, contains('TextToSpeech.getMaxSpeechInputLength()'), reason: 'a long text said in pieces');
     expect(speech, contains('tts.playSilentUtterance(GAP_MS'), reason: "iOS's pause after each text");
     expect(read('lib/infrastructure/speech/phone_speech.dart'), contains("method: 'interrupted'"));
