@@ -26,11 +26,11 @@ void main() {
     () {
       final result = sentryBeforeSend(
         SentryEvent(
-          message: SentryMessage('could not read api/v1/levels/expert/en.json'),
+          message: SentryMessage('could not read api/v1/levels/level-two/en.json'),
           exceptions: [
             SentryException(
               type: 'ContentMissingException',
-              value: 'ContentMissingException(api/v1/modules/fundamentals/rag/en.json)',
+              value: 'ContentMissingException(api/v1/modules/level-one/some-module/en.json)',
             ),
             SentryException(
               type: 'ContentFormatException',
