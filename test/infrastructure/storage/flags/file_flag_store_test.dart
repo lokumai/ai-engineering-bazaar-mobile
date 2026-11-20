@@ -61,4 +61,13 @@ void main() {
     await store.set('welcome-seen');
     expect(await store.isSet('welcome-seen'), isTrue);
   });
+
+  // Plan 20.5: path_provider throws its own errors, not a FileSystemException, when the phone gives no folder.
+  test('a base directory that fails with another error reads as unset and writes nothing, throwing nothing', () async {
+    final store = FileFlagStore(baseDirectory: () async => throw StateError('no folder'));
+
+    expect(await store.isSet('welcome-seen'), isFalse);
+    await store.set('welcome-seen');
+    await store.clear('welcome-seen');
+  });
 }

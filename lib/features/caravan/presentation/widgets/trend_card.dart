@@ -5,7 +5,6 @@ import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow
 import 'package:ai_engineering_bazaar/features/caravan/presentation/widgets/caravan_period.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
@@ -21,7 +20,6 @@ class TrendCard extends StatelessWidget {
     super.key,
     required this.stop,
     required this.modules,
-    required this.sample,
     required this.onOpenModule,
     required this.onNext,
     required this.onPrevious,
@@ -29,9 +27,6 @@ class TrendCard extends StatelessWidget {
 
   final CaravanStop stop;
   final List<CaravanModule> modules;
-
-  /// Whether the trend's readings have no address yet, which the card says.
-  final bool sample;
   final ValueChanged<String> onOpenModule;
   final VoidCallback onNext;
   final VoidCallback onPrevious;
@@ -61,17 +56,10 @@ class TrendCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    label: caravanPeriod(context, stop),
-                    excludeSemantics: true,
-                    child: Text(upperCaseIn(caravanPeriod(context, stop), language), style: muted),
-                  ),
-                ),
-                if (sample) _SampleBadge(label: s.caravan_sample_badge),
-              ],
+            Semantics(
+              label: caravanPeriod(context, stop),
+              excludeSemantics: true,
+              child: Text(upperCaseIn(caravanPeriod(context, stop), language), style: muted),
             ),
             const SizedBox(height: AppSpacing.sm),
             Semantics(
@@ -113,27 +101,6 @@ class TrendCard extends StatelessWidget {
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SampleBadge extends StatelessWidget {
-  const _SampleBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: BazaarFixedColors.caution, borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium
-              ?.copyWith(color: BazaarFixedColors.onCaution, fontWeight: FontWeight.w700),
         ),
       ),
     );

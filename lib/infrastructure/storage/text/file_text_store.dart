@@ -50,6 +50,11 @@ final class FileTextStore {
       // Bytes that are not UTF-8 text: as unreadable as a file that cannot be opened, so the app starts without it.
       _log.warn('{} not text: {}', [_path, error]);
       return null;
+    } on Object catch (error) {
+      // No folder from the phone (path_provider throws its own errors): unreadable too, so a feature that loads its
+      // file at start is never left waiting (plan 20.5). A write's error stays the caller's.
+      _log.warn('{} not read, no folder: {}', [_path, error]);
+      return null;
     }
   }
 

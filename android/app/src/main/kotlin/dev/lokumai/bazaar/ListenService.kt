@@ -37,6 +37,12 @@ class ListenService : Service() {
         /** Whether the service runs, so a paused reading's notice is changed in place, never started again. */
         private var running = false
 
+        /** Starts asked for that the service has not taken yet: until it has, it may not be stopped (plan 20.1). */
+        private var pending = 0
+
+        /** A stop asked for while a start was pending, done once the service is in the foreground. */
+        private var stopWhenStarted = false
+
         /** Told when the reader presses Pause on the notice. */
         var onPause: (() -> Unit)? = null
 
@@ -49,7 +55,9 @@ class ListenService : Service() {
         /** Starts the service, or names [title] to the one running. Fails quietly where Android refuses a start. */
         fun start(context: Context, title: String) {
             val intent = Intent(context, ListenService::class.java).putExtra(EXTRA_TITLE, title)
-            runCatching { context.startForegroundService(intent) }
+            stopWhenStarted = false
+            pending++
+            runCatching { context.startForegroundService(intent) }.onFailure { pending-- }
         }
 
         /**
@@ -65,7 +73,15 @@ class ListenService : Service() {
             }
         }
 
+        /**
+         * Stops the service; one asked to start that has not yet come to the foreground stops once it has, since
+         * Android ends an app that stops such a service before (plan 20.1).
+         */
         fun stop(context: Context) {
+            if (pending > 0) {
+                stopWhenStarted = true
+                return
+            }
             runCatching { context.stopService(Intent(context, ListenService::class.java)) }
         }
 
@@ -81,11 +97,12 @@ class ListenService : Service() {
                     setSound(null, null)
                 },
             )
+            // The activity itself, not the launcher's entry: the entry of the icon chosen before may be turned off
+            // since (plan 20.10).
             val open = PendingIntent.getActivity(
                 context,
                 0,
-                context.packageManager.getLaunchIntentForPackage(context.packageName)
-                    ?: Intent(context, MainActivity::class.java),
+                Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
             val (action, icon, label) = if (playing) {
@@ -139,6 +156,11 @@ class ListenService : Service() {
             startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         } else {
             startForeground(NOTICE_ID, notice)
+        }
+        if (pending > 0) pending--
+        if (pending == 0 && stopWhenStarted) {
+            stopWhenStarted = false
+            stopSelf()
         }
         // A service Android stopped is not started again: the voice it kept going has stopped with it.
         return START_NOT_STICKY

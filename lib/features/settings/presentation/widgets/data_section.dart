@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/dat
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_notice.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
@@ -31,6 +32,7 @@ class DataSection extends StatelessWidget {
         scores: context.read<QuizScoresBloc>(),
         review: context.read<ReviewBloc>(),
         places: context.read<ReadingPlacesBloc>(),
+        listen: context.read<ListenCubit>(),
       ),
       child: const _DataWithBloc(),
     );

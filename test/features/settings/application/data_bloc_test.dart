@@ -4,6 +4,9 @@ import 'dart:io';
 
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/listen_place.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score_store.dart';
@@ -46,6 +49,33 @@ RecordReady _ready({RecordData record = RecordData.empty, EraseUndo? undo}) => R
 );
 
 PickedBackup _picked(String text) => PickedBackupBytes(bytes: Uint8List.fromList(utf8.encode(text)));
+
+/// A phone with no voice, for the reading places the reset erases.
+final class _Silence implements ISpeech {
+  @override
+  Stream<void> get interruptions => const Stream.empty();
+
+  @override
+  Stream<void> get resumes => const Stream.empty();
+
+  @override
+  Future<bool> canSpeak(String language) async => false;
+
+  @override
+  Future<void> speak(
+    List<String> texts, {
+    required String language,
+    required double rate,
+    required void Function(int index) onPart,
+    String title = '',
+  }) async {}
+
+  @override
+  Future<void> show(ShownReading? reading) async {}
+
+  @override
+  Future<void> stop() async {}
+}
 
 void main() {
   late MockRecordBloc recordBloc;
@@ -428,6 +458,32 @@ void main() {
         bloc.close();
         scores.close();
         places.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    // Plan 20.7: parts heard before a reset must not mark a module completed after it.
+    test('the reset erases where each module read aloud was left, and its undo brings it back', () {
+      onFakeClock((async) {
+        final heard = {listenPlaceKey('alpha/first', Track.engineers): const ListenPlace(count: 4, index: 2)};
+        final store = MemoryListenPlaceStore(heard);
+        final listen = ListenCubit(speech: _Silence(), store: store);
+        listen.load();
+        final bloc = DataBloc(recordBloc: recordBloc, gateway: gateway, repository: repository, listen: listen);
+        async.flushMicrotasks();
+        expect(listen.keptAt('alpha/first', Track.engineers), 2);
+
+        bloc.add(const ResetConfirmed());
+        async.flushMicrotasks();
+        expect(listen.keptAt('alpha/first', Track.engineers), isNull);
+        expect(store.kept, isEmpty);
+
+        bloc.add(const UndoRequested());
+        async.flushMicrotasks();
+        expect(listen.keptAt('alpha/first', Track.engineers), 2);
+        expect(store.kept, heard);
+        bloc.close();
+        listen.close();
         async.flushMicrotasks();
       });
     });

@@ -53,17 +53,19 @@ ShadowStagePainter _painter(WidgetTester tester) =>
         as ShadowStagePainter;
 
 void main() {
-  testWidgets('opens on the first stop: the notice, the stage, the strip and the first trend', (tester) async {
+  testWidgets('opens on the first stop: the stage, the strip and the first trend, with no word of anything to come', (
+    tester,
+  ) async {
     await _pump(tester);
 
     expect(find.descendant(of: find.byType(ListView), matching: find.text('Caravan')), findsOneWidget);
-    expect(find.text('The articles and resources for each trend are coming soon.'), findsOneWidget);
     expect(find.byType(CaravanStage), findsOneWidget);
     expect(find.byType(CaravanStrip), findsOneWidget);
     expect(find.text('Stop 1 of 22'), findsOneWidget);
     expect(_cardTitle(tester), _trends.first.title);
     expect(find.text('NOV 2022 TO FEB 2023'), findsOneWidget);
-    expect(find.text('Resources soon'), findsOneWidget);
+    // Plan 20.4: App Review reads "coming soon" as an unfinished app.
+    expect(find.textContaining('soon'), findsNothing);
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 2);
   });
 

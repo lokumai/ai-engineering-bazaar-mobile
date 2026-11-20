@@ -221,10 +221,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_previous": MessageLookupByLibrary.simpleMessage("Previous stop"),
     "caravan_reading": MessageLookupByLibrary.simpleMessage("To read"),
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Article"),
-    "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Resources soon"),
-    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage(
-      "The articles and resources for each trend are coming soon.",
-    ),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Repository"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Tool"),
     "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("Video"),
@@ -393,6 +389,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen": MessageLookupByLibrary.simpleMessage("Listen"),
     "listen_back": MessageLookupByLibrary.simpleMessage("Previous paragraph"),
     "listen_next": MessageLookupByLibrary.simpleMessage("Next paragraph"),
+    "listen_no_voice": MessageLookupByLibrary.simpleMessage(
+      "This phone has no voice for this language. Add one in the phone\'s Settings to listen.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("Pause"),
@@ -514,7 +513,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "Your progress, your quiz scores and your settings are saved on this device only. You can back them up, restore or erase them under Your progress in Settings.",
+      "Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
     ),
     "privacy_scanner": MessageLookupByLibrary.simpleMessage(
       "On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",

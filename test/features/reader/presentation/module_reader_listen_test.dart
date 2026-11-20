@@ -160,11 +160,15 @@ void main() {
 
   Rect rectOf(WidgetTester tester, Finder finder) => tester.getRect(finder);
 
-  testWidgets('no voice for the module\'s language, or none at all: no Listen', (tester) async {
+  testWidgets('no voice for the module\'s language, or none at all: no Listen, and a line says where to add one', (
+    tester,
+  ) async {
     final voice = _Voice(speaks: false);
     await pump(tester, voice);
     expect(voice.asked, ['en'], reason: "the module's own language");
     expect(_listen, findsNothing);
+    // Plan 20.6: never Listen missing without a word.
+    expect(find.byKey(const ValueKey('reader-no-voice')), findsOneWidget);
 
     await pump(tester, const NoSpeech());
     expect(_listen, findsNothing);

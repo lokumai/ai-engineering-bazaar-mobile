@@ -12,7 +12,6 @@ import 'package:ai_engineering_bazaar/features/caravan/presentation/widgets/tren
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
-import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
@@ -29,7 +28,7 @@ import 'package:go_router/go_router.dart';
 /// moment, as the web's shadow play (web M91, D116, C4), made for a phone (the owner, 2026-11-14: "inspired by the web,
 /// not the same design; a phone cannot have the web's scroll").
 ///
-/// From the top: the page's name and the notice that the trends' resources are coming soon; the stage, where the
+/// From the top: the page's name; the stage, where the
 /// caravan walks the road and stands at the chosen trend's stall; the strip of the whole road; the stop's buttons
 /// (previous, next, a tour that walks the road on its own, and every trend in a sheet); and the chosen trend's card,
 /// which a swipe turns to the next or the previous stop. Every way of moving chooses a stop in [CaravanCubit], and the caravan walks there.
@@ -131,11 +130,6 @@ class _CaravanPageState extends State<CaravanPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: SectionRule(title: s.nav_caravan),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                  child: _Notice(text: s.caravan_sample_notice),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Padding(
@@ -259,7 +253,6 @@ class _CaravanPageState extends State<CaravanPage> {
                       key: ValueKey(stop.trend.id),
                       stop: stop,
                       modules: modules,
-                      sample: true,
                       onOpenModule: (key) => context.push(BazaarPaths.module(track, key)),
                       onNext: () => _select(selected + 1, count),
                       onPrevious: () => _select(selected - 1, count),
@@ -295,36 +288,4 @@ class _CaravanPageState extends State<CaravanPage> {
   }
 
   int? _lastSelected;
-}
-
-/// The note that the trends are a sample, as the web's notice over its page.
-class _Notice extends StatelessWidget {
-  const _Notice({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.bazaarColors;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: BazaarFixedColors.caution.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: BazaarFixedColors.caution.withValues(alpha: 0.45)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            Icon(Icons.info_outline, size: 18, color: colors.onSurfaceMuted),
-            Expanded(
-              child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurface)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

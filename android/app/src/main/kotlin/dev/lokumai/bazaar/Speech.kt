@@ -1,12 +1,16 @@
 package dev.lokumai.bazaar
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
@@ -25,10 +29,11 @@ import java.util.Locale
  * and its place, and the id in `done` once the last is said, or they are cut or failed. The engine starts on the first
  * call and is shut down with the activity; nothing leaves the phone.
  *
- * As on iOS (plan 18): ListenService keeps the app running while it reads; other sound is lowered while it speaks and
- * comes back a moment after; a short pause follows each text; a text longer than the engine takes is said in pieces;
- * and when another app takes the sound for itself, as a call does, or the reader presses Pause on the notice, the
- * reading stops and `interrupted` tells the Dart side, which pauses where it was.
+ * As on iOS (plan 18): ListenService keeps the app running while it reads; the reading takes the sound for itself, so
+ * other sound pauses while it speaks, as on iOS since plan 19.8 (plan 20.11); a short pause follows each text; a text
+ * longer than the engine takes is said in pieces; and when another app takes the sound for itself, as a call does, the
+ * reader presses Pause on the notice, or the headphones are taken off (plan 20.3), the reading stops and `interrupted`
+ * tells the Dart side, which pauses where it was.
  *
  * The Dart side names the reading in `show` (its title and whether it plays, or null once it ends), which a
  * MediaSession holds, so the headphones' buttons and the lock screen's controls (where the notice may show) reach the
@@ -148,8 +153,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         }
     }
 
-    /** Asks the others to lower their sound while the voice speaks, as iOS's `.duckOthers`. */
-    private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+    /**
+     * Takes the sound while the voice speaks, so other sound pauses, as a podcast does and as on iOS (the owner,
+     * 2026-11-19, plan 20.11): a module is minutes long, too long to read over music turned down.
+     */
+    private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
         .setAudioAttributes(attributes)
         .setOnAudioFocusChangeListener(focus, main)
         .build()
@@ -226,9 +234,27 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         override fun onStop(utteranceId: String?, interrupted: Boolean) = cut(utteranceId)
     }
 
+    /**
+     * The headphones were taken off or lost, as Bluetooth ones whose battery ran out: the reading pauses rather than go
+     * on aloud through the speaker (plan 20.3).
+     */
+    private val noisy = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) main.post { interrupt() }
+        }
+    }
+
     init {
         ListenService.onPause = { main.post { interrupt() } }
         ListenService.onPlay = { main.post { control("play") } }
+        val filter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(noisy, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(noisy, filter)
+            }
+        }
     }
 
     private fun cut(utteranceId: String?) {
@@ -310,7 +336,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 whenStarted { tts ->
                     val locale = Locale.forLanguageTag(tag)
                     if (tts == null || texts.isEmpty() || !available(tts.setLanguage(locale))) {
-                        if (current == null) ListenService.stop(context)
+                        // Not stopped at once: the service was started in this same step, and Android ends an app
+                        // that stops one before it has started in the foreground (plan 20.1). The release stops it
+                        // a moment later, unless a reading is still shown.
+                        if (current == null) {
+                            main.removeCallbacks(release)
+                            main.postDelayed(release, RELEASE_MS)
+                        }
                         return@whenStarted result.success(false)
                     }
                     pickVoice(tts, locale)
@@ -367,6 +399,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Shuts the engine down with the activity. */
     fun close() {
         channel.setMethodCallHandler(null)
+        runCatching { context.unregisterReceiver(noisy) }
         show(null, false)
         session.release()
         ListenService.onPause = null

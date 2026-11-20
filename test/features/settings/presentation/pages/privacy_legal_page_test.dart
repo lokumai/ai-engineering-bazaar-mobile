@@ -36,7 +36,7 @@ void main() {
     expect(find.byType(BackButton), findsOneWidget, reason: 'a page pushed over Settings');
     expect(find.text('Privacy'), findsOneWidget);
     expect(find.textContaining('collects no personal data'), findsOneWidget);
-    expect(find.textContaining('saved on this device only'), findsOneWidget);
+    expect(find.textContaining("and in the phone's own backup when it is on"), findsOneWidget);
     expect(find.textContaining('hosted on GitHub Pages'), findsOneWidget);
   });
 

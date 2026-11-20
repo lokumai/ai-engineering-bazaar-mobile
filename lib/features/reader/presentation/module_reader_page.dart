@@ -778,6 +778,27 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                               ),
                                             ),
                                           ),
+                                  )
+                                // No voice for the module's language, as often for Persian on Android: a line says
+                                // where to add one, rather than Listen missing without a word (plan 20.6).
+                                else if (_voice == false && parts.isNotEmpty)
+                                  Padding(
+                                    key: const ValueKey('reader-no-voice'),
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(Icons.headset_off_rounded, size: 18, color: colors.onSurfaceMuted),
+                                        Expanded(
+                                          child: Text(
+                                            s.listen_no_voice,
+                                            style: Theme.of(context).textTheme.bodySmall
+                                                ?.copyWith(color: colors.onSurfaceMuted),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                               ],
                               const SizedBox(height: 24),

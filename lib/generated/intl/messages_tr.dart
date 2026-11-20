@@ -221,8 +221,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_previous": MessageLookupByLibrary.simpleMessage("Önceki durak"),
     "caravan_reading": MessageLookupByLibrary.simpleMessage("Okumalar"),
     "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Makale"),
-    "caravan_sample_badge": MessageLookupByLibrary.simpleMessage("Kaynaklar yakında"),
-    "caravan_sample_notice": MessageLookupByLibrary.simpleMessage("Her trendin makaleleri ve kaynakları çok yakında."),
     "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Depo"),
     "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Araç"),
     "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("Video"),
@@ -393,6 +391,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen": MessageLookupByLibrary.simpleMessage("Dinle"),
     "listen_back": MessageLookupByLibrary.simpleMessage("Önceki paragraf"),
     "listen_next": MessageLookupByLibrary.simpleMessage("Sonraki paragraf"),
+    "listen_no_voice": MessageLookupByLibrary.simpleMessage(
+      "Bu telefonda bu dil için bir ses yok. Dinlemek için telefonun Ayarlar\'ından bir ses ekle.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("Duraklat"),
@@ -514,7 +515,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "İlerlemen, quiz skorların ve ayarların yalnızca bu cihazda saklanır. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
+      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa telefonun kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
     "privacy_scanner": MessageLookupByLibrary.simpleMessage(
       "Android\'de Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır. iPhone\'da kodu uygulama kendisi okur; telefondan hiçbir şey çıkmaz.",
