@@ -111,6 +111,18 @@ void main() {
       expect(RegExp(r'<key>CFBundleName</key>\s*<string>Bazaar</string>').hasMatch(plist), isTrue);
     });
 
+    // Plan 21.2: the camera's question speaks the phone's language, as the app does; English is Info.plist's own.
+    test('the camera text is in Turkish and Persian, and the Runner ships both', () {
+      final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      for (final language in ['tr', 'fa']) {
+        final strings = File('ios/Runner/$language.lproj/InfoPlist.strings').readAsStringSync();
+        expect(RegExp(r'^"NSCameraUsageDescription" = "[^"]+";$', multiLine: true).hasMatch(strings), isTrue);
+        expect(project, contains('path = $language.lproj/InfoPlist.strings;'));
+        expect(RegExp('knownRegions = \\([^)]*\\b$language,').hasMatch(project), isTrue, reason: language);
+      }
+      expect(project, contains('/* InfoPlist.strings in Resources */,'));
+    });
+
     // Apple asks every app for a privacy manifest; this one says the app tracks nothing, and lists what a prod build
     // with a SENTRY_DSN sends (docs/store-privacy.md): crash data, performance data (how long the app took to open),
     // other diagnostic data (hangs), product interaction (the sessions of release health: the app's launches), the
