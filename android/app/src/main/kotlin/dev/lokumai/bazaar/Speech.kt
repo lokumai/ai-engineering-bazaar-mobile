@@ -168,7 +168,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
             }
             AudioManager.AUDIOFOCUS_GAIN -> if (ducked) {
                 ducked = false
-                main.post { control("play") }
+                main.post {
+                    control("play")
+                    // The focus goes back if the Dart side does not read on, as when the reader left the module.
+                    releaseSoon()
+                }
             }
         }
     }
@@ -261,7 +265,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
      */
     private val noisy = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) main.post { interrupt() }
+            if (intent?.action != AudioManager.ACTION_AUDIO_BECOMING_NOISY) return
+            main.post {
+                // A reading paused by a short prompt stays paused too: its end must not read on through the speaker.
+                ducked = false
+                interrupt()
+                releaseSoon()
+            }
         }
     }
 
@@ -290,10 +300,15 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
             if (current == id) {
                 current = null
                 // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
-                main.removeCallbacks(release)
-                main.postDelayed(release, RELEASE_MS)
+                releaseSoon()
             }
         }
+    }
+
+    /** Gives the sound back a moment later, unless a reading or a short prompt's pause holds it by then. */
+    private fun releaseSoon() {
+        main.removeCallbacks(release)
+        main.postDelayed(release, RELEASE_MS)
     }
 
     /** Stops the reading for the reader or another app, and tells the Dart side, which pauses where it was. */
@@ -362,10 +377,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                         // Not stopped at once: the service was started in this same step, and Android ends an app
                         // that stops one before it has started in the foreground (plan 20.1). The release stops it
                         // a moment later, unless a reading is still shown.
-                        if (current == null) {
-                            main.removeCallbacks(release)
-                            main.postDelayed(release, RELEASE_MS)
-                        }
+                        if (current == null) releaseSoon()
                         return@whenStarted result.success(false)
                     }
                     pickVoice(tts, locale)

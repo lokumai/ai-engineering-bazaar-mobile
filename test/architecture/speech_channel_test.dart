@@ -40,6 +40,12 @@ void main() {
     expect(speech, contains('AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->'), reason: 'a short prompt pauses it');
     expect(speech, contains('if (current != null || ducked) return@Runnable'), reason: "the prompt's end comes back");
     expect(speech, contains('current?.let { done(it) }'), reason: 'a stop ends the speak without the engine');
+    // Review 4, finding 5: headphones lost during a prompt keep the reading paused, and a prompt's end that Dart does
+    // not read on from gives the sound back.
+    final noisy = RegExp(r'ACTION_AUDIO_BECOMING_NOISY\) return\s+main\.post \{([^}]*)\}').firstMatch(speech)![1]!;
+    expect(noisy, allOf(contains('ducked = false'), contains('interrupt()'), contains('releaseSoon()')));
+    final gain = RegExp(r'AUDIOFOCUS_GAIN -> if \(ducked\) \{([\s\S]*?)\n            \}').firstMatch(speech)![1]!;
+    expect(gain, allOf(contains('control("play")'), contains('releaseSoon()')));
     expect(speech, contains('TextToSpeech.getMaxSpeechInputLength()'), reason: 'a long text said in pieces');
     expect(speech, contains('tts.playSilentUtterance(GAP_MS'), reason: "iOS's pause after each text");
     expect(read('lib/infrastructure/speech/phone_speech.dart'), contains("method: 'interrupted'"));
