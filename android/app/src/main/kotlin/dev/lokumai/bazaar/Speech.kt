@@ -146,10 +146,34 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
         .build()
 
-    /** Another app took the sound for itself, as a call does: the reading pauses where it was. */
+    /**
+     * A short prompt of another app, as a navigation app's turn, paused the reading (review 3, finding 7): it reads on
+     * once the prompt gives the sound back. Android does not lower a voice for it, so it would talk over the module.
+     */
+    private var ducked = false
+
+    /**
+     * Another app took the sound for itself, as a call does: the reading pauses where it was. A short prompt pauses it
+     * too, and the reading goes on when the prompt ends.
+     */
     private val focus = AudioManager.OnAudioFocusChangeListener { change ->
-        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            main.post { interrupt() }
+        when (change) {
+            AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                ducked = false
+                main.post { interrupt() }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> if (current != null) {
+                ducked = true
+                main.post { interrupt() }
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> if (ducked) {
+                ducked = false
+                main.post {
+                    control("play")
+                    // The focus goes back if the Dart side does not read on, as when the reader left the module.
+                    releaseSoon()
+                }
+            }
         }
     }
 
@@ -208,7 +232,8 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     }
 
     private val release = Runnable {
-        if (current != null) return@Runnable
+        // While a short prompt has the sound, the focus is kept, so its end comes back as a gain.
+        if (current != null || ducked) return@Runnable
         audio?.abandonAudioFocusRequest(focusRequest)
         // A paused reading keeps its notice and its Play until it ends (plan 19.8).
         if (!shown) ListenService.stop(context)
@@ -240,7 +265,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
      */
     private val noisy = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) main.post { interrupt() }
+            if (intent?.action != AudioManager.ACTION_AUDIO_BECOMING_NOISY) return
+            main.post {
+                // A reading paused by a short prompt stays paused too: its end must not read on through the speaker.
+                ducked = false
+                interrupt()
+                releaseSoon()
+            }
         }
     }
 
@@ -269,10 +300,15 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
             if (current == id) {
                 current = null
                 // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
-                main.removeCallbacks(release)
-                main.postDelayed(release, RELEASE_MS)
+                releaseSoon()
             }
         }
+    }
+
+    /** Gives the sound back a moment later, unless a reading or a short prompt's pause holds it by then. */
+    private fun releaseSoon() {
+        main.removeCallbacks(release)
+        main.postDelayed(release, RELEASE_MS)
     }
 
     /** Stops the reading for the reader or another app, and tells the Dart side, which pauses where it was. */
@@ -324,6 +360,8 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 }
             }
             "speak" -> {
+                // The reader went on before the prompt ended: nothing is to come back.
+                ducked = false
                 val id = call.argument<Int>("id") ?: return result.error("no-id", null, null)
                 val texts = call.argument<List<String>>("texts") ?: emptyList()
                 val tag = call.argument<String>("tag") ?: return result.error("no-tag", null, null)
@@ -339,10 +377,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                         // Not stopped at once: the service was started in this same step, and Android ends an app
                         // that stops one before it has started in the foreground (plan 20.1). The release stops it
                         // a moment later, unless a reading is still shown.
-                        if (current == null) {
-                            main.removeCallbacks(release)
-                            main.postDelayed(release, RELEASE_MS)
-                        }
+                        if (current == null) releaseSoon()
                         return@whenStarted result.success(false)
                     }
                     pickVoice(tts, locale)
@@ -385,6 +420,9 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
             }
             "stop" -> {
                 engine?.stop()
+                // Ended here as well, not only when the engine reports it: an engine that does not call back after a
+                // stop would leave the service and its notice up (review 3, finding 6). A second end is ignored.
+                current?.let { done(it) }
                 result.success(null)
             }
             "show" -> {

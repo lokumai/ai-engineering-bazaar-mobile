@@ -1,0 +1,2 @@
+/* Settings, Scan the code: the camera's question on iOS (plan 21.2) */
+"NSCameraUsageDescription" = "Kamera, web sitesindeki kodu okuyup ilerlemeni uygulamaya getirir. Hiçbir görüntü saklanmaz.";

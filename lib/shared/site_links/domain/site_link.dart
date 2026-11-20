@@ -48,7 +48,13 @@ sealed class SiteLink extends Equatable {
   static const everyoneSegment = 'everyone';
 
   static SiteLink? _transfer(Uri uri) {
-    final payload = Uri.splitQueryString(uri.fragment)['t'];
+    final String? payload;
+    try {
+      payload = Uri.splitQueryString(uri.fragment)['t'];
+    } on FormatException {
+      // An escape that is not UTF-8, as a link cut short: not a transfer (review 4, finding 4).
+      return null;
+    }
     return payload == null || payload.isEmpty ? null : SiteTransfer(payload);
   }
 }

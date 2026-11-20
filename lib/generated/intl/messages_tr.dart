@@ -219,11 +219,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "caravan_period": m6,
     "caravan_period_open": m7,
     "caravan_previous": MessageLookupByLibrary.simpleMessage("Önceki durak"),
-    "caravan_reading": MessageLookupByLibrary.simpleMessage("Okumalar"),
-    "caravan_sample_articles": MessageLookupByLibrary.simpleMessage("Makale"),
-    "caravan_sample_repositories": MessageLookupByLibrary.simpleMessage("Depo"),
-    "caravan_sample_tools": MessageLookupByLibrary.simpleMessage("Araç"),
-    "caravan_sample_videos": MessageLookupByLibrary.simpleMessage("Video"),
     "caravan_search": MessageLookupByLibrary.simpleMessage("Trendlerde ara"),
     "caravan_stage_label": m8,
     "caravan_stop_of": m9,
@@ -517,8 +512,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa telefonun kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
-    "privacy_scanner": MessageLookupByLibrary.simpleMessage(
-      "Android\'de Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır. iPhone\'da kodu uygulama kendisi okur; telefondan hiçbir şey çıkmaz.",
+    "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
+      "Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
+    ),
+    "privacy_scanner_ios": MessageLookupByLibrary.simpleMessage(
+      "Kodu okut, kodu uygulamanın içinde kendisi okur; cihazdan hiçbir şey çıkmaz.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("Sitedeki gizlilik notu"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),

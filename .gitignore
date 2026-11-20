@@ -73,3 +73,15 @@ CMakeFiles/
 
 # Widget Preview related
 .widget_preview/
+
+# Release secrets (docs/development.md, Release): never commit a key, a password or a store credential
+.env
+.env.*
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+**/android/key.properties
+.sentryclirc
+sentry.properties

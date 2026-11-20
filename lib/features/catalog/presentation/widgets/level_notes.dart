@@ -105,10 +105,11 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
 
   GlobalKey _headingKey(String id) => _headingKeys.putIfAbsent(id, GlobalKey.new);
 
-  /// Scrolls the heading [id] of the document into view, at once under reduced motion (spec 3.10).
+  /// Scrolls the heading [id] of the document into view, at once under reduced motion (spec 3.10). A link to a heading
+  /// the document does not have does nothing, as in the reader (review 3, finding 12).
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
-    if (target == null) throw StateError('No heading of this level document has the id $id');
+    if (target == null) return;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
   }
 

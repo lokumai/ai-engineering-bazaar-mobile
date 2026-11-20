@@ -1,6 +1,5 @@
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_modules.dart';
 import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_road.dart';
-import 'package:ai_engineering_bazaar/features/caravan/domain/caravan_trend.dart';
 import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow_art.dart';
 import 'package:ai_engineering_bazaar/features/caravan/presentation/widgets/caravan_period.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -90,16 +89,6 @@ class TrendCard extends StatelessWidget {
                 ],
               ),
             ],
-            if (trend.sources.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text(upperCaseIn(s.caravan_reading, language), style: muted),
-              const SizedBox(height: AppSpacing.sm),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [for (final kind in trend.sources) _SourceChip(kind: kind)],
-              ),
-            ],
           ],
         ),
       ),
@@ -143,43 +132,6 @@ class _Strength extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-/// A reading the trend points to. None has an address yet, so each names its kind, not a link.
-class _SourceChip extends StatelessWidget {
-  const _SourceChip({required this.kind});
-
-  final CaravanSourceKind kind;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
-    final (icon, label) = switch (kind) {
-      CaravanSourceKind.articles => (Icons.article_outlined, s.caravan_sample_articles),
-      CaravanSourceKind.videos => (Icons.play_circle_outline, s.caravan_sample_videos),
-      CaravanSourceKind.tools => (Icons.build_outlined, s.caravan_sample_tools),
-      CaravanSourceKind.repositories => (Icons.folder_open_outlined, s.caravan_sample_repositories),
-    };
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.line),
-        color: colors.surfaceSunken,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 6,
-          children: [
-            Icon(icon, size: 16, color: colors.onSurfaceMuted),
-            Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted)),
-          ],
-        ),
       ),
     );
   }

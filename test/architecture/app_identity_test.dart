@@ -4,7 +4,7 @@ import 'package:ai_engineering_bazaar/infrastructure/analytics/native_sentry_sta
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the identity of owner decision 4 and spec 3.13: application id `dev.lokumai.bazaar`, launcher label
-/// "Bazaar", the Kotlin sources in the `dev.lokumai.bazaar` package, and the native Sentry channel named after the
+/// "AI Bazaar" (the owner, 2026-11-19: the stores' name is AI Engineering Bazaar, too long under an icon), the Kotlin sources in the `dev.lokumai.bazaar` package, and the native Sentry channel named after the
 /// application id on both sides. Nothing in a build fails when one of these drifts.
 void main() {
   const kotlinMain = 'android/app/src/main/kotlin/dev/lokumai/bazaar';
@@ -18,8 +18,29 @@ void main() {
       expect(gradle, contains('applicationId = "dev.lokumai.bazaar"'));
     });
 
-    test('the launcher label is Bazaar', () {
-      expect(File('android/app/src/main/AndroidManifest.xml').readAsStringSync(), contains('android:label="Bazaar"'));
+    test('the launcher label is AI Bazaar', () {
+      expect(
+        File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+        contains('android:label="AI Bazaar"'),
+      );
+    });
+
+    // Plan 21.1: the stores refuse a release signed with the debug key, and the upload key never enters git.
+    test('a release is signed with the upload key named in android/key.properties, which git ignores', () {
+      final gradle = File('android/app/build.gradle.kts').readAsStringSync();
+      expect(gradle, contains('rootProject.file("key.properties")'));
+      expect(gradle, contains('signingConfigs.getByName("release")'));
+
+      final ignore = Process.runSync('git', [
+        'check-ignore',
+        '--no-index',
+        'android/key.properties',
+        'upload-keystore.jks',
+        'release.keystore',
+        'AuthKey.p8',
+        '.env',
+      ]);
+      expect((ignore.stdout as String).trim().split('\n'), hasLength(5), reason: '${ignore.stdout}${ignore.stderr}');
     });
 
     test('every Kotlin source sits in dev/lokumai/bazaar and declares that package', () {
@@ -82,13 +103,24 @@ void main() {
       ]);
     });
 
-    // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label too.
-    test('CFBundleDisplayName and CFBundleName are Bazaar', () {
+    // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label; CFBundleName stays the short one.
+    test('CFBundleDisplayName is AI Bazaar and CFBundleName is Bazaar', () {
       final plist = File('ios/Runner/Info.plist').readAsStringSync();
 
-      for (final key in ['CFBundleDisplayName', 'CFBundleName']) {
-        expect(RegExp('<key>$key</key>\\s*<string>Bazaar</string>').hasMatch(plist), isTrue, reason: key);
+      expect(RegExp(r'<key>CFBundleDisplayName</key>\s*<string>AI Bazaar</string>').hasMatch(plist), isTrue);
+      expect(RegExp(r'<key>CFBundleName</key>\s*<string>Bazaar</string>').hasMatch(plist), isTrue);
+    });
+
+    // Plan 21.2: the camera's question speaks the phone's language, as the app does; English is Info.plist's own.
+    test('the camera text is in Turkish and Persian, and the Runner ships both', () {
+      final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      for (final language in ['tr', 'fa']) {
+        final strings = File('ios/Runner/$language.lproj/InfoPlist.strings').readAsStringSync();
+        expect(RegExp(r'^"NSCameraUsageDescription" = "[^"]+";$', multiLine: true).hasMatch(strings), isTrue);
+        expect(project, contains('path = $language.lproj/InfoPlist.strings;'));
+        expect(RegExp('knownRegions = \\([^)]*\\b$language,').hasMatch(project), isTrue, reason: language);
       }
+      expect(project, contains('/* InfoPlist.strings in Resources */,'));
     });
 
     // Apple asks every app for a privacy manifest; this one says the app tracks nothing, and lists what a prod build

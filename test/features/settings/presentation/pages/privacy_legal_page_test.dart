@@ -92,6 +92,21 @@ void main() {
     });
   }
 
+  testWidgets('each platform reads only its own scanner line, naming no other platform (App Store 2.3.10)', (
+    tester,
+  ) async {
+    final iOS = defaultTargetPlatform == TargetPlatform.iOS;
+    await _pump(tester, platform: defaultTargetPlatform);
+
+    const own = "nothing leaves the device";
+    const google = "Google's code scanner";
+    expect(find.textContaining(own, skipOffstage: false), iOS ? findsOneWidget : findsNothing);
+    expect(find.textContaining(google, skipOffstage: false), iOS ? findsNothing : findsOneWidget);
+    for (final name in ['Android', 'iPhone', 'iOS']) {
+      expect(find.textContaining(name, skipOffstage: false), findsNothing, reason: name);
+    }
+  }, variant: bazaarPlatforms);
+
   testWidgets('the page meets the platform guidelines', (tester) async {
     await _pump(tester, crashReports: true, platform: defaultTargetPlatform);
 

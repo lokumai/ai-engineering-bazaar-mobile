@@ -11,7 +11,7 @@
 		<string>fa</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Bazaar</string>
+	<string>AI Bazaar</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
