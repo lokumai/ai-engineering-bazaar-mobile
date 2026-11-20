@@ -569,7 +569,7 @@ On `feature/review-fixes`, from main at c75c49e (PR #18 merged). A second full r
 
 ## Phase 21: the release (the owner, 2026-11-20)
 
-On `feature/release`, from `feature/review-fixes` (Phase 20), which merges first. What the stores need from the code; the store pages themselves are filled by hand in App Store Connect and the Play Console.
+On `feature/release`, from `feature/review-fixes` (Phase 20, merged as PR #19); draft PR #20 until the accounts are ready. What the stores need from the code; the store pages themselves are filled by hand in App Store Connect and the Play Console.
 
 - [x] **21.1 Release signing.** `android/app/build.gradle.kts` signs a release with the upload key that `android/key.properties` names; both stay out of git, and without the file the release falls back to the debug key with a warning. Google Play holds the app's signing key (Play App Signing). How to build: `docs/development.md`, Release. The keystore itself is made with the owner.
 - [x] **21.2 The camera's question in Turkish and Persian.** `ios/Runner/tr.lproj` and `fa.lproj` hold `InfoPlist.strings` with `NSCameraUsageDescription`, in the Runner's resources, and the project knows both regions; English stays in `Info.plist` (17.5 left this for now).
@@ -577,7 +577,9 @@ On `feature/release`, from `feature/review-fixes` (Phase 20), which merges first
 - [x] **21.4 Version 1.0.0, build 1**, and the changelog's 1.0.0 section.
 - [x] **21.5 Secrets out of git.** `.gitignore` names keystores, `key.properties`, `.env` files, the App Store Connect key (`.p8`), certificates (`.p12`), provisioning profiles and the Sentry CLI's settings.
 - [ ] **21.6 The Apple team.** `DEVELOPMENT_TEAM` in the project once the company's Apple account is paid and its Team ID is known; the owner's Mac keeps its own until then.
-- [ ] **21.7 Store texts, screenshots and the Play foreground-service video**, outside the repo's code: the texts to paste are drafted in `~/projects/ai-bazaar/store/`.
+- [x] **21.7 Store texts, screenshots and the Play foreground-service video**, outside the repo's code, in `~/projects/ai-bazaar/store/`: the texts to paste, six light screens per language (iPhone 6.9", iPad 13", Android phone and tablet) taken by `integration_test/store_shots_test.dart`, the Play feature graphic, and a short video of the screens for Play's foreground-service declaration (no App Store preview: the owner, 2026-11-20).
+- [x] **21.8 The third review** (Fable, 2026-11-20, kept in `~/projects/ai-bazaar/reviews/`): no code blocker. Done here: the iOS icons as RGB with no alpha channel, which App Store Connect refuses (finding 1); no Caravan readings block until its readings have addresses (5); on Android a stop ends the speak itself (6) and a navigation prompt pauses the reading, which goes on after (7); a crash report hides a content path's module or level (9); the iOS symbols for Sentry in the Release docs (10); a level document's link to no heading does nothing (12). Kept for after the release: the scanner's wait while Play services fetches it (8), the native Listen logic's behavioural tests (11).
+- [ ] **21.9 The website's app links**, once the Team ID and the Play app exist (finding 2, plan 17.2): `CODE_SIGN_ENTITLEMENTS` for the Runner, the site's `apple-app-site-association` with the Team ID and `assetlinks.json` with Play's signing SHA-256. Until then the site's links open the browser; Scan the code in the app works.
 
 ## Later, kept on purpose (the owner, 2026-11-17)
 
