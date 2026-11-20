@@ -113,38 +113,31 @@ void main() {
     await openModule(next.key);
     await scrollBy(tester, 600);
 
+    // Six screens, all in the light theme (the owner, 2026-11-20).
+    await blocOf<ThemeChoiceCubit>(tester).choose(ThemeMode.light);
     for (final language in languages.split(',')) {
       await blocOf<LanguageCubit>(tester).choose(language);
-      await blocOf<ThemeChoiceCubit>(tester).choose(ThemeMode.light);
       await settleFor(tester, const Duration(seconds: 1));
 
       await open(tester, BazaarPaths.home);
       await shot(tester, '$language-01-home');
 
       await openModule(pictured.key);
-      await shot(tester, '$language-02-module');
       await scrollBy(tester, 1400);
-      await shot(tester, '$language-03-module-text');
+      await shot(tester, '$language-02-module-text');
 
       await open(tester, BazaarPaths.catalogEngineers);
-      await shot(tester, '$language-04-catalog');
+      await shot(tester, '$language-03-catalog');
 
       await open(tester, BazaarPaths.practice);
-      await shot(tester, '$language-05-practice');
-
-      await blocOf<ThemeChoiceCubit>(tester).choose(ThemeMode.dark);
-      await settleFor(tester, const Duration(seconds: 1));
+      await shot(tester, '$language-04-practice');
 
       await open(tester, BazaarPaths.caravan);
       await settleFor(tester, const Duration(seconds: 2));
-      await shot(tester, '$language-06-caravan');
-
-      await openModule(written.first.key);
-      await scrollBy(tester, 900);
-      await shot(tester, '$language-07-module-dark');
+      await shot(tester, '$language-05-caravan');
 
       await open(tester, '/settings/robot');
-      await shot(tester, '$language-08-apprentice');
+      await shot(tester, '$language-06-apprentice');
     }
 
     await blocOf<LanguageCubit>(tester).choose('en');
