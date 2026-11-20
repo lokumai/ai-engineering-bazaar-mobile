@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Screenshots of every screen on one device, for comparing Android and iOS side by side.
 #
-#   tool/parity_shots.sh ios <simulator udid> <out dir>
-#   tool/parity_shots.sh android <adb serial> <out dir>
+#   tool/parity_shots.sh ios <simulator udid> <out dir> [test file] [flutter test arguments...]
+#   tool/parity_shots.sh android <adb serial> <out dir> [test file] [flutter test arguments...]
 #
-# Runs integration_test/screens_test.dart on the device. At each `BAZAAR_SHOT <name>` the test prints, the screen is
+# Runs integration_test/screens_test.dart on the device, or the test file given: the store's screenshots are
+# integration_test/store_shots_test.dart, with --dart-define=STORE_LANGUAGES=en,tr for the App Store. At each `BAZAAR_SHOT <name>` the test prints, the screen is
 # held still and this script takes a native screenshot (status bar, navigation bar and the phone's own sheets included)
 # into <out dir>/<name>.png. The app is uninstalled first, so it starts with nothing kept from an earlier run.
 set -euo pipefail
@@ -12,6 +13,8 @@ set -euo pipefail
 platform=$1
 device=$2
 out=$3
+test_file=${4:-integration_test/screens_test.dart}
+extra=("${@:5}")
 mkdir -p "$out"
 
 case $platform in
@@ -33,13 +36,13 @@ case $platform in
     capture() { adb -s "$device" exec-out screencap -p > "$out/$1.png"; }
     ;;
   *)
-    echo "usage: $0 ios|android <device> <out dir>" >&2
+    echo "usage: $0 ios|android <device> <out dir> [test file] [flutter test arguments...]" >&2
     exit 2
     ;;
 esac
 
 status=0
-fvm flutter test integration_test/screens_test.dart -d "$device" 2>&1 | tee "$out/run.log" | while IFS= read -r line; do
+fvm flutter test "$test_file" -d "$device" ${extra[@]+"${extra[@]}"} 2>&1 | tee "$out/run.log" | while IFS= read -r line; do
   if [[ $line =~ BAZAAR_SHOT\ ([A-Za-z0-9_-]+) ]]; then
     name=${BASH_REMATCH[1]}
     sleep 0.8
