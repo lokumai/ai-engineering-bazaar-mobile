@@ -21,6 +21,31 @@ SentryEvent _eventWithExceptionValue(String value) {
 }
 
 void main() {
+  test(
+    'sentryBeforeSend hides which module or level a content path names, as a crash report never says what was read',
+    () {
+      final result = sentryBeforeSend(
+        SentryEvent(
+          message: SentryMessage('could not read api/v1/levels/expert/en.json'),
+          exceptions: [
+            SentryException(
+              type: 'ContentMissingException',
+              value: 'ContentMissingException(api/v1/modules/fundamentals/rag/en.json)',
+            ),
+            SentryException(
+              type: 'ContentFormatException',
+              value: 'ContentFormatException(api/v1/index.json, modules[0])',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.message?.formatted, 'could not read api/v1/levels/[REDACTED]');
+      expect(result.exceptions![0].value, 'ContentMissingException(api/v1/modules/[REDACTED])');
+      expect(result.exceptions![1].value, 'ContentFormatException(api/v1/index.json, modules[0])');
+    },
+  );
+
   group('sentryBeforeSend — header scrubbing', () {
     test('removes Authorization header (case-insensitive)', () {
       final result = sentryBeforeSend(
