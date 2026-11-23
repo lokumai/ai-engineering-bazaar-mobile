@@ -24,6 +24,9 @@ final class ContentHttp {
   /// ends as a network failure (A43, decision E7): a slow download that keeps receiving bytes is not cut.
   static const defaultTimeout = Duration(seconds: 30);
 
+  /// The most of a refused answer's body that is read before the request is aborted (review 6, finding 22).
+  static const maxRefusedBytes = 64 * 1024;
+
   final http.Client _client;
   final String _contentBaseUrl;
   final Duration _timeout;
@@ -33,7 +36,7 @@ final class ContentHttp {
   ///
   /// Throws [ContentFetchException] with [ContentErrorCode.network] when the request fails with an I/O error (TLS and
   /// handshake failures included) or goes silent for longer than the timeout, which aborts it, and with
-  /// [ContentErrorCode.httpStatus] for any status other than 200, once its body is read, and with
+  /// [ContentErrorCode.httpStatus] for any status other than 200, once its body is read or cut, and with
   /// [ContentErrorCode.format] for a body larger than the cap, which is cut there. Errors that are not I/O propagate.
   Future<Uint8List> get(String sitePath, {String? version}) async {
     final url = Uri.parse(joinContentUrl(_contentBaseUrl, sitePath, version: version));
@@ -43,9 +46,7 @@ final class ContentHttp {
           .send(http.AbortableRequest('GET', url, abortTrigger: abort.future))
           .timeout(_timeout);
       if (response.statusCode != 200) {
-        // Reading the short error body returns the connection to the client's pool; an abort after the head would
-        // leave it open and unread for the rest of the session.
-        await response.stream.timeout(_timeout).drain<void>();
+        await _drainRefused(response.stream, abort).timeout(_timeout);
         throw const ContentFetchException(ContentErrorCode.httpStatus);
       }
       if ((response.contentLength ?? 0) > _maxBytes) {
@@ -66,8 +67,22 @@ final class ContentHttp {
     } on IOException {
       throw const ContentFetchException(ContentErrorCode.network);
     } on TimeoutException {
-      abort.complete();
+      if (!abort.isCompleted) abort.complete();
       throw const ContentFetchException(ContentErrorCode.network);
+    }
+  }
+
+  /// Reads the body of an answer other than 200, which returns the connection to the client's pool; an abort after the
+  /// head would leave it open and unread for the rest of the session. A body past [maxRefusedBytes] is aborted there,
+  /// and the caller holds the whole read to one timeout, so an error page that trickles in keeps no refresh waiting.
+  Future<void> _drainRefused(Stream<List<int>> body, Completer<void> abort) async {
+    var read = 0;
+    await for (final chunk in body.timeout(_timeout)) {
+      read += chunk.length;
+      if (read > maxRefusedBytes) {
+        abort.complete();
+        return;
+      }
     }
   }
 }

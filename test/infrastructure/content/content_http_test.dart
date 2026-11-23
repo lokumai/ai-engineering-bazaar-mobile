@@ -95,6 +95,51 @@ void main() {
     await expectLater((requests.single as http.Abortable).abortTrigger, completes);
   });
 
+  // Review 6, finding 22: a refused answer's body was read to its end however long it was, with no deadline in all.
+  test(
+    'a refused answer whose body trickles in for longer than the timeout is a network failure, and aborted',
+    () async {
+      final requests = <http.BaseRequest>[];
+      final contentHttp = ContentHttp(
+        client: MockClient.streaming((request, _) async {
+          requests.add(request);
+          return http.StreamedResponse(Stream.periodic(const Duration(milliseconds: 5), (_) => [1]), 503);
+        }),
+        contentBaseUrl: testContentBaseUrl,
+        timeout: const Duration(milliseconds: 60),
+      );
+
+      await expectLater(
+        contentHttp.get('api/index.json').timeout(const Duration(seconds: 2)),
+        _fetchFailure(ContentErrorCode.network),
+      );
+      await expectLater((requests.single as http.Abortable).abortTrigger, completes);
+    },
+  );
+
+  test('a refused answer with a long body is read only to the cap, and aborted there', () async {
+    final requests = <http.BaseRequest>[];
+    var sent = 0;
+    final contentHttp = ContentHttp(
+      client: MockClient.streaming((request, _) async {
+        requests.add(request);
+        final chunks = Iterable.generate(1024, (_) {
+          sent += 1024;
+          return List.filled(1024, 0);
+        });
+        return http.StreamedResponse(Stream.fromIterable(chunks), 500);
+      }),
+      contentBaseUrl: testContentBaseUrl,
+    );
+
+    await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.httpStatus));
+    expect(sent, lessThanOrEqualTo(ContentHttp.maxRefusedBytes + 1024));
+    var aborted = false;
+    unawaited((requests.single as http.Abortable).abortTrigger!.then((_) => aborted = true));
+    await Future<void>.delayed(Duration.zero);
+    expect(aborted, isTrue);
+  });
+
   group('with the real client', () {
     HttpOverrides? overrides;
     HttpServer? server;
