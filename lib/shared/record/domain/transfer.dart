@@ -26,7 +26,7 @@ const transferVersion = 1;
 /// The longest `t` value read; a longer one is refused before it is unpacked.
 const transferMaxPayload = 16384;
 
-/// The longest compact text read once unpacked.
+/// The longest compact text read once unpacked, in UTF-8 bytes, as the packer counts it.
 const transferMaxText = 262144;
 
 final _base36 = RegExp(r'^[0-9a-z]{1,11}$');
@@ -110,7 +110,9 @@ String encodeTransfer(RecordData data) {
 /// The progress in [text], or null when it is not a transfer this app reads: the whole text is refused when any part
 /// of it fails, so nothing is ever partly applied.
 TransferProgress? decodeTransfer(String text) {
-  if (text.length > transferMaxText) return null;
+  // In bytes, as the packer counts: a text of fewer characters but more bytes was read here and refused there (review 7,
+  // finding 14). A UTF-8 text has at least as many bytes as UTF-16 units, so the first test spares the encoding.
+  if (text.length > transferMaxText || utf8.encode(text).length > transferMaxText) return null;
   final Object? json;
   try {
     json = jsonDecode(text);

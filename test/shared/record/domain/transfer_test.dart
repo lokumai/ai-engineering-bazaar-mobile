@@ -118,6 +118,15 @@ void main() {
         expect(decodeTransfer(text), isNull, reason: text);
       }
       expect(decodeTransfer('{"v":1,"e":{},"y":{},"d":[]}${' ' * transferMaxText}'), isNull);
+      // Review 7, finding 14: counted in bytes, as the packer counts; 'ş' is two.
+      String withNote(int letters) => '{"v":1,"e":{},"y":{},"d":[],"note":"${'ş' * letters}"}';
+      expect(
+        decodeTransfer(withNote(transferMaxText ~/ 4)),
+        isNotNull,
+        reason: 'a key it does not know is passed over',
+      );
+      expect(withNote(transferMaxText ~/ 2).length, lessThan(transferMaxText));
+      expect(decodeTransfer(withNote(transferMaxText ~/ 2)), isNull);
     });
   });
 
