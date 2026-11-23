@@ -141,6 +141,13 @@ The first release on the App Store and Google Play.
 - On Android headphones taken off during a navigation prompt keep the reading paused, rather than reading on through the speaker when the prompt ends.
 - A progress link cut short in the middle of a character is ignored, rather than ending in an error.
 - The app starts even when the phone does not give its version.
+- A module left half read opens where it was left even when it was first drawn under another page, rather than ending in an error.
+- A scanned code or a link whose address has a character that is not UTF-8 is not a link, and Scan the code works again after it.
+- A file of the app's own (the Apprentice, quiz scores, Practice, where modules were left) that the phone could not read at start is not replaced by a fresh one.
+- The catalog and the level pages open even when a module names a prerequisite the course no longer has.
+- A module, the story or a quiz whose content cannot be read says so, rather than loading for good; a quiz left before it loads no longer reports an error.
+- A voice added in the phone's settings is found when the reader comes back, rather than once the app is closed.
+- On Android a voice engine that describes a voice badly keeps its default voice, rather than ending the app.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
