@@ -170,6 +170,13 @@ The first release on the App Store and Google Play.
 - Turkish and Persian name each thing with one word, and the tour with the words its screens show.
 - An error page from the site that trickles in no longer keeps Check for updates busy.
 - On iOS a second Scan the code while the camera question is up is answered busy.
+- On Android Listen works again after the phone's voice service is updated while the app runs, without closing the app.
+- A progress link too large for the device's record is not added, and the record in use stays as it was.
+- A backup file whose size the phone cannot tell is read only up to the 16 MB limit.
+- A backup file nested too deep says it is not a backup.
+- The answer to Check for updates is read out by a screen reader.
+- A second tap on the Apprentice's Read reads no second module.
+- Opening a module from the Caravan ends its tour.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
