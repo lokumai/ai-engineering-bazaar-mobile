@@ -87,9 +87,10 @@ class DiagramView extends StatelessWidget {
                 ),
               );
             },
-            unreadable: (context) => const ExcludeSemantics(
-              child: Padding(padding: EdgeInsets.symmetric(vertical: 20, horizontal: 18), child: ContentUnreadable()),
-            ),
+            // Said under the caption: hidden, the reader heard a diagram and nothing of why it was missing (review 7,
+            // finding 16).
+            unreadable: (context) =>
+                const Padding(padding: EdgeInsets.symmetric(vertical: 20, horizontal: 18), child: ContentUnreadable()),
           ),
         ),
       ),

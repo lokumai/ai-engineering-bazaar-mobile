@@ -169,6 +169,23 @@ void main() {
     expect(find.byKey(DiagramView.expandKey), findsNothing, reason: 'nothing to open');
   });
 
+  // Review 7, finding 16: the unreadable line was excluded, so a screen reader heard the caption and nothing more.
+  testWidgets('a screen reader hears that a missing diagram cannot be read', (tester) async {
+    final semantics = tester.ensureSemantics();
+    when(() => repository.readObject(any())).thenThrow(const ContentMissingException('api/v1/diagrams/l.svg'));
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.light,
+      repository: repository,
+    );
+    await settleContent(tester);
+
+    final node = tester.getSemantics(find.byKey(const Key('diagram-frame')));
+    expect(node.label, contains(S.current.content_unreadable));
+    semantics.dispose();
+  });
+
   testWidgets('a corrupt diagram shows the unreadable state', (tester) async {
     when(() => repository.readObject(any())).thenAnswer((_) async => throw const ContentCorruptException('x'));
     await pumpInTheme(
