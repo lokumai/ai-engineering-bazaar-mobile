@@ -155,6 +155,60 @@ void main() {
     expect(swift, contains('speech = Speech(messenger: registrar.messenger())'));
   });
 
+  // Review 8, finding 18: the methods were tied by name, their arguments by hand only. A key renamed on one side reads
+  // as missing on the other: a reading that never starts, or one spoken in the wrong voice, with no test failing.
+  test('each method reads on each native side only arguments the Dart side sends it, and Dart reads those of part', () {
+    final dart = read('lib/infrastructure/speech/phone_speech.dart');
+    final sent = {
+      for (final call in RegExp(r"_channel\.invokeMethod<\w+>\('(\w+)'([^;]*);").allMatches(dart))
+        call[1]!: {...RegExp(r"'(\w+)':").allMatches(call[2]!).map((key) => key[1]!)},
+    };
+    expect(sent.keys, unorderedEquals(methods));
+    expect(sent['speak'], containsAll(['id', 'texts', 'tag', 'rate', 'title', 'interface']));
+
+    /// The keys each method's branch reads, the branches found by [branch] in [text] from [start].
+    Map<String, Set<String>> reads(String text, String start, RegExp branch, List<RegExp> keys) {
+      final handler = text.substring(text.indexOf(start));
+      final branches = branch.allMatches(handler).toList();
+      return {
+        for (final (i, match) in branches.indexed)
+          ?match[1]: {
+            for (final key in keys)
+              ...key
+                  .allMatches(handler.substring(match.end, i + 1 < branches.length ? branches[i + 1].start : null))
+                  .map((found) => found[1]!),
+          },
+      };
+    }
+
+    final kotlin = reads(
+      read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt'),
+      'override fun onMethodCall',
+      RegExp(r'\n {12}(?:"(\w+)"|else) ->'),
+      [RegExp(r'call\.argument<.+?>\("(\w+)"\)'), RegExp(r'reading\?\.get\("(\w+)"\)')],
+    );
+    final swift = reads(
+      read('ios/Runner/AppDelegate.swift'),
+      'private func handle(_ call: FlutterMethodCall, _ result: FlutterResult) {\n    let arguments',
+      RegExp(r'\n    (?:case "(\w+)"|default):'),
+      [RegExp(r'arguments\["(\w+)"\]'), RegExp(r'reading\?\["(\w+)"\]')],
+    );
+    for (final (side, branches) in [('Kotlin', kotlin), ('Swift', swift)]) {
+      for (final method in methods) {
+        expect(branches, contains(method), reason: '$side $method');
+        expect(sent[method], containsAll(branches[method]!), reason: '$side $method reads ${branches[method]}');
+      }
+    }
+    expect(kotlin['speak'], containsAll(['id', 'texts', 'tag', 'rate', 'title', 'interface']));
+    expect(swift['speak'], containsAll(['id', 'texts', 'tag', 'rate']));
+    expect(kotlin['canSpeak'], {'tag'});
+    expect(swift['canSpeak'], {'language'});
+    expect(kotlin['show'], {'title', 'playing'});
+    expect(swift['show'], {'title', 'playing'});
+
+    expect(dart, contains("MethodCall(method: 'part', arguments: {'id': final int id, 'index': final int index})"));
+  });
+
   test('iOS keeps reading with the screen off: the audio background mode', () {
     final plist = read('ios/Runner/Info.plist');
     expect(plist, matches(RegExp(r'<key>UIBackgroundModes</key>\s*<array>\s*<string>audio</string>')));
