@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -40,25 +40,33 @@ class ListenPlayer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
                 children: [
-                  IconButton(
-                    key: const ValueKey('listen-back'),
-                    tooltip: s.listen_back,
-                    onPressed: listen.back,
-                    icon: const Icon(Icons.skip_previous_rounded, size: 22),
-                  ),
-                  IconButton(
-                    key: const ValueKey('listen-toggle'),
-                    tooltip: state.playing ? s.listen_pause : s.listen_play,
-                    onPressed: state.playing ? listen.pause : listen.resume,
-                    color: colors.primary,
-                    icon: Icon(state.playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
-                    iconSize: 32,
-                  ),
-                  IconButton(
-                    key: const ValueKey('listen-next'),
-                    tooltip: s.listen_next,
-                    onPressed: listen.next,
-                    icon: const Icon(Icons.skip_next_rounded, size: 22),
+                  // Previous, play and next stay left to right in Persian, as media controls do in a right-to-left
+                  // interface; in the row's order the arrows pointed away from their buttons (review 6, finding 7).
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    textDirection: TextDirection.ltr,
+                    children: [
+                      IconButton(
+                        key: const ValueKey('listen-back'),
+                        tooltip: s.listen_back,
+                        onPressed: listen.back,
+                        icon: const Icon(Icons.skip_previous_rounded, size: 22),
+                      ),
+                      IconButton(
+                        key: const ValueKey('listen-toggle'),
+                        tooltip: state.playing ? s.listen_pause : s.listen_play,
+                        onPressed: state.playing ? listen.pause : listen.resume,
+                        color: colors.primary,
+                        icon: Icon(state.playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
+                        iconSize: 32,
+                      ),
+                      IconButton(
+                        key: const ValueKey('listen-next'),
+                        tooltip: s.listen_next,
+                        onPressed: listen.next,
+                        icon: const Icon(Icons.skip_next_rounded, size: 22),
+                      ),
+                    ],
                   ),
                   const SizedBox(width: 4),
                   Expanded(

@@ -135,7 +135,12 @@ void main() {
     );
   });
 
-  Future<GoRouter> pump(WidgetTester tester, ISpeech speech, {TargetPlatform platform = TargetPlatform.android}) async {
+  Future<GoRouter> pump(
+    WidgetTester tester,
+    ISpeech speech, {
+    TargetPlatform platform = TargetPlatform.android,
+    Locale locale = const Locale('en'),
+  }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -156,6 +161,7 @@ void main() {
         content: readyContentBloc(testIndex(modules: [testModule()])),
         speech: speech,
         platform: platform,
+        locale: locale,
       ),
     );
     await tester.pumpAndSettle();
@@ -281,6 +287,18 @@ void main() {
     expect(find.text('2 of 33'), findsOneWidget, reason: 'back on the module, where the voice is, not at its head');
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Models call tools.'))), isTrue);
     expect(voice.handed, hasLength(1), reason: 'not started again');
+  });
+
+  // Review 6, finding 7: in Persian the row put next on the left and previous on the right, under arrows that stay.
+  testWidgets('in Persian too, previous stands left of play and next right of it, under their arrows', (tester) async {
+    await pump(tester, _Voice(), locale: const Locale('fa'));
+    await tester.tap(_listen);
+    await tester.pumpAndSettle();
+    final back = tester.getCenter(find.byKey(const ValueKey('listen-back'))).dx;
+    final play = tester.getCenter(find.byKey(const ValueKey('listen-toggle'))).dx;
+    final next = tester.getCenter(find.byKey(const ValueKey('listen-next'))).dx;
+    expect(back, lessThan(play));
+    expect(play, lessThan(next));
   });
 
   testWidgets('the player is one thin row on the page\'s ground (the owner, 2026-11-18)', (tester) async {
