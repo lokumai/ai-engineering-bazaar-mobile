@@ -75,7 +75,10 @@ import UIKit
           if let error {
             NSLog("Bazaar: app icon %@ not set: %@", name ?? "default", error.localizedDescription)
           }
-          result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
+          // UIKit does not say on which queue it calls back; a channel is answered on the main one.
+          DispatchQueue.main.async {
+            result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
+          }
         }
       }
     // lib/infrastructure/theme/launch_ground_channel.dart names the reader's look on every launch and every choice; the
@@ -212,6 +215,8 @@ enum ShareSheet {
 final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
   private let channel: FlutterMethodChannel
   private var pending: FlutterResult?
+  /// Whether the camera question is up: a second scan then is `busy` too, as `pending` is set only once it is answered.
+  private var asking = false
   private var session: AVCaptureSession?
   private weak var screen: UIViewController?
 
@@ -232,13 +237,15 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
   }
 
   private func start(title: String, result: @escaping FlutterResult) {
-    guard pending == nil else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
+    guard pending == nil, !asking else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .authorized:
       open(title: title, result: result)
     case .notDetermined:
+      asking = true
       AVCaptureDevice.requestAccess(for: .video) { granted in
         DispatchQueue.main.async {
+          self.asking = false
           if granted {
             self.open(title: title, result: result)
           } else {
