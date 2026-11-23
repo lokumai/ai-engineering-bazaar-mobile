@@ -113,6 +113,17 @@ void main() {
     expect(speech.indexOf('suspect = true', failed), lessThan(speech.indexOf('result.success(queued)', failed)));
   });
 
+  // Review 8, finding 2: a speak waiting for the engine outlived a stop, and was then read with no player.
+  test('Android says nothing of a speak a stop came after', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    final stop = speech.indexOf('"stop" -> {');
+    expect(speech.indexOf('stoppedThrough = lastAsked', stop), greaterThan(stop));
+    expect(speech, contains('lastAsked = id'));
+    expect(speech, contains('if (stoppedThrough?.let { id <= it } == true) {'));
+    // Review 8, finding 13: no new engine while a reading is on.
+    expect(speech, contains('asked > 1 && current == null'));
+  });
+
   test('Android keeps a reading started in the app and says nothing while another app holds the sound '
       '(plan 19.9, 19.10)', () {
     final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');

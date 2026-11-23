@@ -141,6 +141,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
      */
     private var suspect = false
 
+    /**
+     * The last speak asked for, and the last one a stop came after: a speak still waiting for the engine then is not
+     * said (review 8, finding 2).
+     */
+    private var lastAsked: Int? = null
+    private var stoppedThrough: Int? = null
+
     /** How many asks the engine in use has answered, this one included: one is a fresh engine. */
     private var asked = 0
 
@@ -386,7 +393,8 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     private fun canSpeak(locale: Locale, result: MethodChannel.Result, again: Boolean) {
         whenStarted { tts ->
             val can = tts != null && available(tts.isLanguageAvailable(locale))
-            if (!can && again && tts != null && asked > 1) {
+            // Not while a reading is on: a new engine would cut it with no word to the player (review 8, finding 13).
+            if (!can && again && tts != null && asked > 1 && current == null) {
                 suspect = true
                 return@whenStarted canSpeak(locale, result, again = false)
             }
@@ -407,6 +415,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         again: Boolean,
     ) {
         whenStarted { tts ->
+            if (stoppedThrough?.let { id <= it } == true) {
+                // Stopped while it waited for the engine: the player has moved on, and nothing is said.
+                if (current == null) releaseSoon()
+                return@whenStarted result.success(false)
+            }
             if (tts != null && texts.isNotEmpty() && again && asked > 1 && !available(tts.setLanguage(locale))) {
                 suspect = true
                 return@whenStarted speak(id, texts, locale, rate, result, again = false)
@@ -479,9 +492,11 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 // background, as a reader who leaves while the engine starts would have it (plan 19.9).
                 main.removeCallbacks(release)
                 ListenService.start(context, title)
+                lastAsked = id
                 speak(id, texts, Locale.forLanguageTag(tag), rate, result, again = true)
             }
             "stop" -> {
+                stoppedThrough = lastAsked
                 engine?.stop()
                 // Ended here as well, not only when the engine reports it: an engine that does not call back after a
                 // stop would leave the service and its notice up (review 3, finding 6). A second end is ignored.
