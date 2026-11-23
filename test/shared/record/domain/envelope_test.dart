@@ -62,4 +62,14 @@ void main() {
     expect(ok.data.signedMap(Track.engineers), {'e': '2026-03-14T09:26:53.589Z'});
     expect(ok.data.days, ['2026-03-14']);
   });
+
+  // Review 7, finding 13: a backup nested deeper than the stack ended the restore without a word.
+  test('a record nested deeper than the stack is malformed', () {
+    final deep = '{"schema":1,"data":{"x":${'[' * 100000}${']' * 100000}}}';
+    final result = parseEnvelope(deep);
+    expect(
+      result,
+      isA<EnvelopeQuarantine>().having((quarantine) => quarantine.reason, 'reason', QuarantineReason.malformed),
+    );
+  });
 }

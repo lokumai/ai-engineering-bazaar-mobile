@@ -69,7 +69,13 @@ EnvelopeResult parseEnvelope(String? raw) {
   if (schema > RecordConstants.schemaVersion) return EnvelopeQuarantine(reason: QuarantineReason.newer, raw: raw);
   final data = parsed['data'];
   if (data is! Map<String, Object?>) return malformed;
-  return EnvelopeOk(data: normaliseRecord(data), schema: schema.toInt());
+  try {
+    return EnvelopeOk(data: normaliseRecord(data), schema: schema.toInt());
+  } on StackOverflowError {
+    // A file nested deeper than the stack goes (a few hundred kilobytes of brackets) is no record: refused, as the
+    // web's parser refuses it, rather than ending the restore without a word (review 7, finding 13).
+    return malformed;
+  }
 }
 
 /// The schema number when it is an integer, as JS `Number.isInteger` decides, else null.
