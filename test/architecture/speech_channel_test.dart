@@ -102,13 +102,24 @@ void main() {
     expect(dart, contains("method: 'control', arguments: 'play'"));
   });
 
+  // Review 7, finding 1: an engine that lost its voice service after an update failed every call while it still
+  // counted as started, until the app was closed.
+  test('Android builds the engine again when a started one fails', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    expect(speech, contains('(started != TextToSpeech.SUCCESS || suspect) && waiting.isEmpty()'));
+    expect(speech, contains('return@whenStarted canSpeak(locale, result, again = false)'));
+    expect(speech, contains('return@whenStarted speak(id, texts, locale, rate, result, again = false)'));
+    final failed = speech.indexOf('if (!queued) {');
+    expect(speech.indexOf('suspect = true', failed), lessThan(speech.indexOf('result.success(queued)', failed)));
+  });
+
   test('Android keeps a reading started in the app and says nothing while another app holds the sound '
       '(plan 19.9, 19.10)', () {
     final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
     final speak = speech.indexOf('"speak" ->');
     expect(
       speech.indexOf('ListenService.start(context, title)', speak),
-      lessThan(speech.indexOf('whenStarted { tts ->', speak)),
+      lessThan(speech.indexOf('speak(id, texts, Locale.forLanguageTag(tag), rate, result, again = true)', speak)),
       reason: 'the service starts before the engine answers',
     );
     expect(speech, contains('if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)'));

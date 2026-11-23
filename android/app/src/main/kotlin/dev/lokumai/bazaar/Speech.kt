@@ -134,6 +134,16 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     private var started: Int? = null
     private val waiting = mutableListOf<() -> Unit>()
 
+    /**
+     * Whether a started engine failed at what it did before. Android drops the engine's binding when the voice service
+     * is updated while the app runs, and every call then fails while the engine still counts as started; it is built
+     * again at the next ask (review 7, finding 1).
+     */
+    private var suspect = false
+
+    /** How many asks the engine in use has answered, this one included: one is a fresh engine. */
+    private var asked = 0
+
     /** The speaks whose end has been told, so a cut queue tells it once. */
     private val ended = mutableSetOf<Int>()
 
@@ -326,13 +336,19 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     private fun whenStarted(action: (TextToSpeech?) -> Unit) {
         // An engine that failed to start is started again at the next ask, as when the reader comes back from the
         // phone's settings with a voice engine fixed or installed (review 6, finding 12).
-        if (started != null && started != TextToSpeech.SUCCESS && waiting.isEmpty()) {
+        if (started != null && (started != TextToSpeech.SUCCESS || suspect) && waiting.isEmpty()) {
             runCatching { engine?.shutdown() }
             engine = null
             started = null
+            suspect = false
+            asked = 0
         }
-        if (started != null) return action(engine.takeIf { started == TextToSpeech.SUCCESS })
-        waiting.add { action(engine.takeIf { started == TextToSpeech.SUCCESS }) }
+        val run = {
+            asked++
+            action(engine.takeIf { started == TextToSpeech.SUCCESS })
+        }
+        if (started != null) return run()
+        waiting.add(run)
         if (engine != null) return
         engine = TextToSpeech(context.applicationContext) { status ->
             main.post {
@@ -366,13 +382,88 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         runCatching { tts.voice = voices[best] }
     }
 
+    /** Answers whether [locale] has a voice; a no from an engine that answered before is asked again of a new one. */
+    private fun canSpeak(locale: Locale, result: MethodChannel.Result, again: Boolean) {
+        whenStarted { tts ->
+            val can = tts != null && available(tts.isLanguageAvailable(locale))
+            if (!can && again && tts != null && asked > 1) {
+                suspect = true
+                return@whenStarted canSpeak(locale, result, again = false)
+            }
+            result.success(can)
+        }
+    }
+
+    /**
+     * Says [texts] in [locale] as speak [id]; a language refused by an engine that answered before is tried again on a
+     * new one, and a speak that does not queue leaves the engine to be built again at the next ask.
+     */
+    private fun speak(
+        id: Int,
+        texts: List<String>,
+        locale: Locale,
+        rate: Double,
+        result: MethodChannel.Result,
+        again: Boolean,
+    ) {
+        whenStarted { tts ->
+            if (tts != null && texts.isNotEmpty() && again && asked > 1 && !available(tts.setLanguage(locale))) {
+                suspect = true
+                return@whenStarted speak(id, texts, locale, rate, result, again = false)
+            }
+            if (tts == null || texts.isEmpty() || !available(tts.setLanguage(locale))) {
+                // Not stopped at once: the service was started in this same step, and Android ends an app
+                // that stops one before it has started in the foreground (plan 20.1). The release stops it
+                // a moment later, unless a reading is still shown.
+                if (current == null) releaseSoon()
+                return@whenStarted result.success(false)
+            }
+            pickVoice(tts, locale)
+            tts.setSpeechRate(rate.toFloat())
+            main.removeCallbacks(release)
+            current = id
+            val focus = audio?.requestAudioFocus(focusRequest) ?: AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                // Another app holds the sound, as a call does: nothing is said, and the player waits on its
+                // part, as if the call had come during the reading (plan 19.10).
+                tts.stop()
+                main.post {
+                    interrupt()
+                    done(id)
+                }
+                return@whenStarted result.success(true)
+            }
+            // The first flushes the words being said, whose speak then comes back as done; the rest queue.
+            val max = runCatching { TextToSpeech.getMaxSpeechInputLength() }.getOrDefault(4000)
+            var queued = true
+            var flush = true
+            texts.forEachIndexed { index, text ->
+                val last = index == texts.size - 1
+                val pieces = pieces(text, max)
+                pieces.forEachIndexed { piece, words ->
+                    val mode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+                    flush = false
+                    val utterance = utterance(id, index, last, piece, pieces.size)
+                    queued = queued && tts.speak(words, mode, null, utterance) == TextToSpeech.SUCCESS
+                }
+                if (!last) tts.playSilentUtterance(GAP_MS, TextToSpeech.QUEUE_ADD, "gap")
+            }
+            if (!queued) {
+                // Nothing half said: what was queued is cut, and the speak comes back as done. The engine may have
+                // lost its voice service, and is built again at the next ask.
+                tts.stop()
+                done(id)
+                suspect = true
+            }
+            result.success(queued)
+        }
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "canSpeak" -> {
                 val tag = call.argument<String>("tag") ?: return result.error("no-tag", null, null)
-                whenStarted { tts ->
-                    result.success(tts != null && available(tts.isLanguageAvailable(Locale.forLanguageTag(tag))))
-                }
+                canSpeak(Locale.forLanguageTag(tag), result, again = true)
             }
             "speak" -> {
                 // The reader went on before the prompt ended: nothing is to come back.
@@ -388,52 +479,7 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 // background, as a reader who leaves while the engine starts would have it (plan 19.9).
                 main.removeCallbacks(release)
                 ListenService.start(context, title)
-                whenStarted { tts ->
-                    val locale = Locale.forLanguageTag(tag)
-                    if (tts == null || texts.isEmpty() || !available(tts.setLanguage(locale))) {
-                        // Not stopped at once: the service was started in this same step, and Android ends an app
-                        // that stops one before it has started in the foreground (plan 20.1). The release stops it
-                        // a moment later, unless a reading is still shown.
-                        if (current == null) releaseSoon()
-                        return@whenStarted result.success(false)
-                    }
-                    pickVoice(tts, locale)
-                    tts.setSpeechRate(rate.toFloat())
-                    main.removeCallbacks(release)
-                    current = id
-                    val focus = audio?.requestAudioFocus(focusRequest) ?: AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-                    if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                        // Another app holds the sound, as a call does: nothing is said, and the player waits on its
-                        // part, as if the call had come during the reading (plan 19.10).
-                        tts.stop()
-                        main.post {
-                            interrupt()
-                            done(id)
-                        }
-                        return@whenStarted result.success(true)
-                    }
-                    // The first flushes the words being said, whose speak then comes back as done; the rest queue.
-                    val max = runCatching { TextToSpeech.getMaxSpeechInputLength() }.getOrDefault(4000)
-                    var queued = true
-                    var flush = true
-                    texts.forEachIndexed { index, text ->
-                        val last = index == texts.size - 1
-                        val pieces = pieces(text, max)
-                        pieces.forEachIndexed { piece, words ->
-                            val mode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                            flush = false
-                            val utterance = utterance(id, index, last, piece, pieces.size)
-                            queued = queued && tts.speak(words, mode, null, utterance) == TextToSpeech.SUCCESS
-                        }
-                        if (!last) tts.playSilentUtterance(GAP_MS, TextToSpeech.QUEUE_ADD, "gap")
-                    }
-                    if (!queued) {
-                        // Nothing half said: what was queued is cut, and the speak comes back as done.
-                        tts.stop()
-                        done(id)
-                    }
-                    result.success(queued)
-                }
+                speak(id, texts, Locale.forLanguageTag(tag), rate, result, again = true)
             }
             "stop" -> {
                 engine?.stop()
