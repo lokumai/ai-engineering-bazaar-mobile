@@ -280,6 +280,29 @@ void main() {
     });
   });
 
+  // Review 7, finding 11: a widget's key prints in Flutter's error, and a page's key is a level or a module.
+  group('sentryBeforeSend - a Flutter error names no key', () {
+    test('masks the keys in the context and the information of a Flutter error', () {
+      final result = sentryBeforeSend(
+        SentryEvent(
+          contexts: Contexts()
+            ..['flutter_error_details'] = {
+              'context': "thrown building LevelPage-[<'advanced'>]",
+              'information':
+                  "The relevant error-causing widget was:\n  _ModuleRow-[<'fundamentals/01-what-is-an-llm'>]",
+              'library': 'widgets library',
+            },
+        ),
+      );
+      final details = result.contexts['flutter_error_details'] as Map;
+      expect(details['context'], 'thrown building LevelPage-[<key>]');
+      expect(details['information'], 'The relevant error-causing widget was:\n  _ModuleRow-[<key>]');
+      expect(details['library'], 'widgets library');
+      expect(result.toJson().toString(), isNot(contains('advanced')));
+      expect(result.toJson().toString(), isNot(contains('what-is-an-llm')));
+    });
+  });
+
   group('sentryBeforeSend — passthroughs', () {
     test('event with no request or exception passes through unchanged', () {
       final event = SentryEvent(message: SentryMessage('Plain note'));

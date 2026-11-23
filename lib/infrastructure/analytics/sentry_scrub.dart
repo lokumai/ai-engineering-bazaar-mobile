@@ -89,8 +89,21 @@ SentryEvent sentryBeforeSend(SentryEvent event) {
     if (url != null) feedback.url = _scrubUrlPart(url);
   }
 
+  // A Flutter error names the widget it was building with its key, and a page's or a row's key is a level or a module
+  // (review 7, finding 11): every printed value key is cut to `[<key>]`.
+  final flutter = event.contexts['flutter_error_details'];
+  if (flutter is Map) {
+    event.contexts['flutter_error_details'] = {
+      for (final MapEntry(:key, :value) in flutter.entries)
+        key: value is String ? _maskText(value.replaceAll(_printedValueKey, '[<key>]')) : value,
+    };
+  }
+
   return event;
 }
+
+/// A [ValueKey] as Flutter prints it after a widget's name: `[<'advanced'>]`, `[<3>]`.
+final _printedValueKey = RegExp(r'\[<[^\]]*>\]');
 
 /// PII / token scrubber for Sentry breadcrumbs. Runs as the SDK's
 /// `beforeBreadcrumb` hook (see [installSentryScrubbers]) on every
