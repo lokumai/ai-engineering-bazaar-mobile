@@ -575,6 +575,53 @@ void main() {
       });
     });
 
+    // Review 8, finding 16: a feed refused while overfit changes the model but not its tokens; the curve being drawn
+    // for the last feed was then dropped as out of date, and none was asked again.
+    test('a curve drawn while a feed was refused is still kept', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          final asked = <(int, Completer<List<LossPoint>>)>[];
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) {
+              final drawn = Completer<List<LossPoint>>();
+              asked.add((tokens, drawn));
+              return drawn.future;
+            },
+          )..add(const PocketModelStarted());
+          async.flushMicrotasks();
+          asked.single.$2.complete([(tokens: 0, loss: 9)]);
+          async.flushMicrotasks();
+
+          for (var i = 0; i < PocketModel.overfitFeeds; i++) {
+            bloc.add(const PocketModelFed());
+            async.elapse(const Duration(milliseconds: 300));
+            if (!asked.last.$2.isCompleted && i < PocketModel.overfitFeeds - 1) {
+              asked.last.$2.complete([(tokens: asked.last.$1, loss: 8)]);
+              async.flushMicrotasks();
+            }
+          }
+          expect(ready(bloc).action, PocketAction.overfit);
+          final tokens = ready(bloc).model.tokens;
+          expect(asked.last.$1, tokens, reason: 'the last feed asks its curve');
+
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).action, PocketAction.refused);
+          while (!asked.last.$2.isCompleted) {
+            asked.last.$2.complete([(tokens: asked.last.$1, loss: 7)]);
+            async.flushMicrotasks();
+          }
+
+          expect(ready(bloc).curve, [(tokens: tokens, loss: 7.0)]);
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
     // Review 6, finding 14: a curve that could not be drawn was an error no one caught, at every feed.
     test('a curve that cannot be drawn leaves the last one, and the next feed draws again', () {
       fakeAsync((async) {

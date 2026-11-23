@@ -271,6 +271,15 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// Draws the curve of the model as it now stands, after the state that shows it was emitted. Each feed rebuilt the
   /// whole curve on the screen's thread, a stutter that grew with every module read (review 5, finding 3): it is now
   /// drawn by [_drawCurve], one at a time, and only the latest is kept.
+  /// Whether [a] and [b] draw the same curve: the same tokens and the same modules read, at the same moments.
+  static bool _sameCurve(PocketModel a, PocketModel b) {
+    if (a.tokens != b.tokens || a.readings.length != b.readings.length) return false;
+    for (var i = 0; i < a.readings.length; i++) {
+      if (a.readings[i] != b.readings[i]) return false;
+    }
+    return true;
+  }
+
   void _redraw() {
     _curveAsked++;
     if (!_drawing) unawaited(_drawLatest());
@@ -330,8 +339,11 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     }
     final ready = state as PocketModelReady;
     if (event case _PocketCurveDrawn(:final model, :final language, :final curve)) {
-      // A curve for the model as it still stands; one overtaken by a feed or a new language waits for its own.
-      if (model == ready.model && language == _lm?.language) emit(ready.copyWith(curve: curve));
+      // A curve for the model as it still stands; one overtaken by a feed, a module read or a new language waits for
+      // its own. Only what the curve is drawn from counts: a feed refused while overfit changes the model's burst, not
+      // its curve, and the curve was dropped with none asked again (review 8).
+      final same = _sameCurve(model, ready.model);
+      if (same && language == _lm?.language) emit(ready.copyWith(curve: curve));
       return;
     }
     if (event case PocketModelLanguageSet(:final language)) {
