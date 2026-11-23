@@ -66,6 +66,10 @@ void main() {
       'https://example.test/courses/%25E0/x/',
       'https://example.test/courses/Alpha/first/',
       'https://example.test/sheets/a%2Fb/',
+      // Review 7, finding 9: a good level with a module that is not a slug.
+      'https://example.test/courses/alpha/a%2Fb/',
+      'https://example.test/courses/alpha/x%3Fy/',
+      'https://example.test/courses/alpha/First/',
     ]) {
       expect(_parse(link), isNull, reason: link);
     }

@@ -36,14 +36,9 @@ void main() {
   });
 }
 
-const _roots = [
-  'lib/app/',
-  'lib/features/',
-  'lib/shared/content/presentation/',
-  'lib/shared/design_system/components/',
-  'lib/shared/record/presentation/',
-  'lib/shared/widgets/',
-];
+// Review 7, finding 9: the roots named a few folders of lib/shared/, and the listen bar, the app icon rows and the tour
+// were not read.
+const _roots = ['lib/app/', 'lib/features/', 'lib/shared/'];
 
 const _skippedRoots = ['lib/app/dev_console/'];
 

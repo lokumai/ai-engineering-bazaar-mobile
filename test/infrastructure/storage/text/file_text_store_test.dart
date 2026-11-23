@@ -24,6 +24,16 @@ void main() {
     await store().delete();
   });
 
+  // Review 7, finding 9: a direct write over the file passed every test. A write that cannot finish its temporary
+  // copy must leave the text kept before it whole.
+  test('a write that fails before its rename leaves the text kept before', () async {
+    await store().write('kept');
+    Directory('${root.path}/quiz/scores.json.tmp').createSync();
+
+    await store().write('lost');
+    expect(await store().read(), 'kept');
+  });
+
   // Quick choices in the wardrobe wrote at once through the one `.tmp` file, and the outfit kept could be any of them.
   test('writes made at once land in the order made, the last one kept', () async {
     final one = store();
