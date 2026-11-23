@@ -271,7 +271,8 @@ class _EntryView extends StatelessWidget {
                         style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
                         onLink: (_) {},
                       ),
-                      Text(s.glossary_in, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
+                      // Muted text on the sunken ground is 4.2:1 in the light look (review 7, finding 10).
+                      Text(s.glossary_in, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurface)),
                       Wrap(
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,

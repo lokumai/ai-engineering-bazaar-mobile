@@ -236,7 +236,15 @@ class _SettingsView extends StatelessWidget {
                 },
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(_refreshLine(s, ready.refresh), style: theme.textTheme.bodyMedium),
+              // A live region, so a screen reader says the answer to Check for updates (review 7, finding 10).
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  _refreshLine(s, ready.refresh),
+                  key: const ValueKey('settings-refresh-line'),
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
               // The other half of Home's offline note (plan 12.6).
               Text(
                 s.settings_refresh_every_start,

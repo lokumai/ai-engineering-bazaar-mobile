@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
@@ -495,6 +496,11 @@ void main() {
     await _tap(tester, find.text('Wick'));
     expect(find.text('what burns.', findRichText: true), findsOneWidget);
     expect(find.text('In these modules'), findsOneWidget);
+    // Review 7, finding 10: muted text on the sunken ground was 4.2:1 in the light look.
+    expect(
+      tester.widget<Text>(find.text('In these modules')).style?.color,
+      tester.element(find.text('In these modules')).bazaarColors.onSurface,
+    );
     expect(review.state.history.cards.keys, ['term:engineers/alpha/first#0'], reason: 'looked up');
 
     final field = find.byKey(const ValueKey('glossary-find'));

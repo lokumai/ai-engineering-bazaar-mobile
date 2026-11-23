@@ -81,7 +81,8 @@ class _Stat extends StatelessWidget {
                 label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted),
+                // Muted text on the sunken ground is 4.2:1 in the light look, under 4.5 (review 7, finding 10).
+                style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
               ),
             ],
           ),

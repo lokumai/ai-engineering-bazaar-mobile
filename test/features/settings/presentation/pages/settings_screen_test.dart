@@ -272,6 +272,8 @@ void main() {
     expect(find.text('2026-11-01'), findsOneWidget);
     expect(find.text('Bundled with the app'), findsOneWidget);
     expect(find.text('Up to date'), findsOneWidget);
+    // Review 7, finding 10: a screen reader says the answer to Check for updates.
+    expect(tester.getSemantics(find.text('Up to date')), isSemantics(isLiveRegion: true));
     expect(find.text('About'), findsOneWidget);
     expect(find.text('Licences'), findsOneWidget);
   });
