@@ -122,6 +122,18 @@ void main() {
   });
 
   group('mergeTransfer', () {
+    // Review 7, finding 14: a hand-edited record's "03" sent tick 3, and its own link merged back added "3".
+    test('a record merged with its own link is unchanged, a non-canonical tick key included', () {
+      final record = _record({
+        'sheets': {
+          'a/b': {
+            'checklist': {'03': true, '1': true},
+          },
+        },
+      });
+      expect(identical(mergeTransfer(record, _decoded(encodeTransfer(record))), record), isTrue);
+    });
+
     final local = _record({
       'sheets': {
         'a/done': {

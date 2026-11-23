@@ -46,7 +46,7 @@ final class RecordData extends Equatable {
     if (checklist is! Map) return const {};
     return {
       for (final MapEntry(:key, :value) in checklist.entries)
-        if (key is String && _indexKey.hasMatch(key) && value == true) int.parse(key),
+        if (checklistTick(key) case final tick? when value == true) tick,
     };
   }
 
@@ -63,6 +63,10 @@ final _isoDay = RegExp(RecordConstants.isoDay);
 
 /// A checklist key (web `validate.ts:59`, `INDEX_KEY`).
 final _indexKey = RegExp(r'^\d{1,4}$');
+
+/// The tick a checklist key names, as [RecordData.ticks] reads it: one to four digits, `"03"` included; null for any
+/// other key.
+int? checklistTick(Object? key) => key is String && _indexKey.hasMatch(key) ? int.parse(key) : null;
 
 /// [data] normalised as spec 3.3.4 with Decision A21 has it, deeply unmodifiable.
 ///

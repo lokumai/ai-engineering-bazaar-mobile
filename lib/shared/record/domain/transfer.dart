@@ -162,8 +162,13 @@ Map<String, Object?>? _mergeSheet(Map<String, Object?>? here, TransferSheet shee
   }
   final raw = base['checklist'];
   final checklist = raw is Map ? Map<String, Object?>.from(raw) : <String, Object?>{};
+  // A tick already here under another key, `"03"` for 3, is not added again (review 7, finding 14).
+  final ticked = {
+    for (final MapEntry(:key, :value) in checklist.entries)
+      if (checklistTick(key) case final tick? when value == true) tick,
+  };
   for (final tick in sheetIn.ticks) {
-    if (checklist['$tick'] == true) continue;
+    if (ticked.contains(tick)) continue;
     checklist['$tick'] = true;
     changed = true;
   }
