@@ -390,11 +390,6 @@ class S {
     return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
 
-  /// `Completed`
-  String get catalog_filter_completed {
-    return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
-  }
-
   /// `Planned`
   String get module_planned {
     return Intl.message('Planned', name: 'module_planned', desc: '', args: []);

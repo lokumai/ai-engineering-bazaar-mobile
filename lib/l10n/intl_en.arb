@@ -172,8 +172,6 @@
   "@content_broken_storage_message": {},
   "loading": "Loading",
   "@loading": {},
-  "catalog_filter_completed": "Completed",
-  "@catalog_filter_completed": {},
   "module_planned": "Planned",
   "@module_planned": {},
   "level_module_count": "{count, plural, =1{1 module} other{{count} modules}}",

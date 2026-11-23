@@ -50,7 +50,6 @@
   "content_broken_message": "محتوای دوره در این برنامه باز نشد. به‌روزرسانی برنامه آن را بازمی‌گرداند. پیشرفت شما در این دستگاه حفظ می‌شود.",
   "content_broken_storage_message": "برنامه نتوانست از فضای ذخیره‌سازی خود برای محتوای دوره استفاده کند. پیشرفت شما در این دستگاه حفظ می‌شود.",
   "loading": "در حال بارگذاری",
-  "catalog_filter_completed": "تکمیل‌شده",
   "module_planned": "برنامه‌ریزی‌شده",
   "level_module_count": "{count, plural, =1{1 درس} other{{count} درس}}",
   "duration_minutes": "~{minutes} دقیقه",

@@ -234,7 +234,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "card_requires": MessageLookupByLibrary.simpleMessage("پیش‌نیاز"),
     "card_requires_nothing": MessageLookupByLibrary.simpleMessage("ندارد"),
     "catalog_complete_module": m13,
-    "catalog_filter_completed": MessageLookupByLibrary.simpleMessage("تکمیل‌شده"),
     "catalog_level_dial": m14,
     "catalog_search_all_levels": MessageLookupByLibrary.simpleMessage("همه"),
     "catalog_search_clear": MessageLookupByLibrary.simpleMessage("پاک کردن جستجو"),

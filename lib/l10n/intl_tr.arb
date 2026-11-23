@@ -50,7 +50,6 @@
   "content_broken_message": "Bu uygulamadaki kurs içeriği açılamadı. Uygulamayı güncellemek sorunu giderir. Bu cihazdaki ilerlemen korunur.",
   "content_broken_storage_message": "Uygulama, kurs içeriği için depolama alanını kullanamadı. Bu cihazdaki ilerlemen korunur.",
   "loading": "Yükleniyor",
-  "catalog_filter_completed": "Tamamlananlar",
   "module_planned": "Planlandı",
   "level_module_count": "{count, plural, =1{1 modül} other{{count} modül}}",
   "duration_minutes": "~{minutes} dk",
