@@ -72,4 +72,14 @@ class NativeSentryTest {
     fun turnsAutomaticSessionTrackingOn() {
         assertTrue(configured().isEnableAutoSessionTracking)
     }
+
+    // Review 8, finding 14: a Sentry log or metric would leave the phone without passing beforeSend, and the privacy
+    // answers (docs/store-privacy.md) name neither; the Dart side sends none either.
+    @Test
+    fun sendsNoLogsAndNoMetrics() {
+        val options = configured()
+
+        assertFalse(options.logs.isEnabled)
+        assertFalse(options.metrics.isEnabled)
+    }
 }
