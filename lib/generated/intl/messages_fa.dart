@@ -650,7 +650,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_section_link": m65,
     "review_term": MessageLookupByLibrary.simpleMessage("اصطلاح"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("این کدام اصطلاح است؟"),
-    "settings": MessageLookupByLibrary.simpleMessage("تنظیمات"),
     "settings_about": MessageLookupByLibrary.simpleMessage("درباره"),
     "settings_app_icon": MessageLookupByLibrary.simpleMessage("نماد برنامه"),
     "settings_appearance": MessageLookupByLibrary.simpleMessage("ظاهر"),

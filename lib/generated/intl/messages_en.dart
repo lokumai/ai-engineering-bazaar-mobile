@@ -646,7 +646,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_section_link": m65,
     "review_term": MessageLookupByLibrary.simpleMessage("Term"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("Which term is this?"),
-    "settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "settings_about": MessageLookupByLibrary.simpleMessage("About"),
     "settings_app_icon": MessageLookupByLibrary.simpleMessage("App icon"),
     "settings_appearance": MessageLookupByLibrary.simpleMessage("Appearance"),

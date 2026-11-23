@@ -1,6 +1,5 @@
 {
   "@@locale": "tr",
-  "settings": "Ayarlar",
   "error_link_open_failed": "{url} açılamadı",
   "not_found_title": "Böyle bir modül yok",
   "not_found_message": "Bu adres müfredattaki bir modüle ait değil. Modüllerin hepsi katalogda listeleniyor.",

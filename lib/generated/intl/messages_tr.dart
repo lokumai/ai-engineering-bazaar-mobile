@@ -648,7 +648,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_section_link": m65,
     "review_term": MessageLookupByLibrary.simpleMessage("Terim"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("Bu hangi terim?"),
-    "settings": MessageLookupByLibrary.simpleMessage("Ayarlar"),
     "settings_about": MessageLookupByLibrary.simpleMessage("Hakkında"),
     "settings_app_icon": MessageLookupByLibrary.simpleMessage("App ikonu"),
     "settings_appearance": MessageLookupByLibrary.simpleMessage("Görünüm"),

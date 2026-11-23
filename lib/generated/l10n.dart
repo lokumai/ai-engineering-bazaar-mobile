@@ -53,11 +53,6 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Settings`
-  String get settings {
-    return Intl.message('Settings', name: 'settings', desc: '', args: []);
-  }
-
   /// `Could not open {url}`
   String error_link_open_failed(String url) {
     return Intl.message('Could not open $url', name: 'error_link_open_failed', desc: '', args: [url]);

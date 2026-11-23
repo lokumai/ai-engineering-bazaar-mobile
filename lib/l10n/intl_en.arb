@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-  "settings": "Settings",
   "error_link_open_failed": "Could not open {url}",
   "@error_link_open_failed": {
     "placeholders": {
