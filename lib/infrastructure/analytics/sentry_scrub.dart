@@ -80,6 +80,15 @@ SentryEvent sentryBeforeSend(SentryEvent event) {
     if (params != null) msg.params = [for (final param in params) _maskValue(param)];
   }
 
+  // A user's feedback travels in its own context, not in the message (review 6, finding 16): its text is masked here
+  // as well as before it was captured, with its page address.
+  final feedback = event.contexts.feedback;
+  if (feedback != null) {
+    feedback.message = _maskText(feedback.message);
+    final url = feedback.url;
+    if (url != null) feedback.url = _scrubUrlPart(url);
+  }
+
   return event;
 }
 
@@ -211,9 +220,14 @@ String _maskText(String value) => _maskReading(maskEmails(maskSecrets(value)));
 /// A content path under `modules/` or `levels/`, or a course picture under `course-images/`, names what the reader
 /// opened; a report keeps only that it was one (review 3, finding 9; review 4, finding 7), as `privacy_crash` says a
 /// crash report holds nothing of what is read.
-final _readingPath = RegExp(r'(api/v1/(?:modules|levels)/|course-images/)[^\s,;)\]"]+');
+///
+/// The white space is spelled out, so `NativeScrubPatterns.kt` holds the same pattern byte for byte and Android masks
+/// the same paths (review 6, finding 16).
+final readingPathPattern = RegExp(
+  r'(api/v1/(?:modules|levels)/|course-images/)[^\t\n\u000b\f\r \u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff,;)\]"]+',
+);
 
-String _maskReading(String value) => value.replaceAllMapped(_readingPath, (m) => '${m[1]}$secretMask');
+String _maskReading(String value) => value.replaceAllMapped(readingPathPattern, (m) => '${m[1]}$secretMask');
 
 /// [_maskText] of [value], or null when it is null.
 String? _maskOptional(String? value) => value == null ? null : _maskText(value);
