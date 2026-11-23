@@ -383,12 +383,22 @@ final class FlagTourStore implements ITourStore {
 
   @override
   Future<void> save(TourRecord record) async {
-    Future<void> flag(String name, {required bool on}) => on ? _flags.set(name) : _flags.clear(name);
-    await flag(_asking, on: record.asking);
-    await flag(_guiding, on: record.guiding);
-    for (final page in TourPage.values) {
-      await flag(_seen(page), on: record.seen.contains(page.name));
+    for (final (name, on) in steps(record)) {
+      await (on ? _flags.set(name) : _flags.clear(name));
     }
+  }
+
+  /// The flags of [record], each on or off, those set before those cleared: a save cut off between two files, the app
+  /// killed, leaves the tour still to ask or to guide, never neither (review 8). Said yes, `tour-guiding` is set before
+  /// `tour-asking` is cleared.
+  @visibleForTesting
+  static List<(String, bool)> steps(TourRecord record) {
+    final all = [
+      (_asking, record.asking),
+      (_guiding, record.guiding),
+      for (final page in TourPage.values) (_seen(page), record.seen.contains(page.name)),
+    ];
+    return [...all.where((step) => step.$2), ...all.where((step) => !step.$2)];
   }
 }
 
