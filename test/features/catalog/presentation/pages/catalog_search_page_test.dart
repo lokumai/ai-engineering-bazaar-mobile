@@ -58,10 +58,14 @@ MockContentRepository _repository({String Function()? opening}) {
   return repository;
 }
 
-Future<GoRouter> _pump(WidgetTester tester, {TargetPlatform platform = TargetPlatform.android}) async {
+Future<GoRouter> _pump(
+  WidgetTester tester, {
+  TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
+}) async {
   final router = AppRouterFactory(initialLocation: '/sheets').create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, repository: _repository(), platform: platform));
+  await tester.pumpWidget(bazaarTestApp(router: router, repository: _repository(), platform: platform, locale: locale));
   await tester.pumpAndSettle();
   return router;
 }
@@ -115,6 +119,26 @@ void main() {
       return true;
     });
     expect(bold, ['passages']);
+  });
+
+  // Review 8, finding 12: a Persian reader's search falls back to a module's English document, and its hits were laid out
+  // right to left, the full stop at the left and the ellipsis on the wrong side.
+  testWidgets('in Persian, a hit in an English document is laid out left to right', (tester) async {
+    await _pump(tester, locale: const Locale('fa'));
+    expect(Directionality.of(tester.element(find.byType(TextField))), TextDirection.rtl);
+
+    await _type(tester, 'passages');
+
+    final excerpt = find.descendant(
+      of: find.byType(CatalogSearchResults),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is RichText && widget.text.toPlainText() == 'Finding the passages that answer.',
+      ),
+    );
+    expect(excerpt, findsWidgets);
+    expect(Directionality.of(tester.element(excerpt.first)), TextDirection.ltr);
+    final heading = find.descendant(of: find.byType(CatalogSearchResults), matching: find.text('Retrieval'));
+    expect(Directionality.of(tester.element(heading.first)), TextDirection.ltr);
   });
 
   testWidgets('a hit opens its module at its section, and back finds the search again', (tester) async {

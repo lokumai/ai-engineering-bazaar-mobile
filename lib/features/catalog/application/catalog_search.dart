@@ -26,6 +26,7 @@ final class SearchEntry extends Equatable {
     required this.sectionId,
     required this.text,
     required this.ready,
+    this.dir = TextDir.ltr,
   });
 
   final SearchKind kind;
@@ -50,8 +51,12 @@ final class SearchEntry extends Equatable {
   /// False for a planned module, found by its title and its promise only.
   final bool ready;
 
+  /// The direction of the document's language: a Persian reader's search falls back to a module's English document,
+  /// and a level's blurb is English only, so a hit is laid out in its own direction (review 8).
+  final TextDir dir;
+
   @override
-  List<Object?> get props => [kind, moduleKey, number, module, section, sectionId, text, ready];
+  List<Object?> get props => [kind, moduleKey, number, module, section, sectionId, text, ready, dir];
 }
 
 /// The entries of one module document: the module, then each `##` section of a written module (web `searchDocs`).
@@ -81,6 +86,7 @@ List<SearchEntry> entriesOf(ModuleDoc doc, {required int number}) {
       sectionId: null,
       text: intro,
       ready: ready,
+      dir: doc.dir,
     ),
     for (final (heading, blocks) in parts)
       SearchEntry(
@@ -92,6 +98,7 @@ List<SearchEntry> entriesOf(ModuleDoc doc, {required int number}) {
         sectionId: heading.id,
         text: plainOf(blocks),
         ready: true,
+        dir: doc.dir,
       ),
   ];
 }

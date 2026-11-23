@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_searc
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -313,19 +314,23 @@ class _ModuleHitsState extends State<_ModuleHits> {
       onTap: folded ? () => setState(() => _open = true) : () => _go(context, hit.entry.sectionId),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hit.entry.kind == SearchKind.section)
-              Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
-            if (hit.excerpt.isNotEmpty)
-              Text.rich(
-                _marked(hit, mark),
-                style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
-                maxLines: folded ? 1 : 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-          ],
+        // In the document's own direction: English hits in a Persian search read left to right (review 8).
+        child: ContentDirection(
+          dir: hit.entry.dir,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hit.entry.kind == SearchKind.section)
+                Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+              if (hit.excerpt.isNotEmpty)
+                Text.rich(
+                  _marked(hit, mark),
+                  style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
+                  maxLines: folded ? 1 : 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
         ),
       ),
     );

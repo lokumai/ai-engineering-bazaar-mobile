@@ -37,6 +37,14 @@ SearchEntry _entry(
 
 void main() {
   group('entriesOf', () {
+    // Review 8, finding 12: a hit is laid out in its document's direction.
+    test("every entry carries its document's direction", () {
+      for (final dir in TextDir.values) {
+        final doc = testDoc(lang: dir == TextDir.rtl ? 'fa' : 'en', dir: dir, body: [_p('An opening.'), _h('a', 'A')]);
+        expect(entriesOf(doc, number: 1).map((entry) => entry.dir), [dir, dir]);
+      }
+    });
+
     test('a written module gives itself, by its opening, then one entry per ## section', () {
       final doc = testDoc(
         title: 'Tool Belts',
