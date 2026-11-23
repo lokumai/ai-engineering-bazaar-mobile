@@ -12,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/figure_image.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/image_full_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -271,11 +272,17 @@ void main() {
     });
   });
 
-  testWidgets('an error other than missing or corrupt is not swallowed', (tester) async {
+  // Review 8, finding 16: the fault was thrown from build, a grey box in a release; it is reported as before, and the
+  // figure says it could not be read.
+  testWidgets('an error other than missing or corrupt is reported, not swallowed, and the figure says so', (
+    tester,
+  ) async {
     when(() => repository.readObject(any())).thenAnswer((_) async => throw StateError('x'));
     await pumpInTheme(tester, const FigureImage(block: image), Brightness.light, repository: repository);
     await tester.pump();
 
     expect(tester.takeException(), isA<StateError>());
+    expect(find.byType(ContentUnreadable), findsOneWidget);
+    expect(find.byType(ErrorWidget), findsNothing);
   });
 }

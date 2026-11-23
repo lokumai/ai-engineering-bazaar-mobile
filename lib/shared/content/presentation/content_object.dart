@@ -11,8 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Reads the content object at [sitePath] from the [IContentRepository] in context (spec 3.4.7) and builds it.
 ///
 /// It shows [placeholder] while the read runs, [builder] with the bytes once they arrive, and [unreadable] when the
-/// object is missing or corrupt on the device. Any other error is rethrown from `build`: it is a fault, not a state of
-/// the content.
+/// object is missing or corrupt on the device. Any other error is a fault, not a state of the content: it is reported
+/// through [FlutterError.reportError], as a throw from `build` would be, and [unreadable] stands in its place rather
+/// than a grey box (review 8).
 class ContentObjectBuilder extends StatefulWidget {
   const ContentObjectBuilder({
     super.key,
@@ -49,9 +50,7 @@ final class _Unreadable extends _Read {
 }
 
 final class _Failed extends _Read {
-  const _Failed(this.error, this.stackTrace);
-  final Object error;
-  final StackTrace stackTrace;
+  const _Failed();
 }
 
 class _ContentObjectBuilderState extends State<ContentObjectBuilder> {
@@ -84,7 +83,7 @@ class _ContentObjectBuilderState extends State<ContentObjectBuilder> {
         path,
         error is ContentMissingException || error is ContentCorruptException
             ? const _Unreadable()
-            : _Failed(error, stackTrace),
+            : _failed(error, stackTrace),
       ),
     );
   }
@@ -99,8 +98,21 @@ class _ContentObjectBuilderState extends State<ContentObjectBuilder> {
     _Reading() => widget.placeholder,
     _Arrived(:final bytes) => widget.builder(context, bytes),
     _Unreadable() => widget.unreadable(context),
-    _Failed(:final error, :final stackTrace) => Error.throwWithStackTrace(error, stackTrace),
+    _Failed() => widget.unreadable(context),
   };
+
+  /// Reports the fault [error] and reads as failed.
+  static _Read _failed(Object error, StackTrace stackTrace) {
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        stack: stackTrace,
+        library: 'content',
+        context: ErrorDescription('reading a content object'),
+      ),
+    );
+    return const _Failed();
+  }
 }
 
 /// Says a part of the course could not be read on this device, under [alt] when it has one: the state of a content
