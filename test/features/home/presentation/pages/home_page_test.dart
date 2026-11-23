@@ -22,7 +22,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_row.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Icons, Key, ListView, Locale, ValueKey;
+import 'package:flutter/material.dart' show AppLifecycleState, Icons, Key, ListView, Locale, ValueKey;
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
@@ -394,6 +394,43 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(find.text('That is all for today', skipOffstage: false), findsOneWidget, reason: 'sanity');
+
+      now = DateTime(2026, 11, 17, 0, 1);
+      await tester.pump(const Duration(minutes: 3));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That is all for today', skipOffstage: false), findsNothing);
+    });
+  });
+
+  // Review 8, finding 16: the midnight timer does not run while the app sleeps; it is set again on the way back.
+  testWidgets("back from a sleep before midnight, Home's review still turns at midnight", (tester) async {
+    var now = DateTime(2026, 11, 16, 10);
+    await withClock(Clock(() => now), () async {
+      final repository = missingContentRepository();
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) async => _termsDoc());
+      final review = ReviewBloc(store: MemoryReviewStore())..add(const ReviewStarted());
+      addTearDown(review.close);
+      await _pumpHome(tester, record: _completed(['alpha/first']), repository: repository, review: review);
+      for (final key in [
+        'alpha/first#0',
+        'alpha/first#1',
+        'term:engineers/alpha/first#0',
+        'term:engineers/alpha/first#1',
+      ]) {
+        review.add(ReviewAnswered(key: key, right: true, length: key.startsWith('term') ? null : 2, inReview: true));
+      }
+      await tester.pumpAndSettle();
+      expect(find.text('That is all for today', skipOffstage: false), findsOneWidget, reason: 'sanity');
+
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      now = DateTime(2026, 11, 16, 23, 58);
+      for (final state in [AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pump();
 
       now = DateTime(2026, 11, 17, 0, 1);
       await tester.pump(const Duration(minutes: 3));

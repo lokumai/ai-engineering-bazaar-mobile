@@ -65,7 +65,14 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: _turn);
+    // Back from a sleep, the day may have turned, and the midnight timer, which did not run while the app slept, is set
+    // again (review 8).
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _turn();
+        _wait();
+      },
+    );
     _wait();
   }
 

@@ -18,7 +18,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
-import 'package:flutter/widgets.dart' show Locale, Offset, Scrollable, Size, Text, ValueKey;
+import 'package:flutter/widgets.dart' show AppLifecycleState, Locale, Offset, Scrollable, Size, Text, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -285,6 +285,35 @@ void main() {
       String module() =>
           tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
       final before = module();
+
+      now = DateTime(2026, 11, 17, 0, 1);
+      await tester.pump(const Duration(minutes: 2));
+      await tester.pumpAndSettle();
+
+      expect(module(), isNot(before));
+    });
+  });
+
+  // Review 8, finding 16: a timer does not run while the phone sleeps the app, so the one set for midnight in the
+  // morning fired hours late after a sleep; it is set again when the app comes back.
+  testWidgets("back from a sleep before midnight, Home still turns the day at midnight", (tester) async {
+    var now = DateTime(2026, 11, 16, 10);
+    await withClock(Clock(() => now), () async {
+      await _pumpHome(tester, repository: _titledCourse());
+      String module() =>
+          tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
+      final before = module();
+
+      // Asleep from 10:00 to 23:59: the clock moves on, the timers do not.
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      now = DateTime(2026, 11, 16, 23, 59);
+      for (final state in [AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pump();
+      expect(module(), before, reason: 'still the same day');
 
       now = DateTime(2026, 11, 17, 0, 1);
       await tester.pump(const Duration(minutes: 2));
