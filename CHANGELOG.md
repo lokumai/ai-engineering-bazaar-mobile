@@ -155,6 +155,14 @@ The first release on the App Store and Google Play.
 - The Apprentice no longer stutters on a feed once it has read many modules: its curve is drawn away from the screen.
 - Persian screens write every number with Latin digits, as the website does.
 - English text in the Persian interface (a summary, a level's notes, a planned module) reads left to right.
+- A module opened from a search or a link comes back with its tab where it was left, not at the section searched with the words marked again.
+- The brief's count stays on its cards after the page grows, and a module whose notes are missing says so rather than loading for good.
+- A damaged Apprentice file can no longer hold the app at start.
+- A link that opens a page closes a dialog or a quiz left open, whose buttons did nothing after.
+- Scan the code says it is opening the scanner while Google Play fetches it, and gives up after a minute without a connection.
+- The Caravan's search finds words as the course search does: Turkish ı and İ either way, and a Persian word typed with a space.
+- Half-width buttons end a label too long for them with an ellipsis.
+- On iOS a module read aloud reads on after Siri or a navigation prompt, when the phone says it may.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
