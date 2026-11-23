@@ -14,6 +14,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../mocks/mock_classes.dart';
@@ -26,6 +27,7 @@ import '../../../support/content_fixture.dart';
   final states = StreamController<DataState>.broadcast();
   addTearDown(states.close);
   whenListen(bloc, states.stream, initialState: initial);
+  when(() => bloc.isClosed).thenReturn(false);
   return (bloc, states);
 }
 

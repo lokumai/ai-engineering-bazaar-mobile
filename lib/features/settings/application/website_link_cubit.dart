@@ -32,7 +32,8 @@ final class WebsiteLinkCubit extends Cubit<WebsiteLinkState> {
     }
     emit(WebsiteLinkState.sending);
     final shown = await _shareSheet.share(transferLink(_site, _packer.pack(text)).toString());
-    emit(shown ? WebsiteLinkState.idle : WebsiteLinkState.failed);
+    // Settings may have gone while the share sheet was up (review 5, finding 16).
+    if (!isClosed) emit(shown ? WebsiteLinkState.idle : WebsiteLinkState.failed);
   }
 }
 

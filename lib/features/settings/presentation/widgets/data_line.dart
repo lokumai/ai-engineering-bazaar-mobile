@@ -70,7 +70,7 @@ class DataLine extends StatelessWidget {
 
   Future<void> _reset(BuildContext context) async {
     final bloc = context.read<DataBloc>();
-    if (await showEraseDialog(context)) bloc.add(const ResetConfirmed());
+    if (await showEraseDialog(context) && !bloc.isClosed) bloc.add(const ResetConfirmed());
   }
 
   static String _restoreText(S s, RestoreOutcome outcome) => switch (outcome) {

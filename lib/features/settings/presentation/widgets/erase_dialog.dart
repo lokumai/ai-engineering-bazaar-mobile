@@ -105,7 +105,12 @@ class _EraseDialogState extends State<_EraseDialog> {
         ),
         TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(s.erase_keep)),
         TextButton(
-          onPressed: data.busy == DataBusy.idle ? () => context.read<DataBloc>().add(const BackupRequested()) : null,
+          onPressed: data.busy == DataBusy.idle
+              ? () {
+                  final bloc = context.read<DataBloc>();
+                  if (!bloc.isClosed) bloc.add(const BackupRequested());
+                }
+              : null,
           child: Text(s.data_back_up),
         ),
       ],
