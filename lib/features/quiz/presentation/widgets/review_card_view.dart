@@ -123,11 +123,17 @@ class _Steps extends StatelessWidget {
       spacing: AppSpacing.md,
       runSpacing: AppSpacing.xs,
       children: [
+        // A Wrap of their own, so a long session (Wrong answers, uncapped) runs the dots onto more lines rather than
+        // off the screen (review 8).
         ExcludeSemantics(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 6,
-            children: [for (var i = 0; i < count; i++) _StepDot(result: at.results[i], current: i == at.index)],
+            runSpacing: 6,
+            children: [
+              for (var i = 0; i < count; i++)
+                _StepDot(key: ValueKey('review-step-$i'), result: at.results[i], current: i == at.index),
+            ],
           ),
         ),
         Text(
@@ -175,7 +181,7 @@ class _Tally extends StatelessWidget {
 
 /// One step: open (a ring), right (`success`) or wrong (`fault`); the current one larger and ringed in `primary`.
 class _StepDot extends StatelessWidget {
-  const _StepDot({required this.result, required this.current});
+  const _StepDot({super.key, required this.result, required this.current});
 
   final bool? result;
   final bool current;
