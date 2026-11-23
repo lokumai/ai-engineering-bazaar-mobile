@@ -706,7 +706,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                       key: const ValueKey('pocket-feed'),
                       onPressed: () => bloc.add(const PocketModelFed()),
                       icon: const Icon(Icons.scatter_plot_outlined),
-                      label: Text(s.pocket_feed, maxLines: 1),
+                      label: Text(s.pocket_feed, maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
                   ),
                   Expanded(
@@ -714,7 +714,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                       key: const ValueKey('pocket-ask'),
                       onPressed: () => bloc.add(const PocketModelAsked()),
                       icon: const Icon(Icons.chat_bubble_outline),
-                      label: Text(s.pocket_ask, maxLines: 1),
+                      label: Text(s.pocket_ask, maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
                   ),
                 ],

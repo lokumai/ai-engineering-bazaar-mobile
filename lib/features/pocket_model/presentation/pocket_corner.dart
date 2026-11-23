@@ -68,7 +68,7 @@ class PocketCorner extends StatelessWidget {
                 showPocketModelSheet(context);
               },
               icon: const Icon(Icons.chat_bubble_outline, size: 18),
-              label: Text(s.pocket_ask, maxLines: 1),
+              label: Text(s.pocket_ask, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),
