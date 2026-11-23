@@ -252,6 +252,10 @@ void main() {
       await tester.tap(find.byType(Checkbox).last);
       expect(toggled, [(0, false), (1, true)]);
       expect(tester.getSemantics(find.byType(Checkbox).last).label, 'open');
+      // Review 7, finding 16: the merged row hides the box from the guideline, which took a 40 px box.
+      for (final box in find.byType(Checkbox).evaluate()) {
+        expect(tester.getRect(find.byWidget(box.widget)).size, const Size(48, 48));
+      }
       await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
       semantics.dispose();
     });

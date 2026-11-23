@@ -458,7 +458,7 @@ class _ListView extends StatelessWidget {
                         (final scope?, final at?) => Checkbox(
                           value: scope.ticks.contains(at),
                           onChanged: (value) => scope.onToggle(at, ticked: value ?? false),
-                          visualDensity: VisualDensity.compact,
+                          // The full 48 px target: compact made it 40 (review 7, finding 16).
                         ),
                         // A16: without a checklist, the box shows the bundle's task.checked and cannot be changed.
                         _ => Checkbox(
