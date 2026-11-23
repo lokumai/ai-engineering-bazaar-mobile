@@ -224,7 +224,7 @@ void main() {
     expect(speech, contains('context.unregisterReceiver(noisy)'));
     expect(speech, contains('main.postDelayed(release, RELEASE_MS)'));
     final service = read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt');
-    expect(service, contains('stopWhenStarted = true'), reason: 'a stop before the foreground start waits for it');
+    expect(service, contains('if (!starts.stop()) return'), reason: 'a stop before the foreground start waits for it');
     expect(service, contains('Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)'));
     expect(service, isNot(contains('getLaunchIntentForPackage')), reason: 'an icon change turns the old entry off');
 
