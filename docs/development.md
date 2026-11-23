@@ -126,6 +126,8 @@ fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-de
 
 The bundle is `build/app/outputs/bundle/release/app-release.aab`.
 
+R8 shrinks the release but keeps every class name (`android/app/proguard-rules.pro`, `-dontobfuscate`), so a native crash reaches Sentry readable with no mapping file to keep per build.
+
 ### iOS
 
 Archive in Xcode on the Mac, with the team's account signed in: `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`, then upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.

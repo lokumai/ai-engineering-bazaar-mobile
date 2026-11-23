@@ -180,6 +180,13 @@ void main() {
     });
   });
 
+  // Review 8, finding 5: R8 renamed the app's own classes, and no mapping of an uploaded build was kept, so a native
+  // crash reached Sentry as `ot.a`. Flutter's Gradle plugin adds android/app/proguard-rules.pro when it is there.
+  test('the Android release keeps its class names', () {
+    final rules = File('android/app/proguard-rules.pro').readAsStringSync();
+    expect(RegExp(r'^-dontobfuscate$', multiLine: true).hasMatch(rules), isTrue);
+  });
+
   // Review 7, finding 17: each upload to a store takes the next build number, so only the version name is held.
   test('the first release is version 1.0.0, with any build number', () {
     expect(
