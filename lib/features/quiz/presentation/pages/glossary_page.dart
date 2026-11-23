@@ -322,10 +322,12 @@ class _ModuleLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
+    // The tap is the node's own: excludeSemantics drops the InkWell's (review 8, finding 4).
     return Semantics(
       link: true,
       label: title,
       excludeSemantics: true,
+      onTap: onTap,
       child: Material(
         color: colors.surfaceRaised,
         shape: RoundedRectangleBorder(

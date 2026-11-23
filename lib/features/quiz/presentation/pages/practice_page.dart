@@ -248,12 +248,15 @@ class _QuizRow extends StatelessWidget {
     final right = answers?.where((answer) => answer ?? false).length ?? 0;
     final perfect = answers != null && right == answers.length;
     final line = answers == null ? null : s.practice_latest(right, answers.length);
+    void open() => context.push(BazaarPaths.quiz(module.key));
+    // The tap is the node's own: excludeSemantics drops the InkWell's (review 8, finding 4).
     return Semantics(
       button: true,
       label: [title, if (perfect) s.quiz_all_right, ?line].join(', '),
       excludeSemantics: true,
+      onTap: open,
       child: InkWell(
-        onTap: () => context.push(BazaarPaths.quiz(module.key)),
+        onTap: open,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(theme.platform)),
           child: Padding(

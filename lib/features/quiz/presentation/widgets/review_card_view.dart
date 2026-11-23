@@ -358,16 +358,19 @@ class _SectionLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
     final label = S.of(context).review_section_link(title);
+    void open() => context.push(
+      BazaarPaths.module(context.read<TrackCubit>().state, moduleKey),
+      extra: ReaderTarget(fragment: fragment, query: query, glance: true),
+    );
+    // The tap is the node's own: excludeSemantics drops the InkWell's (review 8, finding 4).
     return Semantics(
       link: true,
       label: label,
       excludeSemantics: true,
+      onTap: open,
       child: InkWell(
         key: const Key('review-section-link'),
-        onTap: () => context.push(
-          BazaarPaths.module(context.read<TrackCubit>().state, moduleKey),
-          extra: ReaderTarget(fragment: fragment, query: query, glance: true),
-        ),
+        onTap: open,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
           child: Row(
