@@ -228,34 +228,48 @@ void main() {
   });
 
   group('a response larger than the cap is cut (review G)', () {
-    test('a body that says it is too large is refused before it is read', () async {
+    // Review 7, finding 17: both refusals abort the request, so the connection stops downloading; nothing held it.
+    Future<bool> aborted(http.BaseRequest request) async {
+      var done = false;
+      unawaited((request as http.Abortable).abortTrigger!.then((_) => done = true));
+      await Future<void>.delayed(Duration.zero);
+      return done;
+    }
+
+    test('a body that says it is too large is refused before it is read, and the request is aborted', () async {
+      final requests = <http.BaseRequest>[];
       final contentHttp = ContentHttp(
-        client: MockClient.streaming(
-          (_, _) async => http.StreamedResponse(const Stream.empty(), 200, contentLength: 101),
-        ),
+        client: MockClient.streaming((request, _) async {
+          requests.add(request);
+          return http.StreamedResponse(const Stream.empty(), 200, contentLength: 101);
+        }),
         contentBaseUrl: testContentBaseUrl,
         maxBytes: 100,
       );
       await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.format));
+      expect(await aborted(requests.single), isTrue);
     });
 
-    test('a body that grows past the cap is cut there', () async {
+    test('a body that grows past the cap is cut there, and the request is aborted', () async {
       var sent = 0;
+      final requests = <http.BaseRequest>[];
       final contentHttp = ContentHttp(
-        client: MockClient.streaming(
-          (_, _) async => http.StreamedResponse(
+        client: MockClient.streaming((request, _) async {
+          requests.add(request);
+          return http.StreamedResponse(
             Stream.periodic(Duration.zero, (_) {
               sent++;
               return List.filled(40, 7);
             }).take(1000),
             200,
-          ),
-        ),
+          );
+        }),
         contentBaseUrl: testContentBaseUrl,
         maxBytes: 100,
       );
       await expectLater(contentHttp.get('api/index.json'), _fetchFailure(ContentErrorCode.format));
       expect(sent, lessThan(10), reason: 'not read to its end');
+      expect(await aborted(requests.single), isTrue);
     });
 
     test('a body at the cap is read whole', () async {
