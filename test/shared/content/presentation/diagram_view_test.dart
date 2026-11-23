@@ -228,4 +228,30 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text(S.current.content_unreadable), findsOneWidget);
   });
+
+  // Review 8, finding 16: the inline diagram says an SVG that does not parse is unreadable but still opens full screen,
+  // which had no errorBuilder and drew an empty page.
+  testWidgets('opened full screen, an SVG that does not parse says it is unreadable there too', (tester) async {
+    when(() => repository.readObject(any())).thenAnswer((_) async => Uint8List.fromList('<svg><g'.codeUnits));
+    await pumpInTheme(
+      tester,
+      const DiagramView(block: block, themes: themes),
+      Brightness.light,
+      repository: repository,
+    );
+    await settleContent(tester);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('diagram-frame')));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(
+      find.descendant(of: find.byType(DiagramFullScreen), matching: find.text(S.current.content_unreadable)),
+      findsOneWidget,
+    );
+  });
 }
