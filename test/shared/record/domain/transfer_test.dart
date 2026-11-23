@@ -89,6 +89,10 @@ void main() {
     test('an entry with neither a completion nor a tick adds nothing', () {
       final progress = _decoded('{"v":1,"e":{"a/b":["","",[]]},"y":{},"d":[]}');
       expect(identical(mergeTransfer(RecordData.empty, progress), RecordData.empty), isTrue);
+      // Review 8, finding 16: the page offered Add for such a link, then said Nothing new.
+      expect(progress.isEmpty, isTrue);
+      expect(_decoded('{"v":1,"e":{},"y":{"a/b":["","",[2]]},"d":[]}').isEmpty, isFalse, reason: 'a tick');
+      expect(_decoded('{"v":1,"e":{},"y":{},"d":["2026-11-01"]}').isEmpty, isFalse, reason: 'a day');
     });
 
     test('refuses the whole text when any part fails', () {

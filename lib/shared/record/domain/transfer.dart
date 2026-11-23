@@ -69,8 +69,10 @@ final class TransferProgress extends Equatable {
   /// read as empty).
   int ticked(Track track) => _of(track).values.fold(0, (sum, sheet) => sum + sheet.ticks.length);
 
-  /// Whether the transfer carries no progress at all.
-  bool get isEmpty => engineers.isEmpty && everyone.isEmpty && days.isEmpty;
+  /// Whether the transfer carries no progress at all: an entry with neither a completion nor a tick is nothing, as
+  /// [mergeTransfer] adds nothing for it (review 8).
+  bool get isEmpty =>
+      days.isEmpty && [...engineers.values, ...everyone.values].every((s) => s.signedOff == null && s.ticks.isEmpty);
 
   Map<String, TransferSheet> _of(Track track) => track == Track.everyone ? everyone : engineers;
 
