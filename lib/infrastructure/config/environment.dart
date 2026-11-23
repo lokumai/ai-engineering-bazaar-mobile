@@ -40,8 +40,6 @@ final class AppConfig {
   final String sentryDsnDefine;
 
   bool get isProduction => environment == Environment.prod;
-  bool get isDevelopment => environment == Environment.dev;
-  bool get isTest => environment == Environment.test;
 
   /// Production-only DSN passed via `--dart-define=SENTRY_DSN=...`.
   /// Returns null in non-prod, or when the define is absent / empty.
