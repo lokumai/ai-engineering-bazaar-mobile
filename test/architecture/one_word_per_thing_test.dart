@@ -39,4 +39,12 @@ void main() {
         .map((entry) => entry.key);
     expect(mixed, isEmpty);
   });
+
+  // The owner, 2026-11-13: SİL in Turkish, حذف in Persian; review 7 finding 5 found پاک, which the docs and the
+  // erase test did not know, and which an Arabic keyboard writes with another kaf.
+  test('the erase word is the owner\'s, and the field names it', () {
+    expect(tr['erase_word'], 'SİL');
+    expect(fa['erase_word'], 'حذف');
+    expect('${fa['erase_field_label']}', contains('«حذف»'));
+  });
 }
