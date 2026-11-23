@@ -951,6 +951,7 @@ void main() {
       ('stalls[0].heading', 'a section with no heading', (json) => (json['stalls'] as List).first.remove('heading')),
       ('dir', 'a direction outside the closed set', (json) => json['dir'] = 'ttb'),
       ('motto.lines', 'missing', (json) => (json['motto'] as Map).remove('lines')),
+      ('motto.lines', 'empty', (json) => (json['motto'] as Map)['lines'] = []),
     ]) {
       test('rejects $field: $why', () {
         final json = story();

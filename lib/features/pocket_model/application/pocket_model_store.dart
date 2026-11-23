@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 
@@ -66,13 +67,13 @@ PocketModel? decodePocketModel(String text) {
     // A module read that is not one is left out; the rest of the model stands.
     final read = json['read'];
     return PocketModel(
-      tokens: tokens,
+      tokens: math.min(tokens, PocketModel.maxTokens),
       readings: [
         if (read is List)
           for (final reading in read)
             if (reading case {'key': final String key, 'at': final int at, 'tokens': final int count}
                 when at >= 0 && count >= 0)
-              PocketReading(key: key, at: at, tokens: count),
+              PocketReading(key: key, at: math.min(at, PocketModel.maxTokens), tokens: count),
       ],
       lastFed: fed is String ? DateTime.tryParse(fed)?.toUtc() : null,
     );

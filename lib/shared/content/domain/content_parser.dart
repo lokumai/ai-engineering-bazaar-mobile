@@ -67,6 +67,8 @@ abstract final class ContentParser {
     final diagramThemes = DiagramThemes(light: _diagramTheme(themes['light']), dark: _diagramTheme(themes['dark']));
 
     final levels = List<LevelEntry>.unmodifiable(root['levels'].list().map((level) => _level(level, files)));
+    // The Guide and the Catalog open at the first level (review 5, finding 17).
+    if (levels.isEmpty) root['levels'].fail();
     final levelSlugs = {for (final level in levels) level.slug};
 
     final modules = List<ModuleEntry>.unmodifiable(
@@ -184,12 +186,12 @@ abstract final class ContentParser {
           ),
         ),
       ),
-      motto: root['motto'].nullable(
-        (node) => StoryMotto(
-          lead: node['lead'].string(),
-          lines: List.unmodifiable(node['lines'].list().map((line) => line.string())),
-        ),
-      ),
+      motto: root['motto'].nullable((node) {
+        final lines = List<String>.unmodifiable(node['lines'].list().map((line) => line.string()));
+        // The film raises the motto's first line apart from the rest (review 5, finding 17).
+        if (lines.isEmpty) node['lines'].fail();
+        return StoryMotto(lead: node['lead'].string(), lines: lines);
+      }),
     );
   }
 

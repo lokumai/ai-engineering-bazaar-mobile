@@ -416,6 +416,16 @@ void main() {
       }
     });
 
+    // Review 5, finding 17: the model reads its text again to the count at start, one token at a time.
+    test('caps a count past what a reader can feed, so a damaged file cannot hold the start', () {
+      final model = decodePocketModel(
+        '{"tokens": 9007199254740991, "read": [{"key": "alpha/first", "at": 9007199254740991, "tokens": 30}]}',
+      );
+      expect(model?.tokens, PocketModel.maxTokens);
+      expect(model?.readings.single.at, PocketModel.maxTokens);
+      expect(PocketModel(tokens: PocketModel.maxTokens).fedAt(noon).tokens, PocketModel.maxTokens);
+    });
+
     test('leaves out a module read that is not one, and keeps the rest', () {
       final model = decodePocketModel(
         '{"tokens": 8, "read": [{"key": "alpha/first", "at": 0, "tokens": 30}, {"key": 3}, "x", '
