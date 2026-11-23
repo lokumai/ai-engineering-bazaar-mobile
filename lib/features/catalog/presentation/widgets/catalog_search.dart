@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -74,6 +75,9 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
         unawaited(context.read<CatalogSearchCubit>().search(text));
       },
       textInputAction: TextInputAction.search,
+      // Every word typed is matched against every document: a query is held to 100 characters, more than any search
+      // needs, with no counter drawn (review 8).
+      inputFormatters: [LengthLimitingTextInputFormatter(100)],
       // A tap elsewhere puts the keyboard away: iOS has no back key to do it.
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: Theme.of(context).textTheme.bodyMedium,

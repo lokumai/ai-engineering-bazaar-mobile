@@ -141,6 +141,17 @@ void main() {
     expect(Directionality.of(tester.element(heading.first)), TextDirection.ltr);
   });
 
+  // Review 8, finding 16: the field took any length, and every word typed is matched against every document.
+  testWidgets('the field keeps to 100 characters', (tester) async {
+    await _pump(tester);
+
+    await tester.enterText(find.byType(TextField), 'a' * 500);
+    await tester.pump(CatalogSearchField.settle);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, hasLength(100));
+  });
+
   testWidgets('a hit opens its module at its section, and back finds the search again', (tester) async {
     final router = await _pump(tester);
     await _type(tester, 'passages');
