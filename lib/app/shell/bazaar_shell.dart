@@ -338,7 +338,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
         widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
     final bandShown =
         widget.band != null && media.viewInsets.bottom == 0 && BazaarShell.bandPages.contains(widget.location);
-    // A module heard whole is marked completed here, on whatever page the reader is (the owner, 2026-11-18).
+    // A module heard whole is marked completed here, on whatever page the reader is (the owner, 2026-11-18); one the
+    // phone's voice did not start says so.
     return ListenCompletion(
       child: PopScope(
         canPop: !atTabRoot,

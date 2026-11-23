@@ -389,6 +389,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
       "Bu telefonda bu dil için bir ses yok. Dinlemek için telefonun Ayarlar\'ından bir ses ekle.",
     ),
+    "listen_not_started": MessageLookupByLibrary.simpleMessage(
+      "Sesli okuma başlamadı. Kaldığın yer duruyor; biraz sonra yeniden dene.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("Duraklat"),

@@ -282,10 +282,23 @@ final class ListenCubit extends Cubit<ListenState> {
       },
     );
     if (turn != _turn || isClosed) return;
+    // Ended with no part started: the phone's voice refused it or is gone. The place is kept, and the reader told,
+    // rather than the player closing without a word and the next Listen starting from the head (review 2 finding 6,
+    // review 5 finding 11).
+    if (started == null) return _notStarted();
     if (started case final last? when last == session.parts.length - 1) {
       _place(session, (place) => place.hearing(last));
     }
     _ended();
+  }
+
+  /// A speak that started no part: the reading stops where it was, its place kept.
+  void _notStarted() {
+    final session = _session;
+    if (session == null) return;
+    _cut();
+    _session = null;
+    emit(ListenIdle(rate: _rate, notStarted: (module: session.module, track: session.track)));
   }
 
   @override
@@ -304,16 +317,18 @@ sealed class ListenState extends Equatable {
 }
 
 /// No module being read: Listen at a module's head, at [rate] when started. Just after a module was heard whole,
-/// [heardAll] names it, once; [loaded] once the places kept were read.
+/// [heardAll] names it, once; just after the phone's voice started none of a module, [notStarted] names it, once;
+/// [loaded] once the places kept were read.
 final class ListenIdle extends ListenState {
-  const ListenIdle({required this.rate, this.heardAll, this.loaded = false});
+  const ListenIdle({required this.rate, this.heardAll, this.notStarted, this.loaded = false});
 
   final double rate;
   final ({String module, Track track})? heardAll;
+  final ({String module, Track track})? notStarted;
   final bool loaded;
 
   @override
-  List<Object?> get props => [rate, heardAll, loaded];
+  List<Object?> get props => [rate, heardAll, notStarted, loaded];
 }
 
 /// Reading part [index] of [count] of [module] on [track], or paused on it; the player stands at the module's foot,

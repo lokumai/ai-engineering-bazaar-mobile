@@ -266,9 +266,32 @@ void main() {
       expect(listen.state, on(0, session: second));
       expect((listen.state as ListenOn).reads('alpha/second', Track.engineers), isTrue);
       expect((listen.state as ListenOn).reads('alpha/first', Track.engineers), isFalse);
+      voice.reach(0);
       voice.finish();
       await _settle();
-      expect(listen.state, const ListenIdle(rate: 1));
+      expect(listen.state, isA<ListenIdle>().having((idle) => idle.notStarted, 'notStarted', isNull));
+    });
+
+    // Review 2 finding 6, review 5 finding 11: a speak the phone did not start ended the reading as heard to its end:
+    // the player closed without a word and the place was let go, so the next Listen began at the head.
+    test('a speak the phone does not start keeps the place and says so', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(0);
+      voice.reach(1);
+      await _settle();
+      listen.stop();
+      await _settle();
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+
+      listen.start(_first);
+      await _settle();
+      voice.finish(); // ended, no part started
+      await _settle();
+
+      expect(listen.state, const ListenIdle(rate: 1, notStarted: (module: 'alpha/first', track: Track.engineers)));
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
     });
 
     test('stop ends the reading; closing stops the voice', () async {

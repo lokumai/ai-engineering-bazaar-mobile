@@ -616,6 +616,16 @@ class S {
     );
   }
 
+  /// `Listening did not start. Where it was left is kept; try again in a moment.`
+  String get listen_not_started {
+    return Intl.message(
+      'Listening did not start. Where it was left is kept; try again in a moment.',
+      name: 'listen_not_started',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Play`
   String get listen_play {
     return Intl.message('Play', name: 'listen_play', desc: '', args: []);

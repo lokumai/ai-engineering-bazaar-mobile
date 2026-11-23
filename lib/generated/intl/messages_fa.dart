@@ -389,6 +389,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
       "این گوشی برای این زبان صدایی ندارد. برای گوش دادن، از تنظیمات گوشی یک صدا اضافه کنید.",
     ),
+    "listen_not_started": MessageLookupByLibrary.simpleMessage(
+      "خواندن با صدا شروع نشد. جایی که مانده بودید حفظ شده است؛ کمی بعد دوباره امتحان کنید.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("مکث"),

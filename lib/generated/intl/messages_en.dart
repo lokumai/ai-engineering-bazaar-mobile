@@ -387,6 +387,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
       "This phone has no voice for this language. Add one in the phone\'s Settings to listen.",
     ),
+    "listen_not_started": MessageLookupByLibrary.simpleMessage(
+      "Listening did not start. Where it was left is kept; try again in a moment.",
+    ),
     "listen_open": m34,
     "listen_part": m35,
     "listen_pause": MessageLookupByLibrary.simpleMessage("Pause"),

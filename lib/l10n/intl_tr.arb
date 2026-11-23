@@ -88,6 +88,7 @@
   "listen": "Dinle",
   "listen_resume": "Kaldığın yerden dinle",
   "listen_no_voice": "Bu telefonda bu dil için bir ses yok. Dinlemek için telefonun Ayarlar'ından bir ses ekle.",
+  "listen_not_started": "Sesli okuma başlamadı. Kaldığın yer duruyor; biraz sonra yeniden dene.",
   "listen_play": "Sürdür",
   "listen_pause": "Duraklat",
   "listen_back": "Önceki paragraf",

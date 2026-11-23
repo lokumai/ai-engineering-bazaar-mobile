@@ -44,6 +44,23 @@ class ListenCompletion extends StatelessWidget {
         ),
       );
     },
+    child: ListenNotStarted(child: child),
+  );
+}
+
+/// A module the phone's voice started none of says so, on whatever page the reader is, where it was left kept (review
+/// 2 finding 6, review 5 finding 11): before, the player closed without a word.
+class ListenNotStarted extends StatelessWidget {
+  const ListenNotStarted({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => BlocListener<ListenCubit, ListenState>(
+    listenWhen: (before, now) => before is ListenOn && now is ListenIdle && now.notStarted != null,
+    listener: (context, _) => ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(key: const ValueKey('listen-not-started'), content: Text(S.of(context).listen_not_started)),
+    ),
     child: child,
   );
 }
