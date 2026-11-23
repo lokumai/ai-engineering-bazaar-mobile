@@ -5,6 +5,10 @@ import 'package:equatable/equatable.dart';
 /// How a module's quiz went on this device (plan 1W): kept in the app only, never in the record, which stays the web's
 /// byte for byte, and never in the backup file, which is the web's too. The site keeps no quiz score (its zero data
 /// retention policy), so this is the app's own data.
+/// The most questions a quiz is kept for: far more than a module's quiz has. A kept count past it is a damaged file,
+/// and Practice draws one dot per question (review 6, finding 15).
+const maxQuizLength = 200;
+
 final class QuizScore extends Equatable {
   const QuizScore({required this.last, required this.best, required this.total, this.previous});
 
@@ -37,7 +41,7 @@ final class QuizScore extends Equatable {
 
   static QuizScore? _fromJson(Object? json) {
     if (json case {'last': final int last, 'best': final int best, 'total': final int total}
-        when total > 0 && last >= 0 && last <= total && best >= last && best <= total) {
+        when total > 0 && total <= maxQuizLength && last >= 0 && last <= total && best >= last && best <= total) {
       final previous = json['previous'];
       return QuizScore(
         last: last,

@@ -77,6 +77,11 @@ void main() {
 
     test('anything not of its shape reads as empty, and a card not of its shape is left out', () {
       expect(decodeReviewHistory('not json'), ReviewHistory.empty);
+      // Review 6, finding 15: a damaged length past any quiz's is left out.
+      expect(
+        decodeReviewHistory('{"schema":1,"day":1,"done":0,"lengths":{"a/b":1000000000,"a/c":4},"cards":{}}').lengths,
+        {'a/c': 4},
+      );
       expect(decodeReviewHistory('{"schema":2,"day":1,"done":0,"lengths":{},"cards":{}}'), ReviewHistory.empty);
       final read = decodeReviewHistory(
         '{"schema":1,"day":1,"done":0,"lengths":{"alpha/first":3,"alpha/bad":0},"cards":{'
