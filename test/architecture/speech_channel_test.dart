@@ -77,7 +77,11 @@ void main() {
     expect(service, contains('style.setMediaSession'));
     expect(service, contains('R.string.listen_paused'), reason: 'a paused reading keeps its notice, with Play');
     expect(speech, contains('if (!shown) ListenService.stop(context)'));
-    expect(speech, contains('ListenService.onPlay = { main.post { control("play") } }'));
+    expect(speech, contains('private val onPlay: () -> Unit = { main.post { control("play") } }'));
+    expect(speech, contains('ListenService.onPlay = onPlay'));
+    // A new activity's callbacks survive the old one's close (review 6, finding 12).
+    expect(speech, contains('if (ListenService.onPlay === onPlay) ListenService.onPlay = null'));
+    expect(speech, contains('if (ListenService.onPause === onPause) ListenService.onPause = null'));
 
     final swift = read('ios/Runner/AppDelegate.swift');
     expect(swift, contains('AVAudioSession.interruptionNotification'));

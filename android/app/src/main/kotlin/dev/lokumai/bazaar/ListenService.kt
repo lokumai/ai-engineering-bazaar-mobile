@@ -170,13 +170,23 @@ class ListenService : Service() {
         }
         val title = intent?.getStringExtra(EXTRA_TITLE).orEmpty()
         val notice = notice(this, title, intent?.getBooleanExtra(EXTRA_PLAYING, true) ?: true)
-        running = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-        } else {
-            startForeground(NOTICE_ID, notice)
-        }
         if (pending > 0) pending--
+        // Android may refuse the foreground (a start it counts as from the background, a type it does not allow): the
+        // reading then goes on with the app in front, without a notice, rather than the app ending (review 6, finding
+        // 12).
+        val foreground = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            } else {
+                startForeground(NOTICE_ID, notice)
+            }
+        }
+        if (foreground.isFailure) {
+            stopWhenStarted = false
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        running = true
         if (pending == 0 && stopWhenStarted) {
             stopWhenStarted = false
             stopSelf()

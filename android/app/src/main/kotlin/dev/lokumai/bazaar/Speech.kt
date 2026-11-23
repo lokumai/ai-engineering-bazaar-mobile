@@ -275,9 +275,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         }
     }
 
+    /** What the notice's Pause and Play tell this reader; cleared at close only while they are still its own. */
+    private val onPause: () -> Unit = { main.post { interrupt() } }
+    private val onPlay: () -> Unit = { main.post { control("play") } }
+
     init {
-        ListenService.onPause = { main.post { interrupt() } }
-        ListenService.onPlay = { main.post { control("play") } }
+        ListenService.onPause = onPause
+        ListenService.onPlay = onPlay
         val filter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -320,6 +324,13 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
 
     /** Runs [action] on the main thread once the engine has started, starting it on the first call. */
     private fun whenStarted(action: (TextToSpeech?) -> Unit) {
+        // An engine that failed to start is started again at the next ask, as when the reader comes back from the
+        // phone's settings with a voice engine fixed or installed (review 6, finding 12).
+        if (started != null && started != TextToSpeech.SUCCESS && waiting.isEmpty()) {
+            runCatching { engine?.shutdown() }
+            engine = null
+            started = null
+        }
         if (started != null) return action(engine.takeIf { started == TextToSpeech.SUCCESS })
         waiting.add { action(engine.takeIf { started == TextToSpeech.SUCCESS }) }
         if (engine != null) return
@@ -446,8 +457,10 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         runCatching { context.unregisterReceiver(noisy) }
         show(null, false)
         session.release()
-        ListenService.onPause = null
-        ListenService.onPlay = null
+        // A new activity may have set its own before this one closes: the notice must keep working for it (review 6,
+        // finding 12).
+        if (ListenService.onPause === onPause) ListenService.onPause = null
+        if (ListenService.onPlay === onPlay) ListenService.onPlay = null
         main.removeCallbacks(release)
         current = null
         audio?.abandonAudioFocusRequest(focusRequest)
