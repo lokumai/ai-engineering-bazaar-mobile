@@ -498,6 +498,35 @@ void main() {
         await bloc.close();
       });
     });
+
+    // Review 7, finding 2: a link under its length limit can hold enough ticks to take the record past the cap; it was
+    // merged into the record in use, and every later write of the session was then too large.
+    test('one that would take the record past the cap is not added, and the record in use stays as it was', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final before = _ready(bloc);
+        final huge = TransferProgress(
+          engineers: {
+            for (var module = 0; module < 30; module++)
+              'made-up/m$module': TransferSheet(
+                signedOff: null,
+                signedRevision: null,
+                ticks: List.generate(2400, (tick) => tick),
+              ),
+          },
+          everyone: const {},
+          days: const [],
+        );
+        final reply = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: huge, reply: reply));
+        expect(await reply.future, TransferMergeResult.notAdded);
+        expect(_ready(bloc).record, same(before.record));
+        expect(_ready(bloc).writeState, const WriteSaved());
+        expect(repository.writes, isEmpty);
+        await bloc.close();
+      });
+    });
   });
 
   test('a completed backup marks lastExport', () async {

@@ -164,6 +164,12 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           reply.complete(TransferMergeResult.nothingNew);
           return;
         }
+        // A link under its length limit can still carry enough to take the record past the cap; it is refused before
+        // it reaches the record in use, as a restore is (review 7, finding 2).
+        if (utf8.encode(serialise(merged, nowIso(), pretty: false)).length > RecordConstants.softCapBytes) {
+          reply.complete(TransferMergeResult.notAdded);
+          return;
+        }
         _closeUndo();
         await _commit(
           RecordReady(
