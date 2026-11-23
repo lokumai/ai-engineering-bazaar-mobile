@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -74,6 +75,8 @@ class _TourLayerState extends State<TourLayer> {
 
   /// Whether the question was up at the last build, to tell when it is answered.
   bool _wasAsking = false;
+
+  static final _log = AppLogger.getLogger('TourLayer');
 
   Timer? _settling;
   Timer? _home;
@@ -196,10 +199,21 @@ class _TourLayerState extends State<TourLayer> {
     });
   }
 
-  /// Brings the place of this step into view and walks the Apprentice to it.
+  /// Brings the place of this step into view and walks the Apprentice to it. Whatever goes wrong moves on to the next
+  /// step: a step left with no place drew the dim layer over the whole screen with no bubble and no Skip, taking every
+  /// touch (review 6, finding 4).
   Future<void> _point() async {
     final page = _page;
     if (page == null) return;
+    try {
+      await _pointAt(page);
+    } on Object catch (error) {
+      _log.warn('tour step not shown: {}', [error.runtimeType]);
+      if (mounted && _page == page) _next();
+    }
+  }
+
+  Future<void> _pointAt(TourPage page) async {
     final target = TourTarget.contextOf(_spots[_step]);
     if (target == null) return _next();
     setState(() => _hole = null);
@@ -214,7 +228,9 @@ class _TourLayerState extends State<TourLayer> {
         duration: reduced ? Duration.zero : const Duration(milliseconds: 300),
       );
     }
-    if (!mounted || _page != page || !target.mounted) return;
+    if (!mounted || _page != page) return;
+    // The place left the page during the scroll, as Home's Practice row does while the notes reload.
+    if (!target.mounted) return _next();
     final layer = _layerBox;
     final rect = _rectOf(target);
     if (layer == null || rect == null) return _next();

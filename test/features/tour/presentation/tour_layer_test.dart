@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
@@ -9,6 +11,11 @@ import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -167,6 +174,32 @@ void main() {
     expect(find.textContaining('A few questions and terms a day, and the glossary.'), findsOneWidget);
     expect(_hole(tester), _spot(tester, TourSpots.homePractice).intersect(Offset.zero & const Size(393, 852)));
     expect(_hole(tester)!.height, lessThan(300), reason: 'Practice alone');
+  });
+
+  // Review 6, finding 4: a place gone during the scroll to it left the dim layer over the whole screen, with no bubble
+  // and no Skip, taking every touch.
+  testWidgets('a place that goes while the tour scrolls to it is passed, not left as a dead screen', (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer(
+      (_) async => testDoc(
+        quiz: const [
+          QuizItem(question: 'Q1', options: ['One', 'Two'], answer: 0, explain: 'E1'),
+        ],
+      ),
+    );
+    await _pump(tester, record: const TourRecord(guiding: true), repository: repository);
+    expect(_dots(1, 4), findsOneWidget);
+
+    await tester.tap(_next);
+    await tester.pump(const Duration(milliseconds: 50));
+    // The notes reload under it, as a new content version makes them do: Home's Practice row is gone meanwhile.
+    final element = tester.element(find.byType(HomePractice));
+    final index = (element.read<ContentBloc>().state as ContentReady).index;
+    unawaited(element.read<StudyNotesCubit>().load(index, Track.engineers, 'tr'));
+    await _walk(tester);
+
+    expect(_dots(3, 4), findsOneWidget, reason: 'on to the band');
+    expect(_hole(tester), isNotNull);
   });
 
   for (final locale in const [Locale('en'), Locale('fa')]) {
