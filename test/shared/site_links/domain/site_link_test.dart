@@ -58,6 +58,20 @@ void main() {
     });
   });
 
+  // Review 6, finding 13: a segment decoded to a slash or a question mark became part of the route.
+  test('a level or module name that is not a slug is no link', () {
+    for (final link in [
+      'https://example.test/courses/a%2Fb/c/',
+      'https://example.test/courses/a%3Fb/c/',
+      'https://example.test/courses/%25E0/x/',
+      'https://example.test/courses/Alpha/first/',
+      'https://example.test/sheets/a%2Fb/',
+    ]) {
+      expect(_parse(link), isNull, reason: link);
+    }
+    expect(_parse('https://example.test/courses/fundamentals/01-what-is-an-llm/'), isA<SiteModule>());
+  });
+
   test('transferLink carries the payload in the fragment, which reads back', () {
     final link = transferLink(_site, 'abc_-1');
     expect(link.toString(), 'https://example.test/transfer/#t=abc_-1');

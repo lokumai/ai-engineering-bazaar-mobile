@@ -37,11 +37,18 @@ sealed class SiteLink extends Equatable {
     return switch (segments) {
       [transferSegment] when track == Track.engineers => _transfer(uri),
       ['sheets'] || ['courses'] => SiteCatalog(track),
-      ['sheets', final level] || ['courses', final level] => SiteLevel(track, level),
-      ['courses', final level, final module] => SiteModule(track, '$level/$module'),
+      ['sheets', final level] || ['courses', final level] when _slug.hasMatch(level) => SiteLevel(track, level),
+      ['courses', final level, final module] when _slug.hasMatch(level) && _slug.hasMatch(module) => SiteModule(
+        track,
+        '$level/$module',
+      ),
       _ => null,
     };
   }
+
+  /// A level's or a module's name as the site writes it. A segment decoded to a slash, a question mark or a stray escape
+  /// would change the route it becomes, so it is no link (review 6, finding 13).
+  static final _slug = RegExp(r'^[a-z0-9][a-z0-9-]*$');
 
   /// The app's own scheme, which only the site's transfer page uses.
   static const scheme = 'aibazaar';
