@@ -268,7 +268,12 @@ final class FileContentRepository implements IContentRepository {
       throw ContentMissingException(sitePath);
     }
     if (sha256.convert(bytes).toString() != sha256Name) {
-      await File('${opened.store.path}/corrupt').writeAsString('');
+      try {
+        await File('${opened.store.path}/corrupt').writeAsString('');
+      } on FileSystemException catch (error) {
+        // The marker sends the cache away at the next start; without it the object is still corrupt to its reader.
+        _log.warn('corrupt marker not written: {}', [error]);
+      }
       _log.error('content object does not match its sha256: {}', [sha256Name]);
       throw ContentCorruptException(sitePath);
     }
@@ -279,20 +284,30 @@ final class FileContentRepository implements IContentRepository {
   Future<ModuleDoc> readModuleDoc(String sitePath) async {
     final index = _requireOpened().index;
     final bytes = await readObject(sitePath);
-    return ContentParser.parseModuleDoc(utf8.decode(bytes), index, path: sitePath);
+    return ContentParser.parseModuleDoc(_text(bytes, sitePath), index, path: sitePath);
   }
 
   @override
   Future<LevelDoc> readLevelDoc(String sitePath) async {
     final index = _requireOpened().index;
     final bytes = await readObject(sitePath);
-    return ContentParser.parseLevelDoc(utf8.decode(bytes), index, path: sitePath);
+    return ContentParser.parseLevelDoc(_text(bytes, sitePath), index, path: sitePath);
   }
 
   @override
   Future<StoryDoc> readStoryDoc(String sitePath) async {
     final bytes = await readObject(sitePath);
-    return ContentParser.parseStoryDoc(utf8.decode(bytes), path: sitePath);
+    return ContentParser.parseStoryDoc(_text(bytes, sitePath), path: sitePath);
+  }
+
+  /// The text of the document at [sitePath]. Bytes that are not UTF-8 are a document that does not match the
+  /// contract, as text that is not JSON is, so its reader shows the error it shows for any other (review 5, finding 7).
+  static String _text(Uint8List bytes, String sitePath) {
+    try {
+      return utf8.decode(bytes);
+    } on FormatException {
+      throw ContentFormatException(sitePath, '(utf8)');
+    }
   }
 
   _Opened _requireOpened() => _opened ?? (throw StateError('open() has not completed'));

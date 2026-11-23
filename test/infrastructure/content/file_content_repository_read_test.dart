@@ -116,6 +116,37 @@ void main() {
     expect(Directory(content).existsSync(), isFalse);
   });
 
+  // Review 5, finding 7: a reader catches the three content exceptions and nothing else, and showed its spinner for
+  // good on any other error.
+  test('a corrupt object whose marker cannot be written is still corrupt, not a file system error', () async {
+    writeCache(cacheRoot, publishedAt: laterPublishedAt);
+    final repository = fixtureRepository(cacheRoot);
+    await repository.open();
+    File('$content/objects/${cacheOnlySha()}').writeAsBytesSync([1, 2, 3]);
+    Directory('$content/corrupt').createSync(); // a folder where the marker goes: the write fails
+
+    await expectLater(repository.readObject(cacheOnlyPath), throwsA(const ContentCorruptException(cacheOnlyPath)));
+  });
+
+  test('a document whose bytes are not UTF-8 is a format error', () async {
+    const path = 'api/v1/modules/alpha/first/fa.json';
+    final bytes = [0x7b, 0xff, 0xfe, 0x7d];
+    final sha = sha256.convert(bytes).toString();
+    writeCache(cacheRoot, publishedAt: laterPublishedAt, extraObjects: {sha: bytes});
+    final indexFile = File('$content/indexes/${File('$content/current').readAsStringSync()}.json');
+    final index = jsonDecode(indexFile.readAsStringSync()) as Map<String, Object?>;
+    indexFile.writeAsStringSync(
+      jsonEncode({
+        ...index,
+        'files': {...index['files']! as Map<String, Object?>, path: sha},
+      }),
+    );
+    final repository = fixtureRepository(cacheRoot);
+    await repository.open();
+
+    await expectLater(repository.readModuleDoc(path), throwsA(const ContentFormatException(path, '(utf8)')));
+  });
+
   test('a cached object there but unreadable is missing, not an error the reader cannot handle', () async {
     writeCache(cacheRoot, publishedAt: laterPublishedAt);
     final repository = fixtureRepository(cacheRoot);

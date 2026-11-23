@@ -1,6 +1,5 @@
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
-import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -31,24 +30,19 @@ final class QuizLoader extends Cubit<QuizLoad> {
       emit(const QuizMissing());
       return;
     }
+    QuizLoad loaded;
     try {
-      final doc = await _repository.readModuleDoc(path);
-      final items = doc.quiz;
-      emit(
-        items == null || items.isEmpty
-            ? const QuizMissing()
-            : QuizReady(title: version.titleIn(language), items: items),
-      );
-    } on ContentMissingException catch (error) {
+      final items = (await _repository.readModuleDoc(path)).quiz;
+      loaded = items == null || items.isEmpty
+          ? const QuizMissing()
+          : QuizReady(title: version.titleIn(language), items: items);
+    } on Object catch (error) {
+      // Any error, not only the content's own, ends the spinner (review 5, finding 7).
       _log.warn('quiz document {} unreadable: {}', [path, error]);
-      emit(const QuizUnreadable());
-    } on ContentCorruptException catch (error) {
-      _log.warn('quiz document {} unreadable: {}', [path, error]);
-      emit(const QuizUnreadable());
-    } on ContentFormatException catch (error) {
-      _log.warn('quiz document {} unreadable: {}', [path, error]);
-      emit(const QuizUnreadable());
+      loaded = const QuizUnreadable();
     }
+    // The page may have been left while the document was read (review 5, finding 7).
+    if (!isClosed) emit(loaded);
   }
 }
 

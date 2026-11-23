@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_loader.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -107,6 +110,8 @@ void main() {
     ContentMissingException('gone'),
     ContentCorruptException('bad'),
     ContentFormatException('shape', 'quiz'),
+    // Review 5, finding 7: any other error ended nowhere, and the page spun for good.
+    const FileSystemException('disk'),
   ]) {
     blocTest<QuizLoader, QuizLoad>(
       'a document that cannot be read is unreadable (${error.runtimeType})',
@@ -116,4 +121,17 @@ void main() {
       expect: () => [const QuizUnreadable()],
     );
   }
+
+  // Review 5, finding 7: a quiz left before its document was read emitted on the closed cubit.
+  test('a quiz left while its document is read emits nothing after it closes', () async {
+    final read = Completer<ModuleDoc>();
+    when(() => repository.readModuleDoc(any())).thenAnswer((_) => read.future);
+    final quiz = loader();
+    final loading = quiz.load('alpha/first', 'en');
+    await quiz.close();
+    read.complete(testDoc(quiz: _items));
+
+    await expectLater(loading, completes);
+    expect(quiz.state, const QuizLoading());
+  });
 }
