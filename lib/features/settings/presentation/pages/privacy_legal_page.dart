@@ -136,10 +136,16 @@ class _Row extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted)),
+            // The company's details are Latin text, laid out left to right in Persian too: a right-to-left line put
+            // the phone number's groups in the opposite order (review 6, finding 6).
             if (uri == null)
-              Text(value, style: textTheme.bodyMedium)
+              Text(value, style: textTheme.bodyMedium, textDirection: TextDirection.ltr)
             else
-              TextButton(style: _flush, onPressed: () => openExternalLink(context, uri), child: Text(value)),
+              TextButton(
+                style: _flush,
+                onPressed: () => openExternalLink(context, uri),
+                child: Text(value, textDirection: TextDirection.ltr),
+              ),
           ],
         ),
       ),

@@ -64,6 +64,15 @@ void main() {
     expect(find.text('Third-party marks and images', skipOffstage: false), findsOneWidget);
   });
 
+  // Review 6, finding 6: in Persian the right-to-left line showed the phone number's groups in the opposite order.
+  testWidgets("the owner's details are laid out left to right in every language", (tester) async {
+    await _pump(tester);
+
+    for (final fact in [SiteOwner.tradeName, SiteOwner.mersis, SiteOwner.address, SiteOwner.phone]) {
+      expect(tester.widget<Text>(find.text(fact, skipOffstage: false)).textDirection, TextDirection.ltr, reason: fact);
+    }
+  });
+
   for (final crashReports in [false, true]) {
     testWidgets(
       'crash reports are ${crashReports ? '' : 'not '}mentioned when the build ${crashReports ? 'sends' : 'sends no'} them',
