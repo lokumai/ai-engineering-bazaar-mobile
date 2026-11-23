@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
@@ -65,4 +67,59 @@ void main() {
     expect(TourPage.at('/sheets/alpha'), isNull);
     expect(TourPage.at('/courses/alpha/first'), isNull);
   });
+
+  // Review 8, finding 16: the saves ran side by side over several files, so a slower earlier one could land after a
+  // later one.
+  test('saves one at a time, in order, the last record last', () async {
+    final store = _SlowStore();
+    final cubit = TourCubit(store: store);
+    await cubit.load();
+
+    final saves = [cubit.offer(), cubit.accept(), cubit.shown(TourPage.home)];
+    await Future<void>.delayed(Duration.zero);
+    expect(store.started, [const TourRecord(asking: true)], reason: 'one at a time');
+    while (store.waiting.isNotEmpty) {
+      store.waiting.removeAt(0).complete();
+      await Future<void>.delayed(Duration.zero);
+    }
+    await Future.wait(saves);
+    expect(store.started, [
+      const TourRecord(asking: true),
+      const TourRecord(guiding: true),
+      const TourRecord(guiding: true, seen: {'home'}),
+    ]);
+  });
+
+  test('a save that failed does not stop the next', () async {
+    final store = _SlowStore();
+    final cubit = TourCubit(store: store);
+    await cubit.load();
+
+    final first = cubit.offer();
+    final second = cubit.accept();
+    await Future<void>.delayed(Duration.zero);
+    store.waiting.removeAt(0).completeError(StateError('disk'));
+    await expectLater(first, throwsStateError);
+    await Future<void>.delayed(Duration.zero);
+    store.waiting.removeAt(0).complete();
+    await second;
+    expect(store.started.last, const TourRecord(guiding: true));
+  });
+}
+
+/// A store whose saves wait until the test lets each one end.
+final class _SlowStore implements ITourStore {
+  final started = <TourRecord>[];
+  final waiting = <Completer<void>>[];
+
+  @override
+  Future<TourRecord> load() async => const TourRecord();
+
+  @override
+  Future<void> save(TourRecord record) {
+    started.add(record);
+    final done = Completer<void>();
+    waiting.add(done);
+    return done.future;
+  }
 }

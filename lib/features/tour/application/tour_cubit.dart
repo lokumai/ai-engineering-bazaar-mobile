@@ -42,9 +42,15 @@ final class TourCubit extends Cubit<TourRecord?> {
     null => false,
   };
 
-  Future<void> _keep(TourRecord record) async {
-    if (isClosed) return;
+  /// The save under way; the next waits for it, so the records reach the store in the order they were made, the last
+  /// one last (review 8). A save that failed does not stop the next.
+  Future<void> _saving = Future.value();
+
+  Future<void> _keep(TourRecord record) {
+    if (isClosed) return Future.value();
     emit(record);
-    await _store.save(record);
+    final save = _saving.then((_) => _store.save(record), onError: (Object _) => _store.save(record));
+    _saving = save;
+    return save;
   }
 }
