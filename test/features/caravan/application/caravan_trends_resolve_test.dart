@@ -21,10 +21,11 @@ void main() {
   });
 
   test('a trend with a two-word module shows it', () {
-    final trend = SampleCaravan.trends('en').firstWhere((trend) => trend.modules.contains('prompt_engineering'));
+    final trend = SampleCaravan.trends('en').firstWhere((trend) => trend.modules.any((name) => name.contains('_')));
+    final name = trend.modules.firstWhere((name) => name.contains('_'));
     expect(
-      courseModules(trend, index, Track.engineers, 'en').map((module) => module.key),
-      contains('intermediate/prompt-engineering'),
+      courseModules(trend, index, Track.engineers, 'en').map((module) => module.key.split('/').last),
+      contains(name.replaceAll('_', '-')),
     );
   });
 }
