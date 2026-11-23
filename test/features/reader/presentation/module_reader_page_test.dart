@@ -129,6 +129,7 @@ void main() {
     ValueChanged<ReadingPlace?>? onPlace,
     Locale locale = const Locale('en'),
     ReadingStyleCubit? readingStyle,
+    bool covered = false,
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -137,10 +138,11 @@ void main() {
 
     Widget location(GoRouterState state) => Scaffold(body: Text('at ${state.uri.path}'));
     final router = GoRouter(
-      initialLocation: '/reader',
+      initialLocation: covered ? '/reader/cover' : '/reader',
       routes: [
         GoRoute(
           path: '/reader',
+          routes: [GoRoute(path: 'cover', builder: (_, state) => location(state))],
           builder: (context, _) {
             final view = BlocProvider<ModuleReaderBloc>.value(
               value: readerBloc,
@@ -796,6 +798,26 @@ void main() {
 
       final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
       expect(position.pixels, closeTo(position.maxScrollExtent / 2, 1));
+    });
+
+    // Sentry AI-BAZAAR-MOBILE-3, 2026-11-21, from a build of 2026-11-12: the module drawn first under another page,
+    // which is built but not laid out, read the page's length before it had one, and threw a null check. The text has
+    // since come to stand in a LayoutBuilder, which builds it only once it is laid out; this keeps the place safe if
+    // that goes.
+    testWidgets('drawn first under another page, it opens at the place once it is in front', (tester) async {
+      longModule();
+      final router = await pumpReader(
+        tester,
+        covered: true,
+        place: ReadingPlace(heading: 'one', offset: 0, share: 0.5, at: at),
+      );
+      expect(tester.takeException(), isNull);
+
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
     });
 
     testWidgets('a fragment wins over the place', (tester) async {

@@ -533,6 +533,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final place = widget.place;
     if (place == null || widget.fragment != null || !_placeScheduled || !_scroll.hasClients) return;
     final position = _scroll.position;
+    // Built under another page, the module is not laid out and has no length yet; the change of metrics as it comes
+    // to the front calls this again (Sentry AI-BAZAAR-MOBILE-3).
+    if (!position.hasContentDimensions) return;
     final heading = place.heading;
     final base = heading == null ? 0.0 : _headingOffset(heading);
     final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
@@ -543,7 +546,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Brings the heading the page opened at back to the top, after a picture above it changed the page's length.
   void _holdHeading() {
     final id = _held;
-    if (id == null || !_scroll.hasClients) return;
+    if (id == null || !_scroll.hasClients || !_scroll.position.hasContentDimensions) return;
     final base = _headingOffset(id);
     if (base == null) return;
     final position = _scroll.position;
