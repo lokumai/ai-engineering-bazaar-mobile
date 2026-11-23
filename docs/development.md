@@ -116,7 +116,7 @@ keyAlias=upload
 keyPassword=<the key's password>
 ```
 
-Without the file a release build stops with a message, since a release signed with the debug key is refused by the stores. CI, which sets `CI=true`, still builds one with the debug key to check that it builds.
+Without the file a bundle build stops with a message, since a bundle signed with the debug key is refused by Google Play; a release APK, which `flutter run --release` installs, is signed with the debug key. CI, which sets `CI=true`, still builds a bundle with the debug key to check that it builds.
 
 `scripts/run_build.sh` and `scripts/run_fvm_build.sh` build with `sentry_dsn.json` and stop when it is missing, so no release goes out that reports no crashes.
 

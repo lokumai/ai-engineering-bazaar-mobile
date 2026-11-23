@@ -571,7 +571,7 @@ On `feature/review-fixes`, from main at c75c49e (PR #18 merged). A second full r
 
 On `feature/release`, from `feature/review-fixes` (Phase 20, merged as PR #19); draft PR #20 until the accounts are ready. What the stores need from the code; the store pages themselves are filled by hand in App Store Connect and the Play Console.
 
-- [x] **21.1 Release signing.** `android/app/build.gradle.kts` signs a release with the upload key that `android/key.properties` names; both stay out of git, and without the file a release build stops (CI, with `CI=true`, still builds one with the debug key to check it builds). Google Play holds the app's signing key (Play App Signing). How to build: `docs/development.md`, Release. The keystore itself is made with the owner.
+- [x] **21.1 Release signing.** `android/app/build.gradle.kts` signs a release with the upload key that `android/key.properties` names; both stay out of git, and without the file a bundle build stops (a release APK for `flutter run --release` is debug-signed; CI, with `CI=true`, still builds a bundle to check it builds). Google Play holds the app's signing key (Play App Signing). How to build: `docs/development.md`, Release. The keystore itself is made with the owner.
 - [x] **21.2 The camera's question in Turkish and Persian.** `ios/Runner/tr.lproj` and `fa.lproj` hold `InfoPlist.strings` with `NSCameraUsageDescription`, in the Runner's resources, and the project knows both regions; English stays in `Info.plist` (17.5 left this for now).
 - [x] **21.3 AI Bazaar under the icon** (the owner, 2026-11-19): the Android label and iOS `CFBundleDisplayName`; `CFBundleName` stays Bazaar.
 - [x] **21.4 Version 1.0.0, build 1**, and the changelog's 1.0.0 section.

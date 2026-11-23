@@ -32,6 +32,7 @@ void main() {
       expect(gradle, contains('signingConfigs.getByName("release")'));
       // Review 6, finding 20: without the file a release stops instead of going out with the debug key.
       expect(gradle, contains('gradle.taskGraph.whenReady'));
+      expect(gradle, contains('it.name == "bundleRelease"'));
       expect(gradle, contains('throw GradleException('));
       expect(gradle, isNot(contains('logger.warn("android/key.properties is missing')));
 
@@ -167,7 +168,11 @@ void main() {
     });
   });
 
-  test('the first release is version 1.0.0, build 1', () {
-    expect(RegExp(r'^version: 1\.0\.0\+1$', multiLine: true).hasMatch(File('pubspec.yaml').readAsStringSync()), isTrue);
+  // Review 7, finding 17: each upload to a store takes the next build number, so only the version name is held.
+  test('the first release is version 1.0.0, with any build number', () {
+    expect(
+      RegExp(r'^version: 1\.0\.0\+\d+$', multiLine: true).hasMatch(File('pubspec.yaml').readAsStringSync()),
+      isTrue,
+    );
   });
 }
