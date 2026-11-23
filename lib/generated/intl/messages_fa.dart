@@ -477,7 +477,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("دما"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("شاگرد"),
     "pocket_to_next": m43,
-    "practice_brief": MessageLookupByLibrary.simpleMessage("خلاصهٔ درس"),
+    "practice_brief": MessageLookupByLibrary.simpleMessage("خلاصه"),
     "practice_brief_count": m44,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "خلاصه و اصطلاح‌های کلیدی درسی که تکمیل کرده‌اید، کارت به کارت.",
