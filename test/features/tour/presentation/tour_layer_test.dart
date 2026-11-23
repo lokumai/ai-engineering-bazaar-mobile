@@ -267,7 +267,7 @@ void main() {
     await tester.binding.handlePopRoute();
     await _walk(tester);
     expect(_scrim, findsNothing);
-    expect(store.kept?.guiding, isFalse);
+    expect(store.kept.guiding, isFalse);
   });
 
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
