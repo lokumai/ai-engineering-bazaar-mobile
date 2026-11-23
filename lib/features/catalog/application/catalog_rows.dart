@@ -68,7 +68,11 @@ List<CatalogRow> catalogRows(BundleIndex index, Track track, RecordData? view, {
         minutes: module.minutes,
         words: module.tracks[track]!.words,
         summary: module.tracks[track]!.summary,
-        requires: [for (final key in module.prerequisites) index.module(key)!.number],
+        // A key the index does not hold (a module renamed or taken out in a publish) is left out (review 5, finding 4).
+        requires: [
+          for (final key in module.prerequisites)
+            if (index.module(key) case final required?) required.number,
+        ],
       ),
   ];
 }

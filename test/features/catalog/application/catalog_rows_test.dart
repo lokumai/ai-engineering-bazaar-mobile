@@ -44,6 +44,17 @@ void main() {
       expect(everyone[0].summary, 'Story of the first module.');
     });
 
+    // Review 5, finding 4: a publish whose prerequisites name a module the index does not hold (one renamed or taken
+    // out) threw a null check in every build of the Catalog and Level pages until the next publish.
+    test('a prerequisite the index does not hold is left out', () {
+      final published = catalogFixtureIndex(
+        prerequisites: {
+          'alpha/third': ['alpha/first', 'alpha/gone'],
+        },
+      );
+      expect(catalogRows(published, Track.engineers, null)[2].requires, [1]);
+    });
+
     test('no view: nothing signed', () {
       expect(catalogRows(index, Track.engineers, null).any((r) => r.signed), isFalse);
     });

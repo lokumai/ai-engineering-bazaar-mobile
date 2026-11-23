@@ -6,13 +6,15 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 /// document (web D125), none by default; [words] gives a module's For Engineers word counts per language (web D128),
 /// none by default; [titles] gives a module's For Engineers titles per language (web D139), none by default;
 /// [everyoneTitles] gives a module's For Everyone titles per language, none by default;
-/// [contentVersion] names the bundle, as a new one downloaded names another.
+/// [contentVersion] names the bundle, as a new one downloaded names another; [prerequisites] replaces a module's
+/// prerequisites, as a publish that names a module the index does not hold.
 BundleIndex catalogFixtureIndex({
   String? contentVersion,
   Map<String, String> story = const {},
   Map<String, Map<String, int>> words = const {},
   Map<String, Map<String, String>> titles = const {},
   Map<String, Map<String, String>> everyoneTitles = const {},
+  Map<String, List<String>> prerequisites = const {},
 }) {
   return BundleIndex(
     story: story,
@@ -62,7 +64,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['alpha/first'] ?? const {},
         number: 1,
         minutes: 20,
-        prerequisites: const [],
+        prerequisites: prerequisites['alpha/first'] ?? const [],
         engineers: ('First Module', 'Summary of the first module.'),
         everyone: ('First Story', 'Story of the first module.'),
       ),
@@ -73,7 +75,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['alpha/second'] ?? const {},
         number: 2,
         minutes: 25,
-        prerequisites: const ['alpha/first'],
+        prerequisites: prerequisites['alpha/second'] ?? const ['alpha/first'],
         engineers: ('Second Module', 'Summary of the second module.'),
         everyone: ('Second Story', null),
       ),
@@ -84,7 +86,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['alpha/third'] ?? const {},
         number: 3,
         minutes: 30,
-        prerequisites: const ['alpha/first', 'alpha/second'],
+        prerequisites: prerequisites['alpha/third'] ?? const ['alpha/first', 'alpha/second'],
         engineers: ('Third Module', null),
         everyone: ('Third Story', null),
       ),
@@ -95,7 +97,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['beta/fourth'] ?? const {},
         number: 4,
         minutes: 40,
-        prerequisites: const ['alpha/third'],
+        prerequisites: prerequisites['beta/fourth'] ?? const ['alpha/third'],
         engineers: ('Fourth Module', 'Summary of the fourth module.'),
         everyone: ('Fourth Story', 'Story of the fourth module.'),
       ),
@@ -106,7 +108,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['beta/fifth'] ?? const {},
         number: 5,
         minutes: 20,
-        prerequisites: const [],
+        prerequisites: prerequisites['beta/fifth'] ?? const [],
         engineers: ('Fifth Module', null),
         everyone: ('Fifth Story', null),
       ),
@@ -117,7 +119,7 @@ BundleIndex catalogFixtureIndex({
         everyoneTitles: everyoneTitles['gamma/sixth'] ?? const {},
         number: 6,
         minutes: 45,
-        prerequisites: const ['beta/fourth'],
+        prerequisites: prerequisites['gamma/sixth'] ?? const ['beta/fourth'],
         engineers: ('Sixth Module', 'Summary of the sixth module.'),
         everyone: ('Sixth Story', 'Story of the sixth module.'),
       ),
