@@ -675,6 +675,14 @@ void main() {
       expect(find.text('2 / 3'), findsOneWidget, reason: 'the first mark under Section one, of three');
     });
 
+    testWidgets('the count reads left to right in Persian too', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent', locale: const Locale('fa'));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<Text>(find.text('2 / 3')).textDirection, TextDirection.ltr);
+    });
+
     testWidgets('the arrows step from mark to mark, round from the last to the first', (tester) async {
       stateIs(searched);
       await pumpReader(tester, fragment: 'one', query: 'agent');
