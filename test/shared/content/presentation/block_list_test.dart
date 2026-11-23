@@ -383,4 +383,29 @@ void main() {
       await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
     }, variant: bazaarPlatforms);
   }
+
+  // Review 8, finding 16: two headings with one id drew one GlobalKey twice, which Flutter refuses.
+  testWidgets('two headings with one id are both drawn; the first is the one scrolled to', (tester) async {
+    final harness = await pumpBlocks(tester, const [
+      HeadingBlock(
+        depth: 2,
+        id: 'same',
+        mark: null,
+        inlines: [TextInline(text: 'First')],
+      ),
+      ParagraphBlock(inlines: [TextInline(text: 'Between.')], lead: false),
+      HeadingBlock(
+        depth: 2,
+        id: 'same',
+        mark: null,
+        inlines: [TextInline(text: 'Second')],
+      ),
+    ]);
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('First'), findsOneWidget);
+    expect(find.text('Second'), findsOneWidget);
+    final keyed = harness.keys['same']!.currentContext!;
+    expect(find.descendant(of: find.byWidget(keyed.widget), matching: find.text('First')), findsOneWidget);
+  });
 }
