@@ -296,6 +296,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
           return;
         }
       }
+    } on Object catch (error, stackTrace) {
+      // A curve that could not be drawn (an isolate refused) leaves the last one shown; it was an error no one caught
+      // at every feed (review 6, finding 14).
+      if (!isClosed) addError(error, stackTrace);
     } finally {
       _drawing = false;
     }

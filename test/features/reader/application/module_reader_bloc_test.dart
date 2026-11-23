@@ -151,6 +151,16 @@ void main() {
     expect: () => [const ReaderFailed(code: ContentErrorCode.missing)],
   );
 
+  // Review 6, finding 14: an error that is no content error left the page loading for good.
+  blocTest<ModuleReaderBloc, ReaderState>(
+    'any other error fails too, and is kept as the bloc\'s error',
+    build: build,
+    setUp: () => when(() => repository.readModuleDoc(_firstEnglish)).thenThrow(StateError('a fault of the app')),
+    act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers)),
+    expect: () => [const ReaderFailed(code: ContentErrorCode.corrupt)],
+    errors: () => [isA<StateError>()],
+  );
+
   group('Try again', () {
     var reads = 0;
 
@@ -207,15 +217,6 @@ void main() {
             .thenThrow(const ContentFormatException(_firstEnglish, 'title')),
     act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers)),
     expect: () => [const ReaderFailed(code: ContentErrorCode.format)],
-  );
-
-  blocTest<ModuleReaderBloc, ReaderState>(
-    'any other error is not a state of the content',
-    build: build,
-    setUp: () => when(() => repository.readModuleDoc(_firstEnglish)).thenThrow(StateError('fault')),
-    act: (bloc) => bloc.add(const ReaderOpened(key: 'alpha/first', track: Track.engineers)),
-    expect: () => <ReaderState>[],
-    errors: () => [isA<StateError>()],
   );
 
   blocTest<ModuleReaderBloc, ReaderState>(

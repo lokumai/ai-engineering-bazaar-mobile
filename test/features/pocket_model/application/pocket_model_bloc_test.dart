@@ -562,6 +562,42 @@ void main() {
       });
     });
 
+    // Review 6, finding 14: a curve that could not be drawn was an error no one caught, at every feed.
+    test('a curve that cannot be drawn leaves the last one, and the next feed draws again', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          var fail = false;
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) async {
+              if (fail) throw StateError('no isolate');
+              return [(tokens: tokens, loss: 9)];
+            },
+          )..add(const PocketModelStarted());
+          final errors = <Object>[];
+          final subscription = bloc.stream.listen(null, onError: errors.add);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+
+          fail = true;
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)], reason: 'the last curve stays');
+
+          fail = false;
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 2 * PocketModel.feedTokens, loss: 9.0)]);
+
+          subscription.cancel();
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
     test('started in a language, its curve is drawn in it', () {
       run(MemoryPocketModelStore(const PocketModel(tokens: 400)), (async, bloc) {
         expect(ready(bloc).curve.last.loss, TinyLm.trained('en', 400).loss());

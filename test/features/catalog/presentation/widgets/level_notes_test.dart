@@ -166,12 +166,14 @@ void main() {
     });
   }
 
-  testWidgets('any other error is rethrown', (tester) async {
+  // Review 6, finding 14: it was thrown from build, an error box where the notes stand.
+  testWidgets('any other error is reported, and the notes say they cannot be read', (tester) async {
     when(() => repository.readLevelDoc(_readme)).thenAnswer((_) async => throw StateError('disk'));
 
     await _pumpNotes(tester, repository);
 
     expect(tester.takeException(), isA<StateError>());
+    expect(find.byType(ContentUnreadable), findsOneWidget);
   });
 
   testWidgets('the heading shows while the document is read', (tester) async {

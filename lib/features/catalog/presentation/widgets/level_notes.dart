@@ -49,12 +49,6 @@ final class _Unreadable extends _Read {
   const _Unreadable();
 }
 
-final class _Failed extends _Read {
-  const _Failed(this.error, this.stackTrace);
-  final Object error;
-  final StackTrace stackTrace;
-}
-
 /// Kept alive at the foot of a level's lazy list: scrolled away and back, notes built again would read the document
 /// again and stand empty meanwhile, so the page's foot would move (plan 12.3).
 class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMixin {
@@ -90,13 +84,21 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
     // Future.sync: an error thrown before the read returns a future lands in the same branch as a failed read.
     Future.sync(() => repository.readLevelDoc(path)).then(
       (doc) => _settle(path, _Arrived(doc)),
+      // Any error says the notes cannot be read; one that is no content error, a fault of the app's own, is reported
+      // as well, rather than thrown from build (review 6, finding 14).
       onError: (Object error, StackTrace stackTrace) => _settle(
         path,
         error is ContentMissingException || error is ContentCorruptException || error is ContentFormatException
             ? const _Unreadable()
-            : _Failed(error, stackTrace),
+            : _reported(error, stackTrace),
       ),
     );
+  }
+
+  /// Reports [error] as the app's own fault, and says the notes cannot be read.
+  static _Read _reported(Object error, StackTrace stackTrace) {
+    FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stackTrace, library: 'level notes'));
+    return const _Unreadable();
   }
 
   void _settle(String path, _Read read) {
@@ -132,7 +134,6 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
         ),
       ),
       _Unreadable() => const ContentUnreadable(),
-      _Failed(:final error, :final stackTrace) => Error.throwWithStackTrace(error, stackTrace),
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

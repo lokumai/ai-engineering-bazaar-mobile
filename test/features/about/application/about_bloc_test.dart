@@ -50,6 +50,8 @@ void main() {
     const ContentMissingException(_path),
     const ContentCorruptException(_path),
     const ContentFormatException(_path, 'stalls'),
+    // Review 6, finding 14: anything else left the story loading for good.
+    StateError('a fault of the app'),
   ]) {
     blocTest<AboutBloc, AboutState>(
       'fails when the document cannot be read: ${error.runtimeType}',
@@ -62,6 +64,7 @@ void main() {
       },
       act: (bloc) => bloc.add(const AboutOpened(language: 'en')),
       expect: () => [const AboutFailed()],
+      errors: () => [if (error is StateError) isA<StateError>()],
     );
   }
 }
