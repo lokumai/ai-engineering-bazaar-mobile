@@ -102,6 +102,26 @@ final class _PocketModelRecovered extends PocketModelEvent {
 /// What the model last did, for the card to show once: [PocketModelReady.beat] counts each.
 enum PocketAction { none, woke, fed, levelUp, overfit, refused, recovered, spoke, petted, studied, unreadable }
 
+/// Its training curve, drawn away from the screen's thread for [model] in [language] (review 5, finding 3).
+final class _PocketCurveDrawn extends PocketModelEvent {
+  const _PocketCurveDrawn(this.model, this.language, this.curve);
+
+  final PocketModel model;
+  final String language;
+  final List<LossPoint> curve;
+
+  @override
+  List<Object?> get props => [model, language, curve];
+}
+
+/// Draws the training curve of a model in a language that has read so many tokens and, at their places, these
+/// modules' sentences ([TinyLm.curve]). The app draws it in another isolate; by default it is drawn here.
+typedef CurveDrawer = Future<List<LossPoint>> Function(
+  String language,
+  int tokens,
+  List<(int, List<List<String>>)> readings,
+);
+
 sealed class PocketModelState extends Equatable {
   const PocketModelState();
 }
@@ -189,8 +209,9 @@ final class PocketModelReady extends PocketModelState {
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
 /// Events run one at a time, so fast taps are counted in order and each is kept.
 final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
-  PocketModelBloc({required this._store, this._texts, math.Random? random})
+  PocketModelBloc({required this._store, this._texts, math.Random? random, CurveDrawer? drawCurve})
     : _random = random ?? math.Random(),
+      _drawCurve = drawCurve ?? _drawHere,
       super(const PocketModelLoading()) {
     on<PocketModelEvent>(_on, transformer: EventTransformers.queue());
   }
@@ -199,6 +220,18 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
 
   /// Where it reads the course's modules; none in a test that gives it none.
   final IPocketTexts? _texts;
+
+  final CurveDrawer _drawCurve;
+
+  static Future<List<LossPoint>> _drawHere(
+    String language,
+    int tokens,
+    List<(int, List<List<String>>)> readings,
+  ) async => TinyLm.curve(language, tokens, readings: readings);
+
+  /// Each curve asked for; one is drawn at a time, and the latest asked for is the one kept.
+  int _curveAsked = 0;
+  bool _drawing = false;
   final math.Random _random;
   Timer? _rest;
 
@@ -224,28 +257,49 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   }
 
   /// The language model of [model] in [language]: its text read to the count, and each module it read that can still
-  /// be read; and its training curve.
-  Future<(TinyLm, List<LossPoint>)> _build(PocketModel model, String language) async {
+  /// be read.
+  Future<TinyLm> _build(PocketModel model, String language) async {
     final lm = TinyLm.trained(language, model.tokens)..level = model.level;
-    final readings = <(int, List<List<String>>)>[];
     for (final reading in model.readings) {
       final text = await _load(reading.key, language);
       if (text == null) continue;
       lm.read(text.sentences, topic: reading.key, sections: text.sections);
-      readings.add((reading.at, text.sentences));
     }
-    return (lm, TinyLm.curve(language, model.tokens, readings: readings));
+    return lm;
   }
 
-  /// The curve of [model] in [language], from the modules' sentences already read.
-  List<LossPoint> _curveOf(PocketModel model, String language) => TinyLm.curve(
-    language,
-    model.tokens,
-    readings: [
-      for (final reading in model.readings)
-        if (_read[(language, reading.key)] case final text?) (reading.at, text.sentences),
-    ],
-  );
+  /// Draws the curve of the model as it now stands, after the state that shows it was emitted. Each feed rebuilt the
+  /// whole curve on the screen's thread, a stutter that grew with every module read (review 5, finding 3): it is now
+  /// drawn by [_drawCurve], one at a time, and only the latest is kept.
+  void _redraw() {
+    _curveAsked++;
+    if (!_drawing) unawaited(_drawLatest());
+  }
+
+  Future<void> _drawLatest() async {
+    _drawing = true;
+    try {
+      while (!isClosed) {
+        final asked = _curveAsked;
+        final ready = state;
+        final lm = _lm;
+        if (ready is! PocketModelReady || lm == null) return;
+        final model = ready.model;
+        final language = lm.language;
+        final curve = await _drawCurve(language, model.tokens, [
+          for (final reading in model.readings)
+            if (_read[(language, reading.key)] case final text?) (reading.at, text.sentences),
+        ]);
+        if (isClosed) return;
+        if (asked == _curveAsked) {
+          add(_PocketCurveDrawn(model, language, curve));
+          return;
+        }
+      }
+    } finally {
+      _drawing = false;
+    }
+  }
 
   Future<void> _on(PocketModelEvent event, Emitter<PocketModelState> emit) async {
     final now = clock.now();
@@ -253,31 +307,35 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       case PocketModelStarted(:final language):
         final model = await _store.load() ?? PocketModel.fresh;
         final temperature = await _store.loadTemperature();
-        final (lm, curve) = await _build(model, language);
-        _lm = lm;
+        final lm = _lm = await _build(model, language);
         final awake = model.moodAt(now) != PocketMood.asleep;
         if (awake) _wokeAt = now;
         emit(
           PocketModelReady(
             model: model,
-            curve: curve,
             known: lm.known,
             awake: awake,
             temperature: temperature ?? PocketModelReady.defaultTemperature,
           ),
         );
+        _redraw();
         return;
       case _ when state is! PocketModelReady:
         return;
       default:
     }
     final ready = state as PocketModelReady;
+    if (event case _PocketCurveDrawn(:final model, :final language, :final curve)) {
+      // A curve for the model as it still stands; one overtaken by a feed or a new language waits for its own.
+      if (model == ready.model && language == _lm?.language) emit(ready.copyWith(curve: curve));
+      return;
+    }
     if (event case PocketModelLanguageSet(:final language)) {
       if (_lm?.language == language) return;
-      final (lm, curve) = await _build(ready.model, language);
-      _lm = lm;
+      final lm = _lm = await _build(ready.model, language);
       _recent.clear();
-      emit(ready.copyWith(curve: curve, known: lm.known, read: const [], clearSpeech: true));
+      emit(ready.copyWith(known: lm.known, read: const [], clearSpeech: true));
+      _redraw();
       return;
     }
     if (event is PocketModelReset) {
@@ -338,7 +396,6 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         emit(
           ready.copyWith(
             model: model,
-            curve: model.tokens == ready.model.tokens ? null : _curveOf(model, lm.language),
             known: lm.known,
             read: read,
             action: action,
@@ -346,6 +403,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             clearSpeech: !overfit,
           ),
         );
+        if (model.tokens != ready.model.tokens) _redraw();
       case PocketModelAsked():
         emit(
           ready.copyWith(
@@ -379,7 +437,6 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         emit(
           ready.copyWith(
             model: model,
-            curve: _curveOf(model, lm.language),
             known: lm.known,
             read: sentences.first,
             action: model.level > ready.model.level ? PocketAction.levelUp : PocketAction.studied,
@@ -388,6 +445,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             clearSpeech: !signed,
           ),
         );
+        _redraw();
       case PocketModelPetted():
         emit(ready.copyWith(action: PocketAction.petted));
       case PocketModelHushed():
@@ -408,7 +466,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final model = ready.model.rested();
         await _store.save(model);
         emit(ready.copyWith(model: model, action: PocketAction.recovered, clearSpeech: true));
-      case PocketModelStarted() || PocketModelLanguageSet() || PocketModelReset():
+      case PocketModelStarted() || PocketModelLanguageSet() || PocketModelReset() || _PocketCurveDrawn():
     }
   }
 

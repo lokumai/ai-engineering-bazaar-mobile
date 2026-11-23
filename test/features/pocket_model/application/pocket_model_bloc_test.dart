@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
@@ -501,6 +502,68 @@ void main() {
         expect(signatureIn(language), containsAllInOrder(['Arda', 'Cengaver']), reason: language);
       }
       expect(signatureIn('de'), signatureIn('en'));
+    });
+  });
+
+  // Review 5, finding 3: each feed rebuilt the whole training curve on the screen's thread, a stutter that grew with
+  // every module read. It is drawn elsewhere now; the feed shows at once and the curve follows.
+  group('its curve is drawn away from the feed', () {
+    test('a feed shows at once; the curve drawn for it follows, and only the latest drawn is kept', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          final asked = <(int, Completer<List<LossPoint>>)>[];
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) {
+              final drawn = Completer<List<LossPoint>>();
+              asked.add((tokens, drawn));
+              return drawn.future;
+            },
+          )..add(const PocketModelStarted());
+          async.flushMicrotasks();
+          expect(asked.map((ask) => ask.$1), [0]);
+          asked.single.$2.complete([(tokens: 0, loss: 9)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+
+          bloc
+            ..add(const PocketModelFed())
+            ..add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).model.tokens, 2 * PocketModel.feedTokens, reason: 'the feeds wait for no curve');
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)], reason: 'the old curve until the new is drawn');
+          expect(asked.map((ask) => ask.$1), [0, PocketModel.feedTokens], reason: 'one drawn at a time');
+
+          // The first feed's curve comes after the second feed: it is not kept, and the latest is drawn.
+          asked[1].$2.complete([(tokens: PocketModel.feedTokens, loss: 8)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+          expect(asked.map((ask) => ask.$1), [0, PocketModel.feedTokens, 2 * PocketModel.feedTokens]);
+          asked[2].$2.complete([(tokens: 2 * PocketModel.feedTokens, loss: 7)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 2 * PocketModel.feedTokens, loss: 7.0)]);
+          expect(ready(bloc).action, PocketAction.fed, reason: 'a curve drawn plays no action again');
+
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
+    test('started in a language, its curve is drawn in it', () {
+      run(MemoryPocketModelStore(const PocketModel(tokens: 400)), (async, bloc) {
+        expect(ready(bloc).curve.last.loss, TinyLm.trained('en', 400).loss());
+      });
+      fakeAsync((async) {
+        final bloc = PocketModelBloc(store: MemoryPocketModelStore(const PocketModel(tokens: 400)), texts: texts)
+          ..add(const PocketModelStarted(language: 'tr'));
+        async.flushMicrotasks();
+        expect(ready(bloc).curve.last.loss, TinyLm.trained('tr', 400).loss());
+        bloc.close();
+        async.flushMicrotasks();
+      });
     });
   });
 }
