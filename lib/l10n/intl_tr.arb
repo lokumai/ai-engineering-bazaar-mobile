@@ -165,6 +165,7 @@
   "data_backup_not_written": "Yedek dosyası yazılamadı. Hiçbir şey yedeklendi olarak işaretlenmedi.",
   "data_restored": "Dosyadan geri yüklendi.",
   "data_restore_not_done": "Dosya geri yüklenmedi, çünkü bir sıfırlama sürüyordu. Yeniden dene.",
+  "data_restore_not_saved": "Dosya gösteriliyor ama bu cihaz kaydedemedi; uygulama kapanınca gider. Biraz yer açıp yeniden geri yükle.",
   "data_restore_empty": "Hiçbir şey değişmedi. Bu dosyada ilerleme yok; ilerleme yalnızca yedek dosyasında bulunur.",
   "data_restore_newer": "Bu dosya, uygulamanın ya da web sitesinin daha yeni bir sürümüyle yazılmış. Uygulamayı güncelle, sonra dosyayı yeniden geri yükle.",
   "data_restore_malformed": "Bu dosya, uygulamanın ya da web sitesinin yazdığı bir yedek değil. Hiçbir şey değişmedi.",

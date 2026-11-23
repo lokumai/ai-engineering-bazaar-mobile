@@ -1056,6 +1056,16 @@ class S {
     );
   }
 
+  /// `The file is shown, but this device could not save it, so it is gone when the app closes. Free some space and restore it again.`
+  String get data_restore_not_saved {
+    return Intl.message(
+      'The file is shown, but this device could not save it, so it is gone when the app closes. Free some space and restore it again.',
+      name: 'data_restore_not_saved',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Nothing was changed. That file holds no progress; only a backup file does.`
   String get data_restore_empty {
     return Intl.message(

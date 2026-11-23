@@ -85,6 +85,7 @@ void main() {
   late RecordState recordState;
   late bool eraseSucceeds;
   late bool replaceSucceeds;
+  late WriteState replaceWrite;
   late bool backupFails;
 
   setUp(() {
@@ -94,6 +95,7 @@ void main() {
     recordState = _ready();
     eraseSucceeds = true;
     replaceSucceeds = true;
+    replaceWrite = const WriteSaved();
     backupFails = false;
     when(() => recordBloc.state).thenAnswer((_) => recordState);
     when(() => recordBloc.add(any())).thenAnswer((invocation) {
@@ -119,7 +121,17 @@ void main() {
           if (open) recordState = _ready();
           reply?.complete(open);
         // A replacement is answered as the record's own is: done unless an erase waits in the queue.
-        case RecordReplaced(:final reply):
+        case RecordReplaced(:final data, :final reply):
+          if (replaceSucceeds) {
+            recordState = RecordReady(
+              record: data,
+              writeState: replaceWrite,
+              quarantine: null,
+              quarantineKept: false,
+              launchReadFailed: false,
+              undo: null,
+            );
+          }
           reply?.complete(replaceSucceeds);
         default:
       }
@@ -248,6 +260,21 @@ void main() {
         );
         final replaced = added().whereType<RecordReplaced>().single;
         expect(replaced.data.signedOff('alpha/first', Track.engineers), _nowIso);
+        await bloc.close();
+      });
+    });
+
+    // Review 6, finding 3: a restore said restored on a device that could not save it.
+    test('a file the device could not save is not called restored', () async {
+      await onClock(() async {
+        replaceWrite = const WriteQuota();
+        final bloc = build();
+        when(() => gateway.pickJson()).thenAnswer((_) async => _picked(_restorable));
+        bloc.add(const RestoreRequested());
+        await expectLater(
+          bloc.stream,
+          emitsInOrder([const DataState(busy: DataBusy.restoring), const DataState(restore: RestoreOutcome.notSaved)]),
+        );
         await bloc.close();
       });
     });

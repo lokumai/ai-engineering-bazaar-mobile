@@ -289,6 +289,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_not_done": MessageLookupByLibrary.simpleMessage(
       "فایل بازیابی نشد، چون بازنشانی در جریان بود. دوباره تلاش کنید.",
     ),
+    "data_restore_not_saved": MessageLookupByLibrary.simpleMessage(
+      "فایل نمایش داده می‌شود، اما این دستگاه نتوانست آن را ذخیره کند و با بستن برنامه از بین می‌رود. کمی فضا آزاد کنید و دوباره بازیابی کنید.",
+    ),
     "data_restore_too_large": MessageLookupByLibrary.simpleMessage(
       "این پشتیبان بزرگ‌تر از آن است که برنامه بتواند نگه دارد. چیزی تغییر نکرد.",
     ),
