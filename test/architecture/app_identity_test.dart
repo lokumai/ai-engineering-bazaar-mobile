@@ -32,7 +32,7 @@ void main() {
       expect(gradle, contains('signingConfigs.getByName("release")'));
       // Review 6, finding 20: without the file a release stops instead of going out with the debug key.
       expect(gradle, contains('gradle.taskGraph.whenReady'));
-      expect(gradle, contains('it.name == "bundleRelease"'));
+      expect(gradle, contains(r'it.path == "${project.path}:bundleRelease"'));
       expect(gradle, contains('throw GradleException('));
       expect(gradle, isNot(contains('logger.warn("android/key.properties is missing')));
 

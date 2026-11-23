@@ -89,7 +89,7 @@ android {
 // It stops here instead, on every machine but CI, which builds one only to check that it builds. A release APK, which
 // `flutter run --release` installs, still builds with the debug key (review 7, finding 17).
 gradle.taskGraph.whenReady {
-    val releasing = allTasks.any { it.project == project && it.name == "bundleRelease" }
+    val releasing = allTasks.any { it.path == "${project.path}:bundleRelease" }
     if (releasing && !keyPropertiesFile.exists() && System.getenv("CI") != "true") {
         throw GradleException(
             "android/key.properties is missing, so this bundle would be signed with the debug key. " +
