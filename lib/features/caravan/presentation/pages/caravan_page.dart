@@ -214,11 +214,7 @@ class _CaravanPageState extends State<CaravanPage> {
                             touring ? _cubit.rest() : _cubit.tour(count: count);
                           },
                           icon: Icon(touring ? Icons.pause : Icons.play_arrow),
-                          label: Text(
-                            touring ? s.caravan_tour_stop : s.caravan_tour,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          label: Text(touring ? s.caravan_tour_stop : s.caravan_tour),
                         ),
                       ),
                       Expanded(
@@ -229,7 +225,7 @@ class _CaravanPageState extends State<CaravanPage> {
                             if (chosen != null) _select(chosen, count);
                           },
                           icon: const Icon(Icons.format_list_bulleted),
-                          label: Text(s.caravan_all_trends, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          label: Text(s.caravan_all_trends),
                         ),
                       ),
                     ],

@@ -358,6 +358,19 @@ void main() {
     await _rest(tester);
   });
 
+  // Review 8, finding 15: the lede and the buttons' names were held to one line, cut from about 1.5 times the text.
+  testWidgets('at twice the text in Turkish, no name or line of the card is cut', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, locale: const Locale('tr'));
+
+    for (final key in ['pocket-feed', 'pocket-ask']) {
+      expect(cutTexts(tester, find.byKey(ValueKey(key))), isEmpty, reason: key);
+    }
+    expect(cutTexts(tester, find.byType(PocketModelCard)), isEmpty);
+    await _rest(tester);
+  });
+
   testWidgets('hot, it hallucinates and says so', (tester) async {
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 2000, lastFed: clock.now())));
     await tester.drag(find.byKey(const ValueKey('pocket-temperature')), const Offset(400, 0));

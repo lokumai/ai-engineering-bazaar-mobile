@@ -55,6 +55,17 @@ ShadowStagePainter _painter(WidgetTester tester) =>
         as ShadowStagePainter;
 
 void main() {
+  // Review 8, finding 15: the two buttons' names were held to one line, cut from about 1.5 times the text.
+  testWidgets('at twice the text in Turkish, the buttons say their whole names', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, locale: const Locale('tr'));
+
+    for (final key in ['caravan-tour', 'caravan-all']) {
+      expect(cutTexts(tester, find.byKey(ValueKey(key))), isEmpty, reason: key);
+    }
+  });
+
   testWidgets('opens on the first stop: the stage, the strip and the first trend, with no word of anything to come', (
     tester,
   ) async {

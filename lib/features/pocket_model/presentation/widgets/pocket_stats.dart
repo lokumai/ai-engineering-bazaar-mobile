@@ -27,18 +27,22 @@ class PocketStats extends StatelessWidget {
       children: [
         SectionRule(title: s.pocket_stats_title),
         const SizedBox(height: AppSpacing.md),
-        Row(
-          spacing: AppSpacing.sm,
-          children: [
-            for (final (count, label) in [
-              (model.readings.length, s.pocket_stat_modules),
-              (known, s.pocket_stat_words),
-              (model.total, s.pocket_stat_tokens),
-            ])
-              Expanded(
-                child: _Stat(value: number.format(count), label: label),
-              ),
-          ],
+        // The three as high as the tallest, whose word may take more lines at a large text size (review 8).
+        IntrinsicHeight(
+          child: Row(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (count, label) in [
+                (model.readings.length, s.pocket_stat_modules),
+                (known, s.pocket_stat_words),
+                (model.total, s.pocket_stat_tokens),
+              ])
+                Expanded(
+                  child: _Stat(value: number.format(count), label: label),
+                ),
+            ],
+          ),
         ),
       ],
     );
@@ -80,7 +84,6 @@ class _Stat extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 2,
                 // Muted text on the sunken ground is 4.2:1 in the light look, under 4.5 (review 7, finding 10).
                 style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
               ),

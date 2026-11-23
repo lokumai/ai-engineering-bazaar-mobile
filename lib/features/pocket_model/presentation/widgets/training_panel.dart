@@ -68,26 +68,31 @@ class _LevelRing extends StatelessWidget {
           painter: _RingPainter(progress: value, colour: colors.primary, track: colors.line),
           child: child,
         ),
-        child: Center(
-          child: AnimatedSwitcher(
-            duration: reduced ? Duration.zero : const Duration(milliseconds: 420),
-            transitionBuilder: (child, animation) => ScaleTransition(
-              scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
-              child: child,
-            ),
-            child: Column(
-              key: ValueKey(level),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '$level',
-                  style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.primary, height: 1),
-                ),
-                Text(
-                  S.of(context).pocket_level_word,
-                  style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted, height: 1.1),
-                ),
-              ],
+        // Inside the ring: at a large text size the number and its word shrink to fit it rather than run out of it
+        // (review 8).
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: FittedBox(
+            child: AnimatedSwitcher(
+              duration: reduced ? Duration.zero : const Duration(milliseconds: 420),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+                child: child,
+              ),
+              child: Column(
+                key: ValueKey(level),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$level',
+                    style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.primary, height: 1),
+                  ),
+                  Text(
+                    S.of(context).pocket_level_word,
+                    style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted, height: 1.1),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -184,8 +189,6 @@ class LossChart extends StatelessWidget {
                   Expanded(
                     child: Text(
                       s.pocket_loss_title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                     ),
                   ),
@@ -225,7 +228,6 @@ class LossChart extends StatelessWidget {
                           child: Text(
                             s.pocket_loss_empty,
                             textAlign: TextAlign.center,
-                            maxLines: 2,
                             style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                           ),
                         ),

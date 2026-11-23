@@ -576,12 +576,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
           children: [
             SectionRule(title: s.pocket_title),
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              s.pocket_lede,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
-            ),
+            Text(s.pocket_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
             const SizedBox(height: AppSpacing.md),
             if (ready == null)
               const SizedBox(height: 380)
@@ -706,7 +701,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                       key: const ValueKey('pocket-feed'),
                       onPressed: () => bloc.add(const PocketModelFed()),
                       icon: const Icon(Icons.scatter_plot_outlined),
-                      label: Text(s.pocket_feed, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      label: Text(s.pocket_feed),
                     ),
                   ),
                   Expanded(
@@ -714,7 +709,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                       key: const ValueKey('pocket-ask'),
                       onPressed: () => bloc.add(const PocketModelAsked()),
                       icon: const Icon(Icons.chat_bubble_outline),
-                      label: Text(s.pocket_ask, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      label: Text(s.pocket_ask),
                     ),
                   ),
                 ],
@@ -724,8 +719,13 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
-                  Text(s.pocket_temperature, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
-                  const Spacer(),
+                  // Expanded, so at a large text size the name wraps rather than push the value off the card.
+                  Expanded(
+                    child: Text(
+                      s.pocket_temperature,
+                      style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
+                    ),
+                  ),
                   // The bead's colour in a dot beside the value, which is set in the text's colour to be read.
                   DecoratedBox(
                     decoration: BoxDecoration(color: beadColour(state.temperature), shape: BoxShape.circle),
@@ -850,7 +850,7 @@ class _ReadModule extends StatelessWidget {
           onPressed: () =>
               context.read<PocketModelBloc>().add(PocketModelModuleRead(waiting.first, others: waiting.sublist(1))),
           icon: const Icon(Icons.auto_stories_outlined),
-          label: Text(s.pocket_read_module, maxLines: 1, overflow: TextOverflow.ellipsis),
+          label: Text(s.pocket_read_module),
         ),
         const SizedBox(height: 4),
         Text(
