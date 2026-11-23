@@ -3266,6 +3266,16 @@ class S {
     );
   }
 
+  /// `Opening the scanner. The first time, this can take a minute.`
+  String get website_scan_opening {
+    return Intl.message(
+      'Opening the scanner. The first time, this can take a minute.',
+      name: 'website_scan_opening',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `From this device to the website`
   String get website_to_title {
     return Intl.message('From this device to the website', name: 'website_to_title', desc: '', args: []);

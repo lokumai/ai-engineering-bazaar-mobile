@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/website_section.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
@@ -54,6 +56,19 @@ final class _Scanner implements ICodeScanner {
     titles.add(title);
     return outcome;
   }
+}
+
+/// A scanner whose scan answers when [answer] completes.
+final class _Waiting implements ICodeScanner {
+  _Waiting(this.answer);
+
+  final Completer<ScanOutcome> answer;
+
+  @override
+  Future<bool> available() async => true;
+
+  @override
+  Future<ScanOutcome> scan(String title) => answer.future;
 }
 
 final _completed = signOff(RecordData.empty, 'alpha/first', 'a1b2c3d', '2026-11-02T09:15:30.123Z');
@@ -188,6 +203,20 @@ void main() {
         expect(find.textContaining('transfer '), findsNothing);
       });
     }
+
+    // Review 3, finding 8: Play services may fetch Google's scanner first, a wait with the button off and no word.
+    testWidgets('while the scanner opens it says so, and the line goes once the scan ends', (tester) async {
+      final answer = Completer<ScanOutcome>();
+      await _pump(tester, scanner: _Waiting(answer));
+
+      await tester.tap(find.byKey(const ValueKey('settings-scan-code')));
+      await tester.pump();
+      expect(find.text('Opening the scanner. The first time, this can take a minute.'), findsOneWidget);
+
+      answer.complete(const ScanCancelled());
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Opening the scanner'), findsNothing);
+    });
 
     testWidgets('going back from the camera says nothing', (tester) async {
       await _pump(tester, scanner: _Scanner(const ScanCancelled()));

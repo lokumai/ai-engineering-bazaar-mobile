@@ -764,6 +764,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
       "That code is not a progress link from the website.",
     ),
+    "website_scan_opening": MessageLookupByLibrary.simpleMessage(
+      "Opening the scanner. The first time, this can take a minute.",
+    ),
     "website_scan_title": MessageLookupByLibrary.simpleMessage("Scan the website\'s code"),
     "website_to_text": MessageLookupByLibrary.simpleMessage(
       "Send your progress as a link, then open the link on the computer.",

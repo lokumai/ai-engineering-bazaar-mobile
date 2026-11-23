@@ -1587,6 +1587,8 @@
   "@website_scan_denied": {},
   "website_scan_failed": "The camera did not open. Scan the code with the Camera app instead.",
   "@website_scan_failed": {},
+  "website_scan_opening": "Opening the scanner. The first time, this can take a minute.",
+  "@website_scan_opening": {},
   "website_to_title": "From this device to the website",
   "@website_to_title": {},
   "website_to_text": "Send your progress as a link, then open the link on the computer.",

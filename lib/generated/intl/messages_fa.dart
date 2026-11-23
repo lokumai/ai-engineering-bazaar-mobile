@@ -766,6 +766,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "website_scan_failed": MessageLookupByLibrary.simpleMessage("دوربین باز نشد. کد را با برنامهٔ دوربین اسکن کنید."),
     "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage("این کد پیوند پیشرفتی از وب‌سایت نیست."),
+    "website_scan_opening": MessageLookupByLibrary.simpleMessage(
+      "اسکنر در حال باز شدن است. بار اول ممکن است تا یک دقیقه طول بکشد.",
+    ),
     "website_scan_title": MessageLookupByLibrary.simpleMessage("کد وب‌سایت را اسکن کنید"),
     "website_to_text": MessageLookupByLibrary.simpleMessage(
       "پیشرفت خود را به‌صورت یک پیوند بفرستید و سپس آن را روی رایانه باز کنید.",
