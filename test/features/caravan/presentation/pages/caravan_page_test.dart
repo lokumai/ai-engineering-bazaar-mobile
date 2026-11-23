@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/caravan/domain/sample_trends.dart';
@@ -139,6 +141,19 @@ void main() {
     await tester.pump();
 
     router.go('/');
+    await tester.pumpAndSettle();
+    expect(cubit.state, const CaravanResting(1));
+  });
+
+  // Review 7, finding 15: a module opened from a trend card left the tour walking, and ticking, under it.
+  testWidgets('a page opened over the Caravan ends a tour where the caravan is', (tester) async {
+    final cubit = _cubit();
+    final router = await _pump(tester, caravan: cubit);
+    cubit.tour(count: 22);
+    await tester.pump();
+    expect(cubit.state, const CaravanTouring(1));
+
+    unawaited(router.push('/settings'));
     await tester.pumpAndSettle();
     expect(cubit.state, const CaravanResting(1));
   });

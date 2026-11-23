@@ -60,6 +60,9 @@ class _CaravanPageState extends State<CaravanPage> {
     super.didChangeDependencies();
     _cubit = context.read<CaravanCubit>();
     _lastSelected ??= _cubit.state.selected;
+    // A page opened over this one, a module from a trend card, or another tab: the tour ends where the caravan is,
+    // and does not walk on and tick under it (review 7, finding 15).
+    if (!TickerMode.valuesOf(context).enabled) _cubit.rest();
   }
 
   CaravanRoad? _road;
