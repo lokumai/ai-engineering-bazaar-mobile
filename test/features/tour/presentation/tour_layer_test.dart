@@ -226,6 +226,50 @@ void main() {
     });
   }
 
+  // Review 8, finding 7: at the largest text the bubble ran below the screen with Skip and Next, and the scrim took
+  // every other touch.
+  for (final scale in [2.0, 3.0]) {
+    for (final (page, at) in [('home', '/'), ('catalog', '/sheets'), ('settings', '/settings')]) {
+      testWidgets('at text scale $scale, Skip and Next stay on the screen at every place of $page', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await _pump(
+          tester,
+          record: TourRecord(guiding: true, seen: {if (page != 'home') 'home'}),
+          at: at,
+          locale: const Locale('tr'),
+        );
+
+        final screen = Offset.zero & const Size(393, 852);
+        var places = 0;
+        while (_scrim.evaluate().isNotEmpty) {
+          for (final button in [_skip, _next]) {
+            final rect = tester.getRect(button);
+            expect(
+              screen.contains(rect.topLeft) && screen.contains(rect.bottomRight - const Offset(1, 1)),
+              isTrue,
+              reason: 'place ${places + 1}: $button at $rect',
+            );
+          }
+          places++;
+          await _tap(tester, _next);
+        }
+        expect(places, greaterThan(0));
+      });
+    }
+  }
+
+  testWidgets("Android's Back while the tour points is Skip, and Back then goes on to the pages", (tester) async {
+    final (_, store) = await _pump(tester, record: const TourRecord(asking: true));
+    await _tap(tester, find.byKey(const ValueKey('tour-accept')));
+    expect(_scrim, findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(_scrim, findsNothing);
+    expect(store.kept?.guiding, isFalse);
+  });
+
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
     final (_, store) = await _pump(tester, record: const TourRecord(guiding: true, seen: {'home'}));
     expect(_scrim, findsNothing, reason: 'Home was shown');
