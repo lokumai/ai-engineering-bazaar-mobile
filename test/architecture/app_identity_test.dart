@@ -109,6 +109,17 @@ void main() {
       ]);
     });
 
+    // Review 7, finding 3: the file picker links PhotosUI, and App Store Connect refuses a binary that names the photo
+    // library with no purpose string (ITMS-90683), though the app picks only a backup file.
+    test('the photo library has a purpose string, which says the app does not open the photos', () {
+      final plist = File('ios/Runner/Info.plist').readAsStringSync();
+      expect(
+        RegExp(r'<key>NSPhotoLibraryUsageDescription</key>\s*<string>The app does not open your photos\.')
+            .hasMatch(plist),
+        isTrue,
+      );
+    });
+
     // iOS shows CFBundleDisplayName under the icon, so it carries the launcher label; CFBundleName stays the short one.
     test('CFBundleDisplayName is AI Bazaar and CFBundleName is Bazaar', () {
       final plist = File('ios/Runner/Info.plist').readAsStringSync();
@@ -123,6 +134,7 @@ void main() {
       for (final language in ['tr', 'fa']) {
         final strings = File('ios/Runner/$language.lproj/InfoPlist.strings').readAsStringSync();
         expect(RegExp(r'^"NSCameraUsageDescription" = "[^"]+";$', multiLine: true).hasMatch(strings), isTrue);
+        expect(RegExp(r'^"NSPhotoLibraryUsageDescription" = "[^"]+";$', multiLine: true).hasMatch(strings), isTrue);
         expect(project, contains('path = $language.lproj/InfoPlist.strings;'));
         expect(RegExp('knownRegions = \\([^)]*\\b$language,').hasMatch(project), isTrue, reason: language);
       }
