@@ -202,3 +202,17 @@ The first release on the App Store and Google Play.
 - Capitals follow the language: Turkish "Sıradaki" is "SIRADAKİ", not "SIRADAKI".
 - The two GitHub links on Privacy and legal are in Turkish and Persian; Turkish reads "%40 okundu" and "Güncellemeleri kontrol et" everywhere.
 - In Persian a quiz verdict's coloured edge is on the right, where its line starts.
+- With large text the tour's bubble stays on the screen, and Back skips the tour; the corner's Chat button keeps to a third of the width; no button, label or count in the Apprentice's card, the corner or the Caravan is cut off.
+- A quiz's or Practice's step dots wrap onto a second line when there are many, and a wrong step is a square as well as red.
+- A module the course does not have, named by a link in a callout, shows no button that does nothing.
+- The reset's countdown is read once by a screen reader, not at every second.
+- A Persian search hit reads right to left in an English catalog, and the find bar's "2 / 7" and Listen's line read left to right in Persian, as its controls do.
+- A course that could not be read from the phone's storage offers Try again.
+- Home's daily card and Practice turn to the new day when the app comes back from the background.
+- A copy that fails, a diagram that cannot be drawn full screen, a broken reading place or a heading named twice no longer throws; a diagram that cannot be read says so to a screen reader too.
+- The search field takes at most 100 characters, and keeps its text and its keyboard when new content arrives while the reader types.
+- On iOS the scanner's Cancel is in the app's language.
+- A checklist box the reader ticks has the full 48 px to tap.
+- The glossary sorts by the Turkish and Persian alphabets, ç after c and پ after ب.
+- Send to the website says when the progress is too long for a link, instead of sharing one the website refuses; a progress link merged back into the record it came from adds nothing.
+- Practice and the glossary do not read every module again after a switch of track or language and back, and try a module that could not be read again the next time they open.
