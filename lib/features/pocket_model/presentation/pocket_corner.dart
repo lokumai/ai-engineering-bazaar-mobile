@@ -20,14 +20,20 @@ class PocketCorner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
-    final colors = context.bazaarColors;
-    final textTheme = Theme.of(context).textTheme;
     final (level, progress) = switch (context.watch<PocketModelBloc>().state) {
       PocketModelReady(:final model) => (model.level, model.progress),
       PocketModelLoading() => (0, 0.0),
     };
     final message = this.message;
+    return LayoutBuilder(
+      builder: (context, constraints) => _corner(context, constraints.maxWidth, level, progress, message),
+    );
+  }
+
+  Widget _corner(BuildContext context, double width, int level, double progress, Widget? message) {
+    final s = S.of(context);
+    final colors = context.bazaarColors;
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       key: const ValueKey('pocket-corner'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -61,14 +67,19 @@ class PocketCorner extends StatelessWidget {
                 ],
               ),
             ),
-            TextButton.icon(
-              key: const ValueKey('pocket-corner-chat'),
-              onPressed: () {
-                context.read<PocketModelBloc>().add(const PocketModelAsked());
-                showPocketModelSheet(context);
-              },
-              icon: const Icon(Icons.chat_bubble_outline, size: 18),
-              label: Text(s.pocket_ask, maxLines: 1, overflow: TextOverflow.ellipsis),
+            // Held to a third of the corner, so at large text the button gives way rather than push the row past the
+            // screen (review 8); a Flexible would split the room with the name and narrow it at every size.
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: width / 3),
+              child: TextButton.icon(
+                key: const ValueKey('pocket-corner-chat'),
+                onPressed: () {
+                  context.read<PocketModelBloc>().add(const PocketModelAsked());
+                  showPocketModelSheet(context);
+                },
+                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                label: Text(s.pocket_ask, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ),
             ),
           ],
         ),
