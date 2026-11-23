@@ -22,7 +22,15 @@ sealed class SiteLink extends Equatable {
       return uri.host == transferSegment ? _transfer(uri) : null;
     }
     if (uri.scheme != 'https' || uri.host != site.host) return null;
-    var segments = uri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+    final List<String> path;
+    try {
+      path = uri.pathSegments;
+    } on FormatException {
+      // An escape that is not UTF-8 in the path, as an old Latin-1 address: none of the site's pages (review 5,
+      // finding 1).
+      return null;
+    }
+    var segments = path.where((segment) => segment.isNotEmpty).toList();
     if (segments case [final language, ...final rest] when languages.contains(language)) segments = rest;
     final track = segments.firstOrNull == everyoneSegment ? Track.everyone : Track.engineers;
     if (track == Track.everyone) segments = segments.sublist(1);

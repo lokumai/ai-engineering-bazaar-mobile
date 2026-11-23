@@ -24,17 +24,23 @@ final class CodeScanCubit extends Cubit<CodeScanState> {
   Future<void> scan(String title) async {
     if (!state.available || state.status == CodeScanStatus.scanning) return;
     emit(state.copyWith(status: CodeScanStatus.scanning));
-    final outcome = await _scanner.scan(title);
-    if (isClosed) return;
-    emit(switch (outcome) {
-      ScanRead(:final text) => switch (_linkIn(text)) {
-        SiteTransfer(:final payload) => state.copyWith(status: CodeScanStatus.found, payload: payload),
-        _ => state.copyWith(status: CodeScanStatus.notALink),
-      },
-      ScanCancelled() => state.copyWith(status: CodeScanStatus.idle),
-      ScanDenied() => state.copyWith(status: CodeScanStatus.denied),
-      ScanFailed() => state.copyWith(status: CodeScanStatus.failed),
-    });
+    CodeScanState next;
+    try {
+      next = switch (await _scanner.scan(title)) {
+        ScanRead(:final text) => switch (_linkIn(text)) {
+          SiteTransfer(:final payload) => state.copyWith(status: CodeScanStatus.found, payload: payload),
+          _ => state.copyWith(status: CodeScanStatus.notALink),
+        },
+        ScanCancelled() => state.copyWith(status: CodeScanStatus.idle),
+        ScanDenied() => state.copyWith(status: CodeScanStatus.denied),
+        ScanFailed() => state.copyWith(status: CodeScanStatus.failed),
+      };
+    } on Object {
+      // Whatever went wrong, the scan ends, or the button stays dead until Settings is opened again (review 5,
+      // finding 1).
+      next = state.copyWith(status: CodeScanStatus.failed);
+    }
+    if (!isClosed) emit(next);
   }
 
   /// The transfer page was opened with what was found.

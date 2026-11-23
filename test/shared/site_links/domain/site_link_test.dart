@@ -48,6 +48,9 @@ void main() {
         'aibazaar://transfer#t=%ff',
         'aibazaar://transfer#t=%E0%A4%A',
         'https://example.test/transfer/#t=%E0%A4',
+        // in the path too, as an old Latin-1 address (review 5, finding 1)
+        'https://example.test/courses/%FF/x',
+        'https://example.test/%E9t%E9',
         'mailto:someone@example.test',
       ]) {
         expect(_parse(link), isNull, reason: link);
