@@ -25,6 +25,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -691,6 +692,24 @@ void main() {
       await tester.tap(find.byTooltip('Previous match'));
       await tester.pumpAndSettle();
       expect(find.text('3 / 3'), findsOneWidget);
+    });
+
+    // Review 5, finding 12: a tab keeps its pages with their routes' extras, so a module opened from a search came back
+    // with its tab at the searched section with the words marked again, not where the reader had left it.
+    testWidgets('a page brought back with its tab marks nothing and stays off the section searched', (tester) async {
+      stateIs(searched);
+      TabSwitch.begin();
+      addTearDown(TabSwitch.end);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      TabSwitch.end();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsNothing);
+      expect(
+        top(tester, find.text('Agents call tools.', findRichText: true)),
+        lessThan(844),
+        reason: 'still at the top',
+      );
     });
 
     testWidgets('close takes the bar and the marks away', (tester) async {

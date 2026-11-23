@@ -52,6 +52,7 @@ import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_load
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -251,9 +252,18 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   void _countTime() => _appShown && _pageShown ? _onScreen.start() : _onScreen.stop();
 
+  /// Whether the page came back with its tab (the tab's pages kept as they were, their heading and words searched
+  /// with them): it opens where the module was left, not at the section a search or a link opened it at before, and
+  /// with no words marked (review 5, finding 12).
+  bool _back = false;
+
+  String? get _fragment => _back ? null : widget.fragment;
+  String? get _query => _back ? null : widget.query;
+
   @override
   void initState() {
     super.initState();
+    _back = TabSwitch.active;
     _lifecycle = AppLifecycleListener(
       onHide: () {
         _appShown = false;
@@ -385,7 +395,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   bool _findStarted = false;
 
   TextFinder? _finderFor(ModuleDoc doc) {
-    final query = widget.query;
+    final query = _query;
     if (_findClosed || query == null || query.trim().isEmpty) return null;
     return _finder ??= TextFinder(query: query, lang: context.read<LanguageCubit>().state)
       // A step to a mark moves the page: the heading it opened at is no longer held, nor the place it was left at,
@@ -410,7 +420,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _findStarted = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _finder != finder) return;
-      final fragment = widget.fragment;
+      final fragment = _fragment;
       if (fragment == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && _finder == finder) finder.startInView();
@@ -571,7 +581,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// heading is gone from the module.
   void _applyPlace() {
     final place = widget.place;
-    if (place == null || widget.fragment != null || !_placeScheduled || !_scroll.hasClients) return;
+    if (place == null || _fragment != null || !_placeScheduled || !_scroll.hasClients) return;
     final position = _scroll.position;
     // Built under another page, the module is not laid out and has no length yet; the change of metrics as it comes
     // to the front calls this again (Sentry AI-BAZAAR-MOBILE-3).
@@ -1007,7 +1017,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Scrolls to the place the module was left once, after the first frame that draws the module; again as the page's
   /// length changes until the reader scrolls.
   void _schedulePlace() {
-    if (widget.place == null || widget.fragment != null || _placeScheduled) return;
+    if (widget.place == null || _fragment != null || _placeScheduled) return;
     _placeScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _applyPlace();
@@ -1017,7 +1027,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Scrolls to the fragment once, after the first frame that draws the module, and holds it there as pictures above
   /// it load, until the reader scrolls.
   void _scheduleFragment() {
-    final fragment = widget.fragment;
+    final fragment = _fragment;
     if (fragment == null || _fragmentScheduled) return;
     _fragmentScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
