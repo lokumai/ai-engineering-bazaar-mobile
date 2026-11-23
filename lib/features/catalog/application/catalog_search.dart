@@ -278,7 +278,8 @@ final class CatalogSearchIndex {
       }
     }
     var end = math.min(text.length, start + _window);
-    if (end < text.length) {
+    // A text with no word at all, found by its name, is cut at the window (review 8).
+    if (end < text.length && words.isNotEmpty) {
       final last = words.lastWhere((m) => m.end <= end, orElse: () => words[first < 0 ? 0 : first]);
       end = math.max(last.end, start);
     }

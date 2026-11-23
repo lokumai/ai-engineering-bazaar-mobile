@@ -114,6 +114,17 @@ void main() {
   });
 
   group('CatalogSearchIndex', () {
+    // Review 8, finding 16: a hit by its name whose text held no word at all, longer than the window, read the first
+    // word of an empty list.
+    test('a hit whose long text has no word shows the text cut, and throws nothing', () {
+      final index = CatalogSearchIndex([_entry('— ' * 120, kind: SearchKind.module, module: 'Tool belts')], lang: 'en');
+
+      final hits = index.search('belts').hits;
+      expect(hits, hasLength(1));
+      expect(hits.single.excerpt, endsWith('…'));
+      expect(hits.single.marks, isEmpty);
+    });
+
     // Plan 10.2: the hits can be kept to some levels, and each level says how many it has.
     test('counts the hits of each level, and keeps to the levels asked for', () {
       final index = CatalogSearchIndex([
