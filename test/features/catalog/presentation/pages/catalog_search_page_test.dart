@@ -244,12 +244,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.showKeyboard(find.byType(TextField));
     await _type(tester, 'zebra');
     expect(find.text('Nothing found for “zebra”.'), findsOneWidget);
+    final field = tester.state(find.byType(EditableText));
 
     opening = 'An opening about a zebra.';
     states.add(ready('b' * 64));
     await tester.pumpAndSettle();
+    // Review 7, finding 15: the refresh rebuilt the field, which closed the keyboard while the reader typed.
+    expect(tester.state(find.byType(EditableText)), same(field));
+    expect(tester.testTextInput.isVisible, isTrue);
     await tester.pump(CatalogSearchField.settle);
     await tester.pumpAndSettle();
     expect(find.text('Nothing found for “zebra”.'), findsNothing);

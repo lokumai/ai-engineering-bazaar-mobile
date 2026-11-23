@@ -29,13 +29,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// The catalog has no bloc of its own: the rows are a pure function, and which levels are open is [CatalogFoldCubit]'s,
 /// starting with the level of the next module to read.
-class CatalogPage extends StatelessWidget {
+class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key, required this.track});
 
   final Track track;
 
   @override
+  State<CatalogPage> createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  // The search field moves to the new search's subtree with its text and its keyboard: a content refresh that landed
+  // while the reader typed rebuilt it and closed the keyboard (review 7, finding 15).
+  final _field = GlobalKey(debugLabel: 'catalog-search-field');
+
+  @override
   Widget build(BuildContext context) {
+    final track = widget.track;
     final index = switch (context.watch<ContentBloc>().state) {
       ContentReady(:final index) => index,
       // The app gate mounts the router only once the content is ready.
@@ -78,7 +88,10 @@ class CatalogPage extends StatelessWidget {
             // (review round 4), and without it the catalog and Practice open alike.
             SectionRule(title: S.of(context).nav_catalog),
             const SizedBox(height: AppSpacing.md),
-            const TourTarget(spot: TourSpots.catalogSearch, child: CatalogSearchField()),
+            TourTarget(
+              spot: TourSpots.catalogSearch,
+              child: CatalogSearchField(key: _field),
+            ),
             const SizedBox(height: AppSpacing.lg),
             if (searching)
               CatalogSearchResults(track: track)
