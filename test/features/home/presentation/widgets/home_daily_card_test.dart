@@ -153,6 +153,27 @@ void main() {
     });
   });
 
+  // Review 8, finding 16: the card standing while the next is read tapped through the context of the reader that had
+  // gone, and threw.
+  testWidgets('the card standing while the next is read still opens its module', (tester) async {
+    await withClock(_dayZero, () async {
+      final repository = _titledCourse();
+      final router = await _pumpHome(tester, repository: repository);
+      final slow = Completer<ModuleDoc>();
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) => slow.future);
+
+      await tester.tap(find.byKey(const ValueKey('home-daily-another')));
+      await tester.pump();
+      await tester.tap(find.descendant(of: _card, matching: find.text('Module alpha/first')));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(router.state.uri.path, endsWith('alpha/first'));
+      slow.complete(testDoc(title: 'Module alpha/second'));
+      await tester.pumpAndSettle();
+    });
+  });
+
   testWidgets('Show another is an icon in the corner, named in Turkish (the owner, 2026-11-18)', (tester) async {
     await withClock(_dayZero, () async {
       await _pumpHome(tester, locale: const Locale('tr'));
