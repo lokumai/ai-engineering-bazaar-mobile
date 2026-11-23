@@ -228,6 +228,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Whether the module's end, its completion row, has come into view.
   bool _reachedEnd = false;
 
+  /// Whether the reader marked or unmarked the module by hand in this visit: leaving it then marks nothing, or a
+  /// completion just taken back would come again (review 6, finding 17).
+  bool _toggledByHand = false;
+
   /// The key of the completion row, the module's end.
   final _endKey = GlobalKey();
 
@@ -460,6 +464,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     };
     if (completed) return;
     final seconds = _seconds;
+    if (_toggledByHand) {
+      final last = _lastPlace ?? widget.place;
+      if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+      return;
+    }
     if (!readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
       final last = _lastPlace ?? widget.place;
       if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
@@ -928,8 +937,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   key: _endKey,
                                   child: CompletionRow(
                                     doc: doc,
-                                    onToggle: () =>
-                                        context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                                    onToggle: () {
+                                      _toggledByHand = true;
+                                      context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled());
+                                    },
                                   ),
                                 ),
                               ],

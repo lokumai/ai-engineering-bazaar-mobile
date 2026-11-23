@@ -97,6 +97,23 @@ void main() {
     expect(_toggles(record), hasLength(1), reason: 'the Undo sends the toggle again, taking the completion back');
   });
 
+  // Review 6, finding 17: a completion the reader took back by hand was marked again as the module was left.
+  testWidgets('marked or unmarked by hand in the visit, it is left as the reader set it', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    // The record here stays as it was, as after a mark taken back.
+    await tester.tap(find.byKey(const Key('reader-completion')));
+    await tester.pumpAndSettle();
+    expect(_toggles(record), hasLength(1), reason: 'the hand toggle');
+
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse, reason: 'nothing more than the hand toggle, verified above');
+    expect(_note, findsNothing);
+  });
+
   testWidgets('a quick scroll to the end is not a read', (tester) async {
     final (:router, :record, places: _, :store) = await _pump(tester);
     await _toEnd(tester);
