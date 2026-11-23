@@ -934,7 +934,7 @@
   "@guide_modules_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+  "guide_modules": "Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.",
   "@guide_modules": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -966,7 +966,7 @@
   "@privacy_title": {},
   "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
-  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
@@ -1042,7 +1042,7 @@
   "@settings_story": {
     "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
   },
-  "about_failed": "The story could not be opened. Check for updates, then open it again.",
+  "about_failed": "The story could not be opened. Open it again later, or update the app.",
   "@about_failed": {
     "description": "The About page, when the story document cannot be read."
   },

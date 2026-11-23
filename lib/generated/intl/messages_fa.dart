@@ -86,7 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m31(approved, total) => "${approved}/${total} تکمیل‌شده";
 
-  static String m32(total) => "--/${total} تکمیل‌شده";
+  static String m32(total) => "⁦--/${total}⁩ تکمیل‌شده";
 
   static String m33(count) => "${Intl.plural(count, one: '1 درس', other: '${count} درس')}";
 
@@ -175,7 +175,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_close": MessageLookupByLibrary.simpleMessage("بستن"),
     "about_english": MessageLookupByLibrary.simpleMessage("داستان به انگلیسی نوشته شده است."),
     "about_failed": MessageLookupByLibrary.simpleMessage(
-      "داستان باز نشد. به‌روزرسانی‌ها را بررسی کنید و دوباره باز کنید.",
+      "داستان باز نشد. بعداً دوباره باز کنید یا برنامه را به‌روز کنید.",
     ),
     "about_next": MessageLookupByLibrary.simpleMessage("بعدی"),
     "about_previous": MessageLookupByLibrary.simpleMessage("قبلی"),
@@ -342,7 +342,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "guide_levels": m28,
     "guide_levels_title": MessageLookupByLibrary.simpleMessage("سطح به سطح"),
     "guide_modules": MessageLookupByLibrary.simpleMessage(
-      "هر درس 20 تا 30 دقیقه مطالعه است، همراه با نمودار و کد. در پایان برخی درس‌ها چند پرسش برای سنجیدن خودتان هست.",
+      "هر درس، همراه با نمودار و کد، در یک نشست خوانده می‌شود. در پایان برخی درس‌ها چند پرسش برای سنجیدن خودتان هست.",
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("درس‌های کوتاه"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
@@ -517,7 +517,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد و هیچ داده شخصی جمع نمی‌کند. آنچه می‌فرستد و مقصد آن، در ادامه آمده است.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود دستگاه ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
+      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود دستگاه ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا بازنشانی‌شان کنید.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "«اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند.",

@@ -1800,10 +1800,10 @@ class S {
     );
   }
 
-  /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
+  /// `Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.`
   String get guide_modules {
     return Intl.message(
-      'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
+      'Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.',
       name: 'guide_modules',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1885,10 +1885,10 @@ class S {
     );
   }
 
-  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.`
+  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.`
   String get privacy_on_device {
     return Intl.message(
-      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.',
+      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.',
       name: 'privacy_on_device',
       desc: '',
       args: [],
@@ -2115,10 +2115,10 @@ class S {
     );
   }
 
-  /// `The story could not be opened. Check for updates, then open it again.`
+  /// `The story could not be opened. Open it again later, or update the app.`
   String get about_failed {
     return Intl.message(
-      'The story could not be opened. Check for updates, then open it again.',
+      'The story could not be opened. Open it again later, or update the app.',
       name: 'about_failed',
       desc: 'The About page, when the story document cannot be read.',
       args: [],

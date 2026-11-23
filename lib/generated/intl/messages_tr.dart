@@ -175,7 +175,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_close": MessageLookupByLibrary.simpleMessage("Kapat"),
     "about_english": MessageLookupByLibrary.simpleMessage("Hikâye İngilizce yazıldı."),
     "about_failed": MessageLookupByLibrary.simpleMessage(
-      "Hikâye açılamadı. Güncellemeleri kontrol et, sonra yeniden aç.",
+      "Hikâye açılamadı. Sonra yeniden aç ya da uygulamayı güncelle.",
     ),
     "about_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "about_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
@@ -342,7 +342,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "guide_levels": m28,
     "guide_levels_title": MessageLookupByLibrary.simpleMessage("Seviye seviye"),
     "guide_modules": MessageLookupByLibrary.simpleMessage(
-      "Her modül, diyagramlar ve kodla 20 ile 30 dakikalık bir okuma. Bazılarının sonunda kendini sınaman için birkaç soru var.",
+      "Her modül, diyagramları ve koduyla tek oturuşta okunur. Bazılarının sonunda kendini sınaman için birkaç soru var.",
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Kısa modüller"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
@@ -515,7 +515,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
+      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da sıfırlayabilirsin.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "“Kodu okut”, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",

@@ -177,7 +177,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "about_close": MessageLookupByLibrary.simpleMessage("Close"),
     "about_english": MessageLookupByLibrary.simpleMessage("The story is written in English."),
     "about_failed": MessageLookupByLibrary.simpleMessage(
-      "The story could not be opened. Check for updates, then open it again.",
+      "The story could not be opened. Open it again later, or update the app.",
     ),
     "about_next": MessageLookupByLibrary.simpleMessage("Next"),
     "about_previous": MessageLookupByLibrary.simpleMessage("Previous"),
@@ -340,7 +340,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "guide_levels": m28,
     "guide_levels_title": MessageLookupByLibrary.simpleMessage("Level by level"),
     "guide_modules": MessageLookupByLibrary.simpleMessage(
-      "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+      "Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.",
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
@@ -513,7 +513,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
+      "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.",
