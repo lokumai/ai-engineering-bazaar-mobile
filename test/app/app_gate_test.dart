@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../support/accessibility.dart';
 import '../support/bazaar_app_harness.dart';
@@ -47,8 +48,8 @@ ContentReady _contentReady() => ContentReady(
 );
 
 /// The gate over a stand-in router, with the two blocs held at [content] and [record].
-Widget _gate(ContentState content, RecordState record, {TargetPlatform? platform}) {
-  final contentBloc = MockContentBloc();
+Widget _gate(ContentState content, RecordState record, {TargetPlatform? platform, MockContentBloc? bloc}) {
+  final contentBloc = bloc ?? MockContentBloc();
   whenListen(contentBloc, const Stream<ContentState>.empty(), initialState: content);
   final recordBloc = MockRecordBloc();
   whenListen(recordBloc, const Stream<RecordState>.empty(), initialState: record);
@@ -113,6 +114,24 @@ void main() {
       expect(find.textContaining(RegExp('reinstall', caseSensitive: false)), findsNothing);
     });
   }
+
+  // Review 8, finding 15: a storage error can pass (a full disk freed, a cache directory back), and the page had no way
+  // to try again short of closing the app.
+  testWidgets('a storage error offers Try again, which opens the content again', (tester) async {
+    final bloc = MockContentBloc();
+    await tester.pumpWidget(_gate(const ContentBroken(code: ContentErrorCode.storage), _recordReady, bloc: bloc));
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Try again'));
+    expect(verify(() => bloc.add(captureAny())).captured, [isA<ContentStarted>()]);
+  });
+
+  testWidgets('a bundle that cannot be read offers no Try again: an update restores it', (tester) async {
+    await tester.pumpWidget(_gate(const ContentBroken(code: ContentErrorCode.bundledIndexUnreadable), _recordReady));
+    await tester.pump();
+
+    expect(find.text('Try again'), findsNothing);
+  });
 
   testWidgets('the broken view at text scale 2.0', (tester) async {
     await pumpAtTextScale(
