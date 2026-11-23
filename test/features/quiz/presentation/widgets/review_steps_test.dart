@@ -70,5 +70,20 @@ void main() {
       final box = dot.renderObject! as RenderBox;
       expect(box.localToGlobal(box.size.bottomRight(Offset.zero)).dx, lessThanOrEqualTo(360));
     }
+
+    // Review 8, finding 15: a wrong step is a square, so right and wrong differ by more than colour.
+    session.pick(0);
+    await tester.pump();
+    await tester.pump();
+    BoxShape shape(int step) =>
+        (tester
+                    .widget<Container>(
+                      find.descendant(of: find.byKey(ValueKey('review-step-$step')), matching: find.byType(Container)),
+                    )
+                    .decoration!
+                as BoxDecoration)
+            .shape;
+    expect(shape(0), BoxShape.rectangle);
+    expect(shape(1), BoxShape.circle);
   });
 }

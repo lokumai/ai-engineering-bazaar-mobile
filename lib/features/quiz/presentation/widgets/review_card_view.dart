@@ -106,8 +106,8 @@ class _CardPage extends StatelessWidget {
   }
 }
 
-/// The session's steps: one dot per card, green once right and rust once wrong, the current one ringed, and which card
-/// of how many in words.
+/// The session's steps: one mark per card, a green dot once right and a rust square once wrong, the current one ringed,
+/// and which card of how many in words.
 class _Steps extends StatelessWidget {
   const _Steps({required this.at, required this.count});
 
@@ -195,11 +195,14 @@ class _StepDot extends StatelessWidget {
       false => colors.fault,
     };
     final size = current ? 14.0 : 10.0;
+    // A wrong step is a square, so right and wrong differ by more than colour (review 8).
+    final wrong = result == false;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        shape: wrong ? BoxShape.rectangle : BoxShape.circle,
+        borderRadius: wrong ? const BorderRadius.all(Radius.circular(2)) : null,
         color: fill,
         border: Border.all(color: current ? colors.primary : (fill ?? colors.lineStrong), width: current ? 2 : 1),
       ),

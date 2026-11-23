@@ -226,6 +226,26 @@ void main() {
     );
   });
 
+  // Review 8, finding 15: a right and a wrong step differed by colour only.
+  testWidgets('a right step is a dot and a wrong one a square, not told apart by colour only', (tester) async {
+    await open(tester);
+    await tapText(tester, 'Two');
+    await tapText(tester, 'Next');
+    await tapText(tester, 'Two');
+
+    BoxShape shape(int step) =>
+        (tester
+                    .widget<Container>(
+                      find.descendant(of: find.byKey(ValueKey('quiz-step-$step')), matching: find.byType(Container)),
+                    )
+                    .decoration!
+                as BoxDecoration)
+            .shape;
+    expect(shape(0), BoxShape.rectangle, reason: 'wrong');
+    expect(shape(1), BoxShape.circle, reason: 'right');
+    expect(shape(2), BoxShape.circle, reason: 'open');
+  });
+
   testWidgets('an answered question offers its options as disabled, with no tap', (tester) async {
     await open(tester);
 
