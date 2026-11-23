@@ -103,6 +103,8 @@ void main() {
         '{"v":1,"e":{"a/b":["ZZZ","",[]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["mvz1mz0r","XYZ",[]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["","",[10000]]},"y":{},"d":[]}',
+        // Review 7, finding 14: a tick below 0 was refused by no test.
+        '{"v":1,"e":{"a/b":["","",[-1]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["","",["1"]]},"y":{},"d":[]}',
         '{"v":1,"e":{},"y":{},"d":["2026-02-30"]}',
         // An instant past the year 9999 (plan 19.7): the record's grammar would refuse its text.
