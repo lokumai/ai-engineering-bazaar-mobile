@@ -78,4 +78,68 @@ void main() {
     await cubit.load(index, Track.engineers, 'en');
     expect([for (final notes in (cubit.state as StudyNotesReady).modules) notes.moduleKey], ['alpha/second']);
   });
+
+  // Review 7, finding 15: a quick A, B, A switch read every module again, and a module whose read failed was not tried
+  // again until the content, track or language changed.
+  group('notes read before', () {
+    final index = testIndex(
+      modules: [
+        testModule(
+          key: 'alpha/first',
+          number: 1,
+          tracks: {
+            Track.engineers: testModuleTrack(docs: {'en': 'docs/first.en.json', 'tr': 'docs/first.tr.json'}),
+          },
+        ),
+      ],
+    );
+
+    test('read whole, they come back without a read after a switch and back', () async {
+      final repository = MockContentRepository();
+      final read = <String>[];
+      when(() => repository.readModuleDoc(any())).thenAnswer((call) async {
+        read.add(call.positionalArguments.single as String);
+        return testDoc(quiz: quiz);
+      });
+      final cubit = StudyNotesCubit(repository: repository);
+      addTearDown(cubit.close);
+
+      await cubit.load(index, Track.engineers, 'en');
+      await cubit.load(index, Track.engineers, 'tr');
+      await cubit.load(index, Track.engineers, 'en');
+      expect(read, ['docs/first.en.json', 'docs/first.tr.json']);
+      expect((cubit.state as StudyNotesReady).language, 'en');
+    });
+
+    test('with a module that could not be read, they are read again at the next load', () async {
+      final repository = MockContentRepository();
+      var fails = true;
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) async {
+        if (fails) throw const ContentMissingException('x');
+        return testDoc(quiz: quiz);
+      });
+      final cubit = StudyNotesCubit(repository: repository);
+      addTearDown(cubit.close);
+
+      await cubit.load(index, Track.engineers, 'en');
+      expect((cubit.state as StudyNotesReady).modules, isEmpty);
+      fails = false;
+      await cubit.load(index, Track.engineers, 'en');
+      expect([for (final notes in (cubit.state as StudyNotesReady).modules) notes.moduleKey], ['alpha/first']);
+    });
+
+    test('while they are being read, another load for them waits for it', () async {
+      final repository = MockContentRepository();
+      var reads = 0;
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) async {
+        reads++;
+        return testDoc(quiz: quiz);
+      });
+      final cubit = StudyNotesCubit(repository: repository);
+      addTearDown(cubit.close);
+
+      await Future.wait([cubit.load(index, Track.engineers, 'en'), cubit.load(index, Track.engineers, 'en')]);
+      expect(reads, 1);
+    });
+  });
 }
