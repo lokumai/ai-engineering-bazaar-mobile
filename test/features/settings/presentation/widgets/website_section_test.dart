@@ -47,13 +47,15 @@ final class _Scanner implements ICodeScanner {
   final ScanOutcome outcome;
   final bool isAvailable;
   final titles = <String>[];
+  final cancels = <String>[];
 
   @override
   Future<bool> available() async => isAvailable;
 
   @override
-  Future<ScanOutcome> scan(String title) async {
+  Future<ScanOutcome> scan(String title, {required String cancel}) async {
     titles.add(title);
+    cancels.add(cancel);
     return outcome;
   }
 }
@@ -68,7 +70,7 @@ final class _Waiting implements ICodeScanner {
   Future<bool> available() async => true;
 
   @override
-  Future<ScanOutcome> scan(String title) => answer.future;
+  Future<ScanOutcome> scan(String title, {required String cancel}) => answer.future;
 }
 
 final _completed = signOff(RecordData.empty, 'alpha/first', 'a1b2c3d', '2026-11-02T09:15:30.123Z');
@@ -148,7 +150,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(scanner.titles, ["Scan the website's code"]);
+      expect(scanner.cancels, ['Cancel']);
       expect(find.text('transfer abc'), findsOneWidget);
+    });
+
+    // Review 8, finding 17: iOS drew its own Cancel in the phone's language, under the app's title in the app's.
+    testWidgets("the camera's Cancel is in the app's language", (tester) async {
+      final scanner = _Scanner(const ScanCancelled());
+      await _pump(tester, scanner: scanner, locale: const Locale('tr'));
+
+      await tester.tap(find.byKey(const ValueKey('settings-scan-code')));
+      await tester.pumpAndSettle();
+
+      expect(scanner.cancels, ['İptal']);
     });
 
     // The owner's iPhone, 2026-11-19: the site's code from a test server on the computer carries its address.

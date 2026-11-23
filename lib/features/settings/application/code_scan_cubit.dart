@@ -20,13 +20,13 @@ final class CodeScanCubit extends Cubit<CodeScanState> {
     if (!isClosed) emit(CodeScanState(available: available));
   }
 
-  /// Opens the camera with [title] over it.
-  Future<void> scan(String title) async {
+  /// Opens the camera with [title] over it and [cancel] on its way back.
+  Future<void> scan(String title, {required String cancel}) async {
     if (!state.available || state.status == CodeScanStatus.scanning) return;
     emit(state.copyWith(status: CodeScanStatus.scanning));
     CodeScanState next;
     try {
-      next = switch (await _scanner.scan(title)) {
+      next = switch (await _scanner.scan(title, cancel: cancel)) {
         ScanRead(:final text) => switch (_linkIn(text)) {
           SiteTransfer(:final payload) => state.copyWith(status: CodeScanStatus.found, payload: payload),
           _ => state.copyWith(status: CodeScanStatus.notALink),

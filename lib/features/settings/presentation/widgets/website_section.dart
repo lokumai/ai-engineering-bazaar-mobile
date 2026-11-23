@@ -81,7 +81,10 @@ class _WebsiteSectionView extends StatelessWidget {
                     key: const ValueKey('settings-scan-code'),
                     onPressed: scan.status == CodeScanStatus.scanning
                         ? null
-                        : () => context.read<CodeScanCubit>().scan(s.website_scan_title),
+                        : () => context.read<CodeScanCubit>().scan(
+                            s.website_scan_title,
+                            cancel: MaterialLocalizations.of(context).cancelButtonLabel,
+                          ),
                     icon: const Icon(Icons.qr_code_scanner_outlined),
                     label: Text(s.website_scan),
                   )

@@ -50,9 +50,11 @@ void main() {
     expect(kotlin, contains('"available" -> result.success('));
     expect(_swift, contains('case "available":'));
 
-    expect(dart, contains("invokeMethod<String>('scan', title)"));
+    expect(dart, contains("invokeMethod<String>('scan', {'title': title, 'cancel': cancel})"));
     expect(kotlin, contains('"scan" -> scan(Once(result))'));
     expect(_swift, contains('case "scan":'));
-    expect(_swift, contains('self.start(title: call.arguments as? String ?? "", result: result)'));
+    expect(_swift, contains('let texts = call.arguments as? [String: Any] ?? [:]'));
+    expect(_swift, contains('title: texts["title"] as? String ?? ""'));
+    expect(_swift, contains('cancel: texts["cancel"] as? String ?? ""'));
   });
 }

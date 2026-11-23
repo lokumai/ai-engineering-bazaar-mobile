@@ -14,7 +14,7 @@ final class _Scanner implements ICodeScanner {
   Future<bool> available() async => true;
 
   @override
-  Future<ScanOutcome> scan(String title) async {
+  Future<ScanOutcome> scan(String title, {required String cancel}) async {
     if (error case final error?) throw error;
     return ScanRead(text);
   }
@@ -24,7 +24,7 @@ Future<CodeScanCubit> _scanned(ICodeScanner scanner) async {
   final cubit = CodeScanCubit(scanner: scanner, site: Uri.parse('https://example.test/'));
   addTearDown(cubit.close);
   await cubit.load();
-  await cubit.scan('Scan');
+  await cubit.scan('Scan', cancel: 'Cancel');
   return cubit;
 }
 

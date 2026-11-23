@@ -599,12 +599,13 @@ final class ChannelCodeScanner implements ICodeScanner {
   Future<bool> available() => _channel.available();
 
   @override
-  Future<ScanOutcome> scan(String title) async => switch (await _channel.scan(title)) {
-    (text: final String text, error: _) => ScanRead(text),
-    (text: null, error: null) => const ScanCancelled(),
-    (text: null, error: 'denied') => const ScanDenied(),
-    (text: null, error: _) => const ScanFailed(),
-  };
+  Future<ScanOutcome> scan(String title, {required String cancel}) async =>
+      switch (await _channel.scan(title, cancel: cancel)) {
+        (text: final String text, error: _) => ScanRead(text),
+        (text: null, error: null) => const ScanCancelled(),
+        (text: null, error: 'denied') => const ScanDenied(),
+        (text: null, error: _) => const ScanFailed(),
+      };
 }
 
 /// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.

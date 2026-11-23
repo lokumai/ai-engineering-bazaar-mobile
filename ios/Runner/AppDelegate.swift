@@ -229,25 +229,28 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
       case "available":
         result(AVCaptureDevice.default(for: .video) != nil)
       case "scan":
-        self.start(title: call.arguments as? String ?? "", result: result)
+        // The title and Cancel in the app's language, which may not be the phone's (review 8).
+        let texts = call.arguments as? [String: Any] ?? [:]
+        self.start(
+          title: texts["title"] as? String ?? "", cancel: texts["cancel"] as? String ?? "", result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
     }
   }
 
-  private func start(title: String, result: @escaping FlutterResult) {
+  private func start(title: String, cancel: String, result: @escaping FlutterResult) {
     guard pending == nil, !asking else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .authorized:
-      open(title: title, result: result)
+      open(title: title, cancel: cancel, result: result)
     case .notDetermined:
       asking = true
       AVCaptureDevice.requestAccess(for: .video) { granted in
         DispatchQueue.main.async {
           self.asking = false
           if granted {
-            self.open(title: title, result: result)
+            self.open(title: title, cancel: cancel, result: result)
           } else {
             result(FlutterError(code: "denied", message: nil, details: nil))
           }
@@ -258,7 +261,7 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     }
   }
 
-  private func open(title: String, result: @escaping FlutterResult) {
+  private func open(title: String, cancel: String, result: @escaping FlutterResult) {
     let session = AVCaptureSession()
     let output = AVCaptureMetadataOutput()
     guard let device = AVCaptureDevice.default(for: .video),
@@ -273,7 +276,7 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     output.setMetadataObjectsDelegate(self, queue: .main)
     output.metadataObjectTypes = [.qr]
     let navigation = UINavigationController(
-      rootViewController: ScannerScreen(session: session, title: title) { [weak self] in self?.finish(nil) })
+      rootViewController: ScannerScreen(session: session, title: title, cancel: cancel) { [weak self] in self?.finish(nil) })
     navigation.modalPresentationStyle = .fullScreen
     navigation.overrideUserInterfaceStyle = .dark
     pending = result
@@ -311,13 +314,16 @@ final class ScannerScreen: UIViewController {
   private var preview: AVCaptureVideoPreviewLayer?
   private let aim = CAShapeLayer()
 
-  init(session: AVCaptureSession, title: String, onCancel: @escaping () -> Void) {
+  init(session: AVCaptureSession, title: String, cancel: String, onCancel: @escaping () -> Void) {
     self.session = session
     self.onCancel = onCancel
     super.init(nibName: nil, bundle: nil)
     navigationItem.title = title
-    navigationItem.leftBarButtonItem = UIBarButtonItem(
-      barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+    // The app's own word, as the title is: the system Cancel would follow the phone's language (review 8).
+    navigationItem.leftBarButtonItem =
+      cancel.isEmpty
+      ? UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
+      : UIBarButtonItem(title: cancel, style: .plain, target: self, action: #selector(cancelTapped))
   }
 
   @available(*, unavailable)
@@ -345,7 +351,7 @@ final class ScannerScreen: UIViewController {
     aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
   }
 
-  @objc private func cancel() {
+  @objc private func cancelTapped() {
     onCancel()
   }
 
