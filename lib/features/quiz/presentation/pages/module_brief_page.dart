@@ -169,7 +169,7 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
       child: QuizFrame(
         title: title,
         child: switch (loaded) {
-          null => const Center(child: CircularProgressIndicator()),
+          null => Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
           (notes: null) => Padding(
             padding: const EdgeInsets.all(AppSpacing.xl),
             child: Text(S.of(context).content_unreadable, style: Theme.of(context).textTheme.bodyLarge),

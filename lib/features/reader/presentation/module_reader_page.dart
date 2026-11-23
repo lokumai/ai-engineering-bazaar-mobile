@@ -550,6 +550,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
   }
 
+  /// Shares [text] through the phone's sheet, and says so when the sheet did not open, as Settings' Send to the website
+  /// does; it gave no word (review 6, finding 18).
+  Future<void> _share(BuildContext context, String text) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final failed = S.of(context).data_send_failed;
+    if (await context.read<IShareSheet>().share(text)) return;
+    messenger?.showSnackBar(SnackBar(key: const ValueKey('reader-share-failed'), content: Text(failed)));
+  }
+
   /// Whether [target] and the page around it are laid out, so the page can scroll to it: a page drawn under another is
   /// built but not laid out, and its scroll extents are then null, the Sentry crash (review 5, finding 10). The heading
   /// the page opened at is held, and comes in once the page is laid out.
@@ -812,7 +821,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                       key: const ValueKey('reader-share'),
                                       tooltip: s.reader_share,
                                       icon: Icon(shareIcon(context), size: 20, color: colors.onSurfaceMuted),
-                                      onPressed: () => context.read<IShareSheet>().share(
+                                      onPressed: () => _share(
+                                        context,
                                         '${doc.title}\n${context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath)}',
                                       ),
                                     ),

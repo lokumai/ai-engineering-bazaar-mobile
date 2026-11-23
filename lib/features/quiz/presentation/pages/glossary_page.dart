@@ -140,7 +140,7 @@ class _GlossaryState extends State<_Glossary> {
                 EdgeInsets.only(bottom: FloatingRoom.of(context)),
             children: [
               if (shown == null)
-                const Center(child: CircularProgressIndicator())
+                Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading))
               else if (entries!.isEmpty)
                 Text(s.practice_glossary_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
               else if (shown.isEmpty)

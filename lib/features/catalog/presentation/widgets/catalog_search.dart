@@ -112,9 +112,9 @@ class CatalogSearchResults extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final results = state.results;
     if (results == null) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: Center(child: CircularProgressIndicator()),
+      return Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
       );
     }
     final hits = results.hits;

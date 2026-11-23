@@ -65,7 +65,7 @@ class _WrongAnswers extends StatelessWidget {
         SectionRule(title: s.practice_wrong),
         const SizedBox(height: AppSpacing.md),
         if (pool == null || notes is! StudyNotesReady)
-          const Center(child: CircularProgressIndicator())
+          Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading))
         else if (wrong.isEmpty)
           Text(s.practice_wrong_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
         else ...[

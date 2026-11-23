@@ -214,15 +214,20 @@ class LossChart extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
+              // The chart is 40 high; the line before the first feed is at least that and grows with the text, which a
+              // fixed height cut at a large text size (review 6, finding 18).
               SizedBox(
-                height: 40,
+                height: tokens == 0 ? null : 40,
                 child: tokens == 0
-                    ? Center(
-                        child: Text(
-                          s.pocket_loss_empty,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
+                    ? ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 40),
+                        child: Center(
+                          child: Text(
+                            s.pocket_loss_empty,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
+                          ),
                         ),
                       )
                     : TweenAnimationBuilder<double>(
