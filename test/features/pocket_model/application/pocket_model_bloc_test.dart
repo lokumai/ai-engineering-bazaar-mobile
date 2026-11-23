@@ -351,6 +351,19 @@ void main() {
       });
     });
 
+    // Review 7, finding 15: a second tap while the first read was loading passed over the module just read and read
+    // the next one waiting.
+    test('a second tap for the same module reads nothing more', () {
+      const both = MemoryPocketTexts({'alpha/first': module, 'alpha/second': module});
+      run(MemoryPocketModelStore(), pocketTexts: both, (async, bloc) {
+        bloc
+          ..add(const PocketModelModuleRead('alpha/first', others: ['alpha/second']))
+          ..add(const PocketModelModuleRead('alpha/first', others: ['alpha/second']));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.readings.map((reading) => reading.key), ['alpha/first']);
+      });
+    });
+
     test('when none of them can be read, it says so', () {
       run(MemoryPocketModelStore(), (async, bloc) {
         final beat = ready(bloc).beat;

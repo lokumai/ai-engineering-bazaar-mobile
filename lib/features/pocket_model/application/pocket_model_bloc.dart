@@ -416,6 +416,9 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
           ),
         );
       case PocketModelModuleRead(:final key, :final others):
+        // A second tap while the first read was loading: the module it names is read, and the next one waiting is
+        // not taken in its place (review 7, finding 15).
+        if (ready.model.hasRead(key)) return;
         final lm = _lm!;
         String? found;
         ModuleText? text;
