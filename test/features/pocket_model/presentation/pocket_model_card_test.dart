@@ -13,6 +13,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/pocket_
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/speech_bubble.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/presentation/widgets/training_panel.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:clock/clock.dart';
@@ -369,6 +370,11 @@ void main() {
       await tester.pump(const Duration(seconds: 3));
     }
     expect(find.text('hallucinating'), findsOneWidget);
+    // Review 8, finding 15: its pink was 2.39:1 on the bubble in the light look; the word is text, in text's ink.
+    expect(
+      tester.widget<Text>(find.text('hallucinating')).style?.color,
+      tester.element(find.text('hallucinating')).bazaarColors.onSurface,
+    );
     expect(find.text('Too hot: it hallucinates. Turn the temperature down.'), findsOneWidget);
     expect(_frame(tester).face, RobotFace.hallucinating);
     await _rest(tester);

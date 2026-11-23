@@ -100,7 +100,9 @@ class _SpeechBubbleState extends State<SpeechBubble> with SingleTickerProviderSt
                       if (odd)
                         Text(
                           s.pocket_hallucinating,
-                          style: theme.textTheme.labelSmall?.copyWith(color: RobotColors.eyeOdd),
+                          // In text's ink: the eyes' pink was 2.39:1 on the bubble in the light look (review 8); the
+                          // pink stays on the bubble's border.
+                          style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                         ),
                       Text(
                         '${tokens.take(shown).join(' ')}${_controller.value < 1 ? ' |' : ''}',
