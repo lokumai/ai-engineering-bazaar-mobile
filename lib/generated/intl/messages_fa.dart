@@ -40,9 +40,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m9(index, count) => "ایستگاه ${index} از ${count}";
 
-  static String m10(level) => "قدرت ${level} از ۵";
+  static String m10(level) => "قدرت ${level} از 5";
 
-  static String m11(count) => "${Intl.plural(count, one: '۱ ترند', other: '${count} ترند')}";
+  static String m11(count) => "${Intl.plural(count, one: '1 ترند', other: '${count} ترند')}";
 
   static String m12(minutes) => "${minutes} دقیقه";
 

@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// The pocket model (plan 9.2, 9.4): a tiny model to play with when bored, in the sheet its button opens
 /// (`pocket_assistant.dart`), over the app's [PocketModelBloc]. The reader feeds it tokens
@@ -732,7 +733,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    NumberFormat('0.0', language).format(state.temperature),
+                    NumberFormat('0.0', numberLocale(language)).format(state.temperature),
                     style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface),
                   ),
                 ],
@@ -752,7 +753,7 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
                         max: 2,
                         divisions: 20,
                         semanticFormatterCallback: (value) =>
-                            '${s.pocket_temperature} ${NumberFormat('0.0', language).format(value)}',
+                            '${s.pocket_temperature} ${NumberFormat('0.0', numberLocale(language)).format(value)}',
                         onChanged: (value) {
                           bloc.add(PocketModelTemperatureSet(value));
                           _wake();

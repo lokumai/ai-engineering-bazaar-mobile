@@ -18,9 +18,10 @@ void main() {
   });
 
   // The owner, 2026-11-16: the Turkish line read "16 Nov 2026 tarihinde tamamlandı".
-  test('shortDate writes the month in the reader language, with its own digits', () {
+  // The owner, 2026-11-23: Latin digits in every language, as the web writes them (review 5, finding 6).
+  test('shortDate writes the month in the reader language, with Latin digits', () {
     expect(shortDate('2026-11-16T08:00:00.000Z', language: 'tr', local: utc), '16 Kas 2026');
-    expect(shortDate('2026-11-16T08:00:00.000Z', language: 'fa', local: utc), '۱۶ نوامبر ۲۰۲۶');
+    expect(shortDate('2026-11-16T08:00:00.000Z', language: 'fa', local: utc), '16 نوامبر 2026');
     expect(shortDate('2026-11-16', language: 'tr'), '16 Kas 2026');
   });
 

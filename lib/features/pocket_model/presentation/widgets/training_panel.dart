@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// How the pocket model's training stands: its level in a ring that fills toward the next, and its training loss beside
 /// it as a small chart that grows with every feed. What it has read is counted further down ([PocketStats]), not here
@@ -160,7 +161,7 @@ class LossChart extends StatelessWidget {
     final reduced = MediaQuery.disableAnimationsOf(context);
     final language = Localizations.localeOf(context).languageCode;
     final tokens = curve.isEmpty ? 0 : curve.last.tokens;
-    final loss = curve.isEmpty ? '' : NumberFormat('0.00', language).format(curve.last.loss);
+    final loss = curve.isEmpty ? '' : NumberFormat('0.00', numberLocale(language)).format(curve.last.loss);
     return Semantics(
       container: true,
       label: tokens > 0 ? '${s.pocket_loss_title}, ${s.pocket_loss(loss)}' : s.pocket_loss_title,

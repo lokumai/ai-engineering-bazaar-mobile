@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// What the apprentice has learnt, at the foot of its sheet, for whoever scrolls to it: the modules it read, the words
 /// it knows and the tokens it ate, each a number over a word. The sheet itself is for playing with it, so the numbers
@@ -20,7 +21,7 @@ class PocketStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final number = NumberFormat.decimalPattern(Localizations.localeOf(context).languageCode);
+    final number = NumberFormat.decimalPattern(numberLocale(Localizations.localeOf(context).languageCode));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

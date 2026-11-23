@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/listen/presentation/listen_progress.dart';
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// The player at a module's foot while it is read aloud (plan 15): the paragraph before, play or pause, the next, how
 /// far along, the pace, and a way to stop. One thin row on the page's own ground, how far along as a line along its top
@@ -16,7 +17,7 @@ class ListenPlayer extends StatelessWidget {
   final ListenOn state;
 
   /// The pace as a reader reads it: `1×`, `1.25×`, in the interface's digits.
-  static String rateLabel(double rate, String locale) => '${NumberFormat('0.##', locale).format(rate)}×';
+  static String rateLabel(double rate, String locale) => '${NumberFormat('0.##', numberLocale(locale)).format(rate)}×';
 
   @override
   Widget build(BuildContext context) {
