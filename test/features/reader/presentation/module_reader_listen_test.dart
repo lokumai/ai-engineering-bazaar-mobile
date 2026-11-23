@@ -29,8 +29,9 @@ final class _Voice implements ISpeech {
   /// Whether the phone has a voice; a reader may add one in the phone's settings.
   bool speaks;
 
-  /// Each speak's texts.
+  /// Each speak's texts, and the language its notice speaks.
   final handed = <List<String>>[];
+  final noticeLanguages = <String?>[];
   final asked = <String>[];
   int stops = 0;
   List<String> _texts = const [];
@@ -63,8 +64,10 @@ final class _Voice implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) {
     handed.add(texts);
+    noticeLanguages.add(noticeLanguage);
     _texts = texts;
     _at = 0;
     _onPart = onPart..call(0);
@@ -205,6 +208,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(voice.saying, 'Why tools.');
     expect(voice.handed.single, hasLength(33), reason: 'every part handed at once, the code passed over');
+    expect(voice.noticeLanguages.single, 'en', reason: "the phone's notice speaks the app's language (review 5, 8)");
     expect(find.text('1 of 33'), findsOneWidget);
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Why tools'))), isTrue);
     expect(_listen, findsNothing, reason: 'the player stands in for it');

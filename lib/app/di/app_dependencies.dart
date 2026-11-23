@@ -523,7 +523,15 @@ final class PhoneSpeechPort implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
-  }) => _speech.speak(texts, language: language, rate: rate, onPart: onPart, title: title);
+    String? noticeLanguage,
+  }) => _speech.speak(
+    texts,
+    language: language,
+    rate: rate,
+    onPart: onPart,
+    title: title,
+    noticeLanguage: noticeLanguage,
+  );
 
   @override
   Stream<void> get interruptions => _speech.interruptions;

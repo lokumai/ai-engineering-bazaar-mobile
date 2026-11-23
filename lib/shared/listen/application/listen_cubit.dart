@@ -16,6 +16,7 @@ final class ListenSession extends Equatable {
     required this.title,
     required this.language,
     required this.parts,
+    this.noticeLanguage,
   });
 
   final String module;
@@ -26,8 +27,11 @@ final class ListenSession extends Equatable {
   final String language;
   final List<SpokenPart> parts;
 
+  /// The app's own language, which the phone's notice of the reading speaks; null leaves it to the phone.
+  final String? noticeLanguage;
+
   @override
-  List<Object?> get props => [module, track, title, language, parts];
+  List<Object?> get props => [module, track, title, language, parts, noticeLanguage];
 }
 
 /// The module read aloud by the phone's own voice (plan 15), for the whole app (the owner, 2026-11-18): it goes on
@@ -273,6 +277,7 @@ final class ListenCubit extends Cubit<ListenState> {
       language: session.language,
       rate: _rate,
       title: session.title,
+      noticeLanguage: session.noticeLanguage,
       onPart: (index) {
         if (turn != _turn || isClosed) return;
         final at = from + index;

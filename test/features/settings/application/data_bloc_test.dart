@@ -68,6 +68,7 @@ final class _Silence implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) async {}
 
   @override

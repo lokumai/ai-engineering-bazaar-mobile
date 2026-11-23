@@ -53,6 +53,7 @@ final class _Voice implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) {
     handed.add((texts, language, rate));
     titles.add(title);

@@ -7,11 +7,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
 import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
+import java.util.Locale
 
 /**
  * Keeps the app running while the phone's voice reads a module aloud, so the reading goes on with the screen off and
@@ -49,6 +51,13 @@ class ListenService : Service() {
         /** Told when the reader presses Play on the notice of a paused reading (plan 19.8). */
         var onPlay: (() -> Unit)? = null
 
+        /**
+         * The app's own language (en, tr, fa), which the notice's words are in; null keeps the phone's. The app's
+         * language is its own choice, so a phone in English with the app in Turkish said "Reading aloud" and "Pause"
+         * beside a Turkish title (review 2 finding 13, review 5 finding 8).
+         */
+        var language: String? = null
+
         /** The reading's MediaSession, which the notice names so the lock screen shows its controls (plan 19.8). */
         var session: MediaSession.Token? = null
 
@@ -85,12 +94,22 @@ class ListenService : Service() {
             runCatching { context.stopService(Intent(context, ListenService::class.java)) }
         }
 
+        /** [context]'s resources in [language], for the notice's words. */
+        private fun words(context: Context): Context {
+            val tag = language ?: return context
+            return runCatching {
+                val config = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag(tag)) }
+                context.createConfigurationContext(config)
+            }.getOrDefault(context)
+        }
+
         private fun notice(context: Context, title: String, playing: Boolean): Notification {
+            val words = words(context)
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
                 NotificationChannel(
                     CHANNEL_ID,
-                    context.getString(R.string.listen_channel),
+                    words.getString(R.string.listen_channel),
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
                     setShowBadge(false)
@@ -118,15 +137,15 @@ class ListenService : Service() {
             )
             return Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_listen)
-                .setContentTitle(title.ifEmpty { context.getString(R.string.listen_reading) })
-                .setContentText(context.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
+                .setContentTitle(title.ifEmpty { words.getString(R.string.listen_reading) })
+                .setContentText(words.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
                 .setContentIntent(open)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_TRANSPORT)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .addAction(
-                    Notification.Action.Builder(Icon.createWithResource(context, icon), context.getString(label), press)
+                    Notification.Action.Builder(Icon.createWithResource(context, icon), words.getString(label), press)
                         .build(),
                 )
                 .setStyle(

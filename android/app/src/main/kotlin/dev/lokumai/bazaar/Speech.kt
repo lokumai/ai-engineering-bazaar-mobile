@@ -371,6 +371,8 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
                 val tag = call.argument<String>("tag") ?: return result.error("no-tag", null, null)
                 val rate = call.argument<Double>("rate") ?: 1.0
                 val title = call.argument<String>("title").orEmpty()
+                // The notice speaks the app's language, not the phone's (review 5 finding 8).
+                call.argument<String>("interface")?.let { ListenService.language = it }
                 // At once, while the reader still sees the app: Android refuses a foreground service started from the
                 // background, as a reader who leaves while the engine starts would have it (plan 19.9).
                 main.removeCallbacks(release)

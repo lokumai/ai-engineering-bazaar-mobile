@@ -809,6 +809,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                                     title: doc.title,
                                                     language: doc.lang,
                                                     parts: parts,
+                                                    noticeLanguage: Localizations.localeOf(context).languageCode,
                                                   ),
                                                 ),
                                                 icon: const Icon(Icons.headphones_rounded, size: 18),
