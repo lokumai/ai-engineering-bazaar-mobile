@@ -170,6 +170,40 @@ void main() {
     expect(note.bottom, lessThanOrEqualTo(button.top));
   });
 
+  // Review 8, finding 15: at twice the text the badge's number ran out of its fixed 22 px circle, and Read a module was
+  // cut to one line.
+  testWidgets('at twice the text, the badge holds its number and Read a module says its whole name', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(
+      tester,
+      store: MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: clock.now())),
+      record: signOff(RecordData.empty, 'alpha/first', null, '2026-11-14T12:00:00.000Z'),
+      texts: const MemoryPocketTexts({
+        'alpha/first': [
+          ['a', 'transformer', 'stacks'],
+        ],
+      }),
+      locale: const Locale('tr'),
+      open: false,
+    );
+    final badge = find.byKey(const ValueKey('pocket-assistant-badge'));
+    final inside = tester.getRect(badge).deflate(2);
+    final number = tester.getRect(find.descendant(of: badge, matching: find.byType(RichText)));
+    expect(
+      inside.contains(number.topLeft) && inside.contains(number.bottomRight),
+      isTrue,
+      reason: '$number in $inside',
+    );
+
+    await tester.tap(find.byKey(const ValueKey('pocket-assistant')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.ensureVisible(find.byKey(const ValueKey('pocket-read')));
+    expect(cutTexts(tester, find.byKey(const ValueKey('pocket-read'))), isEmpty);
+    await _rest(tester);
+  });
+
   testWidgets('a module the reader finished: a badge on its button, and it reads it in the sheet', (tester) async {
     const module = [
       ['a', 'transformer', 'stacks', 'attention', 'layers'],
