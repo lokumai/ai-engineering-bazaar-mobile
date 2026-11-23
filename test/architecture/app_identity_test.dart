@@ -180,6 +180,20 @@ void main() {
     });
   });
 
+  // Review 8, finding 6: the plugins come as Swift packages only, and with no package wiring in the project the Flutter
+  // tool rewrote project.pbxproj and the scheme at every iOS build, so the store IPA came from a project no commit held.
+  test('the Xcode project carries the Swift package wiring the Flutter tool writes', () {
+    final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+    expect(
+      project,
+      contains('XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage"'),
+    );
+    expect(project, contains('FlutterGeneratedPluginSwiftPackage in Frameworks'));
+    final scheme = File('ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme').readAsStringSync();
+    expect(scheme, contains('xcode_backend.sh&quot; prepare'));
+    expect(File('ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved').existsSync(), isTrue);
+  });
+
   // Review 8, finding 5: R8 renamed the app's own classes, and no mapping of an uploaded build was kept, so a native
   // crash reached Sentry as `ot.a`. Flutter's Gradle plugin adds android/app/proguard-rules.pro when it is there.
   test('the Android release keeps its class names', () {
