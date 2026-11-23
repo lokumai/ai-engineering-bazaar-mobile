@@ -729,9 +729,38 @@ void main() {
       final bloc = await _started(repository);
       bloc.add(const QuarantineDeleted());
       await pumpEventQueue();
-      expect(repository.calls.last, 'deleteQuarantine');
+      expect(repository.calls, containsAllInOrder(['deleteQuarantine', 'write']));
       expect(repository.quarantine, isNull);
       expect(bloc.state, ready());
+      await bloc.close();
+    });
+  });
+
+  // Review 6, finding 8: the record set aside stayed in record.json, so the next start set it aside again.
+  test('deleting a record set aside at this launch writes the record in use over it', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadQuarantined(reason: QuarantineReason.malformed, quarantineKept: true)
+        ..record = Uint8List.fromList([7])
+        ..quarantine = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(repository.writes, hasLength(1));
+      expect(repository.record, isNot(Uint8List.fromList([7])), reason: 'the bytes set aside are gone');
+      await bloc.close();
+    });
+  });
+
+  test('deleting a copy kept from an earlier launch writes nothing', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadEmpty(quarantineKept: true)
+        ..quarantine = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(repository.writes, isEmpty);
       await bloc.close();
     });
   });
@@ -803,7 +832,7 @@ void main() {
 
       repository.loadGate!.complete();
       await pumpEventQueue();
-      expect(repository.calls, ['load', 'deleteQuarantine']);
+      expect(repository.calls, ['load', 'deleteQuarantine', 'write']);
       expect(bloc.state, ready());
       await bloc.close();
     });

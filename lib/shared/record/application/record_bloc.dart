@@ -202,16 +202,22 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         );
       case QuarantineDeleted():
         await _repository.deleteQuarantine();
-        emit(
-          RecordReady(
-            record: current.record,
-            writeState: current.writeState,
-            quarantine: null,
-            quarantineKept: false,
-            launchReadFailed: current.launchReadFailed,
-            undo: current.undo,
-          ),
+        final cleared = RecordReady(
+          record: current.record,
+          writeState: current.writeState,
+          quarantine: null,
+          quarantineKept: false,
+          launchReadFailed: current.launchReadFailed,
+          undo: current.undo,
         );
+        // A record set aside at this launch is still in `record.json`: the record in use is written over it, or the
+        // next start sets the same bytes aside again and the notice comes back after a delete said it was final
+        // (review 6, finding 8).
+        if (current.quarantine == null) {
+          emit(cleared);
+        } else {
+          await _commit(cleared, current.record, emit, always: true);
+        }
     }
   }
 
@@ -261,8 +267,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
   }
 
   /// Makes [next] the record on top of [base], and writes it unless the cap or the launch-read gate refuses.
-  Future<void> _commit(RecordReady base, RecordData next, Emitter<RecordState> emit) async {
-    if (identical(next, base.record)) {
+  Future<void> _commit(RecordReady base, RecordData next, Emitter<RecordState> emit, {bool always = false}) async {
+    if (!always && identical(next, base.record)) {
       emit(base);
       return;
     }
