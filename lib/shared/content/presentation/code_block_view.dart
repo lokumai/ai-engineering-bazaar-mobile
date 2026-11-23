@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
@@ -113,6 +114,8 @@ class _CopyButton extends StatefulWidget {
 }
 
 class _CopyButtonState extends State<_CopyButton> {
+  static final _log = AppLogger.getLogger('CodeCopy');
+
   /// How long Copied stays.
   static const _shown = Duration(seconds: 2);
 
@@ -126,7 +129,13 @@ class _CopyButtonState extends State<_CopyButton> {
   }
 
   Future<void> _copy() async {
-    await Clipboard.setData(ClipboardData(text: widget.text));
+    try {
+      await Clipboard.setData(ClipboardData(text: widget.text));
+    } on PlatformException catch (error) {
+      // The phone refused its clipboard: the button stays Copy, so it does not say what did not happen (review 8).
+      _log.warn('code not copied: {}', [error.code]);
+      return;
+    }
     if (!mounted) return;
     setState(() => _copied = true);
     _timer?.cancel();
