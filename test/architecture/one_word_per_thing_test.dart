@@ -47,4 +47,9 @@ void main() {
     expect(fa['erase_word'], 'حذف');
     expect('${fa['erase_field_label']}', contains('«حذف»'));
   });
+
+  // Review 7, finding 8: Turkish "tarayıcı" is the browser, and the scan line said one was opening.
+  test('Turkish calls the code scanner a kod okuyucu, never the browser', () {
+    expect('${tr['website_scan_opening']}', startsWith('Kod okuyucu'));
+  });
 }

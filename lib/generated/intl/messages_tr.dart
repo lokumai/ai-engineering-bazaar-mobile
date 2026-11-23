@@ -763,7 +763,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu kod web sitesinden gelen bir ilerleme bağlantısı değil.",
     ),
     "website_scan_opening": MessageLookupByLibrary.simpleMessage(
-      "Tarayıcı açılıyor. İlk seferde bir dakika sürebilir.",
+      "Kod okuyucu açılıyor. İlk seferde bir dakika sürebilir.",
     ),
     "website_scan_title": MessageLookupByLibrary.simpleMessage("Web sitesindeki kodu okut"),
     "website_to_text": MessageLookupByLibrary.simpleMessage(
