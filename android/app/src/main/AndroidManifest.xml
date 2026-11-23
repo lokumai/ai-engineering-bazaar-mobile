@@ -47,8 +47,9 @@
               android:value="false"
               />
             <!-- The site's pages the app opens itself (plan 17.2): modules in every language and the catalogs of both
-                 tracks (the site has them in English only), and the progress transfer. The same list is in the site's apple-app-site-association; the
-                 site's assetlinks.json names this app, which Android checks (autoVerify) before it opens them here.
+                 tracks (the site has them in English only), and the progress transfer. Android opens them here only
+                 once the site's assetlinks.json names this app with Play's signing key, which it checks (autoVerify);
+                 the site does not publish it yet (plan 21.9), so until then they open in the browser.
                  The links reach lib/infrastructure/links/link_channel.dart through Links.kt, never the router. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
