@@ -148,6 +148,13 @@ The first release on the App Store and Google Play.
 - A module, the story or a quiz whose content cannot be read says so, rather than loading for good; a quiz left before it loads no longer reports an error.
 - A voice added in the phone's settings is found when the reader comes back, rather than once the app is closed.
 - On Android a voice engine that describes a voice badly keeps its default voice, rather than ending the app.
+- A module is counted read only by the time it is in front: time on the next module, a quiz or a picture opened over it no longer counts, and a visit's time is counted once.
+- A module the phone's voice does not start keeps where it was left and says so, rather than the player closing without a word.
+- On Android the notice of a module read aloud is in the app's language, not the phone's.
+- The app says "this device", not "this phone", as it runs on an iPad too.
+- The Apprentice no longer stutters on a feed once it has read many modules: its curve is drawn away from the screen.
+- Persian screens write every number with Latin digits, as the website does.
+- English text in the Persian interface (a summary, a level's notes, a planned module) reads left to right.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
