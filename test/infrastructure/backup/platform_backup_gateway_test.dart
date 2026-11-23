@@ -15,11 +15,15 @@ final class _FakePlatformFile extends PlatformFile {
   final List<int>? bytes;
   final Exception? error;
 
+  /// How many times the bytes were read.
+  int reads = 0;
+
   @override
   String get name => 'hl-record-2026-03-15.json';
 
   @override
   Future<Uint8List> readAsBytes() async {
+    reads++;
     if (error case final error?) throw error;
     return Uint8List.fromList(bytes!);
   }
@@ -141,11 +145,13 @@ void main() {
       expect(extensions, ['json']);
     });
 
+    // Review 6, finding 11: the file's read threw, so the test passed without the size check.
     test('refuses a file larger than a backup could be, before reading it', () async {
-      final file = _FakePlatformFile(error: Exception('read'))..fakeLength = PlatformBackupGateway.maxBackupBytes + 1;
+      final file = _FakePlatformFile(bytes: [123, 125])..fakeLength = PlatformBackupGateway.maxBackupBytes + 1;
       final gateway = PlatformBackupGateway(pickFile: () async => file);
 
       expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+      expect(file.reads, 0, reason: 'never read');
     });
 
     test('reads a file at the limit', () async {
