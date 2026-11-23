@@ -236,18 +236,50 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// around it. Null while no written module is drawn.
   _Leaving? _leaving;
 
+  /// The seconds of the visits before this one, taken once as the page opens: a place kept during this visit already
+  /// holds its seconds, and the page built again with it would count them twice (review 5, finding 13).
+  late int _before = widget.place?.seconds ?? 0;
+
   /// The seconds the module has been on the screen, over every visit.
-  int get _seconds => (widget.place?.seconds ?? 0) + _onScreen.elapsed.inSeconds;
+  int get _seconds => _before + _onScreen.elapsed.inSeconds;
+
+  /// Whether the app is on the screen, and whether the page is: a page opened over it (the next module, a quiz, a
+  /// picture) takes it off, and the time spent there is not this module's (review 4, finding 3).
+  bool _appShown = true;
+  bool _pageShown = true;
+
+  void _countTime() => _appShown && _pageShown ? _onScreen.start() : _onScreen.stop();
 
   @override
   void initState() {
     super.initState();
-    _onScreen.start();
-    _lifecycle = AppLifecycleListener(onHide: _onScreen.stop, onShow: _onShow);
+    _lifecycle = AppLifecycleListener(
+      onHide: () {
+        _appShown = false;
+        _countTime();
+      },
+      onShow: _onShow,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A page under another one is offstage, and its tickers are off.
+    _pageShown = TickerMode.valuesOf(context).enabled;
+    _countTime();
+  }
+
+  @override
+  void didUpdateWidget(ModuleReaderView old) {
+    super.didUpdateWidget(old);
+    // The places came in after the page opened, before it kept one of its own.
+    if (old.place == null && _lastPlace == null) _before = widget.place?.seconds ?? 0;
   }
 
   void _onShow() {
-    _onScreen.start();
+    _appShown = true;
+    _countTime();
     // Back from the phone's settings, where the line said to add a voice: the phone is asked again (review 5,
     // finding 9).
     if (_voice == false) setState(() => _voiceFor = null);

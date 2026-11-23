@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/reader/domain/read_enough.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -140,5 +142,39 @@ void main() {
 
     expect(_sent(record), isFalse);
     expect(_note, findsNothing);
+  });
+
+  // Review 4, finding 3: the time on the screen ran on under a page opened over the module, so a module flicked to its
+  // end and left under the next one was marked completed by the time spent reading that one.
+  testWidgets('time under a page opened over it is not time on the screen', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await _toEnd(tester);
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 600));
+    router.pop();
+    await tester.pumpAndSettle();
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse);
+  });
+
+  // Review 5, finding 13: a place kept during the visit already holds the visit's seconds, and the page built again
+  // with it, as the router does when a page is opened over it, added them a second time.
+  testWidgets('the time of this visit counts once, whatever places it keeps on the way', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 150));
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 150));
+    await _toEnd(tester);
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse, reason: 'about 300 seconds, short of the 400 that count it read');
+    expect((await store.load()).values.single.seconds, inInclusiveRange(300, 320));
   });
 }
