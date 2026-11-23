@@ -337,16 +337,20 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Sets the best voice installed for [locale] on [tts], or leaves the engine's own. */
     private fun pickVoice(tts: TextToSpeech, locale: Locale) {
         val voices = runCatching { tts.voices?.toList() }.getOrNull() ?: return
-        val facts = voices.map { voice: Voice ->
-            VoiceFacts(
-                language = voice.locale.language,
-                country = voice.locale.country,
-                quality = voice.quality,
-                latency = voice.latency,
-                network = voice.isNetworkConnectionRequired,
-                installed = !voice.features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED),
-            )
-        }
+        // Another maker's engine may give a voice no locale or no features, which would throw here, on the main
+        // thread at the first speak: the engine's own default voice is kept then (review 5, finding 14).
+        val facts = runCatching {
+            voices.map { voice: Voice ->
+                VoiceFacts(
+                    language = voice.locale.language,
+                    country = voice.locale.country,
+                    quality = voice.quality,
+                    latency = voice.latency,
+                    network = voice.isNetworkConnectionRequired,
+                    installed = !voice.features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED),
+                )
+            }
+        }.getOrNull() ?: return
         val best = best(facts, locale.language, locale.country) ?: return
         runCatching { tts.voice = voices[best] }
     }
