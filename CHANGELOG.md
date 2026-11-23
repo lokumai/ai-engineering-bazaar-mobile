@@ -158,6 +158,18 @@ The first release on the App Store and Google Play.
 - The Caravan's search finds words as the course search does: Turkish ı and İ either way, and a Persian word typed with a space.
 - Half-width buttons end a label too long for them with an ellipsis.
 - On iOS a module read aloud reads on after Siri or a navigation prompt, when the phone says it may.
+- Listen stopped in a middle part keeps the place and says it stopped.
+- A restore whose record could not be written says so, rather than that it was restored.
+- The tour goes on when the page it points at is rebuilt, and Home's practice turns to the new day at midnight.
+- In Persian, Privacy and legal's addresses and Listen's buttons stay left to right.
+- Deleting the set-aside record is saved at once.
+- Android's Listen starts again after its voice engine failed, and its notice no longer stays when it could not start.
+- A site link names a level or module only with the site's own letters.
+- A module, About or a level's notes that cannot be read is reported and says so, rather than staying blank.
+- A screen reader names the loading spinners; field outlines, the search's count and the training panel read better with large text and low vision; a share menu that did not open says so.
+- Turkish and Persian name each thing with one word, and the tour with the words its screens show.
+- An error page from the site that trickles in no longer keeps Check for updates busy.
+- On iOS a second Scan the code while the camera question is up is answered busy.
 - A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
