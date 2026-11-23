@@ -59,7 +59,8 @@ final class PlatformBackupGateway implements IBackupGateway {
     if (file == null) return const PickedBackupCancelled();
     try {
       final length = await file.length();
-      if (length != null && length > maxBackupBytes) {
+      if (length == null) return await _readCapped(file);
+      if (length > maxBackupBytes) {
         _log.warn('Backup file too large: {} bytes', [length]);
         return const PickedBackupUnreadable();
       }
@@ -69,6 +70,20 @@ final class PlatformBackupGateway implements IBackupGateway {
       return const PickedBackupUnreadable();
     }
   }
+}
+
+/// [file], whose length the picker could not tell, read by its stream and refused once it passes the limit, so no
+/// file of any size is read whole (review 7, finding 7).
+Future<PickedBackup> _readCapped(PlatformFile file) async {
+  final body = BytesBuilder(copy: false);
+  await for (final chunk in file.readAsByteStream()) {
+    body.add(chunk);
+    if (body.length > PlatformBackupGateway.maxBackupBytes) {
+      PlatformBackupGateway._log.warn('Backup file of unknown length too large');
+      return const PickedBackupUnreadable();
+    }
+  }
+  return PickedBackupBytes(bytes: body.takeBytes());
 }
 
 /// What the restore picker offers on [platform] (plan 4.6). Android shows every file: a `.json` filter becomes the

@@ -39,13 +39,25 @@ final class _FakePlatformFile extends PlatformFile {
   int? lengthSync() => throw UnimplementedError();
 
   @override
-  Future<int?> length() async => fakeLength ?? bytes?.length;
+  Future<int?> length() async => lengthUnknown ? null : fakeLength ?? bytes?.length;
 
   /// The length the file reports, when the test sets one apart from its bytes.
   int? fakeLength;
 
+  /// Whether the file reports no length, as a provider that cannot tell its size does.
+  bool lengthUnknown = false;
+
+  /// The chunks [readAsByteStream] gives, and how many of them were taken.
+  Iterable<List<int>>? chunks;
+  int chunksTaken = 0;
+
   @override
-  Stream<Uint8List> readAsByteStream() => throw UnimplementedError();
+  Stream<Uint8List> readAsByteStream() => Stream.fromIterable(
+    chunks!.map((chunk) {
+      chunksTaken++;
+      return Uint8List.fromList(chunk);
+    }),
+  );
 }
 
 void main() {
@@ -112,7 +124,7 @@ void main() {
 
     test('reports a file it cannot read', () async {
       final gateway = PlatformBackupGateway(
-        pickFile: () async => _FakePlatformFile(error: const FileSystemException('denied')),
+        pickFile: () async => _FakePlatformFile(bytes: const [123], error: const FileSystemException('denied')),
       );
 
       expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
@@ -152,6 +164,32 @@ void main() {
 
       expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
       expect(file.reads, 0, reason: 'never read');
+    });
+
+    // Review 7, finding 7: a file whose length the picker cannot tell was read whole, whatever its size.
+    test('reads a file of unknown length by its stream, and refuses it past the limit', () async {
+      const chunk = 1024 * 1024;
+      final file = _FakePlatformFile()
+        ..lengthUnknown = true
+        ..chunks = Iterable.generate(1000, (_) => List.filled(chunk, 32));
+      final gateway = PlatformBackupGateway(pickFile: () async => file);
+
+      expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+      expect(file.reads, 0, reason: 'never read whole');
+      expect(file.chunksTaken * chunk, lessThanOrEqualTo(PlatformBackupGateway.maxBackupBytes + chunk));
+    });
+
+    test('reads a small file of unknown length whole', () async {
+      final file = _FakePlatformFile()
+        ..lengthUnknown = true
+        ..chunks = [
+          [123],
+          [125],
+        ];
+      final gateway = PlatformBackupGateway(pickFile: () async => file);
+
+      final picked = await gateway.pickJson();
+      expect(picked, isA<PickedBackupBytes>().having((backup) => backup.bytes, 'bytes', [123, 125]));
     });
 
     test('reads a file at the limit', () async {
