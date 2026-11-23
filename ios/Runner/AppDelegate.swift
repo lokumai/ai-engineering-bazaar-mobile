@@ -393,6 +393,9 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   /// The lock screen's and the headphones' commands, answered while a reading is shown.
   private var commands: [Any] = []
 
+  /// Whether another app's sound paused the reading, which then reads on when that sound ends and iOS says it may.
+  private var pausedBySound = false
+
   init(messenger: FlutterBinaryMessenger) {
     channel = FlutterMethodChannel(name: Speech.channel, binaryMessenger: messenger)
     super.init()
@@ -406,12 +409,28 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       object: AVAudioSession.sharedInstance())
   }
 
-  /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was.
+  /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was. When a
+  /// short sound such as Siri or a Maps prompt ends and iOS says the app may play again, the reading goes on, as it
+  /// does on Android (review 4).
   @objc private func interrupted(_ notification: Notification) {
-    guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
-      AVAudioSession.InterruptionType(rawValue: raw) == .began
+    guard let info = notification.userInfo, let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+      let type = AVAudioSession.InterruptionType(rawValue: raw)
     else { return }
-    pauseReading()
+    switch type {
+    case .began:
+      pausedBySound = !parts.isEmpty
+      pauseReading()
+    case .ended:
+      let options = AVAudioSession.InterruptionOptions(
+        rawValue: info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0)
+      DispatchQueue.main.async { [weak self] in
+        guard let self, self.pausedBySound else { return }
+        self.pausedBySound = false
+        if options.contains(.shouldResume) { self.channel.invokeMethod("control", arguments: "play") }
+      }
+    @unknown default:
+      return
+    }
   }
 
   /// The headphones were taken off or lost, as Bluetooth ones whose battery ran out: the reading pauses rather than go
@@ -501,6 +520,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       guard let language = arguments["language"] as? String else { return result(false) }
       result(Speech.hasVoice(for: language, among: AVSpeechSynthesisVoice.speechVoices().map(\.language)))
     case "speak":
+      // The reader read on, or began another reading, before the other sound ended.
+      pausedBySound = false
       guard let id = arguments["id"] as? Int, let texts = arguments["texts"] as? [String], !texts.isEmpty,
         let tag = arguments["tag"] as? String, let voice = Speech.bestVoice(for: tag)
       else { return result(false) }
@@ -533,6 +554,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       }
       result(true)
     case "stop":
+      // Not the end of a pause by another app's sound: the Dart side stops the words when it pauses for it, and a
+      // later play only reads on a reading still paused.
       synthesizer.stopSpeaking(at: .immediate)
       endAll()
       result(nil)
