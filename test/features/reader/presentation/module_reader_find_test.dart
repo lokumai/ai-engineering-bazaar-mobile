@@ -41,11 +41,11 @@ void main() {
   late MockModuleReaderBloc readerBloc;
   setUp(() => readerBloc = MockModuleReaderBloc());
 
-  void doc(List<Block> body, {String title = 'First'}) => whenListen(
+  void doc(List<Block> body, {String title = 'First', String lang = 'en', TextDir dir = TextDir.ltr}) => whenListen(
     readerBloc,
     const Stream<ReaderState>.empty(),
     initialState: ReaderWritten(
-      doc: testDoc(title: title, toc: _toc, body: body),
+      doc: testDoc(title: title, toc: _toc, body: body, lang: lang, dir: dir),
       entry: first,
       moduleCount: 1,
     ),
@@ -214,19 +214,23 @@ void main() {
   });
 
   testWidgets('in Persian a table row is stepped right to left, as it is read', (tester) async {
-    doc([
-      const TableBlock(
-        number: '1',
-        title: null,
-        rowHeaders: false,
-        align: [null, null],
-        head: [
-          Cell(inlines: [TextInline(text: 'agent one')]),
-          Cell(inlines: [TextInline(text: 'agent two')]),
-        ],
-        rows: [],
-      ),
-    ]);
+    doc(
+      [
+        const TableBlock(
+          number: '1',
+          title: null,
+          rowHeaders: false,
+          align: [null, null],
+          head: [
+            Cell(inlines: [TextInline(text: 'agent one')]),
+            Cell(inlines: [TextInline(text: 'agent two')]),
+          ],
+          rows: [],
+        ),
+      ],
+      lang: 'fa',
+      dir: TextDir.rtl,
+    );
     await pump(tester, lang: 'fa');
 
     // The first column stands on the right in Persian: it is the first mark.

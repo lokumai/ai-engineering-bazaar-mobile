@@ -51,6 +51,7 @@ import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -859,30 +860,44 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   marks: _termMarksFor(context, doc),
                                   onTap: _showTerm,
                                   child: ReadingStyleScope(
-                                    child: BlockList(
-                                      blocks: body,
-                                      render: render,
-                                      spoken: parts.isEmpty ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                    // In the direction of the document's language: English where the module has no
+                                    // translation reads left to right in the Persian interface too.
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(
+                                        blocks: body,
+                                        render: render,
+                                        spoken: parts.isEmpty ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                      ),
                                     ),
                                   ),
                                 )
                               else if (draft != null) ...[
                                 if (draft.summary case final summary?)
                                   ReadingStyleScope(
-                                    child: BlockList(
-                                      blocks: [
-                                        ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
-                                      ],
-                                      render: render,
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(
+                                        blocks: [
+                                          ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                                        ],
+                                        render: render,
+                                      ),
                                     ),
                                   ),
                                 if (draft.parts.isNotEmpty) ...[
-                                  ScheduleOfParts(parts: draft.parts),
+                                  ContentDirection(
+                                    dir: doc.dir,
+                                    child: ScheduleOfParts(parts: draft.parts),
+                                  ),
                                   const SizedBox(height: 26),
                                 ],
                                 if (draft.written case final writtenBlocks?)
                                   ReadingStyleScope(
-                                    child: BlockList(blocks: writtenBlocks, render: render),
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(blocks: writtenBlocks, render: render),
+                                    ),
                                   ),
                               ],
                               if (written) ...[

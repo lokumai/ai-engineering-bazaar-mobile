@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.d
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -118,13 +119,16 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
     super.build(context);
     final body = switch (_read) {
       _Reading() => const SizedBox.shrink(),
-      _Arrived(:final doc) => BlockList(
-        blocks: doc.blocks,
-        render: BlockRenderContext(
-          onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
-          webPage: null,
-          headingKey: _headingKey,
-          diagramThemes: widget.diagramThemes,
+      // The web writes a level's notes in English only.
+      _Arrived(:final doc) => ContentDirection.english(
+        child: BlockList(
+          blocks: doc.blocks,
+          render: BlockRenderContext(
+            onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
+            webPage: null,
+            headingKey: _headingKey,
+            diagramThemes: widget.diagramThemes,
+          ),
         ),
       ),
       _Unreadable() => const ContentUnreadable(),

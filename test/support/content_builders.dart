@@ -94,9 +94,11 @@ BundleIndex testIndex({List<ModuleEntry>? modules, Map<String, String> images = 
   );
 }
 
-/// A [ModuleDoc] with defaults, written in English and left to right.
+/// A [ModuleDoc] with defaults, written in English and left to right unless [lang] and [dir] say otherwise.
 ModuleDoc testDoc({
   String key = 'alpha/first',
+  String lang = 'en',
+  TextDir dir = TextDir.ltr,
   Track track = Track.engineers,
   String title = 'First',
   List<Block>? body,
@@ -113,8 +115,8 @@ ModuleDoc testDoc({
   return ModuleDoc(
     key: key,
     track: track,
-    lang: 'en',
-    dir: TextDir.ltr,
+    lang: lang,
+    dir: dir,
     title: title,
     words: words,
     objectives: objectives,

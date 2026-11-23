@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dar
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_key.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -150,7 +151,10 @@ class _ModuleCard extends StatelessWidget {
                   if (open)
                     Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Text(summary, style: textTheme.bodyMedium?.copyWith(color: muted)),
+                      // The web writes summaries in English only (plan 5.8).
+                      child: ContentDirection.english(
+                        child: Text(summary, style: textTheme.bodyMedium?.copyWith(color: muted)),
+                      ),
                     ),
                 ],
                 const SizedBox(height: AppSpacing.sm),

@@ -264,6 +264,29 @@ void main() {
     expect(find.text('Contents'), findsNothing);
   });
 
+  // Review 5, finding 5: in the Persian interface an English draft was laid out right to left, its full stop at the
+  // start of the line.
+  testWidgets('an English draft reads left to right in the Persian interface', (tester) async {
+    stateIs(
+      ReaderPlanned(
+        doc: testDoc(
+          draft: Draft(summary: 'The plan.', parts: const ['Part one'], written: null),
+        ),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, locale: const Locale('fa'));
+
+    expect(Directionality.of(tester.element(find.text('The plan.', findRichText: true))), TextDirection.ltr);
+    expect(Directionality.of(tester.element(find.text('Part one'))), TextDirection.ltr);
+    expect(
+      Directionality.of(tester.element(find.byType(SingleChildScrollView).first)),
+      TextDirection.rtl,
+      reason: 'the page around it keeps the interface\'s direction',
+    );
+  });
+
   testWidgets('a partly written module shows its written sections under the schedule', (tester) async {
     stateIs(
       ReaderPlanned(
