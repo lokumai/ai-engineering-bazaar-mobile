@@ -12,7 +12,8 @@ abstract final class SampleCaravan {
   /// The month the road starts.
   static final DateTime first = DateTime.utc(2022, 11);
 
-  /// The last month the road reaches.
+  /// The last month the road reaches: a fixed month, not today, as the trends after it are not in this list. Move it
+  /// with the trends; the bundle's timeline replaces both (CLAUDE.md, Object store).
   static final DateTime through = DateTime.utc(2026, 11);
 
   /// The road of the sample, in [language] (`en`, `tr` or `fa`; English for any other).

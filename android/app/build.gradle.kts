@@ -79,10 +79,21 @@ android {
                 if (keyPropertiesFile.exists()) {
                     signingConfigs.getByName("release")
                 } else {
-                    logger.warn("android/key.properties is missing: the release is signed with the debug key.")
                     signingConfigs.getByName("debug")
                 }
         }
+    }
+}
+
+// Review 6, finding 20: a release built without the upload key is signed with the debug key, which the stores refuse.
+// It stops here instead, on every machine but CI, which builds a release only to check that it builds.
+gradle.taskGraph.whenReady {
+    val releasing = allTasks.any { it.project == project && it.name in setOf("assembleRelease", "bundleRelease") }
+    if (releasing && !keyPropertiesFile.exists() && System.getenv("CI") != "true") {
+        throw GradleException(
+            "android/key.properties is missing, so this release would be signed with the debug key. " +
+                "Add the upload key (docs/development.md, Release), or set CI=true to check only that the release builds.",
+        )
     }
 }
 

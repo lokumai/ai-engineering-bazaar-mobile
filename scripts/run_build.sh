@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Review 6, finding 20: a release without the Sentry DSN reports no crashes.
+if [ ! -f sentry_dsn.json ]; then
+  echo "sentry_dsn.json is missing: a release built without it reports no crashes. See docs/development.md, Release."
+  exit 1
+fi
+
 echo "Running flutter clean"
 fvm flutter clean
 
@@ -25,7 +31,7 @@ if ! fvm flutter test --coverage; then
 fi
 
 echo "Running flutter build apk"
-fvm flutter build apk --release --target lib/main/main_prod.dart
+fvm flutter build apk --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
 
 echo "Running flutter build appbundle"
-fvm flutter build appbundle --release --target lib/main/main_prod.dart
+fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json

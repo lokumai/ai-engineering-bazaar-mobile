@@ -30,6 +30,10 @@ void main() {
       final gradle = File('android/app/build.gradle.kts').readAsStringSync();
       expect(gradle, contains('rootProject.file("key.properties")'));
       expect(gradle, contains('signingConfigs.getByName("release")'));
+      // Review 6, finding 20: without the file a release stops instead of going out with the debug key.
+      expect(gradle, contains('gradle.taskGraph.whenReady'));
+      expect(gradle, contains('throw GradleException('));
+      expect(gradle, isNot(contains('logger.warn("android/key.properties is missing')));
 
       final ignore = Process.runSync('git', [
         'check-ignore',

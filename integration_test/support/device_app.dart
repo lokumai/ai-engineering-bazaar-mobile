@@ -15,15 +15,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-/// The production wiring with four changes: the content site is an https address that refuses the connection at once,
+/// The production wiring with five changes: the content site is an https address that refuses the connection at once,
 /// so every refresh fails as `network` and the app runs on the bundled snapshot; the content cache lives in
-/// `<directory>/cache`; the record lives in `<directory>/record/`; and Welcome counts as seen, so the app opens on
-/// Home.
+/// `<directory>/cache`; the language, theme, icon, places and the Apprentice live in `<directory>/support`, apart from
+/// the installed app's own data; the record lives in `<directory>/record/`; and Welcome counts as seen, so the app
+/// opens on Home.
 class _DeviceDependencies extends AppDependencies {
   _DeviceDependencies(this.directory)
     : super(
         appConfig: const AppConfig.test(contentBaseUrl: 'https://127.0.0.1:9/'),
         cacheDirectory: () async => Directory('${directory.path}/cache')..createSync(recursive: true),
+        supportDirectory: () async => Directory('${directory.path}/support')..createSync(recursive: true),
       );
 
   final Directory directory;

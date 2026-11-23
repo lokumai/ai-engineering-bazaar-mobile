@@ -116,7 +116,9 @@ keyAlias=upload
 keyPassword=<the key's password>
 ```
 
-Without the file a release is signed with the debug key, which the stores refuse; the build says so in a warning.
+Without the file a release build stops with a message, since a release signed with the debug key is refused by the stores. CI, which sets `CI=true`, still builds one with the debug key to check that it builds.
+
+`scripts/run_build.sh` and `scripts/run_fvm_build.sh` build with `sentry_dsn.json` and stop when it is missing, so no release goes out that reports no crashes.
 
 ```shell
 fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
