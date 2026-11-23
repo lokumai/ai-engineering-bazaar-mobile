@@ -157,8 +157,8 @@ void main() {
     await withClock(_dayZero, () async {
       await _pumpHome(tester, locale: const Locale('tr'));
 
-      expect(find.byTooltip('Başka göster'), findsOneWidget);
-      expect(find.text('Başka göster'), findsNothing, reason: 'no line of its own under the card');
+      expect(find.byTooltip('Başkasını göster'), findsOneWidget);
+      expect(find.text('Başkasını göster'), findsNothing, reason: 'no line of its own under the card');
       final icon = tester.getRect(find.byKey(const ValueKey('home-daily-another')));
       final card = tester.getRect(_card);
       expect(icon.top - card.top, lessThan(16), reason: 'at the top');

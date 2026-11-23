@@ -56,9 +56,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(query) => "“${query}” için bir şey bulunamadı.";
 
-  static String m18(query) => "“${query}” bu yolda bulunamadı.";
+  static String m18(query) => "“${query}” bu anlatımda bulunamadı.";
 
-  static String m19(track) => "${track} yolunda";
+  static String m19(track) => "“${track}” anlatımında";
 
   static String m20(count) => "ilk ${count} tanesi gösteriliyor";
 
@@ -355,7 +355,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_after": MessageLookupByLibrary.simpleMessage("Daha sonra"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Yazılmış bütün modüller tamamlandı."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("Okumaya devam et"),
-    "home_daily_another": MessageLookupByLibrary.simpleMessage("Başka göster"),
+    "home_daily_another": MessageLookupByLibrary.simpleMessage("Başkasını göster"),
     "home_daily_completed": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "home_path": MessageLookupByLibrary.simpleMessage("Yolun"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Bekleyen quiz"),
@@ -460,13 +460,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_stat_words": MessageLookupByLibrary.simpleMessage("bilinen kelime"),
     "pocket_stats_title": MessageLookupByLibrary.simpleMessage("Öğrendikleri"),
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("Uyuyor. Uyandırmak için dokun."),
-    "pocket_status_cold": MessageLookupByLibrary.simpleMessage("Soğuk: her seferinde en olası sözcükleri söylüyor."),
+    "pocket_status_cold": MessageLookupByLibrary.simpleMessage("Soğuk: her seferinde en olası kelimeleri söylüyor."),
     "pocket_status_hallucinating": MessageLookupByLibrary.simpleMessage(
       "Fazla sıcak: halüsinasyon görüyor. Sıcaklığı düşür.",
     ),
     "pocket_status_hungry": MessageLookupByLibrary.simpleMessage("Aç: saatlerdir beslenmedi."),
     "pocket_status_newborn": MessageLookupByLibrary.simpleMessage(
-      "Yeni: henüz hiç sözcük bilmiyor. Ona biraz token yedir.",
+      "Yeni: henüz hiç kelime bilmiyor. Ona biraz token yedir.",
     ),
     "pocket_status_overfit": MessageLookupByLibrary.simpleMessage(
       "Aşırı öğrendi: tokenları ezberledi ve onları tekrarlıyor. Birkaç saniye dinlensin.",
@@ -476,7 +476,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Sıcaklık"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Çırak"),
     "pocket_to_next": m43,
-    "practice_brief": MessageLookupByLibrary.simpleMessage("Özet"),
+    "practice_brief": MessageLookupByLibrary.simpleMessage("Modül özeti"),
     "practice_brief_count": m44,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın bir modülün özeti ve temel terimleri, kart kart.",
@@ -519,10 +519,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
-      "Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
+      "“Kodu okut”, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
     ),
     "privacy_scanner_ios": MessageLookupByLibrary.simpleMessage(
-      "Kodu okut, kodu uygulamanın içinde kendisi okur; cihazdan hiçbir şey çıkmaz.",
+      "“Kodu okut”, kodu uygulamanın içinde kendisi okur; cihazdan hiçbir şey çıkmaz.",
     ),
     "privacy_site_note": MessageLookupByLibrary.simpleMessage("Sitedeki gizlilik notu"),
     "privacy_title": MessageLookupByLibrary.simpleMessage("Gizlilik"),
@@ -700,7 +700,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_track": MessageLookupByLibrary.simpleMessage("Anlatım"),
     "settings_website": MessageLookupByLibrary.simpleMessage("Transfer"),
     "tour_band": MessageLookupByLibrary.simpleMessage("Okuyacağın modül hep burada."),
-    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ akımlarının arasından geçer."),
+    "tour_caravan_stage": MessageLookupByLibrary.simpleMessage("Kervan, yapay zekâ trendlerinin arasından geçer."),
     "tour_caravan_strip": MessageLookupByLibrary.simpleMessage("İlerlemek için kaydır ya da bir durağa dokun."),
     "tour_catalog_levels": MessageLookupByLibrary.simpleMessage(
       "Bir seviyeye dokununca modülleri açılır. Tamamladığın modüller işaretli görünür.",
@@ -717,10 +717,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_practice_today": MessageLookupByLibrary.simpleMessage("Burada istediğin kadar pratik yap."),
     "tour_quiz_level": MessageLookupByLibrary.simpleMessage("Her seviyenin quizleri. İstediğin kadar çöz."),
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
-      "Gardırobum: beni giydir ya da uygulamanın simgesini değiştir.",
+      "Gardırobum: beni giydir ya da App ikonunu değiştir.",
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
-    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Yol, dil, görünüm ve yazı boyutu."),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Anlatım, dil, görünüm ve yazı boyutu."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
       "Web sitesindeki ilerlemeni buraya getir ya da buradakini oraya gönder.",
     ),

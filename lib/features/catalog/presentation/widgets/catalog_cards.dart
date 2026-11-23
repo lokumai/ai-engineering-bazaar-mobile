@@ -205,7 +205,7 @@ class _CompletionDisc extends StatelessWidget {
     }
     return Semantics(
       image: true,
-      label: S.of(context).catalog_filter_completed,
+      label: S.of(context).catalog_state_complete,
       excludeSemantics: true,
       child: Container(
         width: 24,
