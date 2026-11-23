@@ -36,7 +36,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Check formatting
         run: dart format . --line-length=120 --set-exit-if-changed
@@ -59,7 +59,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Run tests
         timeout-minutes: 15
@@ -95,7 +95,7 @@ jobs:
           java-version: '17'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Build APK
         run: flutter build apk --release --target lib/main/main_prod.dart
@@ -126,7 +126,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       # No DEVELOPMENT_TEAM is set, so the build is unsigned. Every plugin is a Swift package (no CocoaPods).
       - name: Build iOS

@@ -32,7 +32,7 @@ jobs:
           channel: stable
           cache: true
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Run the device tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
@@ -54,7 +54,7 @@ jobs:
           channel: stable
           cache: true
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Boot an iPhone simulator
         id: simulator
         run: |

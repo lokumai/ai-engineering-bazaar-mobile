@@ -118,7 +118,14 @@ keyPassword=<the key's password>
 
 Without the file a bundle build stops with a message, since a bundle signed with the debug key is refused by Google Play; a release APK, which `flutter run --release` installs, is signed with the debug key. CI, which sets `CI=true`, still builds a bundle with the debug key to check that it builds.
 
-`scripts/run_build.sh` and `scripts/run_fvm_build.sh` stop when `sentry_dsn.json` is missing, so no release goes out that reports no crashes, and when the working tree has uncommitted changes, so a store build is a commit CI saw; they run the gate, then build the APK and the bundle, and change no source.
+`scripts/run_build.sh` and `scripts/run_fvm_build.sh` (and `scripts/run_ios_build.sh` on the Mac) run the checks of `scripts/release_checks.sh` first, and stop:
+
+- when `sentry_dsn.json` has no DSN of the form `https://<key>@<host>/<project id>`, so no release goes out that reports no crashes;
+- when a tracked file has changed, or a file not in git lies under `assets`, `android`, `ios` or `lib`, folders a build takes whole;
+- when HEAD is on no remote branch, or CI has not passed on it (read with `gh`; without `gh`, check CI by hand and run with `CI_CHECKED=<the commit's full hash>`).
+
+Then they run the gate and build, and change no source.
+Untracked `linux/`, `macos/` or `windows/` folders, which a `flutter create` or an IDE may leave, fail the gate's `platform_folders_test`: remove them before a store build.
 
 ```shell
 fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
@@ -130,7 +137,7 @@ R8 shrinks the release but keeps every class name (`android/app/proguard-rules.p
 
 ### iOS
 
-Archive in Xcode on the Mac, with the team's account signed in: `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`, then upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
+Archive on the Mac, with the team's account signed in to Xcode: `scripts/run_ios_build.sh` runs the same checks and the gate, then `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`; upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
 
 Then give Sentry the build's symbols, so an app hang reported by iOS shows the app's own frames by name rather than as addresses (Dart crash reports do not need them):
 
