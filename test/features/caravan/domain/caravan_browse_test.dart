@@ -66,7 +66,7 @@ void main() {
       [
         CaravanTrend(
           id: 'bot',
-          title: 'چت‌بات‌ها',
+          title: 'چت\u200cبات\u200cها',
           text: 'İLK SÖYLEŞİ',
           start: DateTime.utc(2023, 3),
           end: DateTime.utc(2023, 8),

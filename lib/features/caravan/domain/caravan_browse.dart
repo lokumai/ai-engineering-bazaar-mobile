@@ -13,7 +13,7 @@ List<int> yearsOf(CaravanStop stop, CaravanRoad road) {
 ///
 /// Both sides are compared as the course search compares them, by [normalise] in [language] (review 5, finding 18): a
 /// Turkish "ı" or "İ" typed either way, and a Persian word typed with a space where the text has a non-joiner, as
-/// "چت بات" for "چت‌بات", are found.
+/// "چت بات" for the word written with a non-joiner, are found.
 List<CaravanStop> filterStops(CaravanRoad road, {int? year, String query = '', String language = 'en'}) {
   final words = [
     for (final word in query.split(RegExp(r'\s+')))

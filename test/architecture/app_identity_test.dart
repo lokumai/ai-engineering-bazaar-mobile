@@ -68,6 +68,7 @@ void main() {
           '$kotlinMain/$name.kt',
         for (final name in [
           'AppIconSwitchTest',
+          'CodeScannerTest',
           'HapticsTest',
           'LaunchGroundTest',
           'NativeSentryScrubberTest',
