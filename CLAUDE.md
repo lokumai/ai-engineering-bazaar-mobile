@@ -143,6 +143,16 @@ lib/
     reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
+    language/                                   LanguageCubit: the language of the interface and of the documents opened
+                                                (en, tr, fa), the device's until chosen in Settings; kept on the device,
+                                                never in the record
+    reading/                                    ReadingPlacesBloc: where each module was left (reading_place.dart), for
+                                                the reader and Home's Continue reading; kept on the device, never in the
+                                                record
+    pocket_button/                              PocketButtonCubit: whether the Apprentice's round button shows; Settings
+                                                sets it, the shell reads it
+    widgets/                                    not_found_view.dart: the view of an address that is not a module, which
+                                                the not-found page, the level page and the reader show
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     site_links/                                 SiteLink (the site's pages and transfers the app opens), ILinkSource,
                                                 IShareSheet and ICodeScanner
@@ -189,6 +199,10 @@ lib/
                                                 pages mark its places with shared/tour/tour_target.dart (TourTarget, TourSpots)
     transfer/                                   a progress link opened in the app at `/transfer`, full screen (plan 17.1):
                                                 TransferBloc, what the link carries, Add to this phone's progress
+    pocket_model/                               the Apprentice (Çırak; the code keeps pocket_model): PocketModelBloc
+                                                over a tiny language model fed tokens and the modules read
+                                                (tiny_lm.dart), its sheet, its corner on Home (pocket_corner.dart), its
+                                                round button (pocket_assistant.dart) and its outfits
     caravan/                                    the Caravan tab at `/caravan`: the trends held in the app until the
                                                 bundle carries the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)

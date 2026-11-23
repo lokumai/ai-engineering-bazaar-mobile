@@ -269,7 +269,7 @@ heavy fvm flutter test --tags golden --update-goldens
 
 ## Coverage
 
-`scripts/check_coverage.sh` computes line coverage without generated and bootstrap code (`lib/generated/**`, `*.g.dart`, `lib/main/main_*.dart` and the like); the floor is 65 %.
+`scripts/check_coverage.sh` computes line coverage without generated and bootstrap code (`lib/generated/**`, `*.g.dart`, `lib/main/main_*.dart` and the like); the floor is 90 %.
 
 ## Running tests
 
