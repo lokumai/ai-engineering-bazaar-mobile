@@ -55,5 +55,15 @@ void main() {
           '"engineers:a/text":"far"}}';
       expect(decodeReadingPlaces(text).keys, ['engineers:a/good']);
     });
+
+    // Review 8, finding 16: an offset of 1e999 read as infinity, which the next save could not write, so every later
+    // place was lost.
+    test('an offset too large to be a number is left out, and the places still save', () {
+      const text =
+          '{"schema":1,"places":{"engineers:a/far":{"offset":1e999,"share":0.5,"at":"2026-11-11T09:30:00.000Z"}}}';
+      final places = decodeReadingPlaces(text);
+      expect(places, isEmpty);
+      expect(() => encodeReadingPlaces(places), returnsNormally);
+    });
   });
 }

@@ -43,7 +43,8 @@ final class ReadingPlace extends Equatable {
 
   static ReadingPlace? _fromJson(Object? json) {
     if (json case {'offset': final num offset, 'share': final num share, 'at': final String at}
-        when offset >= 0 && share >= 0 && share <= 1) {
+        // A finite offset: 1e999 reads as infinity, which no later save could write (review 8).
+        when offset.isFinite && offset >= 0 && share >= 0 && share <= 1) {
       final time = DateTime.tryParse(at);
       if (time == null) return null;
       final heading = json['heading'];
