@@ -104,7 +104,11 @@ class _TourLayerState extends State<TourLayer> {
     _leaving = false;
   }
 
-  RenderBox? get _layerBox => _layer.currentContext?.findRenderObject() as RenderBox?;
+  /// The layer's box once it is laid out: a box not yet laid out has no size to read (review 5, finding 10).
+  RenderBox? get _layerBox => switch (_layer.currentContext?.findRenderObject()) {
+    final RenderBox box when box.attached && box.hasSize => box,
+    _ => null,
+  };
 
   /// The rect of [context]'s box in the layer, if it is laid out.
   Rect? _rectOf(BuildContext? context) {
@@ -128,7 +132,7 @@ class _TourLayerState extends State<TourLayer> {
     if (layer == null) return;
     setState(() => _robotAt = _button(layer.size));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _leaving) return;
+      if (!mounted || _leaving || !layer.attached || !layer.hasSize) return;
       if (to(layer.size) case final at?) setState(() => _robotAt = at);
     });
   }
@@ -200,7 +204,10 @@ class _TourLayerState extends State<TourLayer> {
     if (target == null) return _next();
     setState(() => _hole = null);
     final reduced = MediaQuery.disableAnimationsOf(context);
-    if (Scrollable.maybeOf(target) != null) {
+    // A scroll view not yet laid out has no extents to clamp to, the null check of the Sentry crash (review 5, finding
+    // 10); the place is then measured as it stands.
+    final box = target.findRenderObject();
+    if ((Scrollable.maybeOf(target)?.position.hasContentDimensions ?? false) && box is RenderBox && box.hasSize) {
       await Scrollable.ensureVisible(
         target,
         alignment: 0.15,

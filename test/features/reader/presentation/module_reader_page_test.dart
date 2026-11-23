@@ -862,6 +862,19 @@ void main() {
       expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
     });
 
+    // Review 5, finding 10: the scroll to a heading clamps with the page's extents too, so it waits for the layout.
+    testWidgets('opened at a heading under another page, it is at the heading once it is in front', (tester) async {
+      longModule();
+      final router = await pumpReader(tester, covered: true, fragment: 'one');
+      expect(tester.takeException(), isNull);
+
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
+    });
+
     testWidgets('a fragment wins over the place', (tester) async {
       longModule();
       await pumpReader(

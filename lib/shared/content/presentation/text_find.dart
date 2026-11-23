@@ -180,6 +180,17 @@ final class TextFinder extends ChangeNotifier {
     return rect != null && rect.bottom > view.top && rect.top < view.bottom;
   }
 
+  /// Whether [page] and the text in [context] are laid out: a page not laid out has no extents to clamp to, the null
+  /// check of the Sentry crash (review 5, finding 10).
+  static bool _laidOut(ScrollableState? page, BuildContext context) =>
+      page != null &&
+      page.mounted &&
+      page.position.hasContentDimensions &&
+      switch (context.findRenderObject()) {
+        final RenderBox box => box.attached && box.hasSize,
+        _ => false,
+      };
+
   /// Scrolls the text holding [mark] into view, then, in a paragraph longer than the page, the mark itself; at once
   /// under reduced motion (spec 3.10).
   Future<void> _show((TextFindTarget, int) mark) async {
@@ -187,11 +198,12 @@ final class TextFinder extends ChangeNotifier {
     final context = target.context;
     final duration = motionDuration(context, const Duration(milliseconds: 200));
     final page = Scrollable.maybeOf(context, axis: Axis.vertical);
+    if (!_laidOut(page, context)) return;
     await Scrollable.ensureVisible(context, alignment: 0.3, duration: duration);
-    if (_disposed || page == null || !page.mounted) return;
+    if (_disposed || page == null || !page.mounted || !context.mounted || !_laidOut(page, context)) return;
     final rect = target.markRect(index);
     final view = page.context.findRenderObject();
-    if (rect == null || view is! RenderBox || !view.attached) return;
+    if (rect == null || view is! RenderBox || !view.attached || !view.hasSize) return;
     final top = view.localToGlobal(Offset.zero).dy;
     final height = view.size.height;
     if (rect.top >= top && rect.bottom <= top + height) return;

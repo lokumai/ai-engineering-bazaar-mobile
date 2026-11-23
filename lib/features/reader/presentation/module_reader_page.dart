@@ -337,7 +337,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     if (_spoken.value == block) return;
     _spoken.value = block;
     final target = block == null ? null : _blockKeys[block]?.currentContext;
-    if (target == null) return;
+    if (target == null || !_canScrollTo(target)) return;
     _moved = true;
     _held = null;
     unawaited(Scrollable.ensureVisible(target, alignment: 0.1, duration: motionDuration(context, BazaarMotion.fold)));
@@ -535,10 +535,21 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// reader chose lets go of the heading the page opened at.
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
-    if (target == null) return;
+    if (target == null || !_canScrollTo(target)) return;
     _moved = true;
     _held = null;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
+  }
+
+  /// Whether [target] and the page around it are laid out, so the page can scroll to it: a page drawn under another is
+  /// built but not laid out, and its scroll extents are then null, the Sentry crash (review 5, finding 10). The heading
+  /// the page opened at is held, and comes in once the page is laid out.
+  static bool _canScrollTo(BuildContext target) {
+    final box = target.findRenderObject();
+    return box is RenderBox &&
+        box.attached &&
+        box.hasSize &&
+        (Scrollable.maybeOf(target)?.position.hasContentDimensions ?? false);
   }
 
   /// The scroll offset that brings the heading [id] to the top of the page, or null when it is not drawn.
