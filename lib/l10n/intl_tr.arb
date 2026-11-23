@@ -466,5 +466,6 @@
   "website_to_text": "İlerlemeni bir bağlantı olarak gönder, sonra bağlantıyı bilgisayarda aç.",
   "data_send_empty": "Henüz gönderilecek bir şey yok: tamamlanan ya da işaretlenen modül yok.",
   "data_send_failed": "Paylaşım menüsü açılmadı.",
+  "data_send_too_large": "İlerlemen bir bağlantıya sığmayacak kadar uzun.",
   "reader_share": "Bu modülü paylaş"
 }

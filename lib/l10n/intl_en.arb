@@ -1596,6 +1596,8 @@
   "@data_send_empty": {},
   "data_send_failed": "The share menu did not open.",
   "@data_send_failed": {},
+  "data_send_too_large": "Your progress is too long to fit in a link.",
+  "@data_send_too_large": {},
   "reader_share": "Share this module",
   "@reader_share": {}
 }

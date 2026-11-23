@@ -3311,6 +3311,11 @@ class S {
     return Intl.message('The share menu did not open.', name: 'data_send_failed', desc: '', args: []);
   }
 
+  /// `Your progress is too long to fit in a link.`
+  String get data_send_too_large {
+    return Intl.message('Your progress is too long to fit in a link.', name: 'data_send_too_large', desc: '', args: []);
+  }
+
   /// `Share this module`
   String get reader_share {
     return Intl.message('Share this module', name: 'reader_share', desc: '', args: []);

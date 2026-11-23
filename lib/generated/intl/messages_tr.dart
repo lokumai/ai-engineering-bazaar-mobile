@@ -301,6 +301,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("Paylaşım menüsü açılmadı."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Web sitesine gönder"),
+    "data_send_too_large": MessageLookupByLibrary.simpleMessage("İlerlemen bir bağlantıya sığmayacak kadar uzun."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Geri al"),

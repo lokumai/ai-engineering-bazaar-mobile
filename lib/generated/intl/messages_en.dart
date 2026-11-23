@@ -299,6 +299,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_send_empty": MessageLookupByLibrary.simpleMessage("Nothing to send yet: no module is completed or ticked."),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("The share menu did not open."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Send to the website"),
+    "data_send_too_large": MessageLookupByLibrary.simpleMessage("Your progress is too long to fit in a link."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),

@@ -81,6 +81,7 @@ Future<void> _pump(
   RecordBloc? record,
   IShareSheet? sheet,
   ICodeScanner? scanner,
+  ITransferPacker packer = const DeflateTransferPacker(),
   Locale locale = const Locale('en'),
 }) async {
   final router = GoRouter(
@@ -101,7 +102,7 @@ Future<void> _pump(
         RepositoryProvider<WebLinks>.value(value: const WebLinks(testContentBaseUrl)),
         RepositoryProvider<IShareSheet>.value(value: sheet ?? const NoShareSheet()),
         RepositoryProvider<ICodeScanner>.value(value: scanner ?? const NoCodeScanner()),
-        RepositoryProvider<ITransferPacker>.value(value: const DeflateTransferPacker()),
+        RepositoryProvider<ITransferPacker>.value(value: packer),
       ],
       child: BlocProvider<RecordBloc>.value(
         value: record ?? recordBlocAt(),
@@ -121,6 +122,17 @@ Future<void> _pump(
     ),
   );
   await tester.pump();
+}
+
+/// A packer whose payload is one character longer than the website reads.
+final class _LongPacker implements ITransferPacker {
+  const _LongPacker();
+
+  @override
+  String pack(String text) => 'a' * (transferMaxPayload + 1);
+
+  @override
+  String? unpack(String payload) => null;
 }
 
 String _transferLink(String payload) => '${testContentBaseUrl}transfer/#t=$payload';
@@ -284,6 +296,23 @@ void main() {
 
       expect(sheet.shared, isEmpty);
       expect(find.text('Nothing to send yet: no module is completed or ticked.'), findsOneWidget);
+    });
+
+    // Review 7, finding 14: a link longer than the website reads was shared all the same.
+    testWidgets('progress too long for the link the website reads is said, and opens no sheet', (tester) async {
+      final sheet = _Sheet();
+      await _pump(
+        tester,
+        record: recordBlocAt(record: _completed),
+        sheet: sheet,
+        packer: const _LongPacker(),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('settings-send-to-website')));
+      await tester.pump();
+
+      expect(sheet.shared, isEmpty);
+      expect(find.text('Your progress is too long to fit in a link.'), findsOneWidget);
     });
 
     testWidgets('a sheet that cannot be shown is said', (tester) async {

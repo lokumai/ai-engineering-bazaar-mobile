@@ -61,6 +61,7 @@ class _WebsiteSectionView extends StatelessWidget {
     final sendLine = switch (send) {
       WebsiteLinkState.empty => s.data_send_empty,
       WebsiteLinkState.failed => s.data_send_failed,
+      WebsiteLinkState.tooLarge => s.data_send_too_large,
       WebsiteLinkState.idle || WebsiteLinkState.sending => null,
     };
     return BlocListener<CodeScanCubit, CodeScanState>(

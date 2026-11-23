@@ -301,6 +301,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("منوی اشتراک‌گذاری باز نشد."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("فرستادن به وب‌سایت"),
+    "data_send_too_large": MessageLookupByLibrary.simpleMessage("پیشرفت شما در یک پیوند جا نمی‌شود."),
     "data_tally_nothing": MessageLookupByLibrary.simpleMessage("چیزی روی این دستگاه ثبت نشده است"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("برگرداندن"),
