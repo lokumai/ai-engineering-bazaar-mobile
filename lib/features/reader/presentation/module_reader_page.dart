@@ -243,7 +243,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void initState() {
     super.initState();
     _onScreen.start();
-    _lifecycle = AppLifecycleListener(onHide: _onScreen.stop, onShow: _onScreen.start);
+    _lifecycle = AppLifecycleListener(onHide: _onScreen.stop, onShow: _onShow);
+  }
+
+  void _onShow() {
+    _onScreen.start();
+    // Back from the phone's settings, where the line said to add a voice: the phone is asked again (review 5,
+    // finding 9).
+    if (_voice == false) setState(() => _voiceFor = null);
   }
 
   /// The parts of [doc] to read aloud, worked out when a document with a body is first drawn, and the phone asked for a

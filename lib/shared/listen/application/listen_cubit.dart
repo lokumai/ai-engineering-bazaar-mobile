@@ -82,7 +82,7 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The module being read, or paused; null while none is.
   ListenSession? _session;
 
-  /// The phone's answer for each language, asked once.
+  /// The phone's answer for each language: a yes is kept, a no asked again (review 5, finding 9).
   final _voices = <String, Future<bool>>{};
 
   /// The reading under way; a call that starts another or stops it moves the turn on, so the one before ends.
@@ -133,8 +133,12 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The parts of the module being read; none while none is.
   List<SpokenPart> get parts => _session?.parts ?? const [];
 
-  /// Whether the phone has a voice for [language]: a module in a language with none has no Listen.
-  Future<bool> canSpeak(String language) => _voices[language] ??= _speech.canSpeak(language);
+  /// Whether the phone has a voice for [language]: a module in a language with none has no Listen. A no is not kept,
+  /// since the reader may add a voice in the phone's settings and come back.
+  Future<bool> canSpeak(String language) => _voices[language] ??= _speech.canSpeak(language).then((can) {
+    if (!can) unawaited(_voices.remove(language));
+    return can;
+  });
 
   /// Reads [session] from where it was left, or its head, in place of any module being read, whose place is kept.
   void start(ListenSession session) {

@@ -12,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 final class _Voice implements ISpeech {
   _Voice({this.speaks = true});
 
-  final bool speaks;
+  /// Whether the phone has a voice; a reader may add one in the phone's settings.
+  bool speaks;
 
   /// Each speak's texts, language and rate, and its title.
   final handed = <(List<String>, String, double)>[];
@@ -119,11 +120,20 @@ void main() {
   );
 
   group('ListenCubit (plan 15)', () {
-    test('asks the phone for a language once', () async {
+    test('asks the phone for a language once it has a voice for it', () async {
+      make();
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(voice.asked, 1);
+    });
+
+    // Review 5, finding 9: the line that says to add a voice stayed after one was added, until the app was closed.
+    test('asks again for a language it had no voice for, as one may be added in the meantime', () async {
       make(speaks: false);
       expect(await listen.canSpeak('fa'), isFalse);
-      expect(await listen.canSpeak('fa'), isFalse);
-      expect(voice.asked, 1);
+      voice.speaks = true;
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(voice.asked, 2);
     });
 
     test('started, it hands the phone every part at once and follows each as it starts, then is idle', () async {

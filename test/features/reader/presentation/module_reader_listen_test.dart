@@ -26,7 +26,8 @@ import '../../../support/content_builders.dart';
 final class _Voice implements ISpeech {
   _Voice({this.speaks = true});
 
-  final bool speaks;
+  /// Whether the phone has a voice; a reader may add one in the phone's settings.
+  bool speaks;
 
   /// Each speak's texts.
   final handed = <List<String>>[];
@@ -172,6 +173,28 @@ void main() {
 
     await pump(tester, const NoSpeech());
     expect(_listen, findsNothing);
+  });
+
+  // Review 5, finding 9: the line stayed after a voice was added in the phone's settings, until the app was closed.
+  testWidgets('back from the phone\'s settings with a voice added, Listen is there', (tester) async {
+    final voice = _Voice(speaks: false);
+    await pump(tester, voice);
+    expect(find.byKey(const ValueKey('reader-no-voice')), findsOneWidget);
+
+    voice.speaks = true;
+    for (final state in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pumpAndSettle();
+
+    expect(voice.asked, ['en', 'en']);
+    expect(find.byKey(const ValueKey('reader-no-voice')), findsNothing);
+    expect(_listen, findsOneWidget);
   });
 
   testWidgets('Listen reads from the head, the part read marked; the player steps, pauses and stops', (tester) async {
