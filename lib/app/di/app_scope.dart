@@ -1,7 +1,5 @@
-import 'dart:isolate';
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_cubit.dart';
@@ -181,10 +179,8 @@ class AppScope extends StatelessWidget {
                   repository: context.read<IContentRepository>(),
                   content: context.read<ContentBloc>(),
                 ),
-                // Its training curve is drawn in another isolate: on the screen's thread each feed stuttered more with
-                // every module read (review 5, finding 3).
-                drawCurve: (language, tokens, readings) =>
-                    Isolate.run(() => TinyLm.curve(language, tokens, readings: readings)),
+                // Its training curve is drawn in another isolate (review 5, finding 3).
+                drawCurve: PocketModelBloc.drawApart,
                 // In the app's language from the start, not English first and the app's language a moment later.
               )..add(PocketModelStarted(language: _startLanguage));
               // Back from the background it may have fallen asleep there (the owner, 2026-11-16).

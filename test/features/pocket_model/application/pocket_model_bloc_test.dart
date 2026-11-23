@@ -531,6 +531,22 @@ void main() {
   // Review 5, finding 3: each feed rebuilt the whole training curve on the screen's thread, a stutter that grew with
   // every module read. It is drawn elsewhere now; the feed shows at once and the curve follows.
   group('its curve is drawn away from the feed', () {
+    // Review 8, finding 18: every test gave the bloc its own drawer, so the app's, through a real isolate, ran in none.
+    test("the app's drawer draws in another isolate the curve drawn here", () async {
+      final readings = [
+        (
+          100,
+          [
+            ['the', 'robot', 'reads', 'a', 'module'],
+            ['a', 'module', 'teaches', 'the', 'robot'],
+          ],
+        ),
+      ];
+      final apart = await PocketModelBloc.drawApart('en', 400, readings);
+      expect(apart, TinyLm.curve('en', 400, readings: readings));
+      expect(apart, isNotEmpty);
+    });
+
     test('a feed shows at once; the curve drawn for it follows, and only the latest drawn is kept', () {
       fakeAsync((async) {
         withClock(async.getClock(noon), () {

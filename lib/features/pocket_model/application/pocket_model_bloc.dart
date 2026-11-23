@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
@@ -228,6 +229,11 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     int tokens,
     List<(int, List<List<String>>)> readings,
   ) async => TinyLm.curve(language, tokens, readings: readings);
+
+  /// Draws the curve in another isolate, as the app does: on the screen's thread each feed stuttered more with every
+  /// module read (review 5, finding 3). Only the language, the count and the sentences cross to it.
+  static Future<List<LossPoint>> drawApart(String language, int tokens, List<(int, List<List<String>>)> readings) =>
+      Isolate.run(() => TinyLm.curve(language, tokens, readings: readings));
 
   /// Each curve asked for; one is drawn at a time, and the latest asked for is the one kept.
   int _curveAsked = 0;
