@@ -364,7 +364,11 @@ class _ModuleHitsState extends State<_ModuleHits> {
           ),
           if (_folds) ...[
             const SizedBox(width: AppSpacing.sm),
-            Text(s.catalog_search_matches(_hits.length), style: textTheme.labelMedium?.copyWith(color: hue)),
+            // A level's hue is never text: on the card it fell under the 4.5:1 text contrast (review 6, finding 9).
+            Text(
+              s.catalog_search_matches(_hits.length),
+              style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
+            ),
             AnimatedRotation(
               turns: _open ? 0.5 : 0,
               duration: still ? Duration.zero : const Duration(milliseconds: 200),

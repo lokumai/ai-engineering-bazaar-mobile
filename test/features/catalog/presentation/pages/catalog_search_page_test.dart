@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -237,6 +238,15 @@ void main() {
     await _type(tester, 'passages');
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  // Review 6, finding 9: the count was drawn in the level's hue, under the 4.5:1 text contrast on the card.
+  testWidgets("a folded module's count of hits is muted text, not the level's hue", (tester) async {
+    await _pump(tester);
+    await _type(tester, 'agents');
+
+    final count = find.text('2 matches').first;
+    expect(tester.widget<Text>(count).style?.color, tester.element(count).bazaarColors.onSurfaceMuted);
   });
 
   // Plan 10.1 (the owner's testers, 2026-11-16): a module with many hits filled the screen.
