@@ -147,7 +147,7 @@ class _GlossaryState extends State<_Glossary> {
                 Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
               else
                 // A to Z by letter; what a search finds, the best first, in one card.
-                for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown) : [('', shown)]) ...[
+                for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown, language) : [('', shown)]) ...[
                   if (letter.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.sm),
                     SectionRule(title: letter),
@@ -181,10 +181,10 @@ class _GlossaryState extends State<_Glossary> {
 }
 
 /// [entries], in their order, by the first letter of their names.
-List<(String, List<GlossaryEntry>)> _byLetter(List<GlossaryEntry> entries) {
+List<(String, List<GlossaryEntry>)> _byLetter(List<GlossaryEntry> entries, String language) {
   final groups = <(String, List<GlossaryEntry>)>[];
   for (final entry in entries) {
-    final letter = entry.name.characters.firstOrNull?.toUpperCase() ?? '';
+    final letter = glossaryLetter(entry.name, language);
     if (groups.lastOrNull case (final last, final group) when last == letter) {
       group.add(entry);
     } else {

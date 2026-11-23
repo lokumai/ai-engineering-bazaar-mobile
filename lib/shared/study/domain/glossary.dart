@@ -41,7 +41,63 @@ List<GlossaryEntry> glossaryOf(List<ModuleNotes> modules, String lang) {
   return [
     for (final MapEntry(:key, value: terms) in byName.entries)
       GlossaryEntry(name: names[key]!, sortKey: key, terms: List.unmodifiable(terms)),
-  ]..sort((a, b) => a.sortKey.compareTo(b.sortKey));
+  ]..sort((a, b) => _compare(a, b, lang));
+}
+
+/// The first letter of [name] as the glossary heads its group: upper-cased by [lang]'s rules (Turkish i is İ).
+String glossaryLetter(String name, String lang) {
+  final first = name.runes.isEmpty ? '' : String.fromCharCode(name.runes.first);
+  return switch ((lang, first)) {
+    ('tr', 'i') => 'İ',
+    ('tr', 'ı') => 'I',
+    _ => first.toUpperCase(),
+  };
+}
+
+/// Review 7, finding 16: the names sorted by code point, so Turkish ç came after z and split the C group in two once
+/// folded, and Persian پ چ ژ ک گ came after ی. They sort by [lang]'s alphabet now; a tie falls back to the search key.
+int _compare(GlossaryEntry a, GlossaryEntry b, String lang) {
+  final byLetters = _collationKey(a.name, lang).compareTo(_collationKey(b.name, lang));
+  return byLetters != 0 ? byLetters : a.sortKey.compareTo(b.sortKey);
+}
+
+const _turkishAlphabet = 'abcçdefgğhıijklmnoöpqrsştuüvwxyz';
+const _persianAlphabet = 'اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی';
+
+/// [name] with each letter of [lang]'s alphabet written as its place in it, past every other character, so the order
+/// of the text is the alphabet's.
+String _collationKey(String name, String lang) {
+  final (alphabet, lower) = switch (lang) {
+    'tr' => (
+      _turkishAlphabet,
+      name
+          .replaceAll('I', 'ı')
+          .replaceAll('İ', 'i')
+          .toLowerCase()
+          .replaceAll('â', 'a')
+          .replaceAll('î', 'i')
+          .replaceAll('û', 'u'),
+    ),
+    'fa' => (
+      _persianAlphabet,
+      name
+          .replaceAll(RegExp('[يى]'), 'ی')
+          .replaceAll('ك', 'ک')
+          .replaceAll('ة', 'ه')
+          .replaceAll(RegExp('[أإ]'), 'ا')
+          .replaceAll(RegExp('[\u200c\u0640\u064b-\u0652\u0670]'), '')
+          .toLowerCase(),
+    ),
+    _ => ('', name.toLowerCase()),
+  };
+  if (alphabet.isEmpty) return lower;
+  return String.fromCharCodes([
+    for (final unit in lower.runes)
+      switch (alphabet.indexOf(String.fromCharCode(unit))) {
+        -1 => unit,
+        final place => 0xE000 + place,
+      },
+  ]);
 }
 
 /// The entries of [entries] that [query] finds, as it is typed (the owner, 2026-11-18): one letter finds the names that
