@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,20 +28,63 @@ import 'package:ai_engineering_bazaar/shared/utils/local_day.dart';
 /// first quiz not yet taken and the glossary as rows. Wrong answers and A module in 2 minutes stay the Practice tab's
 /// own (the owner, 2026-11-18). It shows from the first launch, drawing on the first module before any is completed;
 /// nothing while the notes are being read.
-class HomePractice extends StatelessWidget {
+///
+/// It turns with the day, at midnight and on coming back to the app, as the day's card above it does: Today's review
+/// said done the morning after until a bloc changed (review 6, finding 5).
+class HomePractice extends StatefulWidget {
   const HomePractice({super.key, required this.track, required this.language});
 
   final Track track;
   final String language;
 
   @override
+  State<HomePractice> createState() => _HomePracticeState();
+}
+
+class _HomePracticeState extends State<HomePractice> {
+  late int _day = dayNumber(clock.now());
+  Timer? _midnight;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: _turn);
+    _wait();
+  }
+
+  /// Waits for the next local midnight, a moment past it.
+  void _wait() {
+    _midnight?.cancel();
+    _midnight = Timer(untilLocalMidnight(clock.now()), () {
+      _turn();
+      _wait();
+    });
+  }
+
+  /// Takes the day it is now, when it has turned.
+  void _turn() {
+    final day = dayNumber(clock.now());
+    if (day != _day && mounted) setState(() => _day = day);
+  }
+
+  @override
+  void dispose() {
+    _midnight?.cancel();
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final track = widget.track;
+    final language = widget.language;
     final pool = reviewPoolOf(context, track, language);
     final notes = context.watch<StudyNotesCubit>().state;
     if (pool == null || pool.studied.isEmpty || notes is! StudyNotesReady) return const SizedBox.shrink();
     final history = context.watch<ReviewBloc>().state.history;
     final scores = context.watch<QuizScoresBloc>().state;
-    final today = dayNumber(clock.now());
+    final today = _day;
     final cards = pool.today(history, today).length;
     final waiting = quizWaiting(
       pool.studied,
