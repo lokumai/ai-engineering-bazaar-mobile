@@ -147,7 +147,7 @@ void main() {
     expect(find.textContaining('when you leave the app'), findsOneWidget);
 
     await _pump(tester, platform: TargetPlatform.iOS);
-    expect(find.text('The phone confirms the new icon with a message.'), findsOneWidget);
+    expect(find.text('The device confirms the new icon with a message.'), findsOneWidget);
   });
 
   testWidgets('names the icons in Turkish', (tester) async {

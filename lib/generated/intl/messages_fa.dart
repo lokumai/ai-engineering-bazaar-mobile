@@ -186,9 +186,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "app_icon_ground": MessageLookupByLibrary.simpleMessage("زمینه"),
     "app_icon_name": m0,
     "app_icon_note_android": MessageLookupByLibrary.simpleMessage(
-      "نماد تازه وقتی از برنامه بیرون بروید به صفحهٔ اصلی می‌رسد. برخی گوشی‌ها در این هنگام میان‌بر آن را از صفحهٔ اصلی برمی‌دارند؛ فهرست برنامه‌ها نماد تازه را نشان می‌دهد. اگر نمادهای موضوعی روشن باشد، گوشی همهٔ نمادها را با رنگ‌های خودش می‌کشد.",
+      "نماد تازه وقتی از برنامه بیرون بروید به صفحهٔ اصلی می‌رسد. برخی دستگاه‌ها در این هنگام میان‌بر آن را از صفحهٔ اصلی برمی‌دارند؛ فهرست برنامه‌ها نماد تازه را نشان می‌دهد. اگر نمادهای موضوعی روشن باشد، دستگاه همهٔ نمادها را با رنگ‌های خودش می‌کشد.",
     ),
-    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("گوشی نماد تازه را با پیامی تأیید می‌کند."),
+    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("دستگاه نماد تازه را با پیامی تأیید می‌کند."),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "appearance_dark": MessageLookupByLibrary.simpleMessage("تیره"),
     "appearance_light": MessageLookupByLibrary.simpleMessage("روشن"),
@@ -344,7 +344,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("درس‌های کوتاه"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین گوشی می‌ماند.",
+      "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین دستگاه می‌ماند.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("روی همین دستگاه، بدون اینترنت"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("دوباره گشت بزنیم"),
@@ -387,7 +387,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_back": MessageLookupByLibrary.simpleMessage("بند قبلی"),
     "listen_next": MessageLookupByLibrary.simpleMessage("بند بعدی"),
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
-      "این گوشی برای این زبان صدایی ندارد. برای گوش دادن، از تنظیمات گوشی یک صدا اضافه کنید.",
+      "این دستگاه برای این زبان صدایی ندارد. برای گوش دادن، از تنظیمات دستگاه یک صدا اضافه کنید.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
       "خواندن با صدا شروع نشد. جایی که مانده بودید حفظ شده است؛ کمی بعد دوباره امتحان کنید.",
@@ -515,7 +515,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد و هیچ داده شخصی جمع نمی‌کند. آنچه می‌فرستد و مقصد آن، در ادامه آمده است.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود گوشی ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
+      "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود دستگاه ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش پیشرفت شما، از آن‌ها نسخه پشتیبان بگیرید، بازیابی‌شان کنید یا پاکشان کنید.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "«اسکن کد» از اسکنر کد گوگل در سرویس‌های Google Play استفاده می‌کند. گوگل مدل و سیستم دستگاه، نسخه برنامه، شماره‌ای تصادفی برای همین نصب و چگونگی انجام اسکن را به‌عنوان سابقه خودش دریافت می‌کند.",
@@ -733,17 +733,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_tabs": MessageLookupByLibrary.simpleMessage("زبانه‌ای را باز کنید تا آنجا را نشانتان بدهم."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("برای مهندسان"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("برای همه"),
-    "transfer_add": MessageLookupByLibrary.simpleMessage("افزودن به پیشرفت این گوشی"),
-    "transfer_added": MessageLookupByLibrary.simpleMessage("افزوده شد. چیزی از این گوشی پاک نشد."),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("افزودن به پیشرفت این دستگاه"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("افزوده شد. چیزی از این دستگاه پاک نشد."),
     "transfer_completed": m68,
     "transfer_empty": MessageLookupByLibrary.simpleMessage("این پیوند پیشرفتی با خود ندارد."),
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
-      "افزودن آن همه‌چیزِ این گوشی را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
+      "افزودن آن همه‌چیزِ این دستگاه را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage(
       "افزوده نشد. برای تلاش دوباره، پیوند را دوباره باز کنید.",
     ),
-    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این گوشی هست."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این دستگاه هست."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("پیشرفت از یک پیوند"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
@@ -757,12 +757,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("هر سطح شاگرد چیز تازه‌ای برای پوشیدن باز می‌کند."),
     "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
-      "در وب‌سایت، Progress را در بالای صفحه باز کنید و Move to the app را بزنید. کدی را که نشان می‌دهد با این گوشی اسکن کنید.",
+      "در وب‌سایت، Progress را در بالای صفحه باز کنید و Move to the app را بزنید. کدی را که نشان می‌دهد با این دستگاه اسکن کنید.",
     ),
-    "website_from_title": MessageLookupByLibrary.simpleMessage("از وب‌سایت به این گوشی"),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("از وب‌سایت به این دستگاه"),
     "website_scan": MessageLookupByLibrary.simpleMessage("اسکن کد"),
     "website_scan_denied": MessageLookupByLibrary.simpleMessage(
-      "برنامه اجازهٔ استفاده از دوربین را ندارد. در تنظیمات گوشی اجازه دهید یا کد را با برنامهٔ دوربین اسکن کنید.",
+      "برنامه اجازهٔ استفاده از دوربین را ندارد. در تنظیمات دستگاه اجازه دهید یا کد را با برنامهٔ دوربین اسکن کنید.",
     ),
     "website_scan_failed": MessageLookupByLibrary.simpleMessage("دوربین باز نشد. کد را با برنامهٔ دوربین اسکن کنید."),
     "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage("این کد پیوند پیشرفتی از وب‌سایت نیست."),
@@ -770,7 +770,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "website_to_text": MessageLookupByLibrary.simpleMessage(
       "پیشرفت خود را به‌صورت یک پیوند بفرستید و سپس آن را روی رایانه باز کنید.",
     ),
-    "website_to_title": MessageLookupByLibrary.simpleMessage("از این گوشی به وب‌سایت"),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("از این دستگاه به وب‌سایت"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("شروع یادگیری"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("داستان بازار"),

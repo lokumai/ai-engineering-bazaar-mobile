@@ -352,7 +352,7 @@
   "@reader_contents": {},
   "listen": "Listen",
   "listen_resume": "Resume listening",
-  "listen_no_voice": "This phone has no voice for this language. Add one in the phone's Settings to listen.",
+  "listen_no_voice": "This device has no voice for this language. Add one in the device's Settings to listen.",
   "listen_not_started": "Listening did not start. Where it was left is kept; try again in a moment.",
   "listen_play": "Play",
   "listen_pause": "Pause",
@@ -893,11 +893,11 @@
   "@app_icon_default": {
     "description": "Under the default app icon's name on the app icon page."
   },
-  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.",
+  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.",
   "@app_icon_note_android": {
     "description": "The note on the app icon page on Android: when the icon changes, and what some launchers do."
   },
-  "app_icon_note_ios": "The phone confirms the new icon with a message.",
+  "app_icon_note_ios": "The device confirms the new icon with a message.",
   "@app_icon_note_ios": {
     "description": "The note on the app icon page on iOS, where the system tells of every icon change."
   },
@@ -950,7 +950,7 @@
   "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -966,7 +966,7 @@
   "@privacy_title": {},
   "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
-  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
@@ -1555,13 +1555,13 @@
       }
     }
   },
-  "transfer_keeps": "Adding it keeps everything on this phone: nothing here is removed.",
+  "transfer_keeps": "Adding it keeps everything on this device: nothing here is removed.",
   "@transfer_keeps": {},
-  "transfer_add": "Add to this phone's progress",
+  "transfer_add": "Add to this device's progress",
   "@transfer_add": {},
-  "transfer_added": "Added. Nothing on this phone was removed.",
+  "transfer_added": "Added. Nothing on this device was removed.",
   "@transfer_added": {},
-  "transfer_nothing_new": "Nothing new: this phone already has all of it.",
+  "transfer_nothing_new": "Nothing new: this device already has all of it.",
   "@transfer_nothing_new": {},
   "transfer_not_added": "Not added. Open the link again to try once more.",
   "@transfer_not_added": {},
@@ -1573,9 +1573,9 @@
   "@data_send_to_website": {},
   "settings_website": "Transfer",
   "@settings_website": {},
-  "website_from_title": "From the website to this phone",
+  "website_from_title": "From the website to this device",
   "@website_from_title": {},
-  "website_from_text": "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+  "website_from_text": "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.",
   "@website_from_text": {},
   "website_scan": "Scan the code",
   "@website_scan": {},
@@ -1583,11 +1583,11 @@
   "@website_scan_title": {},
   "website_scan_not_a_link": "That code is not a progress link from the website.",
   "@website_scan_not_a_link": {},
-  "website_scan_denied": "The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.",
+  "website_scan_denied": "The app may not use the camera. Allow it in the device's Settings, or scan the code with the Camera app.",
   "@website_scan_denied": {},
   "website_scan_failed": "The camera did not open. Scan the code with the Camera app instead.",
   "@website_scan_failed": {},
-  "website_to_title": "From this phone to the website",
+  "website_to_title": "From this device to the website",
   "@website_to_title": {},
   "website_to_text": "Send your progress as a link, then open the link on the computer.",
   "@website_to_text": {},

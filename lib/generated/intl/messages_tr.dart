@@ -186,9 +186,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "app_icon_ground": MessageLookupByLibrary.simpleMessage("Zemin"),
     "app_icon_name": m0,
     "app_icon_note_android": MessageLookupByLibrary.simpleMessage(
-      "Yeni ikon, uygulamadan çıktığında ana ekrana gelir. Bazı telefonlar o sırada kısayolu ana ekrandan kaldırır; uygulama listesi yeni ikonu gösterir. Temalı simgeler açıksa telefon her ikonu kendi renkleriyle çizer.",
+      "Yeni ikon, uygulamadan çıktığında ana ekrana gelir. Bazı cihazlar o sırada kısayolu ana ekrandan kaldırır; uygulama listesi yeni ikonu gösterir. Temalı simgeler açıksa cihaz her ikonu kendi renkleriyle çizer.",
     ),
-    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("Telefon yeni ikonu bir mesajla onaylar."),
+    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("Cihaz yeni ikonu bir mesajla onaylar."),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "appearance_dark": MessageLookupByLibrary.simpleMessage("Koyu"),
     "appearance_light": MessageLookupByLibrary.simpleMessage("Açık"),
@@ -344,7 +344,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Kısa modüller"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu telefonda kalır.",
+      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu cihazda kalır.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Turu baştan izle"),
@@ -387,7 +387,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_back": MessageLookupByLibrary.simpleMessage("Önceki paragraf"),
     "listen_next": MessageLookupByLibrary.simpleMessage("Sonraki paragraf"),
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
-      "Bu telefonda bu dil için bir ses yok. Dinlemek için telefonun Ayarlar\'ından bir ses ekle.",
+      "Bu cihazda bu dil için bir ses yok. Dinlemek için cihazın Ayarlar\'ından bir ses ekle.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
       "Sesli okuma başlamadı. Kaldığın yer duruyor; biraz sonra yeniden dene.",
@@ -513,7 +513,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa telefonun kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
+      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da silebilirsin.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "Kodu okut, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
@@ -727,15 +727,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Bir sekme aç, sana orayı göstereyim."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
-    "transfer_add": MessageLookupByLibrary.simpleMessage("Bu telefondaki ilerlemeye ekle"),
-    "transfer_added": MessageLookupByLibrary.simpleMessage("Eklendi. Bu telefondan hiçbir şey silinmedi."),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("Bu cihazdaki ilerlemeye ekle"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("Eklendi. Bu cihazdan hiçbir şey silinmedi."),
     "transfer_completed": m68,
     "transfer_empty": MessageLookupByLibrary.simpleMessage("Bu bağlantıda ilerleme yok."),
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
-      "Eklemek bu telefondakileri korur: buradan hiçbir şey silinmez.",
+      "Eklemek bu cihazdakileri korur: buradan hiçbir şey silinmez.",
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage("Eklenmedi. Yeniden denemek için bağlantıyı tekrar aç."),
-    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu telefonda zaten var."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu cihazda zaten var."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
@@ -749,12 +749,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
     "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
-      "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu telefonla okut.",
+      "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu cihazla okut.",
     ),
-    "website_from_title": MessageLookupByLibrary.simpleMessage("Web sitesinden bu telefona"),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("Web sitesinden bu cihaza"),
     "website_scan": MessageLookupByLibrary.simpleMessage("Kodu okut"),
     "website_scan_denied": MessageLookupByLibrary.simpleMessage(
-      "Uygulamanın kamera izni yok. Telefonun Ayarlar\'ından izin ver ya da kodu Kamera uygulamasıyla okut.",
+      "Uygulamanın kamera izni yok. Cihazın Ayarlar\'ından izin ver ya da kodu Kamera uygulamasıyla okut.",
     ),
     "website_scan_failed": MessageLookupByLibrary.simpleMessage("Kamera açılmadı. Kodu Kamera uygulamasıyla okut."),
     "website_scan_not_a_link": MessageLookupByLibrary.simpleMessage(
@@ -764,7 +764,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "website_to_text": MessageLookupByLibrary.simpleMessage(
       "İlerlemeni bir bağlantı olarak gönder, sonra bağlantıyı bilgisayarda aç.",
     ),
-    "website_to_title": MessageLookupByLibrary.simpleMessage("Bu telefondan web sitesine"),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("Bu cihazdan web sitesine"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Öğrenmeye başla"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Hikâyemiz"),

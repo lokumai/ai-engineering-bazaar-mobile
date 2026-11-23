@@ -113,8 +113,8 @@ void main() {
     testWidgets('comes first and says where the website keeps its code', (tester) async {
       await _pump(tester);
 
-      final from = tester.getTopLeft(find.text('From the website to this phone')).dy;
-      final to = tester.getTopLeft(find.text('From this phone to the website')).dy;
+      final from = tester.getTopLeft(find.text('From the website to this device')).dy;
+      final to = tester.getTopLeft(find.text('From this device to the website')).dy;
       expect(from, lessThan(to));
       expect(find.textContaining('open Progress at the top and choose Move to the app'), findsOneWidget);
     });
@@ -170,7 +170,7 @@ void main() {
       (
         'the camera not allowed',
         const ScanDenied(),
-        "The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.",
+        "The app may not use the camera. Allow it in the device's Settings, or scan the code with the Camera app.",
       ),
       (
         'the camera not opened',
@@ -201,11 +201,11 @@ void main() {
 
     testWidgets('reads in Turkish and Persian', (tester) async {
       await _pump(tester, scanner: _Scanner(const ScanCancelled()), locale: const Locale('tr'));
-      expect(find.text('Web sitesinden bu telefona'), findsOneWidget);
+      expect(find.text('Web sitesinden bu cihaza'), findsOneWidget);
       expect(find.text('Kodu okut'), findsOneWidget);
 
       await _pump(tester, scanner: _Scanner(const ScanCancelled()), locale: const Locale('fa'));
-      expect(find.text('از وب\u200cسایت به این گوشی'), findsOneWidget);
+      expect(find.text('از وب\u200cسایت به این دستگاه'), findsOneWidget);
       expect(find.text('اسکن کد'), findsOneWidget);
     });
   });

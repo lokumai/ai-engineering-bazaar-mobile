@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(merged.single.progress.engineers.keys, ['alpha/first', 'alpha/second']);
-    expect(find.text('Added. Nothing on this phone was removed.'), findsOneWidget);
+    expect(find.text('Added. Nothing on this device was removed.'), findsOneWidget);
     expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
   });
 
@@ -101,7 +101,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('transfer-add')));
     await tester.pumpAndSettle();
-    expect(find.text('Nothing new: this phone already has all of it.'), findsOneWidget);
+    expect(find.text('Nothing new: this device already has all of it.'), findsOneWidget);
   });
 
   testWidgets('a link it cannot read offers nothing to add', (tester) async {

@@ -188,9 +188,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "app_icon_ground": MessageLookupByLibrary.simpleMessage("Ground"),
     "app_icon_name": m0,
     "app_icon_note_android": MessageLookupByLibrary.simpleMessage(
-      "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.",
+      "The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.",
     ),
-    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("The phone confirms the new icon with a message."),
+    "app_icon_note_ios": MessageLookupByLibrary.simpleMessage("The device confirms the new icon with a message."),
     "app_title": MessageLookupByLibrary.simpleMessage("AI Engineering Bazaar"),
     "appearance_dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "appearance_light": MessageLookupByLibrary.simpleMessage("Light"),
@@ -342,7 +342,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Take the tour again"),
@@ -385,7 +385,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "listen_back": MessageLookupByLibrary.simpleMessage("Previous paragraph"),
     "listen_next": MessageLookupByLibrary.simpleMessage("Next paragraph"),
     "listen_no_voice": MessageLookupByLibrary.simpleMessage(
-      "This phone has no voice for this language. Add one in the phone\'s Settings to listen.",
+      "This device has no voice for this language. Add one in the device\'s Settings to listen.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
       "Listening did not start. Where it was left is kept; try again in a moment.",
@@ -511,7 +511,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
+      "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.",
@@ -727,15 +727,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Open a tab and I\'ll show you around it."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
-    "transfer_add": MessageLookupByLibrary.simpleMessage("Add to this phone\'s progress"),
-    "transfer_added": MessageLookupByLibrary.simpleMessage("Added. Nothing on this phone was removed."),
+    "transfer_add": MessageLookupByLibrary.simpleMessage("Add to this device\'s progress"),
+    "transfer_added": MessageLookupByLibrary.simpleMessage("Added. Nothing on this device was removed."),
     "transfer_completed": m68,
     "transfer_empty": MessageLookupByLibrary.simpleMessage("This link carries no progress."),
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
-      "Adding it keeps everything on this phone: nothing here is removed.",
+      "Adding it keeps everything on this device: nothing here is removed.",
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage("Not added. Open the link again to try once more."),
-    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this phone already has all of it."),
+    "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this device already has all of it."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
@@ -751,12 +751,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "wardrobe_preview": m72,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
-      "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+      "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.",
     ),
-    "website_from_title": MessageLookupByLibrary.simpleMessage("From the website to this phone"),
+    "website_from_title": MessageLookupByLibrary.simpleMessage("From the website to this device"),
     "website_scan": MessageLookupByLibrary.simpleMessage("Scan the code"),
     "website_scan_denied": MessageLookupByLibrary.simpleMessage(
-      "The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.",
+      "The app may not use the camera. Allow it in the device\'s Settings, or scan the code with the Camera app.",
     ),
     "website_scan_failed": MessageLookupByLibrary.simpleMessage(
       "The camera did not open. Scan the code with the Camera app instead.",
@@ -768,7 +768,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "website_to_text": MessageLookupByLibrary.simpleMessage(
       "Send your progress as a link, then open the link on the computer.",
     ),
-    "website_to_title": MessageLookupByLibrary.simpleMessage("From this phone to the website"),
+    "website_to_title": MessageLookupByLibrary.simpleMessage("From this device to the website"),
     "welcome_start": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_story_continue": MessageLookupByLibrary.simpleMessage("Start learning"),
     "welcome_to_story": MessageLookupByLibrary.simpleMessage("Our story"),

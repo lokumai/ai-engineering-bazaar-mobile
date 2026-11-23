@@ -606,10 +606,10 @@ class S {
     return Intl.message('Resume listening', name: 'listen_resume', desc: '', args: []);
   }
 
-  /// `This phone has no voice for this language. Add one in the phone's Settings to listen.`
+  /// `This device has no voice for this language. Add one in the device's Settings to listen.`
   String get listen_no_voice {
     return Intl.message(
-      'This phone has no voice for this language. Add one in the phone\'s Settings to listen.',
+      'This device has no voice for this language. Add one in the device\'s Settings to listen.',
       name: 'listen_no_voice',
       desc: '',
       args: [],
@@ -1715,20 +1715,20 @@ class S {
     );
   }
 
-  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.`
+  /// `The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.`
   String get app_icon_note_android {
     return Intl.message(
-      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.',
+      'The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.',
       name: 'app_icon_note_android',
       desc: 'The note on the app icon page on Android: when the icon changes, and what some launchers do.',
       args: [],
     );
   }
 
-  /// `The phone confirms the new icon with a message.`
+  /// `The device confirms the new icon with a message.`
   String get app_icon_note_ios {
     return Intl.message(
-      'The phone confirms the new icon with a message.',
+      'The device confirms the new icon with a message.',
       name: 'app_icon_note_ios',
       desc: 'The note on the app icon page on iOS, where the system tells of every icon change.',
       args: [],
@@ -1835,10 +1835,10 @@ class S {
     );
   }
 
-  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.`
   String get guide_offline {
     return Intl.message(
-      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
+      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.',
       name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1880,10 +1880,10 @@ class S {
     );
   }
 
-  /// `Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.`
+  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.`
   String get privacy_on_device {
     return Intl.message(
-      'Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.',
+      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.',
       name: 'privacy_on_device',
       desc: '',
       args: [],
@@ -3146,30 +3146,30 @@ class S {
     );
   }
 
-  /// `Adding it keeps everything on this phone: nothing here is removed.`
+  /// `Adding it keeps everything on this device: nothing here is removed.`
   String get transfer_keeps {
     return Intl.message(
-      'Adding it keeps everything on this phone: nothing here is removed.',
+      'Adding it keeps everything on this device: nothing here is removed.',
       name: 'transfer_keeps',
       desc: '',
       args: [],
     );
   }
 
-  /// `Add to this phone's progress`
+  /// `Add to this device's progress`
   String get transfer_add {
-    return Intl.message('Add to this phone\'s progress', name: 'transfer_add', desc: '', args: []);
+    return Intl.message('Add to this device\'s progress', name: 'transfer_add', desc: '', args: []);
   }
 
-  /// `Added. Nothing on this phone was removed.`
+  /// `Added. Nothing on this device was removed.`
   String get transfer_added {
-    return Intl.message('Added. Nothing on this phone was removed.', name: 'transfer_added', desc: '', args: []);
+    return Intl.message('Added. Nothing on this device was removed.', name: 'transfer_added', desc: '', args: []);
   }
 
-  /// `Nothing new: this phone already has all of it.`
+  /// `Nothing new: this device already has all of it.`
   String get transfer_nothing_new {
     return Intl.message(
-      'Nothing new: this phone already has all of it.',
+      'Nothing new: this device already has all of it.',
       name: 'transfer_nothing_new',
       desc: '',
       args: [],
@@ -3211,15 +3211,15 @@ class S {
     return Intl.message('Transfer', name: 'settings_website', desc: '', args: []);
   }
 
-  /// `From the website to this phone`
+  /// `From the website to this device`
   String get website_from_title {
-    return Intl.message('From the website to this phone', name: 'website_from_title', desc: '', args: []);
+    return Intl.message('From the website to this device', name: 'website_from_title', desc: '', args: []);
   }
 
-  /// `On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.`
+  /// `On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.`
   String get website_from_text {
     return Intl.message(
-      'On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.',
+      'On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.',
       name: 'website_from_text',
       desc: '',
       args: [],
@@ -3246,10 +3246,10 @@ class S {
     );
   }
 
-  /// `The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.`
+  /// `The app may not use the camera. Allow it in the device's Settings, or scan the code with the Camera app.`
   String get website_scan_denied {
     return Intl.message(
-      'The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.',
+      'The app may not use the camera. Allow it in the device\'s Settings, or scan the code with the Camera app.',
       name: 'website_scan_denied',
       desc: '',
       args: [],
@@ -3266,9 +3266,9 @@ class S {
     );
   }
 
-  /// `From this phone to the website`
+  /// `From this device to the website`
   String get website_to_title {
-    return Intl.message('From this phone to the website', name: 'website_to_title', desc: '', args: []);
+    return Intl.message('From this device to the website', name: 'website_to_title', desc: '', args: []);
   }
 
   /// `Send your progress as a link, then open the link on the computer.`
