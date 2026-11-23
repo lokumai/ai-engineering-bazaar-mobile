@@ -105,10 +105,12 @@ void main() {
     expect(router.state.uri.path, '/start');
   });
 
-  testWidgets('an unknown target throws', (tester) async {
-    await follow(tester, const UnknownTarget(kind: 'poll'));
+  // Review 8, finding 10: following one threw, and a callout's button did follow it.
+  testWidgets('an unknown target does nothing', (tester) async {
+    final router = await follow(tester, const UnknownTarget(kind: 'poll'));
 
-    expect(thrown, isA<StateError>());
+    expect(thrown, isNull);
+    expect(router.state.uri.path, '/start');
     expect(opened, isEmpty);
     expect(scrolled, isEmpty);
   });

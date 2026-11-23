@@ -12,8 +12,8 @@ import 'package:go_router/go_router.dart';
 /// link's language is not used in v1 (spec 3.6.2). An anchor scrolls within the page through [scrollTo]. A catalog link
 /// pushes the For Engineers catalog root, as the web's `/sheets/` does from both tracks (Decision A39), so back returns
 /// to the page the link was on (plan 1M). An external
-/// link opens outside the app. An unknown target is never tappable (the renderer draws it as plain text), so following
-/// one throws.
+/// link opens outside the app. An unknown target, a kind a later bundle added, is drawn as plain text and as no
+/// callout button; following one does nothing (review 8).
 void followLink(BuildContext context, LinkTarget target, {required void Function(String id) scrollTo}) {
   switch (target) {
     case ModuleTarget(:final key, :final track, :final fragment):
@@ -25,7 +25,7 @@ void followLink(BuildContext context, LinkTarget target, {required void Function
     case ExternalTarget(:final url):
       // The parser admits any http(s) text; one that is not a URL says it did not open rather than throw on the tap.
       unawaited(openExternalUrl(context, url));
-    case UnknownTarget(:final kind):
-      throw StateError('An unknown link target is not openable: $kind');
+    case UnknownTarget():
+      return;
   }
 }
