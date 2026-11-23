@@ -393,6 +393,16 @@ void main() {
   });
 
   // Review 8, finding 15: the lede and the buttons' names were held to one line, cut from about 1.5 times the text.
+  // The level ring's number and word shrink to fit it at a large text size, and only then: a FittedBox that fills
+  // would draw them larger at the usual size. (The test font's glyphs are squares, too wide to measure this by size.)
+  testWidgets('the level ring only ever shrinks its number and word', (tester) async {
+    await _pump(tester);
+
+    final fitted = find.ancestor(of: find.text('level'), matching: find.byType(FittedBox));
+    expect(tester.widget<FittedBox>(fitted).fit, BoxFit.scaleDown);
+    await _rest(tester);
+  });
+
   testWidgets('at twice the text in Turkish, no name or line of the card is cut', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);

@@ -73,6 +73,7 @@ class _LevelRing extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: FittedBox(
+            fit: BoxFit.scaleDown,
             child: AnimatedSwitcher(
               duration: reduced ? Duration.zero : const Duration(milliseconds: 420),
               transitionBuilder: (child, animation) => ScaleTransition(

@@ -114,6 +114,7 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                           child: Padding(
                             padding: const EdgeInsets.all(4),
                             child: FittedBox(
+                              fit: BoxFit.scaleDown,
                               child: Text(
                                 '$waiting',
                                 style: const TextStyle(
