@@ -390,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu cihazda bu dil için bir ses yok. Dinlemek için cihazın Ayarlar\'ından bir ses ekle.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
-      "Sesli okuma başlamadı. Kaldığın yer duruyor; biraz sonra yeniden dene.",
+      "Sesli okuma durdu. Kaldığın yer duruyor; biraz sonra yeniden dene.",
     ),
     "listen_open": m34,
     "listen_part": m35,

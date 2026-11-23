@@ -388,7 +388,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This device has no voice for this language. Add one in the device\'s Settings to listen.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
-      "Listening did not start. Where it was left is kept; try again in a moment.",
+      "Listening stopped. Where it was left is kept; try again in a moment.",
     ),
     "listen_open": m34,
     "listen_part": m35,

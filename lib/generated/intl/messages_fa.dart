@@ -390,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این دستگاه برای این زبان صدایی ندارد. برای گوش دادن، از تنظیمات دستگاه یک صدا اضافه کنید.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
-      "خواندن با صدا شروع نشد. جایی که مانده بودید حفظ شده است؛ کمی بعد دوباره امتحان کنید.",
+      "خواندن با صدا متوقف شد. جایی که مانده بودید حفظ شده است؛ کمی بعد دوباره امتحان کنید.",
     ),
     "listen_open": m34,
     "listen_part": m35,

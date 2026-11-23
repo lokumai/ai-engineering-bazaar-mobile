@@ -291,13 +291,19 @@ final class ListenCubit extends Cubit<ListenState> {
     // rather than the player closing without a word and the next Listen starting from the head (review 2 finding 6,
     // review 5 finding 11).
     if (started == null) return _notStarted();
+    // Ended before its last part: the phone's voice failed on the way (an engine error, an update). The place is kept
+    // at the part it was on, and the reader told, as for a speak that did not start (review 6, finding 2).
+    if (started case final at? when at < session.parts.length - 1) {
+      _place(session, (place) => place.at(at));
+      return _notStarted();
+    }
     if (started case final last? when last == session.parts.length - 1) {
       _place(session, (place) => place.hearing(last));
     }
     _ended();
   }
 
-  /// A speak that started no part: the reading stops where it was, its place kept.
+  /// A speak that started no part, or stopped before its last: the reading stops where it was, its place kept.
   void _notStarted() {
     final session = _session;
     if (session == null) return;

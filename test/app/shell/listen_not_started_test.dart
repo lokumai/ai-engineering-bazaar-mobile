@@ -51,7 +51,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('listen-not-started')), findsOneWidget);
-    expect(find.textContaining('did not start'), findsOneWidget);
+    expect(find.textContaining('Listening stopped. Where it was left is kept'), findsOneWidget);
   });
 
   testWidgets('a reading stopped says nothing of it', (tester) async {

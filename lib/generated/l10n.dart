@@ -616,10 +616,10 @@ class S {
     );
   }
 
-  /// `Listening did not start. Where it was left is kept; try again in a moment.`
+  /// `Listening stopped. Where it was left is kept; try again in a moment.`
   String get listen_not_started {
     return Intl.message(
-      'Listening did not start. Where it was left is kept; try again in a moment.',
+      'Listening stopped. Where it was left is kept; try again in a moment.',
       name: 'listen_not_started',
       desc: '',
       args: [],

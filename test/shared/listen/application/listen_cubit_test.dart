@@ -295,6 +295,20 @@ void main() {
       expect(listen.keptAt('alpha/first', Track.engineers), 1);
     });
 
+    // Review 6, finding 2: a speak the voice ended early closed the player with no word and forgot the place.
+    test('a speak the phone ends before its last part keeps the part it was on and says so', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(0);
+      voice.reach(1);
+      voice.finish(); // the engine failed on part 1
+      await _settle();
+
+      expect(listen.state, const ListenIdle(rate: 1, notStarted: (module: 'alpha/first', track: Track.engineers)));
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+    });
+
     test('stop ends the reading; closing stops the voice', () async {
       make();
       listen.start(_first);
