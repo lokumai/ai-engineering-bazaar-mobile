@@ -74,4 +74,54 @@ void main() {
 
     expect(await none.read(), isNull);
   });
+
+  // Review 5, finding 2: a file there that could not be read started its feature fresh, and the next save replaced
+  // what the reader had kept (the Apprentice's tokens and level).
+  group('a file that could not be read is not written over', () {
+    File kept() => File('${root.path}/quiz/scores.json')
+      ..parent.createSync()
+      ..writeAsStringSync('kept');
+
+    test('until a read succeeds', () async {
+      final file = kept();
+      final scores = store();
+      await Process.run('chmod', ['000', file.path]);
+      addTearDown(() => Process.runSync('chmod', ['644', file.path]));
+
+      expect(await scores.read(), isNull);
+      await scores.write('fresh');
+      await Process.run('chmod', ['644', file.path]);
+      expect(file.readAsStringSync(), 'kept');
+
+      expect(await scores.read(), 'kept');
+      await scores.write('next');
+      expect(file.readAsStringSync(), 'next');
+    });
+
+    test('until it is deleted, as an erase asks', () async {
+      kept();
+      var calls = 0;
+      final scores = FileTextStore(
+        baseDirectory: () async => ++calls == 1 ? throw StateError('no folder yet') : root,
+        path: 'quiz/scores.json',
+      );
+      expect(await scores.read(), isNull);
+      await scores.write('fresh');
+      expect(await store().read(), 'kept');
+
+      await scores.delete();
+      await scores.write('after the erase');
+      expect(await store().read(), 'after the erase');
+    });
+
+    test('but bytes that are not text are, as no read would ever succeed', () async {
+      Directory('${root.path}/quiz').createSync();
+      File('${root.path}/quiz/scores.json').writeAsBytesSync([0xff, 0xfe, 0xc3, 0x28]);
+      final scores = store();
+
+      expect(await scores.read(), isNull);
+      await scores.write('fresh');
+      expect(await store().read(), 'fresh');
+    });
+  });
 }
