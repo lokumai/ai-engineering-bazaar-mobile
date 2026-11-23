@@ -333,7 +333,7 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
       at: '/settings',
     );
-    expect(find.textContaining('Track, language, look and text size.'), findsOneWidget);
+    expect(find.textContaining('Audience, language, appearance and text size.'), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('My wardrobe:'), findsOneWidget);
     expect(_dots(2, 4), findsOneWidget);

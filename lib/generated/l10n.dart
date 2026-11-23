@@ -2818,9 +2818,14 @@ class S {
     );
   }
 
-  /// `Track, language, look and text size.`
+  /// `Audience, language, appearance and text size.`
   String get tour_settings_reading {
-    return Intl.message('Track, language, look and text size.', name: 'tour_settings_reading', desc: '', args: []);
+    return Intl.message(
+      'Audience, language, appearance and text size.',
+      name: 'tour_settings_reading',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `My wardrobe: dress me up, or change the app icon.`

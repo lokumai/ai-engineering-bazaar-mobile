@@ -719,7 +719,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "My wardrobe: dress me up, or change the app icon.",
     ),
     "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
-    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Track, language, look and text size."),
+    "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Audience, language, appearance and text size."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
       "Bring your progress from the website here, or send it there.",
     ),

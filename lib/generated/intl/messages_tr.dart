@@ -718,7 +718,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
       "Gardırobum: beni giydir ya da App ikonunu değiştir.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur \"Bazaar nasıl işler\" sayfasında."),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("Bu tur “Bazaar nasıl işler” sayfasında."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Anlatım, dil, görünüm ve yazı boyutu."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
       "Web sitesindeki ilerlemeni buraya getir ya da buradakini oraya gönder.",
