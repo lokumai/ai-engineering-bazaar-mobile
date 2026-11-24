@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show PlatformException;
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 
 /// [IBackupGateway] over `file_picker`.
 ///
@@ -35,9 +36,10 @@ final class PlatformBackupGateway implements IBackupGateway {
     return FilePicker.pickFile(type: type, allowedExtensions: extensions);
   }
 
-  /// The largest file read as a backup. A record is a few kilobytes; a file past this is not one, and reading it
-  /// whole could run the app out of memory, so it is refused before it is read.
-  static const maxBackupBytes = 16 * 1024 * 1024;
+  /// The largest file read as a backup: four times the record's cap, 2 MB, room for the export's indented form of the
+  /// largest record the app keeps. A file past this is not a backup, and it is refused before it is read: one of 16 MB
+  /// of nested arrays took close to 1 GB and over a second to decode on the UI isolate (review 9, finding 4).
+  static const maxBackupBytes = 4 * RecordConstants.softCapBytes;
 
   @override
   Future<BackupSaveResult> save(Uint8List bytes, String filename) async {

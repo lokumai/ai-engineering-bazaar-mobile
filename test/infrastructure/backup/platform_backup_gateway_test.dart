@@ -1,14 +1,21 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_writer.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 
 /// A picked file whose name and bytes the test sets; [readAsBytes] throws [error] when it is given.
+const _at = '2026-11-24T10:00:00.000Z';
+
 final class _FakePlatformFile extends PlatformFile {
   _FakePlatformFile({this.bytes, this.error});
 
@@ -190,6 +197,19 @@ void main() {
 
       final picked = await gateway.pickJson();
       expect(picked, isA<PickedBackupBytes>().having((backup) => backup.bytes, 'bytes', [123, 125]));
+    });
+
+    // Review 9, finding 4: the limit was 16 MB, and a file of nested arrays under it cost close to 1 GB to decode.
+    test('the limit is 2 MB, and the export of a record at its cap fits under it', () {
+      expect(PlatformBackupGateway.maxBackupBytes, 2 * 1024 * 1024);
+      var record = RecordData.empty;
+      // Completions added 500 at a time, until the compact record passes its cap.
+      for (var i = 0; utf8.encode(serialise(record, _at, pretty: false)).length < RecordConstants.softCapBytes;) {
+        for (final end = i + 500; i < end; i++) {
+          record = signOff(record, 'level-$i/module-$i', 'a1b2c3d', _at);
+        }
+      }
+      expect(utf8.encode(serialise(record, _at, pretty: true)).length, lessThan(PlatformBackupGateway.maxBackupBytes));
     });
 
     test('reads a file at the limit', () async {
