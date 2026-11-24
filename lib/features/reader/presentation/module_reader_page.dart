@@ -474,8 +474,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
       return;
     }
-    final toggle = CompletionToggled(key: doc.key, track: doc.track, revision: leaving.revision);
-    record.add(toggle);
+    record.add(CompletionSet(key: doc.key, track: doc.track, revision: leaving.revision, completed: true));
     widget.onPlace?.call(null);
     final messenger = leaving.messenger;
     if (messenger == null) return;
@@ -486,7 +485,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         SnackBar(
           key: const ValueKey('reader-auto-completed'),
           content: Text(leaving.said),
-          action: SnackBarAction(label: leaving.undo, onPressed: () => record.add(toggle)),
+          action: SnackBarAction(
+            label: leaving.undo,
+            onPressed: () =>
+                record.add(CompletionSet(key: doc.key, track: doc.track, revision: leaving.revision, completed: false)),
+          ),
         ),
       );
     });

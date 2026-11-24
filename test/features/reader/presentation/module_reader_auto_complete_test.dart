@@ -50,11 +50,14 @@ Future<_Pumped> _pump(WidgetTester tester, {ReadingPlace? place, RecordData? rec
   return (router: router, record: bloc, places: places, store: store);
 }
 
-/// The completion toggles sent to the record for alpha/first.
-List<CompletionToggled> _toggles(RecordBloc record) => [
+/// The completions sent to the record for alpha/first, toggled by hand or set as the module is left.
+List<RecordEvent> _toggles(RecordBloc record) => [
   for (final event in verify(() => record.add(captureAny())).captured)
-    if (event case final CompletionToggled toggle when toggle.key == 'alpha/first') toggle,
+    if (event case CompletionToggled(key: 'alpha/first') || CompletionSet(key: 'alpha/first')) event,
 ];
+
+Matcher _set({required bool completed}) =>
+    isA<CompletionSet>().having((event) => event.completed, 'completed', completed);
 
 /// Whether any event reached the record.
 bool _sent(RecordBloc record) {
@@ -89,12 +92,12 @@ void main() {
     await tester.pump(const Duration(seconds: 100));
     await _leave(tester, router);
 
-    expect(_toggles(record), hasLength(1));
+    expect(_toggles(record), [_set(completed: true)]);
     expect(find.descendant(of: _note, matching: find.text('Marked as completed')), findsOneWidget);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
-    expect(_toggles(record), hasLength(1), reason: 'the Undo sends the toggle again, taking the completion back');
+    expect(_toggles(record), [_set(completed: false)], reason: 'the Undo takes the completion back');
   });
 
   // Review 6, finding 17: a completion the reader took back by hand was marked again as the module was left.

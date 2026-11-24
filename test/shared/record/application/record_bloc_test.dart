@@ -315,6 +315,32 @@ void main() {
     });
   });
 
+  // Review 9, finding 2: two automatic marks of one module, from two pages of it, were two toggles that undid each other.
+  test('a completion set twice stays as set, and setting it again writes nothing', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository();
+      final bloc = await _started(repository);
+      const complete = CompletionSet(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers, completed: true);
+
+      bloc
+        ..add(complete)
+        ..add(complete);
+      await pumpEventQueue();
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
+      expect(repository.writes, hasLength(1), reason: 'the second finds it completed and writes nothing');
+
+      const undo = CompletionSet(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers, completed: false);
+      bloc
+        ..add(undo)
+        ..add(undo);
+      await pumpEventQueue();
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), isNull);
+      expect(repository.writes, hasLength(2));
+      expect(utf8.decode(repository.record!), serialise(_ready(bloc).record, _now, pretty: false));
+      await bloc.close();
+    });
+  });
+
   test('a failed write keeps the change in memory', () async {
     await _withClock(() async {
       for (final (result, state) in [

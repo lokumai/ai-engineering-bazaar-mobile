@@ -107,17 +107,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       case RecordStarted():
         return;
       case CompletionToggled(:final key, :final revision, :final track):
-        if (_pendingErases > 0) return;
-        final now = nowIso();
         final signing = current.record.signedOff(key, track) == null;
-        RecordData toggled(RecordData record) {
-          if (!signing) return record.signedOff(key, track) == null ? record : unsign(record, key, track: track);
-          // Each track is completed on its own, as on the website (plan 17.4; 1V is undone).
-          return record.signedOff(key, track) == null ? signOff(record, key, revision, now, track: track) : record;
-        }
-
-        if (current.undo != null) _sinceErase.add(toggled);
-        await _commit(current, toggled(current.record), emit);
+        await _setCompletion(current, emit, key: key, revision: revision, track: track, completed: signing);
+      case CompletionSet(:final key, :final revision, :final track, :final completed):
+        await _setCompletion(current, emit, key: key, revision: revision, track: track, completed: completed);
       case ChecklistItemToggled(:final key, :final index, :final ticked, :final track):
         if (_pendingErases > 0) return;
         final now = nowIso();
@@ -270,6 +263,29 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         undo: null,
       ),
     );
+  }
+
+  /// Completes [key] on [track], or takes its completion away, as [completed] says; a module already so is left as it
+  /// is, and nothing is written.
+  Future<void> _setCompletion(
+    RecordReady current,
+    Emitter<RecordState> emit, {
+    required String key,
+    required String? revision,
+    required Track track,
+    required bool completed,
+  }) async {
+    if (_pendingErases > 0) return;
+    final now = nowIso();
+    RecordData set(RecordData record) {
+      final signed = record.signedOff(key, track) != null;
+      if (signed == completed) return record;
+      // Each track is completed on its own, as on the website (plan 17.4; 1V is undone).
+      return completed ? signOff(record, key, revision, now, track: track) : unsign(record, key, track: track);
+    }
+
+    if (current.undo != null) _sinceErase.add(set);
+    await _commit(current, set(current.record), emit);
   }
 
   /// Makes [next] the record on top of [base], and writes it unless the cap or the launch-read gate refuses.

@@ -29,18 +29,16 @@ class ListenCompletion extends StatelessWidget {
         RecordLoading() => true,
       };
       if (index == null || completed) return;
-      final toggle = CompletionToggled(
-        key: heard.module,
-        track: heard.track,
-        revision: index.module(heard.module)?.tracks[heard.track]?.revision?.hash,
-      );
-      record.add(toggle);
+      final revision = index.module(heard.module)?.tracks[heard.track]?.revision?.hash;
+      CompletionSet set({required bool completed}) =>
+          CompletionSet(key: heard.module, track: heard.track, revision: revision, completed: completed);
+      record.add(set(completed: true));
       final s = S.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           key: const ValueKey('listen-completed'),
           content: Text(s.reader_auto_completed),
-          action: SnackBarAction(label: s.data_undo, onPressed: () => record.add(toggle)),
+          action: SnackBarAction(label: s.data_undo, onPressed: () => record.add(set(completed: false))),
         ),
       );
     },

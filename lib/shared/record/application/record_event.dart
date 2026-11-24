@@ -19,6 +19,18 @@ final class CompletionToggled extends RecordEvent {
   final Track track;
 }
 
+/// The completion of [key] on [track] set to [completed], whatever it is now: the automatic marks of a module read or
+/// heard to its end, and their Undo (review 9, finding 2). Sent twice, it still leaves the module as [completed] says,
+/// where two toggles undid each other. The row pressed by hand keeps [CompletionToggled].
+final class CompletionSet extends RecordEvent {
+  const CompletionSet({required this.key, required this.revision, required this.track, required this.completed});
+
+  final String key;
+  final String? revision;
+  final Track track;
+  final bool completed;
+}
+
 /// The reader ticked the checklist item [index] of [key] on [track], or took the tick away (web `ChecklistIsland`).
 final class ChecklistItemToggled extends RecordEvent {
   const ChecklistItemToggled({required this.key, required this.index, required this.ticked, required this.track});
