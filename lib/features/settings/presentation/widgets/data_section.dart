@@ -3,13 +3,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/dat
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/quarantine_notice.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
-import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
-import 'package:ai_engineering_bazaar/shared/quiz_scores/application/quiz_scores_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/review/application/review_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
-import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
-import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,25 +12,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// quarantine notice, the write notice when a write failed, then the data line with Back up, Restore and Reset, and
 /// the website line with Send to the website.
 ///
-/// It owns the [DataBloc] of its flows, and asks before a pending restore replaces the record.
+/// It reads the app's [DataBloc] (app_scope.dart: it outlives a tab switch, so a reset's Undo stays), and asks before a
+/// pending restore replaces the record.
 class DataSection extends StatelessWidget {
   const DataSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<DataBloc>(
-      create: (context) => DataBloc(
-        recordBloc: context.read<RecordBloc>(),
-        gateway: context.read<IBackupGateway>(),
-        repository: context.read<IRecordRepository>(),
-        scores: context.read<QuizScoresBloc>(),
-        review: context.read<ReviewBloc>(),
-        places: context.read<ReadingPlacesBloc>(),
-        listen: context.read<ListenCubit>(),
-      ),
-      child: const _DataWithBloc(),
-    );
-  }
+  Widget build(BuildContext context) => const _DataWithBloc();
 }
 
 class _DataWithBloc extends StatelessWidget {
@@ -44,9 +26,13 @@ class _DataWithBloc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (quarantineKept, writeState) = switch (context.watch<RecordBloc>().state) {
-      RecordReady(:final quarantineKept, :final writeState) => (quarantineKept, writeState),
-      RecordLoading() => (false, null),
+    final (quarantineKept, writeState, unread) = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final quarantineKept, :final writeState, :final launchReadFailed) => (
+        quarantineKept,
+        writeState,
+        launchReadFailed,
+      ),
+      RecordLoading() => (false, null, false),
     };
     final writeFailed = switch (writeState) {
       WriteQuota() || WriteBlocked() || WriteTooLarge() => true,
@@ -60,9 +46,11 @@ class _DataWithBloc extends StatelessWidget {
         spacing: AppSpacing.md,
         children: [
           if (quarantineKept) const QuarantineNotice(),
-          if (writeFailed)
+          if (writeFailed || unread)
             RecordWriteNotice(
               writeState: writeState!,
+              launchReadFailed: unread,
+              onReadAgain: () => context.read<RecordBloc>().add(const RecordReadAgain()),
               onBackUp: () => context.read<DataBloc>().add(const BackupRequested()),
             ),
           DataLine(),

@@ -826,6 +826,16 @@ class S {
     return Intl.message('See what is written For Everyone', name: 'reader_see_everyone', desc: '', args: []);
   }
 
+  /// `The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.`
+  String get record_not_read {
+    return Intl.message(
+      'The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.',
+      name: 'record_not_read',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Not saved: {reason}. Back up to a file to keep it.`
   String record_not_saved(String reason) {
     return Intl.message(
@@ -1175,9 +1185,14 @@ class S {
     );
   }
 
-  /// `The quiz scores on this device are erased too.`
+  /// `The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.`
   String get erase_scores {
-    return Intl.message('The quiz scores on this device are erased too.', name: 'erase_scores', desc: '', args: []);
+    return Intl.message(
+      'The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.',
+      name: 'erase_scores',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `A device backup may still hold an earlier copy of your progress.`
@@ -1255,10 +1270,10 @@ class S {
     );
   }
 
-  /// `Update the app to read it. The stored record is kept on this device unchanged.`
+  /// `Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.`
   String get quarantine_newer_note {
     return Intl.message(
-      'Update the app to read it. The stored record is kept on this device unchanged.',
+      'Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.',
       name: 'quarantine_newer_note',
       desc: '',
       args: [],

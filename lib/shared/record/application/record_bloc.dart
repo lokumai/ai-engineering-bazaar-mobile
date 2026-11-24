@@ -106,6 +106,8 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     switch (event) {
       case RecordStarted():
         return;
+      case RecordReadAgain():
+        if (current.launchReadFailed && current.undo == null) await _onStarted(emit);
       case CompletionToggled(:final key, :final revision, :final track):
         final signing = current.record.signedOff(key, track) == null;
         await _setCompletion(current, emit, key: key, revision: revision, track: track, completed: signing);
@@ -119,6 +121,12 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
         if (current.undo != null) _sinceErase.add(ticking);
         await _commit(current, ticking(current.record), emit);
       case BackupStarted(:final at, :final reply):
+        // A backup of a record that was never read would hold none of the stored progress and say "Backed up" (opus
+        // review 11, record finding 1).
+        if (current.launchReadFailed) {
+          reply.completeError(StateError('the stored record could not be read'));
+          return;
+        }
         final next = markActivity(current.record, at);
         if (_pendingErases == 0) await _commit(current, next, emit);
         reply.complete(
@@ -150,6 +158,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       case TransferMerged(:final progress, :final reply):
         if (_pendingErases > 0) {
           reply.complete(TransferMergeResult.notAdded);
+          return;
+        }
+        if (current.launchReadFailed) {
+          reply.complete(TransferMergeResult.unread);
           return;
         }
         final merged = mergeTransfer(current.record, progress);
@@ -341,16 +353,22 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     );
   }
 
-  /// Decision A41: an erase whose files cannot be read still erases with no undo bytes; one whose files cannot be
-  /// deleted does not happen, and the files read before it are written back, so a delete that stopped part way loses
-  /// nothing on the device.
+  /// An erase whose files cannot be read does not happen, as one whose files cannot be deleted does not: its undo could
+  /// not bring them back (opus review 11, record finding 1, which turns Decision A41's delete round). An erase whose
+  /// delete stopped part way writes back the files read before it, so it loses nothing on the device. A record that
+  /// could not be read at launch is not erased either: the reader never saw what it holds.
   Future<void> _onErased(RecordReady current, DateTime at, Completer<bool>? reply, Emitter<RecordState> emit) async {
+    if (current.launchReadFailed) {
+      reply?.complete(false);
+      return;
+    }
     StoredBytes bytes;
     try {
       bytes = await _repository.readStored();
     } on FileSystemException catch (error) {
       _log.warn('record read before erase failed: {}', [error]);
-      bytes = const StoredBytes(record: null, quarantine: null);
+      reply?.complete(false);
+      return;
     }
     try {
       await _repository.deleteAll();

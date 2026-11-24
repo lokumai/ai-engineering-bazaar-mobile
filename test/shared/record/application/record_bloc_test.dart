@@ -20,7 +20,6 @@ final _clock = Clock.fixed(DateTime.utc(2026, 3, 14, 22, 30).toLocal());
 const _toggle = CompletionToggled(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers);
 final _signed = signOff(RecordData.empty, 'alpha/first', 'a1b2c3d', _now);
 final _t = DateTime.utc(2026, 3, 15, 8);
-const _noBytes = StoredBytes(record: null, quarantine: null);
 
 RecordReady ready({
   RecordData record = RecordData.empty,
@@ -187,29 +186,59 @@ void main() {
     });
   });
 
-  test('a failed launch read refuses every write except erase', () async {
-    await _withClock(() async {
-      final repository = _MemoryRecordRepository()..loadResult = const RecordLoadFailed(quarantineKept: false);
-      final bloc = await _started(repository);
-      expect(bloc.state, ready(writeState: const WriteBlocked(), launchReadFailed: true));
+  // Opus review 11, record finding 1: the erase deleted a record the reader never saw, with no bytes to undo, and a
+  // backup said "Backed up" over a file that held none of the stored progress.
+  test(
+    'a failed launch read refuses every write, the erase, the backup and a transfer; reading again brings it back',
+    () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = const RecordLoadFailed(quarantineKept: false);
+        final bloc = await _started(repository);
+        expect(bloc.state, ready(writeState: const WriteBlocked(), launchReadFailed: true));
 
-      bloc.add(_toggle);
-      await pumpEventQueue();
-      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
-      expect(_ready(bloc).writeState, const WriteBlocked());
-      expect(repository.writes, isEmpty);
+        bloc.add(_toggle);
+        await pumpEventQueue();
+        expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
+        expect(_ready(bloc).writeState, const WriteBlocked());
+        expect(repository.writes, isEmpty);
 
-      bloc.add(RecordErased(at: _t));
-      await pumpEventQueue();
-      expect(repository.calls, contains('deleteAll'));
-      expect(_ready(bloc).launchReadFailed, isFalse);
+        final erased = Completer<bool>();
+        bloc.add(RecordErased(at: _t, reply: erased));
+        expect(await erased.future, isFalse);
+        expect(repository.calls, isNot(contains('deleteAll')));
+        expect(repository.calls, isNot(contains('readStored')));
 
-      bloc.add(_toggle);
-      await pumpEventQueue();
-      expect(repository.writes, hasLength(1));
-      await bloc.close();
-    });
-  });
+        final backup = Completer<RecordBackup>();
+        final refused = expectLater(backup.future, throwsStateError);
+        bloc.add(BackupStarted(at: '2026-03-15T07:10:00.000Z', reply: backup));
+        await refused;
+
+        final merged = Completer<TransferMergeResult>();
+        bloc.add(
+          TransferMerged(
+            progress: const TransferProgress(engineers: {}, everyone: {}, days: ['2026-03-01']),
+            reply: merged,
+          ),
+        );
+        expect(await merged.future, TransferMergeResult.unread);
+        expect(repository.writes, isEmpty);
+
+        repository.loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        bloc.add(const RecordReadAgain());
+        await pumpEventQueue();
+        expect(bloc.state, ready(record: _signed));
+
+        bloc.add(const RecordReadAgain());
+        await pumpEventQueue();
+        expect(
+          repository.calls.where((call) => call == 'load'),
+          hasLength(2),
+          reason: 'a record read is not read again',
+        );
+        await bloc.close();
+      });
+    },
+  );
 
   test('Review Focus 3: a completion is stamped with the UTC day', () async {
     await _withClock(() async {
@@ -871,31 +900,6 @@ void main() {
     });
   });
 
-  test('undo after a failed launch read closes the write gate again', () {
-    _fake((async) {
-      final repository = _MemoryRecordRepository()
-        ..loadResult = const RecordLoadFailed(quarantineKept: false)
-        ..record = Uint8List.fromList([1]);
-      final bloc = _startedFake(async, repository);
-      expect(bloc.state, ready(writeState: const WriteBlocked(), launchReadFailed: true));
-
-      bloc.add(RecordErased(at: _t));
-      async.flushMicrotasks();
-      expect(_ready(bloc).launchReadFailed, isFalse);
-      async.elapse(const Duration(seconds: 3));
-      bloc.add(const EraseUndone());
-      async.flushMicrotasks();
-      expect(repository.record, [1]);
-      expect(bloc.state, ready(record: RecordData.empty, writeState: const WriteBlocked(), launchReadFailed: true));
-
-      bloc.add(_toggle);
-      async.flushMicrotasks();
-      expect(repository.writes, isEmpty);
-      bloc.close();
-      async.flushMicrotasks();
-    });
-  });
-
   test('events before the launch read are ignored', () async {
     await _withClock(() async {
       final repository = _MemoryRecordRepository()
@@ -956,7 +960,9 @@ void main() {
     });
   });
 
-  test('A41: an erase whose files cannot be read keeps no undo bytes and still erases', () {
+  // Opus review 11, record finding 1: Decision A41 erased files it could not read, and their undo had nothing to put
+  // back; such an erase now does not happen, as one whose files cannot be deleted does not.
+  test('an erase whose files cannot be read does not happen', () {
     _fake((async) {
       final repository = _MemoryRecordRepository()
         ..loadResult = RecordLoadOk(data: _signed, quarantineKept: false)
@@ -969,39 +975,10 @@ void main() {
 
       bloc.add(RecordErased(at: _t, reply: reply));
       async.flushMicrotasks();
-      expect(repository.calls, ['load', 'readStored', 'deleteAll']);
-      expect(
-        bloc.state,
-        ready(
-          record: RecordData.empty,
-          undo: EraseUndo(at: _t, bytes: _noBytes, data: _signed),
-        ),
-      );
-      expect(replied, isTrue);
-
-      async.elapse(const Duration(seconds: 5));
-      bloc.add(const EraseUndone());
-      async.flushMicrotasks();
-      // Decision E7: the undo writes the record from memory, so the disk holds what the page shows.
-      expect(repository.calls.sublist(repository.calls.length - 2), ['restore', 'write']);
-      expect(repository.writes, hasLength(1));
-      expect(repository.record, utf8.encode(serialise(_signed, _now, pretty: false)));
+      expect(repository.calls, ['load', 'readStored']);
+      expect(repository.record, [1]);
       expect(bloc.state, ready(record: _signed));
-      bloc.close();
-      async.flushMicrotasks();
-    });
-  });
-
-  test('A41: an undo of a record that carries nothing writes nothing', () {
-    _fake((async) {
-      final repository = _MemoryRecordRepository()..readStoredError = _injected();
-      final bloc = _startedFake(async, repository)..add(RecordErased(at: _t));
-      async.flushMicrotasks();
-      bloc.add(const EraseUndone());
-      async.flushMicrotasks();
-      expect(repository.calls.last, 'restore');
-      expect(repository.writes, isEmpty);
-      expect(bloc.state, ready());
+      expect(replied, isFalse);
       bloc.close();
       async.flushMicrotasks();
     });

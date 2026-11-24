@@ -8,14 +8,26 @@ import 'package:flutter/material.dart';
 /// The line that says the latest record write did not reach the device (spec 3.3.9), shown under the completion row
 /// and on the progress page; nothing while the record is saved or a write runs.
 ///
+/// When the stored record could not be read at launch, it says that instead, and a tap reads it again: the write
+/// notice's "could not write, back up" would lead the reader to a backup that holds none of it (opus review 11, record
+/// finding 1).
+///
 /// The whole line is one tap target that leads to the backup, so the sentence stays one translatable string. Its text
 /// is on-surface and the fault colour marks only its edge (Decision A18). It is a live region, as the web's line is an
 /// alert.
 class RecordWriteNotice extends StatelessWidget {
-  const RecordWriteNotice({super.key, required this.writeState, required this.onBackUp});
+  const RecordWriteNotice({
+    super.key,
+    required this.writeState,
+    required this.onBackUp,
+    this.launchReadFailed = false,
+    this.onReadAgain,
+  });
 
   final WriteState writeState;
   final VoidCallback onBackUp;
+  final bool launchReadFailed;
+  final VoidCallback? onReadAgain;
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +38,15 @@ class RecordWriteNotice extends StatelessWidget {
       WriteBlocked() => s.record_not_saved_blocked,
       WriteTooLarge() => s.record_not_saved_too_large,
     };
-    if (reason == null) return const SizedBox.shrink();
+    if (reason == null && !launchReadFailed) return const SizedBox.shrink();
+    final text = launchReadFailed ? s.record_not_read : s.record_not_saved(reason!);
     final colors = context.bazaarColors;
     return Semantics(
       key: const Key('write-failure'),
       liveRegion: true,
       button: true,
       child: InkWell(
-        onTap: onBackUp,
+        onTap: launchReadFailed ? onReadAgain : onBackUp,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(defaultTargetPlatform)),
           child: DecoratedBox(
@@ -46,7 +59,7 @@ class RecordWriteNotice extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 widthFactor: 1,
                 child: Text(
-                  s.record_not_saved(reason),
+                  text,
                   style: TextStyle(fontSize: BazaarType.meta.size, color: colors.onSurface),
                 ),
               ),

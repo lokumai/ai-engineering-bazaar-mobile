@@ -319,7 +319,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scope": MessageLookupByLibrary.simpleMessage(
       "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
     ),
-    "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
+    "erase_scores": MessageLookupByLibrary.simpleMessage(
+      "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.",
+    ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
     "error_link_open_failed": m27,
@@ -550,7 +552,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
     ),
     "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
-      "Update the app to read it. The stored record is kept on this device unchanged.",
+      "Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.",
     ),
     "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
       "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
@@ -631,6 +633,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("Comfortable"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("Tight"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("Wide"),
+    "record_not_read": MessageLookupByLibrary.simpleMessage(
+      "The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.",
+    ),
     "record_not_saved": m63,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),

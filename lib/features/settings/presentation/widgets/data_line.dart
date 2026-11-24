@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The data line of the Settings page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the buttons Back up,
@@ -21,7 +22,13 @@ class DataLine extends StatelessWidget {
     final theme = Theme.of(context);
     final state = context.watch<DataBloc>().state;
     final bloc = context.read<DataBloc>();
-    final idle = state.busy == DataBusy.idle;
+    // While the stored record could not be read, nothing here may act on it: a backup would hold none of it, a
+    // restore would write over it and a reset would delete what the reader never saw (opus review 11, record finding 1).
+    final unread = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final launchReadFailed) => launchReadFailed,
+      RecordLoading() => false,
+    };
+    final idle = state.busy == DataBusy.idle && !unread;
     final lines = [
       if (state.backup case final backup?) backupLineText(s, backup),
       if (state.restore case final restore?) _restoreText(s, restore),

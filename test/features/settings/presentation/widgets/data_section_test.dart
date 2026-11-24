@@ -4,6 +4,8 @@ library;
 import 'dart:convert';
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/data_section.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
@@ -80,6 +82,43 @@ void main() {
     await tester.pump();
     final events = verify(() => record.add(captureAny())).captured;
     expect(events.whereType<BackupStarted>(), hasLength(1));
+  });
+
+  // Opus review 11, record finding 1: the line said "could not write, back up", and the backup held none of the stored
+  // progress; the erase then deleted it for good.
+  testWidgets('a record that could not be read says so, reads again on a tap, and offers no backup, restore or reset', (
+    tester,
+  ) async {
+    final record = recordBlocAt(writeState: const WriteBlocked(), launchReadFailed: true);
+    await _pump(tester, record: record);
+
+    expect(
+      find.text(
+        'The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.',
+      ),
+      findsOneWidget,
+    );
+    for (final label in ['Back up', 'Restore', 'Reset']) {
+      expect(
+        tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, label)).onPressed,
+        isNull,
+        reason: label,
+      );
+    }
+    await _tap(tester, find.byType(RecordWriteNotice));
+    expect(verify(() => record.add(captureAny())).captured.whereType<RecordReadAgain>(), hasLength(1));
+  });
+
+  // Opus review 11, record finding 2: each visit to Settings made a new DataBloc, so a reset's Undo was gone after a
+  // look at Home, while the record's undo was still open.
+  testWidgets('the data flows outlive a tab switch', (tester) async {
+    final router = await _pump(tester, record: readyRecordBloc());
+    final before = tester.element(find.byType(DataSection)).read<DataBloc>();
+    router.go('/');
+    await tester.pumpAndSettle();
+    router.go('/settings');
+    await tester.pumpAndSettle();
+    expect(tester.element(find.byType(DataSection)).read<DataBloc>(), same(before));
   });
 
   testWidgets('a pending restore opens the confirmation', (tester) async {

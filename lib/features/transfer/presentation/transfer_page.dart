@@ -51,6 +51,7 @@ class _TransferView extends StatelessWidget {
       TransferDone(result: TransferMergeResult.nothingNew) => s.transfer_nothing_new,
       TransferDone(result: TransferMergeResult.notAdded) => s.transfer_not_added,
       TransferDone(result: TransferMergeResult.tooLarge) => s.transfer_too_large,
+      TransferDone(result: TransferMergeResult.unread) => s.record_not_read,
       TransferReady() || TransferAdding() => null,
     };
     return Scaffold(

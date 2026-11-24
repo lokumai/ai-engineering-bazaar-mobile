@@ -1,4 +1,5 @@
 import 'package:alchemist/alchemist.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/reading_style/reading_style_cubit.dart';
 import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
@@ -72,6 +73,17 @@ Widget _screen({required bool dark}) {
         BlocProvider<ReviewBloc>(create: (_) => ReviewBloc(store: MemoryReviewStore())),
         BlocProvider<ReadingPlacesBloc>(create: (_) => ReadingPlacesBloc(store: MemoryReadingPlaceStore())),
         BlocProvider<ListenCubit>(create: (_) => ListenCubit(speech: const NoSpeech())),
+        BlocProvider<DataBloc>(
+          create: (context) => DataBloc(
+            recordBloc: context.read<RecordBloc>(),
+            gateway: context.read<IBackupGateway>(),
+            repository: context.read<IRecordRepository>(),
+            scores: context.read<QuizScoresBloc>(),
+            review: context.read<ReviewBloc>(),
+            places: context.read<ReadingPlacesBloc>(),
+            listen: context.read<ListenCubit>(),
+          ),
+        ),
       ],
       child: goldenScreen(const SettingsScreen(openDevConsole: null), dark: dark),
     ),

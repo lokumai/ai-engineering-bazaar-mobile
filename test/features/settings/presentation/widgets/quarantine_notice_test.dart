@@ -15,7 +15,7 @@ import '../data_host.dart';
 
 const _newer = (
   'PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.',
-  'Update the app to read it. The stored record is kept on this device unchanged.',
+  'Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.',
 );
 const _malformed = (
   'PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.',

@@ -322,7 +322,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scope": MessageLookupByLibrary.simpleMessage(
       "Bu işlem kaydı bu cihazdan kaldırır. Uygulamanın okuyamadığı bir sürümden kalıp kenara ayrılan kopya da buna dahil.",
     ),
-    "erase_scores": MessageLookupByLibrary.simpleMessage("Bu cihazdaki quiz skorları da silinir."),
+    "erase_scores": MessageLookupByLibrary.simpleMessage(
+      "Bu cihazdaki quiz skorları, Pratik geçmişi ve her modülde kalınan okuma ve dinleme yerleri de silinir.",
+    ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("SİL"),
     "error_link_open_failed": m27,
@@ -553,7 +555,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "UYGULAMANIN BU SÜRÜMÜ İLERLEMEYİ OKUYAMADI. OKUNMADI.",
     ),
     "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
-      "Okumak için uygulamayı güncelle. Kayıt bu cihazda olduğu gibi duruyor.",
+      "Şimdi bir kopyasını kaydet ve uygulamayı güncelledikten sonra geri yükle. Kayıt bu cihazda olduğu gibi duruyor.",
     ),
     "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
       "İLERLEME, UYGULAMANIN DAHA YENİ BİR SÜRÜMÜYLE YAZILMIŞ. OKUNMADI.",
@@ -634,6 +636,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("Rahat"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("Sıkı"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("Geniş"),
+    "record_not_read": MessageLookupByLibrary.simpleMessage(
+      "Bu cihazda kayıtlı ilerleme okunamadı ve üzerine hiçbir şey yazılmıyor. Yeniden okumak için dokun.",
+    ),
     "record_not_saved": m63,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),

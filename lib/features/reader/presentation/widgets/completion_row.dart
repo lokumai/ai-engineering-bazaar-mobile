@@ -73,7 +73,15 @@ class CompletionRow extends StatelessWidget {
                 : null,
           ),
         ),
-        RecordWriteNotice(writeState: writeState, onBackUp: () => unawaited(context.push<void>(BazaarPaths.settings))),
+        RecordWriteNotice(
+          writeState: writeState,
+          launchReadFailed: switch (context.watch<RecordBloc>().state) {
+            RecordReady(:final launchReadFailed) => launchReadFailed,
+            RecordLoading() => false,
+          },
+          onReadAgain: () => context.read<RecordBloc>().add(const RecordReadAgain()),
+          onBackUp: () => unawaited(context.push<void>(BazaarPaths.settings)),
+        ),
       ],
     );
   }

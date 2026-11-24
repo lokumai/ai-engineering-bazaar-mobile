@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
@@ -187,6 +188,18 @@ Widget bazaarTestApp({
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
+        // Above the pages, as app_scope.dart provides it (opus review 11, record finding 2).
+        BlocProvider<DataBloc>(
+          create: (context) => DataBloc(
+            recordBloc: context.read<RecordBloc>(),
+            gateway: context.read<IBackupGateway>(),
+            repository: context.read<IRecordRepository>(),
+            scores: context.read<QuizScoresBloc>(),
+            review: context.read<ReviewBloc>(),
+            places: context.read<ReadingPlacesBloc>(),
+            listen: context.read<ListenCubit>(),
+          ),
+        ),
         if (caravan != null)
           BlocProvider<CaravanCubit>.value(value: caravan)
         else

@@ -9,6 +9,14 @@ final class RecordStarted extends RecordEvent {
   const RecordStarted();
 }
 
+/// The reader asked to read the stored record again after the launch read failed (opus review 11, record finding 1).
+///
+/// Nothing was written over the stored record while it could not be read, so a read that now succeeds brings it back
+/// whole; what was changed on the screen meanwhile was never saved, and the write notice said so.
+final class RecordReadAgain extends RecordEvent {
+  const RecordReadAgain();
+}
+
 /// The reader toggled the completion of [key] on [track]; [revision] is the track's `revision.hash` from the reader,
 /// null from the progress page (Decision A35). Build it with `completionToggled`, which fills [everyone].
 final class CompletionToggled extends RecordEvent {
@@ -94,6 +102,10 @@ enum TransferMergeResult {
 
   /// Nothing was added: with it the record would pass its cap, so trying again never helps (review 10, finding 9).
   tooLarge,
+
+  /// Nothing was added: the stored record could not be read at launch, and nothing is written over it (opus review 11,
+  /// record finding 1).
+  unread,
 }
 
 /// The reader confirmed an erase at [at] (spec 3.3.11, Decision A41).

@@ -509,6 +509,8 @@
   "@reader_read_for_engineers": {},
   "reader_see_everyone": "See what is written For Everyone",
   "@reader_see_everyone": {},
+  "record_not_read": "The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.",
+  "@record_not_read": {},
   "record_not_saved": "Not saved: {reason}. Back up to a file to keep it.",
   "@record_not_saved": {
     "placeholders": {
@@ -708,7 +710,7 @@
   "@erase_title": {},
   "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
   "@erase_scope": {},
-  "erase_scores": "The quiz scores on this device are erased too.",
+  "erase_scores": "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.",
   "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
@@ -734,7 +736,7 @@
   "@quarantine_label": {},
   "quarantine_newer_readout": "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
   "@quarantine_newer_readout": {},
-  "quarantine_newer_note": "Update the app to read it. The stored record is kept on this device unchanged.",
+  "quarantine_newer_note": "Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.",
   "@quarantine_newer_note": {},
   "quarantine_malformed_readout": "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
   "@quarantine_malformed_readout": {},

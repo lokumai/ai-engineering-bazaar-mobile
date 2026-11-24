@@ -321,7 +321,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scope": MessageLookupByLibrary.simpleMessage(
       "این کار سابقه را از این دستگاه حذف می‌کند، از جمله نسخه‌ای که از یک نسخهٔ دیگر برنامه کنار گذاشته شده بود و این نسخه نمی‌توانست آن را بخواند.",
     ),
-    "erase_scores": MessageLookupByLibrary.simpleMessage("امتیازهای آزمون در این دستگاه هم پاک می‌شوند."),
+    "erase_scores": MessageLookupByLibrary.simpleMessage(
+      "امتیازهای آزمون، سابقهٔ تمرین و جایی که در هر درس خواندن و شنیدن را رها کرده‌اید هم در این دستگاه پاک می‌شوند.",
+    ),
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
     "erase_word": MessageLookupByLibrary.simpleMessage("حذف"),
     "error_link_open_failed": m27,
@@ -554,7 +556,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "پیشرفتی که این نسخه از برنامه نتوانست بخواند. خوانده نشد.",
     ),
     "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
-      "برای خواندن آن، برنامه را به‌روزرسانی کنید. سابقهٔ ذخیره‌شده بدون تغییر روی این دستگاه نگه داشته می‌شود.",
+      "اکنون یک نسخه از آن ذخیره کنید و پس از به‌روزرسانی برنامه، آن را بازیابی کنید. سابقهٔ ذخیره‌شده بدون تغییر روی این دستگاه نگه داشته می‌شود.",
     ),
     "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
       "پیشرفتی که نسخهٔ جدیدتری از برنامه نوشته است. خوانده نشد.",
@@ -635,6 +637,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("راحت"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("فشرده"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("باز"),
+    "record_not_read": MessageLookupByLibrary.simpleMessage(
+      "پیشرفت ذخیره‌شده روی این دستگاه خوانده نشد و چیزی روی آن نوشته نمی‌شود. برای خواندن دوباره، ضربه بزنید.",
+    ),
     "record_not_saved": m63,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("برنامه نتوانست فایل خود را بنویسد"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("فضای خالی این دستگاه تمام شده است"),
