@@ -93,6 +93,13 @@ void main() {
       expect(nativeSentryChannelName, 'dev.lokumai.bazaar/native_sentry');
       expect(File('$kotlinMain/MainActivity.kt').readAsStringSync(), contains('"dev.lokumai.bazaar/native_sentry"'));
     });
+
+    // Review 10, finding 9: the exported activity took a cached engine's id from another app's intent.
+    test("MainActivity reads no cached engine from the intent", () {
+      final activity = File('$kotlinMain/MainActivity.kt').readAsStringSync();
+      expect(activity, contains('override fun getCachedEngineId(): String? = null'));
+      expect(activity, contains('override fun getCachedEngineGroupId(): String? = null'));
+    });
   });
 
   group('iOS identity', () {

@@ -37,6 +37,15 @@ class MainActivity : FlutterActivity() {
         window.setBackgroundDrawable(ColorDrawable(getColor(LaunchGround.ground(this))))
     }
 
+    /**
+     * The engine is always the activity's own. The activity is exported, and FlutterActivity reads a cached engine's id,
+     * or its group's, from the intent: another app naming one that does not exist ended that launch (review 10,
+     * finding 9).
+     */
+    override fun getCachedEngineId(): String? = null
+
+    override fun getCachedEngineGroupId(): String? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // nativeSdkReady (lib/infrastructure/analytics/native_sentry_start.dart) asks whether MainApplication started
