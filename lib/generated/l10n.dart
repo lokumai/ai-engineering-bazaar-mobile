@@ -422,6 +422,16 @@ class S {
     return Intl.message('$approved/$total completed', name: 'level_completed', desc: '', args: [approved, total]);
   }
 
+  /// `{approved} of {total} completed`
+  String level_completed_spoken(int approved, int total) {
+    return Intl.message(
+      '$approved of $total completed',
+      name: 'level_completed_spoken',
+      desc: 'The level\'s count read aloud, where the screen shows level_completed.',
+      args: [approved, total],
+    );
+  }
+
   /// `--/{total} completed`
   String level_completed_pending(int total) {
     return Intl.message('--/$total completed', name: 'level_completed_pending', desc: '', args: [total]);

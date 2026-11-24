@@ -127,7 +127,7 @@ const List<_Row> _rows = [
       ),
       'tr': (
         'Kendi görevini koyan ajanlar',
-        'Bir modelin sonraki adımını seçmesine izin veren döngüler GitHub’ın zirvesine çıktı ve kendi başlarına '
+        "Bir modelin sonraki adımını seçmesine izin veren döngüler GitHub'ın zirvesine çıktı ve kendi başlarına "
             'çalışmayı vaat etti.',
       ),
       'fa': (
@@ -154,7 +154,7 @@ const List<_Row> _rows = [
         'Bir modele özel bilgi vermenin olağan yolu getirme oldu ve vektör depoları her yerdeydi.',
       ),
       'fa': (
-        'گفتگو با اسنادت',
+        'گفتگو با اسنادتان',
         'بازیابی راه معمول دادن دانش خصوصی به مدل شد و پایگاه\u200cهای برداری همه\u200cجا بودند.',
       ),
     },
@@ -406,8 +406,8 @@ const List<_Row> _rows = [
         'Folders of instructions and scripts an agent loads when a task needs them, and the harness around the loop.',
       ),
       'tr': (
-        'Beceriler ve koşum takımları',
-        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri, ve döngünün çevresindeki koşum.',
+        "Beceriler ve harness'lar",
+        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri, ve döngünün çevresindeki harness.',
       ),
       'fa': (
         'مهارت\u200cها و هارنس\u200cها',
@@ -430,7 +430,7 @@ const List<_Row> _rows = [
             'zirvesine çıktı.',
       ),
       'fa': (
-        'ایجنت\u200cهای از آن خودت',
+        'ایجنت\u200cهای از آن خودتان',
         'ایجنت\u200cهای خودمیزبانی که در اپ\u200cهای گفتگو زندگی می\u200cکنند و کارها را انجام می\u200cدهند صدر ترندهای گیت\u200cهاب را '
             'گرفتند.',
       ),

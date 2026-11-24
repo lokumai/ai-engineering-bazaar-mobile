@@ -131,7 +131,7 @@ class _LevelCard extends StatelessWidget {
     final count = this.count;
     final meter = count == null
         ? s.level_completed_pending(level.total)
-        : s.level_completed(count.approved, count.total);
+        : s.level_completed_spoken(count.approved, count.total);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
     final card = BazaarCard(
       shape: BazaarCardShape.arch,

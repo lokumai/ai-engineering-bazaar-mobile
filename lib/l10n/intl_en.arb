@@ -219,6 +219,18 @@
       }
     }
   },
+  "level_completed_spoken": "{approved} of {total} completed",
+  "@level_completed_spoken": {
+    "description": "The level's count read aloud, where the screen shows level_completed.",
+    "placeholders": {
+      "approved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "level_completed_pending": "--/{total} completed",
   "@level_completed_pending": {
     "placeholders": {

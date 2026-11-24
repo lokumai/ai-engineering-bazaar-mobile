@@ -175,6 +175,8 @@ void main() {
       expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(find.byType(CatalogCards)).dy));
       expect(find.text('3 modules · ~1 h 15 min'), findsOneWidget);
       expect(find.text('1/3 completed'), findsOneWidget);
+      // Review 10, finding 11: "1/3" is read aloud as a fraction.
+      expect(find.bySemanticsLabel('1 of 3 completed'), findsOneWidget);
     });
 
     testWidgets('beta', (tester) async {
