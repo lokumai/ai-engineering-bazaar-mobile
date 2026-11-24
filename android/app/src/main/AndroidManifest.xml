@@ -27,7 +27,7 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode|fontWeightAdjustment|colorMode|navigation|touchscreen|mcc|mnc"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
             <!-- One activity only (plan 18.5): a link from another app reaches the one running through onNewIntent

@@ -149,6 +149,7 @@ class _SettingsView extends StatelessWidget {
                         value: language,
                         label: LanguageCubit.names[language]!,
                         key: settingsLanguageKey(language),
+                        locale: Locale(language),
                       ),
                   ],
                 ),

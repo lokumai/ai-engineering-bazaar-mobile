@@ -44,6 +44,8 @@ class PrivacyLegalPage extends StatelessWidget {
                   TargetPlatform.iOS || TargetPlatform.macOS => s.privacy_scanner_ios,
                   _ => s.privacy_scanner_android,
                 }),
+                // Listen is the device's own voice, which may be its maker's online one (review 11, native 10).
+                _Paragraph(s.privacy_listen),
                 if (crashReports) _Paragraph(s.privacy_crash),
                 // Feedback in Settings opens the web's form in the browser; the app sends nothing to it.
                 _Paragraph(s.privacy_feedback_form),
@@ -70,9 +72,12 @@ class PrivacyLegalPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpacing.sm,
               children: [
-                Text(
-                  s.legal_marks_title,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    s.legal_marks_title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                  ),
                 ),
                 _Paragraph(s.legal_marks),
                 _Paragraph(s.legal_images),

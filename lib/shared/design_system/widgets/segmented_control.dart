@@ -5,10 +5,14 @@ import '../bazaar_tokens.g.dart';
 
 /// One choice of a [BazaarSegmentedControl].
 final class BazaarSegment<T> {
-  const BazaarSegment({required this.value, required this.label, this.key});
+  const BazaarSegment({required this.value, required this.label, this.key, this.locale});
 
   final T value;
   final String label;
+
+  /// The language of [label] when it is not the app's, as a language's own name is: a screen reader then says it in
+  /// that language's voice, since an English voice cannot say فارسی (review 11, copy 10).
+  final Locale? locale;
 
   /// The key of the segment's button, for tests.
   final Key? key;
@@ -150,8 +154,8 @@ class _SegmentButton<T> extends StatelessWidget {
               child: Center(
                 heightFactor: 1,
                 widthFactor: 1,
-                child: Text(
-                  segment.label,
+                child: Text.rich(
+                  TextSpan(text: segment.label, locale: segment.locale),
                   textAlign: TextAlign.center,
                   style: styleOf(context, chosen: chosen)?.copyWith(color: ink),
                 ),

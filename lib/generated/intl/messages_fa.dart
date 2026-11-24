@@ -510,18 +510,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("به همه پاسخ دهید"),
     "practice_wrong_count": m49,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("الان هیچ پاسخ نادرستی ندارید."),
-    "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی دربارهٔ داده‌های شخصی به ما بنویسید."),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage(
+      "برای هر پرسشی دربارهٔ داده‌های شخصی به نشانی زیر بنویسید.",
+    ),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، نشانی‌های ایمیل، گذرواژه‌ها و توکن‌ها را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
-      "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
+      "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است و برنامه چنین سابقه‌ای نگه نمی‌دارد.",
     ),
     "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
       "«بازخورد» در تنظیمات، فرمی بی‌نام از Google را در مرورگر شما باز می‌کند و برنامه چیزی به آن نمی‌فرستد.",
     ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
+    "privacy_listen": MessageLookupByLibrary.simpleMessage(
+      "«گوش دادن» درس را با صدای خود دستگاه می‌خواند و برنامه برای آن چیزی نمی‌فرستد. اگر صدایی برای زبان درس روی دستگاه نصب نباشد، موتور گفتار دستگاه ممکن است از صدای آنلاین سازندهٔ آن استفاده کند.",
+    ),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد. آنچه می‌فرستد و مقصد آن، در ادامه آمده است؛ هیچ‌کدام به شخص شما پیوند داده نمی‌شود.",
     ),

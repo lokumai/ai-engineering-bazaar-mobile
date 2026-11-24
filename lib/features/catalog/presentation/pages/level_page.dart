@@ -60,8 +60,9 @@ class _LevelPageState extends State<LevelPage> {
     final meter = count == null
         ? l10n.level_completed_pending(entry.total)
         : l10n.level_completed(count.approved, count.total);
-    // Read aloud in words, where "1/3" would be read as a fraction (review 10, finding 11).
-    final spoken = count == null ? meter : l10n.level_completed_spoken(count.approved, count.total);
+    // Read aloud in words, where "1/3" would be read as a fraction (review 10, finding 11); while the record loads, not
+    // at all: "--/12" is read as dashes, and the lead line above already counts the modules (review 11, copy 10).
+    final spoken = count == null ? null : l10n.level_completed_spoken(count.approved, count.total);
     final minutes = index.modules
         .where((module) => module.level == entry.slug)
         .fold(0, (sum, module) => sum + module.minutes);
@@ -77,7 +78,10 @@ class _LevelPageState extends State<LevelPage> {
           levelLeadLine(l10n, modules: entry.total, minutes: minutes),
           style: textTheme.bodyMedium,
         ),
-        Text(meter, style: textTheme.bodyMedium, semanticsLabel: spoken),
+        ExcludeSemantics(
+          excluding: spoken == null,
+          child: Text(meter, style: textTheme.bodyMedium, semanticsLabel: spoken),
+        ),
         // The gauge of the meter, in the level's hue; the text above carries it, as the web's gauge is `aria-hidden`.
         if (count case final count?) ...[
           const SizedBox(height: AppSpacing.sm),
@@ -86,7 +90,7 @@ class _LevelPageState extends State<LevelPage> {
               done: count.approved,
               total: count.total,
               color: levelHue(context, levelPosition(index, entry.slug)),
-              semanticLabel: spoken,
+              semanticLabel: spoken!,
             ),
           ),
         ],

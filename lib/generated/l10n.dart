@@ -1917,10 +1917,10 @@ class S {
     );
   }
 
-  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.`
+  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub's; the app keeps none.`
   String get privacy_download {
     return Intl.message(
-      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
+      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub\'s; the app keeps none.',
       name: 'privacy_download',
       desc: '',
       args: [],
@@ -1947,6 +1947,16 @@ class S {
     );
   }
 
+  /// `Listen reads a module aloud with the device's own voice, and the app sends nothing for it. When the device has no voice installed for the module's language, its speech engine may use an online voice from the engine's maker.`
+  String get privacy_listen {
+    return Intl.message(
+      'Listen reads a module aloud with the device\'s own voice, and the app sends nothing for it. When the device has no voice installed for the module\'s language, its speech engine may use an online voice from the engine\'s maker.',
+      name: 'privacy_listen',
+      desc: 'Privacy: Listen uses the device\'s text-to-speech; with no offline voice installed, the engine may use its maker\'s network voice (review 11, native 10). Device, not phone, as listen_no_voice says.',
+      args: [],
+    );
+  }
+
   /// `Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.`
   String get privacy_feedback_form {
     return Intl.message(
@@ -1967,10 +1977,10 @@ class S {
     );
   }
 
-  /// `For any question about personal data, write to us.`
+  /// `For any question about personal data, write to the address below.`
   String get privacy_contact {
     return Intl.message(
-      'For any question about personal data, write to us.',
+      'For any question about personal data, write to the address below.',
       name: 'privacy_contact',
       desc: '',
       args: [],
@@ -2520,7 +2530,7 @@ class S {
     return Intl.message(
       'Apprentice',
       name: 'settings_pocket_button',
-      desc: 'The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab.',
+      desc: 'The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Practice tab.',
       args: [],
     );
   }

@@ -129,9 +129,9 @@ class _LevelCard extends StatelessWidget {
     final lead = levelLeadLine(s, modules: rows.length, minutes: minutes);
     final planned = level.status == LevelStatus.draft;
     final count = this.count;
-    final meter = count == null
-        ? s.level_completed_pending(level.total)
-        : s.level_completed_spoken(count.approved, count.total);
+    // Nothing while the record loads: "--/12" is read as dashes, and the lead line counts the modules (review 11,
+    // copy 10).
+    final meter = count == null ? null : s.level_completed_spoken(count.approved, count.total);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : BazaarMotion.fold;
     final card = BazaarCard(
       shape: BazaarCardShape.arch,
@@ -144,7 +144,7 @@ class _LevelCard extends StatelessWidget {
           Semantics(
             button: true,
             expanded: open,
-            label: [level.title, lead, meter, if (planned) s.module_planned].join(', '),
+            label: [level.title, lead, ?meter, if (planned) s.module_planned].join(', '),
             excludeSemantics: true,
             onTap: onToggle,
             child: InkWell(
@@ -188,7 +188,7 @@ class _LevelCard extends StatelessWidget {
                       center: count == null
                           ? s.catalog_level_dial(catalogNoReading, level.total)
                           : s.catalog_level_dial(count.approved.toString(), count.total),
-                      semanticLabel: meter,
+                      semanticLabel: meter ?? s.level_completed_pending(level.total),
                     ),
                     AnimatedRotation(
                       turns: open ? 0.5 : 0,

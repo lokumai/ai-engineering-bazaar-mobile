@@ -981,7 +981,7 @@
   "@privacy_no_data": {},
   "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
   "@privacy_on_device": {},
-  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
+  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub's; the app keeps none.",
   "@privacy_download": {},
   "privacy_scanner_android": "Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.",
   "@privacy_scanner_android": {
@@ -991,13 +991,17 @@
   "@privacy_scanner_ios": {
     "description": "Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10)."
   },
+  "privacy_listen": "Listen reads a module aloud with the device's own voice, and the app sends nothing for it. When the device has no voice installed for the module's language, its speech engine may use an online voice from the engine's maker.",
+  "@privacy_listen": {
+    "description": "Privacy: Listen uses the device's text-to-speech; with no offline voice installed, the engine may use its maker's network voice (review 11, native 10). Device, not phone, as listen_no_voice says."
+  },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {
     "description": "Privacy: the feedback form is Google's, opened by the reader; the app sends nothing to it."
   },
   "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
   "@privacy_crash": {},
-  "privacy_contact": "For any question about personal data, write to us.",
+  "privacy_contact": "For any question about personal data, write to the address below.",
   "@privacy_contact": {},
   "feedback_title": "Report a problem",
   "@feedback_title": {},
@@ -1232,7 +1236,7 @@
   },
   "settings_pocket_button": "Apprentice",
   "@settings_pocket_button": {
-    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab."
+    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Practice tab."
   },
   "settings_on": "On",
   "@settings_on": {

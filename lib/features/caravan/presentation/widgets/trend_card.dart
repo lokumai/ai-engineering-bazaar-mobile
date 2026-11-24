@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/features/caravan/presentation/scene/shadow
 import 'package:ai_engineering_bazaar/features/caravan/presentation/widgets/caravan_period.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:ai_engineering_bazaar/shared/utils/locale_case.dart';
@@ -121,7 +122,7 @@ class _Strength extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 4),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 260),
+                duration: motionDuration(context, const Duration(milliseconds: 260)),
                 width: 22,
                 height: 7,
                 decoration: BoxDecoration(

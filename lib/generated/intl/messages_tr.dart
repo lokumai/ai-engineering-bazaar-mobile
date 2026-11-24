@@ -509,18 +509,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
     "practice_wrong_count": m49,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
-    "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage(
+      "Kişisel verilerle ilgili her soru için aşağıdaki adrese yaz.",
+    ),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama e-posta adreslerini, parolaları ve erişim anahtarlarını cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. “Sorun bildir” ile gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
-      "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
+      "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır; uygulama böyle bir kayıt tutmaz.",
     ),
     "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
       "Ayarlar\'daki Geri bildirim, tarayıcında Google\'ın anonim bir formunu açar; uygulama bu forma hiçbir şey göndermez.",
     ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
+    "privacy_listen": MessageLookupByLibrary.simpleMessage(
+      "Dinle, modülü cihazın kendi sesiyle okur; uygulama bunun için hiçbir şey göndermez. Cihazda modülün dilinde yüklü bir ses yoksa, cihazın konuşma motoru, motoru yapan şirketin çevrim içi bir sesini kullanabilir.",
+    ),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "Bu uygulamada hesap, reklam ve takip yoktur. Neyi nereye gönderdiği aşağıda; hiçbiri sana bağlanmaz.",
     ),

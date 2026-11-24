@@ -507,18 +507,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Answer them all"),
     "practice_wrong_count": m49,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("No wrong answers now."),
-    "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage(
+      "For any question about personal data, write to the address below.",
+    ),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
       "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
-      "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",
+      "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub\'s; the app keeps none.",
     ),
     "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
       "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
     ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_listen": MessageLookupByLibrary.simpleMessage(
+      "Listen reads a module aloud with the device\'s own voice, and the app sends nothing for it. When the device has no voice installed for the module\'s language, its speech engine may use an online voice from the engine\'s maker.",
+    ),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
       "This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.",
     ),

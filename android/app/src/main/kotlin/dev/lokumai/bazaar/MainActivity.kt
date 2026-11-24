@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.plugin.common.MethodChannel
 import io.sentry.Sentry
 
@@ -46,6 +47,16 @@ class MainActivity : FlutterActivity() {
 
     override fun getCachedEngineGroupId(): String? = null
 
+    /**
+     * The engine's flags and the Dart entry's arguments are the app's own, never an intent's: the activity is exported,
+     * so any app could start it with extras such as dart-flags, which end the app in a release build (review 11,
+     * native 7; review 10 closed the cached engine's id the same way).
+     */
+    @Suppress("DEPRECATION")
+    override fun getFlutterShellArgs(): FlutterShellArgs = FlutterShellArgs(arrayOf<String>())
+
+    override fun getDartEntrypointArgs(): List<String>? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // nativeSdkReady (lib/infrastructure/analytics/native_sentry_start.dart) asks whether MainApplication started
@@ -73,6 +84,8 @@ class MainActivity : FlutterActivity() {
             }
         handleLaunchGround(flutterEngine)
         // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
+        // A paused reading's notice outlives an app ended in the background; this app has no reading yet.
+        ListenService.clearStale(this)
         speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger).also {
             // An icon chosen while a module was read aloud reaches the launcher once the reading ends in the background.
             it.onReadingEnded = { if (stopped) applyChosenIcon() }
