@@ -19,6 +19,16 @@ void main() {
       expect(maskJwts(input), input);
     });
 
+    // Review 9, finding 14: tried at every `eyJ` of a long run, the pattern took about 4 s on 30,000 characters.
+    test('a long run of eyJ is read in linear time, and the tokens after it are still masked', () {
+      final watch = Stopwatch()..start();
+      // The run has no dot and is no token; the three dotted runs at the end are one.
+      final result = maskJwts('${'eyJ' * 10000} $jwt ${('eyJ' * 3000 + '.') * 3}');
+      expect(watch.elapsed, lessThan(const Duration(milliseconds: 500)));
+      expect(result, startsWith('eyJeyJ'));
+      expect('[REDACTED_JWT]'.allMatches(result).length, 2);
+    });
+
     test('masks every JWT when several appear', () {
       final result = maskJwts('a=$jwt b=$jwt');
       expect(result.contains(jwt), isFalse);

@@ -48,7 +48,12 @@ const String jwtMask = '[REDACTED_JWT]';
 /// JWT shape: 3 base64url segments separated by dots, each at least 4
 /// chars. Conservative — does not match every theoretical JWT, but
 /// matches every JWT this app actually mints.
-final RegExp jwtPattern = RegExp(r'eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}');
+///
+/// A match starts only where a base64url run starts: tried inside a run, as at every `eyJ` of `eyJeyJ...`, the pattern
+/// took about 4 s on 30,000 characters (review 9, finding 14), and now takes milliseconds. A token glued to a letter,
+/// digit, `_` or `-` before it is not masked; a token in a header, a query or JSON follows a space, `=`, `:` or a quote.
+/// `NativeScrubPatterns.kt` holds the same pattern.
+final RegExp jwtPattern = RegExp(r'(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}');
 
 /// Replace every JWT-shaped token inside [input] with [jwtMask].
 String maskJwts(String input) => input.replaceAll(jwtPattern, jwtMask);
