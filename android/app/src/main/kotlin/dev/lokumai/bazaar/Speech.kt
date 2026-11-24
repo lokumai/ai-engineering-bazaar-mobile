@@ -27,7 +27,8 @@ import java.util.Locale
  * `stop`. A speak queues every text with the engine at once, in the best voice installed for the language, so the
  * reading goes on with the screen off (the owner, 2026-11-18). Each text's start goes back in `part` with the speak's id
  * and its place, and the id in `done` once the last is said, or they are cut or failed. The engine starts on the first
- * call and is shut down with the activity; nothing leaves the phone.
+ * call and is shut down with the activity. The app sends nothing itself; when no installed voice speaks the language,
+ * the engine's own default voice is kept, which on some engines is a network voice (review 9, finding 6).
  *
  * As on iOS (plan 18): ListenService keeps the app running while it reads; the reading takes the sound for itself, so
  * other sound pauses while it speaks, as on iOS since plan 19.8 (plan 20.11); a short pause follows each text; a text
