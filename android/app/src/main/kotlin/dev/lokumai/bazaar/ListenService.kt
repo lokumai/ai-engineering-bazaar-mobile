@@ -7,11 +7,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
 import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
+import java.util.Locale
 
 /**
  * Keeps the app running while the phone's voice reads a module aloud, so the reading goes on with the screen off and
@@ -37,11 +39,8 @@ class ListenService : Service() {
         /** Whether the service runs, so a paused reading's notice is changed in place, never started again. */
         private var running = false
 
-        /** Starts asked for that the service has not taken yet: until it has, it may not be stopped (plan 20.1). */
-        private var pending = 0
-
-        /** A stop asked for while a start was pending, done once the service is in the foreground. */
-        private var stopWhenStarted = false
+        /** The starts asked for and the stops waiting on them (plan 20.1). */
+        private val starts = ListenStarts()
 
         /** Told when the reader presses Pause on the notice. */
         var onPause: (() -> Unit)? = null
@@ -49,15 +48,21 @@ class ListenService : Service() {
         /** Told when the reader presses Play on the notice of a paused reading (plan 19.8). */
         var onPlay: (() -> Unit)? = null
 
+        /**
+         * The app's own language (en, tr, fa), which the notice's words are in; null keeps the phone's. The app's
+         * language is its own choice, so a phone in English with the app in Turkish said "Reading aloud" and "Pause"
+         * beside a Turkish title (review 2 finding 13, review 5 finding 8).
+         */
+        var language: String? = null
+
         /** The reading's MediaSession, which the notice names so the lock screen shows its controls (plan 19.8). */
         var session: MediaSession.Token? = null
 
         /** Starts the service, or names [title] to the one running. Fails quietly where Android refuses a start. */
         fun start(context: Context, title: String) {
             val intent = Intent(context, ListenService::class.java).putExtra(EXTRA_TITLE, title)
-            stopWhenStarted = false
-            pending++
-            runCatching { context.startForegroundService(intent) }.onFailure { pending-- }
+            starts.asked()
+            runCatching { context.startForegroundService(intent) }.onFailure { starts.refused() }
         }
 
         /**
@@ -78,19 +83,26 @@ class ListenService : Service() {
          * Android ends an app that stops such a service before (plan 20.1).
          */
         fun stop(context: Context) {
-            if (pending > 0) {
-                stopWhenStarted = true
-                return
-            }
+            if (!starts.stop()) return
             runCatching { context.stopService(Intent(context, ListenService::class.java)) }
         }
 
+        /** [context]'s resources in [language], for the notice's words. */
+        private fun words(context: Context): Context {
+            val tag = language ?: return context
+            return runCatching {
+                val config = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag(tag)) }
+                context.createConfigurationContext(config)
+            }.getOrDefault(context)
+        }
+
         private fun notice(context: Context, title: String, playing: Boolean): Notification {
+            val words = words(context)
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
                 NotificationChannel(
                     CHANNEL_ID,
-                    context.getString(R.string.listen_channel),
+                    words.getString(R.string.listen_channel),
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
                     setShowBadge(false)
@@ -118,15 +130,15 @@ class ListenService : Service() {
             )
             return Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_listen)
-                .setContentTitle(title.ifEmpty { context.getString(R.string.listen_reading) })
-                .setContentText(context.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
+                .setContentTitle(title.ifEmpty { words.getString(R.string.listen_reading) })
+                .setContentText(words.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
                 .setContentIntent(open)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_TRANSPORT)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .addAction(
-                    Notification.Action.Builder(Icon.createWithResource(context, icon), context.getString(label), press)
+                    Notification.Action.Builder(Icon.createWithResource(context, icon), words.getString(label), press)
                         .build(),
                 )
                 .setStyle(
@@ -151,17 +163,18 @@ class ListenService : Service() {
         }
         val title = intent?.getStringExtra(EXTRA_TITLE).orEmpty()
         val notice = notice(this, title, intent?.getBooleanExtra(EXTRA_PLAYING, true) ?: true)
-        running = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-        } else {
-            startForeground(NOTICE_ID, notice)
+        // Android may refuse the foreground (a start it counts as from the background, a type it does not allow): the
+        // reading then goes on with the app in front, without a notice, rather than the app ending (review 6, finding
+        // 12).
+        val foreground = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(NOTICE_ID, notice, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            } else {
+                startForeground(NOTICE_ID, notice)
+            }
         }
-        if (pending > 0) pending--
-        if (pending == 0 && stopWhenStarted) {
-            stopWhenStarted = false
-            stopSelf()
-        }
+        if (foreground.isSuccess) running = true
+        if (starts.taken(foreground = foreground.isSuccess)) stopSelf()
         // A service Android stopped is not started again: the voice it kept going has stopped with it.
         return START_NOT_STICKY
     }

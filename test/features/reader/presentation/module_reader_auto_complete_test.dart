@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/reader/domain/read_enough.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
@@ -35,7 +37,17 @@ Future<_Pumped> _pump(WidgetTester tester, {ReadingPlace? place, RecordData? rec
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final repository = missingContentRepository();
-  when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(body: _body));
+  // alpha/first's Next is alpha/second, whose Previous is alpha/first.
+  when(() => repository.readModuleDoc(any())).thenAnswer(
+    (invocation) async => (invocation.positionalArguments.single as String).contains('second')
+        ? testDoc(
+            key: 'alpha/second',
+            title: 'Second',
+            body: _body,
+            previous: testRef(key: 'alpha/first', number: 1, title: 'First'),
+          )
+        : testDoc(body: _body, next: testRef()),
+  );
   final store = MemoryReadingPlaceStore({readingPlaceKey(Track.engineers, 'alpha/first'): ?place});
   final places = ReadingPlacesBloc(store: store)..add(const ReadingPlacesStarted());
   addTearDown(places.close);
@@ -48,11 +60,14 @@ Future<_Pumped> _pump(WidgetTester tester, {ReadingPlace? place, RecordData? rec
   return (router: router, record: bloc, places: places, store: store);
 }
 
-/// The completion toggles sent to the record for alpha/first.
-List<CompletionToggled> _toggles(RecordBloc record) => [
+/// The completions sent to the record for alpha/first, toggled by hand or set as the module is left.
+List<RecordEvent> _toggles(RecordBloc record) => [
   for (final event in verify(() => record.add(captureAny())).captured)
-    if (event case final CompletionToggled toggle when toggle.key == 'alpha/first') toggle,
+    if (event case CompletionToggled(key: 'alpha/first') || CompletionSet(key: 'alpha/first')) event,
 ];
+
+Matcher _set({required bool completed}) =>
+    isA<CompletionSet>().having((event) => event.completed, 'completed', completed);
 
 /// Whether any event reached the record.
 bool _sent(RecordBloc record) {
@@ -87,12 +102,29 @@ void main() {
     await tester.pump(const Duration(seconds: 100));
     await _leave(tester, router);
 
-    expect(_toggles(record), hasLength(1));
+    expect(_toggles(record), [_set(completed: true)]);
     expect(find.descendant(of: _note, matching: find.text('Marked as completed')), findsOneWidget);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
-    expect(_toggles(record), hasLength(1), reason: 'the Undo sends the toggle again, taking the completion back');
+    expect(_toggles(record), [_set(completed: false)], reason: 'the Undo takes the completion back');
+  });
+
+  // Review 6, finding 17: a completion the reader took back by hand was marked again as the module was left.
+  testWidgets('marked or unmarked by hand in the visit, it is left as the reader set it', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    // The record here stays as it was, as after a mark taken back.
+    await tester.tap(find.byKey(const Key('reader-completion')));
+    await tester.pumpAndSettle();
+    expect(_toggles(record), hasLength(1), reason: 'the hand toggle');
+
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse, reason: 'nothing more than the hand toggle, verified above');
+    expect(_note, findsNothing);
   });
 
   testWidgets('a quick scroll to the end is not a read', (tester) async {
@@ -140,5 +172,121 @@ void main() {
 
     expect(_sent(record), isFalse);
     expect(_note, findsNothing);
+  });
+
+  // Review 9, finding 1: the page left with Next stays under the next one, and was taken down only with the whole stack,
+  // so nothing was marked until then, or ever if the phone ended the app first.
+  testWidgets('read to its end and left with Next: marked completed at once', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    await tester.tap(find.byType(FilledButton).last);
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/courses/alpha/second');
+    expect(_toggles(record), [_set(completed: true)]);
+    expect(find.descendant(of: _note, matching: find.text('Marked as completed')), findsOneWidget);
+
+    // Back on it with Previous, and then everything left: nothing more is sent, so an Undo would stay.
+    await tester.tap(find.byType(OutlinedButton).last);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 500));
+    await _leave(tester, router);
+    expect(_sent(record), isFalse, reason: 'the one mark, verified above');
+  });
+
+  // Review 10, finding 9: the Listen bar's title pushes the module read aloud over this one, which then was not left.
+  testWidgets('another module opened over it from outside the page leaves it too, and marks once', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+
+    expect(_toggles(record), [_set(completed: true)]);
+    router.pop();
+    await tester.pumpAndSettle();
+    await _leave(tester, router);
+    expect(_sent(record), isFalse, reason: 'the one mark, verified above');
+    expect(await store.load(), isEmpty, reason: 'no place kept for a module marked completed');
+  });
+
+  testWidgets('left with Next too soon: the place keeps the time, and back on it the time goes on', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 100));
+    await _toEnd(tester);
+    await tester.tap(find.byType(FilledButton).last);
+    await tester.pumpAndSettle();
+
+    expect(_sent(record), isFalse);
+    expect(
+      (await store.load())[readingPlaceKey(Track.engineers, 'alpha/first')]?.seconds,
+      inInclusiveRange(100, 110),
+      reason: 'kept as the next module opened, not only when the stack is left',
+    );
+
+    await tester.pump(const Duration(seconds: 600));
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 300));
+    await _leave(tester, router);
+    expect(_toggles(record), [_set(completed: true)], reason: 'about 400 seconds on it, its end reached');
+  });
+
+  testWidgets('the time spent is kept as the app goes off the screen', (tester) async {
+    final (router: _, :record, places: _, :store) = await _pump(tester);
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 120));
+    for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    addTearDown(() {
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+    });
+    await tester.pumpAndSettle();
+
+    expect((await store.load()).values.single.seconds, inInclusiveRange(120, 130));
+    expect(_sent(record), isFalse);
+  });
+
+  // Review 4, finding 3: the time on the screen ran on under a page opened over the module, so a module flicked to its
+  // end and left under the next one was marked completed by the time spent reading that one.
+  testWidgets('time under a page opened over it is not time on the screen', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await _toEnd(tester);
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 600));
+    router.pop();
+    await tester.pumpAndSettle();
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse);
+  });
+
+  // Review 5, finding 13: a place kept during the visit already holds the visit's seconds, and the page built again
+  // with it, as the router does when a page is opened over it, added them a second time.
+  testWidgets('the time of this visit counts once, whatever places it keeps on the way', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 150));
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 150));
+    await _toEnd(tester);
+    await _leave(tester, router);
+
+    expect(_sent(record), isFalse, reason: 'about 300 seconds, short of the 400 that count it read');
+    expect((await store.load()).values.single.seconds, inInclusiveRange(300, 320));
   });
 }

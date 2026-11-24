@@ -99,3 +99,52 @@ On the maintainers' machine every build, full test suite, gate chain, and anythi
 Exit 137 is that cap, so run less at once and never raise it.
 Elsewhere, run the commands as they are.
 
+
+## Release
+
+The version is in `pubspec.yaml`: the name before the `+` is what the stores show, and the number after it goes up by one at every upload to either store.
+
+### Android
+
+The upload key lives outside the repo, with a copy kept where the maintainers keep their secrets; Google Play holds the app's signing key itself (Play App Signing).
+`android/key.properties` points at it and is kept out of git:
+
+```properties
+storeFile=/absolute/path/to/upload-keystore.jks
+storePassword=<the keystore's password>
+keyAlias=upload
+keyPassword=<the key's password>
+```
+
+Without the file a bundle build stops with a message, since a bundle signed with the debug key is refused by Google Play; a release APK, which `flutter run --release` installs, is signed with the debug key. CI, which sets `CI=true`, still builds a bundle with the debug key to check that it builds.
+
+`scripts/run_build.sh` and `scripts/run_fvm_build.sh` (and `scripts/run_ios_build.sh` on the Mac) run the checks of `scripts/release_checks.sh` first, and stop:
+
+- when `sentry_dsn.json` has no DSN of the form `https://<key>@<host>/<project id>`, so no release goes out that reports no crashes;
+- when a tracked file has changed, or a file not in git lies under `assets`, `android`, `ios` or `lib`, folders a build takes whole;
+- when HEAD is on no remote branch, or CI has not passed on it (read with `gh`; without `gh`, check CI by hand and run with `CI_CHECKED=<the commit's full hash>`).
+
+Then they run the gate and build, and change no source.
+Untracked `linux/`, `macos/` or `windows/` folders, which a `flutter create` or an IDE may leave, fail the gate's `platform_folders_test`: remove them before a store build.
+
+```shell
+fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
+```
+
+The bundle is `build/app/outputs/bundle/release/app-release.aab`.
+
+R8 shrinks the release but keeps every class name (`android/app/proguard-rules.pro`, `-dontobfuscate`), so a native crash reaches Sentry readable with no mapping file to keep per build.
+
+### iOS
+
+Archive on the Mac, with the team's account signed in to Xcode: `scripts/run_ios_build.sh` runs the same checks and the gate, then `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`; upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
+
+Then give Sentry the build's symbols, so an app hang reported by iOS shows the app's own frames by name rather than as addresses (Dart crash reports do not need them):
+
+```shell
+SENTRY_AUTH_TOKEN=<token> sentry-cli debug-files upload --org <org> --project <project> \
+  build/ios/archive/Runner.xcarchive/dSYMs
+```
+
+The token stays out of the repo, as `sentry_dsn.json` does; `.sentryclirc` and `sentry.properties` are ignored.
+Build a store binary only with these commands, never from Xcode's menu after a `flutter run`: Xcode reuses the last run's target and defines.

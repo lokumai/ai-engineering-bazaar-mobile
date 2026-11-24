@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/infrastructure/transfer/deflate_transfer_packer.dart';
@@ -28,7 +29,22 @@ void main() {
     expect(packer.unpack('!!!'), isNull);
     // A cut DEFLATE stream inflates to what it holds, here nothing, which no transfer reads.
     expect(decodeTransfer(packer.unpack('AAAA') ?? ''), isNull);
-    expect(packer.unpack('A' * (transferMaxPayload + 1)), isNull);
+  });
+
+  // Review 6, finding 11: 'A' * (limit + 1) is no base64 at all, so the test passed without the length check.
+  test('refuses a real payload longer than the limit, which would inflate within the text limit', () {
+    final random = Random(1);
+    var length = 15000;
+    late String text;
+    late String payload;
+    do {
+      text = String.fromCharCodes([for (var i = 0; i < length; i++) 33 + random.nextInt(94)]);
+      payload = packer.pack(text);
+      length += 1;
+    } while (payload.length <= transferMaxPayload || payload.length % 4 == 1);
+    expect(text.length, lessThan(transferMaxText), reason: 'only the payload is too long');
+    expect(base64Url.decode(base64Url.normalize(payload)), isNotEmpty, reason: 'a payload that decodes');
+    expect(packer.unpack(payload), isNull);
   });
 
   test('stops a payload that inflates past the limit', () {

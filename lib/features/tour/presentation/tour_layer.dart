@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
@@ -75,6 +76,8 @@ class _TourLayerState extends State<TourLayer> {
   /// Whether the question was up at the last build, to tell when it is answered.
   bool _wasAsking = false;
 
+  static final _log = AppLogger.getLogger('TourLayer');
+
   Timer? _settling;
   Timer? _home;
 
@@ -104,7 +107,11 @@ class _TourLayerState extends State<TourLayer> {
     _leaving = false;
   }
 
-  RenderBox? get _layerBox => _layer.currentContext?.findRenderObject() as RenderBox?;
+  /// The layer's box once it is laid out: a box not yet laid out has no size to read (review 5, finding 10).
+  RenderBox? get _layerBox => switch (_layer.currentContext?.findRenderObject()) {
+    final RenderBox box when box.attached && box.hasSize => box,
+    _ => null,
+  };
 
   /// The rect of [context]'s box in the layer, if it is laid out.
   Rect? _rectOf(BuildContext? context) {
@@ -128,7 +135,7 @@ class _TourLayerState extends State<TourLayer> {
     if (layer == null) return;
     setState(() => _robotAt = _button(layer.size));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _leaving) return;
+      if (!mounted || _leaving || !layer.attached || !layer.hasSize) return;
       if (to(layer.size) case final at?) setState(() => _robotAt = at);
     });
   }
@@ -192,22 +199,38 @@ class _TourLayerState extends State<TourLayer> {
     });
   }
 
-  /// Brings the place of this step into view and walks the Apprentice to it.
+  /// Brings the place of this step into view and walks the Apprentice to it. Whatever goes wrong moves on to the next
+  /// step: a step left with no place drew the dim layer over the whole screen with no bubble and no Skip, taking every
+  /// touch (review 6, finding 4).
   Future<void> _point() async {
     final page = _page;
     if (page == null) return;
+    try {
+      await _pointAt(page);
+    } on Object catch (error) {
+      _log.warn('tour step not shown: {}', [error.runtimeType]);
+      if (mounted && _page == page) _next();
+    }
+  }
+
+  Future<void> _pointAt(TourPage page) async {
     final target = TourTarget.contextOf(_spots[_step]);
     if (target == null) return _next();
     setState(() => _hole = null);
     final reduced = MediaQuery.disableAnimationsOf(context);
-    if (Scrollable.maybeOf(target) != null) {
+    // A scroll view not yet laid out has no extents to clamp to, the null check of the Sentry crash (review 5, finding
+    // 10); the place is then measured as it stands.
+    final box = target.findRenderObject();
+    if ((Scrollable.maybeOf(target)?.position.hasContentDimensions ?? false) && box is RenderBox && box.hasSize) {
       await Scrollable.ensureVisible(
         target,
         alignment: 0.15,
         duration: reduced ? Duration.zero : const Duration(milliseconds: 300),
       );
     }
-    if (!mounted || _page != page || !target.mounted) return;
+    if (!mounted || _page != page) return;
+    // The place left the page during the scroll, as Home's Practice row does while the notes reload.
+    if (!target.mounted) return _next();
     final layer = _layerBox;
     final rect = _rectOf(target);
     if (layer == null || rect == null) return _next();
@@ -282,9 +305,14 @@ class _TourLayerState extends State<TourLayer> {
   /// place needs its room above it; one over a place filling the screen stands on it.
   static double _overFoot(Size size) => math.max(16, size.height * TourLayer.overFoot);
 
-  static _Side _side(Rect hole, Size size) {
-    if (size.height - _overFoot(size) - hole.bottom >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.below;
-    if (hole.top >= _bubbleRoom + TourLayer.robotSize - _perch) return _Side.above;
+  /// The room a bubble needs under or over a place, grown with the reader's text size: at the largest sizes it no
+  /// longer fits beside a place and lies over it, where it has the most room (review 8, finding 7).
+  double _room() => MediaQuery.textScalerOf(context).scale(_bubbleRoom);
+
+  _Side _side(Rect hole, Size size) {
+    final room = _room();
+    if (size.height - _overFoot(size) - hole.bottom >= room + TourLayer.robotSize - _perch) return _Side.below;
+    if (hole.top >= room + TourLayer.robotSize - _perch) return _Side.above;
     return _Side.over;
   }
 
@@ -327,31 +355,51 @@ class _TourLayerState extends State<TourLayer> {
     final waiting = !asking && !showing && _robotAt != null && !_leaving;
     final robotAt = _robotAt;
     final reduced = MediaQuery.disableAnimationsOf(context);
-    return Stack(
-      key: _layer,
-      children: [
-        // While the Apprentice speaks, a screen reader hears it alone; while it is out, its button is empty.
-        TourRobotOut(
-          out: asking || robotAt != null,
-          child: ExcludeSemantics(excluding: asking || showing, child: widget.child),
+    // Android's Back while the Apprentice asks or points is Skip, the one way out that needs no reach of the bubble's
+    // buttons; with no tour out, Back goes on to the pages (review 8, finding 7).
+    final touring = asking || showing;
+    // While it asks or points, the page holds Back for Flutter (review 10, finding 8): on Home's root nothing else does,
+    // and Android 13 and later then closed the app without asking the listener below.
+    return PopScope(
+      canPop: !touring,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && touring && mounted) _skip();
+      },
+      child: BackButtonListener(
+        onBackButtonPressed: () async {
+          // Only while the shell's page is in front: a page over it, as a progress link's, is closed by Back as any
+          // other, and the tour under it waits (review 10, finding 4).
+          if (!touring || !mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+          _skip();
+          return true;
+        },
+        child: Stack(
+          key: _layer,
+          children: [
+            // While the Apprentice speaks, a screen reader hears it alone; while it is out, its button is empty.
+            TourRobotOut(
+              out: asking || robotAt != null,
+              child: ExcludeSemantics(excluding: asking || showing, child: widget.child),
+            ),
+            if (asking)
+              Positioned.fill(child: _Asking(seat: _seat))
+            else if (showing)
+              Positioned.fill(child: BlockSemantics(child: _pointing(context)))
+            else if (waiting)
+              const Positioned.fill(child: _Scrim(hole: null)),
+            if (robotAt != null)
+              AnimatedPositioned(
+                duration: reduced ? Duration.zero : TourLayer.walk,
+                curve: Curves.easeInOut,
+                left: robotAt.dx,
+                top: robotAt.dy,
+                width: TourLayer.robotSize,
+                height: TourLayer.robotSize,
+                child: _Hop(key: ValueKey(robotAt), hop: !reduced, child: widget.robot),
+              ),
+          ],
         ),
-        if (asking)
-          Positioned.fill(child: _Asking(seat: _seat))
-        else if (showing)
-          Positioned.fill(child: BlockSemantics(child: _pointing(context)))
-        else if (waiting)
-          const Positioned.fill(child: _Scrim(hole: null)),
-        if (robotAt != null)
-          AnimatedPositioned(
-            duration: reduced ? Duration.zero : TourLayer.walk,
-            curve: Curves.easeInOut,
-            left: robotAt.dx,
-            top: robotAt.dy,
-            width: TourLayer.robotSize,
-            height: TourLayer.robotSize,
-            child: _Hop(key: ValueKey(robotAt), hop: !reduced, child: widget.robot),
-          ),
-      ],
+      ),
     );
   }
 
@@ -383,24 +431,34 @@ class _TourLayerState extends State<TourLayer> {
                   _Side.above => size.height - hole.top + gap,
                   _Side.over => _overFoot(size),
                 },
-                child: _Bubble(
-                  key: _bubble,
-                  text: _textOf(s, _spots[_step]),
-                  step: _step,
-                  steps: _spots.length,
-                  // The tail reaches for the robot, under it or over it.
-                  tailX: robotAt.dx + TourLayer.robotSize / 2 - left,
-                  tailUp: side != _Side.above,
-                  actions: [
-                    TextButton(key: const ValueKey('tour-skip'), onPressed: _skip, child: Text(s.tour_skip)),
-                    FilledButton.icon(
-                      key: const ValueKey('tour-next'),
-                      onPressed: _next,
-                      iconAlignment: IconAlignment.end,
-                      icon: Icon(last ? Icons.check : Icons.arrow_forward, size: 18),
-                      label: Text(last ? s.tour_done : s.tour_next),
-                    ),
-                  ],
+                child: ConstrainedBox(
+                  // Held to the screen: at the largest text the words scroll and Skip and Next stay in reach.
+                  constraints: BoxConstraints(
+                    maxHeight: math.max(120.0, switch (side) {
+                      _Side.below => size.height - hole.bottom - gap - 8,
+                      _Side.above => hole.top - gap - 8,
+                      _Side.over => size.height - _overFoot(size) - TourLayer.robotSize - TourLayer.bubbleGap - 8,
+                    }),
+                  ),
+                  child: _Bubble(
+                    key: _bubble,
+                    text: _textOf(s, _spots[_step]),
+                    step: _step,
+                    steps: _spots.length,
+                    // The tail reaches for the robot, under it or over it.
+                    tailX: robotAt.dx + TourLayer.robotSize / 2 - left,
+                    tailUp: side != _Side.above,
+                    actions: [
+                      TextButton(key: const ValueKey('tour-skip'), onPressed: _skip, child: Text(s.tour_skip)),
+                      FilledButton.icon(
+                        key: const ValueKey('tour-next'),
+                        onPressed: _next,
+                        iconAlignment: IconAlignment.end,
+                        icon: Icon(last ? Icons.check : Icons.arrow_forward, size: 18),
+                        label: Text(last ? s.tour_done : s.tour_next),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -468,23 +526,25 @@ class _Asking extends StatelessWidget {
                           padding: const EdgeInsetsDirectional.only(start: _inset, bottom: TourLayer.bubbleGap),
                           child: SizedBox.square(key: seat, dimension: TourLayer.robotSize),
                         ),
-                        _Bubble(
-                          key: const ValueKey('tour-asking'),
-                          text: s.tour_hello,
-                          tailX: rtl ? constraints.maxWidth - middle : middle,
-                          tailUp: true,
-                          actions: [
-                            TextButton(
-                              key: const ValueKey('tour-later'),
-                              onPressed: cubit.decline,
-                              child: Text(s.tour_later),
-                            ),
-                            FilledButton(
-                              key: const ValueKey('tour-accept'),
-                              onPressed: cubit.accept,
-                              child: Text(s.tour_show_me),
-                            ),
-                          ],
+                        Flexible(
+                          child: _Bubble(
+                            key: const ValueKey('tour-asking'),
+                            text: s.tour_hello,
+                            tailX: rtl ? constraints.maxWidth - middle : middle,
+                            tailUp: true,
+                            actions: [
+                              TextButton(
+                                key: const ValueKey('tour-later'),
+                                onPressed: cubit.decline,
+                                child: Text(s.tour_later),
+                              ),
+                              FilledButton(
+                                key: const ValueKey('tour-accept'),
+                                onPressed: cubit.accept,
+                                child: Text(s.tour_show_me),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     );
@@ -549,9 +609,23 @@ class _Bubble extends StatelessWidget {
               child: Text(s.pocket_title, style: displayFace(textTheme.titleSmall)?.copyWith(color: colors.primary)),
             ),
             const SizedBox(height: 4),
-            Semantics(
-              liveRegion: true,
-              child: Text(text, style: textTheme.bodyLarge?.copyWith(color: colors.onSurface, height: 1.4)),
+            // The words scroll in a bubble held to the screen, so its buttons always stay on it (review 8, finding 7). A
+            // screen reader hears them whole as they are, so the scrolling adds no node of its own.
+            Flexible(
+              child: Scrollable(
+                excludeFromSemantics: true,
+                viewportBuilder: (context, position) => ShrinkWrappingViewport(
+                  offset: position,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(text, style: textTheme.bodyLarge?.copyWith(color: colors.onSurface, height: 1.4)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Row(

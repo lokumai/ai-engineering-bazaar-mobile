@@ -61,7 +61,7 @@ class _BriefList extends StatelessWidget {
         Text(s.practice_brief_lede, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted)),
         const SizedBox(height: AppSpacing.md),
         if (modules == null)
-          const Center(child: CircularProgressIndicator())
+          Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading))
         else if (modules.isEmpty)
           Text(s.practice_brief_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
         else

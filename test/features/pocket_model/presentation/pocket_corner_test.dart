@@ -71,6 +71,19 @@ void main() {
     );
   });
 
+  // Review 8, finding 7: at twice the text the Chat button pushed the row 27 px past a phone's width in Turkish.
+  for (final scale in [2.0, 3.0]) {
+    testWidgets('the row fits a phone at $scale times the text in Turkish', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await _pump(tester, locale: const Locale('tr'));
+
+      expect(tester.takeException(), isNull, reason: 'no overflow');
+      final chat = tester.getRect(find.byKey(const ValueKey('pocket-corner-chat')));
+      expect(chat.right, lessThanOrEqualTo(393));
+    });
+  }
+
   testWidgets('its name says Çırak in Turkish', (tester) async {
     await _pump(tester, locale: const Locale('tr'));
 

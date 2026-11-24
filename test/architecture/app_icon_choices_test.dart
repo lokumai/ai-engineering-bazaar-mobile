@@ -118,4 +118,19 @@ void main() {
       expect(pubspec, contains('- ${icon.asset}\n'), reason: icon.asset);
     }
   });
+
+  test('every iOS icon is an opaque RGB picture, as App Store Connect takes no alpha channel (ITMS-90717)', () {
+    final pictures = Directory('ios/Runner/Assets.xcassets')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.contains('.appiconset/') && file.path.endsWith('.png'))
+        .toList();
+    expect(pictures, hasLength(BazaarIcon.values.length * 2));
+    for (final picture in pictures) {
+      final bytes = picture.readAsBytesSync();
+      // The PNG header's colour type, after the signature (8 bytes), the chunk length and type (8) and width, height
+      // and bit depth (9): 2 is RGB, 6 is RGB with alpha.
+      expect(bytes[25], 2, reason: picture.path);
+    }
+  });
 }

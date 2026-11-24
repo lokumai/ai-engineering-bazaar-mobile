@@ -1,31 +1,14 @@
 #!/bin/bash
-set -e
+# The Android store build: the checks of release_checks.sh, the gate, then the APK and the bundle. Changes no source.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/release_checks.sh
+release_checks
 
-echo "Running flutter clean"
-fvm flutter clean
-
-echo "Running pub get"
-fvm flutter pub get
-
-echo "Running intl_utils"
-fvm dart run intl_utils:generate
-# intl_utils formats its output at 80 columns; reformat to 120 so the committed files stay unchanged
-fvm dart format lib/generated --line-length=120
-
-echo "Running flutter analyze"
-if ! fvm dart analyze; then
-  echo "Flutter analyze found issues. Exiting."
-  exit 1
-fi
-
-echo "Running flutter test"
-if ! fvm flutter test --coverage; then
-  echo "Flutter test found issues. Exiting."
-  exit 1
-fi
+release_gate
 
 echo "Running flutter build apk"
-fvm flutter build apk --release --target lib/main/main_prod.dart
+fvm flutter build apk --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json
 
 echo "Running flutter build appbundle"
-fvm flutter build appbundle --release --target lib/main/main_prod.dart
+fvm flutter build appbundle --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json

@@ -88,6 +88,9 @@ class CaravanStrip extends StatelessWidget {
                       span: span,
                       mirrored: mirrored,
                       textStyle: Theme.of(context).textTheme.labelSmall,
+                      // The years grow with the reader's text size, to twice, as the strip's height allows (review 6,
+                      // finding 18); a year with no room beside the next is left out as before.
+                      textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 2),
                     ),
                   ),
                 ),
@@ -107,6 +110,7 @@ class _StripPainter extends CustomPainter {
     required this.span,
     required this.mirrored,
     required this.textStyle,
+    this.textScaler = TextScaler.noScaling,
   }) : super(repaint: journey);
 
   final CaravanRoad road;
@@ -114,6 +118,7 @@ class _StripPainter extends CustomPainter {
   final double span;
   final bool mirrored;
   final TextStyle? textStyle;
+  final TextScaler textScaler;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -169,6 +174,7 @@ class _StripPainter extends CustomPainter {
           ),
         ),
         textDirection: TextDirection.ltr,
+        textScaler: textScaler,
       )..layout();
       final next = road.yearStarts.where((other) => other.at > year.at).map((other) => other.at / n * w).firstOrNull;
       if ((next ?? w) - x > painter.width + 8) {
@@ -208,5 +214,6 @@ class _StripPainter extends CustomPainter {
       old.span != span ||
       old.mirrored != mirrored ||
       old.journey != journey ||
-      old.textStyle != textStyle;
+      old.textStyle != textStyle ||
+      old.textScaler != textScaler;
 }

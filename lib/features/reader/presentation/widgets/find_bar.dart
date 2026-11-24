@@ -47,6 +47,8 @@ class FindBar extends StatelessWidget {
                   child: ExcludeSemantics(
                     child: Text(
                       '$position / $total',
+                      // Left to right in Persian too, or "2 / 7" reads "7 / 2" (review 7, finding 16).
+                      textDirection: TextDirection.ltr,
                       style: textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted),
                     ),
                   ),

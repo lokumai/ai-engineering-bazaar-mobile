@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(merged.single.progress.engineers.keys, ['alpha/first', 'alpha/second']);
-    expect(find.text('Added. Nothing on this phone was removed.'), findsOneWidget);
+    expect(find.text('Added. Nothing on this device was removed.'), findsOneWidget);
     expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
   });
 
@@ -93,6 +93,41 @@ void main() {
     expect(find.text('2 checklist items ticked'), findsOneWidget);
   });
 
+  // Review 9, finding 9: after "Not added" the Add button was gone, and the link had to be opened again.
+  testWidgets('not added, it says so and Add tries again', (tester) async {
+    final merged = <TransferMerged>[];
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.notAdded, merged),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('Not added. Nothing on this device changed; Add tries again.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(merged, hasLength(2));
+  });
+
+  // Review 10, finding 9: past the record's cap, "Add tries again" promised what trying again never does.
+  testWidgets('too large, it says so and offers no Add', (tester) async {
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.tooLarge, []),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+
   testWidgets('says when there was nothing new', (tester) async {
     await _pump(
       tester,
@@ -101,7 +136,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('transfer-add')));
     await tester.pumpAndSettle();
-    expect(find.text('Nothing new: this phone already has all of it.'), findsOneWidget);
+    expect(find.text('Nothing new: this device already has all of it.'), findsOneWidget);
   });
 
   testWidgets('a link it cannot read offers nothing to add', (tester) async {

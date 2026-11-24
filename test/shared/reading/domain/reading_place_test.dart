@@ -55,5 +55,26 @@ void main() {
           '"engineers:a/text":"far"}}';
       expect(decodeReadingPlaces(text).keys, ['engineers:a/good']);
     });
+
+    // Review 9, finding 15: a heading less than a pixel below the top gave an offset a little under 0, which the
+    // decoder drops.
+    test('a place a little above its heading reads back at the heading', () {
+      final place = ReadingPlace(heading: 'why', offset: -0.4, share: 0.3, at: DateTime.utc(2026, 11, 24), seconds: 9);
+      final read = decodeReadingPlaces(encodeReadingPlaces({'engineers:a/b': place}));
+      expect(
+        read['engineers:a/b'],
+        ReadingPlace(heading: 'why', offset: 0, share: 0.3, at: DateTime.utc(2026, 11, 24), seconds: 9),
+      );
+    });
+
+    // Review 8, finding 16: an offset of 1e999 read as infinity, which the next save could not write, so every later
+    // place was lost.
+    test('an offset too large to be a number is left out, and the places still save', () {
+      const text =
+          '{"schema":1,"places":{"engineers:a/far":{"offset":1e999,"share":0.5,"at":"2026-11-11T09:30:00.000Z"}}}';
+      final places = decodeReadingPlaces(text);
+      expect(places, isEmpty);
+      expect(() => encodeReadingPlaces(places), returnsNormally);
+    });
   });
 }

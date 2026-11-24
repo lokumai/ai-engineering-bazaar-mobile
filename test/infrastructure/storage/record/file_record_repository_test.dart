@@ -19,6 +19,7 @@ void main() {
   late File tmpFile;
   late File quarantineFile;
   late File quarantineTmpFile;
+  late File previousFile;
 
   setUpAll(() => registerFallbackValue(<int>[]));
 
@@ -29,6 +30,7 @@ void main() {
     tmpFile = File('${base.path}/record/record.json.tmp');
     quarantineFile = File('${base.path}/record/record-quarantine.json');
     quarantineTmpFile = File('${base.path}/record/record-quarantine.json.tmp');
+    previousFile = File('${base.path}/record/record-quarantine-previous.json');
   });
 
   tearDown(() => base.deleteSync(recursive: true));
@@ -98,6 +100,15 @@ void main() {
       recordFile.writeAsBytesSync([0x5B, 0x31]);
       expect(await repo.load(), const RecordLoadQuarantined(reason: QuarantineReason.malformed, quarantineKept: true));
       expect(quarantineFile.readAsBytesSync(), [0x5B, 0x31]);
+      // Review 9, finding 7: the first copy, perhaps never saved, was written over.
+      expect(previousFile.readAsBytesSync(), [0x7B, 0xFF, 0x7D], reason: 'the copy before is kept');
+
+      // Review 10, finding 9: deleting the newer copy deleted both, so the first could never be saved.
+      expect(await repo.deleteQuarantine(), isTrue, reason: 'the first copy comes up in its place');
+      expect(quarantineFile.readAsBytesSync(), [0x7B, 0xFF, 0x7D]);
+      expect(previousFile.existsSync(), isFalse);
+      expect(await repo.deleteQuarantine(), isFalse);
+      expect(quarantineFile.existsSync(), isFalse);
     });
 
     test('a quarantine file from an earlier launch is reported', () async {
@@ -226,6 +237,7 @@ void main() {
       quarantineFile.writeAsBytesSync([2]);
       tmpFile.writeAsBytesSync([3]);
       quarantineTmpFile.writeAsBytesSync([4]);
+      previousFile.writeAsBytesSync([5]);
 
       expect(
         await repo.readStored(),
@@ -237,6 +249,7 @@ void main() {
       expect(quarantineFile.existsSync(), isFalse);
       expect(tmpFile.existsSync(), isFalse);
       expect(quarantineTmpFile.existsSync(), isFalse);
+      expect(previousFile.existsSync(), isFalse);
       await repo.deleteAll(); // not-found is fine
       expect(await repo.readStored(), const StoredBytes(record: null, quarantine: null));
 

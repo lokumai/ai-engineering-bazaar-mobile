@@ -29,21 +29,36 @@ class ListenCompletion extends StatelessWidget {
         RecordLoading() => true,
       };
       if (index == null || completed) return;
-      final toggle = CompletionToggled(
-        key: heard.module,
-        track: heard.track,
-        revision: index.module(heard.module)?.tracks[heard.track]?.revision?.hash,
-      );
-      record.add(toggle);
+      final revision = index.module(heard.module)?.tracks[heard.track]?.revision?.hash;
+      CompletionSet set({required bool completed}) =>
+          CompletionSet(key: heard.module, track: heard.track, revision: revision, completed: completed);
+      record.add(set(completed: true));
       final s = S.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           key: const ValueKey('listen-completed'),
           content: Text(s.reader_auto_completed),
-          action: SnackBarAction(label: s.data_undo, onPressed: () => record.add(toggle)),
+          action: SnackBarAction(label: s.data_undo, onPressed: () => record.add(set(completed: false))),
         ),
       );
     },
+    child: ListenNotStarted(child: child),
+  );
+}
+
+/// A module the phone's voice started none of says so, on whatever page the reader is, where it was left kept (review
+/// 2 finding 6, review 5 finding 11): before, the player closed without a word.
+class ListenNotStarted extends StatelessWidget {
+  const ListenNotStarted({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => BlocListener<ListenCubit, ListenState>(
+    listenWhen: (before, now) => before is ListenOn && now is ListenIdle && now.notStarted != null,
+    listener: (context, _) => ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(key: const ValueKey('listen-not-started'), content: Text(S.of(context).listen_not_started)),
+    ),
     child: child,
   );
 }

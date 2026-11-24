@@ -9,7 +9,8 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_repository.dar
 import 'package:ai_engineering_bazaar/shared/record/domain/record_text.dart';
 
 /// The record in files under `<baseDirectory>/record/` (spec 3.3.9): `record.json`, `record-quarantine.json` and
-/// their `.tmp` files.
+/// their `.tmp` files, and `record-quarantine-previous.json`, the copy set aside before the one in
+/// `record-quarantine.json` (review 9, finding 7).
 ///
 /// The app passes `getApplicationSupportDirectory()`, which on Android is `filesDir`, the Auto Backup domain `file`
 /// (Task 8.7). `baseDirectory` is called on first use and its result kept, so every method works in one directory; a
@@ -37,6 +38,8 @@ final class FileRecordRepository implements IRecordRepository {
   Future<File> get _quarantine => _file('record-quarantine.json');
 
   Future<File> get _quarantineTmp => _file('record-quarantine.json.tmp');
+
+  Future<File> get _quarantinePrevious => _file('record-quarantine-previous.json');
 
   @override
   Future<RecordLoad> load() async {
@@ -76,9 +79,14 @@ final class FileRecordRepository implements IRecordRepository {
     }
   }
 
-  /// Copies the original [bytes] to [quarantine] unless it already holds the same bytes; `record.json` stays.
+  /// Copies the original [bytes] to [quarantine] unless it already holds the same bytes; `record.json` stays. A copy
+  /// already there with other bytes, which may never have been saved, is kept as `record-quarantine-previous.json`
+  /// rather than written over (review 9, finding 7).
   Future<void> _setAside(File quarantine, Uint8List bytes) async {
-    if (await quarantine.exists() && listEquals(await quarantine.readAsBytes(), bytes)) return;
+    if (await quarantine.exists()) {
+      if (listEquals(await quarantine.readAsBytes(), bytes)) return;
+      await quarantine.rename((await _quarantinePrevious).path);
+    }
     await quarantine.writeAsBytes(bytes, flush: true);
   }
 
@@ -124,6 +132,7 @@ final class FileRecordRepository implements IRecordRepository {
   Future<void> deleteAll() async {
     await _deleteIfPresent(await _tmp);
     await _deleteIfPresent(await _quarantineTmp);
+    await _deleteIfPresent(await _quarantinePrevious);
     await _deleteIfPresent(await _quarantine);
     await _deleteIfPresent(await _record);
   }
@@ -146,7 +155,13 @@ final class FileRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<void> deleteQuarantine() async => _deleteIfPresent(await _quarantine);
+  Future<bool> deleteQuarantine() async {
+    await _deleteIfPresent(await _quarantine);
+    final previous = await _quarantinePrevious;
+    if (!await previous.exists()) return false;
+    await previous.rename((await _quarantine).path);
+    return true;
+  }
 
   Future<void> _deleteIfPresent(File file) async {
     try {

@@ -75,6 +75,31 @@ void main() {
     verify: (_) => verifyNever(() => repository.refresh()),
   );
 
+  // Review 8, finding 15: the broken page's Try again starts the bloc again.
+  blocTest<ContentBloc, ContentState>(
+    'a start after a storage error opens the content once the storage is back',
+    setUp: () {
+      var calls = 0;
+      when(() => repository.open()).thenAnswer((_) async {
+        if (calls++ == 0) throw const FileSystemException('x');
+        return ContentOpening(index: index, origin: ContentOrigin.bundled, notice: null);
+      });
+      when(() => repository.refresh()).thenAnswer((_) async => const ContentUpToDate());
+    },
+    build: () => ContentBloc(repository: repository),
+    act: (bloc) async {
+      bloc.add(const ContentStarted());
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const ContentStarted());
+    },
+    expect: () => [
+      const ContentBroken(code: ContentErrorCode.storage),
+      ready(const RefreshIdle()),
+      ready(const RefreshChecking()),
+      ready(const RefreshUpToDate()),
+    ],
+  );
+
   blocTest<ContentBloc, ContentState>(
     'any other error at open is ContentBroken(storage), not the loading page for ever',
     setUp: () => when(() => repository.open()).thenThrow(StateError('no cache directory')),

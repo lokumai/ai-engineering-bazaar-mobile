@@ -27,6 +27,7 @@ object NativeSentryScrubber {
     private val jsonMember = Regex(NativeScrubPatterns.JSON_MEMBER_PATTERN)
     private val namedValue = Regex(NativeScrubPatterns.NAMED_VALUE_PATTERN)
     private val bearer = Regex(NativeScrubPatterns.BEARER_PATTERN)
+    private val readingPath = Regex(NativeScrubPatterns.READING_PATH_PATTERN)
 
     private val sensitiveHeaderNames = NativeScrubPatterns.SENSITIVE_HEADER_NAMES.split(",").toSet()
     private val sensitiveHeaderNameSubstrings = NativeScrubPatterns.SENSITIVE_HEADER_NAME_SUBSTRINGS.split(",").toSet()
@@ -65,8 +66,19 @@ object NativeSentryScrubber {
             null
         }
 
-    /** Masks emails, JWTs and the other secrets [maskSecrets] finds in [value]. */
-    fun maskText(value: String): String = maskEmails(maskSecrets(value))
+    /**
+     * Masks emails, JWTs and the other secrets [maskSecrets] finds in [value], and a path that names what the reader
+     * opened, as the Dart side does (review 6, finding 16).
+     */
+    fun maskText(value: String): String = maskReading(maskEmails(maskSecrets(value)))
+
+    /** A content or course picture path, kept only as one. */
+    fun maskReading(value: String): String =
+        if (!value.contains("api/v1/") && !value.contains("course-images/")) {
+            value
+        } else {
+            readingPath.replace(value) { "${it.groupValues[1]}${NativeScrubPatterns.SECRET_MASK}" }
+        }
 
     /** The port of maskSecrets. */
     fun maskSecrets(input: String): String {

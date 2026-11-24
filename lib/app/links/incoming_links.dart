@@ -48,6 +48,7 @@ class _IncomingLinksState extends State<IncomingLinks> {
     final link = SiteLink.parse(uri, context.read<WebLinks>().site);
     // The kind only: a transfer's link carries the reader's progress.
     _log.info('link opened: {}', [link?.runtimeType]);
+    if (link != null) _closeAbovePages();
     switch (link) {
       case SiteCatalog(:final track):
         widget.router.go(BazaarPaths.catalog(track));
@@ -60,6 +61,12 @@ class _IncomingLinksState extends State<IncomingLinks> {
       case null:
         break;
     }
+  }
+
+  /// Closes the dialogs and the full-screen quiz above the pages, which the link would leave standing over a page
+  /// that is gone, their buttons dead on its closed bloc (review 4, finding 10; review 5, finding 16).
+  void _closeAbovePages() {
+    widget.router.routerDelegate.navigatorKey.currentState?.popUntil((route) => route.settings is Page<Object?>);
   }
 
   @override

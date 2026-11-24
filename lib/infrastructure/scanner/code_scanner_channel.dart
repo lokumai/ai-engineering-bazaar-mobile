@@ -28,9 +28,11 @@ final class CodeScannerChannel {
 
   /// The code's text, or neither when the reader went back; an [error] code (`denied` for a camera not allowed) when
   /// the scan could not be done.
-  Future<({String? text, String? error})> scan(String title) async {
+  /// [cancel] is the way back in the app's language: iOS draws its own camera screen, whose system Cancel would follow
+  /// the phone's language (review 8).
+  Future<({String? text, String? error})> scan(String title, {required String cancel}) async {
     try {
-      final text = await _channel.invokeMethod<String>('scan', title);
+      final text = await _channel.invokeMethod<String>('scan', {'title': title, 'cancel': cancel});
       return (text: text == null || text.isEmpty ? null : text, error: null);
     } on PlatformException catch (error) {
       _log.warn('scan not done: {}', [error.code]);

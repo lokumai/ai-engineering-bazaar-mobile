@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_searc
 import 'package:ai_engineering_bazaar/features/catalog/presentation/catalog_labels.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -15,6 +16,7 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_name.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -73,6 +75,9 @@ class _CatalogSearchFieldState extends State<CatalogSearchField> {
         unawaited(context.read<CatalogSearchCubit>().search(text));
       },
       textInputAction: TextInputAction.search,
+      // Every word typed is matched against every document: a query is held to 100 characters, more than any search
+      // needs, with no counter drawn (review 8).
+      inputFormatters: [LengthLimitingTextInputFormatter(100)],
       // A tap elsewhere puts the keyboard away: iOS has no back key to do it.
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: Theme.of(context).textTheme.bodyMedium,
@@ -112,9 +117,9 @@ class CatalogSearchResults extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final results = state.results;
     if (results == null) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: Center(child: CircularProgressIndicator()),
+      return Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
       );
     }
     final hits = results.hits;
@@ -313,19 +318,23 @@ class _ModuleHitsState extends State<_ModuleHits> {
       onTap: folded ? () => setState(() => _open = true) : () => _go(context, hit.entry.sectionId),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hit.entry.kind == SearchKind.section)
-              Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
-            if (hit.excerpt.isNotEmpty)
-              Text.rich(
-                _marked(hit, mark),
-                style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
-                maxLines: folded ? 1 : 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-          ],
+        // In the document's own direction: English hits in a Persian search read left to right (review 8).
+        child: ContentDirection(
+          dir: hit.entry.dir,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hit.entry.kind == SearchKind.section)
+                Text(hit.entry.section, style: textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+              if (hit.excerpt.isNotEmpty)
+                Text.rich(
+                  _marked(hit, mark),
+                  style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceMuted),
+                  maxLines: folded ? 1 : 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -364,7 +373,11 @@ class _ModuleHitsState extends State<_ModuleHits> {
           ),
           if (_folds) ...[
             const SizedBox(width: AppSpacing.sm),
-            Text(s.catalog_search_matches(_hits.length), style: textTheme.labelMedium?.copyWith(color: hue)),
+            // A level's hue is never text: on the card it fell under the 4.5:1 text contrast (review 6, finding 9).
+            Text(
+              s.catalog_search_matches(_hits.length),
+              style: textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted),
+            ),
             AnimatedRotation(
               turns: _open ? 0.5 : 0,
               duration: still ? Duration.zero : const Duration(milliseconds: 200),

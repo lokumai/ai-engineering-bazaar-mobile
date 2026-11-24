@@ -16,6 +16,7 @@ final class ListenSession extends Equatable {
     required this.title,
     required this.language,
     required this.parts,
+    this.noticeLanguage,
   });
 
   final String module;
@@ -26,8 +27,11 @@ final class ListenSession extends Equatable {
   final String language;
   final List<SpokenPart> parts;
 
+  /// The app's own language, which the phone's notice of the reading speaks; null leaves it to the phone.
+  final String? noticeLanguage;
+
   @override
-  List<Object?> get props => [module, track, title, language, parts];
+  List<Object?> get props => [module, track, title, language, parts, noticeLanguage];
 }
 
 /// The module read aloud by the phone's own voice (plan 15), for the whole app (the owner, 2026-11-18): it goes on
@@ -82,7 +86,7 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The module being read, or paused; null while none is.
   ListenSession? _session;
 
-  /// The phone's answer for each language, asked once.
+  /// The phone's answer for each language: a yes is kept, a no asked again (review 5, finding 9).
   final _voices = <String, Future<bool>>{};
 
   /// The reading under way; a call that starts another or stops it moves the turn on, so the one before ends.
@@ -133,8 +137,12 @@ final class ListenCubit extends Cubit<ListenState> {
   /// The parts of the module being read; none while none is.
   List<SpokenPart> get parts => _session?.parts ?? const [];
 
-  /// Whether the phone has a voice for [language]: a module in a language with none has no Listen.
-  Future<bool> canSpeak(String language) => _voices[language] ??= _speech.canSpeak(language);
+  /// Whether the phone has a voice for [language]: a module in a language with none has no Listen. A no is not kept,
+  /// since the reader may add a voice in the phone's settings and come back.
+  Future<bool> canSpeak(String language) => _voices[language] ??= _speech.canSpeak(language).then((can) {
+    if (!can) unawaited(_voices.remove(language));
+    return can;
+  });
 
   /// Reads [session] from where it was left, or its head, in place of any module being read, whose place is kept.
   void start(ListenSession session) {
@@ -219,6 +227,7 @@ final class ListenCubit extends Cubit<ListenState> {
       module: session.module,
       track: session.track,
       title: session.title,
+      language: session.language,
       index: index,
       count: session.parts.length,
       playing: playing,
@@ -269,6 +278,7 @@ final class ListenCubit extends Cubit<ListenState> {
       language: session.language,
       rate: _rate,
       title: session.title,
+      noticeLanguage: session.noticeLanguage,
       onPart: (index) {
         if (turn != _turn || isClosed) return;
         final at = from + index;
@@ -278,10 +288,29 @@ final class ListenCubit extends Cubit<ListenState> {
       },
     );
     if (turn != _turn || isClosed) return;
+    // Ended with no part started: the phone's voice refused it or is gone. The place is kept, and the reader told,
+    // rather than the player closing without a word and the next Listen starting from the head (review 2 finding 6,
+    // review 5 finding 11).
+    if (started == null) return _notStarted();
+    // Ended before its last part: the phone's voice failed on the way (an engine error, an update). The place is kept
+    // at the part it was on, and the reader told, as for a speak that did not start (review 6, finding 2).
+    if (started case final at? when at < session.parts.length - 1) {
+      _place(session, (place) => place.at(at));
+      return _notStarted();
+    }
     if (started case final last? when last == session.parts.length - 1) {
       _place(session, (place) => place.hearing(last));
     }
     _ended();
+  }
+
+  /// A speak that started no part, or stopped before its last: the reading stops where it was, its place kept.
+  void _notStarted() {
+    final session = _session;
+    if (session == null) return;
+    _cut();
+    _session = null;
+    emit(ListenIdle(rate: _rate, notStarted: (module: session.module, track: session.track)));
   }
 
   @override
@@ -300,16 +329,18 @@ sealed class ListenState extends Equatable {
 }
 
 /// No module being read: Listen at a module's head, at [rate] when started. Just after a module was heard whole,
-/// [heardAll] names it, once; [loaded] once the places kept were read.
+/// [heardAll] names it, once; just after the phone's voice started none of a module, [notStarted] names it, once;
+/// [loaded] once the places kept were read.
 final class ListenIdle extends ListenState {
-  const ListenIdle({required this.rate, this.heardAll, this.loaded = false});
+  const ListenIdle({required this.rate, this.heardAll, this.notStarted, this.loaded = false});
 
   final double rate;
   final ({String module, Track track})? heardAll;
+  final ({String module, Track track})? notStarted;
   final bool loaded;
 
   @override
-  List<Object?> get props => [rate, heardAll, loaded];
+  List<Object?> get props => [rate, heardAll, notStarted, loaded];
 }
 
 /// Reading part [index] of [count] of [module] on [track], or paused on it; the player stands at the module's foot,
@@ -319,6 +350,7 @@ final class ListenOn extends ListenState {
     required this.module,
     required this.track,
     required this.title,
+    required this.language,
     required this.index,
     required this.count,
     required this.playing,
@@ -328,6 +360,9 @@ final class ListenOn extends ListenState {
   final String module;
   final Track track;
   final String title;
+
+  /// The language read, whose parts [index] counts: the module open in another language has other parts.
+  final String language;
   final int index;
   final int count;
   final bool playing;
@@ -337,5 +372,5 @@ final class ListenOn extends ListenState {
   bool reads(String key, Track track) => module == key && this.track == track;
 
   @override
-  List<Object?> get props => [module, track, title, index, count, playing, rate];
+  List<Object?> get props => [module, track, title, language, index, count, playing, rate];
 }

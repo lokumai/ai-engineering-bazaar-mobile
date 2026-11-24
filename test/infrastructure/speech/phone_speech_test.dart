@@ -117,6 +117,14 @@ void main() {
       expect((calls.last.arguments as Map)['title'], 'Tokens');
     });
 
+    // Review 5 finding 8: the notice spoke the phone's language beside a title in the app's.
+    test("hands the phone the app's language, which its notice speaks", () async {
+      native();
+      unawaited(PhoneSpeech().speak(['Merhaba.'], language: 'tr', rate: 1, noticeLanguage: 'tr', onPart: _none));
+      await pumpEventQueue();
+      expect((calls.last.arguments as Map)['interface'], 'tr');
+    });
+
     test("the phone's own stop of the words being said is an interruption; another's is not (plan 18.3)", () async {
       native();
       final speech = PhoneSpeech();

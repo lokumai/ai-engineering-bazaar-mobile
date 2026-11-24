@@ -383,12 +383,22 @@ final class FlagTourStore implements ITourStore {
 
   @override
   Future<void> save(TourRecord record) async {
-    Future<void> flag(String name, {required bool on}) => on ? _flags.set(name) : _flags.clear(name);
-    await flag(_asking, on: record.asking);
-    await flag(_guiding, on: record.guiding);
-    for (final page in TourPage.values) {
-      await flag(_seen(page), on: record.seen.contains(page.name));
+    for (final (name, on) in steps(record)) {
+      await (on ? _flags.set(name) : _flags.clear(name));
     }
+  }
+
+  /// The flags of [record], each on or off, those set before those cleared: a save cut off between two files, the app
+  /// killed, leaves the tour still to ask or to guide, never neither (review 8). Said yes, `tour-guiding` is set before
+  /// `tour-asking` is cleared.
+  @visibleForTesting
+  static List<(String, bool)> steps(TourRecord record) {
+    final all = [
+      (_asking, record.asking),
+      (_guiding, record.guiding),
+      for (final page in TourPage.values) (_seen(page), record.seen.contains(page.name)),
+    ];
+    return [...all.where((step) => step.$2), ...all.where((step) => !step.$2)];
   }
 }
 
@@ -523,7 +533,15 @@ final class PhoneSpeechPort implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
-  }) => _speech.speak(texts, language: language, rate: rate, onPart: onPart, title: title);
+    String? noticeLanguage,
+  }) => _speech.speak(
+    texts,
+    language: language,
+    rate: rate,
+    onPart: onPart,
+    title: title,
+    noticeLanguage: noticeLanguage,
+  );
 
   @override
   Stream<void> get interruptions => _speech.interruptions;
@@ -581,12 +599,13 @@ final class ChannelCodeScanner implements ICodeScanner {
   Future<bool> available() => _channel.available();
 
   @override
-  Future<ScanOutcome> scan(String title) async => switch (await _channel.scan(title)) {
-    (text: final String text, error: _) => ScanRead(text),
-    (text: null, error: null) => const ScanCancelled(),
-    (text: null, error: 'denied') => const ScanDenied(),
-    (text: null, error: _) => const ScanFailed(),
-  };
+  Future<ScanOutcome> scan(String title, {required String cancel}) async =>
+      switch (await _channel.scan(title, cancel: cancel)) {
+        (text: final String text, error: _) => ScanRead(text),
+        (text: null, error: null) => const ScanCancelled(),
+        (text: null, error: 'denied') => const ScanDenied(),
+        (text: null, error: _) => const ScanFailed(),
+      };
 }
 
 /// The theme cubit's launch ground over the native channel: the light look, or the dark one for any other mode.

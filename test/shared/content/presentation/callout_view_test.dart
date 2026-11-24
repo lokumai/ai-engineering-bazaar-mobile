@@ -175,6 +175,23 @@ void main() {
     expect(find.byType(ExternalMark), findsNothing);
   });
 
+  // Review 8, finding 10: a link of a kind this app does not know drew a button whose tap threw.
+  testWidgets('an action of a link kind the app does not know draws no button', (tester) async {
+    await pumpBlocks(tester, [
+      callout(
+        CalloutKind.tip,
+        action: const CalloutAction(
+          target: UnknownTarget(kind: 'webinar'),
+          inlines: [TextInline(text: 'Join')],
+        ),
+      ),
+    ]);
+
+    expect(find.byType(FilledButton), findsNothing);
+    expect(find.text('Join'), findsNothing);
+    expect(find.text('Body.'), findsOneWidget, reason: 'the callout itself stays');
+  });
+
   testWidgets('a callout sits inside a block list with its margins', (tester) async {
     await pumpBlocks(tester, [
       const ParagraphBlock(inlines: [TextInline(text: 'Before.')], lead: false),

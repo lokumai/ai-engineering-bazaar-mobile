@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -57,10 +58,14 @@ MockContentRepository _repository({String Function()? opening}) {
   return repository;
 }
 
-Future<GoRouter> _pump(WidgetTester tester, {TargetPlatform platform = TargetPlatform.android}) async {
+Future<GoRouter> _pump(
+  WidgetTester tester, {
+  TargetPlatform platform = TargetPlatform.android,
+  Locale locale = const Locale('en'),
+}) async {
   final router = AppRouterFactory(initialLocation: '/sheets').create();
   addTearDown(router.dispose);
-  await tester.pumpWidget(bazaarTestApp(router: router, repository: _repository(), platform: platform));
+  await tester.pumpWidget(bazaarTestApp(router: router, repository: _repository(), platform: platform, locale: locale));
   await tester.pumpAndSettle();
   return router;
 }
@@ -114,6 +119,37 @@ void main() {
       return true;
     });
     expect(bold, ['passages']);
+  });
+
+  // Review 8, finding 12: a Persian reader's search falls back to a module's English document, and its hits were laid out
+  // right to left, the full stop at the left and the ellipsis on the wrong side.
+  testWidgets('in Persian, a hit in an English document is laid out left to right', (tester) async {
+    await _pump(tester, locale: const Locale('fa'));
+    expect(Directionality.of(tester.element(find.byType(TextField))), TextDirection.rtl);
+
+    await _type(tester, 'passages');
+
+    final excerpt = find.descendant(
+      of: find.byType(CatalogSearchResults),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is RichText && widget.text.toPlainText() == 'Finding the passages that answer.',
+      ),
+    );
+    expect(excerpt, findsWidgets);
+    expect(Directionality.of(tester.element(excerpt.first)), TextDirection.ltr);
+    final heading = find.descendant(of: find.byType(CatalogSearchResults), matching: find.text('Retrieval'));
+    expect(Directionality.of(tester.element(heading.first)), TextDirection.ltr);
+  });
+
+  // Review 8, finding 16: the field took any length, and every word typed is matched against every document.
+  testWidgets('the field keeps to 100 characters', (tester) async {
+    await _pump(tester);
+
+    await tester.enterText(find.byType(TextField), 'a' * 500);
+    await tester.pump(CatalogSearchField.settle);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, hasLength(100));
   });
 
   testWidgets('a hit opens its module at its section, and back finds the search again', (tester) async {
@@ -208,12 +244,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.showKeyboard(find.byType(TextField));
     await _type(tester, 'zebra');
     expect(find.text('Nothing found for “zebra”.'), findsOneWidget);
+    final field = tester.state(find.byType(EditableText));
 
     opening = 'An opening about a zebra.';
     states.add(ready('b' * 64));
     await tester.pumpAndSettle();
+    // Review 7, finding 15: the refresh rebuilt the field, which closed the keyboard while the reader typed.
+    expect(tester.state(find.byType(EditableText)), same(field));
+    expect(tester.testTextInput.isVisible, isTrue);
     await tester.pump(CatalogSearchField.settle);
     await tester.pumpAndSettle();
     expect(find.text('Nothing found for “zebra”.'), findsNothing);
@@ -237,6 +278,15 @@ void main() {
     await _type(tester, 'passages');
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
+  });
+
+  // Review 6, finding 9: the count was drawn in the level's hue, under the 4.5:1 text contrast on the card.
+  testWidgets("a folded module's count of hits is muted text, not the level's hue", (tester) async {
+    await _pump(tester);
+    await _type(tester, 'agents');
+
+    final count = find.text('2 matches').first;
+    expect(tester.widget<Text>(count).style?.color, tester.element(count).bazaarColors.onSurfaceMuted);
   });
 
   // Plan 10.1 (the owner's testers, 2026-11-16): a module with many hits filled the screen.

@@ -36,7 +36,7 @@ void main() {
     expect(find.byType(BackButton), findsOneWidget, reason: 'a page pushed over Settings');
     expect(find.text('Privacy'), findsOneWidget);
     expect(find.textContaining('collects no personal data'), findsOneWidget);
-    expect(find.textContaining("and in the phone's own backup when it is on"), findsOneWidget);
+    expect(find.textContaining("and in the device's own backup when it is on"), findsOneWidget);
     expect(find.textContaining('hosted on GitHub Pages'), findsOneWidget);
   });
 
@@ -62,6 +62,15 @@ void main() {
     }
     expect(find.text(SiteOwner.email, skipOffstage: false), findsWidgets);
     expect(find.text('Third-party marks and images', skipOffstage: false), findsOneWidget);
+  });
+
+  // Review 6, finding 6: in Persian the right-to-left line showed the phone number's groups in the opposite order.
+  testWidgets("the owner's details are laid out left to right in every language", (tester) async {
+    await _pump(tester);
+
+    for (final fact in [SiteOwner.tradeName, SiteOwner.mersis, SiteOwner.address, SiteOwner.phone]) {
+      expect(tester.widget<Text>(find.text(fact, skipOffstage: false)).textDirection, TextDirection.ltr, reason: fact);
+    }
   });
 
   for (final crashReports in [false, true]) {
@@ -91,6 +100,21 @@ void main() {
       );
     });
   }
+
+  testWidgets('each platform reads only its own scanner line, naming no other platform (App Store 2.3.10)', (
+    tester,
+  ) async {
+    final iOS = defaultTargetPlatform == TargetPlatform.iOS;
+    await _pump(tester, platform: defaultTargetPlatform);
+
+    const own = "nothing leaves the device";
+    const google = "Google's code scanner";
+    expect(find.textContaining(own, skipOffstage: false), iOS ? findsOneWidget : findsNothing);
+    expect(find.textContaining(google, skipOffstage: false), iOS ? findsNothing : findsOneWidget);
+    for (final name in ['Android', 'iPhone', 'iOS']) {
+      expect(find.textContaining(name, skipOffstage: false), findsNothing, reason: name);
+    }
+  }, variant: bazaarPlatforms);
 
   testWidgets('the page meets the platform guidelines', (tester) async {
     await _pump(tester, crashReports: true, platform: defaultTargetPlatform);

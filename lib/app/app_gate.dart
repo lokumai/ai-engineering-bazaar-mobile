@@ -63,6 +63,15 @@ class _BrokenView extends StatelessWidget {
                 ContentErrorCode.storage => l10n.content_broken_storage_message,
                 _ => l10n.content_broken_message,
               }, style: textTheme.bodyLarge),
+              // Storage can come back (a disk freed, a cache directory restored); the bundle itself only with an update
+              // (review 8).
+              if (code == ContentErrorCode.storage) ...[
+                const SizedBox(height: AppSpacing.lg),
+                FilledButton(
+                  onPressed: () => context.read<ContentBloc>().add(const ContentStarted()),
+                  child: Text(l10n.reader_retry),
+                ),
+              ],
             ],
           ),
         ),

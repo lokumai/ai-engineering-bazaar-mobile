@@ -18,7 +18,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/reducers.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform;
-import 'package:flutter/widgets.dart' show Locale, Offset, Scrollable, Size, Text, ValueKey;
+import 'package:flutter/widgets.dart' show AppLifecycleState, Locale, Offset, Scrollable, Size, Text, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -153,12 +153,33 @@ void main() {
     });
   });
 
+  // Review 8, finding 16: the card standing while the next is read tapped through the context of the reader that had
+  // gone, and threw.
+  testWidgets('the card standing while the next is read still opens its module', (tester) async {
+    await withClock(_dayZero, () async {
+      final repository = _titledCourse();
+      final router = await _pumpHome(tester, repository: repository);
+      final slow = Completer<ModuleDoc>();
+      when(() => repository.readModuleDoc(any())).thenAnswer((_) => slow.future);
+
+      await tester.tap(find.byKey(const ValueKey('home-daily-another')));
+      await tester.pump();
+      await tester.tap(find.descendant(of: _card, matching: find.text('Module alpha/first')));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(router.state.uri.path, endsWith('alpha/first'));
+      slow.complete(testDoc(title: 'Module alpha/second'));
+      await tester.pumpAndSettle();
+    });
+  });
+
   testWidgets('Show another is an icon in the corner, named in Turkish (the owner, 2026-11-18)', (tester) async {
     await withClock(_dayZero, () async {
       await _pumpHome(tester, locale: const Locale('tr'));
 
-      expect(find.byTooltip('Başka göster'), findsOneWidget);
-      expect(find.text('Başka göster'), findsNothing, reason: 'no line of its own under the card');
+      expect(find.byTooltip('Başkasını göster'), findsOneWidget);
+      expect(find.text('Başkasını göster'), findsNothing, reason: 'no line of its own under the card');
       final icon = tester.getRect(find.byKey(const ValueKey('home-daily-another')));
       final card = tester.getRect(_card);
       expect(icon.top - card.top, lessThan(16), reason: 'at the top');
@@ -285,6 +306,35 @@ void main() {
       String module() =>
           tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
       final before = module();
+
+      now = DateTime(2026, 11, 17, 0, 1);
+      await tester.pump(const Duration(minutes: 2));
+      await tester.pumpAndSettle();
+
+      expect(module(), isNot(before));
+    });
+  });
+
+  // Review 8, finding 16: a timer does not run while the phone sleeps the app, so the one set for midnight in the
+  // morning fired hours late after a sleep; it is set again when the app comes back.
+  testWidgets("back from a sleep before midnight, Home still turns the day at midnight", (tester) async {
+    var now = DateTime(2026, 11, 16, 10);
+    await withClock(Clock(() => now), () async {
+      await _pumpHome(tester, repository: _titledCourse());
+      String module() =>
+          tester.widget<Text>(find.descendant(of: _card, matching: find.textContaining('Module '))).data!;
+      final before = module();
+
+      // Asleep from 10:00 to 23:59: the clock moves on, the timers do not.
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      now = DateTime(2026, 11, 16, 23, 59);
+      for (final state in [AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pump();
+      expect(module(), before, reason: 'still the same day');
 
       now = DateTime(2026, 11, 17, 0, 1);
       await tester.pump(const Duration(minutes: 2));

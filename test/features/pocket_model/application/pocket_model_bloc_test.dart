@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
@@ -350,6 +351,19 @@ void main() {
       });
     });
 
+    // Review 7, finding 15: a second tap while the first read was loading passed over the module just read and read
+    // the next one waiting.
+    test('a second tap for the same module reads nothing more', () {
+      const both = MemoryPocketTexts({'alpha/first': module, 'alpha/second': module});
+      run(MemoryPocketModelStore(), pocketTexts: both, (async, bloc) {
+        bloc
+          ..add(const PocketModelModuleRead('alpha/first', others: ['alpha/second']))
+          ..add(const PocketModelModuleRead('alpha/first', others: ['alpha/second']));
+        async.flushMicrotasks();
+        expect(ready(bloc).model.readings.map((reading) => reading.key), ['alpha/first']);
+      });
+    });
+
     test('when none of them can be read, it says so', () {
       run(MemoryPocketModelStore(), (async, bloc) {
         final beat = ready(bloc).beat;
@@ -413,6 +427,16 @@ void main() {
       for (final text in ['', 'nope', '[]', '{"tokens": -1}', '{"tokens": "8"}']) {
         expect(decodePocketModel(text), isNull, reason: text);
       }
+    });
+
+    // Review 5, finding 17: the model reads its text again to the count at start, one token at a time.
+    test('caps a count past what a reader can feed, so a damaged file cannot hold the start', () {
+      final model = decodePocketModel(
+        '{"tokens": 9007199254740991, "read": [{"key": "alpha/first", "at": 9007199254740991, "tokens": 30}]}',
+      );
+      expect(model?.tokens, PocketModel.maxTokens);
+      expect(model?.readings.single.at, PocketModel.maxTokens);
+      expect(PocketModel(tokens: PocketModel.maxTokens).fedAt(noon).tokens, PocketModel.maxTokens);
     });
 
     test('leaves out a module read that is not one, and keeps the rest', () {
@@ -501,6 +525,167 @@ void main() {
         expect(signatureIn(language), containsAllInOrder(['Arda', 'Cengaver']), reason: language);
       }
       expect(signatureIn('de'), signatureIn('en'));
+    });
+  });
+
+  // Review 5, finding 3: each feed rebuilt the whole training curve on the screen's thread, a stutter that grew with
+  // every module read. It is drawn elsewhere now; the feed shows at once and the curve follows.
+  group('its curve is drawn away from the feed', () {
+    // Review 8, finding 18: every test gave the bloc its own drawer, so the app's, through a real isolate, ran in none.
+    test("the app's drawer draws in another isolate the curve drawn here", () async {
+      final readings = [
+        (
+          100,
+          [
+            ['the', 'robot', 'reads', 'a', 'module'],
+            ['a', 'module', 'teaches', 'the', 'robot'],
+          ],
+        ),
+      ];
+      final apart = await PocketModelBloc.drawApart('en', 400, readings);
+      expect(apart, TinyLm.curve('en', 400, readings: readings));
+      expect(apart, isNotEmpty);
+    });
+
+    test('a feed shows at once; the curve drawn for it follows, and only the latest drawn is kept', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          final asked = <(int, Completer<List<LossPoint>>)>[];
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) {
+              final drawn = Completer<List<LossPoint>>();
+              asked.add((tokens, drawn));
+              return drawn.future;
+            },
+          )..add(const PocketModelStarted());
+          async.flushMicrotasks();
+          expect(asked.map((ask) => ask.$1), [0]);
+          asked.single.$2.complete([(tokens: 0, loss: 9)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+
+          bloc
+            ..add(const PocketModelFed())
+            ..add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).model.tokens, 2 * PocketModel.feedTokens, reason: 'the feeds wait for no curve');
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)], reason: 'the old curve until the new is drawn');
+          expect(asked.map((ask) => ask.$1), [0, PocketModel.feedTokens], reason: 'one drawn at a time');
+
+          // The first feed's curve comes after the second feed: it is not kept, and the latest is drawn.
+          asked[1].$2.complete([(tokens: PocketModel.feedTokens, loss: 8)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+          expect(asked.map((ask) => ask.$1), [0, PocketModel.feedTokens, 2 * PocketModel.feedTokens]);
+          asked[2].$2.complete([(tokens: 2 * PocketModel.feedTokens, loss: 7)]);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 2 * PocketModel.feedTokens, loss: 7.0)]);
+          expect(ready(bloc).action, PocketAction.fed, reason: 'a curve drawn plays no action again');
+
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
+    // Review 8, finding 16: a feed refused while overfit changes the model but not its tokens; the curve being drawn
+    // for the last feed was then dropped as out of date, and none was asked again.
+    test('a curve drawn while a feed was refused is still kept', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          final asked = <(int, Completer<List<LossPoint>>)>[];
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) {
+              final drawn = Completer<List<LossPoint>>();
+              asked.add((tokens, drawn));
+              return drawn.future;
+            },
+          )..add(const PocketModelStarted());
+          async.flushMicrotasks();
+          asked.single.$2.complete([(tokens: 0, loss: 9)]);
+          async.flushMicrotasks();
+
+          for (var i = 0; i < PocketModel.overfitFeeds; i++) {
+            bloc.add(const PocketModelFed());
+            async.elapse(const Duration(milliseconds: 300));
+            if (!asked.last.$2.isCompleted && i < PocketModel.overfitFeeds - 1) {
+              asked.last.$2.complete([(tokens: asked.last.$1, loss: 8)]);
+              async.flushMicrotasks();
+            }
+          }
+          expect(ready(bloc).action, PocketAction.overfit);
+          final tokens = ready(bloc).model.tokens;
+          expect(asked.last.$1, tokens, reason: 'the last feed asks its curve');
+
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).action, PocketAction.refused);
+          while (!asked.last.$2.isCompleted) {
+            asked.last.$2.complete([(tokens: asked.last.$1, loss: 7)]);
+            async.flushMicrotasks();
+          }
+
+          expect(ready(bloc).curve, [(tokens: tokens, loss: 7.0)]);
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
+    // Review 6, finding 14: a curve that could not be drawn was an error no one caught, at every feed.
+    test('a curve that cannot be drawn leaves the last one, and the next feed draws again', () {
+      fakeAsync((async) {
+        withClock(async.getClock(noon), () {
+          var fail = false;
+          final bloc = PocketModelBloc(
+            store: MemoryPocketModelStore(),
+            texts: texts,
+            random: math.Random(3),
+            drawCurve: (language, tokens, readings) async {
+              if (fail) throw StateError('no isolate');
+              return [(tokens: tokens, loss: 9)];
+            },
+          )..add(const PocketModelStarted());
+          final errors = <Object>[];
+          final subscription = bloc.stream.listen(null, onError: errors.add);
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)]);
+
+          fail = true;
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 0, loss: 9.0)], reason: 'the last curve stays');
+
+          fail = false;
+          bloc.add(const PocketModelFed());
+          async.flushMicrotasks();
+          expect(ready(bloc).curve, [(tokens: 2 * PocketModel.feedTokens, loss: 9.0)]);
+
+          subscription.cancel();
+          bloc.close();
+          async.flushMicrotasks();
+        });
+      });
+    });
+
+    test('started in a language, its curve is drawn in it', () {
+      run(MemoryPocketModelStore(const PocketModel(tokens: 400)), (async, bloc) {
+        expect(ready(bloc).curve.last.loss, TinyLm.trained('en', 400).loss());
+      });
+      fakeAsync((async) {
+        final bloc = PocketModelBloc(store: MemoryPocketModelStore(const PocketModel(tokens: 400)), texts: texts)
+          ..add(const PocketModelStarted(language: 'tr'));
+        async.flushMicrotasks();
+        expect(ready(bloc).curve.last.loss, TinyLm.trained('tr', 400).loss());
+        bloc.close();
+        async.flushMicrotasks();
+      });
     });
   });
 }

@@ -29,11 +29,17 @@ final class _Links implements ILinkSource {
 
 Future<GoRouter> _pump(WidgetTester tester, _Links links) async {
   Widget page(GoRouterState state) => Text('${state.uri.path} ${state.extra ?? ''}');
+  // The pages stand in a shell, as the app's do: a link changes the shell's pages, and the shell's own page stays.
   final router = GoRouter(
     routes: [
-      GoRoute(path: '/', builder: (_, state) => page(state)),
-      GoRoute(path: '/courses/:level/:module', builder: (_, state) => page(state)),
-      GoRoute(path: '/everyone/sheets/:level', builder: (_, state) => page(state)),
+      ShellRoute(
+        builder: (_, _, child) => child,
+        routes: [
+          GoRoute(path: '/', builder: (_, state) => page(state)),
+          GoRoute(path: '/courses/:level/:module', builder: (_, state) => page(state)),
+          GoRoute(path: '/everyone/sheets/:level', builder: (_, state) => page(state)),
+        ],
+      ),
       GoRoute(path: '/transfer', builder: (_, state) => page(state)),
     ],
   );
@@ -77,5 +83,24 @@ void main() {
     links.controller.add(Uri.parse('aibazaar://transfer#t=abc'));
     await tester.pumpAndSettle();
     expect(find.text('/transfer abc'), findsOneWidget);
+  });
+
+  // Review 4, finding 10 and review 5, finding 16: a dialog or the full-screen quiz stayed over a page the link took
+  // away, its buttons on a closed bloc.
+  testWidgets('closes the dialogs and the full-screen pages above the pages before it opens a page', (tester) async {
+    final links = _Links(const []);
+    final router = await _pump(tester, links);
+    final navigator = router.routerDelegate.navigatorKey.currentState!;
+    unawaited(navigator.push(MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => const Text('quiz'))));
+    await tester.pumpAndSettle();
+    unawaited(showDialog<bool>(context: navigator.context, builder: (_) => const Text('erase?')));
+    await tester.pumpAndSettle();
+
+    links.controller.add(Uri.parse('${_base}courses/alpha/first/'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('erase?'), findsNothing);
+    expect(find.text('quiz'), findsNothing);
+    expect(find.text('/courses/alpha/first '), findsOneWidget);
   });
 }

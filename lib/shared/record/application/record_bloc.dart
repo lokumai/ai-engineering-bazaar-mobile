@@ -107,17 +107,10 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       case RecordStarted():
         return;
       case CompletionToggled(:final key, :final revision, :final track):
-        if (_pendingErases > 0) return;
-        final now = nowIso();
         final signing = current.record.signedOff(key, track) == null;
-        RecordData toggled(RecordData record) {
-          if (!signing) return record.signedOff(key, track) == null ? record : unsign(record, key, track: track);
-          // Each track is completed on its own, as on the website (plan 17.4; 1V is undone).
-          return record.signedOff(key, track) == null ? signOff(record, key, revision, now, track: track) : record;
-        }
-
-        if (current.undo != null) _sinceErase.add(toggled);
-        await _commit(current, toggled(current.record), emit);
+        await _setCompletion(current, emit, key: key, revision: revision, track: track, completed: signing);
+      case CompletionSet(:final key, :final revision, :final track, :final completed):
+        await _setCompletion(current, emit, key: key, revision: revision, track: track, completed: completed);
       case ChecklistItemToggled(:final key, :final index, :final ticked, :final track):
         if (_pendingErases > 0) return;
         final now = nowIso();
@@ -164,6 +157,12 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           reply.complete(TransferMergeResult.nothingNew);
           return;
         }
+        // A link under its length limit can still carry enough to take the record past the cap; it is refused before
+        // it reaches the record in use, as a restore is (review 7, finding 2).
+        if (utf8.encode(serialise(merged, nowIso(), pretty: false)).length > RecordConstants.softCapBytes) {
+          reply.complete(TransferMergeResult.tooLarge);
+          return;
+        }
         _closeUndo();
         await _commit(
           RecordReady(
@@ -177,10 +176,26 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           merged,
           emit,
         );
-        reply.complete(switch (state) {
-          RecordReady(writeState: WriteSaved()) => TransferMergeResult.added,
-          _ => TransferMergeResult.notAdded,
-        });
+        if (state case RecordReady(writeState: WriteSaved())) {
+          reply.complete(TransferMergeResult.added);
+          return;
+        }
+        // Not added, so not shown either: the record in use goes back to what is on disk, with the write's failure,
+        // and the reader can try again (review 9, finding 9). Before, the progress showed until the app restarted, and
+        // a second try found nothing new.
+        if (state case RecordReady(:final writeState)) {
+          emit(
+            RecordReady(
+              record: current.record,
+              writeState: writeState,
+              quarantine: current.quarantine,
+              quarantineKept: current.quarantineKept,
+              launchReadFailed: current.launchReadFailed,
+              undo: null,
+            ),
+          );
+        }
+        reply.complete(TransferMergeResult.notAdded);
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
       case EraseUndone(:final reply):
@@ -201,17 +216,24 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           ),
         );
       case QuarantineDeleted():
-        await _repository.deleteQuarantine();
-        emit(
-          RecordReady(
-            record: current.record,
-            writeState: current.writeState,
-            quarantine: null,
-            quarantineKept: false,
-            launchReadFailed: current.launchReadFailed,
-            undo: current.undo,
-          ),
+        // A copy set aside before the one deleted comes up in its place, and the notice stays for it.
+        final kept = await _repository.deleteQuarantine();
+        final cleared = RecordReady(
+          record: current.record,
+          writeState: current.writeState,
+          quarantine: null,
+          quarantineKept: kept,
+          launchReadFailed: current.launchReadFailed,
+          undo: current.undo,
         );
+        // A record set aside at this launch is still in `record.json`: the record in use is written over it, or the
+        // next start sets the same bytes aside again and the notice comes back after a delete said it was final
+        // (review 6, finding 8).
+        if (current.quarantine == null) {
+          emit(cleared);
+        } else {
+          await _commit(cleared, current.record, emit, always: true);
+        }
     }
   }
 
@@ -260,9 +282,32 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
     );
   }
 
+  /// Completes [key] on [track], or takes its completion away, as [completed] says; a module already so is left as it
+  /// is, and nothing is written.
+  Future<void> _setCompletion(
+    RecordReady current,
+    Emitter<RecordState> emit, {
+    required String key,
+    required String? revision,
+    required Track track,
+    required bool completed,
+  }) async {
+    if (_pendingErases > 0) return;
+    final now = nowIso();
+    RecordData set(RecordData record) {
+      final signed = record.signedOff(key, track) != null;
+      if (signed == completed) return record;
+      // Each track is completed on its own, as on the website (plan 17.4; 1V is undone).
+      return completed ? signOff(record, key, revision, now, track: track) : unsign(record, key, track: track);
+    }
+
+    if (current.undo != null) _sinceErase.add(set);
+    await _commit(current, set(current.record), emit);
+  }
+
   /// Makes [next] the record on top of [base], and writes it unless the cap or the launch-read gate refuses.
-  Future<void> _commit(RecordReady base, RecordData next, Emitter<RecordState> emit) async {
-    if (identical(next, base.record)) {
+  Future<void> _commit(RecordReady base, RecordData next, Emitter<RecordState> emit, {bool always = false}) async {
+    if (!always && identical(next, base.record)) {
       emit(base);
       return;
     }

@@ -25,6 +25,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 import 'package:ai_engineering_bazaar/shared/record/presentation/record_write_notice.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,6 +130,7 @@ void main() {
     ValueChanged<ReadingPlace?>? onPlace,
     Locale locale = const Locale('en'),
     ReadingStyleCubit? readingStyle,
+    bool covered = false,
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -137,10 +139,11 @@ void main() {
 
     Widget location(GoRouterState state) => Scaffold(body: Text('at ${state.uri.path}'));
     final router = GoRouter(
-      initialLocation: '/reader',
+      initialLocation: covered ? '/reader/cover' : '/reader',
       routes: [
         GoRoute(
           path: '/reader',
+          routes: [GoRoute(path: 'cover', builder: (_, state) => location(state))],
           builder: (context, _) {
             final view = BlocProvider<ModuleReaderBloc>.value(
               value: readerBloc,
@@ -260,6 +263,29 @@ void main() {
     expect(find.text('MODULE 1 OF 2'), findsOneWidget);
     // The web draws no contents rail for a draft (ModuleSheet.tsx:298-300).
     expect(find.text('Contents'), findsNothing);
+  });
+
+  // Review 5, finding 5: in the Persian interface an English draft was laid out right to left, its full stop at the
+  // start of the line.
+  testWidgets('an English draft reads left to right in the Persian interface', (tester) async {
+    stateIs(
+      ReaderPlanned(
+        doc: testDoc(
+          draft: Draft(summary: 'The plan.', parts: const ['Part one'], written: null),
+        ),
+        entry: first,
+        moduleCount: 2,
+      ),
+    );
+    await pumpReader(tester, locale: const Locale('fa'));
+
+    expect(Directionality.of(tester.element(find.text('The plan.', findRichText: true))), TextDirection.ltr);
+    expect(Directionality.of(tester.element(find.text('Part one'))), TextDirection.ltr);
+    expect(
+      Directionality.of(tester.element(find.byType(SingleChildScrollView).first)),
+      TextDirection.rtl,
+      reason: 'the page around it keeps the interface\'s direction',
+    );
   });
 
   testWidgets('a partly written module shows its written sections under the schedule', (tester) async {
@@ -649,6 +675,14 @@ void main() {
       expect(find.text('2 / 3'), findsOneWidget, reason: 'the first mark under Section one, of three');
     });
 
+    testWidgets('the count reads left to right in Persian too', (tester) async {
+      stateIs(searched);
+      await pumpReader(tester, fragment: 'one', query: 'agent', locale: const Locale('fa'));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<Text>(find.text('2 / 3')).textDirection, TextDirection.ltr);
+    });
+
     testWidgets('the arrows step from mark to mark, round from the last to the first', (tester) async {
       stateIs(searched);
       await pumpReader(tester, fragment: 'one', query: 'agent');
@@ -666,6 +700,24 @@ void main() {
       await tester.tap(find.byTooltip('Previous match'));
       await tester.pumpAndSettle();
       expect(find.text('3 / 3'), findsOneWidget);
+    });
+
+    // Review 5, finding 12: a tab keeps its pages with their routes' extras, so a module opened from a search came back
+    // with its tab at the searched section with the words marked again, not where the reader had left it.
+    testWidgets('a page brought back with its tab marks nothing and stays off the section searched', (tester) async {
+      stateIs(searched);
+      TabSwitch.begin();
+      addTearDown(TabSwitch.end);
+      await pumpReader(tester, fragment: 'one', query: 'agent');
+      TabSwitch.end();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindBar), findsNothing);
+      expect(
+        top(tester, find.text('Agents call tools.', findRichText: true)),
+        lessThan(844),
+        reason: 'still at the top',
+      );
     });
 
     testWidgets('close takes the bar and the marks away', (tester) async {
@@ -796,6 +848,39 @@ void main() {
 
       final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
       expect(position.pixels, closeTo(position.maxScrollExtent / 2, 1));
+    });
+
+    // Sentry AI-BAZAAR-MOBILE-3, 2026-11-21, from a build of 2026-11-12: the module drawn first under another page,
+    // which is built but not laid out, read the page's length before it had one, and threw a null check. The text has
+    // since come to stand in a LayoutBuilder, which builds it only once it is laid out; this keeps the place safe if
+    // that goes.
+    testWidgets('drawn first under another page, it opens at the place once it is in front', (tester) async {
+      longModule();
+      final router = await pumpReader(
+        tester,
+        covered: true,
+        place: ReadingPlace(heading: 'one', offset: 0, share: 0.5, at: at),
+      );
+      expect(tester.takeException(), isNull);
+
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
+    });
+
+    // Review 5, finding 10: the scroll to a heading clamps with the page's extents too, so it waits for the layout.
+    testWidgets('opened at a heading under another page, it is at the heading once it is in front', (tester) async {
+      longModule();
+      final router = await pumpReader(tester, covered: true, fragment: 'one');
+      expect(tester.takeException(), isNull);
+
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(top(tester, find.text('Section one', findRichText: true)), inInclusiveRange(0, 40));
     });
 
     testWidgets('a fragment wins over the place', (tester) async {

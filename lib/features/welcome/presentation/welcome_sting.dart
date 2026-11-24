@@ -82,6 +82,9 @@ class _WelcomeStingState extends State<WelcomeSting> with SingleTickerProviderSt
     final still = MediaQuery.disableAnimationsOf(context);
     if (read) _waited ??= Timer(WelcomeSting.longest, _done);
     final leaving = ready && read && (_greeted || still);
+    // Gone at once under reduced motion, it stays gone: turning motion on later does not bring the opening back
+    // (review 8).
+    if (leaving && still) _gone = true;
     if (leaving && !still && _leave.status == AnimationStatus.dismissed) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _leave.status == AnimationStatus.dismissed) unawaited(_leave.forward());

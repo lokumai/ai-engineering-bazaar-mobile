@@ -60,4 +60,48 @@ void main() {
     expect([for (final entry in glossaryFind(tr, 'cikti', 'tr')) entry.name], ['Çıktı']);
     expect([for (final entry in glossaryFind(tr, 'ş', 'tr')) entry.name], ['Şema'], reason: 'one letter, folded');
   });
+
+  // Review 7, finding 16: by code point, Turkish ç came after z, and once folded it split the C group; Persian
+  // پ چ ژ ک گ came after ی.
+  test('Turkish names sort by the Turkish alphabet, each letter heading its own group', () {
+    List<String> names(List<String> terms) => [
+      for (final entry in glossaryOf([
+        ModuleNotes(moduleKey: 'a/b', terms: [for (final (i, term) in terms.indexed) _term('a/b', i, term, 'x.')]),
+      ], 'tr'))
+        entry.name,
+    ];
+    expect(names(['Zaman', 'Çıktı', 'Cevap', 'Ceket', 'Ilık', 'İz', 'Şema', 'Sıra', 'Ölçek', 'Oran', 'Ğ']), [
+      'Ceket',
+      'Cevap',
+      'Çıktı',
+      'Ğ',
+      'Ilık',
+      'İz',
+      'Oran',
+      'Ölçek',
+      'Sıra',
+      'Şema',
+      'Zaman',
+    ]);
+    expect(glossaryLetter('ilk', 'tr'), 'İ');
+    expect(glossaryLetter('ılık', 'tr'), 'I');
+    expect(glossaryLetter('çay', 'tr'), 'Ç');
+    expect(glossaryLetter('ilk', 'en'), 'I');
+  });
+
+  test('Persian names sort by the Persian alphabet', () {
+    final names = [
+      for (final entry in glossaryOf([
+        ModuleNotes(
+          moduleKey: 'a/b',
+          terms: [
+            for (final (i, term) in ['یادگیری', 'گراف', 'کد', 'ژن', 'چت', 'پایه', 'بردار', 'زبان'].indexed)
+              _term('a/b', i, term, 'x.'),
+          ],
+        ),
+      ], 'fa'))
+        entry.name,
+    ];
+    expect(names, ['بردار', 'پایه', 'چت', 'زبان', 'ژن', 'کد', 'گراف', 'یادگیری']);
+  });
 }

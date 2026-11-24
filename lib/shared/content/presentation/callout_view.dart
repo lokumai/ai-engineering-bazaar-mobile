@@ -70,7 +70,8 @@ class CalloutView extends StatelessWidget {
               paragraphMaxWidth: paragraphMaxWidth,
               child: BlockList(blocks: block.blocks, render: render, nested: true),
             ),
-            if (action != null)
+            // A link of a kind this app does not know draws no button, as an inline one is plain text (review 8).
+            if (action != null && action.target is! UnknownTarget)
               Padding(
                 padding: const EdgeInsets.only(top: 22),
                 child: Center(

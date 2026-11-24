@@ -53,11 +53,15 @@ class _WebsiteSectionView extends StatelessWidget {
       CodeScanStatus.notALink => s.website_scan_not_a_link,
       CodeScanStatus.denied => s.website_scan_denied,
       CodeScanStatus.failed => s.website_scan_failed,
-      CodeScanStatus.idle || CodeScanStatus.scanning || CodeScanStatus.found => null,
+      // Google's scanner may first be fetched by Play services, a wait with the button off and no word (review 3,
+      // finding 8).
+      CodeScanStatus.scanning => s.website_scan_opening,
+      CodeScanStatus.idle || CodeScanStatus.found => null,
     };
     final sendLine = switch (send) {
       WebsiteLinkState.empty => s.data_send_empty,
       WebsiteLinkState.failed => s.data_send_failed,
+      WebsiteLinkState.tooLarge => s.data_send_too_large,
       WebsiteLinkState.idle || WebsiteLinkState.sending => null,
     };
     return BlocListener<CodeScanCubit, CodeScanState>(
@@ -78,7 +82,10 @@ class _WebsiteSectionView extends StatelessWidget {
                     key: const ValueKey('settings-scan-code'),
                     onPressed: scan.status == CodeScanStatus.scanning
                         ? null
-                        : () => context.read<CodeScanCubit>().scan(s.website_scan_title),
+                        : () => context.read<CodeScanCubit>().scan(
+                            s.website_scan_title,
+                            cancel: MaterialLocalizations.of(context).cancelButtonLabel,
+                          ),
                     icon: const Icon(Icons.qr_code_scanner_outlined),
                     label: Text(s.website_scan),
                   )

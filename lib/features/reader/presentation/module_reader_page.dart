@@ -20,6 +20,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
@@ -51,6 +53,8 @@ import 'package:ai_engineering_bazaar/shared/study/domain/term_marks.dart';
 import 'package:ai_engineering_bazaar/shared/study/presentation/study_notes_loader.dart';
 import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -226,8 +230,19 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Whether the module's end, its completion row, has come into view.
   bool _reachedEnd = false;
 
+  /// Whether the reader marked or unmarked the module by hand in this visit: leaving it then marks nothing, or a
+  /// completion just taken back would come again (review 6, finding 17).
+  bool _toggledByHand = false;
+
+  /// Whether this page marked the module completed as it was left for another module: left again, when the reader came
+  /// back to it, it marks nothing more, or a completion taken back with Undo would come again (review 9, finding 1).
+  bool _markedOnLeave = false;
+
   /// The key of the completion row, the module's end.
   final _endKey = GlobalKey();
+
+  /// The key of the module's text, in one column or beside its sections ([_withSections]).
+  final _textKey = GlobalKey();
 
   /// The place last kept in this visit, which leaving keeps again with the time spent.
   ReadingPlace? _lastPlace;
@@ -236,14 +251,81 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// around it. Null while no written module is drawn.
   _Leaving? _leaving;
 
+  /// The seconds of the visits before this one, taken once as the page opens: a place kept during this visit already
+  /// holds its seconds, and the page built again with it would count them twice (review 5, finding 13).
+  late int _before = widget.place?.seconds ?? 0;
+
   /// The seconds the module has been on the screen, over every visit.
-  int get _seconds => (widget.place?.seconds ?? 0) + _onScreen.elapsed.inSeconds;
+  int get _seconds => _before + _onScreen.elapsed.inSeconds;
+
+  /// Whether the app is on the screen, and whether the page is: a page opened over it (the next module, a quiz, a
+  /// picture) takes it off, and the time spent there is not this module's (review 4, finding 3).
+  bool _appShown = true;
+  bool _pageShown = true;
+
+  void _countTime() => _appShown && _pageShown ? _onScreen.start() : _onScreen.stop();
+
+  /// Whether the page came back with its tab (the tab's pages kept as they were, their heading and words searched
+  /// with them): it opens where the module was left, not at the section a search or a link opened it at before, and
+  /// with no words marked (review 5, finding 12).
+  bool _back = false;
+
+  String? get _fragment => _back ? null : widget.fragment;
+  String? get _query => _back ? null : widget.query;
 
   @override
   void initState() {
     super.initState();
-    _onScreen.start();
-    _lifecycle = AppLifecycleListener(onHide: _onScreen.stop, onShow: _onScreen.start);
+    _back = TabSwitch.active;
+    _lifecycle = AppLifecycleListener(
+      onHide: () {
+        _appShown = false;
+        _countTime();
+        // The time spent is kept as the app goes off the screen: the phone may end it there, and the page would not
+        // be left (review 9, finding 1).
+        _keepTime();
+      },
+      onShow: _onShow,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A page under another one is offstage, and its tickers are off.
+    final shown = TickerMode.valuesOf(context).enabled;
+    if (_pageShown && !shown) _leaveIfUnderModule();
+    _pageShown = shown;
+    _countTime();
+  }
+
+  /// Leaves the module when the page now over it is another module, however it was opened: the Listen bar's title
+  /// pushes the module read aloud over this one without a word to it (review 10, finding 9). The page's own ways to
+  /// another module leave first ([_leaveForAnother]); leaving twice marks once.
+  void _leaveIfUnderModule() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _pageShown) return;
+      final doc = _leaving?.doc;
+      final path = GoRouter.maybeOf(context)?.state.uri.path;
+      if (doc == null || path == null || path == BazaarPaths.module(doc.track, doc.key)) return;
+      final module = [for (final track in Track.values) BazaarPaths.module(track, '')].any(path.startsWith);
+      if (module) _leave();
+    });
+  }
+
+  @override
+  void didUpdateWidget(ModuleReaderView old) {
+    super.didUpdateWidget(old);
+    // The places came in after the page opened, before it kept one of its own.
+    if (old.place == null && _lastPlace == null) _before = widget.place?.seconds ?? 0;
+  }
+
+  void _onShow() {
+    _appShown = true;
+    _countTime();
+    // Back from the phone's settings, where the line said to add a voice: the phone is asked again (review 5,
+    // finding 9).
+    if (_voice == false) setState(() => _voiceFor = null);
   }
 
   /// The parts of [doc] to read aloud, worked out when a document with a body is first drawn, and the phone asked for a
@@ -278,16 +360,20 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   GlobalKey _blockKey(int index) => _blockKeys.putIfAbsent(index, GlobalKey.new);
 
-  /// Marks the block read now and brings it near the page's top as the voice moves on to it.
+  /// Marks the block read now and brings it near the page's top as the voice moves on to it. A reading in another
+  /// language than the one drawn, as after a switch of language while it goes on, marks nothing: its part numbers are
+  /// another document's (review 9, finding 17).
   void _followVoice(BuildContext context, ListenState state) {
     final block = switch (state) {
-      ListenOn(:final index) when _readsThis(state) && index < _parts.length => _parts[index].block,
+      ListenOn(:final index, :final language)
+          when _readsThis(state) && language == _partsOf?.lang && index < _parts.length =>
+        _parts[index].block,
       _ => null,
     };
     if (_spoken.value == block) return;
     _spoken.value = block;
     final target = block == null ? null : _blockKeys[block]?.currentContext;
-    if (target == null) return;
+    if (target == null || !_canScrollTo(target)) return;
     _moved = true;
     _held = null;
     unawaited(Scrollable.ensureVisible(target, alignment: 0.1, duration: motionDuration(context, BazaarMotion.fold)));
@@ -345,7 +431,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   bool _findStarted = false;
 
   TextFinder? _finderFor(ModuleDoc doc) {
-    final query = widget.query;
+    final query = _query;
     if (_findClosed || query == null || query.trim().isEmpty) return null;
     return _finder ??= TextFinder(query: query, lang: context.read<LanguageCubit>().state)
       // A step to a mark moves the page: the heading it opened at is no longer held, nor the place it was left at,
@@ -370,7 +456,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _findStarted = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _finder != finder) return;
-      final fragment = widget.fragment;
+      final fragment = _fragment;
       if (fragment == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && _finder == finder) finder.startInView();
@@ -395,28 +481,49 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     super.dispose();
   }
 
-  /// As the module is left, to the next one, back or to another tab (the owner, 2026-11-18): one read to its end, and on
-  /// the screen long enough ([readEnough]), is marked completed, with Undo; otherwise the place is kept with the time
+  /// Whether the module is completed in the record, or the record is not read yet; false with no written module.
+  bool get _completed {
+    final leaving = _leaving;
+    if (leaving == null) return false;
+    return switch (leaving.record.state) {
+      RecordReady(:final record) => record.signedOff(leaving.doc.key, leaving.doc.track) != null,
+      RecordLoading() => true,
+    };
+  }
+
+  /// Keeps the place last kept with the time spent, for a written module not completed, nor marked by this page.
+  void _keepTime() {
+    if (_leaving == null || _completed || _markedOnLeave) return;
+    final last = _lastPlace ?? widget.place;
+    final seconds = _seconds;
+    if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+  }
+
+  /// Another module is opened from this page, by Next or Previous, a prerequisite or a link: the page stays under it,
+  /// mounted, and is left now rather than when the whole stack is (review 9, finding 1). Back on it, the time goes on.
+  void _leaveForAnother() {
+    _leave();
+    _countTime();
+  }
+
+  /// As the module is left, to another module, back or to another tab (the owner, 2026-11-18): one read to its end, and
+  /// on the screen long enough ([readEnough]), is marked completed, with Undo; otherwise the place is kept with the time
   /// spent. A module already completed is left as it is.
   void _leave() {
     _onScreen.stop();
     final leaving = _leaving;
-    if (leaving == null) return;
+    if (leaving == null || _completed) return;
     final record = leaving.record;
     final doc = leaving.doc;
-    final completed = switch (record.state) {
-      RecordReady(:final record) => record.signedOff(doc.key, doc.track) != null,
-      RecordLoading() => true,
-    };
-    if (completed) return;
     final seconds = _seconds;
-    if (!readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
-      final last = _lastPlace ?? widget.place;
-      if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+    if (_toggledByHand ||
+        _markedOnLeave ||
+        !readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
+      _keepTime();
       return;
     }
-    final toggle = CompletionToggled(key: doc.key, track: doc.track, revision: leaving.revision);
-    record.add(toggle);
+    _markedOnLeave = true;
+    record.add(CompletionSet(key: doc.key, track: doc.track, revision: leaving.revision, completed: true));
     widget.onPlace?.call(null);
     final messenger = leaving.messenger;
     if (messenger == null) return;
@@ -427,7 +534,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         SnackBar(
           key: const ValueKey('reader-auto-completed'),
           content: Text(leaving.said),
-          action: SnackBarAction(label: leaving.undo, onPressed: () => record.add(toggle)),
+          action: SnackBarAction(
+            label: leaving.undo,
+            onPressed: () =>
+                record.add(CompletionSet(key: doc.key, track: doc.track, revision: leaving.revision, completed: false)),
+          ),
         ),
       );
     });
@@ -485,10 +596,30 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// reader chose lets go of the heading the page opened at.
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
-    if (target == null) return;
+    if (target == null || !_canScrollTo(target)) return;
     _moved = true;
     _held = null;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
+  }
+
+  /// Shares [text] through the phone's sheet, and says so when the sheet did not open, as Settings' Send to the website
+  /// does; it gave no word (review 6, finding 18).
+  Future<void> _share(BuildContext context, String text) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final failed = S.of(context).data_send_failed;
+    if (await context.read<IShareSheet>().share(text)) return;
+    messenger?.showSnackBar(SnackBar(key: const ValueKey('reader-share-failed'), content: Text(failed)));
+  }
+
+  /// Whether [target] and the page around it are laid out, so the page can scroll to it: a page drawn under another is
+  /// built but not laid out, and its scroll extents are then null, the Sentry crash (review 5, finding 10). The heading
+  /// the page opened at is held, and comes in once the page is laid out.
+  static bool _canScrollTo(BuildContext target) {
+    final box = target.findRenderObject();
+    return box is RenderBox &&
+        box.attached &&
+        box.hasSize &&
+        (Scrollable.maybeOf(target)?.position.hasContentDimensions ?? false);
   }
 
   /// The scroll offset that brings the heading [id] to the top of the page, or null when it is not drawn.
@@ -519,7 +650,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     keep(
       ReadingPlace(
         heading: heading,
-        offset: metrics.pixels - base,
+        // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
+        // finding 15).
+        offset: (metrics.pixels - base).clamp(0.0, double.infinity),
         share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
         at: clock.now(),
         seconds: _seconds,
@@ -531,8 +664,11 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// heading is gone from the module.
   void _applyPlace() {
     final place = widget.place;
-    if (place == null || widget.fragment != null || !_placeScheduled || !_scroll.hasClients) return;
+    if (place == null || _fragment != null || !_placeScheduled || !_scroll.hasClients) return;
     final position = _scroll.position;
+    // Built under another page, the module is not laid out and has no length yet; the change of metrics as it comes
+    // to the front calls this again (Sentry AI-BAZAAR-MOBILE-3).
+    if (!position.hasContentDimensions) return;
     final heading = place.heading;
     final base = heading == null ? 0.0 : _headingOffset(heading);
     final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
@@ -543,7 +679,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Brings the heading the page opened at back to the top, after a picture above it changed the page's length.
   void _holdHeading() {
     final id = _held;
-    if (id == null || !_scroll.hasClients) return;
+    if (id == null || !_scroll.hasClients || !_scroll.position.hasContentDimensions) return;
     final base = _headingOffset(id);
     if (base == null) return;
     final position = _scroll.position;
@@ -628,7 +764,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             undo: s.data_undo,
           );
     final render = BlockRenderContext(
-      onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
+      onLink: (target) => followLink(context, target, scrollTo: _scrollTo, beforeModule: _leaveForAnother),
       // A37: the base URL and the web path are concatenated, never resolved (spec 3.4.7).
       webPage: context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath),
       headingKey: _headingKey,
@@ -739,7 +875,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                       key: const ValueKey('reader-share'),
                                       tooltip: s.reader_share,
                                       icon: Icon(shareIcon(context), size: 20, color: colors.onSurfaceMuted),
-                                      onPressed: () => context.read<IShareSheet>().share(
+                                      onPressed: () => _share(
+                                        context,
                                         '${doc.title}\n${context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath)}',
                                       ),
                                     ),
@@ -767,6 +904,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                                     title: doc.title,
                                                     language: doc.lang,
                                                     parts: parts,
+                                                    noticeLanguage: Localizations.localeOf(context).languageCode,
                                                   ),
                                                 ),
                                                 icon: const Icon(Icons.headphones_rounded, size: 18),
@@ -803,7 +941,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                               ],
                               const SizedBox(height: 24),
                               if (doc.prerequisites.isNotEmpty) ...[
-                                ReadingStyleScope(child: PrerequisitesBox(refs: doc.prerequisites)),
+                                ReadingStyleScope(
+                                  child: PrerequisitesBox(refs: doc.prerequisites, onOpen: _leaveForAnother),
+                                ),
                                 const SizedBox(height: 24),
                               ],
                               if (doc.shownObjectives.isNotEmpty) ...[
@@ -816,30 +956,44 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   marks: _termMarksFor(context, doc),
                                   onTap: _showTerm,
                                   child: ReadingStyleScope(
-                                    child: BlockList(
-                                      blocks: body,
-                                      render: render,
-                                      spoken: parts.isEmpty ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                    // In the direction of the document's language: English where the module has no
+                                    // translation reads left to right in the Persian interface too.
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(
+                                        blocks: body,
+                                        render: render,
+                                        spoken: parts.isEmpty ? null : SpokenBlocks(at: _spoken, keyOf: _blockKey),
+                                      ),
                                     ),
                                   ),
                                 )
                               else if (draft != null) ...[
                                 if (draft.summary case final summary?)
                                   ReadingStyleScope(
-                                    child: BlockList(
-                                      blocks: [
-                                        ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
-                                      ],
-                                      render: render,
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(
+                                        blocks: [
+                                          ParagraphBlock(inlines: [TextInline(text: summary)], lead: true),
+                                        ],
+                                        render: render,
+                                      ),
                                     ),
                                   ),
                                 if (draft.parts.isNotEmpty) ...[
-                                  ScheduleOfParts(parts: draft.parts),
+                                  ContentDirection(
+                                    dir: doc.dir,
+                                    child: ScheduleOfParts(parts: draft.parts),
+                                  ),
                                   const SizedBox(height: 26),
                                 ],
                                 if (draft.written case final writtenBlocks?)
                                   ReadingStyleScope(
-                                    child: BlockList(blocks: writtenBlocks, render: render),
+                                    child: ContentDirection(
+                                      dir: doc.dir,
+                                      child: BlockList(blocks: writtenBlocks, render: render),
+                                    ),
                                   ),
                               ],
                               if (written) ...[
@@ -849,13 +1003,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                   key: _endKey,
                                   child: CompletionRow(
                                     doc: doc,
-                                    onToggle: () =>
-                                        context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled()),
+                                    onToggle: () {
+                                      _toggledByHand = true;
+                                      context.read<ModuleReaderBloc>().add(const ReaderCompletionToggled());
+                                    },
                                   ),
                                 ),
                               ],
                               const SizedBox(height: 32),
-                              Pager(previous: doc.previous, next: doc.next),
+                              Pager(previous: doc.previous, next: doc.next, onOpen: _leaveForAnother),
                               if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
                                 const SizedBox(height: 32),
                                 quizBuilder(context, entry.key, quiz),
@@ -907,15 +1063,21 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       LayoutBuilder(
         builder: (context, constraints) {
           // One column keeps a phone's measure, as every other page.
+          // The text keeps its key in both layouts, so a tablet turned past the width keeps its scroll and its place
+          // (review 10, finding 1); without it the text was built anew at its top.
           if (sections.isEmpty || constraints.maxWidth < ReadableWidth.withSections - 1) {
-            return ReadableWidth(child: text(false));
+            return ReadableWidth(
+              child: KeyedSubtree(key: _textKey, child: text(false)),
+            );
           }
           final ltr = Directionality.of(context) == TextDirection.ltr;
           return Row(
             textDirection: ltr ? TextDirection.rtl : TextDirection.ltr,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: text(true)),
+              Expanded(
+                child: KeyedSubtree(key: _textKey, child: text(true)),
+              ),
               const SizedBox(width: ReadableWidth.gap),
               SizedBox(
                 width: ReadableWidth.sections,
@@ -949,7 +1111,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Scrolls to the place the module was left once, after the first frame that draws the module; again as the page's
   /// length changes until the reader scrolls.
   void _schedulePlace() {
-    if (widget.place == null || widget.fragment != null || _placeScheduled) return;
+    if (widget.place == null || _fragment != null || _placeScheduled) return;
     _placeScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _applyPlace();
@@ -959,7 +1121,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// Scrolls to the fragment once, after the first frame that draws the module, and holds it there as pictures above
   /// it load, until the reader scrolls.
   void _scheduleFragment() {
-    final fragment = widget.fragment;
+    final fragment = _fragment;
     if (fragment == null || _fragmentScheduled) return;
     _fragmentScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {

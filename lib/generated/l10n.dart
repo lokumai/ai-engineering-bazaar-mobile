@@ -53,11 +53,6 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Settings`
-  String get settings {
-    return Intl.message('Settings', name: 'settings', desc: '', args: []);
-  }
-
   /// `Could not open {url}`
   String error_link_open_failed(String url) {
     return Intl.message('Could not open $url', name: 'error_link_open_failed', desc: '', args: [url]);
@@ -208,31 +203,6 @@ class S {
     );
   }
 
-  /// `To read`
-  String get caravan_reading {
-    return Intl.message('To read', name: 'caravan_reading', desc: '', args: []);
-  }
-
-  /// `Article`
-  String get caravan_sample_articles {
-    return Intl.message('Article', name: 'caravan_sample_articles', desc: '', args: []);
-  }
-
-  /// `Video`
-  String get caravan_sample_videos {
-    return Intl.message('Video', name: 'caravan_sample_videos', desc: '', args: []);
-  }
-
-  /// `Tool`
-  String get caravan_sample_tools {
-    return Intl.message('Tool', name: 'caravan_sample_tools', desc: '', args: []);
-  }
-
-  /// `Repository`
-  String get caravan_sample_repositories {
-    return Intl.message('Repository', name: 'caravan_sample_repositories', desc: '', args: []);
-  }
-
   /// `All trends`
   String get caravan_all_trends {
     return Intl.message('All trends', name: 'caravan_all_trends', desc: '', args: []);
@@ -320,10 +290,10 @@ class S {
     return Intl.message('Continue reading', name: 'home_continue_reading', desc: '', args: []);
   }
 
-  /// `{percent} % read`
+  /// `{percent}% read`
   String home_read_percent(int percent) {
     return Intl.message(
-      '$percent % read',
+      '$percent% read',
       name: 'home_read_percent',
       desc: 'How far down a half-read module the reader left it, on Home\'s continue card.',
       args: [percent],
@@ -415,11 +385,6 @@ class S {
     return Intl.message('Loading', name: 'loading', desc: '', args: []);
   }
 
-  /// `Completed`
-  String get catalog_filter_completed {
-    return Intl.message('Completed', name: 'catalog_filter_completed', desc: '', args: []);
-  }
-
   /// `Planned`
   String get module_planned {
     return Intl.message('Planned', name: 'module_planned', desc: '', args: []);
@@ -455,6 +420,16 @@ class S {
   /// `{approved}/{total} completed`
   String level_completed(int approved, int total) {
     return Intl.message('$approved/$total completed', name: 'level_completed', desc: '', args: [approved, total]);
+  }
+
+  /// `{approved} of {total} completed`
+  String level_completed_spoken(int approved, int total) {
+    return Intl.message(
+      '$approved of $total completed',
+      name: 'level_completed_spoken',
+      desc: 'The level\'s count read aloud, where the screen shows level_completed.',
+      args: [approved, total],
+    );
   }
 
   /// `--/{total} completed`
@@ -631,11 +606,21 @@ class S {
     return Intl.message('Resume listening', name: 'listen_resume', desc: '', args: []);
   }
 
-  /// `This phone has no voice for this language. Add one in the phone's Settings to listen.`
+  /// `This device has no voice for this language. Add one in the device's Settings to listen.`
   String get listen_no_voice {
     return Intl.message(
-      'This phone has no voice for this language. Add one in the phone\'s Settings to listen.',
+      'This device has no voice for this language. Add one in the device\'s Settings to listen.',
       name: 'listen_no_voice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listening stopped. Where it was left is kept; try again in a moment.`
+  String get listen_not_started {
+    return Intl.message(
+      'Listening stopped. Where it was left is kept; try again in a moment.',
+      name: 'listen_not_started',
       desc: '',
       args: [],
     );
@@ -1071,6 +1056,16 @@ class S {
     );
   }
 
+  /// `The file is shown, but this device could not save it, so it is gone when the app closes. Free some space and restore it again.`
+  String get data_restore_not_saved {
+    return Intl.message(
+      'The file is shown, but this device could not save it, so it is gone when the app closes. Free some space and restore it again.',
+      name: 'data_restore_not_saved',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Nothing was changed. That file holds no progress; only a backup file does.`
   String get data_restore_empty {
     return Intl.message(
@@ -1210,9 +1205,9 @@ class S {
     return Intl.message('Type ERASE to confirm', name: 'erase_field_label', desc: '', args: []);
   }
 
-  /// `Erase all data`
+  /// `Erase all progress`
   String get erase_confirm {
-    return Intl.message('Erase all data', name: 'erase_confirm', desc: '', args: []);
+    return Intl.message('Erase all progress', name: 'erase_confirm', desc: '', args: []);
   }
 
   /// `Keep my data`
@@ -1730,20 +1725,20 @@ class S {
     );
   }
 
-  /// `The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.`
+  /// `The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.`
   String get app_icon_note_android {
     return Intl.message(
-      'The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.',
+      'The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.',
       name: 'app_icon_note_android',
       desc: 'The note on the app icon page on Android: when the icon changes, and what some launchers do.',
       args: [],
     );
   }
 
-  /// `The phone confirms the new icon with a message.`
+  /// `The device confirms the new icon with a message.`
   String get app_icon_note_ios {
     return Intl.message(
-      'The phone confirms the new icon with a message.',
+      'The device confirms the new icon with a message.',
       name: 'app_icon_note_ios',
       desc: 'The note on the app icon page on iOS, where the system tells of every icon change.',
       args: [],
@@ -1810,10 +1805,10 @@ class S {
     );
   }
 
-  /// `Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.`
+  /// `Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.`
   String get guide_modules {
     return Intl.message(
-      'Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.',
+      'Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.',
       name: 'guide_modules',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1850,10 +1845,10 @@ class S {
     );
   }
 
-  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.`
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.`
   String get guide_offline {
     return Intl.message(
-      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.',
+      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.',
       name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1895,10 +1890,10 @@ class S {
     );
   }
 
-  /// `Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.`
+  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.`
   String get privacy_on_device {
     return Intl.message(
-      'Your progress, your quiz scores and your settings are saved on this device, and in the phone\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.',
+      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.',
       name: 'privacy_on_device',
       desc: '',
       args: [],
@@ -1915,12 +1910,22 @@ class S {
     );
   }
 
-  /// `On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.`
-  String get privacy_scanner {
+  /// `Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.`
+  String get privacy_scanner_android {
     return Intl.message(
-      'On Android, Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.',
-      name: 'privacy_scanner',
-      desc: 'Privacy: Scan the code on Android is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3).',
+      'Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.',
+      name: 'privacy_scanner_android',
+      desc: 'Privacy, on Android: Scan the code is Google\'s code scanner, which sends Google its own diagnostics (plan 19.3). Names no other platform (App Store guideline 2.3.10).',
+      args: [],
+    );
+  }
+
+  /// `Scan the code reads the code in the app itself, and nothing leaves the device.`
+  String get privacy_scanner_ios {
+    return Intl.message(
+      'Scan the code reads the code in the app itself, and nothing leaves the device.',
+      name: 'privacy_scanner_ios',
+      desc: 'Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10).',
       args: [],
     );
   }
@@ -2115,10 +2120,10 @@ class S {
     );
   }
 
-  /// `The story could not be opened. Check for updates, then open it again.`
+  /// `The story could not be opened. Open it again later, or update the app.`
   String get about_failed {
     return Intl.message(
-      'The story could not be opened. Check for updates, then open it again.',
+      'The story could not be opened. Open it again later, or update the app.',
       name: 'about_failed',
       desc: 'The About page, when the story document cannot be read.',
       args: [],
@@ -2818,9 +2823,14 @@ class S {
     );
   }
 
-  /// `Track, language, look and text size.`
+  /// `Audience, language, appearance and text size.`
   String get tour_settings_reading {
-    return Intl.message('Track, language, look and text size.', name: 'tour_settings_reading', desc: '', args: []);
+    return Intl.message(
+      'Audience, language, appearance and text size.',
+      name: 'tour_settings_reading',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `My wardrobe: dress me up, or change the app icon.`
@@ -2853,10 +2863,10 @@ class S {
     return Intl.message('Take the tour again', name: 'guide_replay_tour', desc: '', args: []);
   }
 
-  /// `{step} / {count}`
+  /// `{step} of {count}`
   String tour_step(int step, int count) {
     return Intl.message(
-      '$step / $count',
+      '$step of $count',
       name: 'tour_step',
       desc: 'Which of the tour\'s places on this page the Apprentice is at, of how many.',
       args: [step, count],
@@ -3151,41 +3161,51 @@ class S {
     );
   }
 
-  /// `Adding it keeps everything on this phone: nothing here is removed.`
+  /// `Adding it keeps everything on this device: nothing here is removed.`
   String get transfer_keeps {
     return Intl.message(
-      'Adding it keeps everything on this phone: nothing here is removed.',
+      'Adding it keeps everything on this device: nothing here is removed.',
       name: 'transfer_keeps',
       desc: '',
       args: [],
     );
   }
 
-  /// `Add to this phone's progress`
+  /// `Add to this device's progress`
   String get transfer_add {
-    return Intl.message('Add to this phone\'s progress', name: 'transfer_add', desc: '', args: []);
+    return Intl.message('Add to this device\'s progress', name: 'transfer_add', desc: '', args: []);
   }
 
-  /// `Added. Nothing on this phone was removed.`
+  /// `Added. Nothing on this device was removed.`
   String get transfer_added {
-    return Intl.message('Added. Nothing on this phone was removed.', name: 'transfer_added', desc: '', args: []);
+    return Intl.message('Added. Nothing on this device was removed.', name: 'transfer_added', desc: '', args: []);
   }
 
-  /// `Nothing new: this phone already has all of it.`
+  /// `Nothing new: this device already has all of it.`
   String get transfer_nothing_new {
     return Intl.message(
-      'Nothing new: this phone already has all of it.',
+      'Nothing new: this device already has all of it.',
       name: 'transfer_nothing_new',
       desc: '',
       args: [],
     );
   }
 
-  /// `Not added. Open the link again to try once more.`
+  /// `Not added. Nothing on this device changed; Add tries again.`
   String get transfer_not_added {
     return Intl.message(
-      'Not added. Open the link again to try once more.',
+      'Not added. Nothing on this device changed; Add tries again.',
       name: 'transfer_not_added',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.`
+  String get transfer_too_large {
+    return Intl.message(
+      'Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.',
+      name: 'transfer_too_large',
       desc: '',
       args: [],
     );
@@ -3216,15 +3236,15 @@ class S {
     return Intl.message('Transfer', name: 'settings_website', desc: '', args: []);
   }
 
-  /// `From the website to this phone`
+  /// `From the website to this device`
   String get website_from_title {
-    return Intl.message('From the website to this phone', name: 'website_from_title', desc: '', args: []);
+    return Intl.message('From the website to this device', name: 'website_from_title', desc: '', args: []);
   }
 
-  /// `On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.`
+  /// `On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.`
   String get website_from_text {
     return Intl.message(
-      'On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.',
+      'On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.',
       name: 'website_from_text',
       desc: '',
       args: [],
@@ -3251,10 +3271,10 @@ class S {
     );
   }
 
-  /// `The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.`
+  /// `The app may not use the camera. Allow it in the device's Settings, or scan the code with the Camera app.`
   String get website_scan_denied {
     return Intl.message(
-      'The app may not use the camera. Allow it in the phone\'s Settings, or scan the code with the Camera app.',
+      'The app may not use the camera. Allow it in the device\'s Settings, or scan the code with the Camera app.',
       name: 'website_scan_denied',
       desc: '',
       args: [],
@@ -3271,9 +3291,19 @@ class S {
     );
   }
 
-  /// `From this phone to the website`
+  /// `Opening the scanner. The first time, this can take a minute.`
+  String get website_scan_opening {
+    return Intl.message(
+      'Opening the scanner. The first time, this can take a minute.',
+      name: 'website_scan_opening',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `From this device to the website`
   String get website_to_title {
-    return Intl.message('From this phone to the website', name: 'website_to_title', desc: '', args: []);
+    return Intl.message('From this device to the website', name: 'website_to_title', desc: '', args: []);
   }
 
   /// `Send your progress as a link, then open the link on the computer.`
@@ -3299,6 +3329,11 @@ class S {
   /// `The share menu did not open.`
   String get data_send_failed {
     return Intl.message('The share menu did not open.', name: 'data_send_failed', desc: '', args: []);
+  }
+
+  /// `Your progress is too long to fit in a link.`
+  String get data_send_too_large {
+    return Intl.message('Your progress is too long to fit in a link.', name: 'data_send_too_large', desc: '', args: []);
   }
 
   /// `Share this module`

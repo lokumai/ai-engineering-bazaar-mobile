@@ -76,7 +76,8 @@ void main() {
   });
 
   test("every folder of the app's own under files/ goes to a backup and a new phone, never the cache (plan 18.8)", () {
-    const folders = ['record', 'flags', 'quiz', 'reading', 'listen', 'toy'];
+    final folders = _supportFolders();
+    expect(folders, containsAll(['record', 'flags', 'quiz', 'reading', 'listen', 'toy']));
     final extraction = _readWithoutXmlComments(dataExtractionRulesPath);
     for (final section in ['cloud-backup', 'device-transfer']) {
       final rules = _contentsOf(section, extraction).join();
@@ -176,3 +177,33 @@ String _readWithoutXmlComments(String path) =>
 /// The contents of every [element] in [xml].
 Iterable<String> _contentsOf(String element, String xml) =>
     RegExp('<$element(?:\\s[^>]*)?>(.*?)</$element>', dotAll: true).allMatches(xml).map((match) => match[1]!);
+
+/// The folders the app writes under its support directory (`files/` on Android), read from app_dependencies.dart, so a
+/// new store's folder is found without a list kept by hand (review 8, finding 18). Each use of `supportDirectory` is a
+/// store with its own folder (`FileRecordRepository`, `FileFlagStore`) or a file at `path: '<folder>/...'`.
+Set<String> _supportFolders() {
+  final dependencies = File('lib/app/di/app_dependencies.dart').readAsLinesSync();
+  final uses = [
+    for (final line in dependencies)
+      if (line.contains('baseDirectory: supportDirectory')) line,
+  ];
+  expect(
+    dependencies.where((line) => line.contains('supportDirectory') && !line.trimLeft().startsWith('///')),
+    hasLength(uses.length + 2),
+    reason: 'every use of supportDirectory but its declaration and field passes it as a baseDirectory',
+  );
+  final sources = Directory('lib').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'));
+  final folders = <String>{};
+  for (final use in uses) {
+    if (RegExp(r"path: '(\w+)/").firstMatch(use) case final path?) {
+      folders.add(path[1]!);
+      continue;
+    }
+    final store = RegExp(r'(\w+)\(baseDirectory: supportDirectory\)').firstMatch(use)![1]!;
+    final source = sources
+        .singleWhere((file) => file.readAsStringSync().contains('final class $store '))
+        .readAsStringSync();
+    folders.add(RegExp(r"\.path\}/(\w+)'\)").firstMatch(source)![1]!);
+  }
+  return folders;
+}

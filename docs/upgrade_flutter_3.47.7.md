@@ -1,5 +1,7 @@
 # Upgrade Guide: Flutter 3.47.7
 
+> From the template this app was made from: a record of its Flutter upgrades, kept as history. The app's own Flutter version is in `.fvmrc` and CLAUDE.md.
+
 **Date:** 2026-10-20
 **Flutter:** 3.44.3 → 3.47.7
 **Dart:** 3.12.2 → 3.13.5

@@ -41,7 +41,9 @@ class QuizPage extends StatelessWidget {
             create: (context) => quizCubitFor(context, moduleKey, items),
             child: QuizScreen(moduleKey: moduleKey, items: items, title: title, doneLabel: S.of(context).quiz_done),
           ),
-          QuizLoading() => const _Frame(child: Center(child: CircularProgressIndicator())),
+          QuizLoading() => _Frame(
+            child: Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
+          ),
           QuizMissing() || QuizUnreadable() => _Frame(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.xl),

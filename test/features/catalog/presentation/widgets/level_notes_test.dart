@@ -166,12 +166,14 @@ void main() {
     });
   }
 
-  testWidgets('any other error is rethrown', (tester) async {
+  // Review 6, finding 14: it was thrown from build, an error box where the notes stand.
+  testWidgets('any other error is reported, and the notes say they cannot be read', (tester) async {
     when(() => repository.readLevelDoc(_readme)).thenAnswer((_) async => throw StateError('disk'));
 
     await _pumpNotes(tester, repository);
 
     expect(tester.takeException(), isA<StateError>());
+    expect(find.byType(ContentUnreadable), findsOneWidget);
   });
 
   testWidgets('the heading shows while the document is read', (tester) async {
@@ -235,12 +237,16 @@ void main() {
     expect(tester.getTopLeft(later).dy, inInclusiveRange(0, screenHeight));
   });
 
-  testWidgets('an anchor link to no heading of the document throws', (tester) async {
+  testWidgets('an anchor link to no heading of the document does nothing, as in the reader', (tester) async {
     when(() => repository.readLevelDoc(_readme)).thenAnswer((_) async => _linkedDoc('nowhere'));
 
     await _pumpNotes(tester, repository);
-    await tester.tapOnText(find.textRange.ofSubstring('Jump'));
+    final jump = find.textRange.ofSubstring('Jump');
+    final before = tester.getTopLeft(find.text('Later', findRichText: true)).dy;
+    await tester.tapOnText(jump);
+    await tester.pumpAndSettle();
 
-    expect(tester.takeException(), isA<StateError>());
+    expect(tester.takeException(), isNull);
+    expect(tester.getTopLeft(find.text('Later', findRichText: true)).dy, before);
   });
 }

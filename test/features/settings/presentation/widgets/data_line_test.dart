@@ -123,6 +123,27 @@ void main() {
     expect(find.text('Undo'), findsNothing);
   });
 
+  // Review 8, finding 11: the countdown sat in the live region, so a screen reader announced it again every second of
+  // the ten while its user went for Undo.
+  testWidgets('the countdown is announced once: its line says the same to a screen reader every second', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final labels = <String>[];
+    for (final left in [10, 7, 1]) {
+      await pumpLine(tester, DataState(reset: ResetCounting(left)));
+      expect(
+        find.text(left == 1 ? 'Reset. You can undo it for 1 second.' : 'Reset. You can undo it for $left seconds.'),
+        findsOneWidget,
+      );
+      final live = find.byWidgetPredicate((widget) => widget is Semantics && (widget.properties.liveRegion ?? false));
+      labels.add(tester.getSemantics(live).label);
+    }
+    expect(labels.toSet(), hasLength(1), reason: '$labels');
+    expect(labels.first, contains('10 seconds'));
+    handle.dispose();
+  });
+
   testWidgets('the lines stand together in the order backup, restore, reset', (tester) async {
     await pumpLine(
       tester,
@@ -162,7 +183,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'ERASE');
     await tester.pump();
-    await tester.tap(find.text('Erase all data'));
+    await tester.tap(find.text('Erase all progress'));
     await tester.pumpAndSettle();
     expect(find.text('Erase all progress on this device?'), findsNothing);
     expect(verify(() => bloc.add(captureAny())).captured, [isA<ResetConfirmed>()]);

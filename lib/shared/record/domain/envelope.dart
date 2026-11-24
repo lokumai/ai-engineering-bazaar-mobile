@@ -69,7 +69,37 @@ EnvelopeResult parseEnvelope(String? raw) {
   if (schema > RecordConstants.schemaVersion) return EnvelopeQuarantine(reason: QuarantineReason.newer, raw: raw);
   final data = parsed['data'];
   if (data is! Map<String, Object?>) return malformed;
-  return EnvelopeOk(data: normaliseRecord(data), schema: schema.toInt());
+  // A record is a few levels deep; a file nested far deeper is no record, and reading or writing it would recurse past
+  // the stack, at a depth that differs from one machine to the next (review 7 finding 13, review 8 finding 1). It is
+  // counted without recursion and refused, rather than ending the restore without a word.
+  if (_deeperThan(data, maxRecordDepth)) return malformed;
+  try {
+    return EnvelopeOk(data: normaliseRecord(data), schema: schema.toInt());
+  } on StackOverflowError {
+    return malformed;
+  }
+}
+
+/// The most levels of maps and lists a record's `data` may nest; the record itself uses about five.
+const maxRecordDepth = 64;
+
+/// Whether [value] nests maps and lists more than [limit] levels deep, counted with a list rather than the stack.
+bool _deeperThan(Object? value, int limit) {
+  final pending = <(Object?, int)>[(value, 1)];
+  while (pending.isNotEmpty) {
+    final (current, depth) = pending.removeLast();
+    final children = switch (current) {
+      Map() => current.values,
+      List() => current,
+      _ => null,
+    };
+    if (children == null) continue;
+    if (depth > limit) return true;
+    for (final child in children) {
+      if (child is Map || child is List) pending.add((child, depth + 1));
+    }
+  }
+  return false;
 }
 
 /// The schema number when it is an integer, as JS `Number.isInteger` decides, else null.

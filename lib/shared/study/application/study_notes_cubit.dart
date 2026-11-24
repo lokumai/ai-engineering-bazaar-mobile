@@ -11,24 +11,46 @@ import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 /// Home's review row and the reader's terms read them. A module not translated lends its English
 /// document, as the reader does (plan 1Q).
 ///
-/// A `Cubit` because each load replaces the one before and the event stream adds nothing: a load for the notes already
-/// read, or being read, does nothing.
+/// A `Cubit` because each load replaces the one before and the event stream adds nothing: a load for the notes being
+/// read, or read whole, does nothing. Review 7, finding 15: the last few notes read whole are kept, so a quick switch
+/// of track or language and back reads nothing again; and notes with a module that could not be read are read again at
+/// the next load, as a page that shows them opens, instead of only once the content, track or language changed.
 final class StudyNotesCubit extends Cubit<StudyNotesState> {
   StudyNotesCubit({required this._repository}) : super(const StudyNotesLoading());
 
   static final _log = AppLogger.getLogger('StudyNotesCubit');
+
+  /// How many notes read whole are kept: a track and a language switched and back.
+  static const kept = 3;
 
   final IContentRepository _repository;
 
   /// What the last load was for: the index's version, the track and the language.
   (String, Track, String)? _for;
 
-  /// Reads the notes of [track] in [language] from [index], unless they are read or being read already.
+  /// Whether the last load is still reading.
+  bool _reading = false;
+
+  /// The notes read whole, the latest last.
+  final _whole = <(String, Track, String), List<ModuleNotes>>{};
+
+  /// Reads the notes of [track] in [language] from [index], unless they are being read, or read whole, already.
   Future<void> load(BundleIndex index, Track track, String language) async {
     final key = (index.contentVersion, track, language);
-    if (_for == key) return;
+    if (_for == key && (_reading || _whole.containsKey(key))) return;
+    // The same notes again, read before with a module missing: they are tried again behind the notes shown, with no
+    // Loading between. A Loading rebuilt the page that asked, whose loader asked again, for as long as it was open
+    // (review 10, finding 7); the same notes read again change nothing, so nothing is built again.
+    final again = _for == key;
     _for = key;
-    if (state is StudyNotesReady) emit(const StudyNotesLoading());
+    if (_whole.remove(key) case final notes?) {
+      _whole[key] = notes;
+      _reading = false;
+      emit(StudyNotesReady(track: track, language: language, modules: notes));
+      return;
+    }
+    _reading = true;
+    if (state is StudyNotesReady && !again) emit(const StudyNotesLoading());
     final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
     final modules =
         [
@@ -40,6 +62,7 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
               : a.number.compareTo(b.number),
         );
     final notes = <ModuleNotes>[];
+    var whole = true;
     for (final module in modules) {
       final docs = module.tracks[track]!.docs;
       final path = docs[language] ?? docs['en'];
@@ -49,11 +72,18 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
       } on Object catch (error) {
         // A document that cannot be read leaves its module out rather than Practice with an error, as Home's card does.
         _log.warn('notes of {} unreadable: {}', [path, error]);
+        whole = false;
       }
       // A load for another track, language or content began meanwhile: it owns the state now.
       if (_for != key || isClosed) return;
     }
-    emit(StudyNotesReady(track: track, language: language, modules: List.unmodifiable(notes)));
+    final read = List<ModuleNotes>.unmodifiable(notes);
+    _reading = false;
+    if (whole) {
+      _whole[key] = read;
+      if (_whole.length > kept) _whole.remove(_whole.keys.first);
+    }
+    emit(StudyNotesReady(track: track, language: language, modules: read));
   }
 }
 

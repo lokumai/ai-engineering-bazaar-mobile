@@ -157,41 +157,50 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
     final title = index?.module(widget.moduleKey)?.tracks[track]?.titleIn(language) ?? S.of(context).practice_brief;
     final position = index?.levels.indexWhere((level) => level.slug == index.module(widget.moduleKey)?.level) ?? -1;
     final hue = levelHue(context, position < 0 ? 0 : position);
-    final notes = switch (context.watch<StudyNotesCubit>().state) {
-      final StudyNotesReady ready when ready.track == track && ready.language == language => ready.of(widget.moduleKey),
+    // Null while the notes load; once they are in, the module's, or none when the notes have no such module or could
+    // not read it, which spun for ever (review 5, finding 17).
+    final loaded = switch (context.watch<StudyNotesCubit>().state) {
+      final StudyNotesReady ready when ready.track == track && ready.language == language => (
+        notes: ready.of(widget.moduleKey),
+      ),
       _ => null,
     };
     return StudyNotesLoader(
       child: QuizFrame(
         title: title,
-        child: notes == null
-            ? const Center(child: CircularProgressIndicator())
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  // The card's text runs inside the page's and the card's margins; the Summary may fill a share of
-                  // the page's height, under the card's head.
-                  final width = constraints.maxWidth - 40 - 2 * AppSpacing.lg;
-                  final height = constraints.maxHeight * _summaryShare - 48;
-                  final style = _summaryStyle(context.bazaarColors);
-                  final scaler = MediaQuery.textScalerOf(context);
-                  final direction = Directionality.of(context);
-                  return _cards(
-                    context,
-                    briefCards(
-                      notes,
-                      fits: (blocks) => _fitsCard(
-                        blocks,
-                        width: width,
-                        height: height,
-                        style: style,
-                        scaler: scaler,
-                        direction: direction,
-                      ),
-                    ),
-                    hue,
-                  );
-                },
-              ),
+        child: switch (loaded) {
+          null => Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading)),
+          (notes: null) => Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Text(S.of(context).content_unreadable, style: Theme.of(context).textTheme.bodyLarge),
+          ),
+          (notes: final notes?) => LayoutBuilder(
+            builder: (context, constraints) {
+              // The card's text runs inside the page's and the card's margins; the Summary may fill a share of
+              // the page's height, under the card's head.
+              final width = constraints.maxWidth - 40 - 2 * AppSpacing.lg;
+              final height = constraints.maxHeight * _summaryShare - 48;
+              final style = _summaryStyle(context.bazaarColors);
+              final scaler = MediaQuery.textScalerOf(context);
+              final direction = Directionality.of(context);
+              return _cards(
+                context,
+                briefCards(
+                  notes,
+                  fits: (blocks) => _fitsCard(
+                    blocks,
+                    width: width,
+                    height: height,
+                    style: style,
+                    scaler: scaler,
+                    direction: direction,
+                  ),
+                ),
+                hue,
+              );
+            },
+          ),
+        },
       ),
     );
   }
@@ -199,6 +208,8 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
   Widget _cards(BuildContext context, List<BriefCard> cards, Color hue) {
     final s = S.of(context);
     final last = cards.length - 1;
+    // A turn or a larger text may fit the module on fewer cards than the one shown (review 5, finding 17).
+    final page = _page.clamp(0, last);
     return Column(
       children: [
         Expanded(
@@ -224,18 +235,18 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
               IconButton(
                 key: const Key('brief-previous'),
                 tooltip: s.brief_previous,
-                onPressed: _page == 0 ? null : () => _go(_page - 1),
+                onPressed: page == 0 ? null : () => _go(page - 1),
                 icon: const Icon(Icons.chevron_left),
               ),
               Expanded(
                 child: Semantics(
-                  label: s.brief_step(_page + 1, cards.length),
+                  label: s.brief_step(page + 1, cards.length),
                   excludeSemantics: true,
                   child: SegmentMeter(
-                    done: _page + 1,
+                    done: page + 1,
                     total: cards.length,
                     color: hue,
-                    semanticLabel: s.brief_step(_page + 1, cards.length),
+                    semanticLabel: s.brief_step(page + 1, cards.length),
                     height: 6,
                   ),
                 ),
@@ -243,7 +254,7 @@ class _ModuleBriefPageState extends State<ModuleBriefPage> {
               IconButton(
                 key: const Key('brief-next'),
                 tooltip: s.brief_next,
-                onPressed: _page == last ? null : () => _go(_page + 1),
+                onPressed: page == last ? null : () => _go(page + 1),
                 icon: const Icon(Icons.chevron_right),
               ),
             ],

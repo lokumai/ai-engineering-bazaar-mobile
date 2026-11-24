@@ -12,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 final class _Voice implements ISpeech {
   _Voice({this.speaks = true});
 
-  final bool speaks;
+  /// Whether the phone has a voice; a reader may add one in the phone's settings.
+  bool speaks;
 
   /// Each speak's texts, language and rate, and its title.
   final handed = <(List<String>, String, double)>[];
@@ -52,6 +53,7 @@ final class _Voice implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) {
     handed.add((texts, language, rate));
     titles.add(title);
@@ -112,6 +114,7 @@ void main() {
     module: session.module,
     track: session.track,
     title: session.title,
+    language: session.language,
     index: index,
     count: session.parts.length,
     playing: playing,
@@ -119,11 +122,20 @@ void main() {
   );
 
   group('ListenCubit (plan 15)', () {
-    test('asks the phone for a language once', () async {
+    test('asks the phone for a language once it has a voice for it', () async {
+      make();
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(voice.asked, 1);
+    });
+
+    // Review 5, finding 9: the line that says to add a voice stayed after one was added, until the app was closed.
+    test('asks again for a language it had no voice for, as one may be added in the meantime', () async {
       make(speaks: false);
       expect(await listen.canSpeak('fa'), isFalse);
-      expect(await listen.canSpeak('fa'), isFalse);
-      expect(voice.asked, 1);
+      voice.speaks = true;
+      expect(await listen.canSpeak('fa'), isTrue);
+      expect(voice.asked, 2);
     });
 
     test('started, it hands the phone every part at once and follows each as it starts, then is idle', () async {
@@ -256,9 +268,46 @@ void main() {
       expect(listen.state, on(0, session: second));
       expect((listen.state as ListenOn).reads('alpha/second', Track.engineers), isTrue);
       expect((listen.state as ListenOn).reads('alpha/first', Track.engineers), isFalse);
+      voice.reach(0);
       voice.finish();
       await _settle();
-      expect(listen.state, const ListenIdle(rate: 1));
+      expect(listen.state, isA<ListenIdle>().having((idle) => idle.notStarted, 'notStarted', isNull));
+    });
+
+    // Review 2 finding 6, review 5 finding 11: a speak the phone did not start ended the reading as heard to its end:
+    // the player closed without a word and the place was let go, so the next Listen began at the head.
+    test('a speak the phone does not start keeps the place and says so', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(0);
+      voice.reach(1);
+      await _settle();
+      listen.stop();
+      await _settle();
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+
+      listen.start(_first);
+      await _settle();
+      voice.finish(); // ended, no part started
+      await _settle();
+
+      expect(listen.state, const ListenIdle(rate: 1, notStarted: (module: 'alpha/first', track: Track.engineers)));
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
+    });
+
+    // Review 6, finding 2: a speak the voice ended early closed the player with no word and forgot the place.
+    test('a speak the phone ends before its last part keeps the part it was on and says so', () async {
+      make();
+      listen.start(_first);
+      await _settle();
+      voice.reach(0);
+      voice.reach(1);
+      voice.finish(); // the engine failed on part 1
+      await _settle();
+
+      expect(listen.state, const ListenIdle(rate: 1, notStarted: (module: 'alpha/first', track: Track.engineers)));
+      expect(listen.keptAt('alpha/first', Track.engineers), 1);
     });
 
     test('stop ends the reading; closing stops the voice', () async {

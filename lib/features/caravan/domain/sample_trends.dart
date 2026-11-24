@@ -12,7 +12,8 @@ abstract final class SampleCaravan {
   /// The month the road starts.
   static final DateTime first = DateTime.utc(2022, 11);
 
-  /// The last month the road reaches.
+  /// The last month the road reaches: a fixed month, not today, as the trends after it are not in this list. Move it
+  /// with the trends; the bundle's timeline replaces both (CLAUDE.md, Object store).
   static final DateTime through = DateTime.utc(2026, 11);
 
   /// The road of the sample, in [language] (`en`, `tr` or `fa`; English for any other).
@@ -126,7 +127,7 @@ const List<_Row> _rows = [
       ),
       'tr': (
         'Kendi görevini koyan ajanlar',
-        'Bir modelin sonraki adımını seçmesine izin veren döngüler GitHub’ın zirvesine çıktı ve kendi başlarına '
+        "Bir modelin sonraki adımını seçmesine izin veren döngüler GitHub'ın zirvesine çıktı ve kendi başlarına "
             'çalışmayı vaat etti.',
       ),
       'fa': (
@@ -153,7 +154,7 @@ const List<_Row> _rows = [
         'Bir modele özel bilgi vermenin olağan yolu getirme oldu ve vektör depoları her yerdeydi.',
       ),
       'fa': (
-        'گفتگو با اسنادت',
+        'گفتگو با اسنادتان',
         'بازیابی راه معمول دادن دانش خصوصی به مدل شد و پایگاه\u200cهای برداری همه\u200cجا بودند.',
       ),
     },
@@ -405,8 +406,8 @@ const List<_Row> _rows = [
         'Folders of instructions and scripts an agent loads when a task needs them, and the harness around the loop.',
       ),
       'tr': (
-        'Beceriler ve koşum takımları',
-        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri, ve döngünün çevresindeki koşum.',
+        "Beceriler ve harness'lar",
+        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri, ve döngünün çevresindeki harness.',
       ),
       'fa': (
         'مهارت\u200cها و هارنس\u200cها',
@@ -429,7 +430,7 @@ const List<_Row> _rows = [
             'zirvesine çıktı.',
       ),
       'fa': (
-        'ایجنت\u200cهای از آن خودت',
+        'ایجنت\u200cهای از آن خودتان',
         'ایجنت\u200cهای خودمیزبانی که در اپ\u200cهای گفتگو زندگی می\u200cکنند و کارها را انجام می\u200cدهند صدر ترندهای گیت\u200cهاب را '
             'گرفتند.',
       ),

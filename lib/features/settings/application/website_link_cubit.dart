@@ -30,9 +30,16 @@ final class WebsiteLinkCubit extends Cubit<WebsiteLinkState> {
       emit(WebsiteLinkState.empty);
       return;
     }
+    final payload = _packer.pack(text);
+    // The website refuses a longer payload, so its link would open to nothing there (review 7, finding 14).
+    if (payload.length > transferMaxPayload) {
+      emit(WebsiteLinkState.tooLarge);
+      return;
+    }
     emit(WebsiteLinkState.sending);
-    final shown = await _shareSheet.share(transferLink(_site, _packer.pack(text)).toString());
-    emit(shown ? WebsiteLinkState.idle : WebsiteLinkState.failed);
+    final shown = await _shareSheet.share(transferLink(_site, payload).toString());
+    // Settings may have gone while the share sheet was up (review 5, finding 16).
+    if (!isClosed) emit(shown ? WebsiteLinkState.idle : WebsiteLinkState.failed);
   }
 }
 
@@ -46,6 +53,9 @@ enum WebsiteLinkState {
 
   /// The record carries no progress to send.
   empty,
+
+  /// The progress is too long for a link the website reads.
+  tooLarge,
 
   /// The sheet could not be shown.
   failed,

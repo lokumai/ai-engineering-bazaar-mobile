@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_parser.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -667,6 +668,27 @@ void main() {
     );
   });
 
+  // Review 9, finding 13: 20,000 nested quotes ended in a stack overflow, not a format error.
+  group('nesting', () {
+    /// A module document whose body is one paragraph inside [depth] quotes, written by hand: jsonEncode recurses too.
+    String nested(int depth) {
+      final body = '${'{"type":"quote","blocks":[' * depth}${jsonEncode(_paragraph())}${']}' * depth}';
+      return jsonEncode(validModuleDocJson()..['body'] = ['@body']).replaceFirst('"@body"', body);
+    }
+
+    test('a few levels read', () {
+      final doc = ContentParser.parseModuleDoc(nested(10), parsedTestIndex(), path: _modulePath);
+      expect(doc.body!.single, isA<QuoteBlock>());
+    });
+
+    test('too deep is a format error, not a stack overflow', () {
+      expect(
+        () => ContentParser.parseModuleDoc(nested(20000), parsedTestIndex(), path: _modulePath),
+        throwsA(isA<ContentFormatException>()),
+      );
+    });
+  });
+
   test('rule', () {
     expect(_block({'type': 'rule'}), const RuleBlock());
   });
@@ -951,6 +973,7 @@ void main() {
       ('stalls[0].heading', 'a section with no heading', (json) => (json['stalls'] as List).first.remove('heading')),
       ('dir', 'a direction outside the closed set', (json) => json['dir'] = 'ttb'),
       ('motto.lines', 'missing', (json) => (json['motto'] as Map).remove('lines')),
+      ('motto.lines', 'empty', (json) => (json['motto'] as Map)['lines'] = []),
     ]) {
       test('rejects $field: $why', () {
         final json = story();

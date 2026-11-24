@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/tiny_lm.dart';
 import 'package:equatable/equatable.dart';
 
@@ -44,6 +46,10 @@ final class PocketModel extends Equatable {
 
   /// The tokens one feed gives.
   static const int feedTokens = 8;
+
+  /// The most tokens it keeps, of its own text and at each module read: 125,000 feeds, more than a reader gives, and
+  /// still under a second to read again at start; a kept count past it is a damaged file (review 5, finding 17).
+  static const int maxTokens = 1000000;
 
   /// The tokens fed that each level feeds give starts at, from level 0: feeds alone reach level [feedLevels].
   static const List<int> levels = [0, 24, 80, 180, 360, 640, 1000, 1600];
@@ -160,7 +166,7 @@ final class PocketModel extends Equatable {
     ];
     final kept = recent.length > overfitFeeds + 2 ? recent.sublist(recent.length - overfitFeeds - 2) : recent;
     if (overfitAt(now)) return PocketModel(tokens: tokens, readings: readings, lastFed: lastFed, burst: kept);
-    return PocketModel(tokens: tokens + feedTokens, readings: readings, lastFed: now, burst: kept);
+    return PocketModel(tokens: math.min(tokens + feedTokens, maxTokens), readings: readings, lastFed: now, burst: kept);
   }
 
   /// Rested: the burst forgotten.

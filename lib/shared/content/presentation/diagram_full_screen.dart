@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_object.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -69,7 +70,12 @@ class _DiagramFullScreenState extends State<DiagramFullScreen> {
                     maxScale: 6,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(12, 56, 12, 12),
-                      child: SvgPicture.memory(widget.bytes, fit: BoxFit.contain),
+                      child: SvgPicture.memory(
+                        widget.bytes,
+                        fit: BoxFit.contain,
+                        // As in the page: an SVG the parser rejects says so rather than leave an empty screen (review 8).
+                        errorBuilder: (_, _, _) => const Center(child: ContentUnreadable()),
+                      ),
                     ),
                   ),
                 ),

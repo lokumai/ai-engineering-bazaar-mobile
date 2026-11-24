@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// What the apprentice has learnt, at the foot of its sheet, for whoever scrolls to it: the modules it read, the words
 /// it knows and the tokens it ate, each a number over a word. The sheet itself is for playing with it, so the numbers
@@ -20,24 +21,28 @@ class PocketStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final number = NumberFormat.decimalPattern(Localizations.localeOf(context).languageCode);
+    final number = NumberFormat.decimalPattern(numberLocale(Localizations.localeOf(context).languageCode));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionRule(title: s.pocket_stats_title),
         const SizedBox(height: AppSpacing.md),
-        Row(
-          spacing: AppSpacing.sm,
-          children: [
-            for (final (count, label) in [
-              (model.readings.length, s.pocket_stat_modules),
-              (known, s.pocket_stat_words),
-              (model.total, s.pocket_stat_tokens),
-            ])
-              Expanded(
-                child: _Stat(value: number.format(count), label: label),
-              ),
-          ],
+        // The three as high as the tallest, whose word may take more lines at a large text size (review 8).
+        IntrinsicHeight(
+          child: Row(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (count, label) in [
+                (model.readings.length, s.pocket_stat_modules),
+                (known, s.pocket_stat_words),
+                (model.total, s.pocket_stat_tokens),
+              ])
+                Expanded(
+                  child: _Stat(value: number.format(count), label: label),
+                ),
+            ],
+          ),
         ),
       ],
     );
@@ -79,8 +84,8 @@ class _Stat extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 2,
-                style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted),
+                // Muted text on the sunken ground is 4.2:1 in the light look, under 4.5 (review 7, finding 10).
+                style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
               ),
             ],
           ),

@@ -54,6 +54,22 @@ class NativeSentryScrubberTest {
         assertEquals("Bearer [REDACTED_JWT]", crumb.data["auth"])
     }
 
+    /** Review 6, finding 16: the content path mask was on the Dart side only. */
+    @Test
+    fun masksAPathThatNamesWhatTheReaderOpened() {
+        val event = SentryEvent().apply {
+            exceptions = listOf(
+                SentryException().apply { value = "open failed: api/v1/modules/alpha/first/en.json (No such file)" },
+            )
+        }
+
+        val result = NativeSentryScrubber.beforeSend(event, logError)!!
+
+        assertEquals("open failed: api/v1/modules/[REDACTED] (No such file)", result.exceptions!![0].value)
+        assertEquals("course-images/[REDACTED]", NativeSentryScrubber.maskText("course-images/a/b.webp"))
+        assertEquals("nothing to mask", NativeSentryScrubber.maskText("nothing to mask"))
+    }
+
     @Test
     fun masksAnEmailAndAJwtInTheMessageAndDataOfABreadcrumb() {
         val crumb = Breadcrumb("GET /admin/users/jane.doe@example.com").apply {

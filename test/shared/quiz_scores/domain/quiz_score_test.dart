@@ -42,6 +42,11 @@ void main() {
       expect(decodeQuizScores(text), scores);
     });
 
+    // Review 6, finding 15: Practice draws a dot per question, so a damaged count froze it at every start.
+    test('a quiz length past any a module has is left out', () {
+      expect(decodeQuizScores('{"schema":1,"scores":{"a/b":{"last":1,"best":1,"total":1000000000}}}'), isEmpty);
+    });
+
     test('a file that is not the shape reads as no score', () {
       for (final text in ['', 'not json', '[]', '{"schema":2,"scores":{}}', '{"schema":1}']) {
         expect(decodeQuizScores(text), isEmpty, reason: text);

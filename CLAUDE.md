@@ -143,6 +143,16 @@ lib/
     reading_style/                              ReadingStyleCubit (text size and line spacing of a module's text), its
                                                 store port, ReadingStyleScope that the reader wraps a module's text in;
                                                 kept on the device, never in the record
+    language/                                   LanguageCubit: the language of the interface and of the documents opened
+                                                (en, tr, fa), the device's until chosen in Settings; kept on the device,
+                                                never in the record
+    reading/                                    ReadingPlacesBloc: where each module was left (reading_place.dart), for
+                                                the reader and Home's Continue reading; kept on the device, never in the
+                                                record
+    pocket_button/                              PocketButtonCubit: whether the Apprentice's round button shows; Settings
+                                                sets it, the shell reads it
+    widgets/                                    not_found_view.dart: the view of an address that is not a module, which
+                                                the not-found page, the level page and the reader show
     track/                                      TrackCubit; TrackSwitch, the segmented control the pages of a track place
     site_links/                                 SiteLink (the site's pages and transfers the app opens), ILinkSource,
                                                 IShareSheet and ICodeScanner
@@ -189,6 +199,10 @@ lib/
                                                 pages mark its places with shared/tour/tour_target.dart (TourTarget, TourSpots)
     transfer/                                   a progress link opened in the app at `/transfer`, full screen (plan 17.1):
                                                 TransferBloc, what the link carries, Add to this phone's progress
+    pocket_model/                               the Apprentice (Çırak; the code keeps pocket_model): PocketModelBloc
+                                                over a tiny language model fed tokens and the modules read
+                                                (tiny_lm.dart), its sheet, its corner on Home (pocket_corner.dart), its
+                                                round button (pocket_assistant.dart) and its outfits
     caravan/                                    the Caravan tab at `/caravan`: the trends held in the app until the
                                                 bundle carries the web's timeline
   l10n/intl_{en,tr,fa}.arb, generated/          every string in all three languages (generated/ is never edited)
@@ -300,7 +314,7 @@ The record is the web's, byte for byte; `lib/shared/record` ports the web's code
 - The app never writes `prefs`, dwell or `reachedEnd`; it keeps them as it read them.
 - Files live under Application Support: `record/record.json`, `record/record-quarantine.json` and `record/record.json.tmp`.
   A write goes to `record.json.tmp` with a flush, then is renamed over `record.json`; a leftover `.tmp` is ignored at launch.
-- A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty.
+- A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty; a copy already there with other bytes moves to `record-quarantine-previous.json`; discarding the copy brings that one back in its place, and Erase deletes both.
 - Days are the UTC day of the instant, as the web's `toISOString`, never the device's local day.
 - `asInstant` is a strict grammar, not `DateTime.tryParse` (A20).
 - Parsing re-keys every object the web rebuilds from a template into the template's key order (A21).
@@ -309,10 +323,14 @@ The record is the web's, byte for byte; `lib/shared/record` ports the web's code
 
 ## Object store
 
+The one content the app carries that the web does not publish yet is the Caravan's trends, `lib/features/caravan/domain/sample_trends.dart` (web D116): the road ends at its `through` month, so a later trend needs an app update until the bundle carries them.
+
+
 - The bundled snapshot is `assets/content/index.json`, `assets/content/api_index.json` and `assets/content/objects/<sha256>`.
 - Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json`, the `current` pointer and the `pending` pointer of a refresh under way. A start keeps the pending refresh's index and objects, so a refresh cut off by closing the app goes on where it stopped.
-- Every object is checked against its sha256 on every read.
+- Every downloaded object is checked against its sha256 on every read; a bundled object is read from the app's own assets, which the snapshot tool checked when it wrote them, and is not hashed again.
 - A refresh adopts only a strictly later `publishedAt` and never leaves a mixed set; a cache not later than the bundled snapshot is deleted at startup.
+- A refresh adopts a bundle only once every module, level and story document in it parses; one that does not is `RefreshFailed(format)`, and the current content stays.
 - A sha256 mismatch on a downloaded object is `RefreshFailed(checksum)`, retried at the next cold start (A25).
 - `revision.hash` is validated as `^[0-9a-f]{4,40}$` (A24).
 

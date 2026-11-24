@@ -1,0 +1,3 @@
+/* Settings, Scan the code: the camera's question on iOS (plan 21.2) */
+"NSCameraUsageDescription" = "دوربین کدی را که وب‌سایت نشان می‌دهد می‌خواند تا پیشرفت شما را به برنامه بیاورد. هیچ تصویری نگه داشته نمی‌شود.";
+"NSPhotoLibraryUsageDescription" = "برنامه عکس‌های شما را باز نمی‌کند. بازیابی فقط فایل پشتیبانی را که انتخاب می‌کنید می‌خواند.";

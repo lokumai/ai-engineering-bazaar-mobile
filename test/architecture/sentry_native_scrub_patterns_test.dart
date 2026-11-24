@@ -29,6 +29,7 @@ void main() {
     'JSON_MEMBER_PATTERN': jsonMemberPattern,
     'NAMED_VALUE_PATTERN': namedValuePattern,
     'BEARER_PATTERN': bearerPattern,
+    'READING_PATH_PATTERN': readingPathPattern,
   };
   final dartSets = {
     'SENSITIVE_HEADER_NAMES': sensitiveHeaderNames,

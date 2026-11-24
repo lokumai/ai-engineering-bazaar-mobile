@@ -109,14 +109,20 @@ class _PocketAssistantButtonState extends State<PocketAssistantButton> {
                         ),
                         child: SizedBox.square(
                           dimension: 22,
-                          child: Center(
-                            child: Text(
-                              '$waiting',
-                              style: const TextStyle(
-                                color: RobotColors.ink,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                height: 1,
+                          // The number shrinks to fit the circle at a large text size, rather than run out of it
+                          // (review 8); the button's label says it whole.
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '$waiting',
+                                style: const TextStyle(
+                                  color: RobotColors.ink,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1,
+                                ),
                               ),
                             ),
                           ),

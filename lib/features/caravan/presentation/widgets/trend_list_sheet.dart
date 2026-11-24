@@ -45,7 +45,12 @@ class _TrendListState extends State<TrendList> {
     final s = S.of(context);
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
-    final found = filterStops(widget.road, year: _year, query: _query);
+    final found = filterStops(
+      widget.road,
+      year: _year,
+      query: _query,
+      language: Localizations.localeOf(context).languageCode,
+    );
     final years = [for (final start in widget.road.yearStarts) start.year];
 
     return CustomScrollView(

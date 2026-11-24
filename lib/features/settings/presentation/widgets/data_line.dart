@@ -3,6 +3,7 @@ import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/dat
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/erase_dialog.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,7 +62,19 @@ class DataLine extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: AppSpacing.xs,
-              children: [for (final line in lines) Text(line, style: theme.textTheme.bodyMedium)],
+              children: [
+                for (final line in lines)
+                  if (state.reset is ResetCounting && line == lines.last)
+                    // The number ticks for the eye only: to a screen reader the line says the whole window, so the
+                    // live region announces it once, not each second while its user goes for Undo (review 8).
+                    Semantics(
+                      label: s.data_reset_counting(RecordConstants.undoWindow.inSeconds),
+                      excludeSemantics: true,
+                      child: Text(line, style: theme.textTheme.bodyMedium),
+                    )
+                  else
+                    Text(line, style: theme.textTheme.bodyMedium),
+              ],
             ),
           ),
       ],
@@ -70,12 +83,13 @@ class DataLine extends StatelessWidget {
 
   Future<void> _reset(BuildContext context) async {
     final bloc = context.read<DataBloc>();
-    if (await showEraseDialog(context)) bloc.add(const ResetConfirmed());
+    if (await showEraseDialog(context) && !bloc.isClosed) bloc.add(const ResetConfirmed());
   }
 
   static String _restoreText(S s, RestoreOutcome outcome) => switch (outcome) {
     RestoreOutcome.restored => s.data_restored,
     RestoreOutcome.notRestored => s.data_restore_not_done,
+    RestoreOutcome.notSaved => s.data_restore_not_saved,
     RestoreOutcome.empty => s.data_restore_empty,
     RestoreOutcome.newer => s.data_restore_newer,
     RestoreOutcome.malformed => s.data_restore_malformed,

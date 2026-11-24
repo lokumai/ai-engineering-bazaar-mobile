@@ -167,6 +167,27 @@ void main() {
       expect(feedback!.message!.formatted, 'write to [REDACTED_EMAIL]');
     });
 
+    // Review 6, finding 16: the SDK sends a user's feedback in its own context, which the hook did not touch.
+    test("masks a user's feedback where the SDK puts it, and its page address", () async {
+      final options = SentryFlutterOptions(platform: const _AndroidPlatform());
+      configureSentryOptions(options, dsn: _dsn, release: '1.0.0+1');
+
+      final event = SentryEvent(
+        contexts: Contexts(
+          feedback: SentryFeedback(
+            message: 'write to jane.doe@example.com about api/v1/modules/alpha/first/en.json',
+            url: 'https://example.test/reset?token=abc123',
+          ),
+        ),
+      );
+      final sent = await options.beforeSendFeedback!(event, Hint());
+
+      final feedback = sent!.contexts.feedback!;
+      expect(feedback.message, isNot(contains('jane.doe@example.com')));
+      expect(feedback.message, isNot(contains('alpha/first')));
+      expect(feedback.url, isNot(contains('abc123')));
+    });
+
     // Plan 4.4: on iOS sentry_flutter starts sentry-cocoa, whose own events and breadcrumbs never pass the Dart
     // scrubbers, so it records the least: app hangs and sessions only (the owner, 2026-11-13).
     test('on iOS turns off the events and breadcrumbs sentry-cocoa would record itself, but app hangs', () {

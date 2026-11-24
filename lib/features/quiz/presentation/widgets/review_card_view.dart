@@ -106,8 +106,8 @@ class _CardPage extends StatelessWidget {
   }
 }
 
-/// The session's steps: one dot per card, green once right and rust once wrong, the current one ringed, and which card
-/// of how many in words.
+/// The session's steps: one mark per card, a green dot once right and a rust square once wrong, the current one ringed,
+/// and which card of how many in words.
 class _Steps extends StatelessWidget {
   const _Steps({required this.at, required this.count});
 
@@ -123,11 +123,17 @@ class _Steps extends StatelessWidget {
       spacing: AppSpacing.md,
       runSpacing: AppSpacing.xs,
       children: [
+        // A Wrap of their own, so a long session (Wrong answers, uncapped) runs the dots onto more lines rather than
+        // off the screen (review 8).
         ExcludeSemantics(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 6,
-            children: [for (var i = 0; i < count; i++) _StepDot(result: at.results[i], current: i == at.index)],
+            runSpacing: 6,
+            children: [
+              for (var i = 0; i < count; i++)
+                _StepDot(key: ValueKey('review-step-$i'), result: at.results[i], current: i == at.index),
+            ],
           ),
         ),
         Text(
@@ -175,7 +181,7 @@ class _Tally extends StatelessWidget {
 
 /// One step: open (a ring), right (`success`) or wrong (`fault`); the current one larger and ringed in `primary`.
 class _StepDot extends StatelessWidget {
-  const _StepDot({required this.result, required this.current});
+  const _StepDot({super.key, required this.result, required this.current});
 
   final bool? result;
   final bool current;
@@ -189,11 +195,14 @@ class _StepDot extends StatelessWidget {
       false => colors.fault,
     };
     final size = current ? 14.0 : 10.0;
+    // A wrong step is a square, so right and wrong differ by more than colour (review 8).
+    final wrong = result == false;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        shape: wrong ? BoxShape.rectangle : BoxShape.circle,
+        borderRadius: wrong ? const BorderRadius.all(Radius.circular(2)) : null,
         color: fill,
         border: Border.all(color: current ? colors.primary : (fill ?? colors.lineStrong), width: current ? 2 : 1),
       ),
@@ -358,16 +367,19 @@ class _SectionLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
     final label = S.of(context).review_section_link(title);
+    void open() => context.push(
+      BazaarPaths.module(context.read<TrackCubit>().state, moduleKey),
+      extra: ReaderTarget(fragment: fragment, query: query, glance: true),
+    );
+    // The tap is the node's own: excludeSemantics drops the InkWell's (review 8, finding 4).
     return Semantics(
       link: true,
       label: label,
       excludeSemantics: true,
+      onTap: open,
       child: InkWell(
         key: const Key('review-section-link'),
-        onTap: () => context.push(
-          BazaarPaths.module(context.read<TrackCubit>().state, moduleKey),
-          extra: ReaderTarget(fragment: fragment, query: query, glance: true),
-        ),
+        onTap: open,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
           child: Row(

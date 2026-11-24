@@ -9,7 +9,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 ///
 /// The web also accepts shapes the app never routes inside the shell (`/courses`, `/everyone`, `/sheets/<l>/<m>`, a
 /// module path with extra segments); the app redirects them or shows the not-found page, where no switch is drawn, so
-/// [trackOf] and [trackSwitchTarget] return null for them.
+/// [trackOf] returns null for them.
 abstract final class BazaarPaths {
   static const home = '/';
   static const catalogEngineers = '/sheets';
@@ -86,16 +86,6 @@ abstract final class BazaarPaths {
   static String? moduleOf(String location) => switch (_parse(location)) {
     _ModulePage(:final slug, :final name) => '$slug/$name',
     _ => null,
-  };
-
-  /// Where the track switch goes from [location] when [to] is chosen; null on a page of neither track.
-  ///
-  /// A module page always maps to the other track's module page, written or not, as on the web.
-  static String? trackSwitchTarget(String location, Track to) => switch (_parse(location)) {
-    null => null,
-    _CatalogPage() => catalog(to),
-    _LevelPage(:final slug) => level(to, slug),
-    _ModulePage(:final slug, :final name) => module(to, '$slug/$name'),
   };
 
   static String _prefix(Track track) => switch (track) {

@@ -14,6 +14,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -174,6 +175,8 @@ void main() {
       expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(find.byType(CatalogCards)).dy));
       expect(find.text('3 modules · ~1 h 15 min'), findsOneWidget);
       expect(find.text('1/3 completed'), findsOneWidget);
+      // Review 10, finding 11: "1/3" is read aloud as a fraction.
+      expect(find.bySemanticsLabel('1 of 3 completed'), findsOneWidget);
     });
 
     testWidgets('beta', (tester) async {
@@ -231,6 +234,24 @@ void main() {
     await _pumpLevel(tester, '/sheets/alpha', record: loadingRecordBloc());
 
     expect(find.text('--/3 completed'), findsOneWidget);
+  });
+
+  // Review 8, finding 16 (#17): in Persian the right-to-left line read "--/3" as "3/--" while the record loads.
+  testWidgets('in Persian, the waiting meter keeps its dashes before the total', (tester) async {
+    await tester.pumpWidget(
+      bazaarTestApp(router: _router('/sheets/alpha'), record: loadingRecordBloc(), locale: const Locale('fa')),
+    );
+    await tester.pumpAndSettle();
+
+    final element = find
+        .byWidgetPredicate((widget) => widget is RichText && widget.text.toPlainText().contains('--/3'))
+        .evaluate()
+        .first;
+    final paragraph = element.renderObject! as RenderParagraph;
+    final text = paragraph.text.toPlainText();
+    double leftOf(int index) =>
+        paragraph.getBoxesForSelection(TextSelection(baseOffset: index, extentOffset: index + 1)).first.left;
+    expect(leftOf(text.indexOf('-')), lessThan(leftOf(text.indexOf('3'))), reason: 'read left to right: --/3');
   });
 
   testWidgets('the cards', (tester) async {

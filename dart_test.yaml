@@ -7,6 +7,8 @@ tags:
   # Widget tests (use `testWidgets`) — need a binding + pump; heavier than pure
   # unit tests. Applied via a file-level `@Tags(['widget'])` annotation.
   widget:
+  # Pure unit tests, with no binding to pump; a file-level `@Tags(['unit'])`.
+  unit:
   # Golden / visual-regression tests — platform-sensitive, run in isolation.
   # Reserved for #135 (the alchemist golden package auto-applies this tag).
   golden:

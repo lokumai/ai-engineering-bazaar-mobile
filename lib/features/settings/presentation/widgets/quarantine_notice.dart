@@ -81,6 +81,6 @@ class QuarantineNotice extends StatelessWidget {
 
   Future<void> _delete(BuildContext context) async {
     final bloc = context.read<DataBloc>();
-    if (await showQuarantineDeleteDialog(context)) bloc.add(const QuarantineDeleteConfirmed());
+    if (await showQuarantineDeleteDialog(context) && !bloc.isClosed) bloc.add(const QuarantineDeleteConfirmed());
   }
 }

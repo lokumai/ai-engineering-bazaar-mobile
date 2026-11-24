@@ -21,6 +21,33 @@ SentryEvent _eventWithExceptionValue(String value) {
 }
 
 void main() {
+  test('sentryBeforeSend hides which module, level or course picture a content path names, as a crash report never says what was read', () {
+    final result = sentryBeforeSend(
+      SentryEvent(
+        message: SentryMessage('could not read api/v1/levels/level-two/en.json'),
+        exceptions: [
+          SentryException(
+            type: 'ContentMissingException',
+            value: 'ContentMissingException(api/v1/modules/level-one/some-module/en.json)',
+          ),
+          SentryException(
+            type: 'ContentMissingException',
+            value: 'ContentMissingException(course-images/level-one/a.webp)',
+          ),
+          SentryException(
+            type: 'ContentFormatException',
+            value: 'ContentFormatException(api/v1/index.json, modules[0])',
+          ),
+        ],
+      ),
+    );
+
+    expect(result.message?.formatted, 'could not read api/v1/levels/[REDACTED]');
+    expect(result.exceptions![0].value, 'ContentMissingException(api/v1/modules/[REDACTED])');
+    expect(result.exceptions![1].value, 'ContentMissingException(course-images/[REDACTED])');
+    expect(result.exceptions![2].value, 'ContentFormatException(api/v1/index.json, modules[0])');
+  });
+
   group('sentryBeforeSend — header scrubbing', () {
     test('removes Authorization header (case-insensitive)', () {
       final result = sentryBeforeSend(
@@ -250,6 +277,29 @@ void main() {
       expect(result.request?.url, 'https://app.example/login-otp-verify/[REDACTED_EMAIL]');
       expect(result.request?.queryString, 'email=[REDACTED_EMAIL]');
       expect(result.transaction, '/login-otp-verify/[REDACTED_EMAIL]');
+    });
+  });
+
+  // Review 7, finding 11: a widget's key prints in Flutter's error, and a page's key is a level or a module.
+  group('sentryBeforeSend - a Flutter error names no key', () {
+    test('masks the keys in the context and the information of a Flutter error', () {
+      final result = sentryBeforeSend(
+        SentryEvent(
+          contexts: Contexts()
+            ..['flutter_error_details'] = {
+              'context': "thrown building LevelPage-[<'advanced'>]",
+              'information':
+                  "The relevant error-causing widget was:\n  _ModuleRow-[<'fundamentals/01-what-is-an-llm'>]",
+              'library': 'widgets library',
+            },
+        ),
+      );
+      final details = result.contexts['flutter_error_details'] as Map;
+      expect(details['context'], 'thrown building LevelPage-[<key>]');
+      expect(details['information'], 'The relevant error-causing widget was:\n  _ModuleRow-[<key>]');
+      expect(details['library'], 'widgets library');
+      expect(result.toJson().toString(), isNot(contains('advanced')));
+      expect(result.toJson().toString(), isNot(contains('what-is-an-llm')));
     });
   });
 

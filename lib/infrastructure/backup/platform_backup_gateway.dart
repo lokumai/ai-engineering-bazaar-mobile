@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show PlatformException;
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/backup_gateway.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 
 /// [IBackupGateway] over `file_picker`.
 ///
@@ -35,9 +36,10 @@ final class PlatformBackupGateway implements IBackupGateway {
     return FilePicker.pickFile(type: type, allowedExtensions: extensions);
   }
 
-  /// The largest file read as a backup. A record is a few kilobytes; a file past this is not one, and reading it
-  /// whole could run the app out of memory, so it is refused before it is read.
-  static const maxBackupBytes = 16 * 1024 * 1024;
+  /// The largest file read as a backup: four times the record's cap, 2 MB, room for the export's indented form of the
+  /// largest record the app keeps. A file past this is not a backup, and it is refused before it is read: one of 16 MB
+  /// of nested arrays took close to 1 GB and over a second to decode on the UI isolate (review 9, finding 4).
+  static const maxBackupBytes = 4 * RecordConstants.softCapBytes;
 
   @override
   Future<BackupSaveResult> save(Uint8List bytes, String filename) async {
@@ -59,7 +61,8 @@ final class PlatformBackupGateway implements IBackupGateway {
     if (file == null) return const PickedBackupCancelled();
     try {
       final length = await file.length();
-      if (length != null && length > maxBackupBytes) {
+      if (length == null) return await _readCapped(file);
+      if (length > maxBackupBytes) {
         _log.warn('Backup file too large: {} bytes', [length]);
         return const PickedBackupUnreadable();
       }
@@ -69,6 +72,20 @@ final class PlatformBackupGateway implements IBackupGateway {
       return const PickedBackupUnreadable();
     }
   }
+}
+
+/// [file], whose length the picker could not tell, read by its stream and refused once it passes the limit, so no
+/// file of any size is read whole (review 7, finding 7).
+Future<PickedBackup> _readCapped(PlatformFile file) async {
+  final body = BytesBuilder(copy: false);
+  await for (final chunk in file.readAsByteStream()) {
+    body.add(chunk);
+    if (body.length > PlatformBackupGateway.maxBackupBytes) {
+      PlatformBackupGateway._log.warn('Backup file of unknown length too large');
+      return const PickedBackupUnreadable();
+    }
+  }
+  return PickedBackupBytes(bytes: body.takeBytes());
 }
 
 /// What the restore picker offers on [platform] (plan 4.6). Android shows every file: a `.json` filter becomes the

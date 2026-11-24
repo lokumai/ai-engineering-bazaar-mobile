@@ -19,6 +19,16 @@ void main() {
       expect(maskJwts(input), input);
     });
 
+    // Review 9, finding 14: tried at every `eyJ` of a long run, the pattern took about 4 s on 30,000 characters.
+    test('a long run of eyJ is read in linear time, and the tokens after it are still masked', () {
+      final watch = Stopwatch()..start();
+      // The run has no dot and is no token; the three dotted runs at the end are one.
+      final result = maskJwts('${'eyJ' * 10000} $jwt ${('eyJ' * 3000 + '.') * 3}');
+      expect(watch.elapsed, lessThan(const Duration(milliseconds: 500)));
+      expect(result, startsWith('eyJeyJ'));
+      expect('[REDACTED_JWT]'.allMatches(result).length, 2);
+    });
+
     test('masks every JWT when several appear', () {
       final result = maskJwts('a=$jwt b=$jwt');
       expect(result.contains(jwt), isFalse);
@@ -127,51 +137,6 @@ void main() {
     });
   });
 
-  group('maskHeaders', () {
-    test('masks Authorization / Cookie / Set-Cookie case-insensitively and keeps the header', () {
-      final result = maskHeaders({
-        'Authorization': 'Bearer token',
-        'cookie': 'sid=abc',
-        'Set-Cookie': 'sid=abc',
-        'Accept': 'application/json',
-      });
-      expect(result, {
-        'Authorization': '[REDACTED]',
-        'cookie': '[REDACTED]',
-        'Set-Cookie': '[REDACTED]',
-        'Accept': 'application/json',
-      });
-    });
-  });
-
-  group('scrubBodyText', () {
-    test('masks the credentials of a JSON string', () {
-      expect(
-        scrubBodyText('{\n  "id_token": "a.b.c",\n  "refresh_token": "opaque"\n}'),
-        '{"id_token":"[REDACTED]","refresh_token":"[REDACTED]"}',
-      );
-    });
-
-    test('keeps a JSON string without a credential as it is, formatting included', () {
-      const body = '{\n  "login": "admin",\n  "authorities": ["ROLE_ADMIN"]\n}';
-
-      expect(scrubBodyText(body), body);
-    });
-
-    test('masks the credentials of a Map body and prints it as a Map', () {
-      expect(scrubBodyText({'username': 'admin', 'password': 'S3cret!pw'}), '{username: admin, password: [REDACTED]}');
-    });
-
-    // A server-driven form chooses the keys of its fields, so the key of a password field may name no credential.
-    test('masks the values of the sensitive keys the caller names, compared whole and lower-cased', () {
-      expect(
-        scrubBodyText({'login': 'admin', 'pin': 'S3cret!pw', 'pinned': true}, sensitiveKeys: {'PIN'}),
-        '{login: admin, pin: [REDACTED], pinned: true}',
-      );
-      expect(scrubBodyText('{"pin":"S3cret!pw"}', sensitiveKeys: {'pin'}), '{"pin":"[REDACTED]"}');
-    });
-  });
-
   group('scrubBodyKeys', () {
     test('masks the values of password / otp / token / refreshToken / secret keys (case-insensitive substring)', () {
       final result = scrubBodyKeys({
@@ -217,60 +182,6 @@ void main() {
     test('non-Map body is returned untouched', () {
       expect(scrubBodyKeys('plain string'), 'plain string');
       expect(scrubBodyKeys(null), isNull);
-    });
-  });
-
-  group('scrubErrorBody', () {
-    test('masks the value a validation error repeats, under rejectedValue, input or value', () {
-      const body =
-          '{"errors":[{"field":"email","rejectedValue":"x@y"},{"loc":["body","pin"],"input":"1234"},'
-          '{"path":"code","value":"9876"}]}';
-
-      expect(
-        scrubErrorBody(body),
-        '{"errors":[{"field":"email","rejectedValue":"[REDACTED]"},{"loc":["body","pin"],"input":"[REDACTED]"},'
-        '{"path":"code","value":"[REDACTED]"}]}',
-      );
-    });
-
-    test('masks a credential the request sent wherever the body repeats it', () {
-      final text = scrubErrorBody(
-        '{"status":401,"detail":"OTP 493817 expired","hint":{"lastCode":493817}}',
-        requestBody: {'email': 'a@b.c', 'otp': '493817'},
-      );
-
-      expect(text, '{"status":401,"detail":"OTP [REDACTED] expired","hint":{"lastCode":"[REDACTED]"}}');
-    });
-
-    test('masks a credential of the request in a body that is not JSON', () {
-      expect(
-        scrubErrorBody('Password S3cret!pw is too weak', requestBody: '{"username":"admin","password":"S3cret!pw"}'),
-        'Password [REDACTED] is too weak',
-      );
-    });
-
-    test('masks a value of the request under a sensitive key the caller names wherever the body repeats it', () {
-      expect(
-        scrubErrorBody(
-          '{"detail":"PIN S3cret!pw was used before","pin":"S3cret!pw"}',
-          requestBody: {'login': 'admin', 'pin': 'S3cret!pw'},
-          sensitiveKeys: {'pin'},
-        ),
-        '{"detail":"PIN [REDACTED] was used before","pin":"[REDACTED]"}',
-      );
-    });
-
-    test('masks a JWT in the body', () {
-      const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYmMifQ.signaturepart';
-
-      expect(scrubErrorBody('token $jwt was revoked'), 'token [REDACTED_JWT] was revoked');
-    });
-
-    test('keeps a body without a credential as it is', () {
-      const body = '{"status": 404, "path": "/api/admin/users/alice", "value_count": 2}';
-
-      expect(scrubErrorBody(body, requestBody: {'login': 'alice'}), body);
-      expect(scrubErrorBody(null), '');
     });
   });
 

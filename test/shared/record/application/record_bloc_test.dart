@@ -108,10 +108,15 @@ final class _MemoryRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<void> deleteQuarantine() async {
+  Future<bool> deleteQuarantine() async {
     calls.add('deleteQuarantine');
-    quarantine = null;
+    quarantine = previous;
+    previous = null;
+    return quarantine != null;
   }
+
+  /// The copy set aside before [quarantine], which takes its place when it is deleted.
+  Uint8List? previous;
 }
 
 FileSystemException _injected() => const FileSystemException('delete', 'record/record.json', OSError('injected', 13));
@@ -315,6 +320,32 @@ void main() {
     });
   });
 
+  // Review 9, finding 2: two automatic marks of one module, from two pages of it, were two toggles that undid each other.
+  test('a completion set twice stays as set, and setting it again writes nothing', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository();
+      final bloc = await _started(repository);
+      const complete = CompletionSet(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers, completed: true);
+
+      bloc
+        ..add(complete)
+        ..add(complete);
+      await pumpEventQueue();
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
+      expect(repository.writes, hasLength(1), reason: 'the second finds it completed and writes nothing');
+
+      const undo = CompletionSet(key: 'alpha/first', revision: 'a1b2c3d', track: Track.engineers, completed: false);
+      bloc
+        ..add(undo)
+        ..add(undo);
+      await pumpEventQueue();
+      expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), isNull);
+      expect(repository.writes, hasLength(2));
+      expect(utf8.decode(repository.record!), serialise(_ready(bloc).record, _now, pretty: false));
+      await bloc.close();
+    });
+  });
+
   test('a failed write keeps the change in memory', () async {
     await _withClock(() async {
       for (final (result, state) in [
@@ -495,6 +526,61 @@ void main() {
         final failed = Completer<TransferMergeResult>();
         bloc.add(TransferMerged(progress: progress, reply: failed));
         expect(await failed.future, TransferMergeResult.notAdded);
+        await bloc.close();
+      });
+    });
+
+    // Review 9, finding 9: a merge whose write failed stayed in the record in use, shown until a restart, and a second
+    // try found nothing new.
+    test('a merge whose write fails is not kept in the record in use, and a second try adds it', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final before = _ready(bloc).record;
+
+        repository.nextResult = WriteResult.quota;
+        final failed = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: failed));
+        expect(await failed.future, TransferMergeResult.notAdded);
+        expect(_ready(bloc).record, same(before));
+        expect(_ready(bloc).writeState, const WriteQuota(), reason: 'the failure is still told');
+
+        repository.nextResult = WriteResult.saved;
+        final again = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: again));
+        expect(await again.future, TransferMergeResult.added);
+        expect(_ready(bloc).record.signedOff('beta/second', Track.engineers), '2026-03-01T10:00:00.000Z');
+        expect(_ready(bloc).writeState, const WriteSaved());
+        await bloc.close();
+      });
+    });
+
+    // Review 7, finding 2: a link under its length limit can hold enough ticks to take the record past the cap; it was
+    // merged into the record in use, and every later write of the session was then too large.
+    test('one that would take the record past the cap is not added, and the record in use stays as it was', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final before = _ready(bloc);
+        final huge = TransferProgress(
+          engineers: {
+            for (var module = 0; module < 30; module++)
+              'made-up/m$module': TransferSheet(
+                signedOff: null,
+                signedRevision: null,
+                ticks: List.generate(2400, (tick) => tick),
+              ),
+          },
+          everyone: const {},
+          days: const [],
+        );
+        final reply = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: huge, reply: reply));
+        // Review 10, finding 9: not notAdded, whose Add tries again; trying again never helps here.
+        expect(await reply.future, TransferMergeResult.tooLarge);
+        expect(_ready(bloc).record, same(before.record));
+        expect(_ready(bloc).writeState, const WriteSaved());
+        expect(repository.writes, isEmpty);
         await bloc.close();
       });
     });
@@ -729,9 +815,58 @@ void main() {
       final bloc = await _started(repository);
       bloc.add(const QuarantineDeleted());
       await pumpEventQueue();
-      expect(repository.calls.last, 'deleteQuarantine');
+      expect(repository.calls, containsAllInOrder(['deleteQuarantine', 'write']));
       expect(repository.quarantine, isNull);
       expect(bloc.state, ready());
+      await bloc.close();
+    });
+  });
+
+  // Review 6, finding 8: the record set aside stayed in record.json, so the next start set it aside again.
+  test('deleting a record set aside at this launch writes the record in use over it', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadQuarantined(reason: QuarantineReason.malformed, quarantineKept: true)
+        ..record = Uint8List.fromList([7])
+        ..quarantine = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(repository.writes, hasLength(1));
+      expect(repository.record, isNot(Uint8List.fromList([7])), reason: 'the bytes set aside are gone');
+      await bloc.close();
+    });
+  });
+
+  // Review 10, finding 9: deleting the newer copy deleted the one set aside before it too, which was never saved.
+  test('deleting the copy brings up the one set aside before it, and the notice stays for it', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadEmpty(quarantineKept: true)
+        ..quarantine = Uint8List.fromList([8])
+        ..previous = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(_ready(bloc).quarantineKept, isTrue);
+      expect(repository.quarantine, [7]);
+
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(_ready(bloc).quarantineKept, isFalse);
+      await bloc.close();
+    });
+  });
+
+  test('deleting a copy kept from an earlier launch writes nothing', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadEmpty(quarantineKept: true)
+        ..quarantine = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(repository.writes, isEmpty);
       await bloc.close();
     });
   });
@@ -803,7 +938,7 @@ void main() {
 
       repository.loadGate!.complete();
       await pumpEventQueue();
-      expect(repository.calls, ['load', 'deleteQuarantine']);
+      expect(repository.calls, ['load', 'deleteQuarantine', 'write']);
       expect(bloc.state, ready());
       await bloc.close();
     });

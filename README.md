@@ -19,9 +19,9 @@ No account, no ads, no tracking.
 - **Welcome.** The Apprentice, the app's small robot in a fez, opens the bazaar; the first launch asks for the language, the track (For Engineers or For Everyone) and Light or Dark, with the story of the Bazaar one tap away.
 - **Home.** The Apprentice's corner with the day's card from a module, Practice (Today's review, a quiz waiting, the glossary), the modules later on, and a band to go on reading.
 - **Catalog.** Every level with your progress, and a search over the modules' titles, headings and text.
-- **The reader.** Contents, quiz and checklist; images and diagrams full screen; the glossary's terms dotted in the text, a tap shows the definition; **Listen** reads the module aloud with the phone's own voice, offline; text size and line spacing.
+- **The reader.** Contents, quiz and checklist; images and diagrams full screen; the glossary's terms dotted in the text, a tap shows the definition; **Listen** reads the module aloud with the phone's own voice, offline with a voice installed for the language; text size and line spacing.
 - **Practice.** An endless review of questions and terms, Wrong answers, Recap, the Glossary and the quizzes by level.
-- **Caravan.** A shadow play along the road of AI engineering's trends since 2022 (sample trends until the content bundle carries them).
+- **Caravan.** A shadow play along the road of AI engineering's trends since 2022 (the trends ride in the app until the content bundle carries them, so a new one comes with an app update).
 - **The Apprentice.** A tiny language model that trains on the phone; as it rises in level its wardrobe opens, and each robot can be the app icon, on a cream or dark ground.
 - **A tour** of the app on a first run, taken again from Settings.
 - **Three languages:** English, Turkish and Persian (right to left); a module not yet translated opens in English.

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
@@ -8,7 +9,10 @@ import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 /// Writes and deletes of one file run one at a time, in the order made, even from two stores over the same file: two
 /// at once would share the `.tmp` file, and the text kept could be either, or neither.
 ///
-/// A file that cannot be read reads as null, and one that cannot be written is logged and stays as it was.
+/// A file that cannot be read reads as null, and one that cannot be written is logged and stays as it was. A file
+/// there that could not be read (an I/O error, no folder from the phone) is not written over until a read succeeds or
+/// it is deleted: the text in it may be the reader's, and a feature that started without it would replace it with
+/// its own fresh start (review 5, finding 2). Bytes that are not text are not held: no read would ever succeed.
 /// `baseDirectory` is called on first use and its result kept; a call that fails is not kept.
 final class FileTextStore {
   FileTextStore({required this._baseDirectory, required this._path});
@@ -19,6 +23,9 @@ final class FileTextStore {
   final String _path;
 
   File? _resolved;
+
+  /// Whether the last read failed with the file perhaps there: writes wait for a read that succeeds, or a delete.
+  bool _held = false;
 
   /// The last write or delete of each file, by its path under the base directory, which the next one waits for.
   static final Map<String, Future<void>> _last = {};
@@ -42,24 +49,35 @@ final class FileTextStore {
   Future<String?> read() async {
     try {
       final file = await _file();
-      return await file.exists() ? await file.readAsString() : null;
+      // Bytes first, then the text: readAsString reports bytes that are not UTF-8 as a FileSystemException, which
+      // would hold the file for good.
+      final text = await file.exists() ? utf8.decode(await file.readAsBytes()) : null;
+      _held = false;
+      return text;
     } on FileSystemException catch (error) {
       _log.warn('{} not read: {}', [_path, error]);
+      _held = true;
       return null;
     } on FormatException catch (error) {
       // Bytes that are not UTF-8 text: as unreadable as a file that cannot be opened, so the app starts without it.
       _log.warn('{} not text: {}', [_path, error]);
+      _held = false;
       return null;
     } on Object catch (error) {
       // No folder from the phone (path_provider throws its own errors): unreadable too, so a feature that loads its
       // file at start is never left waiting (plan 20.5). A write's error stays the caller's.
       _log.warn('{} not read, no folder: {}', [_path, error]);
+      _held = true;
       return null;
     }
   }
 
   /// Replaces the file's text with [text].
   Future<void> write(String text) => _inTurn(() async {
+    if (_held) {
+      _log.warn('{} not written: it could not be read, and may hold what is kept', [_path]);
+      return;
+    }
     try {
       final file = await _file();
       await file.parent.create(recursive: true);
@@ -76,6 +94,7 @@ final class FileTextStore {
     try {
       final file = await _file();
       if (await file.exists()) await file.delete();
+      _held = false;
     } on FileSystemException catch (error) {
       _log.warn('{} not deleted: {}', [_path, error]);
     }

@@ -89,6 +89,10 @@ void main() {
     test('an entry with neither a completion nor a tick adds nothing', () {
       final progress = _decoded('{"v":1,"e":{"a/b":["","",[]]},"y":{},"d":[]}');
       expect(identical(mergeTransfer(RecordData.empty, progress), RecordData.empty), isTrue);
+      // Review 8, finding 16: the page offered Add for such a link, then said Nothing new.
+      expect(progress.isEmpty, isTrue);
+      expect(_decoded('{"v":1,"e":{},"y":{"a/b":["","",[2]]},"d":[]}').isEmpty, isFalse, reason: 'a tick');
+      expect(_decoded('{"v":1,"e":{},"y":{},"d":["2026-11-01"]}').isEmpty, isFalse, reason: 'a day');
     });
 
     test('refuses the whole text when any part fails', () {
@@ -103,6 +107,8 @@ void main() {
         '{"v":1,"e":{"a/b":["ZZZ","",[]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["mvz1mz0r","XYZ",[]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["","",[10000]]},"y":{},"d":[]}',
+        // Review 7, finding 14: a tick below 0 was refused by no test.
+        '{"v":1,"e":{"a/b":["","",[-1]]},"y":{},"d":[]}',
         '{"v":1,"e":{"a/b":["","",["1"]]},"y":{},"d":[]}',
         '{"v":1,"e":{},"y":{},"d":["2026-02-30"]}',
         // An instant past the year 9999 (plan 19.7): the record's grammar would refuse its text.
@@ -112,10 +118,31 @@ void main() {
         expect(decodeTransfer(text), isNull, reason: text);
       }
       expect(decodeTransfer('{"v":1,"e":{},"y":{},"d":[]}${' ' * transferMaxText}'), isNull);
+      // Review 7, finding 14: counted in bytes, as the packer counts; 'ş' is two.
+      String withNote(int letters) => '{"v":1,"e":{},"y":{},"d":[],"note":"${'ş' * letters}"}';
+      expect(
+        decodeTransfer(withNote(transferMaxText ~/ 4)),
+        isNotNull,
+        reason: 'a key it does not know is passed over',
+      );
+      expect(withNote(transferMaxText ~/ 2).length, lessThan(transferMaxText));
+      expect(decodeTransfer(withNote(transferMaxText ~/ 2)), isNull);
     });
   });
 
   group('mergeTransfer', () {
+    // Review 7, finding 14: a hand-edited record's "03" sent tick 3, and its own link merged back added "3".
+    test('a record merged with its own link is unchanged, a non-canonical tick key included', () {
+      final record = _record({
+        'sheets': {
+          'a/b': {
+            'checklist': {'03': true, '1': true},
+          },
+        },
+      });
+      expect(identical(mergeTransfer(record, _decoded(encodeTransfer(record))), record), isTrue);
+    });
+
     final local = _record({
       'sheets': {
         'a/done': {

@@ -11,6 +11,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/link_actions.d
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
+import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,12 +49,6 @@ final class _Unreadable extends _Read {
   const _Unreadable();
 }
 
-final class _Failed extends _Read {
-  const _Failed(this.error, this.stackTrace);
-  final Object error;
-  final StackTrace stackTrace;
-}
-
 /// Kept alive at the foot of a level's lazy list: scrolled away and back, notes built again would read the document
 /// again and stand empty meanwhile, so the page's foot would move (plan 12.3).
 class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMixin {
@@ -89,13 +84,21 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
     // Future.sync: an error thrown before the read returns a future lands in the same branch as a failed read.
     Future.sync(() => repository.readLevelDoc(path)).then(
       (doc) => _settle(path, _Arrived(doc)),
+      // Any error says the notes cannot be read; one that is no content error, a fault of the app's own, is reported
+      // as well, rather than thrown from build (review 6, finding 14).
       onError: (Object error, StackTrace stackTrace) => _settle(
         path,
         error is ContentMissingException || error is ContentCorruptException || error is ContentFormatException
             ? const _Unreadable()
-            : _Failed(error, stackTrace),
+            : _reported(error, stackTrace),
       ),
     );
+  }
+
+  /// Reports [error] as the app's own fault, and says the notes cannot be read.
+  static _Read _reported(Object error, StackTrace stackTrace) {
+    FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stackTrace, library: 'level notes'));
+    return const _Unreadable();
   }
 
   void _settle(String path, _Read read) {
@@ -105,10 +108,11 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
 
   GlobalKey _headingKey(String id) => _headingKeys.putIfAbsent(id, GlobalKey.new);
 
-  /// Scrolls the heading [id] of the document into view, at once under reduced motion (spec 3.10).
+  /// Scrolls the heading [id] of the document into view, at once under reduced motion (spec 3.10). A link to a heading
+  /// the document does not have does nothing, as in the reader (review 3, finding 12).
   void _scrollTo(String id) {
     final target = _headingKeys[id]?.currentContext;
-    if (target == null) throw StateError('No heading of this level document has the id $id');
+    if (target == null) return;
     unawaited(Scrollable.ensureVisible(target, duration: motionDuration(context, BazaarMotion.shift)));
   }
 
@@ -117,17 +121,19 @@ class _LevelNotesState extends State<LevelNotes> with AutomaticKeepAliveClientMi
     super.build(context);
     final body = switch (_read) {
       _Reading() => const SizedBox.shrink(),
-      _Arrived(:final doc) => BlockList(
-        blocks: doc.blocks,
-        render: BlockRenderContext(
-          onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
-          webPage: null,
-          headingKey: _headingKey,
-          diagramThemes: widget.diagramThemes,
+      // The web writes a level's notes in English only.
+      _Arrived(:final doc) => ContentDirection.english(
+        child: BlockList(
+          blocks: doc.blocks,
+          render: BlockRenderContext(
+            onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
+            webPage: null,
+            headingKey: _headingKey,
+            diagramThemes: widget.diagramThemes,
+          ),
         ),
       ),
       _Unreadable() => const ContentUnreadable(),
-      _Failed(:final error, :final stackTrace) => Error.throwWithStackTrace(error, stackTrace),
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

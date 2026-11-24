@@ -1,6 +1,8 @@
 package dev.lokumai.bazaar
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
@@ -21,12 +23,17 @@ import io.flutter.plugin.common.MethodChannel
  * app. The title the Dart side sends is iOS's; Google's screen has its own.
  *
  * Play services downloads the scanner's screen as a module the first time an app asks for it, so a scan asks for the
- * module first and waits for it (a phone where another app used the scanner has it already).
+ * module first and waits for it (a phone where another app used the scanner has it already). A download that has not
+ * ended in [INSTALL_LIMIT_MS] ends the scan as failed, so the Settings button comes back with its line on a slow or
+ * missing connection (review 3, finding 8).
  */
 class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
     companion object {
         const val CHANNEL = "dev.lokumai.bazaar/scanner"
+        const val INSTALL_LIMIT_MS = 60_000L
     }
+
+    private val main = Handler(Looper.getMainLooper())
 
     private val channel = MethodChannel(messenger, CHANNEL)
 
@@ -36,7 +43,7 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
                 "available" -> result.success(
                     GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS,
                 )
-                "scan" -> scan(result)
+                "scan" -> scan(Once(result))
                 else -> result.notImplemented()
             }
         }
@@ -49,7 +56,7 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
 
     private val installer = ModuleInstall.getClient(activity)
 
-    private fun scan(result: MethodChannel.Result) {
+    private fun scan(result: Once) {
         installer.areModulesAvailable(scanner)
             .addOnSuccessListener { answer ->
                 if (answer.areModulesAvailable()) start(result) else install(result)
@@ -57,39 +64,50 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
             .addOnFailureListener { error -> result.error("no-scanner", error.message, null) }
     }
 
-    /** Asks Play services for the scanner's module and starts the scan once it is in place. */
-    private fun install(result: MethodChannel.Result) {
+    /** Asks Play services for the scanner's module and starts the scan once it is in place, or gives up at the limit. */
+    private fun install(result: Once) {
+        lateinit var limit: Runnable
         val listener = object : InstallStatusListener {
             override fun onInstallStatusUpdated(update: ModuleInstallStatusUpdate) {
                 when (update.installState) {
                     ModuleInstallStatusUpdate.InstallState.STATE_COMPLETED -> {
-                        installer.unregisterListener(this)
-                        start(result)
+                        done(this, limit)
+                        if (!result.answered) start(result)
                     }
                     ModuleInstallStatusUpdate.InstallState.STATE_FAILED,
                     ModuleInstallStatusUpdate.InstallState.STATE_CANCELED -> {
-                        installer.unregisterListener(this)
+                        done(this, limit)
                         result.error("no-scanner", "module ${update.installState}", null)
                     }
                     else -> Unit
                 }
             }
         }
+        limit = Runnable {
+            installer.unregisterListener(listener)
+            result.error("no-scanner", "module not in place after ${INSTALL_LIMIT_MS / 1000} s", null)
+        }
+        main.postDelayed(limit, INSTALL_LIMIT_MS)
         val request = ModuleInstallRequest.newBuilder().addApi(scanner).setListener(listener).build()
         installer.installModules(request)
             .addOnSuccessListener { answer ->
                 if (answer.areModulesAlreadyInstalled()) {
-                    installer.unregisterListener(listener)
-                    start(result)
+                    done(listener, limit)
+                    if (!result.answered) start(result)
                 }
             }
             .addOnFailureListener { error ->
-                installer.unregisterListener(listener)
+                done(listener, limit)
                 result.error("no-scanner", error.message, null)
             }
     }
 
-    private fun start(result: MethodChannel.Result) {
+    private fun done(listener: InstallStatusListener, limit: Runnable) {
+        installer.unregisterListener(listener)
+        main.removeCallbacks(limit)
+    }
+
+    private fun start(result: Once) {
         scanner.startScan()
             .addOnSuccessListener { code -> result.success(code.rawValue) }
             .addOnCanceledListener { result.success(null) }
@@ -97,6 +115,25 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
     }
 
     fun close() {
+        main.removeCallbacksAndMessages(null)
         channel.setMethodCallHandler(null)
+    }
+
+    /** A channel's result answered at most once: the limit and a late answer from Play services may both come. */
+    class Once(private val result: MethodChannel.Result) {
+        var answered = false
+            private set
+
+        fun success(value: Any?) {
+            if (answered) return
+            answered = true
+            result.success(value)
+        }
+
+        fun error(code: String, message: String?, details: Any?) {
+            if (answered) return
+            answered = true
+            result.error(code, message, details)
+        }
     }
 }

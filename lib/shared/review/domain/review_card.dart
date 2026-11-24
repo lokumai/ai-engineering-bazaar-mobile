@@ -72,8 +72,10 @@ final class ReviewCard extends Equatable {
   /// The last [kept] answers, the oldest first.
   final List<ReviewAnswer> answers;
 
-  /// Whether the card is due on [today].
-  bool dueOn(int today) => due <= today;
+  /// Whether the card is due on [today]: on or after its day, or when its day lies further ahead than any card waits,
+  /// as one answered while the phone's date was set ahead, which would otherwise wait for the real date to catch up
+  /// (review 6, finding 15).
+  bool dueOn(int today) => due <= today || due > today + waits.last;
 
   /// The card after an answer on [today], [right] or not; [before] is null for a card never answered.
   static ReviewCard after(ReviewCard? before, {required bool right, required int today}) {

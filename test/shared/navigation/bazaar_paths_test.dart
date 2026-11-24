@@ -3,31 +3,27 @@ import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  // (location, trackOf, target for engineers, target for everyone)
-  const rows = <(String, Track?, String?, String?)>[
-    ('/', null, null, null),
-    ('/sheets', Track.engineers, '/sheets', '/everyone/sheets'),
-    ('/sheets/alpha', Track.engineers, '/sheets/alpha', '/everyone/sheets/alpha'),
-    ('/courses/alpha/first', Track.engineers, '/courses/alpha/first', '/everyone/courses/alpha/first'),
-    ('/everyone/sheets', Track.everyone, '/sheets', '/everyone/sheets'),
-    ('/everyone/sheets/alpha', Track.everyone, '/sheets/alpha', '/everyone/sheets/alpha'),
-    ('/everyone/courses/alpha/first', Track.everyone, '/courses/alpha/first', '/everyone/courses/alpha/first'),
-    ('/practice', null, null, null),
-    ('/settings', null, null, null),
-    ('/courses', null, null, null),
-    ('/courses/alpha', null, null, null),
-    ('/everyone', null, null, null),
-    ('/everyone/courses/alpha', null, null, null),
-    ('/sheets/alpha/first', null, null, null),
-    ('/nope', null, null, null),
+  // (location, trackOf)
+  const rows = <(String, Track?)>[
+    ('/', null),
+    ('/sheets', Track.engineers),
+    ('/sheets/alpha', Track.engineers),
+    ('/courses/alpha/first', Track.engineers),
+    ('/everyone/sheets', Track.everyone),
+    ('/everyone/sheets/alpha', Track.everyone),
+    ('/everyone/courses/alpha/first', Track.everyone),
+    ('/practice', null),
+    ('/settings', null),
+    ('/courses', null),
+    ('/courses/alpha', null),
+    ('/everyone', null),
+    ('/everyone/courses/alpha', null),
+    ('/sheets/alpha/first', null),
+    ('/nope', null),
   ];
-  for (final (location, track, toEngineers, toEveryone) in rows) {
+  for (final (location, track) in rows) {
     for (final form in {location, if (location != '/') '$location/'}) {
-      test('$form belongs to $track and switches to $toEngineers / $toEveryone', () {
-        expect(BazaarPaths.trackOf(form), track);
-        expect(BazaarPaths.trackSwitchTarget(form, Track.engineers), toEngineers);
-        expect(BazaarPaths.trackSwitchTarget(form, Track.everyone), toEveryone);
-      });
+      test('$form belongs to $track', () => expect(BazaarPaths.trackOf(form), track));
     }
   }
   test('builders', () {

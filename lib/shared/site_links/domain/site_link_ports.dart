@@ -42,8 +42,9 @@ abstract interface class ICodeScanner {
   /// Whether this phone can read a code in the app (Android without Google Play services cannot).
   Future<bool> available();
 
-  /// Opens the camera, [title] over it, until a code is read or the reader goes back.
-  Future<ScanOutcome> scan(String title);
+  /// Opens the camera, [title] over it and [cancel] on its way back, both in the app's language, until a code is read
+  /// or the reader goes back.
+  Future<ScanOutcome> scan(String title, {required String cancel});
 }
 
 /// What a scan ended with.
@@ -81,5 +82,5 @@ final class NoCodeScanner implements ICodeScanner {
   Future<bool> available() async => false;
 
   @override
-  Future<ScanOutcome> scan(String title) async => const ScanFailed();
+  Future<ScanOutcome> scan(String title, {required String cancel}) async => const ScanFailed();
 }

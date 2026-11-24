@@ -22,18 +22,33 @@ sealed class SiteLink extends Equatable {
       return uri.host == transferSegment ? _transfer(uri) : null;
     }
     if (uri.scheme != 'https' || uri.host != site.host) return null;
-    var segments = uri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+    final List<String> path;
+    try {
+      path = uri.pathSegments;
+    } on FormatException {
+      // An escape that is not UTF-8 in the path, as an old Latin-1 address: none of the site's pages (review 5,
+      // finding 1).
+      return null;
+    }
+    var segments = path.where((segment) => segment.isNotEmpty).toList();
     if (segments case [final language, ...final rest] when languages.contains(language)) segments = rest;
     final track = segments.firstOrNull == everyoneSegment ? Track.everyone : Track.engineers;
     if (track == Track.everyone) segments = segments.sublist(1);
     return switch (segments) {
       [transferSegment] when track == Track.engineers => _transfer(uri),
       ['sheets'] || ['courses'] => SiteCatalog(track),
-      ['sheets', final level] || ['courses', final level] => SiteLevel(track, level),
-      ['courses', final level, final module] => SiteModule(track, '$level/$module'),
+      ['sheets', final level] || ['courses', final level] when _slug.hasMatch(level) => SiteLevel(track, level),
+      ['courses', final level, final module] when _slug.hasMatch(level) && _slug.hasMatch(module) => SiteModule(
+        track,
+        '$level/$module',
+      ),
       _ => null,
     };
   }
+
+  /// A level's or a module's name as the site writes it. A segment decoded to a slash, a question mark or a stray escape
+  /// would change the route it becomes, so it is no link (review 6, finding 13).
+  static final _slug = RegExp(r'^[a-z0-9][a-z0-9-]*$');
 
   /// The app's own scheme, which only the site's transfer page uses.
   static const scheme = 'aibazaar';
@@ -48,7 +63,13 @@ sealed class SiteLink extends Equatable {
   static const everyoneSegment = 'everyone';
 
   static SiteLink? _transfer(Uri uri) {
-    final payload = Uri.splitQueryString(uri.fragment)['t'];
+    final String? payload;
+    try {
+      payload = Uri.splitQueryString(uri.fragment)['t'];
+    } on FormatException {
+      // An escape that is not UTF-8, as a link cut short: not a transfer (review 4, finding 4).
+      return null;
+    }
     return payload == null || payload.isEmpty ? null : SiteTransfer(payload);
   }
 }

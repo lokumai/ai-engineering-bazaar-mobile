@@ -65,7 +65,11 @@ void main() {
     }
     expect(
       tester.getSemantics(_level('Alpha Level')),
-      isSemantics(label: 'Alpha Level, 3 modules · ~1 h 15 min, 1/3 completed', isButton: true, hasExpandedState: true),
+      isSemantics(
+        label: 'Alpha Level, 3 modules · ~1 h 15 min, 1 of 3 completed',
+        isButton: true,
+        hasExpandedState: true,
+      ),
     );
     expect(
       tester.getSemantics(_level('Alpha Level')),

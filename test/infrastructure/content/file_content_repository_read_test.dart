@@ -116,6 +116,37 @@ void main() {
     expect(Directory(content).existsSync(), isFalse);
   });
 
+  // Review 5, finding 7: a reader catches the three content exceptions and nothing else, and showed its spinner for
+  // good on any other error.
+  test('a corrupt object whose marker cannot be written is still corrupt, not a file system error', () async {
+    writeCache(cacheRoot, publishedAt: laterPublishedAt);
+    final repository = fixtureRepository(cacheRoot);
+    await repository.open();
+    File('$content/objects/${cacheOnlySha()}').writeAsBytesSync([1, 2, 3]);
+    Directory('$content/corrupt').createSync(); // a folder where the marker goes: the write fails
+
+    await expectLater(repository.readObject(cacheOnlyPath), throwsA(const ContentCorruptException(cacheOnlyPath)));
+  });
+
+  test('a document whose bytes are not UTF-8 is a format error', () async {
+    const path = 'api/v1/modules/alpha/first/fa.json';
+    final bytes = [0x7b, 0xff, 0xfe, 0x7d];
+    final sha = sha256.convert(bytes).toString();
+    writeCache(cacheRoot, publishedAt: laterPublishedAt, extraObjects: {sha: bytes});
+    final indexFile = File('$content/indexes/${File('$content/current').readAsStringSync()}.json');
+    final index = jsonDecode(indexFile.readAsStringSync()) as Map<String, Object?>;
+    indexFile.writeAsStringSync(
+      jsonEncode({
+        ...index,
+        'files': {...index['files']! as Map<String, Object?>, path: sha},
+      }),
+    );
+    final repository = fixtureRepository(cacheRoot);
+    await repository.open();
+
+    await expectLater(repository.readModuleDoc(path), throwsA(const ContentFormatException(path, '(utf8)')));
+  });
+
   test('a cached object there but unreadable is missing, not an error the reader cannot handle', () async {
     writeCache(cacheRoot, publishedAt: laterPublishedAt);
     final repository = fixtureRepository(cacheRoot);
@@ -168,6 +199,13 @@ void main() {
       return {...site, refreshedPath: document, newDark: redrawn};
     }
 
+    /// [site]'s files with [newDark] dropped, and the document back at the one that draws [oldDark]: a bundle whose
+    /// every document parses, as a refresh asks (review 9, finding 3).
+    Map<String, Object?> withoutNewDark(Map<String, List<int>> site) => {...filesOf(site)}
+      ..remove(newDark)
+      ..[refreshedPath] = fixtureIndex().sha256Of(refreshedPath)!
+      ..[oldDark] = fixtureIndex().sha256Of(oldDark)!;
+
     test('the diagram path of the document on screen still reads after a refresh redraws it', () async {
       final repository = fixtureRepository(cacheRoot, site: serving(redrawnSite()));
       await repository.open();
@@ -187,8 +225,7 @@ void main() {
       final repository = fixtureRepository(cacheRoot, site: serving(site));
       await repository.open();
       expect(await repository.refresh(), isA<ContentUpdated>());
-      final files = {...filesOf(site)}..remove(newDark);
-      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, withoutNewDark(site));
       expect(await repository.refresh(), isA<ContentUpdated>());
 
       expect(await repository.readObject(newDark), redrawn);
@@ -217,8 +254,7 @@ void main() {
       final repository = fixtureRepository(cacheRoot, site: serving(site));
       await repository.open();
       expect(await repository.refresh(), isA<ContentUpdated>());
-      final files = {...filesOf(site)}..remove(newDark);
-      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, withoutNewDark(site));
       expect(await repository.refresh(), isA<ContentUpdated>());
       File('$content/objects/${sha256.convert(redrawn)}').writeAsBytesSync([1, 2, 3]);
 

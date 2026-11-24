@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/app/router/app_routes_constants.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
@@ -9,6 +11,12 @@ import 'package:ai_engineering_bazaar/features/tour/presentation/tour_layer.dart
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
+import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -68,7 +76,7 @@ Finder _says(String text) => find.text(text);
 
 /// How far along the page's places the dots say it is.
 Finder _dots(int step, int count) =>
-    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == '$step / $count');
+    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == '$step of $count');
 
 final _button = find.byKey(const ValueKey('pocket-assistant'));
 
@@ -169,6 +177,32 @@ void main() {
     expect(_hole(tester)!.height, lessThan(300), reason: 'Practice alone');
   });
 
+  // Review 6, finding 4: a place gone during the scroll to it left the dim layer over the whole screen, with no bubble
+  // and no Skip, taking every touch.
+  testWidgets('a place that goes while the tour scrolls to it is passed, not left as a dead screen', (tester) async {
+    final repository = missingContentRepository();
+    when(() => repository.readModuleDoc(any())).thenAnswer(
+      (_) async => testDoc(
+        quiz: const [
+          QuizItem(question: 'Q1', options: ['One', 'Two'], answer: 0, explain: 'E1'),
+        ],
+      ),
+    );
+    await _pump(tester, record: const TourRecord(guiding: true), repository: repository);
+    expect(_dots(1, 4), findsOneWidget);
+
+    await tester.tap(_next);
+    await tester.pump(const Duration(milliseconds: 50));
+    // The notes reload under it, as a new content version makes them do: Home's Practice row is gone meanwhile.
+    final element = tester.element(find.byType(HomePractice));
+    final index = (element.read<ContentBloc>().state as ContentReady).index;
+    unawaited(element.read<StudyNotesCubit>().load(index, Track.engineers, 'tr'));
+    await _walk(tester);
+
+    expect(_dots(3, 4), findsOneWidget, reason: 'on to the band');
+    expect(_hole(tester), isNotNull);
+  });
+
   for (final locale in const [Locale('en'), Locale('fa')]) {
     testWidgets("on Home's head it leaves Show another in sight, which the words name (${locale.languageCode})", (
       tester,
@@ -192,6 +226,80 @@ void main() {
       expect(tester.getRect(_robot).overlaps(another), isFalse);
     });
   }
+
+  // Review 8, finding 7: at the largest text the bubble ran below the screen with Skip and Next, and the scrim took
+  // every other touch.
+  for (final scale in [2.0, 3.0]) {
+    for (final (page, at) in [('home', '/'), ('catalog', '/sheets'), ('settings', '/settings')]) {
+      testWidgets('at text scale $scale, Skip and Next stay on the screen at every place of $page', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await _pump(
+          tester,
+          record: TourRecord(guiding: true, seen: {if (page != 'home') 'home'}),
+          at: at,
+          locale: const Locale('tr'),
+        );
+
+        final screen = Offset.zero & const Size(393, 852);
+        var places = 0;
+        while (_scrim.evaluate().isNotEmpty) {
+          for (final button in [_skip, _next]) {
+            final rect = tester.getRect(button);
+            expect(
+              screen.contains(rect.topLeft) && screen.contains(rect.bottomRight - const Offset(1, 1)),
+              isTrue,
+              reason: 'place ${places + 1}: $button at $rect',
+            );
+          }
+          places++;
+          await _tap(tester, _next);
+        }
+        expect(places, greaterThan(0));
+      });
+    }
+  }
+
+  testWidgets("Android's Back while the tour points is Skip, and Back then goes on to the pages", (tester) async {
+    final (_, store) = await _pump(tester, record: const TourRecord(asking: true));
+    await _tap(tester, find.byKey(const ValueKey('tour-accept')));
+    expect(_scrim, findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(_scrim, findsNothing);
+    expect(store.kept.guiding, isFalse);
+  });
+
+  // Review 10, finding 4: a progress link's page over Home, as the website sends a new reader, took Back as Skip.
+  testWidgets('Back on a page over the shell closes the page, and the question under it waits', (tester) async {
+    final (router, store) = await _pump(tester, record: const TourRecord(asking: true));
+    unawaited(router.push(BazaarPaths.transfer, extra: 'x'));
+    await _walk(tester);
+    expect(router.state.uri.path, BazaarPaths.transfer);
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(router.state.uri.path, '/', reason: 'Back closes the page in front');
+    expect(store.kept.asking, isTrue, reason: 'the question was never seen');
+  });
+
+  // Review 10, finding 8: on Home's root nothing held Back for Flutter, so Android 13 and later closed the app without
+  // asking the tour's listener, which the widget tests reach through handlePopRoute.
+  testWidgets('while the tour asks or points, the page holds Back for Flutter; after it, Back is the pages\'', (
+    tester,
+  ) async {
+    await _pump(tester, record: const TourRecord(asking: true));
+    RoutePopDisposition disposition() => ModalRoute.of(tester.element(find.byType(TourLayer)))!.popDisposition;
+    expect(disposition(), RoutePopDisposition.doNotPop, reason: 'asking');
+
+    await _tap(tester, find.byKey(const ValueKey('tour-accept')));
+    expect(disposition(), RoutePopDisposition.doNotPop, reason: 'pointing');
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(disposition(), isNot(RoutePopDisposition.doNotPop), reason: 'skipped');
+  });
 
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
     final (_, store) = await _pump(tester, record: const TourRecord(guiding: true, seen: {'home'}));
@@ -300,7 +408,7 @@ void main() {
       record: const TourRecord(guiding: true, seen: {'home', 'catalog', 'caravan', 'practice'}),
       at: '/settings',
     );
-    expect(find.textContaining('Track, language, look and text size.'), findsOneWidget);
+    expect(find.textContaining('Audience, language, appearance and text size.'), findsOneWidget);
     await _tap(tester, _next);
     expect(find.textContaining('My wardrobe:'), findsOneWidget);
     expect(_dots(2, 4), findsOneWidget);

@@ -225,6 +225,7 @@ final class FileContentRepository implements IContentRepository {
       await _writeAndRename(object, bytes);
     }
 
+    await _parseDocuments(opened, index);
     await _writeAndRename(File('$store/current'), utf8.encode(index.contentVersion));
     await _deletePending(opened.store);
 
@@ -235,6 +236,42 @@ final class FileContentRepository implements IContentRepository {
       bundledObjects: opened.bundledObjects,
     );
     return ContentUpdated(index: index);
+  }
+
+  /// Parses every module, level and story document of the new [index] before it is adopted (review 9, finding 3): the
+  /// parser is strict, and a bundle with one document this app cannot read would otherwise replace content that read
+  /// fine, with no way back until the site publishes again. A document that does not parse throws
+  /// [ContentFormatException], which fails the refresh as `format` and keeps the current content. Each read is a file
+  /// read, so frames are drawn between the documents.
+  Future<void> _parseDocuments(_Opened opened, BundleIndex index) async {
+    Future<String?> text(String sitePath) async {
+      final sha256Name = index.sha256Of(sitePath);
+      // A document the index lists no file for is missing for its reader as before; the refresh does not judge it.
+      if (sha256Name == null) return null;
+      final bytes = opened.bundledObjects.contains(sha256Name)
+          ? await _bundled.readObject(sha256Name)
+          : await File('${opened.store.path}/objects/$sha256Name').readAsBytes();
+      return _text(bytes, sitePath);
+    }
+
+    for (final module in index.modules) {
+      for (final track in module.tracks.values) {
+        for (final sitePath in track.docs.values) {
+          final json = await text(sitePath);
+          if (json != null) ContentParser.parseModuleDoc(json, index, path: sitePath);
+        }
+      }
+    }
+    for (final level in index.levels) {
+      final sitePath = level.readme;
+      if (sitePath == null) continue;
+      final json = await text(sitePath);
+      if (json != null) ContentParser.parseLevelDoc(json, index, path: sitePath);
+    }
+    for (final sitePath in index.story.values) {
+      final json = await text(sitePath);
+      if (json != null) ContentParser.parseStoryDoc(json, path: sitePath);
+    }
   }
 
   /// Writes [bytes] to `<file>.tmp`, flushed, then renames it to [file].
@@ -262,13 +299,19 @@ final class FileContentRepository implements IContentRepository {
     try {
       bytes = await File('${opened.store.path}/objects/$sha256Name').readAsBytes();
     } on FileSystemException catch (error) {
-      // Gone, or there and unreadable: either way the object is missing, which every reader of it handles.
-      if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sitePath, error]);
+      // Gone, or there and unreadable: either way the object is missing, which every reader of it handles. The log
+      // names the object, not the site path, which would name the module read (review 4, finding 7).
+      if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sha256Name, error]);
       throw ContentMissingException(sitePath);
     }
     if (sha256.convert(bytes).toString() != sha256Name) {
-      await File('${opened.store.path}/corrupt').writeAsString('');
-      _log.error('content object does not match its sha256: {}', [sitePath]);
+      try {
+        await File('${opened.store.path}/corrupt').writeAsString('');
+      } on FileSystemException catch (error) {
+        // The marker sends the cache away at the next start; without it the object is still corrupt to its reader.
+        _log.warn('corrupt marker not written: {}', [error]);
+      }
+      _log.error('content object does not match its sha256: {}', [sha256Name]);
       throw ContentCorruptException(sitePath);
     }
     return bytes;
@@ -278,20 +321,30 @@ final class FileContentRepository implements IContentRepository {
   Future<ModuleDoc> readModuleDoc(String sitePath) async {
     final index = _requireOpened().index;
     final bytes = await readObject(sitePath);
-    return ContentParser.parseModuleDoc(utf8.decode(bytes), index, path: sitePath);
+    return ContentParser.parseModuleDoc(_text(bytes, sitePath), index, path: sitePath);
   }
 
   @override
   Future<LevelDoc> readLevelDoc(String sitePath) async {
     final index = _requireOpened().index;
     final bytes = await readObject(sitePath);
-    return ContentParser.parseLevelDoc(utf8.decode(bytes), index, path: sitePath);
+    return ContentParser.parseLevelDoc(_text(bytes, sitePath), index, path: sitePath);
   }
 
   @override
   Future<StoryDoc> readStoryDoc(String sitePath) async {
     final bytes = await readObject(sitePath);
-    return ContentParser.parseStoryDoc(utf8.decode(bytes), path: sitePath);
+    return ContentParser.parseStoryDoc(_text(bytes, sitePath), path: sitePath);
+  }
+
+  /// The text of the document at [sitePath]. Bytes that are not UTF-8 are a document that does not match the
+  /// contract, as text that is not JSON is, so its reader shows the error it shows for any other (review 5, finding 7).
+  static String _text(Uint8List bytes, String sitePath) {
+    try {
+      return utf8.decode(bytes);
+    } on FormatException {
+      throw ContentFormatException(sitePath, '(utf8)');
+    }
   }
 
   _Opened _requireOpened() => _opened ?? (throw StateError('open() has not completed'));

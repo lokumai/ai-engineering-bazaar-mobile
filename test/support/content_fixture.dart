@@ -82,7 +82,7 @@ MockRecordRepository readyRecordRepository() {
   when(() => repository.deleteAll()).thenAnswer((_) async {});
   when(() => repository.restore(any()))
       .thenAnswer((_) async => const RestoreResult(write: WriteResult.saved, quarantineKept: false));
-  when(() => repository.deleteQuarantine()).thenAnswer((_) async {});
+  when(() => repository.deleteQuarantine()).thenAnswer((_) async => false);
   return repository;
 }
 

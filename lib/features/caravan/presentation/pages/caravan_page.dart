@@ -60,6 +60,9 @@ class _CaravanPageState extends State<CaravanPage> {
     super.didChangeDependencies();
     _cubit = context.read<CaravanCubit>();
     _lastSelected ??= _cubit.state.selected;
+    // A page opened over this one, a module from a trend card, or another tab: the tour ends where the caravan is,
+    // and does not walk on and tick under it (review 7, finding 15).
+    if (!TickerMode.valuesOf(context).enabled) _cubit.rest();
   }
 
   CaravanRoad? _road;
@@ -211,7 +214,7 @@ class _CaravanPageState extends State<CaravanPage> {
                             touring ? _cubit.rest() : _cubit.tour(count: count);
                           },
                           icon: Icon(touring ? Icons.pause : Icons.play_arrow),
-                          label: Text(touring ? s.caravan_tour_stop : s.caravan_tour, maxLines: 1),
+                          label: Text(touring ? s.caravan_tour_stop : s.caravan_tour),
                         ),
                       ),
                       Expanded(
@@ -222,7 +225,7 @@ class _CaravanPageState extends State<CaravanPage> {
                             if (chosen != null) _select(chosen, count);
                           },
                           icon: const Icon(Icons.format_list_bulleted),
-                          label: Text(s.caravan_all_trends, maxLines: 1),
+                          label: Text(s.caravan_all_trends),
                         ),
                       ),
                     ],

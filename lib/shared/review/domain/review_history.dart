@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
+import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_card.dart';
 
 /// Practice's history on this device (plan 13.1): every card answered or looked up, with how many cards Today's review
@@ -128,7 +129,8 @@ ReviewHistory decodeReviewHistory(String text) {
         done: done,
         lengths: {
           for (final MapEntry(:key, :value) in lengths.entries)
-            if (value is int && value > 0) key: value,
+            // A quiz's length past any a module has is a damaged file (review 6, finding 15).
+            if (value is int && value > 0 && value <= maxQuizLength) key: value,
         },
         cards: {for (final MapEntry(:key, :value) in cards.entries) key: ?_cardFrom(key, value)},
       );

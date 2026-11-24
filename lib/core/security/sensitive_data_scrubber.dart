@@ -3,8 +3,7 @@
 /// [sentryBeforeBreadcrumb] for each breadcrumb) or to the console through
 /// [AppLogger]. AppLogger masks the credential keys of a Map or a List
 /// argument with [scrubBodyKeys], and runs every line it prints through
-/// [maskSecrets] and [maskEmails]. [scrubBodyText] and [scrubErrorBody]
-/// scrub a request or a response body; no code in the app calls them today.
+/// [maskSecrets] and [maskEmails].
 ///
 /// Keeping one copy of the redaction policy is a security invariant, not
 /// just DRY: two divergent copies guarantee that one exit eventually
@@ -15,13 +14,10 @@
 /// the SDK or a Dio client.
 library;
 
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 /// Header names whose values no log or view may show (compared
-/// lower-cased). [scrubHeaders] drops them, and [maskHeaders] keeps them
-/// with a masked value.
+/// lower-cased). [scrubHeaders] drops them.
 const Set<String> sensitiveHeaderNames = {'authorization', 'cookie', 'set-cookie'};
 
 /// Parts of a header name that name a credential the body keys do not, such
@@ -41,11 +37,6 @@ const Set<String> sensitiveBodyKeySubstrings = {'password', 'otp', 'token', 'ref
 /// `countryCode`, `errorCode` and `stateName` keep their values.
 const Set<String> sensitiveExactKeys = {'code', 'code_verifier', 'state', 'nonce', 'session_state', 'id_token_hint'};
 
-/// Keys under which a validation error repeats a value the request sent:
-/// Spring's `rejectedValue`, Pydantic's `input` and express-validator's
-/// `value`. Compared whole and lower-cased, and only in an error body.
-const Set<String> echoedValueKeys = {'rejectedvalue', 'input', 'value'};
-
 /// Replacement printed in place of a password, an OTP or another secret. A
 /// class that holds one prints this in its `toString` instead of the value,
 /// as `test/architecture/credential_to_string_test.dart` requires.
@@ -57,7 +48,12 @@ const String jwtMask = '[REDACTED_JWT]';
 /// JWT shape: 3 base64url segments separated by dots, each at least 4
 /// chars. Conservative — does not match every theoretical JWT, but
 /// matches every JWT this app actually mints.
-final RegExp jwtPattern = RegExp(r'eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}');
+///
+/// A match starts only where a base64url run starts: tried inside a run, as at every `eyJ` of `eyJeyJ...`, the pattern
+/// took about 4 s on 30,000 characters (review 9, finding 14), and now takes milliseconds. A token glued to a letter,
+/// digit, `_` or `-` before it is not masked; a token in a header, a query or JSON follows a space, `=`, `:` or a quote.
+/// `NativeScrubPatterns.kt` holds the same pattern.
+final RegExp jwtPattern = RegExp(r'(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}');
 
 /// Replace every JWT-shaped token inside [input] with [jwtMask].
 String maskJwts(String input) => input.replaceAll(jwtPattern, jwtMask);
@@ -160,15 +156,6 @@ String maskEmails(String input) {
   return input.replaceAll(emailPattern, emailMask);
 }
 
-/// Return a copy of [headers] in which the value of every
-/// [sensitiveHeaderNames] header is replaced by [secretMask]. Unlike
-/// [scrubHeaders] it keeps the header, for a view such as the dev console
-/// that shows whether a request carried one.
-Map<String, Object?> maskHeaders(Map<String, Object?> headers) => {
-  for (final MapEntry(:key, :value) in headers.entries)
-    key: sensitiveHeaderNames.contains(key.toLowerCase()) ? secretMask : value,
-};
-
 /// Return a copy of [headers] with [sensitiveHeaderNames] removed.
 /// Generic over value type so both `Map<String, String>` (Sentry) and
 /// `Map<String, dynamic>` (Dio request options) work.
@@ -190,66 +177,9 @@ Map<K, V> scrubHeaders<K, V>(Map<K, V> headers) {
 /// [maskJwts] over the serialized form to catch embedded tokens.
 Object? scrubBodyKeys(Object? body) => _scrubKeys(body, _isSensitiveKey);
 
-/// Returns [body], a request or a response body, as text without its
-/// credentials, for a view that shows it. A JSON
-/// string, a Map or a List has its values masked as [scrubBodyKeys] masks
-/// them, and every JWT is masked last. A body with nothing to mask keeps
-/// its text, the formatting of a JSON string included.
-///
-/// The values of [sensitiveKeys] are masked too, for a secret whose key
-/// names no credential, such as the key a server-driven form gives its
-/// password field. They are compared whole and lower-cased.
-String scrubBodyText(Object? body, {Set<String> sensitiveKeys = const {}}) =>
-    _scrubBodyText(body, _sensitiveKeyTest(sensitiveKeys), const []);
-
-/// Returns [body], the body of an error response, as text without the
-/// credentials it may hold, for the text of an exception, which reaches the
-/// log and Sentry. No code in the app calls it today.
-///
-/// It is scrubbed as [scrubBodyText] scrubs a body with [sensitiveKeys],
-/// and the values under [echoedValueKeys] are masked too. Every value of
-/// [requestBody] that such a scrub would mask is masked wherever the body
-/// repeats it, so a free-text detail that names the OTP is caught too.
-String scrubErrorBody(Object? body, {Object? requestBody, Set<String> sensitiveKeys = const {}}) {
-  final isSensitive = _sensitiveKeyTest(sensitiveKeys);
-  final secrets = _secretValues(_decoded(requestBody), isSensitive).toSet().toList()
-    ..sort((a, b) => b.length - a.length);
-  bool isSecret(Object? key) => isSensitive(key) || echoedValueKeys.contains('$key'.toLowerCase());
-  return _scrubBodyText(body, isSecret, secrets);
-}
-
-String _scrubBodyText(Object? body, bool Function(Object? key) isSecret, List<String> secrets) {
-  if (body == null) return '';
-  final decoded = _decoded(body);
-  final String text;
-  if (body is String && (decoded is Map || decoded is List)) {
-    final scrubbed = jsonEncode(_maskValues(_scrubKeys(decoded, isSecret), secrets), toEncodable: _text);
-    text = scrubbed == jsonEncode(decoded, toEncodable: _text) ? body : scrubbed;
-  } else if (body is Map || body is List) {
-    text = '${_maskValues(_scrubKeys(body, isSecret), secrets)}';
-  } else {
-    text = _maskValues('$body', secrets) as String;
-  }
-  return maskJwts(text);
-}
-
-/// A value of the request shorter than this is not looked for in an error
-/// body: masking every occurrence of one to three characters would garble
-/// it, and [echoedValueKeys] still masks a short value that a validation
-/// error repeats.
-const int _minEchoedLength = 4;
-
 bool _isSensitiveKey(Object? key) {
   final lower = '$key'.toLowerCase();
   return sensitiveBodyKeySubstrings.any(lower.contains) || sensitiveExactKeys.contains(lower);
-}
-
-/// [_isSensitiveKey], which also matches each of [sensitiveKeys], compared
-/// whole and lower-cased.
-bool Function(Object? key) _sensitiveKeyTest(Set<String> sensitiveKeys) {
-  if (sensitiveKeys.isEmpty) return _isSensitiveKey;
-  final names = {for (final key in sensitiveKeys) key.toLowerCase()};
-  return (key) => _isSensitiveKey(key) || names.contains('$key'.toLowerCase());
 }
 
 Object? _scrubKeys(Object? body, bool Function(Object? key) isSecret) => switch (body) {
@@ -260,57 +190,3 @@ Object? _scrubKeys(Object? body, bool Function(Object? key) isSecret) => switch 
   List() => [for (final item in body) _scrubKeys(item, isSecret)],
   _ => body,
 };
-
-/// [body] decoded when it is a JSON string, otherwise [body] itself.
-Object? _decoded(Object? body) {
-  if (body is! String) return body;
-  try {
-    return jsonDecode(body);
-  } on FormatException {
-    return body;
-  }
-}
-
-/// The values [node] holds under a key that [isSensitive] matches, in
-/// nested maps and lists too, as text.
-Iterable<String> _secretValues(Object? node, bool Function(Object? key) isSensitive) sync* {
-  if (node is Map) {
-    for (final MapEntry(:key, :value) in node.entries) {
-      yield* isSensitive(key) ? _scalars(value) : _secretValues(value, isSensitive);
-    }
-  } else if (node is List) {
-    for (final item in node) {
-      yield* _secretValues(item, isSensitive);
-    }
-  }
-}
-
-/// The text of every string and number in [node] that is at least
-/// [_minEchoedLength] characters long.
-Iterable<String> _scalars(Object? node) sync* {
-  if (node is Map) {
-    for (final value in node.values) {
-      yield* _scalars(value);
-    }
-  } else if (node is List) {
-    for (final item in node) {
-      yield* _scalars(item);
-    }
-  } else if ((node is String || node is num) && '$node'.length >= _minEchoedLength) {
-    yield '$node';
-  }
-}
-
-/// [node] with every occurrence of each of [secrets] in its strings, and
-/// every number equal to one, replaced by [secretMask].
-Object? _maskValues(Object? node, List<String> secrets) => switch (node) {
-  _ when secrets.isEmpty => node,
-  final String text => secrets.fold<String>(text, (masked, secret) => masked.replaceAll(secret, secretMask)),
-  num() when secrets.contains('$node') => secretMask,
-  Map() => {for (final MapEntry(:key, :value) in node.entries) key: _maskValues(value, secrets)},
-  List() => [for (final item in node) _maskValues(item, secrets)],
-  _ => node,
-};
-
-/// What [jsonEncode] writes for a value it cannot encode: its text.
-Object? _text(Object? value) => '$value';

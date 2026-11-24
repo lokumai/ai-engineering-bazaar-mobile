@@ -32,8 +32,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// The navigation is a low row of icons, each with its name small under it, on the page's ground under a hairline: the
 /// open tab's icon is filled and its name dark, the others outlined and muted (the user, 2026-11-10: "like X", with the
-/// names kept so each is clear). The Caravan's horse holds the middle and opens its page, which says it is under
-/// maintenance until the bundle carries the web's timeline (plan 3.1).
+/// names kept so each is clear). The Caravan's horse holds the middle and opens its road of AI engineering's trends
+/// (plan 3.1).
 ///
 /// On a module page the bar, the band and the bottom navigation slide away while the reader scrolls down, for a taller
 /// page, and come back on a scroll up, at the top and at the end; the status strip stays. They stay while a screen
@@ -338,7 +338,8 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
         widget.assistant != null && !chromeHidden && BazaarShell.assistantPages.contains(widget.location);
     final bandShown =
         widget.band != null && media.viewInsets.bottom == 0 && BazaarShell.bandPages.contains(widget.location);
-    // A module heard whole is marked completed here, on whatever page the reader is (the owner, 2026-11-18).
+    // A module heard whole is marked completed here, on whatever page the reader is (the owner, 2026-11-18); one the
+    // phone's voice did not start says so.
     return ListenCompletion(
       child: PopScope(
         canPop: !atTabRoot,

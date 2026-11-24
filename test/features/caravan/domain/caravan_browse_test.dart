@@ -60,6 +60,29 @@ void main() {
     expect(filterStops(road, query: 'road nowhere'), isEmpty);
   });
 
+  // Review 5, finding 18: the search compared plain lower case, unlike the course search.
+  test('a word is found as the course search finds it, in Turkish and Persian too', () {
+    final persian = CaravanRoad.of(
+      [
+        CaravanTrend(
+          id: 'bot',
+          title: 'چت\u200cبات\u200cها',
+          text: 'İLK SÖYLEŞİ',
+          start: DateTime.utc(2023, 3),
+          end: DateTime.utc(2023, 8),
+          peak: 3,
+        ),
+      ],
+      first: DateTime.utc(2023),
+      through: DateTime.utc(2024),
+    );
+    expect(ids(filterStops(persian, query: 'چت بات', language: 'fa')), ['bot']);
+    expect(ids(filterStops(persian, query: 'ilk soylesi', language: 'tr')), ['bot']);
+    expect(ids(filterStops(road, query: 'interview', language: 'tr')), [
+      'early',
+    ], reason: 'an English I on a Turkish app');
+  });
+
   test('a year and a search together', () {
     expect(ids(filterStops(road, year: 2025, query: 'open')), ['open']);
     expect(filterStops(road, year: 2023, query: 'open'), isEmpty);

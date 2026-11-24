@@ -71,7 +71,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
 
   Widget _body(BuildContext context) {
     final items = _items ??= _itemsNow(context);
-    if (items == null) return const Center(child: CircularProgressIndicator());
+    if (items == null) return Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading));
     if (items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),

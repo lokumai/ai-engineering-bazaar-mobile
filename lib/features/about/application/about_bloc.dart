@@ -39,6 +39,11 @@ class AboutBloc extends Bloc<AboutEvent, AboutState> {
       _fail(path, error, emit);
     } on ContentFormatException catch (error) {
       _fail(path, error, emit);
+    } on Object catch (error, stackTrace) {
+      // Anything else ends as failed too, with a way out, rather than the story loading for good (review 6, finding
+      // 14).
+      addError(error, stackTrace);
+      _fail(path, error, emit);
     }
   }
 

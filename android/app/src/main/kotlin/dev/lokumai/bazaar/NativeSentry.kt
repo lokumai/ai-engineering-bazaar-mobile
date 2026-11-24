@@ -64,8 +64,10 @@ object NativeSentry {
         options.isEnableAutoTraceIdGeneration = false
         options.connectionTimeoutMillis = DART_TIMEOUT_MILLIS
         options.readTimeoutMillis = DART_TIMEOUT_MILLIS
-        options.logs.isEnabled = true
-        options.metrics.isEnabled = true
+        // No Sentry logs or metrics: they would leave the phone without passing beforeSend, and the privacy answers
+        // name neither (review 8).
+        options.logs.isEnabled = false
+        options.metrics.isEnabled = false
         // Release health (the owner, 2026-11-13). A session envelope never passes beforeSend; it holds no text.
         options.isEnableAutoSessionTracking = true
         val version = io.sentry.android.core.BuildConfig.VERSION_NAME

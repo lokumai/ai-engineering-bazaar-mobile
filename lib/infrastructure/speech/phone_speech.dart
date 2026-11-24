@@ -88,6 +88,7 @@ final class PhoneSpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) async {
     final id = ++_lastId;
     final saying = Completer<void>();
@@ -99,6 +100,7 @@ final class PhoneSpeech {
         'tag': tags[language] ?? language,
         'rate': engineRate(rate, defaultTargetPlatform),
         'title': title,
+        'interface': ?noticeLanguage,
       });
       if (started != true) _end(id);
     } on PlatformException catch (error) {

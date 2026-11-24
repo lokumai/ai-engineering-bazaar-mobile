@@ -75,7 +75,10 @@ import UIKit
           if let error {
             NSLog("Bazaar: app icon %@ not set: %@", name ?? "default", error.localizedDescription)
           }
-          result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
+          // UIKit does not say on which queue it calls back; a channel is answered on the main one.
+          DispatchQueue.main.async {
+            result(error.map { FlutterError(code: "not-changed", message: $0.localizedDescription, details: nil) })
+          }
         }
       }
     // lib/infrastructure/theme/launch_ground_channel.dart names the reader's look on every launch and every choice; the
@@ -212,6 +215,8 @@ enum ShareSheet {
 final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
   private let channel: FlutterMethodChannel
   private var pending: FlutterResult?
+  /// Whether the camera question is up: a second scan then is `busy` too, as `pending` is set only once it is answered.
+  private var asking = false
   private var session: AVCaptureSession?
   private weak var screen: UIViewController?
 
@@ -224,23 +229,31 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
       case "available":
         result(AVCaptureDevice.default(for: .video) != nil)
       case "scan":
-        self.start(title: call.arguments as? String ?? "", result: result)
+        // The title and Cancel in the app's language, which may not be the phone's (review 8).
+        let texts = call.arguments as? [String: Any] ?? [:]
+        self.start(
+          title: texts["title"] as? String ?? "", cancel: texts["cancel"] as? String ?? "", result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
     }
   }
 
-  private func start(title: String, result: @escaping FlutterResult) {
-    guard pending == nil else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
+  private func start(title: String, cancel: String, result: @escaping FlutterResult) {
+    // A scan whose screen is not up, or is gone (the screen is held weakly), was dropped by UIKit unseen: it is answered
+    // now rather than leaving every later scan busy until the app restarts (review 9, finding 11).
+    if pending != nil, screen?.presentingViewController == nil { dropped() }
+    guard pending == nil, !asking else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .authorized:
-      open(title: title, result: result)
+      open(title: title, cancel: cancel, result: result)
     case .notDetermined:
+      asking = true
       AVCaptureDevice.requestAccess(for: .video) { granted in
         DispatchQueue.main.async {
+          self.asking = false
           if granted {
-            self.open(title: title, result: result)
+            self.open(title: title, cancel: cancel, result: result)
           } else {
             result(FlutterError(code: "denied", message: nil, details: nil))
           }
@@ -251,7 +264,7 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     }
   }
 
-  private func open(title: String, result: @escaping FlutterResult) {
+  private func open(title: String, cancel: String, result: @escaping FlutterResult) {
     let session = AVCaptureSession()
     let output = AVCaptureMetadataOutput()
     guard let device = AVCaptureDevice.default(for: .video),
@@ -265,15 +278,38 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     session.addOutput(output)
     output.setMetadataObjectsDelegate(self, queue: .main)
     output.metadataObjectTypes = [.qr]
+    // Cancel answers the scan only from the screen of the scan waiting; a screen UIKit showed late closes itself.
+    weak var shown: UIViewController?
     let navigation = UINavigationController(
-      rootViewController: ScannerScreen(session: session, title: title) { [weak self] in self?.finish(nil) })
+      rootViewController: ScannerScreen(session: session, title: title, cancel: cancel) { [weak self] in
+        guard let self, let shown, self.screen === shown else { return }
+        self.finish(nil)
+      })
+    shown = navigation
     navigation.modalPresentationStyle = .fullScreen
     navigation.overrideUserInterfaceStyle = .dark
     pending = result
     self.session = session
     screen = navigation
     presenter.present(navigation, animated: true)
+    // UIKit drops a presentation over a screen that is being dismissed, with only a console warning; a presentation it
+    // takes has its presenter at once (review 9, finding 11).
+    guard navigation.presentingViewController != nil else { return dropped() }
     DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
+  }
+
+  /// Answers `no-camera` for a scan whose screen UIKit did not show, and lets the camera go. A presentation UIKit put
+  /// off rather than dropped would still come up: the screen is dismissed too, or it would stand black with a Cancel
+  /// that does nothing (review 10, finding 3).
+  private func dropped() {
+    guard let result = pending else { return }
+    pending = nil
+    let session = self.session
+    self.session = nil
+    DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
+    screen?.dismiss(animated: false)
+    screen = nil
+    result(FlutterError(code: "no-camera", message: nil, details: nil))
   }
 
   func metadataOutput(
@@ -284,14 +320,16 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     finish(code)
   }
 
+  /// Closes the camera screen, whatever is pending, so its Cancel always closes it (review 10, finding 3), and answers
+  /// the scan with [text] when one waits.
   private func finish(_ text: String?) {
-    guard let result = pending else { return }
-    pending = nil
     let session = self.session
     self.session = nil
     DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
     screen?.dismiss(animated: true)
     screen = nil
+    guard let result = pending else { return }
+    pending = nil
     result(text)
   }
 }
@@ -304,13 +342,16 @@ final class ScannerScreen: UIViewController {
   private var preview: AVCaptureVideoPreviewLayer?
   private let aim = CAShapeLayer()
 
-  init(session: AVCaptureSession, title: String, onCancel: @escaping () -> Void) {
+  init(session: AVCaptureSession, title: String, cancel: String, onCancel: @escaping () -> Void) {
     self.session = session
     self.onCancel = onCancel
     super.init(nibName: nil, bundle: nil)
     navigationItem.title = title
-    navigationItem.leftBarButtonItem = UIBarButtonItem(
-      barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+    // The app's own word, as the title is: the system Cancel would follow the phone's language (review 8).
+    navigationItem.leftBarButtonItem =
+      cancel.isEmpty
+      ? UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
+      : UIBarButtonItem(title: cancel, style: .plain, target: self, action: #selector(cancelTapped))
   }
 
   @available(*, unavailable)
@@ -338,7 +379,9 @@ final class ScannerScreen: UIViewController {
     aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
   }
 
-  @objc private func cancel() {
+  /// Closes the screen itself, whether or not a scan still waits on it (review 10, finding 3), then tells the scanner.
+  @objc private func cancelTapped() {
+    (navigationController ?? self).presentingViewController?.dismiss(animated: true)
     onCancel()
   }
 
@@ -393,6 +436,9 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   /// The lock screen's and the headphones' commands, answered while a reading is shown.
   private var commands: [Any] = []
 
+  /// Whether another app's sound paused the reading, which then reads on when that sound ends and iOS says it may.
+  private var pausedBySound = false
+
   init(messenger: FlutterBinaryMessenger) {
     channel = FlutterMethodChannel(name: Speech.channel, binaryMessenger: messenger)
     super.init()
@@ -406,12 +452,33 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       object: AVAudioSession.sharedInstance())
   }
 
-  /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was.
+  /// A call, an alarm or another app took the sound: the reading stops, and the Dart side pauses where it was. When a
+  /// short sound such as Siri or a Maps prompt ends and iOS says the app may play again, the reading goes on, as it
+  /// does on Android (review 4).
   @objc private func interrupted(_ notification: Notification) {
-    guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
-      AVAudioSession.InterruptionType(rawValue: raw) == .began
+    guard let info = notification.userInfo, let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+      let type = AVAudioSession.InterruptionType(rawValue: raw)
     else { return }
-    pauseReading()
+    switch type {
+    case .began:
+      // On the main queue, as the end and a route change are: iOS posts the notification on a thread of its own, and
+      // the reading's state and the channel belong to the main thread (review 10, finding 9).
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        self.pausedBySound = !self.parts.isEmpty
+        self.pauseReading()
+      }
+    case .ended:
+      let options = AVAudioSession.InterruptionOptions(
+        rawValue: info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0)
+      DispatchQueue.main.async { [weak self] in
+        guard let self, self.pausedBySound else { return }
+        self.pausedBySound = false
+        if options.contains(.shouldResume) { self.channel.invokeMethod("control", arguments: "play") }
+      }
+    @unknown default:
+      return
+    }
   }
 
   /// The headphones were taken off or lost, as Bluetooth ones whose battery ran out: the reading pauses rather than go
@@ -501,6 +568,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       guard let language = arguments["language"] as? String else { return result(false) }
       result(Speech.hasVoice(for: language, among: AVSpeechSynthesisVoice.speechVoices().map(\.language)))
     case "speak":
+      // The reader read on, or began another reading, before the other sound ended.
+      pausedBySound = false
       guard let id = arguments["id"] as? Int, let texts = arguments["texts"] as? [String], !texts.isEmpty,
         let tag = arguments["tag"] as? String, let voice = Speech.bestVoice(for: tag)
       else { return result(false) }
@@ -533,6 +602,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       }
       result(true)
     case "stop":
+      // Not the end of a pause by another app's sound: the Dart side stops the words when it pauses for it, and a
+      // later play only reads on a reading still paused.
       synthesizer.stopSpeaking(at: .immediate)
       endAll()
       result(nil)

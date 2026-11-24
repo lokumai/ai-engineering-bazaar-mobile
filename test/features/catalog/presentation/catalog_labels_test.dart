@@ -32,4 +32,11 @@ void main() {
     expect(requiresLabel(s, const [1]), '1');
     expect(requiresLabel(s, const [1, 2]), '1, 2');
   });
+
+  // Review 10, finding 11: in a right-to-left line "--/12" drew as "12/--"; the dial's count is isolated left to right.
+  test('the Persian dial keeps its count left to right while the record loads', () async {
+    final fa = await S.load(const Locale('fa'));
+    expect(fa.catalog_level_dial('--', 12), '\u2066--/12\u2069');
+    await S.load(const Locale('en'));
+  });
 }

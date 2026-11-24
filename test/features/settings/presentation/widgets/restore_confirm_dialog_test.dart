@@ -1,12 +1,15 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/widgets/restore_confirm_dialog.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/selectors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
+import '../../../../mocks/mock_classes.dart';
 import '../../../../support/accessibility.dart';
 import '../data_host.dart';
 
@@ -15,8 +18,9 @@ void main() {
     WidgetTester tester,
     Tally local, {
     TargetPlatform platform = TargetPlatform.android,
+    MockDataBloc? data,
   }) async {
-    final (bloc, _) = dataBlocAt();
+    final bloc = data ?? dataBlocAt().$1;
     await pumpDataHost(tester, const SizedBox.shrink(), data: bloc, platform: platform);
     final answer = showRestoreConfirmDialog(hostContext(tester), local);
     await tester.pumpAndSettle();
@@ -58,6 +62,36 @@ void main() {
     expect(await kept, isFalse);
   });
 
+  // Review 9, finding 10: Replace has no undo, and the dialog offered no backup of what it replaces.
+  testWidgets('Back up saves what the phone holds and leaves the dialog open', (tester) async {
+    final (bloc, states) = dataBlocAt();
+    final answer = await open(tester, const Tally(sheets: 2), data: bloc);
+    await tester.tap(find.text('Back up'));
+    await tester.pump();
+    expect(verify(() => bloc.add(captureAny())).captured, [isA<BackupRequested>()]);
+    expect(find.text('Replace the progress on this device?'), findsOneWidget);
+    states.add(const DataState(backup: BackedUp('2026-11-24')));
+    await tester.pump();
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text('Backed up 2026-11-24')), findsOneWidget);
+
+    await tester.tap(find.text('Replace'));
+    await tester.pumpAndSettle();
+    expect(await answer, isTrue);
+  });
+
+  // Review 10, finding 9: a backup made earlier in the visit may hold less than the phone does now.
+  testWidgets('a backup made before the dialog opened is not shown in it', (tester) async {
+    final (bloc, _) = dataBlocAt(const DataState(backup: BackedUp('2026-11-20')));
+    await open(tester, const Tally(sheets: 2), data: bloc);
+    expect(find.text('Backed up 2026-11-20'), findsNothing);
+  });
+
+  testWidgets('Back up is off while a flow runs', (tester) async {
+    final (bloc, _) = dataBlocAt(const DataState(busy: DataBusy.backingUp));
+    await open(tester, const Tally(sheets: 2), data: bloc);
+    expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Back up')).onPressed, isNull);
+  });
+
   testWidgets('a tap outside the dialog keeps the data', (tester) async {
     final answer = await open(tester, const Tally(sheets: 2));
     await tester.tapAt(const Offset(5, 5));
@@ -73,7 +107,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    for (final label in ['Replace', 'Keep my data']) {
+    for (final label in ['Replace', 'Keep my data', 'Back up']) {
       await tester.ensureVisible(find.text(label));
       await tester.pumpAndSettle();
       expectHittable(tester, find.text(label));

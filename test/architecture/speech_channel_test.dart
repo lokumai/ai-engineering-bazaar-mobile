@@ -37,6 +37,15 @@ void main() {
     );
     expect(speech, isNot(contains('MAY_DUCK')));
     expect(speech, contains('channel.invokeMethod("interrupted", id)'));
+    expect(speech, contains('AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->'), reason: 'a short prompt pauses it');
+    expect(speech, contains('if (current != null || ducked) return@Runnable'), reason: "the prompt's end comes back");
+    expect(speech, contains('current?.let { done(it) }'), reason: 'a stop ends the speak without the engine');
+    // Review 4, finding 5: headphones lost during a prompt keep the reading paused, and a prompt's end that Dart does
+    // not read on from gives the sound back.
+    final noisy = RegExp(r'ACTION_AUDIO_BECOMING_NOISY\) return\s+main\.post \{([^}]*)\}').firstMatch(speech)![1]!;
+    expect(noisy, allOf(contains('ducked = false'), contains('interrupt()'), contains('releaseSoon()')));
+    final gain = RegExp(r'AUDIOFOCUS_GAIN -> if \(ducked\) \{([\s\S]*?)\n            \}').firstMatch(speech)![1]!;
+    expect(gain, allOf(contains('control("play")'), contains('releaseSoon()')));
     expect(speech, contains('TextToSpeech.getMaxSpeechInputLength()'), reason: 'a long text said in pieces');
     expect(speech, contains('tts.playSilentUtterance(GAP_MS'), reason: "iOS's pause after each text");
     expect(read('lib/infrastructure/speech/phone_speech.dart'), contains("method: 'interrupted'"));
@@ -68,7 +77,11 @@ void main() {
     expect(service, contains('style.setMediaSession'));
     expect(service, contains('R.string.listen_paused'), reason: 'a paused reading keeps its notice, with Play');
     expect(speech, contains('if (!shown) ListenService.stop(context)'));
-    expect(speech, contains('ListenService.onPlay = { main.post { control("play") } }'));
+    expect(speech, contains('private val onPlay: () -> Unit = { main.post { control("play") } }'));
+    expect(speech, contains('ListenService.onPlay = onPlay'));
+    // A new activity's callbacks survive the old one's close (review 6, finding 12).
+    expect(speech, contains('if (ListenService.onPlay === onPlay) ListenService.onPlay = null'));
+    expect(speech, contains('if (ListenService.onPause === onPause) ListenService.onPause = null'));
 
     final swift = read('ios/Runner/AppDelegate.swift');
     expect(swift, contains('AVAudioSession.interruptionNotification'));
@@ -89,13 +102,35 @@ void main() {
     expect(dart, contains("method: 'control', arguments: 'play'"));
   });
 
+  // Review 7, finding 1: an engine that lost its voice service after an update failed every call while it still
+  // counted as started, until the app was closed.
+  test('Android builds the engine again when a started one fails', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    expect(speech, contains('(started != TextToSpeech.SUCCESS || suspect) && waiting.isEmpty()'));
+    expect(speech, contains('return@whenStarted canSpeak(locale, result, again = false)'));
+    expect(speech, contains('return@whenStarted speak(id, texts, locale, rate, result, again = false)'));
+    final failed = speech.indexOf('if (!queued) {');
+    expect(speech.indexOf('suspect = true', failed), lessThan(speech.indexOf('result.success(queued)', failed)));
+  });
+
+  // Review 8, finding 2: a speak waiting for the engine outlived a stop, and was then read with no player.
+  test('Android says nothing of a speak a stop came after', () {
+    final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
+    final stop = speech.indexOf('"stop" -> {');
+    expect(speech.indexOf('stoppedThrough = lastAsked', stop), greaterThan(stop));
+    expect(speech, contains('lastAsked = id'));
+    expect(speech, contains('if (stoppedThrough?.let { id <= it } == true) {'));
+    // Review 8, finding 13: no new engine while a reading is on.
+    expect(speech, contains('asked > 1 && current == null'));
+  });
+
   test('Android keeps a reading started in the app and says nothing while another app holds the sound '
       '(plan 19.9, 19.10)', () {
     final speech = read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt');
     final speak = speech.indexOf('"speak" ->');
     expect(
       speech.indexOf('ListenService.start(context, title)', speak),
-      lessThan(speech.indexOf('whenStarted { tts ->', speak)),
+      lessThan(speech.indexOf('speak(id, texts, Locale.forLanguageTag(tag), rate, result, again = true)', speak)),
       reason: 'the service starts before the engine answers',
     );
     expect(speech, contains('if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)'));
@@ -120,6 +155,60 @@ void main() {
     expect(swift, contains('speech = Speech(messenger: registrar.messenger())'));
   });
 
+  // Review 8, finding 18: the methods were tied by name, their arguments by hand only. A key renamed on one side reads
+  // as missing on the other: a reading that never starts, or one spoken in the wrong voice, with no test failing.
+  test('each method reads on each native side only arguments the Dart side sends it, and Dart reads those of part', () {
+    final dart = read('lib/infrastructure/speech/phone_speech.dart');
+    final sent = {
+      for (final call in RegExp(r"_channel\.invokeMethod<\w+>\('(\w+)'([^;]*);").allMatches(dart))
+        call[1]!: {...RegExp(r"'(\w+)':").allMatches(call[2]!).map((key) => key[1]!)},
+    };
+    expect(sent.keys, unorderedEquals(methods));
+    expect(sent['speak'], containsAll(['id', 'texts', 'tag', 'rate', 'title', 'interface']));
+
+    /// The keys each method's branch reads, the branches found by [branch] in [text] from [start].
+    Map<String, Set<String>> reads(String text, String start, RegExp branch, List<RegExp> keys) {
+      final handler = text.substring(text.indexOf(start));
+      final branches = branch.allMatches(handler).toList();
+      return {
+        for (final (i, match) in branches.indexed)
+          ?match[1]: {
+            for (final key in keys)
+              ...key
+                  .allMatches(handler.substring(match.end, i + 1 < branches.length ? branches[i + 1].start : null))
+                  .map((found) => found[1]!),
+          },
+      };
+    }
+
+    final kotlin = reads(
+      read('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt'),
+      'override fun onMethodCall',
+      RegExp(r'\n {12}(?:"(\w+)"|else) ->'),
+      [RegExp(r'call\.argument<.+?>\("(\w+)"\)'), RegExp(r'reading\?\.get\("(\w+)"\)')],
+    );
+    final swift = reads(
+      read('ios/Runner/AppDelegate.swift'),
+      'private func handle(_ call: FlutterMethodCall, _ result: FlutterResult) {\n    let arguments',
+      RegExp(r'\n    (?:case "(\w+)"|default):'),
+      [RegExp(r'arguments\["(\w+)"\]'), RegExp(r'reading\?\["(\w+)"\]')],
+    );
+    for (final (side, branches) in [('Kotlin', kotlin), ('Swift', swift)]) {
+      for (final method in methods) {
+        expect(branches, contains(method), reason: '$side $method');
+        expect(sent[method], containsAll(branches[method]!), reason: '$side $method reads ${branches[method]}');
+      }
+    }
+    expect(kotlin['speak'], containsAll(['id', 'texts', 'tag', 'rate', 'title', 'interface']));
+    expect(swift['speak'], containsAll(['id', 'texts', 'tag', 'rate']));
+    expect(kotlin['canSpeak'], {'tag'});
+    expect(swift['canSpeak'], {'language'});
+    expect(kotlin['show'], {'title', 'playing'});
+    expect(swift['show'], {'title', 'playing'});
+
+    expect(dart, contains("MethodCall(method: 'part', arguments: {'id': final int id, 'index': final int index})"));
+  });
+
   test('iOS keeps reading with the screen off: the audio background mode', () {
     final plist = read('ios/Runner/Info.plist');
     expect(plist, matches(RegExp(r'<key>UIBackgroundModes</key>\s*<array>\s*<string>audio</string>')));
@@ -135,7 +224,7 @@ void main() {
     expect(speech, contains('context.unregisterReceiver(noisy)'));
     expect(speech, contains('main.postDelayed(release, RELEASE_MS)'));
     final service = read('android/app/src/main/kotlin/dev/lokumai/bazaar/ListenService.kt');
-    expect(service, contains('stopWhenStarted = true'), reason: 'a stop before the foreground start waits for it');
+    expect(service, contains('if (!starts.stop()) return'), reason: 'a stop before the foreground start waits for it');
     expect(service, contains('Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)'));
     expect(service, isNot(contains('getLaunchIntentForPackage')), reason: 'an icon change turns the old entry off');
 

@@ -50,6 +50,7 @@ class _TransferView extends StatelessWidget {
       TransferDone(result: TransferMergeResult.added) => s.transfer_added,
       TransferDone(result: TransferMergeResult.nothingNew) => s.transfer_nothing_new,
       TransferDone(result: TransferMergeResult.notAdded) => s.transfer_not_added,
+      TransferDone(result: TransferMergeResult.tooLarge) => s.transfer_too_large,
       TransferReady() || TransferAdding() => null,
     };
     return Scaffold(
@@ -101,12 +102,13 @@ class _TransferView extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 Text(s.transfer_keeps, style: muted),
                 const SizedBox(height: AppSpacing.lg),
-                if (state is! TransferDone)
+                // Not added, it can be tried again (review 9, finding 9); added or nothing new, it is gone.
+                if (state is! TransferDone || state.result == TransferMergeResult.notAdded)
                   FilledButton(
                     key: const ValueKey('transfer-add'),
-                    onPressed: state is TransferReady
-                        ? () => context.read<TransferBloc>().add(const TransferAddPressed())
-                        : null,
+                    onPressed: state is TransferAdding
+                        ? null
+                        : () => context.read<TransferBloc>().add(const TransferAddPressed()),
                     child: Text(s.transfer_add),
                   ),
               ],

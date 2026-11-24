@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/listen/presentation/listen_progress.dart';
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// The player at a module's foot while it is read aloud (plan 15): the paragraph before, play or pause, the next, how
 /// far along, the pace, and a way to stop. One thin row on the page's own ground, how far along as a line along its top
@@ -16,7 +17,7 @@ class ListenPlayer extends StatelessWidget {
   final ListenOn state;
 
   /// The pace as a reader reads it: `1×`, `1.25×`, in the interface's digits.
-  static String rateLabel(double rate, String locale) => '${NumberFormat('0.##', locale).format(rate)}×';
+  static String rateLabel(double rate, String locale) => '${NumberFormat('0.##', numberLocale(locale)).format(rate)}×';
 
   @override
   Widget build(BuildContext context) {
@@ -39,25 +40,33 @@ class ListenPlayer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
                 children: [
-                  IconButton(
-                    key: const ValueKey('listen-back'),
-                    tooltip: s.listen_back,
-                    onPressed: listen.back,
-                    icon: const Icon(Icons.skip_previous_rounded, size: 22),
-                  ),
-                  IconButton(
-                    key: const ValueKey('listen-toggle'),
-                    tooltip: state.playing ? s.listen_pause : s.listen_play,
-                    onPressed: state.playing ? listen.pause : listen.resume,
-                    color: colors.primary,
-                    icon: Icon(state.playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
-                    iconSize: 32,
-                  ),
-                  IconButton(
-                    key: const ValueKey('listen-next'),
-                    tooltip: s.listen_next,
-                    onPressed: listen.next,
-                    icon: const Icon(Icons.skip_next_rounded, size: 22),
+                  // Previous, play and next stay left to right in Persian, as media controls do in a right-to-left
+                  // interface; in the row's order the arrows pointed away from their buttons (review 6, finding 7).
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    textDirection: TextDirection.ltr,
+                    children: [
+                      IconButton(
+                        key: const ValueKey('listen-back'),
+                        tooltip: s.listen_back,
+                        onPressed: listen.back,
+                        icon: const Icon(Icons.skip_previous_rounded, size: 22),
+                      ),
+                      IconButton(
+                        key: const ValueKey('listen-toggle'),
+                        tooltip: state.playing ? s.listen_pause : s.listen_play,
+                        onPressed: state.playing ? listen.pause : listen.resume,
+                        color: colors.primary,
+                        icon: Icon(state.playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
+                        iconSize: 32,
+                      ),
+                      IconButton(
+                        key: const ValueKey('listen-next'),
+                        tooltip: s.listen_next,
+                        onPressed: listen.next,
+                        icon: const Icon(Icons.skip_next_rounded, size: 22),
+                      ),
+                    ],
                   ),
                   const SizedBox(width: 4),
                   Expanded(

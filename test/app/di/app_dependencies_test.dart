@@ -16,6 +16,7 @@ import 'package:ai_engineering_bazaar/core/analytics/log_analytics_service.dart'
 import 'package:ai_engineering_bazaar/infrastructure/backup/platform_backup_gateway.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
 import 'package:ai_engineering_bazaar/infrastructure/content/file_content_repository.dart';
+import 'package:ai_engineering_bazaar/infrastructure/storage/flags/file_flag_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/storage/record/file_record_repository.dart';
 import 'package:ai_engineering_bazaar/shared/quiz_scores/domain/quiz_score.dart';
 import 'package:ai_engineering_bazaar/shared/review/domain/review_history.dart';
@@ -520,5 +521,30 @@ void main() {
     const dependencies = AppDependencies(appConfig: AppConfig.test(contentBaseUrl: testContentBaseUrl));
 
     expect(dependencies.createBackupGateway(), isA<PlatformBackupGateway>());
+  });
+
+  // Review 8, finding 16: said yes, `tour-asking` was cleared before `tour-guiding` was set, so the app killed between
+  // the two files lost the tour: neither asked nor guided.
+  test('the tour sets its flags before it clears any', () {
+    final steps = FlagTourStore.steps(const TourRecord(guiding: true, seen: {'home'}));
+    final firstCleared = steps.indexWhere((step) => !step.$2);
+    expect(steps.take(firstCleared).map((step) => step.$1), containsAll(['tour-guiding', 'tour-seen-home']));
+    expect(steps.skip(firstCleared).every((step) => !step.$2), isTrue);
+    expect(steps.skip(firstCleared).map((step) => step.$1), contains('tour-asking'));
+  });
+
+  test('the tour store reads back what it saved, over the flag files', () async {
+    final root = await Directory.systemTemp.createTemp('tour_flags');
+    addTearDown(() => root.delete(recursive: true));
+    final store = FlagTourStore(FileFlagStore(baseDirectory: () async => root));
+
+    for (final record in const [
+      TourRecord(asking: true),
+      TourRecord(guiding: true, seen: {'home', 'catalog'}),
+      TourRecord(seen: {'home'}),
+    ]) {
+      await store.save(record);
+      expect(await store.load(), record);
+    }
   });
 }

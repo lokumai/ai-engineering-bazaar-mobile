@@ -14,9 +14,12 @@ import 'package:go_router/go_router.dart';
 /// one link per module, with the `Planned` tag on a module that is not written. A reference to a track this app does
 /// not know is plain text.
 class PrerequisitesBox extends StatelessWidget {
-  const PrerequisitesBox({super.key, required this.refs});
+  const PrerequisitesBox({super.key, required this.refs, this.onOpen});
 
   final List<Ref> refs;
+
+  /// Runs as a module is opened, before it is pushed: the page under it is left (review 9, finding 1).
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,7 @@ class PrerequisitesBox extends StatelessWidget {
                       ],
                     ),
                   ),
-                  for (final ref in refs) _Prerequisite(ref: ref),
+                  for (final ref in refs) _Prerequisite(ref: ref, onOpen: onOpen),
                 ],
               ),
             ),
@@ -66,9 +69,10 @@ class PrerequisitesBox extends StatelessWidget {
 }
 
 class _Prerequisite extends StatelessWidget {
-  const _Prerequisite({required this.ref});
+  const _Prerequisite({required this.ref, required this.onOpen});
 
   final Ref ref;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +103,10 @@ class _Prerequisite extends StatelessWidget {
     return _Overlapping(
       by: 7,
       child: TextButton(
-        onPressed: () => unawaited(context.push<void>(BazaarPaths.module(track, ref.key))),
+        onPressed: () {
+          onOpen?.call();
+          unawaited(context.push<void>(BazaarPaths.module(track, ref.key)));
+        },
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 4),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,

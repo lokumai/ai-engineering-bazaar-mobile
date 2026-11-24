@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,3 +54,10 @@ void expectHittable(WidgetTester tester, Finder finder) {
     reason: 'a tap at the centre of $finder does not reach it',
   );
 }
+
+/// The texts under [of] cut short with an ellipsis or a line limit (review 8, finding 15: labels held to one line cut
+/// "Read a module you fi…" from about 1.5 times the text).
+List<String> cutTexts(WidgetTester tester, Finder of) => [
+  for (final element in find.descendant(of: of, matching: find.byType(RichText)).evaluate())
+    if ((element.renderObject! as RenderParagraph).didExceedMaxLines) (element.widget as RichText).text.toPlainText(),
+];

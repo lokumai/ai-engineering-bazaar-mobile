@@ -168,7 +168,16 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     _recordBloc.add(RecordReplaced(data: data, reply: replaced));
     if (!await replaced.future) return state._with(pendingRestore: null, restore: RestoreOutcome.notRestored);
     _stopTicker();
-    return state._with(reset: null, pendingRestore: null, restore: RestoreOutcome.restored);
+    // The record answers once it replaced what is shown; whether the device kept it is its write state.
+    final saved = switch (_recordBloc.state) {
+      RecordReady(writeState: WriteSaved()) => true,
+      _ => false,
+    };
+    return state._with(
+      reset: null,
+      pendingRestore: null,
+      restore: saved ? RestoreOutcome.restored : RestoreOutcome.notSaved,
+    );
   }
 
   Future<void> _onRestoreConfirmed(RestoreConfirmed event, Emitter<DataState> emit) async {

@@ -73,6 +73,12 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
       _log.warn('module document {} unreadable: {}', [path, error]);
       emit(const ReaderFailed(code: ContentErrorCode.format));
       return;
+    } on Object catch (error, stackTrace) {
+      // Anything else, a fault of the app's own, ends as failed too, rather than loading for good (review 6, finding
+      // 14); it is kept as the bloc's error.
+      addError(error, stackTrace);
+      emit(const ReaderFailed(code: ContentErrorCode.corrupt));
+      return;
     }
     final moduleCount = _index.modules.length;
     emit(

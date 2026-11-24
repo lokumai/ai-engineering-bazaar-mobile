@@ -59,6 +59,9 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
 
   /// Searches [query] in the levels chosen, or goes back to the catalog when it is empty, every level chosen again.
   Future<void> search(String query) async {
+    // The search field outlives a cubit a content refresh replaced, and its timer may still call this one (review 10,
+    // finding 9).
+    if (isClosed) return;
     final ticket = ++_ticket;
     if (query.trim().isEmpty) {
       emit(const CatalogSearchState());
@@ -101,6 +104,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
 
   /// Keeps the hits to [levels] (by slug; none for every level) and searches the query again.
   Future<void> filter(Set<String> levels) async {
+    if (isClosed) return;
     emit(
       CatalogSearchState(
         query: state.query,

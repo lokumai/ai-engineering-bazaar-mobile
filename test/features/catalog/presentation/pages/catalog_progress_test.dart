@@ -68,7 +68,7 @@ class _MemoryRecordRepository implements IRecordRepository {
   Future<RestoreResult> restore(StoredBytes bytes) => throw UnimplementedError();
 
   @override
-  Future<void> deleteQuarantine() => throw UnimplementedError();
+  Future<bool> deleteQuarantine() => throw UnimplementedError();
 }
 
 void main() {

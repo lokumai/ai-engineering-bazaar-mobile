@@ -6,13 +6,15 @@ abstract interface class ISpeech {
   /// Says [texts] one after another in [language] at [rate], 1 the voice's own pace, in the best voice the phone has
   /// for it, telling [onPart] the place in [texts] of each as it starts. The phone holds them all, so they go on with
   /// the screen off (the owner, 2026-11-18); [title], the module's, names the reading where the phone shows it (Android's
-  /// notice, plan 18.1). Completes once the last is said, or they are stopped, or fail.
+  /// notice, plan 18.1). Completes once the last is said, or they are stopped, or fail. [noticeLanguage], the app's own
+  /// language, is the one the phone's notice of the reading speaks; null leaves it to the phone (review 5 finding 8).
   Future<void> speak(
     List<String> texts, {
     required String language,
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   });
 
   /// Each time the phone stopped the reading itself: another app took the sound, as a call does, or the reader pressed
@@ -46,6 +48,7 @@ final class NoSpeech implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) async {}
 
   @override

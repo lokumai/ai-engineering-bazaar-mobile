@@ -35,7 +35,9 @@ final class ReadingPlace extends Equatable {
 
   Map<String, Object?> _toJson() => {
     'heading': ?heading,
-    'offset': offset,
+    // A heading just below the top, by less than a pixel, leaves a place a little above it; written as it is, the
+    // decoder dropped it and the module opened at its top (review 9, finding 15).
+    'offset': offset < 0 ? 0.0 : offset,
     'share': share,
     'at': at.toUtc().toIso8601String(),
     if (seconds > 0) 'seconds': seconds,
@@ -43,7 +45,8 @@ final class ReadingPlace extends Equatable {
 
   static ReadingPlace? _fromJson(Object? json) {
     if (json case {'offset': final num offset, 'share': final num share, 'at': final String at}
-        when offset >= 0 && share >= 0 && share <= 1) {
+        // A finite offset: 1e999 reads as infinity, which no later save could write (review 8).
+        when offset.isFinite && offset >= 0 && share >= 0 && share <= 1) {
       final time = DateTime.tryParse(at);
       if (time == null) return null;
       final heading = json['heading'];

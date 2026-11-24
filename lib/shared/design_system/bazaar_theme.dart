@@ -76,9 +76,11 @@ ThemeData bazaarTheme({required Brightness brightness, required TargetPlatform p
       scrolledUnderElevation: 0,
       centerTitle: false,
     ),
+    // A field's edge is a control's edge, which asks 3:1 against the page: the hairline was 1.4 to 1.6 (review 6,
+    // finding 18); the muted text colour is over 5 in both looks.
     inputDecorationTheme: InputDecorationThemeData(
-      border: border(c.line),
-      enabledBorder: border(c.line),
+      border: border(c.onSurfaceMuted),
+      enabledBorder: border(c.onSurfaceMuted),
       focusedBorder: border(c.focus, 2),
       errorBorder: border(c.fault),
       focusedErrorBorder: border(c.fault, 2),

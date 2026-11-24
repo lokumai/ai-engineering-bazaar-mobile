@@ -24,7 +24,7 @@ class HomePath extends StatelessWidget {
         for (final level in levels)
           Semantics(
             container: true,
-            label: '${level.level.title}, ${s.level_completed(level.done, level.total)}',
+            label: '${level.level.title}, ${s.level_completed_spoken(level.done, level.total)}',
             excludeSemantics: true,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

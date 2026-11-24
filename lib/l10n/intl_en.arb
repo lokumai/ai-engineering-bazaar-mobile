@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-  "settings": "Settings",
   "error_link_open_failed": "Could not open {url}",
   "@error_link_open_failed": {
     "placeholders": {
@@ -95,16 +94,6 @@
   "@caravan_in_course": {
     "description": "The modules of the course on a trend's subject."
   },
-  "caravan_reading": "To read",
-  "@caravan_reading": {},
-  "caravan_sample_articles": "Article",
-  "@caravan_sample_articles": {},
-  "caravan_sample_videos": "Video",
-  "@caravan_sample_videos": {},
-  "caravan_sample_tools": "Tool",
-  "@caravan_sample_tools": {},
-  "caravan_sample_repositories": "Repository",
-  "@caravan_sample_repositories": {},
   "caravan_all_trends": "All trends",
   "@caravan_all_trends": {},
   "caravan_search": "Search the trends",
@@ -143,7 +132,7 @@
   "@home_up_next": {},
   "home_continue_reading": "Continue reading",
   "@home_continue_reading": {},
-  "home_read_percent": "{percent} % read",
+  "home_read_percent": "{percent}% read",
   "@home_read_percent": {
     "description": "How far down a half-read module the reader left it, on Home's continue card.",
     "placeholders": {
@@ -182,8 +171,6 @@
   "@content_broken_storage_message": {},
   "loading": "Loading",
   "@loading": {},
-  "catalog_filter_completed": "Completed",
-  "@catalog_filter_completed": {},
   "module_planned": "Planned",
   "@module_planned": {},
   "level_module_count": "{count, plural, =1{1 module} other{{count} modules}}",
@@ -223,6 +210,18 @@
   },
   "level_completed": "{approved}/{total} completed",
   "@level_completed": {
+    "placeholders": {
+      "approved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "level_completed_spoken": "{approved} of {total} completed",
+  "@level_completed_spoken": {
+    "description": "The level's count read aloud, where the screen shows level_completed.",
     "placeholders": {
       "approved": {
         "type": "int"
@@ -362,7 +361,8 @@
   "@reader_contents": {},
   "listen": "Listen",
   "listen_resume": "Resume listening",
-  "listen_no_voice": "This phone has no voice for this language. Add one in the phone's Settings to listen.",
+  "listen_no_voice": "This device has no voice for this language. Add one in the device's Settings to listen.",
+  "listen_not_started": "Listening stopped. Where it was left is kept; try again in a moment.",
   "listen_play": "Play",
   "listen_pause": "Pause",
   "listen_back": "Previous paragraph",
@@ -668,6 +668,8 @@
   "@data_restored": {},
   "data_restore_not_done": "The file was not restored, because a reset was under way. Try again.",
   "@data_restore_not_done": {},
+  "data_restore_not_saved": "The file is shown, but this device could not save it, so it is gone when the app closes. Free some space and restore it again.",
+  "@data_restore_not_saved": {},
   "data_restore_empty": "Nothing was changed. That file holds no progress; only a backup file does.",
   "@data_restore_empty": {},
   "data_restore_newer": "That file was written by a newer version of the app or the website. Update the app, then restore it again.",
@@ -716,7 +718,7 @@
   },
   "erase_field_label": "Type ERASE to confirm",
   "@erase_field_label": {},
-  "erase_confirm": "Erase all data",
+  "erase_confirm": "Erase all progress",
   "@erase_confirm": {},
   "erase_keep": "Keep my data",
   "@erase_keep": {},
@@ -902,11 +904,11 @@
   "@app_icon_default": {
     "description": "Under the default app icon's name on the app icon page."
   },
-  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some phones then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the phone draws every icon in its own colours.",
+  "app_icon_note_android": "The new icon reaches the home screen when you leave the app. Some devices then take its shortcut off the home screen; the app list shows the new icon. With themed icons on, the device draws every icon in its own colours.",
   "@app_icon_note_android": {
     "description": "The note on the app icon page on Android: when the icon changes, and what some launchers do."
   },
-  "app_icon_note_ios": "The phone confirms the new icon with a message.",
+  "app_icon_note_ios": "The device confirms the new icon with a message.",
   "@app_icon_note_ios": {
     "description": "The note on the app icon page on iOS, where the system tells of every icon change."
   },
@@ -943,7 +945,7 @@
   "@guide_modules_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_modules": "Each module is a 20 to 30 minute read, with diagrams and code. Some end with a few questions to check yourself.",
+  "guide_modules": "Each module reads in one sitting, with diagrams and code. Some end with a few questions to check yourself.",
   "@guide_modules": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -959,7 +961,7 @@
   "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this phone.",
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -975,13 +977,17 @@
   "@privacy_title": {},
   "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
-  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the phone's own backup when it is on; the app sends them nowhere else. You can back them up, restore or erase them under Your progress in Settings.",
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},
-  "privacy_scanner": "On Android, Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record. On an iPhone the app reads the code itself, and nothing leaves the phone.",
-  "@privacy_scanner": {
-    "description": "Privacy: Scan the code on Android is Google's code scanner, which sends Google its own diagnostics (plan 19.3)."
+  "privacy_scanner_android": "Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.",
+  "@privacy_scanner_android": {
+    "description": "Privacy, on Android: Scan the code is Google's code scanner, which sends Google its own diagnostics (plan 19.3). Names no other platform (App Store guideline 2.3.10)."
+  },
+  "privacy_scanner_ios": "Scan the code reads the code in the app itself, and nothing leaves the device.",
+  "@privacy_scanner_ios": {
+    "description": "Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10)."
   },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {
@@ -1047,7 +1053,7 @@
   "@settings_story": {
     "description": "Settings, About: the row that opens the story of the Bazaar (web D115, D125)."
   },
-  "about_failed": "The story could not be opened. Check for updates, then open it again.",
+  "about_failed": "The story could not be opened. Open it again later, or update the app.",
   "@about_failed": {
     "description": "The About page, when the story document cannot be read."
   },
@@ -1400,7 +1406,7 @@
   "tour_practice_today": "Practice here for as long as you like.",
   "tour_quiz_level": "Each level's quizzes. Take them as often as you like.",
   "@tour_quiz_level": {},
-  "tour_settings_reading": "Track, language, look and text size.",
+  "tour_settings_reading": "Audience, language, appearance and text size.",
   "@tour_settings_reading": {},
   "tour_settings_customize": "My wardrobe: dress me up, or change the app icon.",
   "@tour_settings_customize": {},
@@ -1410,7 +1416,7 @@
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
   "@guide_replay_tour": {},
-  "tour_step": "{step} / {count}",
+  "tour_step": "{step} of {count}",
   "@tour_step": {
     "description": "Which of the tour's places on this page the Apprentice is at, of how many.",
     "placeholders": {
@@ -1560,16 +1566,18 @@
       }
     }
   },
-  "transfer_keeps": "Adding it keeps everything on this phone: nothing here is removed.",
+  "transfer_keeps": "Adding it keeps everything on this device: nothing here is removed.",
   "@transfer_keeps": {},
-  "transfer_add": "Add to this phone's progress",
+  "transfer_add": "Add to this device's progress",
   "@transfer_add": {},
-  "transfer_added": "Added. Nothing on this phone was removed.",
+  "transfer_added": "Added. Nothing on this device was removed.",
   "@transfer_added": {},
-  "transfer_nothing_new": "Nothing new: this phone already has all of it.",
+  "transfer_nothing_new": "Nothing new: this device already has all of it.",
   "@transfer_nothing_new": {},
-  "transfer_not_added": "Not added. Open the link again to try once more.",
+  "transfer_not_added": "Not added. Nothing on this device changed; Add tries again.",
   "@transfer_not_added": {},
+  "transfer_too_large": "Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.",
+  "@transfer_too_large": {},
   "transfer_unreadable": "This link cannot be read. Make a new one on the website's Progress page.",
   "@transfer_unreadable": {},
   "transfer_empty": "This link carries no progress.",
@@ -1578,9 +1586,9 @@
   "@data_send_to_website": {},
   "settings_website": "Transfer",
   "@settings_website": {},
-  "website_from_title": "From the website to this phone",
+  "website_from_title": "From the website to this device",
   "@website_from_title": {},
-  "website_from_text": "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this phone.",
+  "website_from_text": "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.",
   "@website_from_text": {},
   "website_scan": "Scan the code",
   "@website_scan": {},
@@ -1588,11 +1596,13 @@
   "@website_scan_title": {},
   "website_scan_not_a_link": "That code is not a progress link from the website.",
   "@website_scan_not_a_link": {},
-  "website_scan_denied": "The app may not use the camera. Allow it in the phone's Settings, or scan the code with the Camera app.",
+  "website_scan_denied": "The app may not use the camera. Allow it in the device's Settings, or scan the code with the Camera app.",
   "@website_scan_denied": {},
   "website_scan_failed": "The camera did not open. Scan the code with the Camera app instead.",
   "@website_scan_failed": {},
-  "website_to_title": "From this phone to the website",
+  "website_scan_opening": "Opening the scanner. The first time, this can take a minute.",
+  "@website_scan_opening": {},
+  "website_to_title": "From this device to the website",
   "@website_to_title": {},
   "website_to_text": "Send your progress as a link, then open the link on the computer.",
   "@website_to_text": {},
@@ -1600,6 +1610,8 @@
   "@data_send_empty": {},
   "data_send_failed": "The share menu did not open.",
   "@data_send_failed": {},
+  "data_send_too_large": "Your progress is too long to fit in a link.",
+  "@data_send_too_large": {},
   "reader_share": "Share this module",
   "@reader_share": {}
 }

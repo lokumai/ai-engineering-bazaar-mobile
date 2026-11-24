@@ -156,4 +156,29 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(find.descendant(of: copy, matching: find.text('Copy')), findsOneWidget);
   });
+
+  // Review 8, finding 16: a clipboard the phone refused threw from the tap, uncaught.
+  testWidgets('a clipboard that fails says nothing was copied, and throws nothing', (tester) async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') throw PlatformException(code: 'busy');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await pumpBlocks(tester, const [
+      CodeBlock(
+        language: 'python',
+        lines: [
+          [CodeToken(text: 'run()', role: null, bold: false)],
+        ],
+      ),
+    ]);
+    final copy = find.byKey(const Key('code-copy'));
+
+    await tester.tap(copy);
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.descendant(of: copy, matching: find.text('Copied')), findsNothing);
+    expect(find.descendant(of: copy, matching: find.text('Copy')), findsOneWidget);
+  });
 }

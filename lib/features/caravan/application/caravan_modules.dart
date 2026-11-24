@@ -20,14 +20,16 @@ final class CaravanModule extends Equatable {
 /// The modules [trend] names that the course has written in [track], in the order the trend names them, each once,
 /// titled in [language].
 ///
-/// A trend names a module by its name alone, the last segment of its key, as the web's `curriculum.yaml` does; a name
-/// the bundle does not carry, or a module not written in [track], is left out, as the web drops a module that no longer
-/// resolves rather than show a dead link.
+/// A trend names a module by its name alone, the last segment of its key, as the web's `curriculum.yaml` does, with an
+/// underscore where the key has a hyphen (`prompt_engineering` is `intermediate/prompt-engineering`; review 8, finding
+/// 3); a name the bundle does not carry, or a module not written in [track], is left out, as the web drops a module
+/// that no longer resolves rather than show a dead link.
 List<CaravanModule> courseModules(CaravanTrend trend, BundleIndex index, Track track, String language) {
   final found = <CaravanModule>[];
   for (final name in trend.modules) {
+    final slug = name.replaceAll('_', '-');
     for (final module in index.modules) {
-      if (module.key.split('/').last != name) continue;
+      if (module.key.split('/').last != slug) continue;
       final entry = module.tracks[track];
       if (entry == null || !entry.drawn) continue;
       if (found.any((other) => other.key == module.key)) continue;

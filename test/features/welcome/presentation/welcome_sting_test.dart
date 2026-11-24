@@ -254,6 +254,21 @@ void main() {
     expect(_scene, findsNothing);
   });
 
+  // Review 8, finding 16: gone at once under reduced motion, the opening came back and played when the reader turned
+  // reduced motion off later.
+  testWidgets('gone under reduced motion, it stays gone when motion is turned on again', (tester) async {
+    await tester.pumpWidget(_splash(reducedMotion: true, greeting: null));
+    await tester.pump();
+    await tester.pump();
+    expect(_scene, findsNothing);
+
+    await tester.pumpWidget(_splash(greeting: null));
+    await tester.pump();
+    await tester.pump();
+    expect(_scene, findsNothing);
+    expect(find.text('the app'), findsOneWidget);
+  });
+
   testWidgets('waits for the chosen icon: until it is read, only the ground shows, and no robot', (tester) async {
     final store = _SlowStore();
     final appIcon = AppIconCubit(store: store)..load();

@@ -5,15 +5,20 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-20
+
+The first release on the App Store and Google Play.
+
 ### Added
 
+- On iOS the camera's question, asked once for Scan the code, is in Turkish and Persian as well as English.
 - A module with no voice for its language says where Listen would be that the phone has none, and that one is added in the phone's settings.
 - Play and Pause for a module read aloud on the lock screen, on both phones, and in the iPhone's Control Center and on its headphones. On Android a paused reading keeps its notice, with Play, for two minutes. On iOS other sound now pauses while a module is read aloud, rather than being lowered.
 - On Android a module read aloud goes on with the screen off and the app in the background, with a notice that names it and has Pause; Back on Home leaves the app running. Other sound pauses while it reads, as on iOS; a call, or headphones taken off, pause it.
 - On Android the Apprentice's and the Caravan's touch feedback is a soft tap like the iPhone's, on phones that can play one, and none on others.
 - Feedback in Settings: the web's anonymous Google Form, opened in the browser, in every build. The app sends nothing to it, and Privacy and legal says so.
 - Progress moves between the website and the phone by a link that carries it, with no server: the website's Progress page shows it as a code the phone's camera opens in the app, and Send to the website in Settings shares it to open on the computer. Adding it keeps everything already there.
-- The site's module, level and catalog pages open in the app, and a module shares its page on the site from the icon under its title.
+- The site's module, level and catalog pages open in the app once the site publishes its app link files and, on iOS, the build carries the company team's associated domains (plan 21.9); until then they open in the browser, and Scan the code and the transfer link work. A module shares its page on the site from the icon under its title.
 - Settings has a section for the website, above Your progress: it says where the website's code is and scans it in the app (Scan the code), and sends this phone's progress to the website. The tour stops at it.
 - Today's card at Home's head: each day a section of a module, its heading and first sentences, presented by the Apprentice from its corner, where its level, Chat and its button sit; a tap opens the module at that section.
 - A tour for a first run: once Welcome is over the Apprentice comes out of its button and asks whether to show the reader around, then walks to each part of Home and of each tab the first time it is opened, its wardrobe in Settings included, saying in a speech bubble what it is, and walks back into its button at the end. Skip ends the tour. How the bazaar works takes it again, its button always in sight.
@@ -22,7 +27,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - App icon in Settings' Customize section: the pocket model's robot in one of its hats or heads, on the dark or the cream ground, chosen above the robots; the fez on cream is the default, and each other robot unlocks as its parts do in the robot's wardrobe. The chosen one becomes the icon on the home screen (on Android once the app is left; on iOS the phone confirms it) the launch screen takes its ground (on Android 13 and later and on iOS, from the launch after the change).
 - Welcome's first step ends in Start learning, which opens the app, with the story button under it; the first launch opens Home, as every launch does.
 - Appearance in Settings and on Welcome's first step: Light or Dark. The app opens light until the reader chooses, whatever the phone's setting, and keeps the choice on the device.
-- Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, the Quiz tab, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
+- Module titles in the reader's language, as the web publishes them (web D139): in the catalog, a level page, Home, Practice, a quiz and the bar over a module. A module with no title in the language keeps the English one; summaries and level names stay English, as on the web.
 - A link on Privacy and legal to the site's privacy note, which covers the app too (web D138).
 - The iOS privacy manifest: the app tracks nothing, and lists what a release with the Sentry DSN sends, linked to no one.
 - Sentry in a release built with the DSN (`sentry_dsn.json`, kept out of git): crash reports, hangs, how long the app took to open, and release-health sessions, scrubbed on the device; Sentry keeps no IP address. Privacy and legal says so.
@@ -38,7 +43,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A photo or an animated image in the reader opens full screen on a tap, where it zooms, pans and turns with the phone, as a diagram does.
 - A module opens where the reader left it, from another tab, from Home and on a new launch; Home's card goes on with the module left last, with how far it was read. The place is kept on the device apart from the progress, and Reset erases it.
 - Your path on Home: each level with a bar of its modules completed, in its hue.
-- The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A camel in the middle opens the Caravan, which says it is coming soon until the web's timeline reaches the content bundle.
+- The bottom navigation is a low row of icons, each with its name small under it: the open tab filled, the others outlined. A horse's head in the middle opens the Caravan.
 - The story of the Bazaar, read from the content bundle (web D125), told as a short film over the whole screen on the web's dusk-to-dawn grounds: the gate and the title, each section with the web's scene playing from its start and its words rising in turn, then the motto at dawn. It moves on by itself, a tap goes on or back, and holding pauses it. Told on the first launch from the story button under Start learning, its last button Start learning, and in Settings under About, beside How the bazaar works.
 - Privacy and legal in Settings: what the app does with data, the owner as the registry has it, and the note on third-party marks and images (web D122).
 - The AI Engineering Bazaar reader for Android and iOS, with the application id `dev.lokumai.bazaar`.
@@ -46,28 +51,31 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - A refresh that adopts a strictly later content bundle from the site, checked by sha256, and never leaves a mixed set.
 - Both tracks, For Engineers and For Everyone, with a track switch on the pages of a track.
 - Three languages, English, Turkish and Persian, chosen in Settings: the interface and the module documents follow the choice, Persian right to left, and a module not yet translated opens in English.
-- A full-screen bazaar opening on every launch, on the bar's navy: the arch draws itself, the tiled wall, the lamps, the light with the Lokum logo and the people come in, then the reader walks through the arch into the app. The launch screens are the same navy. The first launch then asks for the language and the track, tells the story of the Bazaar, and lands on the catalog.
+- The first launch asks for the language, the track and the look, with the story of the Bazaar one tap away.
 - Home at `/`: the next module to read, the modules after it, the quizzes of the modules completed last to practise again, and the offline note.
 - The catalog root at `/sheets` with the reader's progress in it: a dial per level, and in each level's modules a mark to complete a module or the Planned mark, with a legend. The level page. The web's filters are left out.
 - The module reader in the web's order, with diagrams, figures, logos, tables, code, callouts, the contents sheet and a
   reading bar.
-- The module quiz, opened full screen from a card in the reader, and the Quiz tab, which lists every module's quiz in a card per level that opens and closes, as the catalog does, and opens a quiz without the reader.
+- The module quiz, opened full screen from a card in the reader, and the quizzes by level in Practice, which open a quiz without the reader.
 - The data line in Settings: back up to a file, restore from a file, reset with a 10 second undo, and the set-aside record. An undo keeps what was completed, ticked or scored in its 10 seconds, and undoes all of the reset or none of it. A backup larger than the app keeps is refused with a note, rather than restored until the next start. The app has no progress page of its own: the catalog shows the progress.
 - Progress kept on the device in the web's record format, held to the web's conformance fixture.
-- Quiz scores kept on the device apart from the record: a dial of the quizzes taken per level and a meter of the last score per quiz on the Quiz tab and Home, the one before on the results, practice on Home led by the quizzes not taken or with the lowest score. Reset erases them with the record.
+- Quiz scores kept on the device apart from the record: a dial of the quizzes taken per level and a meter of the last score per quiz in Practice and on Home, the one before on the results, practice on Home led by the quizzes not taken or with the lowest score. Reset erases them with the record.
 - Settings with the content status, Check for updates, the licences and a debug-only dev console button.
 - The redesign after the team's mobile mockup: a bar on the page's ground over a thin lattice band, naming a level's page
-  and a module's with the level's hue, level hues, dials and meters, and a four-item bottom navigation.
+  and a module's with the level's hue, level hues, dials and meters.
 - On a module page the bar, the band and the bottom navigation slide away while reading down and come back on a scroll up.
-- The app icon, the striped gate, with an Android themed icon and iOS dark and tinted versions.
+- The app icon: the Apprentice in a fez on cream, or any robot of its wardrobe on a cream or dark ground, chosen in Settings.
 - Device tests under `integration_test/` and a workflow that runs them on demand.
 
 ### Changed
 
+- The name under the icon is AI Bazaar, on both phones; the stores call the app AI Engineering Bazaar.
+- On Android a navigation app's spoken turn pauses a module read aloud, which goes on once the turn is said, rather than talking over it.
+- A Caravan card ends with the course's modules: its readings show once the website gives them addresses.
+- A crash report no longer names the module, level or course picture whose content failed to open, and the device log names a content object by its hash.
 - Privacy and legal says the progress, scores and settings are on the device and in the phone's own backup when it is on, and that the app sends them nowhere else.
 - The Caravan no longer shows a notice or a badge of resources to come.
-- The Caravan says each trend's articles and resources are coming soon, not that the trends are sample data.
-- Privacy and legal says the app has no account, no ads and no tracking, and that on Android Scan the code is Google's code scanner, which sends Google its own diagnostics. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
+- Privacy and legal says the app has no account, no ads and no tracking, and how Scan the code works on the phone it runs on: on Android Google's code scanner, which sends Google its own diagnostics; on iOS the app's own camera screen, from which nothing leaves the device. The iOS privacy manifest names the app's own settings and the installation id of the sessions.
 - A release writes only warnings and errors to the console, and never the pages opened.
 - Settings' section The website is now Transfer.
 - On Android the navigation bar shows the page under it, its buttons readable in both looks, and the share icon is Android's own.
@@ -75,40 +83,36 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Persian text is set in Vazirmatn on both phones, as on the website.
 - On Android the app's settings, quiz scores, reading places and the Apprentice go to the phone's backup and a new phone with the progress.
 - Completing a module For Engineers no longer completes its For Everyone version: each track is completed on its own, as on the website, so a progress link counts the same on both.
-- The module to read now, the one left half read or else the next one, is in a band over the bottom navigation on Home, the catalog and the Quiz tab, under the thumb; Home no longer has a card at its head, and After that is Later on.
+- The module to read now, the one left half read or else the next one, is in a band over the bottom navigation on Home, the catalog and Practice, under the thumb; Home no longer has a card at its head, and After that is Later on.
 - The catalog's search folds a module with more than one hit to its best one, unfolded with a tap, and can be kept to some levels.
 - Asked to chat while asleep, the Apprentice wakes and answers at once.
 - The Caravan tab's mark is a horse's head.
-- The Apprentice's round button is on the catalog, the Caravan and the Quiz tab too, and on Home beside its corner, where the whole robot stands; never in Settings.
+- The Apprentice's round button is on the catalog, the Caravan and Practice too, and on Home beside its corner, where the whole robot stands; never in Settings.
 
-- The opening is the pocket model's robot in what it wears, on the ground of the light or dark look the reader chose: it pops up and waves, sends hearts, gets stars or hearts for eyes, hops its hat, wiggles, spins, bounces or hums, at random, then shrinks away as the app opens out of a circle where it stood, about a second in all. The launch screens are cream, the default icon's ground.
+- The opening is the pocket model's robot in what it wears, on the ground of the light or dark look the reader chose: it pops up and waves, sends hearts, gets stars or hearts for eyes, hops its hat, wiggles, spins, bounces or hums, at random, then shrinks away as the app opens out of a circle where it stood, about a second in all.
 - The Settings tab opens on Settings itself whenever it is tapped, not on the page of it left.
 - The launch screen and the app's first frames are on the page colour of the look the reader chose, light or dark, not on the app icon's ground; before a choice, dark, whatever the phone's theme.
-- The opening is the striped secret agent: it stands still in the middle of the screen, then the camera flies into it and its stripes rush past as ribbons onto the app, 1.45 s, on the page colour of the theme.
-- The app icon is the striped secret agent on the dark page colour, one icon for every phone theme.
-- The launch screens are the dark page colour whatever the phone's theme.
 - Welcome's first step fits a phone with no scrolling; the line under its title is gone.
-- The Caravan tab says the Caravan is coming soon, over a scene of a caravan walking in at dusk, instead of under maintenance.
 - A picture in a module is decoded at the size it is drawn, which takes less memory and opens a module faster; it looks the same, and full screen still shows it whole.
 - The back arrow in the bar goes to the page the page was opened from, Home, Quiz, a level or another module, as Android's back and the iOS edge swipe do; it no longer goes to the catalog.
 - Another tab opens at once, with no transition, as tabs change on iOS and Android; the page left no longer shows through for a moment. A page opened inside a tab, a module or a level, comes in with the platform's own transition, sliding in from the side on iOS, where the edge swipe goes back, and zooming in on Android.
 - A completed module opens at its top: completing it drops the place it was left at, and none is kept while it stays completed.
 - The catalog search's keyboard goes away on a tap elsewhere and on a drag through the hits, as iOS has no back key; iOS's own sheets follow the app's languages.
-- Android's back on the first page of Catalog, the Caravan, Quiz or Settings goes Home; it leaves the app from Home.
+- Android's back on the first page of Catalog, the Caravan, Practice or Settings goes Home; it leaves the app from Home.
 - Persian pages put a table's cells, the edge of a notice and the Planned band on their right, as the site does.
 - A cache that cannot be cleaned up, or an object in it that cannot be read, no longer stops the course from opening: the bundled snapshot opens, and the object reads as missing.
 - A quiz score from before a content update changed the quiz's length is dropped when the quiz is opened.
 - Choices of language and track made in quick succession are kept in the order made.
 
-- A For Everyone reader takes the quiz of each module written For Everyone, under its title there, on the Quiz tab, in Home's practice and at the module's end: a module has one quiz on both tracks (web D137). The note that the questions come with the For Engineers modules is gone.
+- A For Everyone reader takes the quiz of each module written For Everyone, under its title there, in Practice, on Home and at the module's end: a module has one quiz on both tracks (web D137). The note that the questions come with the For Engineers modules is gone.
 - The back arrow on a module goes to the catalog of its track, found as it was left with its search, and no longer to the page before: a module opened from Home and found again from the Catalog tab went back to Home. A link to a section, or a search hit, keeps its heading at the top while pictures above it load.
 - A Turkish or Persian module shows what it teaches in its own language, where the site has translated it (web D124).
 - A diagram opens full screen at a tap, to zoom and turn it; a mark in its corner says so.
 - The mark after an external link is a small arrow in the text's colour, no longer a colour emoji.
-- Catalog and Quiz open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Back up, Restore and Reset on one line, their names shortened to fit in every language; the level's title follows the back arrow in the bar.
+- Catalog and Practice open on their names; Home's quiz list is "Quizzes to practise"; the data actions in Settings are buttons, Back up, Restore and Reset on one line, their names shortened to fit in every language; the level's title follows the back arrow in the bar.
 - Headings are set in Fraunces, the web's display face; the text stays in the sans.
 - Lists stand on the page with a hairline between rows instead of a card each; the levels are washed in their hues, and the chosen track and language are a light wash instead of a solid block.
-- The app identity: `dev.lokumai.bazaar`, "Bazaar" under the icon and "AI Engineering Bazaar" as the title.
+- The app identity: `dev.lokumai.bazaar`, "AI Bazaar" under the icon and "AI Engineering Bazaar" as the title.
 - The Dart package name is `ai_engineering_bazaar`.
 - The template palettes are replaced by the Bazaar theme, built from design tokens generated from the snapshot.
 - Diagrams are drawn in their light version in both themes, as photos are.
@@ -128,6 +132,52 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 - A module read aloud pauses when the headphones are taken off or lost, on both phones, rather than going on through the speaker; on iOS a module started during a call waits, as on Android.
 - On Android a module whose language the phone's voice refuses no longer ends the app, and the notice opens the app after the icon was changed.
+- On Android a module stopped while read aloud always ends its notice, whatever the phone's voice engine.
+- On Android headphones taken off during a navigation prompt keep the reading paused, rather than reading on through the speaker when the prompt ends.
+- A progress link cut short in the middle of a character is ignored, rather than ending in an error.
+- The app starts even when the phone does not give its version.
+- A module left half read opens where it was left even when it was first drawn under another page, rather than ending in an error.
+- A scanned code or a link whose address has a character that is not UTF-8 is not a link, and Scan the code works again after it.
+- A file of the app's own (the Apprentice, quiz scores, Practice, where modules were left) that the phone could not read at start is not replaced by a fresh one.
+- The catalog and the level pages open even when a module names a prerequisite the course no longer has.
+- A module, the story or a quiz whose content cannot be read says so, rather than loading for good; a quiz left before it loads no longer reports an error.
+- A voice added in the phone's settings is found when the reader comes back, rather than once the app is closed.
+- On Android a voice engine that describes a voice badly keeps its default voice, rather than ending the app.
+- A module is counted read only by the time it is in front: time on the next module, a quiz or a picture opened over it no longer counts, and a visit's time is counted once.
+- A module the phone's voice does not start keeps where it was left and says so, rather than the player closing without a word.
+- On Android the notice of a module read aloud is in the app's language, not the phone's.
+- The app says "this device", not "this phone", as it runs on an iPad too.
+- The Apprentice no longer stutters on a feed once it has read many modules: its curve is drawn away from the screen.
+- Persian screens write every number with Latin digits, as the website does.
+- English text in the Persian interface (a summary, a level's notes, a planned module) reads left to right.
+- A module opened from a search or a link comes back with its tab where it was left, not at the section searched with the words marked again.
+- The brief's count stays on its cards after the page grows, and a module whose notes are missing says so rather than loading for good.
+- A damaged Apprentice file can no longer hold the app at start.
+- A link that opens a page closes a dialog or a quiz left open, whose buttons did nothing after.
+- Scan the code says it is opening the scanner while Google Play fetches it, and gives up after a minute without a connection.
+- The Caravan's search finds words as the course search does: Turkish ı and İ either way, and a Persian word typed with a space.
+- Half-width buttons end a label too long for them with an ellipsis.
+- On iOS a module read aloud reads on after Siri or a navigation prompt, when the phone says it may.
+- Listen stopped in a middle part keeps the place and says it stopped.
+- A restore whose record could not be written says so, rather than that it was restored.
+- The tour goes on when the page it points at is rebuilt, and Home's practice turns to the new day at midnight.
+- In Persian, Privacy and legal's addresses and Listen's buttons stay left to right.
+- Deleting the set-aside record is saved at once.
+- Android's Listen starts again after its voice engine failed, and its notice no longer stays when it could not start.
+- A site link names a level or module only with the site's own letters.
+- A module, About or a level's notes that cannot be read is reported and says so, rather than staying blank.
+- A screen reader names the loading spinners; field outlines, the search's count and the training panel read better with large text and low vision; a share menu that did not open says so.
+- Turkish and Persian name each thing with one word, and the tour with the words its screens show.
+- An error page from the site that trickles in no longer keeps Check for updates busy.
+- On iOS a second Scan the code while the camera question is up is answered busy.
+- On Android Listen works again after the phone's voice service is updated while the app runs, without closing the app.
+- A progress link too large for the device's record is not added, and the record in use stays as it was.
+- A backup file whose size the phone cannot tell is read only up to the 16 MB limit.
+- A backup file nested too deep says it is not a backup.
+- The answer to Check for updates is read out by a screen reader.
+- A second tap on the Apprentice's Read reads no second module.
+- Opening a module from the Caravan ends its tour.
+- A link in a level's notes to a heading the notes do not have does nothing, as in a module.
 - A progress link is refused as soon as it inflates past its limit, never held whole first.
 - Reset erases where each module read aloud was left too, and Undo brings it back, so parts heard before a reset never complete a module.
 - Welcome asks again, rather than show an empty page, when its flag cannot be read.
@@ -152,3 +202,39 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - Capitals follow the language: Turkish "Sıradaki" is "SIRADAKİ", not "SIRADAKI".
 - The two GitHub links on Privacy and legal are in Turkish and Persian; Turkish reads "%40 okundu" and "Güncellemeleri kontrol et" everywhere.
 - In Persian a quiz verdict's coloured edge is on the right, where its line starts.
+- With large text the tour's bubble stays on the screen, and Back skips the tour; the corner's Chat button keeps to a third of the width; no button, label or count in the Apprentice's card, the corner or the Caravan is cut off.
+- A quiz's or Practice's step dots wrap onto a second line when there are many, and a wrong step is a square as well as red.
+- A module the course does not have, named by a link in a callout, shows no button that does nothing.
+- The reset's countdown is read once by a screen reader, not at every second.
+- A Persian search hit reads right to left in an English catalog, and the find bar's "2 / 7" and Listen's line read left to right in Persian, as its controls do.
+- A course that could not be read from the phone's storage offers Try again.
+- Home's daily card and Practice turn to the new day when the app comes back from the background.
+- A copy that fails, a diagram that cannot be drawn full screen, a broken reading place or a heading named twice no longer throws; a diagram that cannot be read says so to a screen reader too.
+- The search field takes at most 100 characters, and keeps its text and its keyboard when new content arrives while the reader types.
+- On iOS the scanner's Cancel is in the app's language.
+- A checklist box the reader ticks has the full 48 px to tap.
+- The glossary sorts by the Turkish and Persian alphabets, ç after c and پ after ب.
+- Send to the website says when the progress is too long for a link, instead of sharing one the website refuses; a progress link merged back into the record it came from adds nothing.
+- Practice and the glossary do not read every module again after a switch of track or language and back, and try a module that could not be read again the next time they open.
+- A module read to its end and left with Next, Previous, a prerequisite or a link is marked completed at once, rather than only when the reader leaves the whole stack of modules; the time spent is kept when the app goes off the screen.
+- A module marked completed twice at once, from two pages of it, stays completed, and Undo always takes the completion away.
+- A content update with a document this version of the app cannot read is not used, and the course stays as it was.
+- Restore reads a file of at most 2 MB, so a file that is not a backup cannot freeze the screen.
+- A second record set aside as unreadable keeps the first copy too.
+- A progress link that was not added can be added again from the same page, and is not shown as if it were.
+- Restore's confirmation offers Back up, as the erase dialog does.
+- On iOS a scan whose camera screen did not open is answered, and Scan the code works again after it.
+- A place in a module just above a heading is kept, rather than opening the module at its top.
+- After a switch of language during Listen, the reader marks no paragraph of the other language.
+- The tour's step is read out as words by a screen reader, and the English percent read has no space before %.
+- On a tablet turned while a module is read, the module stays where it was read; a Practice session goes on when a window or a turn takes the page across a tablet's width.
+- On iOS the camera screen of Scan the code always closes, and its Cancel always works.
+- On Android, Back over a page closes the page and leaves the tour under it; while the tour asks or points, Back skips it, rather than leaving the app.
+- Privacy and legal says that a backup holds the progress, not the quiz scores or the settings.
+- A module page covered by another module, from the Listen bar too, is marked completed if read to its end, as when Next leaves it.
+- The notes of a track with a module that cannot be read no longer flash Loading when they are tried again.
+- Deleting a record set aside as unreadable brings up the one set aside before it, to save or delete in turn.
+- The erase and restore dialogs show only a backup made in them, not an older one.
+- A progress link that would make the record larger than the app keeps says so, without an Add that could not work.
+- A level's count is read aloud as words; the Persian count of a level waiting for the record stays left to right.
+- Turkish and Persian wording: the erase button, Recap, the images' credit, the privacy page, the largest text size, Listen's paused notice and the Caravan's trends.

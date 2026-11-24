@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 
 /// How the pocket model's training stands: its level in a ring that fills toward the next, and its training loss beside
 /// it as a small chart that grows with every feed. What it has read is counted further down ([PocketStats]), not here
@@ -67,26 +68,32 @@ class _LevelRing extends StatelessWidget {
           painter: _RingPainter(progress: value, colour: colors.primary, track: colors.line),
           child: child,
         ),
-        child: Center(
-          child: AnimatedSwitcher(
-            duration: reduced ? Duration.zero : const Duration(milliseconds: 420),
-            transitionBuilder: (child, animation) => ScaleTransition(
-              scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
-              child: child,
-            ),
-            child: Column(
-              key: ValueKey(level),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '$level',
-                  style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.primary, height: 1),
-                ),
-                Text(
-                  S.of(context).pocket_level_word,
-                  style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted, height: 1.1),
-                ),
-              ],
+        // Inside the ring: at a large text size the number and its word shrink to fit it rather than run out of it
+        // (review 8).
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AnimatedSwitcher(
+              duration: reduced ? Duration.zero : const Duration(milliseconds: 420),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+                child: child,
+              ),
+              child: Column(
+                key: ValueKey(level),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$level',
+                    style: displayFace(theme.textTheme.titleLarge)?.copyWith(color: colors.primary, height: 1),
+                  ),
+                  Text(
+                    S.of(context).pocket_level_word,
+                    style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurfaceMuted, height: 1.1),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -160,7 +167,7 @@ class LossChart extends StatelessWidget {
     final reduced = MediaQuery.disableAnimationsOf(context);
     final language = Localizations.localeOf(context).languageCode;
     final tokens = curve.isEmpty ? 0 : curve.last.tokens;
-    final loss = curve.isEmpty ? '' : NumberFormat('0.00', language).format(curve.last.loss);
+    final loss = curve.isEmpty ? '' : NumberFormat('0.00', numberLocale(language)).format(curve.last.loss);
     return Semantics(
       container: true,
       label: tokens > 0 ? '${s.pocket_loss_title}, ${s.pocket_loss(loss)}' : s.pocket_loss_title,
@@ -183,8 +190,6 @@ class LossChart extends StatelessWidget {
                   Expanded(
                     child: Text(
                       s.pocket_loss_title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
                     ),
                   ),
@@ -213,15 +218,19 @@ class LossChart extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
+              // The chart is 40 high; the line before the first feed is at least that and grows with the text, which a
+              // fixed height cut at a large text size (review 6, finding 18).
               SizedBox(
-                height: 40,
+                height: tokens == 0 ? null : 40,
                 child: tokens == 0
-                    ? Center(
-                        child: Text(
-                          s.pocket_loss_empty,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
+                    ? ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 40),
+                        child: Center(
+                          child: Text(
+                            s.pocket_loss_empty,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.labelSmall?.copyWith(color: colors.onSurface),
+                          ),
                         ),
                       )
                     : TweenAnimationBuilder<double>(

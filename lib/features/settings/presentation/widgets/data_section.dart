@@ -74,6 +74,6 @@ class _DataWithBloc extends StatelessWidget {
   Future<void> _confirmRestore(BuildContext context, PendingRestore pending) async {
     final bloc = context.read<DataBloc>();
     final replace = await showRestoreConfirmDialog(context, pending.local);
-    bloc.add(replace ? const RestoreConfirmed() : const RestoreDeclined());
+    if (!bloc.isClosed) bloc.add(replace ? const RestoreConfirmed() : const RestoreDeclined());
   }
 }

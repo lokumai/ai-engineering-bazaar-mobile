@@ -26,10 +26,12 @@ import '../../../support/content_builders.dart';
 final class _Voice implements ISpeech {
   _Voice({this.speaks = true});
 
-  final bool speaks;
+  /// Whether the phone has a voice; a reader may add one in the phone's settings.
+  bool speaks;
 
-  /// Each speak's texts.
+  /// Each speak's texts, and the language its notice speaks.
   final handed = <List<String>>[];
+  final noticeLanguages = <String?>[];
   final asked = <String>[];
   int stops = 0;
   List<String> _texts = const [];
@@ -62,8 +64,10 @@ final class _Voice implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) {
     handed.add(texts);
+    noticeLanguages.add(noticeLanguage);
     _texts = texts;
     _at = 0;
     _onPart = onPart..call(0);
@@ -131,7 +135,12 @@ void main() {
     );
   });
 
-  Future<GoRouter> pump(WidgetTester tester, ISpeech speech, {TargetPlatform platform = TargetPlatform.android}) async {
+  Future<GoRouter> pump(
+    WidgetTester tester,
+    ISpeech speech, {
+    TargetPlatform platform = TargetPlatform.android,
+    Locale locale = const Locale('en'),
+  }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -152,6 +161,7 @@ void main() {
         content: readyContentBloc(testIndex(modules: [testModule()])),
         speech: speech,
         platform: platform,
+        locale: locale,
       ),
     );
     await tester.pumpAndSettle();
@@ -174,6 +184,28 @@ void main() {
     expect(_listen, findsNothing);
   });
 
+  // Review 5, finding 9: the line stayed after a voice was added in the phone's settings, until the app was closed.
+  testWidgets('back from the phone\'s settings with a voice added, Listen is there', (tester) async {
+    final voice = _Voice(speaks: false);
+    await pump(tester, voice);
+    expect(find.byKey(const ValueKey('reader-no-voice')), findsOneWidget);
+
+    voice.speaks = true;
+    for (final state in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pumpAndSettle();
+
+    expect(voice.asked, ['en', 'en']);
+    expect(find.byKey(const ValueKey('reader-no-voice')), findsNothing);
+    expect(_listen, findsOneWidget);
+  });
+
   testWidgets('Listen reads from the head, the part read marked; the player steps, pauses and stops', (tester) async {
     final voice = _Voice();
     await pump(tester, voice);
@@ -182,6 +214,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(voice.saying, 'Why tools.');
     expect(voice.handed.single, hasLength(33), reason: 'every part handed at once, the code passed over');
+    expect(voice.noticeLanguages.single, 'en', reason: "the phone's notice speaks the app's language (review 5, 8)");
     expect(find.text('1 of 33'), findsOneWidget);
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Why tools'))), isTrue);
     expect(_listen, findsNothing, reason: 'the player stands in for it');
@@ -207,6 +240,40 @@ void main() {
     expect(_marked, findsNothing);
     await tester.scrollUntilVisible(_listen, -200, scrollable: find.byType(Scrollable).first);
     expect(_listen, findsOneWidget);
+  });
+
+  // Review 9, finding 17: the reading's part number was applied to the parts of the module opened in another language.
+  testWidgets('a reading goes on after a switch of language, and marks nothing in the other language', (tester) async {
+    final docs = StreamController<ReaderState>();
+    addTearDown(docs.close);
+    whenListen(
+      reader,
+      docs.stream,
+      initialState: ReaderWritten(
+        doc: testDoc(body: _body),
+        entry: testModule(),
+        moduleCount: 1,
+      ),
+    );
+    final voice = _Voice();
+    await pump(tester, voice);
+    await tester.tap(_listen);
+    await tester.pumpAndSettle();
+    expect(_marked, findsOneWidget);
+
+    docs.add(
+      ReaderWritten(
+        doc: testDoc(lang: 'tr', body: [_p('Araçlar neden var.'), _p('Modeller araç çağırır.'), ..._body.skip(3)]),
+        entry: testModule(),
+        moduleCount: 1,
+      ),
+    );
+    await tester.pumpAndSettle();
+    voice.finish();
+    await tester.pumpAndSettle();
+
+    expect(voice.saying, 'Models call tools.', reason: 'the English reading goes on');
+    expect(_marked, findsNothing, reason: "its second part is not the Turkish module's second block");
   });
 
   testWidgets('the page follows the part read down the module', (tester) async {
@@ -254,6 +321,18 @@ void main() {
     expect(find.text('2 of 33'), findsOneWidget, reason: 'back on the module, where the voice is, not at its head');
     expect(rectOf(tester, _marked).contains(tester.getCenter(_words('Models call tools.'))), isTrue);
     expect(voice.handed, hasLength(1), reason: 'not started again');
+  });
+
+  // Review 6, finding 7: in Persian the row put next on the left and previous on the right, under arrows that stay.
+  testWidgets('in Persian too, previous stands left of play and next right of it, under their arrows', (tester) async {
+    await pump(tester, _Voice(), locale: const Locale('fa'));
+    await tester.tap(_listen);
+    await tester.pumpAndSettle();
+    final back = tester.getCenter(find.byKey(const ValueKey('listen-back'))).dx;
+    final play = tester.getCenter(find.byKey(const ValueKey('listen-toggle'))).dx;
+    final next = tester.getCenter(find.byKey(const ValueKey('listen-next'))).dx;
+    expect(back, lessThan(play));
+    expect(play, lessThan(next));
   });
 
   testWidgets('the player is one thin row on the page\'s ground (the owner, 2026-11-18)', (tester) async {

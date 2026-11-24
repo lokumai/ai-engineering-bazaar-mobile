@@ -26,7 +26,7 @@ const transferVersion = 1;
 /// The longest `t` value read; a longer one is refused before it is unpacked.
 const transferMaxPayload = 16384;
 
-/// The longest compact text read once unpacked.
+/// The longest compact text read once unpacked, in UTF-8 bytes, as the packer counts it.
 const transferMaxText = 262144;
 
 final _base36 = RegExp(r'^[0-9a-z]{1,11}$');
@@ -69,8 +69,10 @@ final class TransferProgress extends Equatable {
   /// read as empty).
   int ticked(Track track) => _of(track).values.fold(0, (sum, sheet) => sum + sheet.ticks.length);
 
-  /// Whether the transfer carries no progress at all.
-  bool get isEmpty => engineers.isEmpty && everyone.isEmpty && days.isEmpty;
+  /// Whether the transfer carries no progress at all: an entry with neither a completion nor a tick is nothing, as
+  /// [mergeTransfer] adds nothing for it (review 8).
+  bool get isEmpty =>
+      days.isEmpty && [...engineers.values, ...everyone.values].every((s) => s.signedOff == null && s.ticks.isEmpty);
 
   Map<String, TransferSheet> _of(Track track) => track == Track.everyone ? everyone : engineers;
 
@@ -108,7 +110,9 @@ String encodeTransfer(RecordData data) {
 /// The progress in [text], or null when it is not a transfer this app reads: the whole text is refused when any part
 /// of it fails, so nothing is ever partly applied.
 TransferProgress? decodeTransfer(String text) {
-  if (text.length > transferMaxText) return null;
+  // In bytes, as the packer counts: a text of fewer characters but more bytes was read here and refused there (review 7,
+  // finding 14). A UTF-8 text has at least as many bytes as UTF-16 units, so the first test spares the encoding.
+  if (text.length > transferMaxText || utf8.encode(text).length > transferMaxText) return null;
   final Object? json;
   try {
     json = jsonDecode(text);
@@ -160,8 +164,13 @@ Map<String, Object?>? _mergeSheet(Map<String, Object?>? here, TransferSheet shee
   }
   final raw = base['checklist'];
   final checklist = raw is Map ? Map<String, Object?>.from(raw) : <String, Object?>{};
+  // A tick already here under another key, `"03"` for 3, is not added again (review 7, finding 14).
+  final ticked = {
+    for (final MapEntry(:key, :value) in checklist.entries)
+      if (checklistTick(key) case final tick? when value == true) tick,
+  };
   for (final tick in sheetIn.ticks) {
-    if (checklist['$tick'] == true) continue;
+    if (ticked.contains(tick)) continue;
     checklist['$tick'] = true;
     changed = true;
   }

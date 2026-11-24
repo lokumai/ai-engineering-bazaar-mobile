@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/caravan/domain/sample_trends.dart';
@@ -53,6 +55,17 @@ ShadowStagePainter _painter(WidgetTester tester) =>
         as ShadowStagePainter;
 
 void main() {
+  // Review 8, finding 15: the two buttons' names were held to one line, cut from about 1.5 times the text.
+  testWidgets('at twice the text in Turkish, the buttons say their whole names', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, locale: const Locale('tr'));
+
+    for (final key in ['caravan-tour', 'caravan-all']) {
+      expect(cutTexts(tester, find.byKey(ValueKey(key))), isEmpty, reason: key);
+    }
+  });
+
   testWidgets('opens on the first stop: the stage, the strip and the first trend, with no word of anything to come', (
     tester,
   ) async {
@@ -139,6 +152,19 @@ void main() {
     await tester.pump();
 
     router.go('/');
+    await tester.pumpAndSettle();
+    expect(cubit.state, const CaravanResting(1));
+  });
+
+  // Review 7, finding 15: a module opened from a trend card left the tour walking, and ticking, under it.
+  testWidgets('a page opened over the Caravan ends a tour where the caravan is', (tester) async {
+    final cubit = _cubit();
+    final router = await _pump(tester, caravan: cubit);
+    cubit.tour(count: 22);
+    await tester.pump();
+    expect(cubit.state, const CaravanTouring(1));
+
+    unawaited(router.push('/settings'));
     await tester.pumpAndSettle();
     expect(cubit.state, const CaravanResting(1));
   });

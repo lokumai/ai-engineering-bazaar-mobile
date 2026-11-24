@@ -242,7 +242,8 @@ class _QuestionView extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (var i = 0; i < items.length; i++) _StepDot(item: items[i], pick: picks[i], current: i == index),
+                  for (var i = 0; i < items.length; i++)
+                    _StepDot(key: ValueKey('quiz-step-$i'), item: items[i], pick: picks[i], current: i == index),
                 ],
               ),
             ),
@@ -298,10 +299,10 @@ class _QuestionView extends StatelessWidget {
   }
 }
 
-/// One step of the top row: open (a `lineStrong` ring), right (`success`) or wrong (`fault`), the current one ringed in
-/// `primary`.
+/// One step of the top row: open (a `lineStrong` ring), right (a `success` dot) or wrong (a `fault` square, so the two
+/// differ by more than colour, review 8), the current one ringed in `primary`.
 class _StepDot extends StatelessWidget {
-  const _StepDot({required this.item, required this.pick, required this.current});
+  const _StepDot({super.key, required this.item, required this.pick, required this.current});
 
   final QuizItem item;
   final int? pick;
@@ -310,6 +311,7 @@ class _StepDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.bazaarColors;
+    final wrong = pick != null && pick != item.answer;
     final fill = switch (pick) {
       null => null,
       final p when p == item.answer => BazaarFixedColors.success,
@@ -320,7 +322,8 @@ class _StepDot extends StatelessWidget {
       height: 10,
       margin: const EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        shape: wrong ? BoxShape.rectangle : BoxShape.circle,
+        borderRadius: wrong ? const BorderRadius.all(Radius.circular(2)) : null,
         color: fill,
         border: Border.all(color: current ? colors.primary : (fill ?? colors.lineStrong), width: current ? 2 : 1),
       ),

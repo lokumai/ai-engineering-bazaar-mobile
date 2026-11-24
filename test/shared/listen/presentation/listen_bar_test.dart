@@ -48,6 +48,7 @@ final class _Voice implements ISpeech {
     required double rate,
     required void Function(int index) onPart,
     String title = '',
+    String? noticeLanguage,
   }) {
     handed.add(texts);
     _onPart = onPart;
@@ -74,12 +75,12 @@ final class _Voice implements ISpeech {
 
 final _bar = find.byKey(const ValueKey('listen-bar'));
 
-/// The completion toggles sent to [record] since the last look.
-List<CompletionToggled> _toggles(RecordBloc record) {
+/// The completions sent to [record] since the last look, toggled or set.
+List<RecordEvent> _toggles(RecordBloc record) {
   try {
     return [
       for (final event in verify(() => record.add(captureAny())).captured)
-        if (event is CompletionToggled) event,
+        if (event is CompletionToggled || event is CompletionSet) event,
     ];
   } on TestFailure {
     return const [];
@@ -198,11 +199,13 @@ void main() {
       await tester.pumpAndSettle();
       final note = find.byKey(const ValueKey('listen-completed'));
       expect(find.descendant(of: note, matching: find.text('Marked as completed')), findsOneWidget);
-      expect(_toggles(record), hasLength(1));
+      expect(_toggles(record), [isA<CompletionSet>().having((e) => e.completed, 'completed', isTrue)]);
       expect(_bar, findsNothing);
       await tester.tap(find.descendant(of: note, matching: find.text('Undo')));
       await tester.pumpAndSettle();
-      expect(_toggles(record), hasLength(1), reason: 'Undo sends the toggle again');
+      expect(_toggles(record), [
+        isA<CompletionSet>().having((e) => e.completed, 'completed', isFalse),
+      ], reason: 'Undo takes the completion away, whatever the record holds then (review 9, finding 2)');
     },
   );
 
@@ -212,7 +215,7 @@ void main() {
     voice.readAll();
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('listen-completed')), findsNothing);
-    expect(_toggles(record), isEmpty, reason: 'a toggle would take its completion away');
+    expect(_toggles(record), isEmpty, reason: 'nothing is sent for a module already completed');
   });
 
   testWidgets("over the navigation the module's player keeps no room for the screen's foot (the owner, 2026-11-18)", (

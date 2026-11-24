@@ -44,11 +44,36 @@ void main() {
         'https://example.test/transfer/',
         'https://example.test/everyone/transfer/#t=abc',
         'aibazaar://other#t=abc',
+        // escapes that are not UTF-8, as a link cut short
+        'aibazaar://transfer#t=%ff',
+        'aibazaar://transfer#t=%E0%A4%A',
+        'https://example.test/transfer/#t=%E0%A4',
+        // in the path too, as an old Latin-1 address (review 5, finding 1)
+        'https://example.test/courses/%FF/x',
+        'https://example.test/%E9t%E9',
         'mailto:someone@example.test',
       ]) {
         expect(_parse(link), isNull, reason: link);
       }
     });
+  });
+
+  // Review 6, finding 13: a segment decoded to a slash or a question mark became part of the route.
+  test('a level or module name that is not a slug is no link', () {
+    for (final link in [
+      'https://example.test/courses/a%2Fb/c/',
+      'https://example.test/courses/a%3Fb/c/',
+      'https://example.test/courses/%25E0/x/',
+      'https://example.test/courses/Alpha/first/',
+      'https://example.test/sheets/a%2Fb/',
+      // Review 7, finding 9: a good level with a module that is not a slug.
+      'https://example.test/courses/alpha/a%2Fb/',
+      'https://example.test/courses/alpha/x%3Fy/',
+      'https://example.test/courses/alpha/First/',
+    ]) {
+      expect(_parse(link), isNull, reason: link);
+    }
+    expect(_parse('https://example.test/courses/fundamentals/01-what-is-an-llm/'), isA<SiteModule>());
   });
 
   test('transferLink carries the payload in the fragment, which reads back', () {

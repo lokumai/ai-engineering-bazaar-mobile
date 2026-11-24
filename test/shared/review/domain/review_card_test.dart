@@ -66,4 +66,12 @@ void main() {
       expect(ReviewCard.lookedUp(today), const ReviewCard(box: 0, due: today + 1));
     });
   });
+
+  // Review 6, finding 15: a card answered with the phone's date set ahead waited for the real date to catch up.
+  test('a card due further ahead than any card waits is due now', () {
+    const today = 1000;
+    expect(ReviewCard(box: 4, due: today + ReviewCard.waits.last).dueOn(today), isFalse);
+    expect(ReviewCard(box: 4, due: today + ReviewCard.waits.last + 1).dueOn(today), isTrue);
+    expect(const ReviewCard(box: 1, due: today + 400).dueOn(today), isTrue);
+  });
 }

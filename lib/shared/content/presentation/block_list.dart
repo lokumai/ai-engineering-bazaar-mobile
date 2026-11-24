@@ -79,11 +79,19 @@ class BlockList extends StatelessWidget {
     final children = <Widget>[];
     var previousBottom = 0.0;
     final marked = nested ? const <int>{} : _modulesHeadings(blocks);
+    // A heading whose id came before in the list is drawn with no key: one GlobalKey drawn twice is refused, and the
+    // first is the one a link scrolls to (review 8).
+    final ids = <String>{};
     for (final (index, block) in blocks.indexed) {
       final margin = _marginOf(block);
       final gap = index == 0 ? margin.top : math.max(previousBottom, margin.top);
       if (gap > 0) children.add(SizedBox(height: gap));
-      final view = BlockView(block: block, render: render, modulesMark: marked.contains(index));
+      final view = BlockView(
+        block: block,
+        render: render,
+        modulesMark: marked.contains(index),
+        keyed: block is! HeadingBlock || ids.add(block.id),
+      );
       children.add(switch (spoken) {
         final spoken? => _SpokenMark(key: spoken.keyOf(index), index: index, at: spoken.at, child: view),
         null => view,
@@ -206,10 +214,13 @@ Set<int> _modulesHeadings(List<Block> blocks) {
 
 /// One block, drawn as the web draws it (`w3b` F.1).
 class BlockView extends StatelessWidget {
-  const BlockView({super.key, required this.block, required this.render, this.modulesMark = false});
+  const BlockView({super.key, required this.block, required this.render, this.modulesMark = false, this.keyed = true});
 
   final Block block;
   final BlockRenderContext render;
+
+  /// Whether a heading is drawn under its id's key; false for a heading whose id an earlier one has.
+  final bool keyed;
 
   /// Whether this heading is the References' Modules subsection, headed by the LokumAI mark (web D135).
   final bool modulesMark;
@@ -220,7 +231,7 @@ class BlockView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => switch (block) {
     final ParagraphBlock block => _Paragraph(block: block, render: render),
-    final HeadingBlock block => _Heading(block: block, render: render, modulesMark: modulesMark),
+    final HeadingBlock block => _Heading(block: block, render: render, modulesMark: modulesMark, keyed: keyed),
     final ListBlock block => _ListView(block: block, render: render),
     final QuoteBlock block => _Quote(block: block, render: render),
     final CalloutBlock block => CalloutView(block: block, render: render),
@@ -288,11 +299,12 @@ class _Paragraph extends StatelessWidget {
 }
 
 class _Heading extends StatelessWidget {
-  const _Heading({required this.block, required this.render, this.modulesMark = false});
+  const _Heading({required this.block, required this.render, this.modulesMark = false, this.keyed = true});
 
   final HeadingBlock block;
   final BlockRenderContext render;
   final bool modulesMark;
+  final bool keyed;
 
   /// The LokumAI mark (`assets/brand/SOURCE.md`), which the site draws in the navbar.
   static const lokumMark = 'assets/brand/lokum_logo.webp';
@@ -345,7 +357,7 @@ class _Heading extends StatelessWidget {
       container: true,
       header: true,
       child: KeyedSubtree(
-        key: render.headingKey(block.id),
+        key: keyed ? render.headingKey(block.id) : null,
         child: block.depth == 2 ? _ruled(text, colors.surface) : text,
       ),
     );
@@ -446,7 +458,7 @@ class _ListView extends StatelessWidget {
                         (final scope?, final at?) => Checkbox(
                           value: scope.ticks.contains(at),
                           onChanged: (value) => scope.onToggle(at, ticked: value ?? false),
-                          visualDensity: VisualDensity.compact,
+                          // The full 48 px target: compact made it 40 (review 7, finding 16).
                         ),
                         // A16: without a checklist, the box shows the bundle's task.checked and cannot be changed.
                         _ => Checkbox(

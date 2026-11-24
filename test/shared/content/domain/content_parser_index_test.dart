@@ -28,6 +28,7 @@ final List<_Rejection> _rejections = [
   (field: 'publishedAt', why: 'no milliseconds', mutate: (json) => json['publishedAt'] = '2026-01-02T03:04:05Z'),
   (field: 'publishedAt', why: 'a rolled date', mutate: (json) => json['publishedAt'] = '2026-02-31T03:04:05.000Z'),
   (field: 'sourceLanguage', why: 'missing', mutate: (json) => json.remove('sourceLanguage')),
+  (field: 'levels', why: 'no level', mutate: (json) => json['levels'] = []),
   (
     field: 'translations[0].dir',
     why: 'a direction outside the closed set',

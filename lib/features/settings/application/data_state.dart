@@ -11,6 +11,10 @@ enum RestoreOutcome {
   /// The file was read but did not replace the record: a reset was under way.
   notRestored,
 
+  /// The file replaced the record on the screen, but the device could not save it, so it lasts only until the app
+  /// closes (review 6, finding 3).
+  notSaved,
+
   /// The file holds no progress.
   empty,
 

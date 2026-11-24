@@ -4,7 +4,9 @@ library;
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/bazaar_card.dart';
+import 'package:ai_engineering_bazaar/shared/design_system/widgets/segment_meter.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
@@ -410,6 +412,69 @@ void main() {
     expect(router.state.uri.path, '/quiz/alpha/first');
   });
 
+  // Review 5, finding 17.
+  testWidgets('a module the notes do not hold says so, not a spinner for ever', (tester) async {
+    await _pump(tester, record: _completed(['alpha/first']), at: '/practice/brief/alpha/nope');
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(
+      find.text('This part of the course could not be read on this device. Restart the app to reload it.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a page grown to fit the module on fewer cards counts the card shown among them', (tester) async {
+    ParagraphBlock p(String text) => ParagraphBlock(inlines: [TextInline(text: text)], lead: false);
+    HeadingBlock h(String id) => HeadingBlock(
+      depth: 2,
+      id: id,
+      mark: null,
+      inlines: [TextInline(text: id)],
+    );
+    final term = ListItem(
+      checked: null,
+      taskIndex: null,
+      blocks: [
+        ParagraphBlock(
+          inlines: [
+            StrongInline(inlines: const [TextInline(text: 'Wick')]),
+            const TextInline(text: ': what burns.'),
+          ],
+          lead: false,
+        ),
+      ],
+    );
+    final doc = testDoc(
+      body: [
+        h('words'),
+        ListBlock(ordered: false, start: null, items: [term]),
+        h('sum'),
+        for (var i = 0; i < 12; i++) p('Line $i of a Summary long enough to fill more than one card on a small page.'),
+        h('refs'),
+        p('A book.'),
+      ],
+      quiz: _items,
+    );
+    await _pump(tester, record: _completed(['alpha/first']), doc: doc, at: '/practice/brief/alpha/first');
+    tester.view.physicalSize = const Size(400, 500);
+    await tester.pumpAndSettle();
+    String step() {
+      final meter = tester.widget<SegmentMeter>(find.byType(SegmentMeter));
+      return '${meter.done} of ${meter.total}';
+    }
+
+    final many = tester.widget<SegmentMeter>(find.byType(SegmentMeter)).total;
+    while (tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed != null) {
+      await _tap(tester, find.byKey(const Key('brief-next')));
+    }
+    expect(step(), '$many of $many', reason: 'sanity: on the last card');
+
+    tester.view.physicalSize = const Size(400, 1600);
+    await tester.pumpAndSettle();
+    final few = tester.widget<SegmentMeter>(find.byType(SegmentMeter)).total;
+    expect(few, lessThan(many), reason: 'sanity: fewer cards now');
+    expect(step(), '$few of $few');
+  });
+
   testWidgets('the glossary lists the terms A to Z; a term opens its definition and counts as looked up (plan 13.8)', (
     tester,
   ) async {
@@ -431,6 +496,11 @@ void main() {
     await _tap(tester, find.text('Wick'));
     expect(find.text('what burns.', findRichText: true), findsOneWidget);
     expect(find.text('In these modules'), findsOneWidget);
+    // Review 7, finding 10: muted text on the sunken ground was 4.2:1 in the light look.
+    expect(
+      tester.widget<Text>(find.text('In these modules')).style?.color,
+      tester.element(find.text('In these modules')).bazaarColors.onSurface,
+    );
     expect(review.state.history.cards.keys, ['term:engineers/alpha/first#0'], reason: 'looked up');
 
     final field = find.byKey(const ValueKey('glossary-find'));

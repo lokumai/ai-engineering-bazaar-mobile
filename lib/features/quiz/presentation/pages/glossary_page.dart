@@ -140,14 +140,14 @@ class _GlossaryState extends State<_Glossary> {
                 EdgeInsets.only(bottom: FloatingRoom.of(context)),
             children: [
               if (shown == null)
-                const Center(child: CircularProgressIndicator())
+                Center(child: CircularProgressIndicator(semanticsLabel: S.of(context).loading))
               else if (entries!.isEmpty)
                 Text(s.practice_glossary_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
               else if (shown.isEmpty)
                 Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
               else
                 // A to Z by letter; what a search finds, the best first, in one card.
-                for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown) : [('', shown)]) ...[
+                for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown, language) : [('', shown)]) ...[
                   if (letter.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.sm),
                     SectionRule(title: letter),
@@ -181,10 +181,10 @@ class _GlossaryState extends State<_Glossary> {
 }
 
 /// [entries], in their order, by the first letter of their names.
-List<(String, List<GlossaryEntry>)> _byLetter(List<GlossaryEntry> entries) {
+List<(String, List<GlossaryEntry>)> _byLetter(List<GlossaryEntry> entries, String language) {
   final groups = <(String, List<GlossaryEntry>)>[];
   for (final entry in entries) {
-    final letter = entry.name.characters.firstOrNull?.toUpperCase() ?? '';
+    final letter = glossaryLetter(entry.name, language);
     if (groups.lastOrNull case (final last, final group) when last == letter) {
       group.add(entry);
     } else {
@@ -271,7 +271,8 @@ class _EntryView extends StatelessWidget {
                         style: TextStyle(fontSize: BazaarType.control.size, height: 1.45, color: colors.onSurface),
                         onLink: (_) {},
                       ),
-                      Text(s.glossary_in, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceMuted)),
+                      // Muted text on the sunken ground is 4.2:1 in the light look (review 7, finding 10).
+                      Text(s.glossary_in, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurface)),
                       Wrap(
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,
@@ -321,10 +322,12 @@ class _ModuleLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
+    // The tap is the node's own: excludeSemantics drops the InkWell's (review 8, finding 4).
     return Semantics(
       link: true,
       label: title,
       excludeSemantics: true,
+      onTap: onTap,
       child: Material(
         color: colors.surfaceRaised,
         shape: RoundedRectangleBorder(

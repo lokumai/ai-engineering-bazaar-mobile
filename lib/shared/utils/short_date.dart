@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/shared/utils/latin_digits.dart';
 import 'package:intl/intl.dart';
 
 /// The short months of `en-GB`, which writes September as `Sept`.
@@ -5,7 +6,7 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept',
 
 /// The day of [iso] as `11 Oct 2026`, in [language]: in English as the web's `shortDate` writes it
 /// (`src/components/record/SignOff.tsx`, `en-GB`, day numeric, month short, year numeric), in another language with
-/// its own month names and digits (`16 Kas 2026`).
+/// its own month names and Latin digits (`16 Kas 2026`, `16 نوامبر 2026`).
 ///
 /// A moment (a date with its time) is written on the reader's own day, so a module finished after midnight is not
 /// dated the day before; [local] turns the moment to that day, the device's time zone by default. A bare day is
@@ -20,5 +21,5 @@ String shortDate(String iso, {String language = 'en', DateTime Function(DateTime
   final moment = iso.length > 10 ? DateTime.tryParse(iso)?.toUtc() : null;
   final date = moment == null ? parsed : (local ?? (utc) => utc.toLocal())(moment);
   if (language == 'en') return '${date.day} ${_months[date.month - 1]} ${date.year}';
-  return DateFormat('d MMM y', language).format(date);
+  return latinDigits(DateFormat('d MMM y', language)).format(date);
 }

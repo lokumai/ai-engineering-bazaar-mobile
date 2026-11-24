@@ -65,7 +65,14 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: _turn);
+    // Back from a sleep, the day may have turned, and the midnight timer, which did not run while the app slept, is set
+    // again (review 8).
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _turn();
+        _wait();
+      },
+    );
     _wait();
   }
 
@@ -121,10 +128,12 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
       key: ValueKey(choice),
       create: (context) => DailyCardCubit(repository: context.read<IContentRepository>())..load(choice),
       child: BlocBuilder<DailyCardCubit, DailyCardState>(
-        builder: (context, state) => _framed(context, switch (state) {
+        // The card is kept in _last and stands while the next is read, after this builder's context has gone: its tap
+        // goes through the card's own State, which stays (review 8).
+        builder: (inner, state) => _framed(inner, switch (state) {
           DailyCardShown(:final card) => _last = _Card(
             card: card,
-            hue: levelHue(context, position),
+            hue: levelHue(inner, position),
             completed: completed,
             onTap: () => context.push(
               BazaarPaths.module(track, card.moduleKey),
