@@ -20,6 +20,8 @@ import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/block_list.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/checklist_scope.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
@@ -291,8 +293,24 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // A page under another one is offstage, and its tickers are off.
-    _pageShown = TickerMode.valuesOf(context).enabled;
+    final shown = TickerMode.valuesOf(context).enabled;
+    if (_pageShown && !shown) _leaveIfUnderModule();
+    _pageShown = shown;
     _countTime();
+  }
+
+  /// Leaves the module when the page now over it is another module, however it was opened: the Listen bar's title
+  /// pushes the module read aloud over this one without a word to it (review 10, finding 9). The page's own ways to
+  /// another module leave first ([_leaveForAnother]); leaving twice marks once.
+  void _leaveIfUnderModule() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _pageShown) return;
+      final doc = _leaving?.doc;
+      final path = GoRouter.maybeOf(context)?.state.uri.path;
+      if (doc == null || path == null || path == BazaarPaths.module(doc.track, doc.key)) return;
+      final module = [for (final track in Track.values) BazaarPaths.module(track, '')].any(path.startsWith);
+      if (module) _leave();
+    });
   }
 
   @override
@@ -473,9 +491,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     };
   }
 
-  /// Keeps the place last kept with the time spent, for a written module not completed.
+  /// Keeps the place last kept with the time spent, for a written module not completed, nor marked by this page.
   void _keepTime() {
-    if (_leaving == null || _completed) return;
+    if (_leaving == null || _completed || _markedOnLeave) return;
     final last = _lastPlace ?? widget.place;
     final seconds = _seconds;
     if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));

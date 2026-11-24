@@ -196,6 +196,23 @@ void main() {
     expect(_sent(record), isFalse, reason: 'the one mark, verified above');
   });
 
+  // Review 10, finding 9: the Listen bar's title pushes the module read aloud over this one, which then was not left.
+  testWidgets('another module opened over it from outside the page leaves it too, and marks once', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+
+    expect(_toggles(record), [_set(completed: true)]);
+    router.pop();
+    await tester.pumpAndSettle();
+    await _leave(tester, router);
+    expect(_sent(record), isFalse, reason: 'the one mark, verified above');
+    expect(await store.load(), isEmpty, reason: 'no place kept for a module marked completed');
+  });
+
   testWidgets('left with Next too soon: the place keeps the time, and back on it the time goes on', (tester) async {
     final (:router, :record, places: _, :store) = await _pump(tester);
     await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
