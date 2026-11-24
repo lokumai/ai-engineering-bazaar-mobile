@@ -49,14 +49,25 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
         }
     }
 
-    private val scanner = GmsBarcodeScanning.getClient(
-        activity,
-        GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build(),
-    )
+    // Built at the first scan, not with the activity (opus review 11): a client that cannot be built answers that scan
+    // `no-scanner` rather than closing the app at its start, as R8's loss of ML Kit's registrars once did.
+    private val scanner by lazy {
+        GmsBarcodeScanning.getClient(
+            activity,
+            GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build(),
+        )
+    }
 
-    private val installer = ModuleInstall.getClient(activity)
+    private val installer by lazy { ModuleInstall.getClient(activity) }
 
     private fun scan(result: Once) {
+        try {
+            scanner
+            installer
+        } catch (error: RuntimeException) {
+            result.error("no-scanner", error.message, null)
+            return
+        }
         installer.areModulesAvailable(scanner)
             .addOnSuccessListener { answer ->
                 if (answer.areModulesAvailable()) start(result) else install(result)

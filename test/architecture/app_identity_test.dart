@@ -210,6 +210,15 @@ void main() {
     expect(RegExp(r'^-dontobfuscate$', multiLine: true).hasMatch(rules), isTrue);
   });
 
+  // Opus review 11: R8 dropped the constructors of ML Kit's component registrars, built by reflection, and the release
+  // closed at every launch; debug builds and the device tests do not run R8, so nothing else saw it.
+  test('the Android release keeps the component registrars ML Kit builds by reflection', () {
+    final rules = File('android/app/proguard-rules.pro').readAsStringSync();
+    expect(rules, contains('-keep class * implements com.google.firebase.components.ComponentRegistrar { <init>(); }'));
+    final scanner = File('android/app/src/main/kotlin/dev/lokumai/bazaar/CodeScanner.kt').readAsStringSync();
+    expect(scanner, contains('private val scanner by lazy'), reason: 'the scanner is built at the first scan');
+  });
+
   // Review 7, finding 17: each upload to a store takes the next build number, so only the version name is held.
   test('the first release is version 1.0.0, with any build number', () {
     expect(
