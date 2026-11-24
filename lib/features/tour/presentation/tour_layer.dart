@@ -360,7 +360,9 @@ class _TourLayerState extends State<TourLayer> {
     final touring = asking || showing;
     return BackButtonListener(
       onBackButtonPressed: () async {
-        if (!touring || !mounted) return false;
+        // Only while the shell's page is in front: a page over it, as a progress link's, is closed by Back as any
+        // other, and the tour under it waits (review 10, finding 4).
+        if (!touring || !mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return false;
         _skip();
         return true;
       },

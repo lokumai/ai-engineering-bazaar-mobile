@@ -14,6 +14,7 @@ import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -268,6 +269,19 @@ void main() {
     await _walk(tester);
     expect(_scrim, findsNothing);
     expect(store.kept.guiding, isFalse);
+  });
+
+  // Review 10, finding 4: a progress link's page over Home, as the website sends a new reader, took Back as Skip.
+  testWidgets('Back on a page over the shell closes the page, and the question under it waits', (tester) async {
+    final (router, store) = await _pump(tester, record: const TourRecord(asking: true));
+    unawaited(router.push(BazaarPaths.transfer, extra: 'x'));
+    await _walk(tester);
+    expect(router.state.uri.path, BazaarPaths.transfer);
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(router.state.uri.path, '/', reason: 'Back closes the page in front');
+    expect(store.kept.asking, isTrue, reason: 'the question was never seen');
   });
 
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
