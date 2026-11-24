@@ -120,6 +120,25 @@ void main() {
     expect(await moduleTitle(repository), 'Refreshed Module');
   });
 
+  // Review 9, finding 3: the hashes matched and the pointer flipped, so a document this app version cannot parse replaced
+  // one that read fine, until the site published again.
+  test('a document of the new bundle that does not parse is format; the current content stays', () async {
+    final refreshed = jsonDecode(utf8.decode(published[refreshedPath]!)) as Map<String, Object?>;
+    final unreadable = utf8.encode(jsonEncode({...refreshed}..remove('title')));
+    published[refreshedPath] = unreadable;
+    final index = jsonDecode(utf8.decode(published['api/v1/index.json']!)) as Map<String, Object?>;
+    publishIndex({
+      'files': {...index['files']! as Map<String, Object?>, refreshedPath: sha256.convert(unreadable).toString()},
+    });
+    final repository = await opened(serving(published));
+
+    expect(await repository.refresh(), const ContentRefreshFailed(code: ContentErrorCode.format));
+
+    expect(File('$content/current').existsSync(), isFalse);
+    expect(await moduleTitle(repository), 'First Module');
+    expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.bundled);
+  });
+
   test('an object the cache already holds is not fetched again', () async {
     final site = Map.of(published);
     final requested = <Uri>[];

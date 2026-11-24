@@ -199,6 +199,13 @@ void main() {
       return {...site, refreshedPath: document, newDark: redrawn};
     }
 
+    /// [site]'s files with [newDark] dropped, and the document back at the one that draws [oldDark]: a bundle whose
+    /// every document parses, as a refresh asks (review 9, finding 3).
+    Map<String, Object?> withoutNewDark(Map<String, List<int>> site) => {...filesOf(site)}
+      ..remove(newDark)
+      ..[refreshedPath] = fixtureIndex().sha256Of(refreshedPath)!
+      ..[oldDark] = fixtureIndex().sha256Of(oldDark)!;
+
     test('the diagram path of the document on screen still reads after a refresh redraws it', () async {
       final repository = fixtureRepository(cacheRoot, site: serving(redrawnSite()));
       await repository.open();
@@ -218,8 +225,7 @@ void main() {
       final repository = fixtureRepository(cacheRoot, site: serving(site));
       await repository.open();
       expect(await repository.refresh(), isA<ContentUpdated>());
-      final files = {...filesOf(site)}..remove(newDark);
-      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, withoutNewDark(site));
       expect(await repository.refresh(), isA<ContentUpdated>());
 
       expect(await repository.readObject(newDark), redrawn);
@@ -248,8 +254,7 @@ void main() {
       final repository = fixtureRepository(cacheRoot, site: serving(site));
       await repository.open();
       expect(await repository.refresh(), isA<ContentUpdated>());
-      final files = {...filesOf(site)}..remove(newDark);
-      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, files);
+      publish(site, {'contentVersion': '3' * 64, 'publishedAt': '2026-03-01T00:00:00.000Z'}, withoutNewDark(site));
       expect(await repository.refresh(), isA<ContentUpdated>());
       File('$content/objects/${sha256.convert(redrawn)}').writeAsBytesSync([1, 2, 3]);
 

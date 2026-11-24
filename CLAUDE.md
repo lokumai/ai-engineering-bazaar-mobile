@@ -330,6 +330,7 @@ The one content the app carries that the web does not publish yet is the Caravan
 - Downloaded content lives under the cache directory in `content/`: `objects/<sha256>`, `indexes/<contentVersion>.json`, the `current` pointer and the `pending` pointer of a refresh under way. A start keeps the pending refresh's index and objects, so a refresh cut off by closing the app goes on where it stopped.
 - Every downloaded object is checked against its sha256 on every read; a bundled object is read from the app's own assets, which the snapshot tool checked when it wrote them, and is not hashed again.
 - A refresh adopts only a strictly later `publishedAt` and never leaves a mixed set; a cache not later than the bundled snapshot is deleted at startup.
+- A refresh adopts a bundle only once every module, level and story document in it parses; one that does not is `RefreshFailed(format)`, and the current content stays.
 - A sha256 mismatch on a downloaded object is `RefreshFailed(checksum)`, retried at the next cold start (A25).
 - `revision.hash` is validated as `^[0-9a-f]{4,40}$` (A24).
 

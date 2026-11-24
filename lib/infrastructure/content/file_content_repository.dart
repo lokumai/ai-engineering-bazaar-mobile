@@ -225,6 +225,7 @@ final class FileContentRepository implements IContentRepository {
       await _writeAndRename(object, bytes);
     }
 
+    await _parseDocuments(opened, index);
     await _writeAndRename(File('$store/current'), utf8.encode(index.contentVersion));
     await _deletePending(opened.store);
 
@@ -235,6 +236,42 @@ final class FileContentRepository implements IContentRepository {
       bundledObjects: opened.bundledObjects,
     );
     return ContentUpdated(index: index);
+  }
+
+  /// Parses every module, level and story document of the new [index] before it is adopted (review 9, finding 3): the
+  /// parser is strict, and a bundle with one document this app cannot read would otherwise replace content that read
+  /// fine, with no way back until the site publishes again. A document that does not parse throws
+  /// [ContentFormatException], which fails the refresh as `format` and keeps the current content. Each read is a file
+  /// read, so frames are drawn between the documents.
+  Future<void> _parseDocuments(_Opened opened, BundleIndex index) async {
+    Future<String?> text(String sitePath) async {
+      final sha256Name = index.sha256Of(sitePath);
+      // A document the index lists no file for is missing for its reader as before; the refresh does not judge it.
+      if (sha256Name == null) return null;
+      final bytes = opened.bundledObjects.contains(sha256Name)
+          ? await _bundled.readObject(sha256Name)
+          : await File('${opened.store.path}/objects/$sha256Name').readAsBytes();
+      return _text(bytes, sitePath);
+    }
+
+    for (final module in index.modules) {
+      for (final track in module.tracks.values) {
+        for (final sitePath in track.docs.values) {
+          final json = await text(sitePath);
+          if (json != null) ContentParser.parseModuleDoc(json, index, path: sitePath);
+        }
+      }
+    }
+    for (final level in index.levels) {
+      final sitePath = level.readme;
+      if (sitePath == null) continue;
+      final json = await text(sitePath);
+      if (json != null) ContentParser.parseLevelDoc(json, index, path: sitePath);
+    }
+    for (final sitePath in index.story.values) {
+      final json = await text(sitePath);
+      if (json != null) ContentParser.parseStoryDoc(json, path: sitePath);
+    }
   }
 
   /// Writes [bytes] to `<file>.tmp`, flushed, then renames it to [file].
