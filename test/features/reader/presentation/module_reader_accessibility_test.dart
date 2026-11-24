@@ -215,6 +215,9 @@ void main() {
       await settleContent(tester);
 
       expect(tester.takeException(), isNull);
+      // The figure is read once it comes near the view (review 11, architecture 5).
+      await tester.ensureVisible(find.byType(FigureImage));
+      await tester.pumpAndSettle();
       final unreadable = find.text(S.current.content_unreadable);
       await tester.ensureVisible(unreadable);
       await tester.pump();

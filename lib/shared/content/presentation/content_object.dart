@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.d
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Reads the content object at [sitePath] from the [IContentRepository] in context (spec 3.4.7) and builds it.
@@ -21,12 +22,18 @@ class ContentObjectBuilder extends StatefulWidget {
     required this.builder,
     required this.unreadable,
     this.placeholder = const SizedBox.shrink(),
+    this.whenNear = false,
   });
 
   final String sitePath;
   final Widget Function(BuildContext context, Uint8List bytes) builder;
   final Widget Function(BuildContext context) unreadable;
   final Widget placeholder;
+
+  /// Whether the read waits until the object is within a screen of the view of the page it scrolls in: a module's
+  /// figures were all read and decoded as it opened, below the fold too (review 11, architecture 5). Only for a
+  /// [placeholder] as large as what it stands for, so the page's length does not change when the read is done.
+  final bool whenNear;
 
   @override
   State<ContentObjectBuilder> createState() => _ContentObjectBuilderState();
@@ -59,16 +66,64 @@ class _ContentObjectBuilderState extends State<ContentObjectBuilder> {
   /// The path of the read in flight or done; a result for another path is dropped.
   String? _readPath;
 
+  /// The scroll watched while the read waits for the object to come near ([ContentObjectBuilder.whenNear]).
+  ScrollPosition? _watched;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_readPath == null) _start();
+    if (_readPath != null) return;
+    if (widget.whenNear) {
+      _waitUntilNear();
+    } else {
+      _start();
+    }
   }
 
   @override
   void didUpdateWidget(ContentObjectBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.sitePath != widget.sitePath) _start();
+    if (oldWidget.sitePath != widget.sitePath && _readPath != null) _start();
+  }
+
+  @override
+  void dispose() {
+    _unwatch();
+    super.dispose();
+  }
+
+  /// Watches the page's scroll, and checks after this frame, until the object is near enough to read.
+  void _waitUntilNear() {
+    final position = Scrollable.maybeOf(context, axis: Axis.vertical)?.position;
+    if (position == null) return _start();
+    if (!identical(position, _watched)) {
+      _unwatch();
+      _watched = position..addListener(_checkNear);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkNear());
+  }
+
+  void _unwatch() {
+    _watched?.removeListener(_checkNear);
+    _watched = null;
+  }
+
+  /// Starts the read once the object is within a screen of the view, above or below it.
+  void _checkNear() {
+    if (!mounted || _readPath != null) return;
+    // A scroll can move while a frame is laid out; the check waits for the frame's end.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => _checkNear());
+      return;
+    }
+    final box = context.findRenderObject();
+    final view = _watched?.context.notificationContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize || view is! RenderBox || !view.hasSize) return;
+    final viewRect = view.localToGlobal(Offset.zero) & view.size;
+    final near = viewRect.inflate(viewRect.longestSide);
+    if (!near.overlaps(box.localToGlobal(Offset.zero) & box.size)) return;
+    _unwatch();
+    setState(_start);
   }
 
   void _start() {
