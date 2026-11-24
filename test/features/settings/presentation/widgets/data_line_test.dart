@@ -183,7 +183,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'ERASE');
     await tester.pump();
-    await tester.tap(find.text('Erase all data'));
+    await tester.tap(find.text('Erase all progress'));
     await tester.pumpAndSettle();
     expect(find.text('Erase all progress on this device?'), findsNothing);
     expect(verify(() => bloc.add(captureAny())).captured, [isA<ResetConfirmed>()]);

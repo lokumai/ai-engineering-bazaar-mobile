@@ -312,7 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
       "ممکن است پشتیبان دستگاه هنوز نسخهٔ قدیمی‌تری از پیشرفت شما را داشته باشد.",
     ),
-    "erase_confirm": MessageLookupByLibrary.simpleMessage("پاک کردن همهٔ داده‌ها"),
+    "erase_confirm": MessageLookupByLibrary.simpleMessage("پاک کردن همهٔ پیشرفت"),
     "erase_field_label": MessageLookupByLibrary.simpleMessage("برای تأیید، «حذف» را تایپ کنید"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("داده‌هایم را نگه دار"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("پاک کردن"),
@@ -367,7 +367,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "legal_address": MessageLookupByLibrary.simpleMessage("نشانی"),
     "legal_email": MessageLookupByLibrary.simpleMessage("ایمیل"),
     "legal_images": MessageLookupByLibrary.simpleMessage(
-      "برخی تصاویر از مقاله‌ها و دیگر منابع عمومی آمده‌اند، با سپاس صمیمانه از نویسندگانشان. این تصاویر دارایی صاحبانشان می‌مانند، هیچ حقی بر آن‌ها ادعا نمی‌شود و فقط برای توضیح مطلب کنارشان نشان داده می‌شوند. صاحب تصویر یا نشانی که اینجا آمده می‌تواند به نشانی زیر بنویسد تا نامش افزوده شود یا آن برداشته شود، هر کدام را که ترجیح دهد.",
+      "برخی تصاویر از مقاله‌ها و دیگر منابع عمومی آمده‌اند، با سپاس صمیمانه از نویسندگانشان. این تصاویر دارایی صاحبانشان می‌مانند، هیچ حقی بر آن‌ها ادعا نمی‌شود و فقط برای توضیح مطلب کنارشان نشان داده می‌شوند. صاحب هر تصویر یا نشانِ تجاری که اینجا آمده می‌تواند به نشانی زیر بنویسد تا نامش افزوده شود یا آن برداشته شود، هر کدام را که ترجیح دهد.",
     ),
     "legal_licence": MessageLookupByLibrary.simpleMessage(
       "مجوز MIT پروژه کد و محتوای آن را در بر می‌گیرد. نشان‌ها و تصاویر دیگران را در بر نمی‌گیرد.",

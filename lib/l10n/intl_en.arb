@@ -706,7 +706,7 @@
   },
   "erase_field_label": "Type ERASE to confirm",
   "@erase_field_label": {},
-  "erase_confirm": "Erase all data",
+  "erase_confirm": "Erase all progress",
   "@erase_confirm": {},
   "erase_keep": "Keep my data",
   "@erase_keep": {},

@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(number) => "Tablo ${number}";
 
-  static String m5(step, count) => "${step}/${count}";
+  static String m5(step, count) => "Kart ${step}, toplam ${count}";
 
   static String m6(start, end) => "${start} ile ${end} arası";
 
@@ -312,7 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
       "Cihaz yedeklerinden birinde ilerlemenin daha eski bir kopyası hâlâ bulunabilir.",
     ),
-    "erase_confirm": MessageLookupByLibrary.simpleMessage("Bütün verileri sil"),
+    "erase_confirm": MessageLookupByLibrary.simpleMessage("Bütün ilerlemeyi sil"),
     "erase_field_label": MessageLookupByLibrary.simpleMessage("Onaylamak için SİL yaz"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("Verilerimi koru"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("Sil"),

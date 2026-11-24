@@ -1195,9 +1195,9 @@ class S {
     return Intl.message('Type ERASE to confirm', name: 'erase_field_label', desc: '', args: []);
   }
 
-  /// `Erase all data`
+  /// `Erase all progress`
   String get erase_confirm {
-    return Intl.message('Erase all data', name: 'erase_confirm', desc: '', args: []);
+    return Intl.message('Erase all progress', name: 'erase_confirm', desc: '', args: []);
   }
 
   /// `Keep my data`

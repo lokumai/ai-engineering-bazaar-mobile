@@ -31,7 +31,7 @@ Future<void> keep(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Finder _erase() => find.widgetWithText(OutlinedButton, 'Erase all data');
+Finder _erase() => find.widgetWithText(OutlinedButton, 'Erase all progress');
 
 void main() {
   /// Opens the dialog over a host of [data] and [record], and hands back its answer once it closes.
@@ -73,7 +73,7 @@ void main() {
     await open(tester, data: bloc, locale: const Locale('tr'));
     expect(find.text('Onaylamak için SİL yaz'), findsOneWidget);
 
-    final erase = find.widgetWithText(OutlinedButton, 'Bütün verileri sil');
+    final erase = find.widgetWithText(OutlinedButton, 'Bütün ilerlemeyi sil');
     for (final (typed, armed) in [('si', false), ('sil', true), ('SIL', true), ('erase', true), ('silin', false)]) {
       await tester.enterText(find.byType(TextField), typed);
       await tester.pump();
@@ -157,7 +157,7 @@ void main() {
     expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Back up')).onPressed, isNull);
   });
 
-  testWidgets('Erase all data has a fault edge and an onSurface label', (tester) async {
+  testWidgets('Erase all progress has a fault edge and an onSurface label', (tester) async {
     final (bloc, _) = dataBlocAt();
     await open(tester, data: bloc);
     await tester.enterText(find.byType(TextField), 'ERASE');

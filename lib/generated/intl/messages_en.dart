@@ -310,7 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_backup_statement": MessageLookupByLibrary.simpleMessage(
       "A device backup may still hold an earlier copy of your progress.",
     ),
-    "erase_confirm": MessageLookupByLibrary.simpleMessage("Erase all data"),
+    "erase_confirm": MessageLookupByLibrary.simpleMessage("Erase all progress"),
     "erase_field_label": MessageLookupByLibrary.simpleMessage("Type ERASE to confirm"),
     "erase_keep": MessageLookupByLibrary.simpleMessage("Keep my data"),
     "erase_mark": MessageLookupByLibrary.simpleMessage("Erase"),
