@@ -327,11 +327,16 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     final now = clock.now();
     switch (event) {
       case PocketModelStarted(:final language):
-        final model = await _store.load() ?? PocketModel.fresh;
+        final kept = await _store.load() ?? PocketModel.fresh;
+        // A clock set back since leaves its moments in the future: they are taken as now (review 11, features 10).
+        final model = kept.clampedTo(now);
+        if (model != kept) await _store.save(model);
         final temperature = await _store.loadTemperature();
         final lm = _lm = await _build(model, language);
         final awake = model.moodAt(now) != PocketMood.asleep;
         if (awake) _wokeAt = now;
+        // Closed while overfit and opened before it rested: it still says when it recovers (review 11, features 10).
+        if (model.overfitAt(now)) _restIn(model.restLeftAt(now));
         emit(
           PocketModelReady(
             model: model,

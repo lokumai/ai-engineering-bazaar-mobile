@@ -44,6 +44,32 @@ void main() {
 
   PocketModelReady ready(PocketModelBloc bloc) => bloc.state as PocketModelReady;
 
+  // Review 11, features 10: closed while overfit and opened before it rested, no timer was set, and "recovered" never
+  // showed; a clock set back left its moments in the future, never hungry or asleep and overfit until it caught up.
+  group('timing edges', () {
+    test('opened while still overfit, it says when it recovers', () {
+      final burst = [for (var i = 0; i < PocketModel.overfitFeeds; i++) noon.subtract(Duration(seconds: 5 - i))];
+      run(MemoryPocketModelStore(PocketModel(tokens: 40, lastFed: noon, burst: burst)), (async, bloc) {
+        expect(ready(bloc).model.overfitAt(noon), isTrue);
+        async.elapse(PocketModel.overfitRest);
+        expect(ready(bloc).action, PocketAction.recovered);
+      });
+    });
+
+    test('moments in the future, after the clock was set back, are taken as now', () {
+      final later = noon.add(const Duration(days: 2));
+      final store = MemoryPocketModelStore(
+        PocketModel(tokens: 40, lastFed: later, burst: [later, later, later, later]),
+      );
+      run(store, (async, bloc) {
+        expect(ready(bloc).model.lastFed, noon);
+        expect(ready(bloc).model.burst.every((moment) => !moment.isAfter(noon)), isTrue);
+        async.elapse(PocketModel.hungerAfter);
+        expect(ready(bloc).model.moodAt(clock.now()), PocketMood.hungry);
+      });
+    });
+  });
+
   test('a device with nothing kept starts a fresh model, awake', () {
     run(MemoryPocketModelStore(), (async, bloc) {
       expect(ready(bloc).model, PocketModel.fresh);

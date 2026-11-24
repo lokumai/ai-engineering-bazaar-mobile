@@ -132,9 +132,13 @@ class _LevelCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = context.bazaarColors;
     final total = level.modules.length;
-    // A quiz finished here, or one answered in Practice: its row shows segments, so the dial counts it.
+    // A quiz finished here, or one with every question answered in Practice, as Home counts it: one answer was enough,
+    // and Practice said taken while Home said waiting (review 11, features 6).
     final taken = level.modules
-        .where((module) => scores.of(module.key) != null || latestAnswers(history, module.key) != null)
+        .where(
+          (module) =>
+              scores.of(module.key) != null || allAnswered(history, module.key, history.lengths[module.key] ?? 0),
+        )
         .length;
     final count = s.quiz_list_count(total);
     final meter = s.quiz_list_taken(taken, total);

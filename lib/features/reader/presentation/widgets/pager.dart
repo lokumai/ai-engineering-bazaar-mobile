@@ -5,6 +5,9 @@ import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -111,7 +114,10 @@ class _Cell extends StatelessWidget {
     );
     void open() {
       onOpen?.call();
-      unawaited(context.push<void>(BazaarPaths.module(track, ref.key)));
+      // From a module of the other track, opened as a visit, the next stays a visit: the reader's track is kept
+      // (review 11, features 9).
+      final visit = track != context.read<TrackCubit>().state;
+      unawaited(context.push<void>(BazaarPaths.module(track, ref.key), extra: ReaderTarget(visit: visit)));
     }
 
     return forward

@@ -16,6 +16,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/home/application/daily_another_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
@@ -166,6 +167,9 @@ class AppScope extends StatelessWidget {
           ),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+          // Show another on Home's card, kept the same way, so a tab switch keeps the card chosen (review 11,
+          // features 7).
+          BlocProvider<DailyAnotherCubit>(create: (_) => DailyAnotherCubit()),
           // The pocket model's level, which unlocks the app icons as its wardrobe (plan 9.10): read from its store,
           // then told by the model, without starting the model itself.
           BlocProvider<RobotLevelCubit>(

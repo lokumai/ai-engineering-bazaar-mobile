@@ -47,13 +47,14 @@ void main() {
     expect(homeOverview(index, Track.everyone, record).next, isNotNull, reason: 'the other track is not completed');
   });
 
-  test('the path counts each level\'s written modules in the track and how many are completed', () {
+  // Review 11, features 5: Home counted written modules only, so a level read Ecosystem 4/4 on Home and 4/6 in the
+  // catalog. It counts as the catalog does: completed over the level's declared total, planned modules included.
+  test('the path counts each level as the catalog does, and leaves out a level with nothing written', () {
     final levels = homeOverview(index, Track.engineers, completed(['alpha/first', 'beta/fourth'])).levels;
 
     expect(
       [for (final level in levels) (level.level.slug, level.position, level.done, level.total)],
-      [('alpha', 0, 1, 2), ('beta', 1, 1, 1), ('gamma', 2, 0, 1)],
-      reason: 'alpha/third is not written For Engineers, so it is not on the path',
+      [('alpha', 0, 1, 3), ('beta', 1, 1, 2), ('gamma', 2, 0, 1)],
     );
   });
 

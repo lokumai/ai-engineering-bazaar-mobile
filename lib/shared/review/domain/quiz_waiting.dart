@@ -16,6 +16,13 @@ List<bool?>? latestAnswers(ReviewHistory history, String moduleKey) {
   return answers.every((answer) => answer == null) ? null : answers;
 }
 
+/// Whether every question of the module [moduleKey]'s quiz, [length] of them, has an answer in [history]: a quiz taken
+/// in Practice, as Home and Practice's level dial both count it (review 11, features 6).
+bool allAnswered(ReviewHistory history, String moduleKey, int length) {
+  final answers = latestAnswers(history, moduleKey);
+  return answers != null && answers.length >= length && answers.every((answer) => answer != null);
+}
+
 /// The first of [completed], in its order (the course's), whose quiz has questions ([quizLength]), was never finished
 /// on this device ([finished]), and has not had every question answered in Practice; null when none waits.
 String? quizWaiting(
@@ -27,8 +34,7 @@ String? quizWaiting(
   for (final key in completed) {
     final length = quizLength(key);
     if (length == 0 || finished(key)) continue;
-    final answers = latestAnswers(history, key);
-    if (answers != null && answers.length >= length && answers.every((answer) => answer != null)) continue;
+    if (allAnswered(history, key, length)) continue;
     return key;
   }
   return null;

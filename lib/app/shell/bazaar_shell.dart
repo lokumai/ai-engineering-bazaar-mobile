@@ -19,6 +19,8 @@ import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/readable_width.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -317,12 +319,15 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
 
   /// Opens the module read aloud from the Listen bar: back to it when it is already under the page shown, else pushed.
   /// Pushed again, it stood twice in the stack, each copy keeping its own place and time (review 11, content 3).
-  void _openRead(String path) {
+  void _openRead(Track track, String module) {
+    final path = BazaarPaths.module(track, module);
     final router = GoRouter.of(context);
     final locations = _locations(router.routerDelegate.currentConfiguration.matches);
     final at = locations.lastIndexOf(path);
     if (at < 0) {
-      unawaited(router.push(path));
+      // A reading of the other track, as after a track switch in Settings, opens as a visit: the tap does not switch
+      // the reader back (review 11, features 9).
+      unawaited(router.push(path, extra: ReaderTarget(visit: track != context.read<TrackCubit>().state)));
       return;
     }
     for (var i = at; i < locations.length - 1; i++) {
@@ -463,7 +468,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                     builder: (context, state) => switch (state) {
                       final ListenOn on when widget.location != BazaarPaths.module(on.track, on.module) =>
                         ReadableWidth(
-                          child: ListenBar(state: on, onOpen: () => _openRead(BazaarPaths.module(on.track, on.module))),
+                          child: ListenBar(state: on, onOpen: () => _openRead(on.track, on.module)),
                         ),
                       _ when bandShown => TourTarget(
                         spot: TourSpots.band,

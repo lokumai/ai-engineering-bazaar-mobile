@@ -52,6 +52,18 @@ void main() {
       expect(quizWaiting(completed, quizLength: length, finished: (_) => false, history: all), 'beta/third');
     });
 
+    // Review 11, features 6: Practice's level dial counted a quiz taken at its first answer, while Home said waiting.
+    test('allAnswered is the same rule, which Practice counts by', () {
+      final some = ReviewHistory(cards: {'alpha/first#0': _answered(true)}, lengths: const {'alpha/first': 2});
+      expect(allAnswered(some, 'alpha/first', 2), isFalse);
+      final all = ReviewHistory(
+        cards: {'alpha/first#0': _answered(true), 'alpha/first#1': _answered(false)},
+        lengths: const {'alpha/first': 2},
+      );
+      expect(allAnswered(all, 'alpha/first', 2), isTrue);
+      expect(allAnswered(ReviewHistory.empty, 'alpha/first', 2), isFalse);
+    });
+
     test('none waits when every quiz is taken, or nothing is completed', () {
       expect(quizWaiting(completed, quizLength: length, finished: (_) => true, history: ReviewHistory.empty), isNull);
       expect(quizWaiting(const [], quizLength: length, finished: (_) => false, history: ReviewHistory.empty), isNull);

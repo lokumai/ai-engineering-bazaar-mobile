@@ -169,6 +169,23 @@ final class PocketModel extends Equatable {
     return PocketModel(tokens: math.min(tokens + feedTokens, maxTokens), readings: readings, lastFed: now, burst: kept);
   }
 
+  /// Its moments no later than [now]: after the phone's clock was set back, a last feed or a burst in the future kept it
+  /// from ever being hungry or asleep, and overfit, until the clock caught up (review 11, features 10).
+  PocketModel clampedTo(DateTime now) {
+    DateTime clamp(DateTime moment) => moment.isAfter(now) ? now : moment;
+    final fed = lastFed;
+    if ((fed == null || !fed.isAfter(now)) && !burst.any((moment) => moment.isAfter(now))) return this;
+    return PocketModel(
+      tokens: tokens,
+      readings: readings,
+      lastFed: fed == null ? null : clamp(fed),
+      burst: [for (final moment in burst) clamp(moment)],
+    );
+  }
+
+  /// How long until an overfit model at [now] has rested; zero when it is not overfit.
+  Duration restLeftAt(DateTime now) => overfitAt(now) ? overfitRest - now.difference(burst.last) : Duration.zero;
+
   /// Rested: the burst forgotten.
   PocketModel rested() => PocketModel(tokens: tokens, readings: readings, lastFed: lastFed);
 

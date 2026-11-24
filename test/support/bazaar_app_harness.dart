@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/home/application/daily_another_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
@@ -206,6 +207,7 @@ Widget bazaarTestApp({
           BlocProvider<CaravanCubit>.value(value: caravan)
         else
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+        BlocProvider<DailyAnotherCubit>(create: (_) => DailyAnotherCubit()),
         BlocProvider<RobotOutfitCubit>(create: (_) => robotOutfit ?? RobotOutfitCubit(store: MemoryRobotOutfitStore())),
         BlocProvider<PocketButtonCubit>(create: (_) => pocketButton ?? PocketButtonCubit()),
         // Not loaded unless a test passes one: no tour shows over the pages.
