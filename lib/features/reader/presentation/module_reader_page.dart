@@ -625,7 +625,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     keep(
       ReadingPlace(
         heading: heading,
-        offset: metrics.pixels - base,
+        // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
+        // finding 15).
+        offset: (metrics.pixels - base).clamp(0.0, double.infinity),
         share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
         at: clock.now(),
         seconds: _seconds,

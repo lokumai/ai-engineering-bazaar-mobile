@@ -35,7 +35,9 @@ final class ReadingPlace extends Equatable {
 
   Map<String, Object?> _toJson() => {
     'heading': ?heading,
-    'offset': offset,
+    // A heading just below the top, by less than a pixel, leaves a place a little above it; written as it is, the
+    // decoder dropped it and the module opened at its top (review 9, finding 15).
+    'offset': offset < 0 ? 0.0 : offset,
     'share': share,
     'at': at.toUtc().toIso8601String(),
     if (seconds > 0) 'seconds': seconds,
