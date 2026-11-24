@@ -22,7 +22,10 @@ void main() {
       name: 'Token',
       forms: const ['token'],
       definition: [
-        const LinkInline(target: ExternalTarget(url: 'https://example.test/'), inlines: [TextInline(text: 'More')]),
+        const LinkInline(
+          target: ExternalTarget(url: 'https://example.test/'),
+          inlines: [TextInline(text: 'More')],
+        ),
         TextInline(text: ' word' * 400),
       ],
     );

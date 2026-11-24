@@ -39,6 +39,20 @@ void main() {
       expect(odd.values.single.seconds, 0, reason: 'seconds not a count read as none, the place kept');
     });
 
+    test('keeps the share of its section, and reads one outside 0 to 1, or a file kept before, as none', () {
+      final place = ReadingPlace(heading: 'two', offset: 400, share: 0.5, at: at, part: 0.25);
+      final text = encodeReadingPlaces({'engineers:alpha/first': place});
+      expect(text, contains('"part":0.25'));
+      expect(decodeReadingPlaces(text).values.single, place);
+      expect(place.withSeconds(9).part, 0.25);
+      expect(encodeReadingPlaces({'x': ReadingPlace(offset: 0, share: 0, at: at)}), isNot(contains('part')));
+      final odd = decodeReadingPlaces(
+        '{"schema":1,"places":{"engineers:alpha/first":{"offset":0,"share":0,"at":"2026-11-11T09:30:00.000Z",'
+        '"part":1.5}}}',
+      );
+      expect(odd.values.single.part, isNull);
+    });
+
     test('a file that is not the shape reads as no place', () {
       for (final text in ['', 'not json', '[]', '{"schema":2,"places":{}}', '{"schema":1}']) {
         expect(decodeReadingPlaces(text), isEmpty, reason: text);

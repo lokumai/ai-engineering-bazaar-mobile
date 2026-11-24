@@ -11,13 +11,26 @@ import 'package:equatable/equatable.dart';
 /// above it, or a narrower screen, still finds the same words; a module read above its first heading keeps the
 /// distance from the top.
 final class ReadingPlace extends Equatable {
-  const ReadingPlace({this.heading, required this.offset, required this.share, required this.at, this.seconds = 0});
+  const ReadingPlace({
+    this.heading,
+    required this.offset,
+    required this.share,
+    required this.at,
+    this.seconds = 0,
+    this.part,
+  });
 
   /// The id of the last heading above the top of the screen; null above the first heading.
   final String? heading;
 
   /// The distance read past [heading], or past the top of the module when there is none, in logical pixels.
   final double offset;
+
+  /// How far into its section the place is, from 0 to 1: [offset] over the section's height, from [heading] to the next
+  /// one. A larger reading size or a narrower screen makes the section taller, so the pixels past the heading land on
+  /// earlier words, and the share finds the same ones (review 11, content 7). Null in a file kept before, which then
+  /// goes by [offset].
+  final double? part;
 
   /// How far down the module the place is, from 0 to 1, for Home's line.
   final double share;
@@ -31,7 +44,7 @@ final class ReadingPlace extends Equatable {
 
   /// This place with [seconds].
   ReadingPlace withSeconds(int seconds) =>
-      ReadingPlace(heading: heading, offset: offset, share: share, at: at, seconds: seconds);
+      ReadingPlace(heading: heading, offset: offset, share: share, at: at, seconds: seconds, part: part);
 
   Map<String, Object?> _toJson() => {
     'heading': ?heading,
@@ -41,6 +54,7 @@ final class ReadingPlace extends Equatable {
     'share': share,
     'at': at.toUtc().toIso8601String(),
     if (seconds > 0) 'seconds': seconds,
+    'part': ?part,
   };
 
   static ReadingPlace? _fromJson(Object? json) {
@@ -51,19 +65,21 @@ final class ReadingPlace extends Equatable {
       if (time == null) return null;
       final heading = json['heading'];
       final seconds = json['seconds'];
+      final part = json['part'];
       return ReadingPlace(
         heading: heading is String && heading.isNotEmpty ? heading : null,
         offset: offset.toDouble(),
         share: share.toDouble(),
         at: time,
         seconds: seconds is int && seconds > 0 ? seconds : 0,
+        part: part is num && part >= 0 && part <= 1 ? part.toDouble() : null,
       );
     }
     return null;
   }
 
   @override
-  List<Object?> get props => [heading, offset, share, at, seconds];
+  List<Object?> get props => [heading, offset, share, at, seconds, part];
 }
 
 /// The key a place is kept under: the track's id and the module's key, as `engineers:<level>/<module>`. The two tracks
@@ -75,7 +91,8 @@ const readingPlacesSchema = 1;
 
 /// The places as the file keeps them:
 /// `{"schema":1,"places":{"engineers:<level>/<module>":{"heading":"id","offset":120.5,"share":0.4,"at":"..."}}}`, each
-/// with `"seconds":300` once the module was on the screen, left out at 0, so a file kept before reads the same.
+/// with `"seconds":300` once the module was on the screen, left out at 0, and `"part":0.25`, the share of its section,
+/// so a file kept before reads the same.
 String encodeReadingPlaces(Map<String, ReadingPlace> places) => jsonEncode({
   'schema': readingPlacesSchema,
   'places': {for (final MapEntry(:key, :value) in places.entries) key: value._toJson()},

@@ -314,14 +314,32 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
   }
 
+  /// The screen's size and reading size the page was last laid out at, to find the place again when either changes.
+  (Size, TextScaler)? _laidOutAt;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _reanchor();
     // A page under another one is offstage, and its tickers are off.
     final shown = TickerMode.valuesOf(context).enabled;
     if (_pageShown && !shown) _leaveIfUnderModule();
     _pageShown = shown;
     _countTime();
+  }
+
+  /// Finds the place the reader was at again after the screen turns or the reading size changes while the module is
+  /// open: the same pixels are other words then (review 11, content 7). Before the reader has scrolled, the place it
+  /// opened at is applied again as the metrics change.
+  void _reanchor() {
+    final now = (MediaQuery.sizeOf(context), MediaQuery.textScalerOf(context));
+    final before = _laidOutAt;
+    _laidOutAt = now;
+    final place = _lastPlace;
+    if (before == null || before == now || place == null || _held != null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _goToPlace(place);
+    });
   }
 
   /// Leaves the module when the page now over it is another module, however it was opened: the Listen bar's title
@@ -672,12 +690,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         base = offset;
       }
     }
+    // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
+    // finding 15).
+    final past = (metrics.pixels - base).clamp(0.0, double.infinity);
+    final height = _sectionEnd(base, metrics) - base;
     keep(
       ReadingPlace(
         heading: heading,
-        // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
-        // finding 15).
-        offset: (metrics.pixels - base).clamp(0.0, double.infinity),
+        offset: past,
+        part: height > 0 ? (past / height).clamp(0.0, 1.0) : null,
         share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
         at: clock.now(),
         seconds: _seconds,
@@ -685,18 +706,39 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
   }
 
+  /// Where the section that starts at [base] ends: the next heading below it, or the end of the module.
+  double _sectionEnd(double base, ScrollMetrics metrics) {
+    var end = metrics.maxScrollExtent + metrics.viewportDimension;
+    for (final id in _headingKeys.keys) {
+      final offset = _headingOffset(id);
+      if (offset != null && offset > base + 1 && offset < end) end = offset;
+    }
+    return end;
+  }
+
   /// Scrolls to [ModuleReaderView.place]: its heading and the distance past it, or its share of the page when the
   /// heading is gone from the module.
   void _applyPlace() {
-    final place = widget.place;
-    if (place == null || _fragment != null || !_placeScheduled || !_scroll.hasClients) return;
+    if (_fragment != null || !_placeScheduled) return;
+    _goToPlace(widget.place);
+  }
+
+  /// Scrolls to [place]: its heading and its share of that section, or the pixels past it in a place kept before the
+  /// share was; its share of the page when the heading is gone from the module.
+  void _goToPlace(ReadingPlace? place) {
+    if (place == null || !_scroll.hasClients) return;
     final position = _scroll.position;
     // Built under another page, the module is not laid out and has no length yet; the change of metrics as it comes
     // to the front calls this again (Sentry AI-BAZAAR-MOBILE-3).
     if (!position.hasContentDimensions) return;
     final heading = place.heading;
     final base = heading == null ? 0.0 : _headingOffset(heading);
-    final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
+    final part = place.part;
+    final target = switch (base) {
+      null => place.share * position.maxScrollExtent,
+      final base when part != null => base + part * (_sectionEnd(base, position) - base),
+      final base => base + place.offset,
+    };
     final clamped = target.clamp(position.minScrollExtent, position.maxScrollExtent);
     if ((clamped - position.pixels).abs() > 0.5) _scroll.jumpTo(clamped);
   }
