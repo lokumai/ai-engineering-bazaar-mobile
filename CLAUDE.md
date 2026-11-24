@@ -314,7 +314,7 @@ The record is the web's, byte for byte; `lib/shared/record` ports the web's code
 - The app never writes `prefs`, dwell or `reachedEnd`; it keeps them as it read them.
 - Files live under Application Support: `record/record.json`, `record/record-quarantine.json` and `record/record.json.tmp`.
   A write goes to `record.json.tmp` with a flush, then is renamed over `record.json`; a leftover `.tmp` is ignored at launch.
-- A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty; a copy already there with other bytes moves to `record-quarantine-previous.json`, which Erase and discarding the copy delete.
+- A malformed or newer record is set aside with its bytes in `record-quarantine.json` and reads as empty; a copy already there with other bytes moves to `record-quarantine-previous.json`; discarding the copy brings that one back in its place, and Erase deletes both.
 - Days are the UTC day of the instant, as the web's `toISOString`, never the device's local day.
 - `asInstant` is a strict grammar, not `DateTime.tryParse` (A20).
 - Parsing re-keys every object the web rebuilds from a template into the template's key order (A21).

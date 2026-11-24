@@ -227,3 +227,14 @@ The first release on the App Store and Google Play.
 - A place in a module just above a heading is kept, rather than opening the module at its top.
 - After a switch of language during Listen, the reader marks no paragraph of the other language.
 - The tour's step is read out as words by a screen reader, and the English percent read has no space before %.
+- On a tablet turned while a module is read, the module stays where it was read; a Practice session goes on when a window or a turn takes the page across a tablet's width.
+- On iOS the camera screen of Scan the code always closes, and its Cancel always works.
+- On Android, Back over a page closes the page and leaves the tour under it; while the tour asks or points, Back skips it, rather than leaving the app.
+- Privacy and legal says that a backup holds the progress, not the quiz scores or the settings.
+- A module page covered by another module, from the Listen bar too, is marked completed if read to its end, as when Next leaves it.
+- The notes of a track with a module that cannot be read no longer flash Loading when they are tried again.
+- Deleting a record set aside as unreadable brings up the one set aside before it, to save or delete in turn.
+- The erase and restore dialogs show only a backup made in them, not an older one.
+- A progress link that would make the record larger than the app keeps says so, without an Add that could not work.
+- A level's count is read aloud as words; the Persian count of a level waiting for the record stays left to right.
+- Turkish and Persian wording: the erase button, Recap, the images' credit, the privacy page, the largest text size, Listen's paused notice and the Caravan's trends.
