@@ -70,6 +70,20 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       // reported, and the queue goes on with the next event.
       _log.error('record event {} failed: {}', [event.runtimeType, error]);
       _answerFailed(event);
+      // A write that failed with anything but a file error left the record "being saved", which the screens read as
+      // saved: the change was lost at the next start, with no word (opus review 11, arch finding 1).
+      if (state case final RecordReady ready when ready.writeState is WritePending) {
+        emit(
+          RecordReady(
+            record: ready.record,
+            writeState: const WriteBlocked(),
+            quarantine: ready.quarantine,
+            quarantineKept: ready.quarantineKept,
+            launchReadFailed: ready.launchReadFailed,
+            undo: ready.undo,
+          ),
+        );
+      }
       addError(error, stack);
     }
   }

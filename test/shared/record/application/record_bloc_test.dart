@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/core/logging/app_bloc_observer.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
@@ -444,19 +446,39 @@ void main() {
   group('every caller is answered, even after an error no handler names (review B6)', () {
     test('a backup whose write throws replies with the error, and the next event still runs', () async {
       await _withClock(() async {
+        final errors = <Object>[];
+        final previous = Bloc.observer;
+        Bloc.observer = AppBlocObserver(report: (error, _) => errors.add(error));
+        addTearDown(() => Bloc.observer = previous);
         final repository = _MemoryRecordRepository()..writeError = StateError('disk');
         final bloc = await _started(repository);
-        final errors = <Object>[];
-        final subscription = bloc.stream.listen(null, onError: errors.add);
 
         final reply = Completer<RecordBackup>();
         bloc.add(BackupStarted(at: '2026-03-15T07:10:00.000Z', reply: reply));
         await expectLater(reply.future, throwsStateError);
+        await pumpEventQueue();
+        // Opus review 11, arch finding 1: the error was collected here and never checked; it reaches the report.
+        expect(errors.single, isA<StateError>());
 
         repository.writeError = null;
         final replaced = Completer<bool>();
         bloc.add(RecordReplaced(data: _signed, reply: replaced));
         expect(await replaced.future, isTrue);
+        await bloc.close();
+      });
+    });
+
+    // Opus review 11, arch finding 1: the state stayed WritePending, which the screens read as saved, and the change was
+    // lost at the next start with no word.
+    test('a completion whose write throws says it is not saved', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..writeError = StateError('disk');
+        final bloc = await _started(repository);
+        final subscription = bloc.stream.listen(null, onError: (_) {});
+        bloc.add(_toggle);
+        await pumpEventQueue();
+        expect(_ready(bloc).writeState, const WriteBlocked());
+        expect(_ready(bloc).record.signedOff('alpha/first', Track.engineers), _now);
         await subscription.cancel();
         await bloc.close();
       });

@@ -59,7 +59,9 @@ class AppBootstrap {
     final sentryActive = appConfig.sentryDsn != null;
     CrashReporter.install(analytics, forwardToAnalytics: !sentryActive);
 
-    Bloc.observer = kDebugMode ? TimeTravelBlocObserver() : AppBlocObserver();
+    Bloc.observer = kDebugMode
+        ? TimeTravelBlocObserver()
+        : AppBlocObserver(report: sentryActive ? reportBlocError : null);
 
     await SystemChrome.setPreferredOrientations(appOrientations());
     await drawUnderSystemBars();
