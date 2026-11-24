@@ -37,7 +37,17 @@ Future<_Pumped> _pump(WidgetTester tester, {ReadingPlace? place, RecordData? rec
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final repository = missingContentRepository();
-  when(() => repository.readModuleDoc(any())).thenAnswer((_) async => testDoc(body: _body));
+  // alpha/first's Next is alpha/second, whose Previous is alpha/first.
+  when(() => repository.readModuleDoc(any())).thenAnswer(
+    (invocation) async => (invocation.positionalArguments.single as String).contains('second')
+        ? testDoc(
+            key: 'alpha/second',
+            title: 'Second',
+            body: _body,
+            previous: testRef(key: 'alpha/first', number: 1, title: 'First'),
+          )
+        : testDoc(body: _body, next: testRef()),
+  );
   final store = MemoryReadingPlaceStore({readingPlaceKey(Track.engineers, 'alpha/first'): ?place});
   final places = ReadingPlacesBloc(store: store)..add(const ReadingPlacesStarted());
   addTearDown(places.close);
@@ -162,6 +172,71 @@ void main() {
 
     expect(_sent(record), isFalse);
     expect(_note, findsNothing);
+  });
+
+  // Review 9, finding 1: the page left with Next stays under the next one, and was taken down only with the whole stack,
+  // so nothing was marked until then, or ever if the phone ended the app first.
+  testWidgets('read to its end and left with Next: marked completed at once', (tester) async {
+    final (:router, :record, places: _, store: _) = await _pump(tester);
+    await tester.pump(const Duration(seconds: 300));
+    await _toEnd(tester);
+    await tester.pump(const Duration(seconds: 100));
+    await tester.tap(find.byType(FilledButton).last);
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/courses/alpha/second');
+    expect(_toggles(record), [_set(completed: true)]);
+    expect(find.descendant(of: _note, matching: find.text('Marked as completed')), findsOneWidget);
+
+    // Back on it with Previous, and then everything left: nothing more is sent, so an Undo would stay.
+    await tester.tap(find.byType(OutlinedButton).last);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 500));
+    await _leave(tester, router);
+    expect(_sent(record), isFalse, reason: 'the one mark, verified above');
+  });
+
+  testWidgets('left with Next too soon: the place keeps the time, and back on it the time goes on', (tester) async {
+    final (:router, :record, places: _, :store) = await _pump(tester);
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 100));
+    await _toEnd(tester);
+    await tester.tap(find.byType(FilledButton).last);
+    await tester.pumpAndSettle();
+
+    expect(_sent(record), isFalse);
+    expect(
+      (await store.load())[readingPlaceKey(Track.engineers, 'alpha/first')]?.seconds,
+      inInclusiveRange(100, 110),
+      reason: 'kept as the next module opened, not only when the stack is left',
+    );
+
+    await tester.pump(const Duration(seconds: 600));
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 300));
+    await _leave(tester, router);
+    expect(_toggles(record), [_set(completed: true)], reason: 'about 400 seconds on it, its end reached');
+  });
+
+  testWidgets('the time spent is kept as the app goes off the screen', (tester) async {
+    final (router: _, :record, places: _, :store) = await _pump(tester);
+    await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 120));
+    for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    addTearDown(() {
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+    });
+    await tester.pumpAndSettle();
+
+    expect((await store.load()).values.single.seconds, inInclusiveRange(120, 130));
+    expect(_sent(record), isFalse);
   });
 
   // Review 4, finding 3: the time on the screen ran on under a page opened over the module, so a module flicked to its

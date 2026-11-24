@@ -14,10 +14,13 @@ import 'package:go_router/go_router.dart';
 ///
 /// On a phone the two stack, Next first as the mockup's next-module card, each as wide as the page.
 class Pager extends StatelessWidget {
-  const Pager({super.key, required this.previous, required this.next});
+  const Pager({super.key, required this.previous, required this.next, this.onOpen});
 
   final Ref? previous;
   final Ref? next;
+
+  /// Runs as another module is opened, before it is pushed: the page under it is left (review 9, finding 1).
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +28,19 @@ class Pager extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
-        _Cell(ref: next, forward: true),
-        _Cell(ref: previous, forward: false),
+        _Cell(ref: next, forward: true, onOpen: onOpen),
+        _Cell(ref: previous, forward: false, onOpen: onOpen),
       ],
     );
   }
 }
 
 class _Cell extends StatelessWidget {
-  const _Cell({required this.ref, required this.forward});
+  const _Cell({required this.ref, required this.forward, required this.onOpen});
 
   final Ref? ref;
   final bool forward;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +109,11 @@ class _Cell extends StatelessWidget {
         if (forward) arrow,
       ],
     );
-    void open() => unawaited(context.push<void>(BazaarPaths.module(track, ref.key)));
+    void open() {
+      onOpen?.call();
+      unawaited(context.push<void>(BazaarPaths.module(track, ref.key)));
+    }
+
     return forward
         ? FilledButton(
             onPressed: open,

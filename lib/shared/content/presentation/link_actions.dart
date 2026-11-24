@@ -13,10 +13,17 @@ import 'package:go_router/go_router.dart';
 /// pushes the For Engineers catalog root, as the web's `/sheets/` does from both tracks (Decision A39), so back returns
 /// to the page the link was on (plan 1M). An external
 /// link opens outside the app. An unknown target, a kind a later bundle added, is drawn as plain text and as no
-/// callout button; following one does nothing (review 8).
-void followLink(BuildContext context, LinkTarget target, {required void Function(String id) scrollTo}) {
+/// callout button; following one does nothing (review 8). [beforeModule] runs before a module is pushed, so the page the
+/// link is on is left (review 9, finding 1).
+void followLink(
+  BuildContext context,
+  LinkTarget target, {
+  required void Function(String id) scrollTo,
+  VoidCallback? beforeModule,
+}) {
   switch (target) {
     case ModuleTarget(:final key, :final track, :final fragment):
+      beforeModule?.call();
       unawaited(context.push<void>(BazaarPaths.module(track, key), extra: fragment));
     case AnchorTarget(:final id):
       scrollTo(id);

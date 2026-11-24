@@ -232,6 +232,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// completion just taken back would come again (review 6, finding 17).
   bool _toggledByHand = false;
 
+  /// Whether this page marked the module completed as it was left for another module: left again, when the reader came
+  /// back to it, it marks nothing more, or a completion taken back with Undo would come again (review 9, finding 1).
+  bool _markedOnLeave = false;
+
   /// The key of the completion row, the module's end.
   final _endKey = GlobalKey();
 
@@ -272,6 +276,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       onHide: () {
         _appShown = false;
         _countTime();
+        // The time spent is kept as the app goes off the screen: the phone may end it there, and the page would not
+        // be left (review 9, finding 1).
+        _keepTime();
       },
       onShow: _onShow,
     );
@@ -449,31 +456,48 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     super.dispose();
   }
 
-  /// As the module is left, to the next one, back or to another tab (the owner, 2026-11-18): one read to its end, and on
-  /// the screen long enough ([readEnough]), is marked completed, with Undo; otherwise the place is kept with the time
+  /// Whether the module is completed in the record, or the record is not read yet; false with no written module.
+  bool get _completed {
+    final leaving = _leaving;
+    if (leaving == null) return false;
+    return switch (leaving.record.state) {
+      RecordReady(:final record) => record.signedOff(leaving.doc.key, leaving.doc.track) != null,
+      RecordLoading() => true,
+    };
+  }
+
+  /// Keeps the place last kept with the time spent, for a written module not completed.
+  void _keepTime() {
+    if (_leaving == null || _completed) return;
+    final last = _lastPlace ?? widget.place;
+    final seconds = _seconds;
+    if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+  }
+
+  /// Another module is opened from this page, by Next or Previous, a prerequisite or a link: the page stays under it,
+  /// mounted, and is left now rather than when the whole stack is (review 9, finding 1). Back on it, the time goes on.
+  void _leaveForAnother() {
+    _leave();
+    _countTime();
+  }
+
+  /// As the module is left, to another module, back or to another tab (the owner, 2026-11-18): one read to its end, and
+  /// on the screen long enough ([readEnough]), is marked completed, with Undo; otherwise the place is kept with the time
   /// spent. A module already completed is left as it is.
   void _leave() {
     _onScreen.stop();
     final leaving = _leaving;
-    if (leaving == null) return;
+    if (leaving == null || _completed) return;
     final record = leaving.record;
     final doc = leaving.doc;
-    final completed = switch (record.state) {
-      RecordReady(:final record) => record.signedOff(doc.key, doc.track) != null,
-      RecordLoading() => true,
-    };
-    if (completed) return;
     final seconds = _seconds;
-    if (_toggledByHand) {
-      final last = _lastPlace ?? widget.place;
-      if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
+    if (_toggledByHand ||
+        _markedOnLeave ||
+        !readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
+      _keepTime();
       return;
     }
-    if (!readEnough(reachedEnd: _reachedEnd, seconds: seconds, minutes: leaving.minutes)) {
-      final last = _lastPlace ?? widget.place;
-      if (last != null && seconds > last.seconds) widget.onPlace?.call(last.withSeconds(seconds));
-      return;
-    }
+    _markedOnLeave = true;
     record.add(CompletionSet(key: doc.key, track: doc.track, revision: leaving.revision, completed: true));
     widget.onPlace?.call(null);
     final messenger = leaving.messenger;
@@ -713,7 +737,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             undo: s.data_undo,
           );
     final render = BlockRenderContext(
-      onLink: (target) => followLink(context, target, scrollTo: _scrollTo),
+      onLink: (target) => followLink(context, target, scrollTo: _scrollTo, beforeModule: _leaveForAnother),
       // A37: the base URL and the web path are concatenated, never resolved (spec 3.4.7).
       webPage: context.read<WebLinks>().webPage(entry.tracks[doc.track]!.webPath),
       headingKey: _headingKey,
@@ -890,7 +914,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                               ],
                               const SizedBox(height: 24),
                               if (doc.prerequisites.isNotEmpty) ...[
-                                ReadingStyleScope(child: PrerequisitesBox(refs: doc.prerequisites)),
+                                ReadingStyleScope(
+                                  child: PrerequisitesBox(refs: doc.prerequisites, onOpen: _leaveForAnother),
+                                ),
                                 const SizedBox(height: 24),
                               ],
                               if (doc.shownObjectives.isNotEmpty) ...[
@@ -958,7 +984,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                 ),
                               ],
                               const SizedBox(height: 32),
-                              Pager(previous: doc.previous, next: doc.next),
+                              Pager(previous: doc.previous, next: doc.next, onOpen: _leaveForAnother),
                               if (quiz != null && quiz.isNotEmpty && quizBuilder != null) ...[
                                 const SizedBox(height: 32),
                                 quizBuilder(context, entry.key, quiz),
