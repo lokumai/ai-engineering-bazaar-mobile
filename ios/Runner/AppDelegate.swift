@@ -633,21 +633,34 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
     }
   }
 
+  /// Runs [work] on the main thread, at once when called there: Apple does not say which thread the synthesizer calls
+  /// its delegate on, and [parts], [ended] and the channel are the main thread's (review 11, native 5). The closure
+  /// holds the utterance, so its identifier is not reused before it runs.
+  private func onMain(_ work: @escaping () -> Void) {
+    if Thread.isMainThread { work() } else { DispatchQueue.main.async(execute: work) }
+  }
+
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
-    guard let part = parts[ObjectIdentifier(utterance)] else { return }
-    channel.invokeMethod("part", arguments: ["id": part.id, "index": part.index])
+    onMain { [weak self] in
+      guard let self, let part = self.parts[ObjectIdentifier(utterance)] else { return }
+      self.channel.invokeMethod("part", arguments: ["id": part.id, "index": part.index])
+    }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
-    if part.last { end(part.id) }
+    onMain { [weak self] in
+      guard let self, let part = self.parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+      if part.last { self.end(part.id) }
+    }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
-    let id = part.id
-    parts = parts.filter { $0.value.id != id }
-    end(id)
+    onMain { [weak self] in
+      guard let self, let part = self.parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+      let id = part.id
+      self.parts = self.parts.filter { $0.value.id != id }
+      self.end(id)
+    }
   }
 }
 
@@ -668,9 +681,19 @@ enum LaunchPicture {
     return colour(UInt32(ground))
   }
 
-  /// Keeps [ground] for the next launch and repaints iOS's launch pictures in it.
+  /// The ground and the app's build the launch pictures were last painted for.
+  static let paintedKey = "BazaarLaunchPainted"
+
+  /// Keeps [ground] for the next launch and repaints iOS's launch pictures in it, only when the look or the app's build
+  /// changed since they were last painted: the Dart side names the look on every launch, and rewriting iOS's own files
+  /// each time could race with iOS writing them (review 11, native 6). iOS draws the pictures again after an update,
+  /// which a new build paints again.
   static func keep(_ ground: UInt32) {
     UserDefaults.standard.set(Int(ground), forKey: groundKey)
+    let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+    let painted = "\(ground) \(build)"
+    guard UserDefaults.standard.string(forKey: paintedKey) != painted else { return }
+    UserDefaults.standard.set(painted, forKey: paintedKey)
     paint(ground)
   }
 
