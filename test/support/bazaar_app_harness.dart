@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_ou
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -186,6 +187,7 @@ Widget bazaarTestApp({
           ),
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
+        RepositoryProvider<CatalogSearchIndexes>(create: (_) => CatalogSearchIndexes()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
         // Above the pages, as app_scope.dart provides it (opus review 11, record finding 2).

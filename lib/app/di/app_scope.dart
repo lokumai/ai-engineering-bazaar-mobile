@@ -18,6 +18,7 @@ import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/apprentice_mind.dart';
@@ -153,6 +154,10 @@ class AppScope extends StatelessWidget {
           BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
           // The words in the catalog's search, kept the same way.
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
+          // Its search indexes, built in another isolate and kept across tab switches (review 11, architecture 3).
+          RepositoryProvider<CatalogSearchIndexes>(
+            create: (_) => CatalogSearchIndexes(make: CatalogSearchIndexes.makeApart),
+          ),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The module read aloud, for the whole app: it goes on across the tabs and with the screen off (plan 15).
           BlocProvider<ListenCubit>(

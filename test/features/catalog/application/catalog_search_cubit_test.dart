@@ -4,7 +4,9 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -246,6 +248,63 @@ void main() {
       await search.search('zebra');
       expect(search.state.results!.total, 0);
       expect(search.state.other, isNull);
+    });
+  });
+
+  // Review 11, architecture 3: the index went with the page's cubit, so each visit to the tab with a search kept read
+  // every document again and built the index on the screen's thread.
+  group('its index is kept above the page', () {
+    test('a second cubit for the same content, track and language reads no document again', () async {
+      final indexes = CatalogSearchIndexes();
+      for (var visit = 0; visit < 2; visit++) {
+        final again = CatalogSearchCubit(
+          repository: repository,
+          bundle: index,
+          track: Track.engineers,
+          language: 'en',
+          indexes: indexes,
+        );
+        await again.search('tool');
+        expect(again.state.results!.total, greaterThan(0));
+        await again.close();
+      }
+      verify(() => repository.readModuleDoc('api/v1/modules/alpha/first/en.json')).called(1);
+    });
+
+    test('another language builds its own; one that failed is built again', () async {
+      final indexes = CatalogSearchIndexes(keep: 1);
+      var builds = 0;
+      Future<CatalogSearchIndex> fails() async {
+        builds++;
+        throw StateError('no');
+      }
+
+      const key = (contentVersion: 'v', track: Track.engineers, language: 'en', levels: true);
+      await expectLater(indexes.of(key, fails), throwsStateError);
+      await expectLater(indexes.of(key, fails), throwsStateError);
+      expect(builds, 2);
+      final built = CatalogSearchIndex(const [], lang: 'en');
+      expect(await indexes.of(key, () async => built), same(built));
+      expect(await indexes.of(key, () async => throw StateError('not built again')), same(built));
+      // Only [keep] are kept: another language puts the first out.
+      await indexes.of((contentVersion: 'v', track: Track.engineers, language: 'tr', levels: true), () async => built);
+      expect(await indexes.of(key, () async => CatalogSearchIndex(const [], lang: 'en')), isNot(same(built)));
+    });
+
+    test("the app's maker builds in another isolate the index built here", () async {
+      final apart = CatalogSearchCubit(
+        repository: repository,
+        bundle: index,
+        track: Track.engineers,
+        language: 'en',
+        indexes: CatalogSearchIndexes(make: CatalogSearchIndexes.makeApart),
+      );
+      addTearDown(apart.close);
+      await apart.search('tool');
+      final here = cubit();
+      await here.search('tool');
+      expect(apart.state.results, here.state.results);
+      expect(apart.state.results!.total, greaterThan(0));
     });
   });
 }
