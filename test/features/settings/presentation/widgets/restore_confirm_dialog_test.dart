@@ -79,6 +79,13 @@ void main() {
     expect(await answer, isTrue);
   });
 
+  // Review 10, finding 9: a backup made earlier in the visit may hold less than the phone does now.
+  testWidgets('a backup made before the dialog opened is not shown in it', (tester) async {
+    final (bloc, _) = dataBlocAt(const DataState(backup: BackedUp('2026-11-20')));
+    await open(tester, const Tally(sheets: 2), data: bloc);
+    expect(find.text('Backed up 2026-11-20'), findsNothing);
+  });
+
   testWidgets('Back up is off while a flow runs', (tester) async {
     final (bloc, _) = dataBlocAt(const DataState(busy: DataBusy.backingUp));
     await open(tester, const Tally(sheets: 2), data: bloc);

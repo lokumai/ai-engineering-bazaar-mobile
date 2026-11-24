@@ -125,6 +125,13 @@ void main() {
     expect(find.text('NOTHING RECORDED ON THIS DEVICE'), findsOneWidget);
   });
 
+  // Review 10, finding 9: a backup made earlier in the visit may hold less than the phone does now.
+  testWidgets('a backup made before the dialog opened is not shown in it', (tester) async {
+    final (bloc, _) = dataBlocAt(const DataState(backup: BackedUp('2026-03-10')));
+    await open(tester, data: bloc);
+    expect(find.text('Backed up 2026-03-10'), findsNothing);
+  });
+
   testWidgets('erase confirms, keeps or backs up', (tester) async {
     final (bloc, states) = dataBlocAt();
     final kept = await open(tester, data: bloc);

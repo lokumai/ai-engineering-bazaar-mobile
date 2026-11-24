@@ -13,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// the erase word and chose `Erase all data`, false when the dialog closes any other way.
 ///
 /// The dialog reads [DataBloc] and [RecordBloc] from [context], so it opens only below both. Its Back up runs the data
-/// line's backup and leaves the dialog open. The typed text lives in the dialog and is gone once it closes.
+/// line's backup and leaves the dialog open; the backup line shows only for a Back up pressed in this dialog, since one
+/// made earlier may hold less than the phone does now (review 10, finding 9). The typed text lives in the dialog and is
+/// gone once it closes.
 Future<bool> showEraseDialog(BuildContext context) async {
   final data = context.read<DataBloc>();
   final record = context.read<RecordBloc>();
@@ -39,6 +41,7 @@ class _EraseDialog extends StatefulWidget {
 
 class _EraseDialogState extends State<_EraseDialog> {
   final _typed = TextEditingController();
+  var _backedUpHere = false;
 
   @override
   void dispose() {
@@ -84,7 +87,8 @@ class _EraseDialogState extends State<_EraseDialog> {
             decoration: InputDecoration(labelText: s.erase_field_label),
             onChanged: (_) => setState(() {}),
           ),
-          if (data.backup case final backup?) Semantics(liveRegion: true, child: Text(backupLineText(s, backup))),
+          if (data.backup case final backup? when _backedUpHere && data.busy == DataBusy.idle)
+            Semantics(liveRegion: true, child: Text(backupLineText(s, backup))),
         ],
       ),
       actions: [
@@ -108,7 +112,9 @@ class _EraseDialogState extends State<_EraseDialog> {
           onPressed: data.busy == DataBusy.idle
               ? () {
                   final bloc = context.read<DataBloc>();
-                  if (!bloc.isClosed) bloc.add(const BackupRequested());
+                  if (bloc.isClosed) return;
+                  setState(() => _backedUpHere = true);
+                  bloc.add(const BackupRequested());
                 }
               : null,
           child: Text(s.data_back_up),
