@@ -80,7 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m28(count, first) =>
       "The course is set out in ${count} levels, starting with ${first}. Begin with the first and move on when you are ready.";
 
-  static String m29(percent) => "${percent} % read";
+  static String m29(percent) => "${percent}% read";
 
   static String m30(minutes, words) => "${minutes} min · ${words} words";
 
@@ -159,7 +159,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m66(reason) => "The check for updates did not finish: ${reason}.";
 
-  static String m67(step, count) => "${step} / ${count}";
+  static String m67(step, count) => "${step} of ${count}";
 
   static String m68(count) => "${Intl.plural(count, one: '1 module completed', other: '${count} modules completed')}";
 

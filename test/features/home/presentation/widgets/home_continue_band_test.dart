@@ -39,7 +39,7 @@ void main() {
 
     expect(_band, findsOneWidget);
     expect(find.descendant(of: _band, matching: find.text('Fourth Module')), findsOneWidget);
-    expect(find.descendant(of: _band, matching: find.text('37 % read')), findsOneWidget);
+    expect(find.descendant(of: _band, matching: find.text('37% read')), findsOneWidget);
     expect(
       tester.getBottomLeft(_band).dy,
       moreOrLessEquals(tester.getTopLeft(find.byType(NavigationBar)).dy, epsilon: 1),
@@ -124,7 +124,7 @@ void main() {
 
     expect(
       tester.getSemantics(_band),
-      isSemantics(isButton: true, label: 'Continue reading: Fourth Module, 37 % read', hasTapAction: true),
+      isSemantics(isButton: true, label: 'Continue reading: Fourth Module, 37% read', hasTapAction: true),
     );
     await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
     handle.dispose();

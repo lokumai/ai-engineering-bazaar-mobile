@@ -399,7 +399,7 @@
   "tour_settings_website": "Web sitesindeki ilerlemeni buraya getir ya da buradakini oraya gönder.",
   "tour_settings_guide": "Bu tur “Bazaar nasıl işler” sayfasında.",
   "guide_replay_tour": "Turu baştan izle",
-  "tour_step": "{step} / {count}",
+  "tour_step": "Adım {step}, toplam {count}",
   "practice_today": "Günün tekrarı",
   "practice_endless": "Sınırsız tekrar",
   "practice_endless_lede": "Okuduklarını istediğin kadar pekiştir.",

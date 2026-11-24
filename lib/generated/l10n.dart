@@ -290,10 +290,10 @@ class S {
     return Intl.message('Continue reading', name: 'home_continue_reading', desc: '', args: []);
   }
 
-  /// `{percent} % read`
+  /// `{percent}% read`
   String home_read_percent(int percent) {
     return Intl.message(
-      '$percent % read',
+      '$percent% read',
       name: 'home_read_percent',
       desc: 'How far down a half-read module the reader left it, on Home\'s continue card.',
       args: [percent],
@@ -2853,10 +2853,10 @@ class S {
     return Intl.message('Take the tour again', name: 'guide_replay_tour', desc: '', args: []);
   }
 
-  /// `{step} / {count}`
+  /// `{step} of {count}`
   String tour_step(int step, int count) {
     return Intl.message(
-      '$step / $count',
+      '$step of $count',
       name: 'tour_step',
       desc: 'Which of the tour\'s places on this page the Apprentice is at, of how many.',
       args: [step, count],

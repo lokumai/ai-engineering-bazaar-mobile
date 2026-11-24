@@ -132,7 +132,7 @@
   "@home_up_next": {},
   "home_continue_reading": "Continue reading",
   "@home_continue_reading": {},
-  "home_read_percent": "{percent} % read",
+  "home_read_percent": "{percent}% read",
   "@home_read_percent": {
     "description": "How far down a half-read module the reader left it, on Home's continue card.",
     "placeholders": {
@@ -1404,7 +1404,7 @@
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
   "@guide_replay_tour": {},
-  "tour_step": "{step} / {count}",
+  "tour_step": "{step} of {count}",
   "@tour_step": {
     "description": "Which of the tour's places on this page the Apprentice is at, of how many.",
     "placeholders": {

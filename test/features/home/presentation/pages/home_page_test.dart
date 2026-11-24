@@ -183,7 +183,7 @@ void main() {
 
     expect(_inBand('Continue reading'), findsOneWidget);
     expect(_inBand('Up next'), findsNothing);
-    expect(_inBand('37 % read'), findsOneWidget);
+    expect(_inBand('37% read'), findsOneWidget);
     expect(_inBand('Fourth Module'), findsOneWidget);
     expect(find.text('First Module'), findsOneWidget, reason: 'the next module is first later on');
     await _tap(tester, _band);

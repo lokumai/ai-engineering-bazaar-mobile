@@ -399,7 +399,7 @@
   "tour_settings_website": "پیشرفتتان را از وب‌سایت به اینجا بیاورید یا از اینجا به آنجا بفرستید.",
   "tour_settings_guide": "این گشت در «بازار چطور کار می‌کند» است.",
   "guide_replay_tour": "دوباره گشت بزنیم",
-  "tour_step": "{step} / {count}",
+  "tour_step": "{step} از {count}",
   "practice_today": "مرور امروز",
   "practice_endless": "مرور بی‌پایان",
   "practice_endless_lede": "آنچه خوانده‌اید را هر قدر بخواهید تمرین کنید.",

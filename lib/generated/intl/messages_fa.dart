@@ -158,7 +158,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m66(reason) => "بررسی به‌روزرسانی‌ها کامل نشد: ${reason}.";
 
-  static String m67(step, count) => "${step} / ${count}";
+  static String m67(step, count) => "${step} از ${count}";
 
   static String m68(count) => "${Intl.plural(count, other: '${count} درس تکمیل‌شده')}";
 

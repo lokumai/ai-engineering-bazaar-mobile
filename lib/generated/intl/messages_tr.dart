@@ -158,7 +158,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m66(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
-  static String m67(step, count) => "${step} / ${count}";
+  static String m67(step, count) => "Adım ${step}, toplam ${count}";
 
   static String m68(count) => "${Intl.plural(count, other: '${count} modül tamamlandı')}";
 

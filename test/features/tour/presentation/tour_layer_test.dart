@@ -75,7 +75,7 @@ Finder _says(String text) => find.text(text);
 
 /// How far along the page's places the dots say it is.
 Finder _dots(int step, int count) =>
-    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == '$step / $count');
+    find.byWidgetPredicate((widget) => widget is Semantics && widget.properties.label == '$step of $count');
 
 final _button = find.byKey(const ValueKey('pocket-assistant'));
 
