@@ -240,6 +240,9 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
   }
 
   private func start(title: String, cancel: String, result: @escaping FlutterResult) {
+    // A scan whose screen is not up, or is gone (the screen is held weakly), was dropped by UIKit unseen: it is answered
+    // now rather than leaving every later scan busy until the app restarts (review 9, finding 11).
+    if pending != nil, screen?.presentingViewController == nil { dropped() }
     guard pending == nil, !asking else { return result(FlutterError(code: "busy", message: nil, details: nil)) }
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .authorized:
@@ -283,7 +286,21 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     self.session = session
     screen = navigation
     presenter.present(navigation, animated: true)
+    // UIKit drops a presentation over a screen that is being dismissed, with only a console warning; a presentation it
+    // takes has its presenter at once (review 9, finding 11).
+    guard navigation.presentingViewController != nil else { return dropped() }
     DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
+  }
+
+  /// Answers `no-camera` for a scan whose screen UIKit did not show, and lets the camera go.
+  private func dropped() {
+    guard let result = pending else { return }
+    pending = nil
+    let session = self.session
+    self.session = nil
+    DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
+    screen = nil
+    result(FlutterError(code: "no-camera", message: nil, details: nil))
   }
 
   func metadataOutput(
