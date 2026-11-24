@@ -278,8 +278,14 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     session.addOutput(output)
     output.setMetadataObjectsDelegate(self, queue: .main)
     output.metadataObjectTypes = [.qr]
+    // Cancel answers the scan only from the screen of the scan waiting; a screen UIKit showed late closes itself.
+    weak var shown: UIViewController?
     let navigation = UINavigationController(
-      rootViewController: ScannerScreen(session: session, title: title, cancel: cancel) { [weak self] in self?.finish(nil) })
+      rootViewController: ScannerScreen(session: session, title: title, cancel: cancel) { [weak self] in
+        guard let self, let shown, self.screen === shown else { return }
+        self.finish(nil)
+      })
+    shown = navigation
     navigation.modalPresentationStyle = .fullScreen
     navigation.overrideUserInterfaceStyle = .dark
     pending = result
@@ -292,13 +298,16 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
   }
 
-  /// Answers `no-camera` for a scan whose screen UIKit did not show, and lets the camera go.
+  /// Answers `no-camera` for a scan whose screen UIKit did not show, and lets the camera go. A presentation UIKit put
+  /// off rather than dropped would still come up: the screen is dismissed too, or it would stand black with a Cancel
+  /// that does nothing (review 10, finding 3).
   private func dropped() {
     guard let result = pending else { return }
     pending = nil
     let session = self.session
     self.session = nil
     DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
+    screen?.dismiss(animated: false)
     screen = nil
     result(FlutterError(code: "no-camera", message: nil, details: nil))
   }
@@ -311,14 +320,16 @@ final class CodeScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     finish(code)
   }
 
+  /// Closes the camera screen, whatever is pending, so its Cancel always closes it (review 10, finding 3), and answers
+  /// the scan with [text] when one waits.
   private func finish(_ text: String?) {
-    guard let result = pending else { return }
-    pending = nil
     let session = self.session
     self.session = nil
     DispatchQueue.global(qos: .userInitiated).async { session?.stopRunning() }
     screen?.dismiss(animated: true)
     screen = nil
+    guard let result = pending else { return }
+    pending = nil
     result(text)
   }
 }
@@ -368,7 +379,9 @@ final class ScannerScreen: UIViewController {
     aim.path = UIBezierPath(roundedRect: square, cornerRadius: 16).cgPath
   }
 
+  /// Closes the screen itself, whether or not a scan still waits on it (review 10, finding 3), then tells the scanner.
   @objc private func cancelTapped() {
+    (navigationController ?? self).presentingViewController?.dismiss(animated: true)
     onCancel()
   }
 
