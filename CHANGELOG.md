@@ -216,3 +216,14 @@ The first release on the App Store and Google Play.
 - The glossary sorts by the Turkish and Persian alphabets, ç after c and پ after ب.
 - Send to the website says when the progress is too long for a link, instead of sharing one the website refuses; a progress link merged back into the record it came from adds nothing.
 - Practice and the glossary do not read every module again after a switch of track or language and back, and try a module that could not be read again the next time they open.
+- A module read to its end and left with Next, Previous, a prerequisite or a link is marked completed at once, rather than only when the reader leaves the whole stack of modules; the time spent is kept when the app goes off the screen.
+- A module marked completed twice at once, from two pages of it, stays completed, and Undo always takes the completion away.
+- A content update with a document this version of the app cannot read is not used, and the course stays as it was.
+- Restore reads a file of at most 2 MB, so a file that is not a backup cannot freeze the screen.
+- A second record set aside as unreadable keeps the first copy too.
+- A progress link that was not added can be added again from the same page, and is not shown as if it were.
+- Restore's confirmation offers Back up, as the erase dialog does.
+- On iOS a scan whose camera screen did not open is answered, and Scan the code works again after it.
+- A place in a module just above a heading is kept, rather than opening the module at its top.
+- After a switch of language during Listen, the reader marks no paragraph of the other language.
+- The tour's step is read out as words by a screen reader, and the English percent read has no space before %.
