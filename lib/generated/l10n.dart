@@ -1880,10 +1880,10 @@ class S {
     );
   }
 
-  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.`
+  /// `Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.`
   String get privacy_on_device {
     return Intl.message(
-      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.',
+      'Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.',
       name: 'privacy_on_device',
       desc: '',
       args: [],

@@ -514,7 +514,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.",
+      "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "Scan the code uses Google\'s code scanner from Google Play services. Google receives the device\'s model and system, the app\'s version, a random number for this installation and how the scan went, as its own record.",

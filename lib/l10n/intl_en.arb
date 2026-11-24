@@ -965,7 +965,7 @@
   "@privacy_title": {},
   "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
   "@privacy_no_data": {},
-  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. You can back them up, restore or reset them under Your progress in Settings.",
+  "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
   "@privacy_on_device": {},
   "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
   "@privacy_download": {},

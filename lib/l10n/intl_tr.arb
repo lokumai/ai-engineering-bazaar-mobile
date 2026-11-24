@@ -273,7 +273,7 @@
   "settings_privacy_legal": "Gizlilik ve yasal bilgiler",
   "privacy_title": "Gizlilik",
   "privacy_no_data": "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
-  "privacy_on_device": "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da sıfırlayabilirsin.",
+  "privacy_on_device": "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Ayarlar'da İlerlemen bölümünden ilerlemeni yedekleyebilir ve geri yükleyebilir, ilerlemeni ve quiz skorlarını sıfırlayabilirsin.",
   "privacy_download": "Uygulama kursu web sitesinden indirir; site GitHub Pages'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub'ındır, bizim değil.",
   "privacy_scanner_android": "“Kodu okut”, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
   "privacy_scanner_ios": "“Kodu okut”, kodu uygulamanın içinde kendisi okur; cihazdan hiçbir şey çıkmaz.",

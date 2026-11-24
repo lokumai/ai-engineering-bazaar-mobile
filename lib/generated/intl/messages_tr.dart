@@ -516,7 +516,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
-      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Onları Ayarlar\'da İlerlemen bölümünden yedekleyebilir, geri yükleyebilir ya da sıfırlayabilirsin.",
+      "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Ayarlar\'da İlerlemen bölümünden ilerlemeni yedekleyebilir ve geri yükleyebilir, ilerlemeni ve quiz skorlarını sıfırlayabilirsin.",
     ),
     "privacy_scanner_android": MessageLookupByLibrary.simpleMessage(
       "“Kodu okut”, Google Play hizmetlerindeki Google kod tarayıcısını kullanır. Google, cihazın modelini ve sistemini, uygulamanın sürümünü, bu kuruluma ait rastgele bir numarayı ve taramanın nasıl geçtiğini kendi kaydı olarak alır.",
