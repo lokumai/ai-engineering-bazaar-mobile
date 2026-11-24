@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:math' as math;
 
+import 'package:ai_engineering_bazaar/features/pocket_model/application/apprentice_mind.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/babble.dart';
@@ -116,7 +116,7 @@ final class _PocketCurveDrawn extends PocketModelEvent {
 }
 
 /// Draws the training curve of a model in a language that has read so many tokens and, at their places, these
-/// modules' sentences ([TinyLm.curve]). The app draws it in another isolate; by default it is drawn here.
+/// modules' sentences ([TinyLm.curve]). A test may give one; otherwise the bloc's mind draws it.
 typedef CurveDrawer = Future<List<LossPoint>> Function(
   String language,
   int tokens,
@@ -210,9 +210,9 @@ final class PocketModelReady extends PocketModelState {
 /// nothing and repeats itself until it has rested ([PocketModel.overfitRest]), and the bloc says when it recovers.
 /// Events run one at a time, so fast taps are counted in order and each is kept.
 final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
-  PocketModelBloc({required this._store, this._texts, math.Random? random, CurveDrawer? drawCurve})
+  PocketModelBloc({required this._store, this._texts, math.Random? random, this._drawCurve, IApprenticeMind? mind})
     : _random = random ?? math.Random(),
-      _drawCurve = drawCurve ?? _drawHere,
+      _mind = mind ?? LocalMind(random ?? math.Random()),
       super(const PocketModelLoading()) {
     on<PocketModelEvent>(_on, transformer: EventTransformers.queue());
   }
@@ -222,18 +222,11 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// Where it reads the course's modules; none in a test that gives it none.
   final IPocketTexts? _texts;
 
-  final CurveDrawer _drawCurve;
+  /// A test's curve drawer; null, the mind draws it (review 5, finding 3), from the texts it was sent once each.
+  final CurveDrawer? _drawCurve;
 
-  static Future<List<LossPoint>> _drawHere(
-    String language,
-    int tokens,
-    List<(int, List<List<String>>)> readings,
-  ) async => TinyLm.curve(language, tokens, readings: readings);
-
-  /// Draws the curve in another isolate, as the app does: on the screen's thread each feed stuttered more with every
-  /// module read (review 5, finding 3). Only the language, the count and the sentences cross to it.
-  static Future<List<LossPoint>> drawApart(String language, int tokens, List<(int, List<List<String>>)> readings) =>
-      Isolate.run(() => TinyLm.curve(language, tokens, readings: readings));
+  /// Where its language model lives and works: an isolate of its own in the app (review 11, architecture 2).
+  final IApprenticeMind _mind;
 
   /// Each curve asked for; one is drawn at a time, and the latest asked for is the one kept.
   int _curveAsked = 0;
@@ -241,8 +234,9 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   final math.Random _random;
   Timer? _rest;
 
-  /// Its language model, which has read as many tokens as [PocketModelReady.model] was fed, and its modules.
-  TinyLm? _lm;
+  /// What it knows of its language model, which has read as many tokens as [PocketModelReady.model] was fed, and its
+  /// modules.
+  MindView? _lm;
 
   /// The modules' texts read so far, by language and key, so a curve does not read them again.
   final Map<(String, String), ModuleText> _read = {};
@@ -258,20 +252,22 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     final kept = _read[(language, key)];
     if (kept != null) return kept;
     final read = await _texts?.text(key, language);
-    if (read != null) _read[(language, key)] = read;
+    if (read != null) {
+      _read[(language, key)] = read;
+      // The mind is sent each text once, so a curve or a rebuild sends none again.
+      await _mind.run(MindJobs.learn(language, key, read));
+    }
     return read;
   }
 
   /// The language model of [model] in [language]: its text read to the count, and each module it read that can still
   /// be read.
-  Future<TinyLm> _build(PocketModel model, String language) async {
-    final lm = TinyLm.trained(language, model.tokens)..level = model.level;
+  Future<MindView> _build(PocketModel model, String language) async {
+    final keys = <String>[];
     for (final reading in model.readings) {
-      final text = await _load(reading.key, language);
-      if (text == null) continue;
-      lm.read(text.sentences, topic: reading.key, sections: text.sections);
+      if (await _load(reading.key, language) != null) keys.add(reading.key);
     }
-    return lm;
+    return _mind.run(MindJobs.build(language, model.tokens, model.level, keys));
   }
 
   /// Draws the curve of the model as it now stands, after the state that shows it was emitted. Each feed rebuilt the
@@ -301,10 +297,17 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         if (ready is! PocketModelReady || lm == null) return;
         final model = ready.model;
         final language = lm.language;
-        final curve = await _drawCurve(language, model.tokens, [
-          for (final reading in model.readings)
-            if (_read[(language, reading.key)] case final text?) (reading.at, text.sentences),
-        ]);
+        final draw = _drawCurve;
+        final curve = draw == null
+            ? await _mind.run(
+                MindJobs.curve(language, model.tokens, [
+                  for (final reading in model.readings) (reading.at, reading.key),
+                ]),
+              )
+            : await draw(language, model.tokens, [
+                for (final reading in model.readings)
+                  if (_read[(language, reading.key)] case final text?) (reading.at, text.sentences),
+              ]);
         if (isClosed) return;
         if (asked == _curveAsked) {
           add(_PocketCurveDrawn(model, language, curve));
@@ -365,7 +368,8 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
       await _store.save(PocketModel.fresh);
       _recent.clear();
       _wokeAt = now;
-      final lm = _lm = TinyLm(_lm?.language ?? 'en')..level = PocketModel.fresh.level;
+      final lm = await _mind.run(MindJobs.fresh(PocketModel.fresh.level));
+      _lm = lm;
       emit(
         PocketModelReady(
           model: PocketModel.fresh,
@@ -393,7 +397,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final kind = lm.canTalk && ready.temperature >= cold ? 'woke' : null;
         emit(
           woken.copyWith(
-            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: kind),
+            speech: await _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: kind),
             action: PocketAction.spoke,
           ),
         );
@@ -405,8 +409,8 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         final wasOverfit = ready.model.overfitAt(now);
         final model = ready.model.fedAt(now);
         await _store.save(model);
-        final lm = _lm!..level = model.level;
-        final read = model.tokens > lm.trained ? lm.train(model.tokens - lm.trained) : const <String>[];
+        final (read, lm) = await _mind.run(MindJobs.feed(model.tokens, model.level));
+        _lm = lm;
         final overfit = model.overfitAt(now);
         if (overfit) _restIn(PocketModel.overfitRest);
         final action = switch (()) {
@@ -421,15 +425,16 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
             known: lm.known,
             read: read,
             action: action,
-            speech: overfit ? _say(ready.temperature, overfit: true) : null,
+            speech: overfit ? await _say(ready.temperature, overfit: true) : null,
             clearSpeech: !overfit,
           ),
         );
         if (model.tokens != ready.model.tokens) _redraw();
       case PocketModelAsked():
+        final kind = _kindFor(ready, now);
         emit(
           ready.copyWith(
-            speech: _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: _kindFor(ready, now)),
+            speech: await _say(ready.temperature, overfit: ready.model.overfitAt(now), kind: kind),
             action: PocketAction.spoke,
           ),
         );
@@ -437,12 +442,12 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
         // A second tap while the first read was loading: the module it names is read, and the next one waiting is
         // not taken in its place (review 7, finding 15).
         if (ready.model.hasRead(key)) return;
-        final lm = _lm!;
+        final language = _lm!.language;
         String? found;
         ModuleText? text;
         for (final waiting in [key, ...others]) {
           if (ready.model.hasRead(waiting)) continue;
-          text = await _load(waiting, lm.language);
+          text = await _load(waiting, language);
           if (text != null) {
             found = waiting;
             break;
@@ -454,9 +459,10 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
           return;
         }
         final sentences = text.sentences;
-        final count = lm.read(sentences, topic: found, sections: text.sections);
+        final count = await _mind.run(MindJobs.read(found));
         final model = ready.model.readAt(found, count, now);
-        lm.level = model.level;
+        final lm = await _mind.run(MindJobs.level(model.level));
+        _lm = lm;
         final signed = ready.model.level < signatureLevel && model.level >= signatureLevel;
         await _store.save(model);
         emit(
@@ -511,7 +517,7 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     };
     // A moment is mostly answered; otherwise it talks now and then, more while it has read no module.
     if (moment != null && _random.nextDouble() < 0.75) return moment;
-    if (_random.nextDouble() >= (lm.topics.isEmpty ? 0.5 : 0.3)) return null;
+    if (_random.nextDouble() >= (lm.hasTopics ? 0.3 : 0.5)) return null;
     final kinds = [
       for (final kind in const ['curious', 'cheer', 'self', 'bazaar', 'hello'])
         if (lm.kinds.contains(kind)) kind,
@@ -523,37 +529,11 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   /// kind ([TinyLm.talk]); otherwise what its language model writes. Once it has read modules, it speaks of one of
   /// them (the last read a third of the time, else any), thinks over more sentences the more it read
   /// ([TinyLm.thoughtsFor]), and from level 3 now and then tells it as one tells a friend ("did you know"). From
-  /// [signatureLevel], one time in [signatureOdds] it says who wrote it instead.
-  Babble _say(double temperature, {required bool overfit, String? kind}) {
-    final lm = _lm!;
-    final word = lm.favourite;
-    if (overfit && word != null) {
-      return (tokens: List.filled(4 + _random.nextInt(3), word), hallucinating: false);
-    }
-    // Past [signatureLevel], now and then it says who wrote it (the owner, 2026-11-19).
-    if (lm.level >= signatureLevel && _random.nextInt(signatureOdds) == 0) {
-      return (tokens: signatureIn(lm.language), hallucinating: false);
-    }
-    if (kind != null) {
-      final said = lm.talk(kind, temperature: temperature, random: _random, recent: _recent);
-      _remember(said);
-      return said;
-    }
-    final topics = lm.topics;
-    final topic = topics.isEmpty
-        ? null
-        : _random.nextInt(3) == 0
-        ? topics.last
-        : topics[_random.nextInt(topics.length)];
-    final said = lm.write(
-      temperature: temperature,
-      random: _random,
-      recent: _recent,
-      topic: topic,
-      thoughts: TinyLm.thoughtsFor(topics.length),
-      leadIn: topic != null && lm.level >= 3 && _random.nextDouble() < 0.3,
-    );
-    _remember(said);
+  /// [signatureLevel], one time in [signatureOdds] it says who wrote it instead. Its mind writes it ([MindJobs.say]),
+  /// away from the screen's thread in the app (review 11, features 3).
+  Future<Babble> _say(double temperature, {required bool overfit, String? kind}) async {
+    final (said, kept) = await _mind.run(MindJobs.say(temperature, [..._recent], overfit: overfit, kind: kind));
+    if (kept) _remember(said);
     return said;
   }
 
@@ -570,8 +550,9 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _rest?.cancel();
-    return super.close();
+    await super.close();
+    await _mind.close();
   }
 }

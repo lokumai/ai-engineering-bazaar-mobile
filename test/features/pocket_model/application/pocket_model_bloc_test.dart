@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:ai_engineering_bazaar/features/pocket_model/application/apprentice_mind.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/domain/module_sentences.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_corpus.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/pocket_model.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/domain/signature.dart';
@@ -532,18 +534,16 @@ void main() {
   // every module read. It is drawn elsewhere now; the feed shows at once and the curve follows.
   group('its curve is drawn away from the feed', () {
     // Review 8, finding 18: every test gave the bloc its own drawer, so the app's, through a real isolate, ran in none.
-    test("the app's drawer draws in another isolate the curve drawn here", () async {
-      final readings = [
-        (
-          100,
-          [
-            ['the', 'robot', 'reads', 'a', 'module'],
-            ['a', 'module', 'teaches', 'the', 'robot'],
-          ],
-        ),
+    test("the app's mind draws in other isolates the curve drawn here", () async {
+      const sentences = [
+        ['the', 'robot', 'reads', 'a', 'module'],
+        ['a', 'module', 'teaches', 'the', 'robot'],
       ];
-      final apart = await PocketModelBloc.drawApart('en', 400, readings);
-      expect(apart, TinyLm.curve('en', 400, readings: readings));
+      final mind = IsolateMind();
+      addTearDown(mind.close);
+      await mind.run(MindJobs.learn('en', 'alpha/first', oneSection(sentences)));
+      final apart = await mind.run(MindJobs.curve('en', 400, [(100, 'alpha/first')]));
+      expect(apart, TinyLm.curve('en', 400, readings: [(100, sentences)]));
       expect(apart, isNotEmpty);
     });
 
@@ -687,5 +687,29 @@ void main() {
         async.flushMicrotasks();
       });
     });
+  });
+
+  // Review 11, architecture 2 and features 3: its model was rebuilt, fed and asked on the screen's isolate. In the app it
+  // lives in an isolate of its own; this bloc runs through one, as the app's does.
+  test('with its mind in an isolate of its own it starts, feeds, reads a module, answers and closes', () async {
+    final bloc = PocketModelBloc(store: MemoryPocketModelStore(), texts: texts, mind: IsolateMind())
+      ..add(const PocketModelStarted());
+    await bloc.stream.firstWhere((state) => state is PocketModelReady);
+    for (var i = 0; i < 3; i++) {
+      bloc.add(const PocketModelFed());
+    }
+    bloc.add(const PocketModelModuleRead('alpha/first'));
+    bloc.add(const PocketModelAsked());
+    final spoke = await bloc.stream.firstWhere(
+      (state) => state is PocketModelReady && state.action == PocketAction.spoke,
+    ) as PocketModelReady;
+    expect(spoke.model.hasRead('alpha/first'), isTrue);
+    expect(spoke.known, greaterThan(0));
+    expect(spoke.speech?.tokens, isNotEmpty);
+    final drawn = await bloc.stream.firstWhere(
+      (state) => state is PocketModelReady && state.curve.length > 1,
+    ) as PocketModelReady;
+    expect(drawn.curve.last.tokens, greaterThan(0));
+    await bloc.close();
   });
 }

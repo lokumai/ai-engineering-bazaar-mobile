@@ -20,6 +20,7 @@ import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/apprentice_mind.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
@@ -180,8 +181,9 @@ class AppScope extends StatelessWidget {
                   repository: context.read<IContentRepository>(),
                   content: context.read<ContentBloc>(),
                 ),
-                // Its training curve is drawn in another isolate (review 5, finding 3).
-                drawCurve: PocketModelBloc.drawApart,
+                // Its language model lives in an isolate of its own, and draws its curve in another (review 5,
+                // finding 3; review 11, architecture 2).
+                mind: IsolateMind(),
                 // In the app's language from the start, not English first and the app's language a moment later.
               )..add(PocketModelStarted(language: _startLanguage));
               // Back from the background it may have fallen asleep there (the owner, 2026-11-16).
