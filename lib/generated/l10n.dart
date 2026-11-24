@@ -3352,6 +3352,16 @@ class S {
   String get reader_share {
     return Intl.message('Share this module', name: 'reader_share', desc: '', args: []);
   }
+
+  /// `Your stored progress could not be read and was set aside. Settings says more.`
+  String get home_record_set_aside {
+    return Intl.message(
+      'Your stored progress could not be read and was set aside. Settings says more.',
+      name: 'home_record_set_aside',
+      desc: 'A line on Home while the stored progress was set aside at this launch; a tap opens Settings.',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

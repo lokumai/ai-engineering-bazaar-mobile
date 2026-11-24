@@ -364,6 +364,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("مسیر شما"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("آزمون در انتظار"),
     "home_read_percent": m29,
+    "home_record_set_aside": MessageLookupByLibrary.simpleMessage(
+      "پیشرفت ذخیره‌شده خوانده نشد و کنار گذاشته شد. جزئیات در تنظیمات است.",
+    ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("دیدن کل کاتالوگ"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("درس بعدی"),
     "image_expand": MessageLookupByLibrary.simpleMessage("نمایش تصویر در تمام صفحه"),

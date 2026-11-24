@@ -1615,5 +1615,9 @@
   "data_send_too_large": "Your progress is too long to fit in a link.",
   "@data_send_too_large": {},
   "reader_share": "Share this module",
-  "@reader_share": {}
+  "@reader_share": {},
+  "home_record_set_aside": "Your stored progress could not be read and was set aside. Settings says more.",
+  "@home_record_set_aside": {
+    "description": "A line on Home while the stored progress was set aside at this launch; a tap opens Settings."
+  }
 }

@@ -4,6 +4,7 @@ import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_af
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_daily_card.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_path.dart';
 import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_practice.dart';
+import 'package:ai_engineering_bazaar/features/home/presentation/widgets/home_record_pointer.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_notice_banner.dart';
@@ -61,6 +62,8 @@ class HomePage extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(20, 20, 20, 28 + FloatingRoom.of(context)),
         children: [
           if (notice != null) ...[ContentNoticeBanner(notice: notice), const SizedBox(height: 16)],
+          // While this launch set the stored progress aside, a line says why Home shows none (review 11, record 5).
+          const HomeRecordPointer(),
           // The day's card, a section of a module to read today (plan 11.1).
           HomeDailyCard(frame: dailyFrame),
           // Practice under its own heading, after the day's card (plan 13.2, 13.17): Today's review and the glossary,

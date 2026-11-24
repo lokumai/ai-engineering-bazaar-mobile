@@ -470,5 +470,6 @@
   "data_send_empty": "Henüz gönderilecek bir şey yok: tamamlanan ya da işaretlenen modül yok.",
   "data_send_failed": "Paylaşım menüsü açılmadı.",
   "data_send_too_large": "İlerlemen bir bağlantıya sığmayacak kadar uzun.",
-  "reader_share": "Bu modülü paylaş"
+  "reader_share": "Bu modülü paylaş",
+  "home_record_set_aside": "Kayıtlı ilerleme okunamadı ve kenara ayrıldı. Ayrıntısı Ayarlar'da."
 }

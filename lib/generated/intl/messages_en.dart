@@ -363,6 +363,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Quiz waiting"),
     "home_read_percent": m29,
+    "home_record_set_aside": MessageLookupByLibrary.simpleMessage(
+      "Your stored progress could not be read and was set aside. Settings says more.",
+    ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Open the image full screen"),

@@ -365,6 +365,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Yolun"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Bekleyen quiz"),
     "home_read_percent": m29,
+    "home_record_set_aside": MessageLookupByLibrary.simpleMessage(
+      "Kayıtlı ilerleme okunamadı ve kenara ayrıldı. Ayrıntısı Ayarlar\'da.",
+    ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("Bütün kataloğu gör"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Sıradaki"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Görseli tam ekran aç"),
