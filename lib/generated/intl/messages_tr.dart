@@ -736,7 +736,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
       "Eklemek bu cihazdakileri korur: buradan hiçbir şey silinmez.",
     ),
-    "transfer_not_added": MessageLookupByLibrary.simpleMessage("Eklenmedi. Yeniden denemek için bağlantıyı tekrar aç."),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage(
+      "Eklenmedi. Bu cihazda hiçbir şey değişmedi; tekrar denemek için yeniden ekle.",
+    ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu cihazda zaten var."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),

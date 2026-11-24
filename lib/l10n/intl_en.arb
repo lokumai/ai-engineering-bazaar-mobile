@@ -1562,7 +1562,7 @@
   "@transfer_added": {},
   "transfer_nothing_new": "Nothing new: this device already has all of it.",
   "@transfer_nothing_new": {},
-  "transfer_not_added": "Not added. Open the link again to try once more.",
+  "transfer_not_added": "Not added. Nothing on this device changed; Add tries again.",
   "@transfer_not_added": {},
   "transfer_unreadable": "This link cannot be read. Make a new one on the website's Progress page.",
   "@transfer_unreadable": {},

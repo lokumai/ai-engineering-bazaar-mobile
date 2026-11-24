@@ -29,13 +29,19 @@ final class TransferBloc extends Bloc<TransferEvent, TransferState> {
     };
   }
 
+  /// Adds the progress when it is read and not added yet, or when it was not added, which can be tried again (review
+  /// 9, finding 9).
   Future<void> _onAdd(TransferAddPressed event, Emitter<TransferState> emit) async {
-    final ready = state;
-    if (ready is! TransferReady) return;
-    emit(TransferAdding(ready.progress));
+    final progress = switch (state) {
+      TransferReady(:final progress) => progress,
+      TransferDone(:final progress, result: TransferMergeResult.notAdded) => progress,
+      _ => null,
+    };
+    if (progress == null) return;
+    emit(TransferAdding(progress));
     final reply = Completer<TransferMergeResult>();
-    _recordBloc.add(TransferMerged(progress: ready.progress, reply: reply));
-    emit(TransferDone(ready.progress, await reply.future));
+    _recordBloc.add(TransferMerged(progress: progress, reply: reply));
+    emit(TransferDone(progress, await reply.future));
   }
 }
 

@@ -525,6 +525,31 @@ void main() {
       });
     });
 
+    // Review 9, finding 9: a merge whose write failed stayed in the record in use, shown until a restart, and a second
+    // try found nothing new.
+    test('a merge whose write fails is not kept in the record in use, and a second try adds it', () async {
+      await _withClock(() async {
+        final repository = _MemoryRecordRepository()..loadResult = RecordLoadOk(data: _signed, quarantineKept: false);
+        final bloc = await _started(repository);
+        final before = _ready(bloc).record;
+
+        repository.nextResult = WriteResult.quota;
+        final failed = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: failed));
+        expect(await failed.future, TransferMergeResult.notAdded);
+        expect(_ready(bloc).record, same(before));
+        expect(_ready(bloc).writeState, const WriteQuota(), reason: 'the failure is still told');
+
+        repository.nextResult = WriteResult.saved;
+        final again = Completer<TransferMergeResult>();
+        bloc.add(TransferMerged(progress: progress, reply: again));
+        expect(await again.future, TransferMergeResult.added);
+        expect(_ready(bloc).record.signedOff('beta/second', Track.engineers), '2026-03-01T10:00:00.000Z');
+        expect(_ready(bloc).writeState, const WriteSaved());
+        await bloc.close();
+      });
+    });
+
     // Review 7, finding 2: a link under its length limit can hold enough ticks to take the record past the cap; it was
     // merged into the record in use, and every later write of the session was then too large.
     test('one that would take the record past the cap is not added, and the record in use stays as it was', () async {

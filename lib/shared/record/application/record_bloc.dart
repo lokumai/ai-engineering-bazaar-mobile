@@ -176,10 +176,26 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           merged,
           emit,
         );
-        reply.complete(switch (state) {
-          RecordReady(writeState: WriteSaved()) => TransferMergeResult.added,
-          _ => TransferMergeResult.notAdded,
-        });
+        if (state case RecordReady(writeState: WriteSaved())) {
+          reply.complete(TransferMergeResult.added);
+          return;
+        }
+        // Not added, so not shown either: the record in use goes back to what is on disk, with the write's failure,
+        // and the reader can try again (review 9, finding 9). Before, the progress showed until the app restarted, and
+        // a second try found nothing new.
+        if (state case RecordReady(:final writeState)) {
+          emit(
+            RecordReady(
+              record: current.record,
+              writeState: writeState,
+              quarantine: current.quarantine,
+              quarantineKept: current.quarantineKept,
+              launchReadFailed: current.launchReadFailed,
+              undo: null,
+            ),
+          );
+        }
+        reply.complete(TransferMergeResult.notAdded);
       case RecordErased(:final at, :final reply):
         await _onErased(current, at, reply, emit);
       case EraseUndone(:final reply):

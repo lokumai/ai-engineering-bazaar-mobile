@@ -93,6 +93,23 @@ void main() {
     expect(find.text('2 checklist items ticked'), findsOneWidget);
   });
 
+  // Review 9, finding 9: after "Not added" the Add button was gone, and the link had to be opened again.
+  testWidgets('not added, it says so and Add tries again', (tester) async {
+    final merged = <TransferMerged>[];
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.notAdded, merged),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('Not added. Nothing on this device changed; Add tries again.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(merged, hasLength(2));
+  });
+
   testWidgets('says when there was nothing new', (tester) async {
     await _pump(
       tester,

@@ -743,7 +743,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "افزودن آن همه‌چیزِ این دستگاه را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage(
-      "افزوده نشد. برای تلاش دوباره، پیوند را دوباره باز کنید.",
+      "افزوده نشد. چیزی در این دستگاه تغییر نکرد؛ برای تلاش دوباره، دوباره افزودن را بزنید.",
     ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این دستگاه هست."),
     "transfer_ticked": m69,

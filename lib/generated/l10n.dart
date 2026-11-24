@@ -3181,10 +3181,10 @@ class S {
     );
   }
 
-  /// `Not added. Open the link again to try once more.`
+  /// `Not added. Nothing on this device changed; Add tries again.`
   String get transfer_not_added {
     return Intl.message(
-      'Not added. Open the link again to try once more.',
+      'Not added. Nothing on this device changed; Add tries again.',
       name: 'transfer_not_added',
       desc: '',
       args: [],

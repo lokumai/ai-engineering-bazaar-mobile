@@ -736,7 +736,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
       "Adding it keeps everything on this device: nothing here is removed.",
     ),
-    "transfer_not_added": MessageLookupByLibrary.simpleMessage("Not added. Open the link again to try once more."),
+    "transfer_not_added": MessageLookupByLibrary.simpleMessage(
+      "Not added. Nothing on this device changed; Add tries again.",
+    ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this device already has all of it."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
