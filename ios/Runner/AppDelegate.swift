@@ -461,8 +461,13 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
     else { return }
     switch type {
     case .began:
-      pausedBySound = !parts.isEmpty
-      pauseReading()
+      // On the main queue, as the end and a route change are: iOS posts the notification on a thread of its own, and
+      // the reading's state and the channel belong to the main thread (review 10, finding 9).
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        self.pausedBySound = !self.parts.isEmpty
+        self.pauseReading()
+      }
     case .ended:
       let options = AVAudioSession.InterruptionOptions(
         rawValue: info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0)
