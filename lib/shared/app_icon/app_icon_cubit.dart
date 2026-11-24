@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/shared/app_icon/app_icon_ports.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/utils/serial_writes.dart';
 
 /// The app icon: [AppIconUnread] until the choice kept on this device was read, then [AppIconKnown]. The opening
 /// waits for it, so it plays in the chosen icon's colours from its first frame.
@@ -70,16 +71,7 @@ final class AppIconCubit extends Cubit<AppIconState> {
   }
 
   /// Runs [work] after the work queued before it, so two quick choices are kept and switched in the order made.
-  Future<void> _queue(Future<void> Function() work) async {
-    final previous = _work;
-    final running = _work = () async {
-      // A failure was logged by the store or the switch; the next one still runs.
-      await previous.catchError((Object _) {});
-      await work();
-    }();
-    await running;
-  }
+  Future<void> _queue(Future<void> Function() work) => _writes.run(work);
 
-  /// The last queued work, which the next one waits for.
-  Future<void> _work = Future<void>.value();
+  final _writes = SerialWrites();
 }

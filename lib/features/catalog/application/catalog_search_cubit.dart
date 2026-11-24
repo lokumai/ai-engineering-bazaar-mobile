@@ -10,6 +10,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// What the catalog's search shows.
+///
+/// One state with fields, by the rule's third exception (form persistence): the words typed and the levels chosen
+/// persist through every step of a search, whose results, reading flag and other track's hits go with them (review 11,
+/// architecture 9).
 final class CatalogSearchState extends Equatable {
   const CatalogSearchState({this.query = '', this.results, this.reading = false, this.levels = const {}, this.other});
 
@@ -152,7 +156,8 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
         entries.addAll(entriesOf(await _repository.readModuleDoc(path), number: module.number));
       } on Object catch (error) {
         // Any document that cannot be read, a storage error included, is left out rather than stopping the search.
-        _log.warn('module document {} left out of search: {}', [path, error]);
+        _log.warn('a module document left out of search: {}', [error.runtimeType]);
+        _log.debug('module document {} left out of search: {}', [path, error]);
       }
     }
     // The levels after the modules: the web's search finds a level by its name and its blurb.

@@ -206,11 +206,11 @@ class AppScope extends StatelessWidget {
           BlocProvider<RobotOutfitCubit>(
             create: (context) => RobotOutfitCubit(store: context.read<IRobotOutfitStore>())..load(),
           ),
-          // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
           BlocProvider<ReadingStyleCubit>(
             lazy: false,
             create: (context) => ReadingStyleCubit(store: context.read<IReadingStyleStore>())..load(),
           ),
+          // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
           BlocProvider<PocketButtonCubit>(
             lazy: false,
             create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),

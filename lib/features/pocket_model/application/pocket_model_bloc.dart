@@ -270,9 +270,6 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     return _mind.run(MindJobs.build(language, model.tokens, model.level, keys));
   }
 
-  /// Draws the curve of the model as it now stands, after the state that shows it was emitted. Each feed rebuilt the
-  /// whole curve on the screen's thread, a stutter that grew with every module read (review 5, finding 3): it is now
-  /// drawn by [_drawCurve], one at a time, and only the latest is kept.
   /// Whether [a] and [b] draw the same curve: the same tokens and the same modules read, at the same moments.
   static bool _sameCurve(PocketModel a, PocketModel b) {
     if (a.tokens != b.tokens || a.readings.length != b.readings.length) return false;
@@ -282,6 +279,9 @@ final class PocketModelBloc extends Bloc<PocketModelEvent, PocketModelState> {
     return true;
   }
 
+  /// Draws the curve of the model as it now stands, after the state that shows it was emitted. Each feed rebuilt the
+  /// whole curve on the screen's thread, a stutter that grew with every module read (review 5, finding 3): it is now
+  /// drawn by the mind, or a test's [_drawCurve], one at a time, and only the latest is kept.
   void _redraw() {
     _curveAsked++;
     if (!_drawing) unawaited(_drawLatest());

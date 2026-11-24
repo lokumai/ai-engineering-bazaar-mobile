@@ -229,7 +229,7 @@ integration_test/                               device tests
 
 - `core/` imports nothing from `shared/`, `features/`, `infrastructure/` or `app/`.
 - `shared/` imports nothing from `features/`, `app/` or `infrastructure/`.
-- A feature imports no other feature and nothing from `app/` (the one known exception is `app/router/app_routes_constants`).
+- A feature imports no other feature, nothing from `infrastructure/` (it gets infrastructure through `lib/app/di/`) and nothing from `app/` (the one known exception is `app/router/app_routes_constants`).
 - `infrastructure/` imports nothing from `features/` or `app/`, and nothing from `shared/` except `shared/content/domain` and `shared/record/domain`.
 - The two kernel domain folders import no Flutter and no I/O.
 
@@ -253,7 +253,7 @@ Every feature follows: **Event -> BLoC -> State -> UI**
 
 ### `Bloc` vs `Cubit`
 
-- Use **`Cubit`** when every interaction is an atomic, fire-and-forget call and the event stream adds no value (no debouncing, no concurrency policy, no historical event payload needed): `TrackCubit` (the current track, in memory for the session, For Engineers at start) and `QuizCubit`.
+- Use **`Cubit`** when every interaction is an atomic, fire-and-forget call and the event stream adds no value (no debouncing, no concurrency policy, no historical event payload needed): `TrackCubit` (the current track, kept by `ITrackStore` on this device, For Engineers until the choice is read) and `QuizCubit`.
 - Use **`Bloc`** when events carry meaningful payload, when an `EventTransformer` is needed, or when the event log itself is valuable: `ContentBloc` (a refresh is `droppable`), `WelcomeBloc` (it asks storage), `RecordBloc` (every event runs in one queue, so writes, erases and undos never overlap; it owns the 10 s undo window, A42) and `ModuleReaderBloc`.
 - Default to `Bloc` for any new feature touching storage, network requests or user input streams; reach for `Cubit` only after confirming none of the above apply.
 

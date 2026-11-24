@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// Verifies the architectural dependency rules of CLAUDE.md:
 ///
 /// - `app/` -> features, shared, infrastructure, core
-/// - `features/` -> shared, infrastructure, core (NOT other features' internals, NOT `app/` apart from the known
-///   exception below)
+/// - `features/` -> shared, core (NOT other features' internals, NOT `infrastructure/`, which a feature gets only
+///   through `lib/app/di/`, NOT `app/` apart from the known exception below)
 /// - `shared/` -> core only (NO features, app or infrastructure imports)
 /// - `core/` -> nothing (NO shared, features, infrastructure or app imports)
 /// - `infrastructure/` -> NO features or app imports, and nothing from shared/ apart from `shared/content/domain/` and
@@ -67,19 +67,37 @@ void main() {
       );
     });
 
-    test('shared/ must not import from features/ or app/', () {
+    // Review 11, architecture 6: the rule checked features/ and app/ only, while CLAUDE.md also forbids infrastructure/.
+    test('shared/ must not import from features/, app/ or infrastructure/', () {
       final violations = <String>[];
       final sharedFiles = dartFiles.where((f) => f.path.contains('/shared/'));
 
       for (final file in sharedFiles) {
         for (final import in _getImports(file, packageName)) {
-          if (import.path.contains('/features/') || import.path.contains('/app/')) {
+          if (import.path.contains('/features/') ||
+              import.path.contains('/app/') ||
+              import.path.contains('/infrastructure/')) {
             violations.add('${_relative(file.path)}: imports ${import.path}');
           }
         }
       }
 
-      expect(violations, isEmpty, reason: 'shared/ must not import from features/ or app/:\n${violations.join('\n')}');
+      expect(
+        violations,
+        isEmpty,
+        reason: 'shared/ must not import from features/, app/ or infrastructure/:\n${violations.join('\n')}',
+      );
+    });
+
+    // Review 11, architecture 6: a feature gets infrastructure only through lib/app/di/ (CLAUDE.md).
+    test('features/ must not import from infrastructure/', () {
+      final violations = [
+        for (final file in dartFiles.where((f) => f.path.contains('/features/')))
+          for (final import in _getImports(file, packageName))
+            if (import.path.contains('/infrastructure/')) '${_relative(file.path)}: imports ${import.path}',
+      ];
+
+      expect(violations, isEmpty, reason: 'features/ must not import from infrastructure/:\n${violations.join('\n')}');
     });
 
     test('features/ must not import from other features/ internals', () {

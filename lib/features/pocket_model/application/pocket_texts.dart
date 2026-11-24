@@ -41,7 +41,8 @@ final class ContentPocketTexts implements IPocketTexts {
       return null;
     } on Object catch (error) {
       // A module it cannot read is one it does not read; the toy goes on.
-      _log.warn('module {} not read by the pocket model: {}', [key, error]);
+      _log.warn('a module not read by the pocket model: {}', [error.runtimeType]);
+      _log.debug('module {} not read by the pocket model: {}', [key, error]);
       return null;
     }
   }

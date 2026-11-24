@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/theme/theme_store.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/utils/serial_writes.dart';
 
 /// The look of the app: light or dark. Until the reader chooses, it is light, whatever the phone's setting (owner,
 /// 2026-11-16, dark until then); the reader can change it in Settings or on Welcome's first step.
@@ -48,16 +49,7 @@ final class ThemeChoiceCubit extends Cubit<ThemeMode> {
   }
 
   /// Runs [work] after the work queued before it.
-  Future<void> _queue(Future<void> Function() work) async {
-    final previous = _saving;
-    final saving = _saving = () async {
-      // A write that failed was logged by the store or the channel; the next one still runs.
-      await previous.catchError((Object _) {});
-      await work();
-    }();
-    await saving;
-  }
+  Future<void> _queue(Future<void> Function() work) => _writes.run(work);
 
-  /// The write of the last choice, which the next one waits for.
-  Future<void> _saving = Future<void>.value();
+  final _writes = SerialWrites();
 }

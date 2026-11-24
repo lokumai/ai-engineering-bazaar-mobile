@@ -1,5 +1,6 @@
 import 'package:ai_engineering_bazaar/shared/language/language_store.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/utils/serial_writes.dart';
 
 /// The language of the interface and of the documents the reader opens (plan 1Q), as a code: `en`, `tr` or `fa`.
 ///
@@ -33,15 +34,8 @@ final class LanguageCubit extends Cubit<String> {
     if (language != state) emit(language);
     // One choice is written at a time, in the order made: the store clears the other choices before it keeps this one,
     // so two quick choices written at once could leave both kept, and the next start take the wrong one.
-    final previous = _saving;
-    final saving = _saving = () async {
-      // A write that failed was logged by the store; the next one still runs.
-      await previous.catchError((Object _) {});
-      await _store.choose(language);
-    }();
-    await saving;
+    await _writes.run(() => _store.choose(language));
   }
 
-  /// The write of the last choice, which the next one waits for.
-  Future<void> _saving = Future<void>.value();
+  final _writes = SerialWrites();
 }

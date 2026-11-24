@@ -14,8 +14,10 @@ part 'reader_state.dart';
 
 /// Reads one module document in one track (spec 3.6.1) and forwards its completion to the record.
 ///
-/// It keeps the [BundleIndex] it was opened with, so a refresh that lands while the module is open does not change it
-/// (spec 3.4.4). A document that is missing, corrupt or does not parse is a [ReaderFailed]; any other error is a fault
+/// It keeps the [BundleIndex] it was opened with, so a refresh that lands while the module is open does not change the
+/// module's entry (spec 3.4.4). The document itself is read through the repository, which resolves its path in the
+/// current index first, so a Retry after a refresh reads the new document under the entry it opened with; the page
+/// reopens a module it did not find when newer content arrives (review 11, features 1). A document that is missing, corrupt or does not parse is a [ReaderFailed]; any other error is a fault
 /// and propagates to the bloc observer.
 ///
 /// An interface class rather than a final one, so widget tests can provide a `MockBloc` that implements it.
@@ -59,18 +61,24 @@ interface class ModuleReaderBloc extends Bloc<ReaderEvent, ReaderState> {
       return;
     }
     final ModuleDoc doc;
+    // The path names the module read: a release logs only the kind of fault (review 11, architecture 11).
+    void logUnreadable(String path, Object error) {
+      _log.warn('module document unreadable: {}', [error.runtimeType]);
+      _log.debug('module document {} unreadable: {}', [path, error]);
+    }
+
     try {
       doc = await _repository.readModuleDoc(path);
     } on ContentMissingException catch (error) {
-      _log.warn('module document {} unreadable: {}', [path, error]);
+      logUnreadable(path, error);
       emit(const ReaderFailed(code: ContentErrorCode.missing));
       return;
     } on ContentCorruptException catch (error) {
-      _log.warn('module document {} unreadable: {}', [path, error]);
+      logUnreadable(path, error);
       emit(const ReaderFailed(code: ContentErrorCode.corrupt));
       return;
     } on ContentFormatException catch (error) {
-      _log.warn('module document {} unreadable: {}', [path, error]);
+      logUnreadable(path, error);
       emit(const ReaderFailed(code: ContentErrorCode.format));
       return;
     } on Object catch (error, stackTrace) {
