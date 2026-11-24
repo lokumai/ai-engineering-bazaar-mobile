@@ -358,39 +358,47 @@ class _TourLayerState extends State<TourLayer> {
     // Android's Back while the Apprentice asks or points is Skip, the one way out that needs no reach of the bubble's
     // buttons; with no tour out, Back goes on to the pages (review 8, finding 7).
     final touring = asking || showing;
-    return BackButtonListener(
-      onBackButtonPressed: () async {
-        // Only while the shell's page is in front: a page over it, as a progress link's, is closed by Back as any
-        // other, and the tour under it waits (review 10, finding 4).
-        if (!touring || !mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return false;
-        _skip();
-        return true;
+    // While it asks or points, the page holds Back for Flutter (review 10, finding 8): on Home's root nothing else does,
+    // and Android 13 and later then closed the app without asking the listener below.
+    return PopScope(
+      canPop: !touring,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && touring && mounted) _skip();
       },
-      child: Stack(
-        key: _layer,
-        children: [
-          // While the Apprentice speaks, a screen reader hears it alone; while it is out, its button is empty.
-          TourRobotOut(
-            out: asking || robotAt != null,
-            child: ExcludeSemantics(excluding: asking || showing, child: widget.child),
-          ),
-          if (asking)
-            Positioned.fill(child: _Asking(seat: _seat))
-          else if (showing)
-            Positioned.fill(child: BlockSemantics(child: _pointing(context)))
-          else if (waiting)
-            const Positioned.fill(child: _Scrim(hole: null)),
-          if (robotAt != null)
-            AnimatedPositioned(
-              duration: reduced ? Duration.zero : TourLayer.walk,
-              curve: Curves.easeInOut,
-              left: robotAt.dx,
-              top: robotAt.dy,
-              width: TourLayer.robotSize,
-              height: TourLayer.robotSize,
-              child: _Hop(key: ValueKey(robotAt), hop: !reduced, child: widget.robot),
+      child: BackButtonListener(
+        onBackButtonPressed: () async {
+          // Only while the shell's page is in front: a page over it, as a progress link's, is closed by Back as any
+          // other, and the tour under it waits (review 10, finding 4).
+          if (!touring || !mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+          _skip();
+          return true;
+        },
+        child: Stack(
+          key: _layer,
+          children: [
+            // While the Apprentice speaks, a screen reader hears it alone; while it is out, its button is empty.
+            TourRobotOut(
+              out: asking || robotAt != null,
+              child: ExcludeSemantics(excluding: asking || showing, child: widget.child),
             ),
-        ],
+            if (asking)
+              Positioned.fill(child: _Asking(seat: _seat))
+            else if (showing)
+              Positioned.fill(child: BlockSemantics(child: _pointing(context)))
+            else if (waiting)
+              const Positioned.fill(child: _Scrim(hole: null)),
+            if (robotAt != null)
+              AnimatedPositioned(
+                duration: reduced ? Duration.zero : TourLayer.walk,
+                curve: Curves.easeInOut,
+                left: robotAt.dx,
+                top: robotAt.dy,
+                width: TourLayer.robotSize,
+                height: TourLayer.robotSize,
+                child: _Hop(key: ValueKey(robotAt), hop: !reduced, child: widget.robot),
+              ),
+          ],
+        ),
       ),
     );
   }

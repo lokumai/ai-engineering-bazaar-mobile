@@ -284,6 +284,23 @@ void main() {
     expect(store.kept.asking, isTrue, reason: 'the question was never seen');
   });
 
+  // Review 10, finding 8: on Home's root nothing held Back for Flutter, so Android 13 and later closed the app without
+  // asking the tour's listener, which the widget tests reach through handlePopRoute.
+  testWidgets('while the tour asks or points, the page holds Back for Flutter; after it, Back is the pages\'', (
+    tester,
+  ) async {
+    await _pump(tester, record: const TourRecord(asking: true));
+    RoutePopDisposition disposition() => ModalRoute.of(tester.element(find.byType(TourLayer)))!.popDisposition;
+    expect(disposition(), RoutePopDisposition.doNotPop, reason: 'asking');
+
+    await _tap(tester, find.byKey(const ValueKey('tour-accept')));
+    expect(disposition(), RoutePopDisposition.doNotPop, reason: 'pointing');
+
+    await tester.binding.handlePopRoute();
+    await _walk(tester);
+    expect(disposition(), isNot(RoutePopDisposition.doNotPop), reason: 'skipped');
+  });
+
   testWidgets('a tab opened the first time is shown, and not the second time', (tester) async {
     final (_, store) = await _pump(tester, record: const TourRecord(guiding: true, seen: {'home'}));
     expect(_scrim, findsNothing, reason: 'Home was shown');
