@@ -5,6 +5,18 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ## [Unreleased]
 
+### Fixed
+
+- The Android release build no longer closes at launch.
+- Progress is never backed up, erased or written over before it has been read, Undo lasts across a tab switch, and a save that fails says so; Home says when this launch set the stored progress aside.
+- The Apprentice, the catalog's search and a module's pictures no longer hold up the screen.
+- A site link opens over the catalog with a way back; a module that newer content brings opens without leaving the page.
+- Find marks whole Turkish words; Listen follows the page's language and opens no module twice; the reading place stays on the same words after the text size changes or the device turns.
+- A term's definition scrolls when long and follows its links; a logo inside a link can be tapped.
+- On Android the app icon changes only once a reading aloud has ended, and a paused reading's notice can be swiped away.
+- Screen readers hear search results change, review rows question first, Turkish counts in words, and language names in their own voice.
+- Privacy and legal says that Listen may use the device maker's online voice, and lists the native crash-reporting SDKs' licences.
+
 ## [1.0.0] - 2026-11-20
 
 The first release on the App Store and Google Play.
