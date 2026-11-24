@@ -576,7 +576,8 @@ void main() {
         );
         final reply = Completer<TransferMergeResult>();
         bloc.add(TransferMerged(progress: huge, reply: reply));
-        expect(await reply.future, TransferMergeResult.notAdded);
+        // Review 10, finding 9: not notAdded, whose Add tries again; trying again never helps here.
+        expect(await reply.future, TransferMergeResult.tooLarge);
         expect(_ready(bloc).record, same(before.record));
         expect(_ready(bloc).writeState, const WriteSaved());
         expect(repository.writes, isEmpty);

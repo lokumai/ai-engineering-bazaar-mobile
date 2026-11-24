@@ -110,6 +110,24 @@ void main() {
     expect(merged, hasLength(2));
   });
 
+  // Review 10, finding 9: past the record's cap, "Add tries again" promised what trying again never does.
+  testWidgets('too large, it says so and offers no Add', (tester) async {
+    await _pump(
+      tester,
+      const DeflateTransferPacker().pack(_compact),
+      _recordAnswering(TransferMergeResult.tooLarge, []),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-add')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('transfer-add')), findsNothing);
+  });
+
   testWidgets('says when there was nothing new', (tester) async {
     await _pump(
       tester,

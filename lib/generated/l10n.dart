@@ -3191,6 +3191,16 @@ class S {
     );
   }
 
+  /// `Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.`
+  String get transfer_too_large {
+    return Intl.message(
+      'Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.',
+      name: 'transfer_too_large',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `This link cannot be read. Make a new one on the website's Progress page.`
   String get transfer_unreadable {
     return Intl.message(

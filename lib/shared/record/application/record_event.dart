@@ -88,8 +88,12 @@ enum TransferMergeResult {
   /// The record already held all of it; nothing was written.
   nothingNew,
 
-  /// Nothing was added: an erase waited in the queue, the record was not read yet, or the write failed.
+  /// Nothing was added: an erase waited in the queue, the record was not read yet, or the write failed. Trying again
+  /// can add it.
   notAdded,
+
+  /// Nothing was added: with it the record would pass its cap, so trying again never helps (review 10, finding 9).
+  tooLarge,
 }
 
 /// The reader confirmed an erase at [at] (spec 3.3.11, Decision A41).

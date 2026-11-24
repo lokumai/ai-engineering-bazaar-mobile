@@ -743,11 +743,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "افزودن آن همه‌چیزِ این دستگاه را نگه می‌دارد: چیزی از اینجا پاک نمی‌شود.",
     ),
     "transfer_not_added": MessageLookupByLibrary.simpleMessage(
-      "افزوده نشد. چیزی در این دستگاه تغییر نکرد؛ برای تلاش دوباره، دوباره افزودن را بزنید.",
+      "افزوده نشد. چیزی در این دستگاه تغییر نکرد؛ برای تلاش دوباره، «افزودن» را بزنید.",
     ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("چیز تازه‌ای نیست: همه‌اش از پیش روی این دستگاه هست."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("پیشرفت از یک پیوند"),
+    "transfer_too_large": MessageLookupByLibrary.simpleMessage(
+      "افزوده نشد: با آن، پیشرفت در این دستگاه بزرگ‌تر از آن می‌شد که برنامه بتواند نگه دارد. چیزی تغییر نکرد.",
+    ),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "این پیوند خوانده نمی‌شود. یک پیوند تازه در صفحهٔ Progress وب‌سایت بسازید.",
     ),

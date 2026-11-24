@@ -450,6 +450,7 @@
   "transfer_added": "Eklendi. Bu cihazdan hiçbir şey silinmedi.",
   "transfer_nothing_new": "Yeni bir şey yok: hepsi bu cihazda zaten var.",
   "transfer_not_added": "Eklenmedi. Bu cihazda hiçbir şey değişmedi; tekrar denemek için yeniden ekle.",
+  "transfer_too_large": "Eklenmedi: bununla bu cihazdaki ilerleme, uygulamanın saklayabileceğinden büyük olurdu. Hiçbir şey değişmedi.",
   "transfer_unreadable": "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
   "transfer_empty": "Bu bağlantıda ilerleme yok.",
   "data_send_to_website": "Web sitesine gönder",

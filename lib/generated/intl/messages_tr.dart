@@ -742,6 +742,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu cihazda zaten var."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),
+    "transfer_too_large": MessageLookupByLibrary.simpleMessage(
+      "Eklenmedi: bununla bu cihazdaki ilerleme, uygulamanın saklayabileceğinden büyük olurdu. Hiçbir şey değişmedi.",
+    ),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "Bu bağlantı okunamıyor. Sitenin Progress sayfasında yenisini oluştur.",
     ),

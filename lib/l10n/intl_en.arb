@@ -1564,6 +1564,8 @@
   "@transfer_nothing_new": {},
   "transfer_not_added": "Not added. Nothing on this device changed; Add tries again.",
   "@transfer_not_added": {},
+  "transfer_too_large": "Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.",
+  "@transfer_too_large": {},
   "transfer_unreadable": "This link cannot be read. Make a new one on the website's Progress page.",
   "@transfer_unreadable": {},
   "transfer_empty": "This link carries no progress.",

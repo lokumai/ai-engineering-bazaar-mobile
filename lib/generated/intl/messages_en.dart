@@ -742,6 +742,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this device already has all of it."),
     "transfer_ticked": m69,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
+    "transfer_too_large": MessageLookupByLibrary.simpleMessage(
+      "Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.",
+    ),
     "transfer_unreadable": MessageLookupByLibrary.simpleMessage(
       "This link cannot be read. Make a new one on the website\'s Progress page.",
     ),
