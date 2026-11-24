@@ -1895,10 +1895,10 @@ class S {
     return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
   }
 
-  /// `This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.`
+  /// `This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.`
   String get privacy_no_data {
     return Intl.message(
-      'This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.',
+      'This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.',
       name: 'privacy_no_data',
       desc: '',
       args: [],
@@ -1955,10 +1955,10 @@ class S {
     );
   }
 
-  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
   String get privacy_crash {
     return Intl.message(
-      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.',
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.',
       name: 'privacy_crash',
       desc: '',
       args: [],
@@ -1980,10 +1980,10 @@ class S {
     return Intl.message('Report a problem', name: 'feedback_title', desc: '', args: []);
   }
 
-  /// `Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.`
+  /// `Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.`
   String get feedback_intro {
     return Intl.message(
-      'Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.',
+      'Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.',
       name: 'feedback_intro',
       desc: '',
       args: [],

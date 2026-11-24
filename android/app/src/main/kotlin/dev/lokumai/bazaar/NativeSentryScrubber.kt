@@ -72,9 +72,15 @@ object NativeSentryScrubber {
      */
     fun maskText(value: String): String = maskReading(maskEmails(maskSecrets(value)))
 
-    /** A content or course picture path, kept only as one. */
+    /** The prefixes [NativeScrubPatterns.READING_PATH_PATTERN] starts at; a text with none is not scanned. */
+    private val readingPrefixes = listOf("api/v1/", "course-images/", "courses/", "sheets/", "objects/", "#t=")
+
+    /**
+     * A content or course picture path, a site address or app route of a module, a downloaded object's sha256 or a
+     * transfer link's payload, kept only as one (review 11, native 2).
+     */
     fun maskReading(value: String): String =
-        if (!value.contains("api/v1/") && !value.contains("course-images/")) {
+        if (readingPrefixes.none(value::contains)) {
             value
         } else {
             readingPath.replace(value) { "${it.groupValues[1]}${NativeScrubPatterns.SECRET_MASK}" }

@@ -463,10 +463,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                     builder: (context, state) => switch (state) {
                       final ListenOn on when widget.location != BazaarPaths.module(on.track, on.module) =>
                         ReadableWidth(
-                          child: ListenBar(
-                            state: on,
-                            onOpen: () => _openRead(BazaarPaths.module(on.track, on.module)),
-                          ),
+                          child: ListenBar(state: on, onOpen: () => _openRead(BazaarPaths.module(on.track, on.module))),
                         ),
                       _ when bandShown => TourTarget(
                         spot: TourSpots.band,

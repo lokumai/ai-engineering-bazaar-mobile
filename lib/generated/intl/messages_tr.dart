@@ -331,7 +331,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_failed": MessageLookupByLibrary.simpleMessage("Bildirim gönderilemedi. Daha sonra yeniden dene."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("Ne oldu"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
-      "Neyin ters gittiğini yaz. Bildirim; uygulamanın sürümü, cihazın modeli ve sistemiyle birlikte Sentry\'ye gider, ad ya da e-posta gitmez. Uygulama içindeki e-postaları ve diğer kişisel ayrıntıları cihazdan çıkmadan önce gizler.",
+      "Neyin ters gittiğini yaz. Bildirim; uygulamanın sürümü, cihazın modeli ve sistemiyle birlikte Sentry\'ye gider, ad ya da e-posta gitmez. Uygulama, bildirimdeki e-posta adreslerini cihazdan çıkmadan önce gizler; telefon numarası gibi başka kişisel bilgiler yazma.",
     ),
     "feedback_send": MessageLookupByLibrary.simpleMessage("Gönder"),
     "feedback_sending": MessageLookupByLibrary.simpleMessage("Gönderiliyor"),
@@ -508,7 +508,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama kişisel ayrıntıları cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. Sorun bildir\'den gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",
+      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama e-posta adreslerini, parolaları ve erişim anahtarlarını cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. “Sorun bildir” ile gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
@@ -519,7 +519,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
+      "Bu uygulamada hesap, reklam ve takip yoktur. Neyi nereye gönderdiği aşağıda; hiçbiri sana bağlanmaz.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Ayarlar\'da İlerlemen bölümünden ilerlemeni yedekleyebilir ve geri yükleyebilir, ilerlemeni ve quiz skorlarını sıfırlayabilirsin.",

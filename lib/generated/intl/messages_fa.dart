@@ -330,7 +330,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_failed": MessageLookupByLibrary.simpleMessage("گزارش ارسال نشد. بعداً دوباره امتحان کنید."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("چه اتفاقی افتاد"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
-      "بنویسید چه مشکلی پیش آمد. گزارش همراه با نسخهٔ برنامه و مدل و سیستم دستگاه، بدون نام یا ایمیل، به Sentry می‌رود. برنامه پیش از خروج آن از دستگاه، ایمیل‌ها و دیگر جزئیات شخصی‌اش را می‌پوشاند.",
+      "بنویسید چه مشکلی پیش آمد. گزارش همراه با نسخهٔ برنامه و مدل و سیستم دستگاه، بدون نام یا ایمیل، به Sentry می‌رود. برنامه پیش از خروج گزارش از دستگاه، نشانی‌های ایمیل آن را می‌پوشاند؛ جزئیات شخصی دیگر مانند شمارهٔ تلفن را ننویسید.",
     ),
     "feedback_send": MessageLookupByLibrary.simpleMessage("ارسال"),
     "feedback_sending": MessageLookupByLibrary.simpleMessage("در حال ارسال"),
@@ -509,7 +509,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("الان هیچ پاسخ نادرستی ندارید."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("برای هر پرسشی دربارهٔ داده‌های شخصی به ما بنویسید."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، جزئیات شخصی را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
+      "وقتی برنامه از کار می‌افتد، گزارش خطا را به Sentry می‌فرستد تا ایراد رفع شود. برای پیگیری سلامت برنامه در هر نسخه، زمان باز و بسته شدن برنامه، مدت باز شدن آن و لحظه‌هایی را که از پاسخ دادن بازماند هم با شماره‌ای تصادفی برای همین نصب به Sentry اطلاع می‌دهد. هیچ‌کدام از این‌ها نام شما، آنچه می‌خوانید یا پاسخ‌های آزمون شما را در بر ندارد. برنامه پیش از خروج از دستگاه، نشانی‌های ایمیل، گذرواژه‌ها و توکن‌ها را می‌پوشاند و Sentry نشانی IP را نگه نمی‌دارد. مشکلی که در «گزارش مشکل» می‌فرستید هم به همین شکل به Sentry می‌رود.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "برنامه دوره را از وب‌سایت دانلود می‌کند که روی GitHub Pages میزبانی می‌شود. GitHub برای امنیت، نشانی IP هر بازدیدکننده را ثبت و نگهداری می‌کند. این سابقه متعلق به GitHub است، نه ما.",
@@ -520,7 +520,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages چیست؟"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("بیانیهٔ عمومی حریم خصوصی GitHub"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد و هیچ دادهٔ شخصی جمع نمی‌کند. آنچه می‌فرستد و مقصد آن، در ادامه آمده است.",
+      "این برنامه حساب کاربری، تبلیغ و ردیابی ندارد. آنچه می‌فرستد و مقصد آن، در ادامه آمده است؛ هیچ‌کدام به شخص شما پیوند داده نمی‌شود.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "پیشرفت، امتیاز آزمون‌ها و تنظیمات شما روی همین دستگاه و، اگر روشن باشد، در پشتیبان‌گیری خود دستگاه ذخیره می‌شوند؛ برنامه آن‌ها را به جای دیگری نمی‌فرستد. می‌توانید در تنظیمات، بخش «پیشرفت شما»، از پیشرفتتان پشتیبان بگیرید و آن را بازیابی کنید، و پیشرفت و امتیاز آزمون‌ها را بازنشانی کنید.",

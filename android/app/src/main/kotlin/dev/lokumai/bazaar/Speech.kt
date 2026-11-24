@@ -225,16 +225,25 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Whether a reading is shown, playing or paused: its notice stays while it is (plan 19.8). */
     private var shown = false
 
+    /** Whether a reading is shown, playing or paused; the icon switch waits while one is (review 11, native 1). */
+    val readingShown: Boolean
+        get() = shown
+
+    /** Called when the reading shown ends. */
+    var onReadingEnded: (() -> Unit)? = null
+
     /**
      * Names the reading to the session and the notice: [title] and whether it is [playing], or nothing when [title] is
      * null, which ends the notice once nothing is said.
      */
     private fun show(title: String?, playing: Boolean) {
+        val wasShown = shown
         shown = title != null
         if (title == null) {
             session.isActive = false
             ListenService.session = null
             if (current == null) ListenService.stop(context)
+            if (wasShown) onReadingEnded?.invoke()
             return
         }
         session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())

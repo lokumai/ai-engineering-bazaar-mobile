@@ -73,7 +73,10 @@ class MainActivity : FlutterActivity() {
             }
         handleLaunchGround(flutterEngine)
         // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
-        speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger)
+        speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger).also {
+            // An icon chosen while a module was read aloud reaches the launcher once the reading ends in the background.
+            it.onReadingEnded = { if (stopped) applyChosenIcon() }
+        }
         // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the one the app was opened
         // with waits for it.
         links = Links(this, flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
@@ -112,8 +115,11 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        speech?.onReadingEnded = null
         speech?.close()
         speech = null
+        // An icon still waiting on a reading reaches the launcher as the activity goes.
+        applyChosenIcon()
         links?.close()
         links = null
         shareSheet?.close()
@@ -141,11 +147,29 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    /** Whether the activity is in the background, where a chosen icon may reach the launcher. */
+    private var stopped = false
+
+    override fun onStart() {
+        super.onStart()
+        stopped = false
+    }
+
     override fun onStop() {
         super.onStop()
-        chosenIcon?.let {
-            AppIconSwitch.apply(this, it)
-            chosenIcon = null
-        }
+        stopped = true
+        applyChosenIcon()
+    }
+
+    /**
+     * Sends the icon the reader chose to the launcher, unless a module is being read aloud: turning off the launcher entry
+     * the app was opened through can finish its activity even with DONT_KILL_APP, and the reading with it (review 11,
+     * native 1). It then waits for the reading to end in the background, or for the next time the app goes there.
+     */
+    private fun applyChosenIcon() {
+        val icon = chosenIcon ?: return
+        if (speech?.readingShown == true) return
+        AppIconSwitch.apply(this, icon)
+        chosenIcon = null
     }
 }

@@ -35,7 +35,7 @@ void main() {
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, 4);
     expect(find.byType(BackButton), findsOneWidget, reason: 'a page pushed over Settings');
     expect(find.text('Privacy'), findsOneWidget);
-    expect(find.textContaining('collects no personal data'), findsOneWidget);
+    expect(find.textContaining('none of it is linked to you'), findsOneWidget);
     expect(find.textContaining("and in the device's own backup when it is on"), findsOneWidget);
     expect(find.textContaining('hosted on GitHub Pages'), findsOneWidget);
   });

@@ -21,6 +21,25 @@ SentryEvent _eventWithExceptionValue(String value) {
 }
 
 void main() {
+  // Review 11, native 2: Dart puts the source it failed on into a FormatException's text, as a stored record's JSON.
+  test('sentryBeforeSend sends only the first line of a FormatException', () {
+    Object? thrown;
+    try {
+      jsonDecode('{"completed":{"alpha/first":"2026-11-20"}, oops}');
+    } on FormatException catch (error) {
+      thrown = error;
+    }
+    final result = sentryBeforeSend(
+      SentryEvent(
+        exceptions: [SentryException(type: 'FormatException', value: '$thrown')],
+      ),
+    );
+    final value = result.exceptions!.single.value!;
+    expect(value, isNot(contains('\n')));
+    expect(value, isNot(contains('alpha/first')));
+    expect(value, startsWith('FormatException'));
+  });
+
   test('sentryBeforeSend hides which module, level or course picture a content path names, as a crash report never says what was read', () {
     final result = sentryBeforeSend(
       SentryEvent(

@@ -328,7 +328,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "feedback_failed": MessageLookupByLibrary.simpleMessage("The report was not sent. Try again later."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("What happened"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
-      "Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.",
+      "Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.",
     ),
     "feedback_send": MessageLookupByLibrary.simpleMessage("Send"),
     "feedback_sending": MessageLookupByLibrary.simpleMessage("Sending"),
@@ -505,7 +505,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("No wrong answers now."),
     "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
+      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
       "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",
@@ -516,7 +516,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
+      "This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
