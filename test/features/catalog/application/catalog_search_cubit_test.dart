@@ -64,6 +64,14 @@ void main() {
     return cubit;
   }
 
+  // Review 10, finding 9: the kept search field's timer called a cubit a content refresh had closed, and emit threw.
+  test('a closed cubit asked to search or filter does nothing', () async {
+    final closed = CatalogSearchCubit(repository: repository, bundle: index, track: Track.engineers, language: 'en');
+    await closed.close();
+    await expectLater(closed.search('tools'), completes);
+    await expectLater(closed.filter({'alpha'}), completes);
+  });
+
   test('starts with no query, showing the catalog', () {
     expect(cubit().state, const CatalogSearchState());
     expect(cubit().state.active, isFalse);
