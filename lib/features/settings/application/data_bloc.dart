@@ -131,6 +131,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final next = switch (picked) {
         PickedBackupCancelled() => state,
         PickedBackupUnreadable() => state._with(restore: RestoreOutcome.unreadable),
+        PickedBackupTooLarge() => state._with(restore: RestoreOutcome.tooLarge),
         PickedBackupBytes(:final bytes) => switch (parseEnvelope(envelopeTextFrom(decodeRecordBytes(bytes)))) {
           EnvelopeEmpty() => state._with(restore: RestoreOutcome.empty),
           EnvelopeQuarantine(reason: QuarantineReason.newer) => state._with(restore: RestoreOutcome.newer),
@@ -279,7 +280,12 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
         return;
       }
       final bytes = stored.quarantine;
-      if (bytes == null) throw StateError('no set-aside record to save');
+      // Gone since the notice showed (another erase, a delete): said, rather than a silent error (opus review 11,
+      // record finding 9).
+      if (bytes == null) {
+        emit(state._with(busy: DataBusy.idle, quarantineCopy: QuarantineCopy.notWritten));
+        return;
+      }
       final BackupSaveResult result;
       try {
         result = await _gateway.save(bytes, 'hl-record-quarantine-${nowIso().substring(0, 10)}.json');

@@ -191,7 +191,11 @@ final class FileReadingPlaceStore implements IReadingPlaceStore {
   @override
   Future<Map<String, ReadingPlace>> load() async {
     final text = await _file.read();
-    return text == null ? const {} : decodeReadingPlaces(text);
+    if (text == null) return const {};
+    // A file is deleted when nothing is left in it, so one there that reads as nothing is damaged or another version's.
+    final places = decodeReadingPlaces(text);
+    if (places.isEmpty) await _file.setAside();
+    return places;
   }
 
   @override
@@ -208,7 +212,11 @@ final class FileListenPlaceStore implements IListenPlaceStore {
   @override
   Future<Map<String, ListenPlace>> load() async {
     final text = await _file.read();
-    return text == null ? const {} : decodeListenPlaces(text);
+    if (text == null) return const {};
+    // A file is deleted when nothing is left in it, so one there that reads as nothing is damaged or another version's.
+    final places = decodeListenPlaces(text);
+    if (places.isEmpty) await _file.setAside();
+    return places;
   }
 
   @override
@@ -251,7 +259,11 @@ final class FileQuizScoreStore implements IQuizScoreStore {
   @override
   Future<Map<String, QuizScore>> load() async {
     final text = await _file.read();
-    return text == null ? const {} : decodeQuizScores(text);
+    if (text == null) return const {};
+    // A file is deleted when nothing is left in it, so one there that reads as nothing is damaged or another version's.
+    final scores = decodeQuizScores(text);
+    if (scores.isEmpty) await _file.setAside();
+    return scores;
   }
 
   @override
@@ -268,7 +280,11 @@ final class FileReviewStore implements IReviewStore {
   @override
   Future<ReviewHistory> load() async {
     final text = await _file.read();
-    return text == null ? ReviewHistory.empty : decodeReviewHistory(text);
+    if (text == null) return ReviewHistory.empty;
+    // A file is deleted when nothing is left in it, so one there that reads as nothing is damaged or another version's.
+    final history = decodeReviewHistory(text);
+    if (history.isEmpty) await _file.setAside();
+    return history;
   }
 
   @override

@@ -360,6 +360,31 @@ void main() {
     expect(File('${root.path}/quiz/scores.json').existsSync(), isFalse, reason: 'no scores, no file');
   });
 
+  // Opus review 11, record finding 7: a file of another version's shape read as empty, and the first answer, scroll or
+  // reading replaced it with a file holding only the new entry.
+  test("the app's own stores set aside a file they cannot read rather than write over it", () async {
+    final root = Directory.systemTemp.createTempSync('own_store_aside_test_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final dependencies = AppDependencies(
+      appConfig: const AppConfig.test(contentBaseUrl: testContentBaseUrl),
+      supportDirectory: () async => root,
+    );
+    const later = '{"schema":99,"later":true}';
+    final files = {
+      'quiz/scores.json': () => dependencies.createQuizScoreStore().load(),
+      'quiz/review.json': () => dependencies.createReviewStore().load(),
+      'reading/places.json': () => dependencies.createReadingPlaceStore().load(),
+    };
+    for (final MapEntry(key: path, value: load) in files.entries) {
+      File('${root.path}/$path')
+        ..createSync(recursive: true)
+        ..writeAsStringSync(later);
+      await load();
+      expect(File('${root.path}/$path').existsSync(), isFalse, reason: path);
+      expect(File('${root.path}/$path.unreadable').readAsStringSync(), later, reason: path);
+    }
+  });
+
   test('the robot outfit is one file under the support directory, the hidden button one flag (plan 9.9)', () async {
     final root = Directory.systemTemp.createTempSync('robot_outfit_store_test_');
     addTearDown(() => root.deleteSync(recursive: true));

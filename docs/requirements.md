@@ -73,7 +73,7 @@ When two sources disagree, the web repo's decisions win on what the product does
 
 ### Progress and the record
 
-- **R60** The record is the web's, byte for byte. `lib/shared/record` ports the web's code, and `test/shared/record/conformance_test.dart` with `test/fixtures/record_conformance/v1.json` is the authority.
+- **R60** The record is the web's, byte for byte. `lib/shared/record` ports the web's code, and `test/shared/record/conformance_test.dart` with `test/fixtures/record_conformance/v1.json` is the authority. Two exceptions, both deliberate: values and unknown keys are kept raw and exported again where the web's `coerceRecordData` drops or clamps them (Decision W9; a file the web wrote reads and exports the same), and a record nested deeper than 64 levels is set aside as malformed where the web reads it (review 7, finding 13).
 - **R61** The app writes only a completion and its removal in the current track's map, the active day, and `meta.lastExport` after a confirmed save (A19, A35). A completion and its removal touch only their own track, as on the website (plan 17.4, which undid plan 1V's For Engineers completion carrying For Everyone). It keeps `prefs`, checklist ticks, dwell and `reachedEnd` as it read them.
 - **R62** Days are the UTC day of the instant. `asInstant` is a strict grammar (A20).
 - **R63** Writes are atomic: `record.json.tmp` with a flush, then a rename.

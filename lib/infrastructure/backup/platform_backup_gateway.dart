@@ -64,7 +64,7 @@ final class PlatformBackupGateway implements IBackupGateway {
       if (length == null) return await _readCapped(file);
       if (length > maxBackupBytes) {
         _log.warn('Backup file too large: {} bytes', [length]);
-        return const PickedBackupUnreadable();
+        return const PickedBackupTooLarge();
       }
       return PickedBackupBytes(bytes: await file.readAsBytes());
     } on Exception catch (error) {
@@ -82,7 +82,7 @@ Future<PickedBackup> _readCapped(PlatformFile file) async {
     body.add(chunk);
     if (body.length > PlatformBackupGateway.maxBackupBytes) {
       PlatformBackupGateway._log.warn('Backup file of unknown length too large');
-      return const PickedBackupUnreadable();
+      return const PickedBackupTooLarge();
     }
   }
   return PickedBackupBytes(bytes: body.takeBytes());

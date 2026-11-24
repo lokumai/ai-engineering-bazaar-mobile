@@ -239,9 +239,15 @@ void main() {
       quarantineTmpFile.writeAsBytesSync([4]);
       previousFile.writeAsBytesSync([5]);
 
+      // Opus review 11, record finding 4: the copy set aside before the quarantine is read too, so an erase's undo
+      // brings it back with the rest.
       expect(
         await repo.readStored(),
-        StoredBytes(record: Uint8List.fromList([1]), quarantine: Uint8List.fromList([2])),
+        StoredBytes(
+          record: Uint8List.fromList([1]),
+          quarantine: Uint8List.fromList([2]),
+          previous: Uint8List.fromList([5]),
+        ),
       );
 
       await repo.deleteAll();
@@ -254,15 +260,24 @@ void main() {
       expect(await repo.readStored(), const StoredBytes(record: null, quarantine: null));
 
       expect(
-        await repo.restore(StoredBytes(record: Uint8List.fromList([1]), quarantine: Uint8List.fromList([2]))),
+        await repo.restore(
+          StoredBytes(
+            record: Uint8List.fromList([1]),
+            quarantine: Uint8List.fromList([2]),
+            previous: Uint8List.fromList([5]),
+          ),
+        ),
         const RestoreResult(write: WriteResult.saved, quarantineKept: true),
       );
       expect(recordFile.readAsBytesSync(), [1]);
       expect(quarantineFile.readAsBytesSync(), [2]);
+      expect(previousFile.readAsBytesSync(), [5]);
       expect(tmpFile.existsSync(), isFalse);
       expect(quarantineTmpFile.existsSync(), isFalse);
 
-      await repo.deleteQuarantine();
+      expect(await repo.deleteQuarantine(), isTrue, reason: 'the previous copy comes up');
+      expect(quarantineFile.readAsBytesSync(), [5]);
+      expect(await repo.deleteQuarantine(), isFalse);
       expect(quarantineFile.existsSync(), isFalse);
       expect(recordFile.readAsBytesSync(), [1]);
       await repo.deleteQuarantine(); // not-found is fine

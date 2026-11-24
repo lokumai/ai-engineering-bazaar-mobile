@@ -7,7 +7,7 @@ import 'package:ai_engineering_bazaar/shared/record/domain/record_data.dart';
 
 /// The record's files as they are on the device; `null` for a file that does not exist.
 final class StoredBytes extends Equatable {
-  const StoredBytes({required this.record, required this.quarantine});
+  const StoredBytes({required this.record, required this.quarantine, this.previous});
 
   /// The bytes of `record.json`.
   final Uint8List? record;
@@ -15,8 +15,12 @@ final class StoredBytes extends Equatable {
   /// The bytes of `record-quarantine.json`.
   final Uint8List? quarantine;
 
+  /// The bytes of `record-quarantine-previous.json`, which an erase deletes and its undo brings back with the rest
+  /// (opus review 11, record finding 4).
+  final Uint8List? previous;
+
   @override
-  List<Object?> get props => [record, quarantine];
+  List<Object?> get props => [record, quarantine, previous];
 }
 
 /// What the launch read found (spec 3.3.9).

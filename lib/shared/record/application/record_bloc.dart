@@ -374,7 +374,7 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       await _repository.deleteAll();
     } on FileSystemException catch (error) {
       _log.warn('record erase failed: {}', [error]);
-      if (bytes.record != null || bytes.quarantine != null) {
+      if (bytes.record != null || bytes.quarantine != null || bytes.previous != null) {
         final put = await _repository.restore(bytes);
         if (put.write != WriteResult.saved) _log.error('record not written back after a failed erase: {}', [put.write]);
       }
