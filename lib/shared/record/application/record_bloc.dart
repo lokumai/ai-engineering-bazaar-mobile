@@ -216,12 +216,13 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
           ),
         );
       case QuarantineDeleted():
-        await _repository.deleteQuarantine();
+        // A copy set aside before the one deleted comes up in its place, and the notice stays for it.
+        final kept = await _repository.deleteQuarantine();
         final cleared = RecordReady(
           record: current.record,
           writeState: current.writeState,
           quarantine: null,
-          quarantineKept: false,
+          quarantineKept: kept,
           launchReadFailed: current.launchReadFailed,
           undo: current.undo,
         );

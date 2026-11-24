@@ -103,8 +103,11 @@ void main() {
       // Review 9, finding 7: the first copy, perhaps never saved, was written over.
       expect(previousFile.readAsBytesSync(), [0x7B, 0xFF, 0x7D], reason: 'the copy before is kept');
 
-      await repo.deleteQuarantine();
+      // Review 10, finding 9: deleting the newer copy deleted both, so the first could never be saved.
+      expect(await repo.deleteQuarantine(), isTrue, reason: 'the first copy comes up in its place');
+      expect(quarantineFile.readAsBytesSync(), [0x7B, 0xFF, 0x7D]);
       expect(previousFile.existsSync(), isFalse);
+      expect(await repo.deleteQuarantine(), isFalse);
       expect(quarantineFile.existsSync(), isFalse);
     });
 

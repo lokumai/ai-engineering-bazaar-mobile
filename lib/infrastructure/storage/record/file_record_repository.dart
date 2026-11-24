@@ -155,9 +155,12 @@ final class FileRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<void> deleteQuarantine() async {
-    await _deleteIfPresent(await _quarantinePrevious);
+  Future<bool> deleteQuarantine() async {
     await _deleteIfPresent(await _quarantine);
+    final previous = await _quarantinePrevious;
+    if (!await previous.exists()) return false;
+    await previous.rename((await _quarantine).path);
+    return true;
   }
 
   Future<void> _deleteIfPresent(File file) async {

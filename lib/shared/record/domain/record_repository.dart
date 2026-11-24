@@ -114,6 +114,7 @@ abstract interface class IRecordRepository {
   /// that went: ENOSPC is [WriteResult.quota], any other file system error [WriteResult.blocked].
   Future<RestoreResult> restore(StoredBytes bytes);
 
-  /// Deletes `record-quarantine.json`; a missing file is not an error.
-  Future<void> deleteQuarantine();
+  /// Deletes `record-quarantine.json`; a missing file is not an error. A copy set aside before it then takes its place,
+  /// so it can be saved in turn, and the answer is true (review 10, finding 9); false when no copy is left.
+  Future<bool> deleteQuarantine();
 }

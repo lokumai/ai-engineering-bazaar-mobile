@@ -108,10 +108,15 @@ final class _MemoryRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<void> deleteQuarantine() async {
+  Future<bool> deleteQuarantine() async {
     calls.add('deleteQuarantine');
-    quarantine = null;
+    quarantine = previous;
+    previous = null;
+    return quarantine != null;
   }
+
+  /// The copy set aside before [quarantine], which takes its place when it is deleted.
+  Uint8List? previous;
 }
 
 FileSystemException _injected() => const FileSystemException('delete', 'record/record.json', OSError('injected', 13));
@@ -828,6 +833,26 @@ void main() {
       await pumpEventQueue();
       expect(repository.writes, hasLength(1));
       expect(repository.record, isNot(Uint8List.fromList([7])), reason: 'the bytes set aside are gone');
+      await bloc.close();
+    });
+  });
+
+  // Review 10, finding 9: deleting the newer copy deleted the one set aside before it too, which was never saved.
+  test('deleting the copy brings up the one set aside before it, and the notice stays for it', () async {
+    await _withClock(() async {
+      final repository = _MemoryRecordRepository()
+        ..loadResult = const RecordLoadEmpty(quarantineKept: true)
+        ..quarantine = Uint8List.fromList([8])
+        ..previous = Uint8List.fromList([7]);
+      final bloc = await _started(repository);
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(_ready(bloc).quarantineKept, isTrue);
+      expect(repository.quarantine, [7]);
+
+      bloc.add(const QuarantineDeleted());
+      await pumpEventQueue();
+      expect(_ready(bloc).quarantineKept, isFalse);
       await bloc.close();
     });
   });
