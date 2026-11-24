@@ -352,14 +352,32 @@ final RegExp _externalUrl = RegExp(r'^https?://', caseSensitive: false);
 /// Cross-checks against the index happen where the node is read, so they cover every nesting (callouts, quotes, list
 /// items, table cells, links, a draft's written sections): a figure or logo `src` must be a key of the index's
 /// `images`, a diagram variant a key of its `files`.
+///
+/// Blocks and inlines nest at most [maxDepth] deep: deeper, the document fails as a format error, where 20,000 nested
+/// quotes ended in a stack overflow (review 9, finding 13). The course nests a few levels.
 final class _DocumentReader {
-  const _DocumentReader(this.index);
+  _DocumentReader(this.index);
+
+  static const maxDepth = 64;
 
   final BundleIndex index;
 
-  List<Block> blocks(_Node node) => List.unmodifiable(node.list().map(block));
+  /// How many lists of blocks or inlines are being read, one inside another.
+  int _depth = 0;
 
-  List<Inline> inlines(_Node node) => List.unmodifiable(node.list().map(inline));
+  T _nested<T>(_Node node, T Function() read) {
+    if (_depth >= maxDepth) node.fail();
+    _depth++;
+    try {
+      return read();
+    } finally {
+      _depth--;
+    }
+  }
+
+  List<Block> blocks(_Node node) => _nested(node, () => List.unmodifiable(node.list().map(block)));
+
+  List<Inline> inlines(_Node node) => _nested(node, () => List.unmodifiable(node.list().map(inline)));
 
   Block block(_Node node) => switch (node['type'].string()) {
     'paragraph' => ParagraphBlock(inlines: inlines(node['inlines']), lead: node.optional('lead')?.boolean() ?? false),
