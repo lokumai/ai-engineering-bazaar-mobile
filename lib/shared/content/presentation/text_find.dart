@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/shared/content/domain/search_text.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/reduced_motion.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
@@ -93,8 +94,9 @@ final class TextFinder extends ChangeNotifier {
     final placed = <(Offset, TextFindTarget)>[];
     for (final target in _counts.keys) {
       final box = target.context.findRenderObject();
-      if (box is! RenderBox || !box.attached) continue;
-      placed.add((box.localToGlobal(Offset.zero), target));
+      final at = box is RenderBox ? laidOutTopLeft(box) : null;
+      if (at == null) continue;
+      placed.add((at, target));
     }
     placed.sort((a, b) {
       if (a.$1.dy != b.$1.dy) return a.$1.dy.compareTo(b.$1.dy);
@@ -125,7 +127,7 @@ final class TextFinder extends ChangeNotifier {
     for (final target in _counts.keys) {
       final page = Scrollable.maybeOf(target.context, axis: Axis.vertical);
       final box = page?.context.findRenderObject();
-      if (box is RenderBox && box.attached && box.hasSize) return box.localToGlobal(Offset.zero) & box.size;
+      if (box is RenderBox) return laidOutRect(box);
     }
     return null;
   }
@@ -136,8 +138,8 @@ final class TextFinder extends ChangeNotifier {
     final rect = target.markRect(index);
     if (rect != null) return rect;
     final box = target.context.findRenderObject();
-    if (box is! RenderBox || !box.attached) return null;
-    return box.localToGlobal(Offset.zero) & Size.zero;
+    final at = box is RenderBox ? laidOutTopLeft(box) : null;
+    return at == null ? null : at & Size.zero;
   }
 
   double _topOf((TextFindTarget, int) mark) => _rectOf(mark)?.top ?? double.negativeInfinity;
@@ -203,9 +205,10 @@ final class TextFinder extends ChangeNotifier {
     if (_disposed || page == null || !page.mounted || !context.mounted || !_laidOut(page, context)) return;
     final rect = target.markRect(index);
     final view = page.context.findRenderObject();
-    if (rect == null || view is! RenderBox || !view.attached || !view.hasSize) return;
-    final top = view.localToGlobal(Offset.zero).dy;
-    final height = view.size.height;
+    final shown = view is RenderBox ? laidOutRect(view) : null;
+    if (rect == null || shown == null) return;
+    final top = shown.top;
+    final height = shown.height;
     if (rect.top >= top && rect.bottom <= top + height) return;
     final position = page.position;
     final to = (position.pixels + rect.top - (top + 0.3 * height)).clamp(

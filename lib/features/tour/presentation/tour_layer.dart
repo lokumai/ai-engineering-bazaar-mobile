@@ -8,6 +8,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/tour/tour_target.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -117,8 +118,8 @@ class _TourLayerState extends State<TourLayer> {
   Rect? _rectOf(BuildContext? context) {
     final layer = _layerBox;
     final box = context?.findRenderObject() as RenderBox?;
-    if (layer == null || box == null || !box.attached || !box.hasSize) return null;
-    return box.localToGlobal(Offset.zero, ancestor: layer) & box.size;
+    if (layer == null || box == null) return null;
+    return laidOutRect(box, ancestor: layer);
   }
 
   /// Where the robot's button is: where it comes out of and goes back into. With the button hidden in Settings, or on

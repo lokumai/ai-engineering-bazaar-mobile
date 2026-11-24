@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -120,7 +121,8 @@ class _InlineTextState extends State<InlineText> implements TextFindTarget {
     );
     if (boxes.isEmpty) return null;
     final rect = boxes.map((box) => box.toRect()).reduce((a, b) => a.expandToInclude(b));
-    return rect.shift(paragraph.localToGlobal(Offset.zero));
+    final at = laidOutTopLeft(paragraph);
+    return at == null ? null : rect.shift(at);
   }
 
   /// The paragraph [object] is or holds.

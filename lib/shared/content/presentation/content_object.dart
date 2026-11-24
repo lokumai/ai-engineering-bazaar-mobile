@@ -5,6 +5,7 @@ import 'package:ai_engineering_bazaar/shared/content/domain/content_exceptions.d
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,10 +119,12 @@ class _ContentObjectBuilderState extends State<ContentObjectBuilder> {
     }
     final box = context.findRenderObject();
     final view = _watched?.context.notificationContext?.findRenderObject();
-    if (box is! RenderBox || !box.attached || !box.hasSize || view is! RenderBox || !view.hasSize) return;
-    final viewRect = view.localToGlobal(Offset.zero) & view.size;
-    final near = viewRect.inflate(viewRect.longestSide);
-    if (!near.overlaps(box.localToGlobal(Offset.zero) & box.size)) return;
+    if (box is! RenderBox || view is! RenderBox) return;
+    // A page under another is not laid out: its figures wait until it is in front again.
+    final viewRect = laidOutRect(view);
+    final boxRect = laidOutRect(box);
+    if (viewRect == null || boxRect == null) return;
+    if (!viewRect.inflate(viewRect.longestSide).overlaps(boxRect)) return;
     _unwatch();
     setState(_start);
   }

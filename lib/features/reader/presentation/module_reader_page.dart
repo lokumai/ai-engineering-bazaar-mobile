@@ -55,6 +55,7 @@ import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.d
 import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -507,7 +508,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         return;
       }
       final box = _headingKeys[fragment]?.currentContext?.findRenderObject();
-      finder.startAt(box is RenderBox && box.attached ? box.localToGlobal(Offset.zero).dy : double.negativeInfinity);
+      final at = box is RenderBox ? laidOutTopLeft(box) : null;
+      finder.startAt(at?.dy ?? double.negativeInfinity);
     });
   }
 
