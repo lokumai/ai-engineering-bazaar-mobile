@@ -227,6 +227,7 @@ final class ListenCubit extends Cubit<ListenState> {
       module: session.module,
       track: session.track,
       title: session.title,
+      language: session.language,
       index: index,
       count: session.parts.length,
       playing: playing,
@@ -349,6 +350,7 @@ final class ListenOn extends ListenState {
     required this.module,
     required this.track,
     required this.title,
+    required this.language,
     required this.index,
     required this.count,
     required this.playing,
@@ -358,6 +360,9 @@ final class ListenOn extends ListenState {
   final String module;
   final Track track;
   final String title;
+
+  /// The language read, whose parts [index] counts: the module open in another language has other parts.
+  final String language;
   final int index;
   final int count;
   final bool playing;
@@ -367,5 +372,5 @@ final class ListenOn extends ListenState {
   bool reads(String key, Track track) => module == key && this.track == track;
 
   @override
-  List<Object?> get props => [module, track, title, index, count, playing, rate];
+  List<Object?> get props => [module, track, title, language, index, count, playing, rate];
 }

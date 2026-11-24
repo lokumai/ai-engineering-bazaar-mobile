@@ -242,6 +242,40 @@ void main() {
     expect(_listen, findsOneWidget);
   });
 
+  // Review 9, finding 17: the reading's part number was applied to the parts of the module opened in another language.
+  testWidgets('a reading goes on after a switch of language, and marks nothing in the other language', (tester) async {
+    final docs = StreamController<ReaderState>();
+    addTearDown(docs.close);
+    whenListen(
+      reader,
+      docs.stream,
+      initialState: ReaderWritten(
+        doc: testDoc(body: _body),
+        entry: testModule(),
+        moduleCount: 1,
+      ),
+    );
+    final voice = _Voice();
+    await pump(tester, voice);
+    await tester.tap(_listen);
+    await tester.pumpAndSettle();
+    expect(_marked, findsOneWidget);
+
+    docs.add(
+      ReaderWritten(
+        doc: testDoc(lang: 'tr', body: [_p('Araçlar neden var.'), _p('Modeller araç çağırır.'), ..._body.skip(3)]),
+        entry: testModule(),
+        moduleCount: 1,
+      ),
+    );
+    await tester.pumpAndSettle();
+    voice.finish();
+    await tester.pumpAndSettle();
+
+    expect(voice.saying, 'Models call tools.', reason: 'the English reading goes on');
+    expect(_marked, findsNothing, reason: "its second part is not the Turkish module's second block");
+  });
+
   testWidgets('the page follows the part read down the module', (tester) async {
     await pump(tester, _Voice());
     expect(_words('Far down.').hitTestable(), findsNothing, reason: 'below the screen at first');

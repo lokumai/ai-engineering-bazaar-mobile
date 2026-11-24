@@ -114,6 +114,7 @@ void main() {
     module: session.module,
     track: session.track,
     title: session.title,
+    language: session.language,
     index: index,
     count: session.parts.length,
     playing: playing,

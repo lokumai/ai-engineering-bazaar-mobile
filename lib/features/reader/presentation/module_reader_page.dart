@@ -339,10 +339,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   GlobalKey _blockKey(int index) => _blockKeys.putIfAbsent(index, GlobalKey.new);
 
-  /// Marks the block read now and brings it near the page's top as the voice moves on to it.
+  /// Marks the block read now and brings it near the page's top as the voice moves on to it. A reading in another
+  /// language than the one drawn, as after a switch of language while it goes on, marks nothing: its part numbers are
+  /// another document's (review 9, finding 17).
   void _followVoice(BuildContext context, ListenState state) {
     final block = switch (state) {
-      ListenOn(:final index) when _readsThis(state) && index < _parts.length => _parts[index].block,
+      ListenOn(:final index, :final language)
+          when _readsThis(state) && language == _partsOf?.lang && index < _parts.length =>
+        _parts[index].block,
       _ => null,
     };
     if (_spoken.value == block) return;
