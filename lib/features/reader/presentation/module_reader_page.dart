@@ -406,8 +406,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   }
 
   /// The term whose definition is shown in a bubble, and where it was tapped; null when none is.
-  GlossaryTerm? _bubble;
-  Offset? _bubbleAt;
+  /// The term whose bubble shows, and where it was tapped. A notifier, so the bubble opens and closes without the
+  /// module's text being built again (review 11, content 4).
+  final _bubble = ValueNotifier<({GlossaryTerm term, Offset? at})?>(null);
 
   /// The terms of [doc] from the notes of its track: the module's own first, then the others'. The Key Terms and the
   /// References are not marked.
@@ -443,13 +444,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
     // The bubble stands in the page's own box, which starts where this view does: no bar is over it.
     final box = context.findRenderObject();
-    setState(() {
-      _bubble = term;
-      _bubbleAt = at != null && box is RenderBox && box.hasSize ? box.globalToLocal(at) : null;
-    });
+    _bubble.value = (term: term, at: at != null && box is RenderBox && box.hasSize ? box.globalToLocal(at) : null);
   }
 
-  void _closeTerm() => setState(() => _bubble = null);
+  void _closeTerm() => _bubble.value = null;
 
   /// Marks the words searched; null when none were, or once the reader closed the bar.
   TextFinder? _finder;
@@ -500,6 +498,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _leave();
     _lifecycle.dispose();
     _spoken.dispose();
+    _bubble.dispose();
     _finder?.dispose();
     _readProgress.dispose();
     _currentSection.dispose();
@@ -1063,17 +1062,34 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             ],
           ),
           // A term's definition over the text (plan 13.9); a tap anywhere else closes it.
-          if (_bubble case final term?) ...[
-            Positioned.fill(
-              child: ModalBarrier(
-                key: const ValueKey('term-barrier'),
-                dismissible: true,
-                onDismiss: _closeTerm,
-                semanticsLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-              ),
+          Positioned.fill(
+            child: ValueListenableBuilder(
+              valueListenable: _bubble,
+              builder: (context, shown, _) => switch (shown) {
+                null => const SizedBox.shrink(),
+                (:final term, :final at) => Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ModalBarrier(
+                        key: const ValueKey('term-barrier'),
+                        dismissible: true,
+                        onDismiss: _closeTerm,
+                        semanticsLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                      ),
+                    ),
+                    TermBubble(
+                      term: term,
+                      at: at,
+                      onLink: (target) {
+                        _closeTerm();
+                        followLink(context, target, scrollTo: _scrollTo, beforeModule: _leaveForAnother);
+                      },
+                    ),
+                  ],
+                ),
+              },
             ),
-            TermBubble(term: term, at: _bubbleAt),
-          ],
+          ),
         ],
       ),
     );

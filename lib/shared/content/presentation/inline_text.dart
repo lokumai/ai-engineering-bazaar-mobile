@@ -251,7 +251,18 @@ class _SpanBuilder {
           padding: EdgeInsetsDirectional.only(end: 0.3 * fontSize),
           child: Transform.translate(
             offset: Offset(0, 0.18 * fontSize),
-            child: LogoView(src: src, mono: mono, fontSize: fontSize),
+            // Inside a link the logo is part of it, as on the web, and a tap on it opens the link; the link's text
+            // already names it to a screen reader (review 11, content 6).
+            child: switch (recognizer) {
+              final TapGestureRecognizer tap? => ExcludeSemantics(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: tap.onTap,
+                  child: LogoView(src: src, mono: mono, fontSize: fontSize),
+                ),
+              ),
+              _ => LogoView(src: src, mono: mono, fontSize: fontSize),
+            },
           ),
         ),
       ),

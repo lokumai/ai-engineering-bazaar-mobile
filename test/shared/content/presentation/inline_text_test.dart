@@ -226,6 +226,26 @@ void main() {
     handle.dispose();
   });
 
+  // Review 11, content 6: a logo inside a link took no tap, while on the web it is part of the link.
+  testWidgets('a tap on a logo inside a link opens the link', (tester) async {
+    final recorded = <LinkTarget>[];
+    await pump(tester, const [
+      LinkInline(
+        target: ExternalTarget(url: 'https://ollama.com/'),
+        inlines: [
+          LogoInline(src: 'course-images/alpha/logos/x.svg', alt: '', mono: false),
+          TextInline(text: 'Ollama'),
+        ],
+      ),
+    ], onLink: recorded.add);
+
+    // The test has no logo file, so the logo is drawn with no width: its detector is called as a tap would.
+    tester
+        .widget<GestureDetector>(find.ancestor(of: find.byType(LogoView), matching: find.byType(GestureDetector)).first)
+        .onTap!();
+    expect(recorded, const [ExternalTarget(url: 'https://ollama.com/')]);
+  });
+
   testWidgets('a rebuild replaces the recognizers and keeps links working', (tester) async {
     final recorded = <LinkTarget>[];
     const inlines = [

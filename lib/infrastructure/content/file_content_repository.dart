@@ -220,7 +220,15 @@ final class FileContentRepository implements IContentRepository {
     for (final MapEntry(key: sha256Name, value: sitePath) in pathOf.entries) {
       if (opened.bundledObjects.contains(sha256Name)) continue;
       final object = File('$store/objects/$sha256Name');
-      if (await object.exists()) continue;
+      // One already there from a refresh cut off before is kept only while it still matches its name: a damaged one
+      // was never fetched again, and a document of it failed every refresh after (review 11, content 8).
+      if (await object.exists()) {
+        try {
+          if (await _sha256Of(await object.readAsBytes()) == sha256Name) continue;
+        } on FileSystemException {
+          // Unreadable: fetched again below.
+        }
+      }
       final bytes = await _http.get(sitePath, version: sha256Name);
       if (await _sha256Of(bytes) != sha256Name) throw const _ChecksumMismatch();
       await Directory('$store/objects').create(recursive: true);
@@ -257,10 +265,16 @@ final class FileContentRepository implements IContentRepository {
     }
 
     for (final module in index.modules) {
-      for (final track in module.tracks.values) {
-        for (final sitePath in track.docs.values) {
+      for (final MapEntry(key: track, value: entry) in module.tracks.entries) {
+        for (final MapEntry(key: lang, value: sitePath) in entry.docs.entries) {
           final json = await text(sitePath);
-          if (json != null) ContentParser.parseModuleDoc(json, index, path: sitePath);
+          if (json == null) continue;
+          final doc = ContentParser.parseModuleDoc(json, index, path: sitePath);
+          // A document is the one its index entry names: completion and Listen record under its own key and track, so
+          // one published under the wrong path would record progress under another module (review 11, content 9).
+          if (doc.key != module.key) throw ContentFormatException(sitePath, 'key');
+          if (doc.track != track) throw ContentFormatException(sitePath, 'track');
+          if (doc.lang != lang) throw ContentFormatException(sitePath, 'lang');
         }
       }
     }
