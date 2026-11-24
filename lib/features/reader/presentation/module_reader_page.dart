@@ -239,6 +239,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// The key of the completion row, the module's end.
   final _endKey = GlobalKey();
 
+  /// The key of the module's text, in one column or beside its sections ([_withSections]).
+  final _textKey = GlobalKey();
+
   /// The place last kept in this visit, which leaving keeps again with the time spent.
   ReadingPlace? _lastPlace;
 
@@ -1042,15 +1045,21 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       LayoutBuilder(
         builder: (context, constraints) {
           // One column keeps a phone's measure, as every other page.
+          // The text keeps its key in both layouts, so a tablet turned past the width keeps its scroll and its place
+          // (review 10, finding 1); without it the text was built anew at its top.
           if (sections.isEmpty || constraints.maxWidth < ReadableWidth.withSections - 1) {
-            return ReadableWidth(child: text(false));
+            return ReadableWidth(
+              child: KeyedSubtree(key: _textKey, child: text(false)),
+            );
           }
           final ltr = Directionality.of(context) == TextDirection.ltr;
           return Row(
             textDirection: ltr ? TextDirection.rtl : TextDirection.ltr,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: text(true)),
+              Expanded(
+                child: KeyedSubtree(key: _textKey, child: text(true)),
+              ),
               const SizedBox(width: ReadableWidth.gap),
               SizedBox(
                 width: ReadableWidth.sections,
