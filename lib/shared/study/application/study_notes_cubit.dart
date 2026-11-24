@@ -38,6 +38,10 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
   Future<void> load(BundleIndex index, Track track, String language) async {
     final key = (index.contentVersion, track, language);
     if (_for == key && (_reading || _whole.containsKey(key))) return;
+    // The same notes again, read before with a module missing: they are tried again behind the notes shown, with no
+    // Loading between. A Loading rebuilt the page that asked, whose loader asked again, for as long as it was open
+    // (review 10, finding 7); the same notes read again change nothing, so nothing is built again.
+    final again = _for == key;
     _for = key;
     if (_whole.remove(key) case final notes?) {
       _whole[key] = notes;
@@ -46,7 +50,7 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
       return;
     }
     _reading = true;
-    if (state is StudyNotesReady) emit(const StudyNotesLoading());
+    if (state is StudyNotesReady && !again) emit(const StudyNotesLoading());
     final positions = {for (final (position, level) in index.levels.indexed) level.slug: position};
     final modules =
         [

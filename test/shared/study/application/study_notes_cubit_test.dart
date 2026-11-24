@@ -128,6 +128,24 @@ void main() {
       expect([for (final notes in (cubit.state as StudyNotesReady).modules) notes.moduleKey], ['alpha/first']);
     });
 
+    // Review 10, finding 7: each try emitted Loading, the page rebuilt, its loader loaded again, without end.
+    test('tried again with the module still unreadable, they change nothing and show no Loading', () async {
+      final repository = MockContentRepository();
+      when(() => repository.readModuleDoc(any())).thenThrow(const ContentMissingException('x'));
+      final cubit = StudyNotesCubit(repository: repository);
+      addTearDown(cubit.close);
+      await cubit.load(index, Track.engineers, 'en');
+      final states = <StudyNotesState>[];
+      final listening = cubit.stream.listen(states.add);
+      addTearDown(listening.cancel);
+
+      await cubit.load(index, Track.engineers, 'en');
+      await cubit.load(index, Track.engineers, 'en');
+      await pumpEventQueue();
+      expect(states, isEmpty, reason: 'no Loading, and the same notes are not emitted again');
+      verify(() => repository.readModuleDoc(any())).called(3);
+    });
+
     test('while they are being read, another load for them waits for it', () async {
       final repository = MockContentRepository();
       var reads = 0;
