@@ -55,8 +55,8 @@ class _IncomingLinksState extends State<IncomingLinks> {
         widget.router.go(BazaarPaths.catalog(track));
       case SiteLevel(:final track, :final level):
         _openOverCatalog(BazaarPaths.catalog(track), BazaarPaths.level(track, level));
-      case SiteModule(:final track, :final moduleKey):
-        _openOverCatalog(BazaarPaths.catalog(track), BazaarPaths.module(track, moduleKey));
+      case SiteModule(:final track, :final moduleKey, :final fragment):
+        _openOverCatalog(BazaarPaths.catalog(track), BazaarPaths.module(track, moduleKey), extra: fragment);
       case SiteTransfer(:final payload):
         unawaited(widget.router.push(BazaarPaths.transfer, extra: payload));
       case null:
@@ -66,9 +66,9 @@ class _IncomingLinksState extends State<IncomingLinks> {
 
   /// Opens [page] over [catalog], as a tap in the catalog does: with a back arrow and an edge swipe back to it. Gone to
   /// alone, it was the shell's only page, with no way back but a tab (review 11, features 4).
-  void _openOverCatalog(String catalog, String page) {
+  void _openOverCatalog(String catalog, String page, {Object? extra}) {
     widget.router.go(catalog);
-    unawaited(widget.router.push(page));
+    unawaited(widget.router.push(page, extra: extra));
   }
 
   /// Closes the dialogs and the full-screen quiz above the pages, which the link would leave standing over a page

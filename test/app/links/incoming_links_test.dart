@@ -69,6 +69,11 @@ void main() {
     expect(find.text('/courses/alpha/first '), findsOneWidget);
   });
 
+  testWidgets('a module link opens the module at the heading it names (review 11)', (tester) async {
+    await _pump(tester, _Links([Uri.parse('${_base}courses/alpha/first/#example-tools')]));
+    expect(find.text('/courses/alpha/first example-tools'), findsOneWidget);
+  });
+
   testWidgets('opens a transfer over the page, its payload as the extra, and leaves other links alone', (tester) async {
     final links = _Links(const []);
     await _pump(tester, links);

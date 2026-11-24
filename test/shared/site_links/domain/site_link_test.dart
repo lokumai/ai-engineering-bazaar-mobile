@@ -7,6 +7,20 @@ final _site = Uri.parse('https://example.test/');
 SiteLink? _parse(String link) => SiteLink.parse(Uri.parse(link), _site);
 
 void main() {
+  test('a module link keeps the heading it names; a fragment that is no heading id is left out (review 11)', () {
+    expect(
+      _parse('https://example.test/courses/alpha/first/#example-tools'),
+      const SiteModule(Track.engineers, 'alpha/first', fragment: 'example-tools'),
+    );
+    expect(
+      _parse('https://example.test/fa/courses/alpha/first/#%D8%A8%D8%AE%D8%B4'),
+      const SiteModule(Track.engineers, 'alpha/first', fragment: 'بخش'),
+    );
+    for (final odd in ['#', '#a/b', '#%E0%A4%A', '#%FF', '#a b']) {
+      expect(_parse('https://example.test/courses/alpha/first/$odd'), const SiteModule(Track.engineers, 'alpha/first'));
+    }
+  });
+
   group('SiteLink.parse', () {
     test("reads the site's module, level and catalog pages in both tracks", () {
       expect(_parse('https://example.test/courses/alpha/first/'), const SiteModule(Track.engineers, 'alpha/first'));
