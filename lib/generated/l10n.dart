@@ -2485,33 +2485,39 @@ class S {
     );
   }
 
-  /// `modules read`
-  String get pocket_stat_modules {
-    return Intl.message(
-      'modules read',
+  /// `{count, plural, =1{module read} other{modules read}}`
+  String pocket_stat_modules(int count) {
+    return Intl.plural(
+      count,
+      one: 'module read',
+      other: 'modules read',
       name: 'pocket_stat_modules',
       desc: 'Under a number: the course modules the apprentice has read.',
-      args: [],
+      args: [count],
     );
   }
 
-  /// `words known`
-  String get pocket_stat_words {
-    return Intl.message(
-      'words known',
+  /// `{count, plural, =1{word known} other{words known}}`
+  String pocket_stat_words(int count) {
+    return Intl.plural(
+      count,
+      one: 'word known',
+      other: 'words known',
       name: 'pocket_stat_words',
       desc: 'Under a number: the words the apprentice knows.',
-      args: [],
+      args: [count],
     );
   }
 
-  /// `tokens eaten`
-  String get pocket_stat_tokens {
-    return Intl.message(
-      'tokens eaten',
+  /// `{count, plural, =1{token eaten} other{tokens eaten}}`
+  String pocket_stat_tokens(int count) {
+    return Intl.plural(
+      count,
+      one: 'token eaten',
+      other: 'tokens eaten',
       name: 'pocket_stat_tokens',
       desc: 'Under a number: the tokens the apprentice was fed and read.',
-      args: [],
+      args: [count],
     );
   }
 

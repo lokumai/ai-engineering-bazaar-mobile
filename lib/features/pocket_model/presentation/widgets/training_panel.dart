@@ -168,6 +168,10 @@ class LossChart extends StatelessWidget {
     final language = Localizations.localeOf(context).languageCode;
     final tokens = curve.isEmpty ? 0 : curve.last.tokens;
     final loss = curve.isEmpty ? '' : NumberFormat('0.00', numberLocale(language)).format(curve.last.loss);
+    // The arrow follows the curve's last step: a module read is new text, and the loss on text never read can rise
+    // after it, which a falling arrow beside it said wrong (review 11, the release build's walk-through).
+    final rising = curve.length >= 2 && curve.last.loss > curve[curve.length - 2].loss;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
     return Semantics(
       container: true,
       label: tokens > 0 ? '${s.pocket_loss_title}, ${s.pocket_loss(loss)}' : s.pocket_loss_title,
@@ -205,7 +209,12 @@ class LossChart extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Directionality.of(context) == TextDirection.rtl ? Icons.south_west : Icons.south_east,
+                              switch ((rising, rtl)) {
+                                (true, true) => Icons.north_west,
+                                (true, false) => Icons.north_east,
+                                (false, true) => Icons.south_west,
+                                (false, false) => Icons.south_east,
+                              },
                               size: 13,
                               color: colors.primary,
                             ),
