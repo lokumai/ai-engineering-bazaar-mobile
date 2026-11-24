@@ -6,7 +6,7 @@ A change to what Sentry sends is a change here, in the iOS privacy manifest (`io
 
 ## What leaves the device
 
-- **Crash reports**: the error and its stack trace, the app's version, the device's model and system, and the app's last breadcrumbs, with emails and secrets masked on the device.
+- **Crash reports**: the error and its stack trace, the app's version, the device's model and system, and the app's last breadcrumbs, with emails and secrets masked on the device. The Sentry SDKs, as they come, also attach the device's state at the crash: free memory and storage, battery level, screen orientation, connection type, locale and time zone; all of it is diagnostics, which the forms below declare (review 10, finding 10).
 - **Hangs**: when the app froze (ANR on Android, app hang on iOS), with the threads' stack traces and the device. On iOS sentry-cocoa sends these itself; the breadcrumbs in them are the Dart side's, already masked.
 - **App start**: one transaction with how long the app took to open, cold or warm. It names no route. Every other transaction is dropped on the device (`sentryBeforeSendTransaction`).
 - **Sessions** (release health): when the app opened and closed, whether it crashed, the release and environment, and a random id of the installation made by the Sentry SDK. No text, no reading, no quiz answer.

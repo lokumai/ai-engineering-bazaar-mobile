@@ -233,6 +233,7 @@ The `Device tests` workflow (`.github/workflows/device_tests.yml`) runs them on 
 - `package_name_test`: the package is `ai_engineering_bazaar` and nothing imports the template's package.
 - `platform_folders_test`: only `android/` and `ios/` exist, and iOS uses no CocoaPods.
 - `route_telemetry_test`: no code records a route for analytics or Sentry, since a route path carries a module key.
+- `sentry_logs_metrics_test`: no Dart, Swift or Kotlin code sends Sentry logs or metrics, which the privacy doc does not list (review 10, finding 10).
 - `run_configurations_test`: every committed IDE run configuration of `main_local.dart` passes `CONTENT_BASE_URL`.
 - `sentry_native_scrub_patterns_test`: the Kotlin scrub patterns of the Android host equal the Dart ones, and the Gradle DSN gate holds.
 - `test_file_naming_test`: no test file is named `*.test.dart`, which `flutter test` would never run.
