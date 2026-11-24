@@ -189,7 +189,7 @@ void main() {
       expect(_segments(tester, 'alpha/first'), ['right', 'wrong'], reason: 'the last score, one segment per question');
       expect(_segments(tester, 'alpha/second'), isEmpty);
       expect(find.text('1/2'), findsNWidgets(2), reason: 'the level dial, 1 of 2 taken, and the quiz, 1 of 2 right');
-      expect(find.bySemanticsLabel('First Module, 1 of 2 right at the last answer'), findsOneWidget);
+      expect(find.bySemanticsLabel('First Module, 1 of 2 right last time'), findsOneWidget);
       expect(
         find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check_circle)),
         findsNothing,
@@ -240,7 +240,7 @@ void main() {
       find.descendant(of: find.byKey(PracticePage.rowKey('alpha/first')), matching: find.byIcon(Icons.check_circle)),
       findsNothing,
     );
-    expect(find.bySemanticsLabel('First Module, 0 of 2 right at the last answer'), findsOneWidget);
+    expect(find.bySemanticsLabel('First Module, 0 of 2 right last time'), findsOneWidget);
 
     review
       ..add(const ReviewAnswered(key: 'alpha/first#0', right: true, length: 2, inReview: true))

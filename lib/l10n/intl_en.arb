@@ -362,7 +362,7 @@
   "listen": "Listen",
   "listen_resume": "Resume listening",
   "listen_no_voice": "This device has no voice for this language. Add one in the device's Settings to listen.",
-  "listen_not_started": "Listening stopped. Where it was left is kept; try again in a moment.",
+  "listen_not_started": "Listening stopped. Your place is kept; try again in a moment.",
   "listen_play": "Play",
   "listen_pause": "Pause",
   "listen_back": "Previous paragraph",
@@ -527,7 +527,7 @@
   "@record_not_saved_too_large": {},
   "quiz_title": "Questions on this module",
   "@quiz_title": {},
-  "quiz_subtitle": "{count} questions on the main points of this module",
+  "quiz_subtitle": "{count, plural, =1{1 question on the main point of this module} other{{count} questions on the main points of this module}}",
   "@quiz_subtitle": {
     "placeholders": {
       "count": {
@@ -922,7 +922,7 @@
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
   },
-  "guide_title": "How the bazaar works",
+  "guide_title": "How the Bazaar works",
   "@guide_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -1414,7 +1414,7 @@
   "@tour_settings_customize": {},
   "tour_settings_website": "Bring your progress from the website here, or send it there.",
   "@tour_settings_website": {},
-  "tour_settings_guide": "This tour waits in How the bazaar works.",
+  "tour_settings_guide": "This tour waits in How the Bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
   "@guide_replay_tour": {},
@@ -1474,7 +1474,7 @@
   "brief_terms": "Key Terms",
   "brief_take_quiz": "Take the quiz",
   "brief_end": "That is the module. Its quiz checks what stayed.",
-  "brief_step": "{step} of {count}",
+  "brief_step": "Card {step} of {count}",
   "@brief_step": {
     "placeholders": {
       "step": {
@@ -1502,7 +1502,7 @@
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
-  "practice_latest": "{right} of {total} right at the last answer",
+  "practice_latest": "{right} of {total} right last time",
   "@practice_latest": {
     "placeholders": {
       "right": {

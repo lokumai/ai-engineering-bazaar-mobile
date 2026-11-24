@@ -38,7 +38,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m8(title) => "Kervan ${title} durağında";
 
-  static String m9(index, count) => "Durak ${index} / ${count}";
+  static String m9(index, count) => "Durak ${index}, toplam ${count}";
 
   static String m10(level) => "Güç: 5 üzerinden ${level}";
 
@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(title) => "Sesli okunuyor: ${title}. Aç";
 
-  static String m36(at, count) => "${at} / ${count}";
+  static String m36(at, count) => "${at}, toplam ${count}";
 
   static String m37(rate) => "Hız ${rate}";
 
@@ -128,7 +128,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m51(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
 
-  static String m52(index, count) => "Soru ${index} / ${count}";
+  static String m52(index, count) => "Soru ${index}, toplam ${count}";
 
   static String m53(previous, best, total) =>
       "Bir önceki: ${total} sorudan ${previous}. En iyi: ${total} sorudan ${best}.";
@@ -145,7 +145,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m59(minutes) => "${minutes} dk";
 
-  static String m60(number, count) => "MODÜL ${number} / ${count}";
+  static String m60(number, count) => "MODÜL ${number}, TOPLAM ${count}";
 
   static String m61(label) => "${label} · Planlandı";
 
@@ -153,7 +153,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m63(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
 
-  static String m64(step, count) => "Kart ${step}/${count}";
+  static String m64(step, count) => "Kart ${step}, toplam ${count}";
 
   static String m65(right, total) => "${total} karttan ${right} tanesi doğru";
 

@@ -418,7 +418,7 @@ void main() {
     expect(_hole(tester), isNotNull, reason: 'the website section was scrolled into view');
     expect(_dots(3, 4), findsOneWidget);
     await _tap(tester, _next);
-    expect(find.textContaining('This tour waits in How the bazaar works.'), findsOneWidget);
+    expect(find.textContaining('This tour waits in How the Bazaar works.'), findsOneWidget);
     expect(_hole(tester), isNotNull, reason: 'the guide row was scrolled into view');
     await _tap(tester, _next);
     expect(store.kept.seen, hasLength(5));

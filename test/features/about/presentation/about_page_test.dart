@@ -202,7 +202,7 @@ void main() {
     await _pump(tester, story: false, open: false);
 
     expect(find.text('The story of the Bazaar', skipOffstage: false), findsNothing);
-    expect(find.text('How the bazaar works', skipOffstage: false), findsOneWidget);
+    expect(find.text('How the Bazaar works', skipOffstage: false), findsOneWidget);
   });
 
   testWidgets('text scale 2.0 keeps every screen of the story readable', (tester) async {

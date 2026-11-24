@@ -208,6 +208,11 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('caravan-search')), 'zebra');
     await tester.pumpAndSettle();
     expect(find.text('No trend matches.'), findsOneWidget);
+    // Review 11, copy 1: said to a screen reader as it replaces the list, and the count with it.
+    expect(
+      tester.getSemantics(find.text('No trend matches.')),
+      matchesSemantics(label: 'No trend matches.', isLiveRegion: true),
+    );
   });
 
   testWidgets(

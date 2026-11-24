@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(number) => "Table ${number}";
 
-  static String m5(step, count) => "${step} of ${count}";
+  static String m5(step, count) => "Card ${step} of ${count}";
 
   static String m6(start, end) => "${start} to ${end}";
 
@@ -118,7 +118,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m46(count) => "${Intl.plural(count, zero: 'No terms yet', one: '1 term', other: '${count} terms')}";
 
-  static String m47(right, total) => "${right} of ${total} right at the last answer";
+  static String m47(right, total) => "${right} of ${total} right last time";
 
   static String m48(count, minutes) =>
       "${Intl.plural(count, one: '1 card', other: '${count} cards')}, about ${minutes} min";
@@ -135,7 +135,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m54(score, total) => "${score} of ${total}";
 
-  static String m55(count) => "${count} questions on the main points of this module";
+  static String m55(count) =>
+      "${Intl.plural(count, one: '1 question on the main point of this module', other: '${count} questions on the main points of this module')}";
 
   static String m56(letter) => "Not this one. The answer is ${letter}.";
 
@@ -353,7 +354,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Take the tour again"),
-    "guide_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
+    "guide_title": MessageLookupByLibrary.simpleMessage("How the Bazaar works"),
     "home_after": MessageLookupByLibrary.simpleMessage("Later on"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("Continue reading"),
@@ -396,7 +397,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This device has no voice for this language. Add one in the device\'s Settings to listen.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
-      "Listening stopped. Where it was left is kept; try again in a moment.",
+      "Listening stopped. Your place is kept; try again in a moment.",
     ),
     "listen_open": m35,
     "listen_part": m36,
@@ -726,7 +727,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
       "My wardrobe: dress me up, or change the app icon.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the Bazaar works."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Audience, language, appearance and text size."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
       "Bring your progress from the website here, or send it there.",

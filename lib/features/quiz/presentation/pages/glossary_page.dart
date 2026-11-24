@@ -144,7 +144,11 @@ class _GlossaryState extends State<_Glossary> {
               else if (entries!.isEmpty)
                 Text(s.practice_glossary_count(0), style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
               else if (shown.isEmpty)
-                Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface))
+                // Said as it replaces the list, as the catalog search's line is (review 11, copy 1).
+                Semantics(
+                  liveRegion: true,
+                  child: Text(s.glossary_none, style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface)),
+                )
               else
                 // A to Z by letter; what a search finds, the best first, in one card.
                 for (final (letter, group) in _query.trim().isEmpty ? _byLetter(shown, language) : [('', shown)]) ...[

@@ -407,7 +407,7 @@ const List<_Row> _rows = [
       ),
       'tr': (
         "Beceriler ve harness'lar",
-        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri, ve döngünün çevresindeki harness.',
+        'Bir ajanın, bir görev gerektirdiğinde yüklediği talimat ve betik klasörleri ve döngünün çevresindeki harness.',
       ),
       'fa': (
         'مهارت\u200cها و هارنس\u200cها',

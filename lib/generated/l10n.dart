@@ -616,10 +616,10 @@ class S {
     );
   }
 
-  /// `Listening stopped. Where it was left is kept; try again in a moment.`
+  /// `Listening stopped. Your place is kept; try again in a moment.`
   String get listen_not_started {
     return Intl.message(
-      'Listening stopped. Where it was left is kept; try again in a moment.',
+      'Listening stopped. Your place is kept; try again in a moment.',
       name: 'listen_not_started',
       desc: '',
       args: [],
@@ -871,10 +871,12 @@ class S {
     return Intl.message('Questions on this module', name: 'quiz_title', desc: '', args: []);
   }
 
-  /// `{count} questions on the main points of this module`
+  /// `{count, plural, =1{1 question on the main point of this module} other{{count} questions on the main points of this module}}`
   String quiz_subtitle(int count) {
-    return Intl.message(
-      '$count questions on the main points of this module',
+    return Intl.plural(
+      count,
+      one: '1 question on the main point of this module',
+      other: '$count questions on the main points of this module',
       name: 'quiz_subtitle',
       desc: '',
       args: [count],
@@ -1780,10 +1782,10 @@ class S {
     );
   }
 
-  /// `How the bazaar works`
+  /// `How the Bazaar works`
   String get guide_title {
     return Intl.message(
-      'How the bazaar works',
+      'How the Bazaar works',
       name: 'guide_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -2868,9 +2870,9 @@ class S {
     );
   }
 
-  /// `This tour waits in How the bazaar works.`
+  /// `This tour waits in How the Bazaar works.`
   String get tour_settings_guide {
-    return Intl.message('This tour waits in How the bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
+    return Intl.message('This tour waits in How the Bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
   }
 
   /// `Take the tour again`
@@ -3024,9 +3026,9 @@ class S {
     return Intl.message('That is the module. Its quiz checks what stayed.', name: 'brief_end', desc: '', args: []);
   }
 
-  /// `{step} of {count}`
+  /// `Card {step} of {count}`
   String brief_step(int step, int count) {
-    return Intl.message('$step of $count', name: 'brief_step', desc: '', args: [step, count]);
+    return Intl.message('Card $step of $count', name: 'brief_step', desc: '', args: [step, count]);
   }
 
   /// `Previous card`
@@ -3087,14 +3089,9 @@ class S {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);
   }
 
-  /// `{right} of {total} right at the last answer`
+  /// `{right} of {total} right last time`
   String practice_latest(int right, int total) {
-    return Intl.message(
-      '$right of $total right at the last answer',
-      name: 'practice_latest',
-      desc: '',
-      args: [right, total],
-    );
+    return Intl.message('$right of $total right last time', name: 'practice_latest', desc: '', args: [right, total]);
   }
 
   /// `Card {step} of {count}`
