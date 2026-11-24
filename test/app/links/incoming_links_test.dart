@@ -36,6 +36,8 @@ Future<GoRouter> _pump(WidgetTester tester, _Links links) async {
         builder: (_, _, child) => child,
         routes: [
           GoRoute(path: '/', builder: (_, state) => page(state)),
+          GoRoute(path: '/sheets', builder: (_, state) => page(state)),
+          GoRoute(path: '/everyone/sheets', builder: (_, state) => page(state)),
           GoRoute(path: '/courses/:level/:module', builder: (_, state) => page(state)),
           GoRoute(path: '/everyone/sheets/:level', builder: (_, state) => page(state)),
         ],
@@ -102,5 +104,26 @@ void main() {
     expect(find.text('erase?'), findsNothing);
     expect(find.text('quiz'), findsNothing);
     expect(find.text('/courses/alpha/first '), findsOneWidget);
+  });
+
+  // Review 11, features 4: a module gone to alone was the shell's only page, with no back arrow and no edge swipe.
+  testWidgets("a module or a level opens over its track's catalog, which back goes to", (tester) async {
+    final links = _Links(const []);
+    final router = await _pump(tester, links);
+
+    links.controller.add(Uri.parse('${_base}courses/alpha/first/'));
+    await tester.pumpAndSettle();
+    expect(find.text('/courses/alpha/first '), findsOneWidget);
+    expect(router.canPop(), isTrue);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('/sheets '), findsOneWidget);
+
+    links.controller.add(Uri.parse('${_base}everyone/sheets/alpha/'));
+    await tester.pumpAndSettle();
+    expect(find.text('/everyone/sheets/alpha '), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('/everyone/sheets '), findsOneWidget);
   });
 }

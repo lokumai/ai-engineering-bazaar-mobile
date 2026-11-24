@@ -64,8 +64,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// scrolls.
 ///
 /// The app mounts the router only once the content is ready (spec 3.7), so any other content state is a fault. The
-/// reader keeps the index it opened with (spec 3.4.4).
-class ModuleReaderPage extends StatelessWidget {
+/// reader keeps the index it opened with (spec 3.4.4), but for a module that index did not hold, or held as planned or
+/// not written: newer content reopens it, so a site link opened before the start refresh shows the module the refresh
+/// brought (review 11, features 1).
+class ModuleReaderPage extends StatefulWidget {
   const ModuleReaderPage({
     super.key,
     required this.moduleKey,
@@ -93,7 +95,24 @@ class ModuleReaderPage extends StatelessWidget {
   final bool keepsPlace;
 
   @override
+  State<ModuleReaderPage> createState() => _ModuleReaderPageState();
+}
+
+class _ModuleReaderPageState extends State<ModuleReaderPage> {
+  /// The content version the reader was opened over, and how many times newer content reopened it.
+  String? _openedOver;
+  int _reopened = 0;
+
+  void _onContent(BuildContext context, ContentState content) {
+    if (content is! ContentReady || content.index.contentVersion == _openedOver) return;
+    if (context.read<ModuleReaderBloc>().state case ReaderNotFound() || ReaderPlanned() || ReaderNotWritten()) {
+      setState(() => _reopened++);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ModuleReaderPage(:moduleKey, :track, :fragment, :query, :quizBuilder, :keepsPlace) = widget;
     final index = switch (context.read<ContentBloc>().state) {
       ContentReady(:final index) => index,
       final state => throw StateError('The reader needs ready content, not $state'),
@@ -114,24 +133,30 @@ class ModuleReaderPage extends StatelessWidget {
         child: BlocProvider(
           // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
           // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
-          key: ValueKey((moduleKey, track, language)),
-          create: (context) => ModuleReaderBloc(
-            repository: context.read<IContentRepository>(),
-            index: index,
-            recordBloc: context.read<RecordBloc>(),
-          )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
-          child: ModuleReaderView(
-            fragment: fragment,
-            query: query,
-            quizBuilder: quizBuilder,
-            place: completed(record.state) ? null : places.state.of(track, moduleKey),
-            onPlace: !keepsPlace
-                ? null
-                : (place) => places.add(
-                    place == null || completed(record.state)
-                        ? ReadingPlaceCleared(track: track, module: moduleKey)
-                        : ReadingPlaceKept(track: track, module: moduleKey, place: place),
-                  ),
+          key: ValueKey((moduleKey, track, language, _reopened)),
+          create: (context) {
+            _openedOver = index.contentVersion;
+            return ModuleReaderBloc(
+              repository: context.read<IContentRepository>(),
+              index: index,
+              recordBloc: context.read<RecordBloc>(),
+            )..add(ReaderOpened(key: moduleKey, track: track, language: language));
+          },
+          child: BlocListener<ContentBloc, ContentState>(
+            listener: _onContent,
+            child: ModuleReaderView(
+              fragment: fragment,
+              query: query,
+              quizBuilder: quizBuilder,
+              place: completed(record.state) ? null : places.state.of(track, moduleKey),
+              onPlace: !keepsPlace
+                  ? null
+                  : (place) => places.add(
+                      place == null || completed(record.state)
+                          ? ReadingPlaceCleared(track: track, module: moduleKey)
+                          : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+                    ),
+            ),
           ),
         ),
       ),

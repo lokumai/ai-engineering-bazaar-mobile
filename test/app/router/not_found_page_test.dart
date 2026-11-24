@@ -2,6 +2,8 @@
 library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/widgets/not_found_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,6 +43,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.routerDelegate.currentConfiguration.uri.path, '/sheets');
+  });
+
+  // Review 11, features 2: it always went to the For Engineers catalog, which switched a For Everyone reader's track.
+  testWidgets("Catalog keeps a For Everyone reader in their track's catalog", (tester) async {
+    final router = const AppRouterFactory(initialLocation: '/everyone/courses/alpha/nonexistent').create();
+    addTearDown(router.dispose);
+    final track = TrackCubit();
+    addTearDown(track.close);
+    await tester.pumpWidget(bazaarTestApp(router: router, track: track));
+    await tester.pumpAndSettle();
+    expect(track.state, Track.everyone);
+
+    await tester.tap(_button('Catalog'));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/everyone/sheets');
+    expect(track.state, Track.everyone);
   });
 
   testWidgets('Open on the web opens the site', (tester) async {
