@@ -336,12 +336,18 @@ void main() {
       expect(listen.state, const ListenIdle(rate: 1));
       expect(listen.keptAt('alpha/first', Track.engineers), 1);
       expect(listen.keptAt('alpha/first', Track.everyone), isNull, reason: 'its own track');
+      // Review 11, content 2: a place kept for another count of parts, as in another language, is not offered.
+      expect(listen.keptAt('alpha/first', Track.engineers, count: _parts.length), 1);
+      expect(listen.keptAt('alpha/first', Track.engineers, count: _parts.length + 4), isNull);
 
       listen.start(_first);
       await _settle();
       expect(listen.state, on(1));
       expect(voice.handed.last.$1, ['Two.', 'Three.']);
       expect(listen.keptAt('alpha/first', Track.engineers), isNull, reason: 'while it is read');
+      final reading = listen.state as ListenOn;
+      expect(reading.reads('alpha/first', Track.engineers, language: 'tr'), isTrue);
+      expect(reading.reads('alpha/first', Track.engineers, language: 'en'), isFalse, reason: 'another document');
     });
 
     test('a pause left alone ends the reading, its place kept; anything done holds it off', () async {

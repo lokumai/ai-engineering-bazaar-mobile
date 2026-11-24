@@ -304,6 +304,32 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
   static int _pages(List<RouteMatchBase> matches) =>
       matches.fold(0, (count, match) => count + (match is ShellRouteMatch ? _pages(match.matches) : 1));
 
+  /// The locations of the shell's pages, first to top.
+  static List<String> _locations(List<RouteMatchBase> matches) => [
+    for (final match in matches)
+      if (match is ShellRouteMatch)
+        ..._locations(match.matches)
+      else if (match is ImperativeRouteMatch)
+        match.matches.uri.path
+      else
+        match.matchedLocation,
+  ];
+
+  /// Opens the module read aloud from the Listen bar: back to it when it is already under the page shown, else pushed.
+  /// Pushed again, it stood twice in the stack, each copy keeping its own place and time (review 11, content 3).
+  void _openRead(String path) {
+    final router = GoRouter.of(context);
+    final locations = _locations(router.routerDelegate.currentConfiguration.matches);
+    final at = locations.lastIndexOf(path);
+    if (at < 0) {
+      unawaited(router.push(path));
+      return;
+    }
+    for (var i = at; i < locations.length - 1; i++) {
+      router.pop();
+    }
+  }
+
   /// The bar's back button goes to the page before, where the page was opened from, as Android's back and the iOS edge
   /// swipe do (the owner, 2026-11-12; from 2026-11-11 a module's arrow went to its catalog instead).
   void _back() => GoRouter.of(context).pop();
@@ -439,7 +465,7 @@ class _BazaarShellState extends State<BazaarShell> with WidgetsBindingObserver {
                         ReadableWidth(
                           child: ListenBar(
                             state: on,
-                            onOpen: () => context.push(BazaarPaths.module(on.track, on.module)),
+                            onOpen: () => _openRead(BazaarPaths.module(on.track, on.module)),
                           ),
                         ),
                       _ when bandShown => TourTarget(

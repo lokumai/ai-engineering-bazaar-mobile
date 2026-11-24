@@ -377,9 +377,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     return _parts;
   }
 
-  /// Whether [state] reads the module drawn.
+  /// Whether [state] reads the module drawn, in the language drawn: one read in another language leaves this page its
+  /// own Listen, which replaces it, and shows no player counting the other's parts (review 11, content 2).
   bool _readsThis(ListenState state) => switch ((state, _partsOf)) {
-    (final ListenOn on, final doc?) => on.reads(doc.key, doc.track),
+    (final ListenOn on, final doc?) => on.reads(doc.key, doc.track, language: doc.lang),
     _ => false,
   };
 
@@ -934,7 +935,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                                 ),
                                                 icon: const Icon(Icons.headphones_rounded, size: 18),
                                                 label: Text(
-                                                  listen.keptAt(doc.key, doc.track) == null
+                                                  listen.keptAt(doc.key, doc.track, count: parts.length) == null
                                                       ? s.listen
                                                       : s.listen_resume,
                                                 ),

@@ -55,6 +55,14 @@ void main() {
     expect(markRanges('ماژول\u200cها', ['ماژول'], 'fa'), [(0, 8)]);
   });
 
+  // Review 11, content 1: the Latin piece was ASCII only, so a Turkish letter split a word into pieces the catalog
+  // never searched, and find marked "de" in "değer" and "lam" in "bağlam".
+  test('markRanges does not split a Turkish word at its own letters', () {
+    expect(markRanges('Bu değer de doğru değil.', ['de'], 'tr'), [(9, 11)]);
+    expect(markRanges('bağlam', ['lam'], 'tr'), isEmpty);
+    expect(markRanges('AIاست', ['ai'], 'fa'), [(0, 2)]);
+  });
+
   test('joinedVariant joins a Persian prefix or suffix typed apart, and leaves other queries alone', () {
     expect(joinedVariant('می خواهم', 'fa'), 'میخواهم');
     expect(joinedVariant('مدل ها', 'fa'), 'مدلها');
