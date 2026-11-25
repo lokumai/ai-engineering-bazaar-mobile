@@ -174,6 +174,30 @@ void main() {
     });
   });
 
+  // Regression: a release printed its warnings with ANSI colour codes, which logcat shows as text.
+  group('AppLogger colours', () {
+    for (final format in LogFormat.values) {
+      test('a release prints no ANSI escape (${format.name})', () {
+        AppLogger.configure(isProduction: true, logFormat: format);
+        final lines = _capturePrintedLines();
+
+        AppLogger.getLogger('ColourTest').warn('plain');
+
+        expect(lines, isNotEmpty);
+        expect(lines.join('\n'), isNot(contains('\x1B[')));
+      });
+    }
+
+    test('a debug build colours its lines', () {
+      AppLogger.configure(isProduction: false, logFormat: LogFormat.simple);
+      final lines = _capturePrintedLines();
+
+      AppLogger.getLogger('ColourTest').warn('coloured');
+
+      expect(lines.join('\n'), contains('\x1B['));
+    });
+  });
+
   // Regression: the line was built before the logger's filter ran, so the arguments of a dropped level were still
   // turned into text.
   group('AppLogger lazy message', () {
