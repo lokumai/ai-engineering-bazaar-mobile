@@ -10,6 +10,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/presentation/robot_s
 import 'package:ai_engineering_bazaar/features/welcome/presentation/welcome_sting.dart';
 import 'package:ai_engineering_bazaar/app/links/incoming_links.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
+import 'package:ai_engineering_bazaar/app/shell/listen_completion.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
@@ -89,7 +90,13 @@ class _AppState extends State<App> {
                   // The Apprentice offers its tour after a first run's Welcome only (plan 11.3).
                   onFirstRun: () => context.read<TourCubit>().offer(),
                   // The site's links open in the app once Welcome is done (plan 17.2).
-                  child: IncomingLinks(router: _router, child: child!),
+                  // A module heard whole is marked completed, and one the phone's voice did not start says so, on whatever
+                  // page the reader is (the owner, 2026-11-18): once for the app, over the router, as a module opened
+                  // from a full-screen page comes in a second shell, which showed each note twice (review 12, A1).
+                  child: IncomingLinks(
+                    router: _router,
+                    child: ListenCompletion(child: child!),
+                  ),
                 ),
               ),
             ),

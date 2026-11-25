@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/app/shell/listen_completion.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
@@ -246,6 +247,8 @@ Widget bazaarTestApp({
         supportedLocales: S.delegate.supportedLocales,
         locale: locale,
         routerConfig: router,
+        // As the app does, over the router (review 12, A1).
+        builder: (context, child) => ListenCompletion(child: child!),
       ),
     ),
   );
