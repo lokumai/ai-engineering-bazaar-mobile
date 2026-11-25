@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:ai_engineering_bazaar/app/shell/bazaar_shell.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
 import 'package:ai_engineering_bazaar/features/caravan/domain/sample_trends.dart';
@@ -185,6 +186,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('caravan-all')));
     await tester.pumpAndSettle();
     expect(find.text('22 trends'), findsOneWidget);
+    // Over the whole app, so nothing the shell draws, such as the Apprentice's round button, stands over its rows
+    // (walk-through 2026-11-24).
+    expect(find.ancestor(of: find.text('22 trends'), matching: find.byType(BazaarShell)), findsNothing);
 
     await tester.enterText(find.byKey(const ValueKey('caravan-search')), 'chips');
     await tester.pumpAndSettle();
