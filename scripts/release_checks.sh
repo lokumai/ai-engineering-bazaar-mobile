@@ -89,6 +89,13 @@ release_gate() {
   echo "Running the gate"
   fvm dart format . --line-length=120 --set-exit-if-changed
   fvm flutter analyze
-  fvm flutter test --coverage
+  # On a Mac the golden images come out a fraction of a percent off the committed ones (the CI variant is drawn with the
+  # Ahem font, but its edges are smoothed differently there), so the Mac skips them. Linux and CI run every test, and
+  # release_ci_check has already required CI green on this commit.
+  if [ "$(uname)" = "Darwin" ]; then
+    fvm flutter test --coverage --exclude-tags golden
+  else
+    fvm flutter test --coverage
+  fi
   scripts/check_coverage.sh coverage/lcov.info 90
 }

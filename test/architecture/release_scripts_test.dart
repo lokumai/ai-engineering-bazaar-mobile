@@ -77,6 +77,19 @@ void main() {
     }
   });
 
+  test('only the Mac leaves out the golden tests, and only them', () {
+    final checks = File(_checks).readAsStringSync();
+    final tests = RegExp(r'fvm flutter test .*').allMatches(checks).map((m) => m[0]).toList();
+    expect(tests, ['fvm flutter test --coverage --exclude-tags golden', 'fvm flutter test --coverage']);
+    expect(
+      checks,
+      contains(
+        'if [ "\$(uname)" = "Darwin" ]; then\n    fvm flutter test --coverage --exclude-tags golden\n  else\n'
+        '    fvm flutter test --coverage\n  fi',
+      ),
+    );
+  });
+
   group('the DSN check', () {
     for (final (name, json, passes) in [
       ('a real DSN', '{"SENTRY_DSN": "https://0123abcd@o1.ingest.example.test/4567"}', true),
