@@ -171,12 +171,24 @@ const Set<String> sentryNavigationTypes = {'didPush', 'didPop', 'didReplace'};
 /// and a transaction passes [sentryBeforeSendTransaction], which keeps the
 /// app start only.
 void installSentryScrubbers(SentryOptions options) {
-  options.beforeSend = (event, hint) => sentryBeforeSend(event);
-  options.beforeSendFeedback = (event, hint) => sentryBeforeSend(event);
+  options.beforeSend = (event, hint) => sentryBeforeSendError(event);
+  options.beforeSendFeedback = (event, hint) => sentryBeforeSendFeedback(event);
   options.beforeSendTransaction = (transaction, hint) => sentryBeforeSendTransaction(transaction);
   options.beforeBreadcrumb = (breadcrumb, hint) => sentryBeforeBreadcrumb(breadcrumb);
   options.enablePrintBreadcrumbs = false;
 }
+
+/// An error event as it leaves the device: [sentryBeforeSend], with no user. sentry_flutter's `LoadContextsIntegration`
+/// copies the native scope's user onto every Dart event, which is the installation id; docs/store-privacy.md and
+/// `privacy_crash` tie that id to the sessions and to Android's native crash and hang reports only (review 12, S2).
+SentryEvent sentryBeforeSendError(SentryEvent event) => sentryBeforeSend(event)..user = null;
+
+/// A Report a problem as it leaves the device: [sentryBeforeSend], with no user and no breadcrumbs. The same merge put
+/// the installation id and the native breadcrumb trail on it, though Report a problem says it carries the text, the
+/// app's version and the device only (review 12, S1).
+SentryEvent sentryBeforeSendFeedback(SentryEvent event) => sentryBeforeSend(event)
+  ..user = null
+  ..breadcrumbs = null;
 
 /// Keeps the app start transaction (`app.start`), how long the app took to
 /// open, and drops every other one before it leaves the device. The app has

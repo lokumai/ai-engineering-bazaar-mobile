@@ -570,6 +570,23 @@ void main() {
       );
     });
 
+    // Review 12, S1 and S2: sentry_flutter copies the native scope's user (the installation id) and breadcrumbs onto
+    // every event; Report a problem and the privacy docs promise neither on a report, nor the id on a crash.
+    test('sends an error without a user, and a report without a user or breadcrumbs', () async {
+      await Sentry.configureScope((scope) => scope.setUser(SentryUser(id: 'c0ffee00-install-id')));
+      await Sentry.addBreadcrumb(Breadcrumb(category: 'app.lifecycle', message: 'foreground'));
+
+      await Sentry.captureException(const _RequestFailed());
+      await Sentry.captureFeedback(SentryFeedback(message: 'The quiz froze'));
+
+      expect(sentEvents, hasLength(2));
+      for (final sent in sentEvents) {
+        expect(sent, isNot(contains('c0ffee00-install-id')));
+      }
+      expect(sentEvents.last, contains('The quiz froze'));
+      expect(sentEvents.last, isNot(contains('app.lifecycle')));
+    });
+
     test('sends an event without the JWT in a custom request header', () async {
       await Sentry.captureEvent(
         SentryEvent(
