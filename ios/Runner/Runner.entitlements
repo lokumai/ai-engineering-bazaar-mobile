@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- The site's pages open in the app as universal links (plan 17.2). Not yet named by the Runner target
-     (CODE_SIGN_ENTITLEMENTS): a personal development team cannot sign the Associated Domains capability, so it is
-     turned on with the company's Apple developer team, together with the site's apple-app-site-association. -->
+<!-- The site's pages open in the app as universal links (plan 17.2, 21.9), signed by the company's Apple developer
+     team (GSQ9Q2VF96), whose App ID has the Associated Domains capability. They open the app once the site serves
+     its apple-app-site-association; until then they open the browser. -->
 <plist version="1.0">
 <dict>
 	<key>com.apple.developer.associated-domains</key>
