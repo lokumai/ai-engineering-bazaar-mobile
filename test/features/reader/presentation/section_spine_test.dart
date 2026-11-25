@@ -61,6 +61,8 @@ Future<ScrollPosition> _pumpModule(WidgetTester tester, Size size) async {
   return find
       .byType(Scrollable)
       .evaluate()
+      // The page's own, not the sections' beside it.
+      .where((e) => e.findAncestorWidgetOfExactType<SectionSpine>() == null)
       .map((e) => ((e as StatefulElement).state as ScrollableState).position)
       .singleWhere((position) => position.axis == Axis.vertical);
 }

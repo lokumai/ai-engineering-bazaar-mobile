@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/section_spine.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -47,6 +48,8 @@ MockContentRepository _sections() {
 ScrollPosition _vertical(WidgetTester tester) => find
     .byType(Scrollable)
     .evaluate()
+    // The page's own, not the sections' beside it.
+    .where((e) => e.findAncestorWidgetOfExactType<SectionSpine>() == null)
     .map((e) => ((e as StatefulElement).state as ScrollableState).position)
     .singleWhere((position) => position.axis == Axis.vertical);
 
