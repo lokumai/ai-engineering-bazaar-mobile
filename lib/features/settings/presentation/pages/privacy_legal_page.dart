@@ -103,7 +103,7 @@ class _Paragraph extends StatelessWidget {
 }
 
 /// A link that opens outside the app, its text flush with the paragraphs; the theme sizes it to the platform's tap
-/// target.
+/// target. It takes the column's whole width, so a tap beside its text opens it too (walk-through 2026-11-24).
 class _Link extends StatelessWidget {
   const _Link({required this.label, required this.uri});
 
@@ -112,10 +112,7 @@ class _Link extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: TextButton(style: _flush, onPressed: () => openExternalLink(context, uri), child: Text(label)),
-    );
+    return TextButton(style: _flush, onPressed: () => openExternalLink(context, uri), child: Text(label));
   }
 }
 
@@ -132,27 +129,33 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final uri = this.uri;
-    return Padding(
+    final row = Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: MergeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted)),
-            // The company's details are Latin text, laid out left to right in Persian too: a right-to-left line put
-            // the phone number's groups in the opposite order (review 6, finding 6).
-            if (uri == null)
-              Text(value, style: textTheme.bodyMedium, textDirection: TextDirection.ltr)
-            else
-              TextButton(
-                style: _flush,
-                onPressed: () => openExternalLink(context, uri),
-                child: Text(value, textDirection: TextDirection.ltr),
-              ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: textTheme.bodySmall?.copyWith(color: context.bazaarColors.onSurfaceMuted)),
+          // The company's details are Latin text, laid out left to right in Persian too: a right-to-left line put
+          // the phone number's groups in the opposite order (review 6, finding 6).
+          Text(
+            value,
+            style: uri == null
+                ? textTheme.bodyMedium
+                : textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
+            textDirection: TextDirection.ltr,
+          ),
+        ],
+      ),
+    );
+    if (uri == null) return MergeSemantics(child: row);
+    // The whole row opens the link, as its one node reads it: only the value's text did (walk-through 2026-11-24).
+    return MergeSemantics(
+      child: Semantics(
+        link: true,
+        child: InkWell(onTap: () => openExternalLink(context, uri), child: row),
       ),
     );
   }

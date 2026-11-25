@@ -54,6 +54,27 @@ void main() {
     expect(calls.launchedUrls, ['${testContentBaseUrl}legend/#privacy']);
   });
 
+  // Walk-through 2026-11-24: the phone, the email and the licence opened only on a tap on their text, though the row's
+  // node spans the page.
+  for (final (name, text, url) in [
+    ('phone', SiteOwner.phone, 'tel:${SiteOwner.phone.replaceAll(' ', '')}'),
+    ('licence', 'MIT licence', null),
+  ]) {
+    testWidgets('a tap beside the $name\'s text opens it', (tester) async {
+      final calls = stubOpeningUrlLauncher(canLaunch: true);
+      await _pump(tester);
+
+      final target = find.text(text).last;
+      await tester.scrollUntilVisible(target, 200);
+      final page = tester.getRect(find.byType(PrivacyLegalPage));
+      await tester.tapAt(Offset(page.right - 40, tester.getCenter(target).dy));
+      await tester.pumpAndSettle();
+
+      expect(calls.launchedUrls, hasLength(1));
+      if (url != null) expect(calls.launchedUrls.single, url);
+    });
+  }
+
   testWidgets('the owner is named as the registry has it', (tester) async {
     await _pump(tester);
 
