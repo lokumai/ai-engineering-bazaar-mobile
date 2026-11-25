@@ -16,6 +16,11 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 - On Android the app icon changes only once a reading aloud has ended, and a paused reading's notice can be swiped away.
 - Screen readers hear search results change, review rows question first, Turkish counts in words, and language names in their own voice.
 - Privacy and legal says that Listen may use the device maker's online voice, and lists the native crash-reporting SDKs' licences.
+- A module opened at its last section and only looked at is no longer marked completed; the reading place holds through a turn or a new text size however the page got there; on a tablet the sections beside the text scroll.
+- Start over asks before it clears a quiz under way; Today's review counts on the day it was opened; the Caravan's strip walks back to the chosen stop.
+- Report a problem keeps its text while the app runs and is sent with no installation id and no breadcrumbs; crash reports from the app's own code carry no installation id.
+- On Android a navigation prompt pauses a module read aloud, which goes on after it.
+- Settings' lines about the last backup or restore go once Settings is left; Send to the website waits for progress that could not be read; the licences page is titled Licences; the Apprentice's buttons and the reading controls stay under the finger.
 
 ## [1.0.0] - 2026-11-20
 
