@@ -306,12 +306,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("این فایل باز نشد."),
     "data_restored": MessageLookupByLibrary.simpleMessage("از فایل بازیابی شد."),
     "data_send_empty": MessageLookupByLibrary.simpleMessage(
-      "هنوز چیزی برای فرستادن نیست: هیچ درسی تکمیل یا علامت‌گذاری نشده.",
+      "هنوز چیزی برای فرستادن نیست: هیچ درسی تکمیل و هیچ موردی از فهرست بررسی علامت‌گذاری نشده.",
     ),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("منوی اشتراک‌گذاری باز نشد."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("فرستادن به وب‌سایت"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("پیشرفت شما در یک پیوند جا نمی‌شود."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("هیچ درسی روی این دستگاه تکمیل یا علامت‌گذاری نشده است"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("هیچ پیشرفتی در درس‌ها روی این دستگاه نیست"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("برگرداندن"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("نمایش نمودار در تمام صفحه"),
@@ -594,7 +594,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
-    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage("پاسخ‌هایی که تا اینجا داده‌اید پاک می‌شوند."),
+    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage(
+      "پاسخ‌های این آزمون از نو شروع می‌شوند؛ پاسخ‌هایی که داده‌اید در تمرین می‌مانند.",
+    ),
     "quiz_start_over_keep": MessageLookupByLibrary.simpleMessage("ادامه دهید"),
     "quiz_start_over_title": MessageLookupByLibrary.simpleMessage("آزمون از نو شروع شود؟"),
     "quiz_subtitle": m58,
@@ -710,7 +712,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "محتوای جدیدتر به نسخهٔ جدیدتری از برنامه نیاز دارد. برای دریافت آن، برنامه را به‌روزرسانی کنید.",
     ),
     "settings_refresh_reason_checksum": MessageLookupByLibrary.simpleMessage(
-      "یک فایل دانلودشده با checksum خود مطابقت نداشت",
+      "یک فایل دانلودشده با کد بررسی خود جور نبود",
     ),
     "settings_refresh_reason_format": MessageLookupByLibrary.simpleMessage(
       "وب‌سایت محتوایی فرستاد که این نسخه از برنامه نمی‌تواند بخواند",

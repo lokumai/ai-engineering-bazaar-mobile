@@ -46,7 +46,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await open(tester, const Tally(sheets: 0));
-    expect(find.text('NO MODULE COMPLETED OR TICKED ON THIS DEVICE'), findsOneWidget);
+    expect(find.text('NO MODULE PROGRESS ON THIS DEVICE'), findsOneWidget);
   });
 
   testWidgets('Replace answers true and Keep my data false', (tester) async {

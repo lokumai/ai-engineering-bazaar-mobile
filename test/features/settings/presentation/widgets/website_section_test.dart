@@ -309,7 +309,7 @@ void main() {
       await tester.pump();
 
       expect(sheet.shared, isEmpty);
-      expect(find.text('Nothing to send yet: no module is completed or ticked.'), findsOneWidget);
+      expect(find.text('Nothing to send yet: no module is completed and no checklist item is ticked.'), findsOneWidget);
     });
 
     // Review 7, finding 14: a link longer than the website reads was shared all the same.

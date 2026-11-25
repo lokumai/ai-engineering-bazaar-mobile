@@ -552,7 +552,7 @@
   "@quiz_start_over": {},
   "quiz_start_over_title": "Start the quiz over?",
   "@quiz_start_over_title": {},
-  "quiz_start_over_body": "The answers given so far are cleared.",
+  "quiz_start_over_body": "The answers on this quiz start again; Practice keeps those already given.",
   "@quiz_start_over_body": {},
   "quiz_start_over_keep": "Keep going",
   "@quiz_start_over_keep": {},
@@ -708,7 +708,7 @@
       }
     }
   },
-  "data_tally_nothing": "NO MODULE COMPLETED OR TICKED ON THIS DEVICE",
+  "data_tally_nothing": "NO MODULE PROGRESS ON THIS DEVICE",
   "@data_tally_nothing": {},
   "erase_mark": "Erase",
   "@erase_mark": {},
@@ -1212,7 +1212,7 @@
   "@pocket_reset": {
     "description": "The button that starts the pocket model again at level 0."
   },
-  "pocket_reset_title": "Start the apprentice over?",
+  "pocket_reset_title": "Start the Apprentice over?",
   "@pocket_reset_title": {},
   "pocket_reset_body": "It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.",
   "@pocket_reset_body": {},
@@ -1283,7 +1283,7 @@
   "@wardrobe_body": {
     "description": "The wardrobe's tab of bodies."
   },
-  "wardrobe_note": "Each level of the apprentice unlocks something new to wear.",
+  "wardrobe_note": "Each level of the Apprentice unlocks something new to wear.",
   "@wardrobe_note": {
     "description": "Under the wardrobe's choices."
   },
@@ -1635,7 +1635,7 @@
   "@website_to_title": {},
   "website_to_text": "Send your progress as a link, then open the link on the computer.",
   "@website_to_text": {},
-  "data_send_empty": "Nothing to send yet: no module is completed or ticked.",
+  "data_send_empty": "Nothing to send yet: no module is completed and no checklist item is ticked.",
   "@data_send_empty": {},
   "data_send_failed": "The share menu did not open.",
   "@data_send_failed": {},

@@ -659,7 +659,7 @@ void main() {
     await tester.ensureVisible(reset);
     await tester.tap(reset);
     await tester.pumpAndSettle();
-    expect(find.text('Start the apprentice over?'), findsOneWidget);
+    expect(find.text('Start the Apprentice over?'), findsOneWidget);
     await tester.tap(find.text('Keep it'));
     await tester.pumpAndSettle();
     expect(store.kept?.tokens, 400, reason: 'kept as it was');

@@ -903,9 +903,14 @@ class S {
     return Intl.message('Start the quiz over?', name: 'quiz_start_over_title', desc: '', args: []);
   }
 
-  /// `The answers given so far are cleared.`
+  /// `The answers on this quiz start again; Practice keeps those already given.`
   String get quiz_start_over_body {
-    return Intl.message('The answers given so far are cleared.', name: 'quiz_start_over_body', desc: '', args: []);
+    return Intl.message(
+      'The answers on this quiz start again; Practice keeps those already given.',
+      name: 'quiz_start_over_body',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Keep going`
@@ -1177,9 +1182,9 @@ class S {
     );
   }
 
-  /// `NO MODULE COMPLETED OR TICKED ON THIS DEVICE`
+  /// `NO MODULE PROGRESS ON THIS DEVICE`
   String get data_tally_nothing {
-    return Intl.message('NO MODULE COMPLETED OR TICKED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
+    return Intl.message('NO MODULE PROGRESS ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
   }
 
   /// `Erase`
@@ -2465,9 +2470,9 @@ class S {
     );
   }
 
-  /// `Start the apprentice over?`
+  /// `Start the Apprentice over?`
   String get pocket_reset_title {
-    return Intl.message('Start the apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
+    return Intl.message('Start the Apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
   }
 
   /// `It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.`
@@ -2601,10 +2606,10 @@ class S {
     return Intl.message('Body', name: 'wardrobe_body', desc: 'The wardrobe\'s tab of bodies.', args: []);
   }
 
-  /// `Each level of the apprentice unlocks something new to wear.`
+  /// `Each level of the Apprentice unlocks something new to wear.`
   String get wardrobe_note {
     return Intl.message(
-      'Each level of the apprentice unlocks something new to wear.',
+      'Each level of the Apprentice unlocks something new to wear.',
       name: 'wardrobe_note',
       desc: 'Under the wardrobe\'s choices.',
       args: [],
@@ -3364,10 +3369,10 @@ class S {
     );
   }
 
-  /// `Nothing to send yet: no module is completed or ticked.`
+  /// `Nothing to send yet: no module is completed and no checklist item is ticked.`
   String get data_send_empty {
     return Intl.message(
-      'Nothing to send yet: no module is completed or ticked.',
+      'Nothing to send yet: no module is completed and no checklist item is ticked.',
       name: 'data_send_empty',
       desc: '',
       args: [],
