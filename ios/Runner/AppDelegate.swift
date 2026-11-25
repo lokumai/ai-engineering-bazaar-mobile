@@ -508,6 +508,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
         command.isEnabled = false
       }
       commands.removeAll()
+      // The reading ended or rested: the sound a pause kept goes back to other apps.
+      letSoundGo()
       return
     }
     if commands.isEmpty {
@@ -579,7 +581,11 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       // `.duckOthers` does) nowhere on the lock screen, the status bar or the headphones (plan 19.8).
       let session = AVAudioSession.sharedInstance()
       try? session.setCategory(.playback, mode: .spokenAudio, options: [])
-      let active = (try? session.setActive(true)) != nil
+      var active = true
+      do { try session.setActive(true) } catch {
+        active = false
+        NSLog("Bazaar speech: the sound could not be taken: %@", error.localizedDescription)
+      }
       // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
       endAll()
@@ -626,11 +632,19 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   private func end(_ id: Int) {
     guard ended.insert(id).inserted else { return }
     channel.invokeMethod("done", arguments: id)
-    // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
+    // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once. A paused
+    // reading, still on the lock screen, keeps the sound: iOS lets an app in the background take it again only while it
+    // holds it, and Play on the lock screen said nothing after a pause (the owner's iPhone, 2026-11-25).
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-      guard let self, self.parts.isEmpty, !self.synthesizer.isSpeaking else { return }
-      try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+      guard let self, self.commands.isEmpty else { return }
+      self.letSoundGo()
     }
+  }
+
+  /// Gives the sound back to other apps once nothing is said and no reading is shown.
+  private func letSoundGo() {
+    guard parts.isEmpty, !synthesizer.isSpeaking else { return }
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 
   /// Runs [work] on the main thread, at once when called there: Apple does not say which thread the synthesizer calls

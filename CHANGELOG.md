@@ -7,6 +7,7 @@ The app began as a copy of the flutter_bloc_advance template; the template's his
 
 ### Fixed
 
+- On the iPhone, Play on the lock screen reads on again after a pause there.
 - The Android release build no longer closes at launch.
 - Progress is never backed up, erased or written over before it has been read, Undo lasts across a tab switch, and a save that fails says so; Home says when this launch set the stored progress aside.
 - The Apprentice, the catalog's search and a module's pictures no longer hold up the screen.
