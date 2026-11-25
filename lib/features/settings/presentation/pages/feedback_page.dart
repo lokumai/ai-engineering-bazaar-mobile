@@ -29,10 +29,22 @@ class _FeedbackPageState extends State<FeedbackPage> {
   late final FeedbackDraft _draft = context.read<FeedbackDraft>();
   late final _controller = TextEditingController(text: _draft.text)..addListener(_keep);
 
+  /// Read in [dispose], where the context may no longer be.
+  late final FeedbackBloc _bloc;
+
   void _keep() => _draft.text = _controller.text;
 
   @override
+  void initState() {
+    super.initState();
+    _bloc = context.read<FeedbackBloc>();
+  }
+
+  @override
   void dispose() {
+    // Left while the report was on its way or once sent, the text is not kept: opened again, a second Send filed it
+    // twice (review 12, S7).
+    if (_bloc.state case FeedbackSending() || FeedbackSent()) _draft.text = '';
     _controller.dispose();
     super.dispose();
   }
