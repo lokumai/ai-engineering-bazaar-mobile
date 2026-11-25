@@ -718,6 +718,29 @@ void main() {
       });
     });
 
+    // Walk-through 2026-11-24: a restore's error stayed on Settings for the whole session.
+    test('leaving Settings clears the backup and restore lines and keeps a reset that can be undone', () async {
+      await onClock(() async {
+        final bloc = build();
+        when(() => gateway.save(any(), any())).thenAnswer((_) async => BackupSaveResult.saved);
+        when(() => gateway.pickJson()).thenAnswer((_) async => const PickedBackupUnreadable());
+        bloc.add(const BackupRequested());
+        await pumpEventQueue();
+        bloc.add(const RestoreRequested());
+        await pumpEventQueue();
+        bloc.add(const DataLinesLeft());
+        await pumpEventQueue();
+        expect(bloc.state, const DataState());
+
+        bloc.add(const ResetConfirmed());
+        await pumpEventQueue();
+        bloc.add(const DataLinesLeft());
+        await pumpEventQueue();
+        expect(bloc.state, const DataState(reset: ResetCounting(10)));
+        await bloc.close();
+      });
+    });
+
     test('reset clears the backup and restore lines', () async {
       await onClock(() async {
         final bloc = build();

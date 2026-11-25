@@ -57,6 +57,15 @@ void main() {
     expect(events, [isA<BackupRequested>(), isA<RestoreRequested>(), isA<UndoRequested>()]);
   });
 
+  testWidgets('the line tells DataBloc it was left, so its status lines do not outlive Settings', (tester) async {
+    final bloc = await pumpLine(tester, const DataState(restore: RestoreOutcome.unreadable));
+    when(() => bloc.isClosed).thenReturn(false);
+
+    await tester.pumpWidget(const SizedBox());
+
+    verify(() => bloc.add(any(that: isA<DataLinesLeft>()))).called(1);
+  });
+
   testWidgets('every action is off while a flow runs', (tester) async {
     for (final busy in [DataBusy.backingUp, DataBusy.restoring, DataBusy.erasing, DataBusy.savingQuarantine]) {
       await pumpLine(tester, DataState(busy: busy));

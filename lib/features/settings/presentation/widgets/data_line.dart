@@ -12,9 +12,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Restore and Reset on one line and, while the reset can be undone, Undo, then the status lines in a live region.
 ///
 /// Reset is drawn in on-surface (Decision A18) and asks through [showEraseDialog] first. Every action is off while a
-/// flow of [DataBloc] runs.
-class DataLine extends StatelessWidget {
+/// flow of [DataBloc] runs. Its status lines are cleared once Settings is left ([DataLinesLeft]).
+class DataLine extends StatefulWidget {
   const DataLine({super.key});
+
+  @override
+  State<DataLine> createState() => _DataLineState();
+}
+
+class _DataLineState extends State<DataLine> {
+  /// Kept for [dispose], where the context may no longer be read.
+  late final DataBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = context.read<DataBloc>();
+  }
+
+  @override
+  void dispose() {
+    if (!_bloc.isClosed) _bloc.add(const DataLinesLeft());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -54,6 +54,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     on<UndoTicked>(_onUndoTicked);
     on<QuarantineExportRequested>(_onQuarantineExportRequested, transformer: EventTransformers.dropConcurrent());
     on<QuarantineDeleteConfirmed>(_onQuarantineDeleteConfirmed);
+    on<DataLinesLeft>(_onLinesLeft);
   }
 
   static final _log = AppLogger.getLogger('DataBloc');
@@ -86,6 +87,17 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
   Future<void> close() {
     _stopTicker();
     return super.close();
+  }
+
+  void _onLinesLeft(DataLinesLeft event, Emitter<DataState> emit) {
+    emit(
+      state._with(
+        backup: null,
+        restore: null,
+        quarantineCopy: null,
+        reset: state.reset is ResetCounting ? state.reset : null,
+      ),
+    );
   }
 
   /// Web `onExport` (`DataPanel.tsx:104-137`); `lastExport` is marked only after a confirmed save or share (A19).
