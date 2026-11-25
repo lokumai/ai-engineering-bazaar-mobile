@@ -453,6 +453,24 @@ void main() {
     await _rest(tester);
   });
 
+  // Walk-through 2026-11-24: the status line came and went above the buttons and moved them under the finger.
+  testWidgets('the buttons stay where they are as the status line comes and goes', (tester) async {
+    final recently = clock.now().subtract(const Duration(minutes: 1));
+    await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: recently)));
+    final feed = find.byKey(const ValueKey('pocket-feed'));
+    expect(find.textContaining('Overfitted'), findsNothing);
+    final before = tester.getTopLeft(feed);
+
+    for (var i = 0; i < PocketModel.overfitFeeds; i++) {
+      await tester.tap(feed);
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('Overfitted'), findsOneWidget);
+    expect(tester.getTopLeft(feed), before);
+    await _rest(tester);
+  });
+
   testWidgets('left for a day it sleeps, and a tap on it wakes it', (tester) async {
     final yesterday = clock.now().subtract(const Duration(days: 1));
     await _pump(tester, store: MemoryPocketModelStore(PocketModel(tokens: 100, lastFed: yesterday)));
