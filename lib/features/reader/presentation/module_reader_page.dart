@@ -273,6 +273,20 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// The place last kept in this visit, which leaving keeps again with the time spent.
   ReadingPlace? _lastPlace;
 
+  /// Where the page stood when it last came to rest, however it got there, kept or not: the place found again after a
+  /// turn of the screen or a new reading size. A glance from the day's card keeps no place, and a page moved only by the
+  /// contents, a find step or the voice had none to find, so the same pixels showed other words (review 12, C2).
+  ReadingPlace? _anchor;
+
+  /// The width of the module's text when [_anchor] was noted.
+  double? _anchorWidth;
+
+  /// The width the module's text is laid out at; null before it is.
+  double? get _textWidth {
+    final box = _textKey.currentContext?.findRenderObject();
+    return box is RenderBox && box.hasSize ? box.size.width : null;
+  }
+
   /// What marks the module completed as it is left, kept while it is drawn: a page being taken down can read nothing
   /// around it. Null while no written module is drawn.
   _Leaving? _leaving;
@@ -336,10 +350,14 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     final now = (MediaQuery.sizeOf(context), MediaQuery.textScalerOf(context));
     final before = _laidOutAt;
     _laidOutAt = now;
-    final place = _lastPlace;
+    final place = _anchor ?? _lastPlace;
     if (before == null || before == now || place == null || _held != null) return;
+    final width = _anchorWidth;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _goToPlace(place);
+      // A text as wide as when the place was noted, at the same size, shows the same words at the same pixels: the
+      // place found by its share of a section would be a little off, as the last section's end moves with the screen.
+      if (!mounted || (width != null && _textWidth == width && before.$2 == now.$2)) return;
+      _goToPlace(place);
     });
   }
 
@@ -610,7 +628,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       _held = null;
       _readerScrolled = true;
     }
-    if (notification case ScrollEndNotification(depth: 0, :final metrics) when _readerScrolled) _keepPlace(metrics);
+    if (notification case ScrollEndNotification(depth: 0, :final metrics)) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
     // The end counts once the reader's own hand brought it, or on a module too short to scroll: a page opened at its
     // last section from a search hit, a link, the day's card or the contents sheet, and only looked at, was marked
@@ -677,11 +695,16 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     return RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
   }
 
-  /// Tells [ModuleReaderView.onPlace] where the page stands: the last heading above the top and the distance past it.
+  /// Notes where the page stands, the last heading above the top and the distance past it, as [_anchor], and tells
+  /// [ModuleReaderView.onPlace] once the reader has scrolled by hand.
   void _keepPlace(ScrollMetrics metrics) {
-    final onPlace = widget.onPlace;
-    if (onPlace == null) return;
-    void keep(ReadingPlace place) => onPlace(_lastPlace = place);
+    final onPlace = _readerScrolled ? widget.onPlace : null;
+    void keep(ReadingPlace place) {
+      _anchor = place;
+      _anchorWidth = _textWidth;
+      if (onPlace != null) onPlace(_lastPlace = place);
+    }
+
     if (metrics.pixels < _topSlack) {
       keep(ReadingPlace(offset: 0, share: 0, at: clock.now(), seconds: _seconds));
       return;
