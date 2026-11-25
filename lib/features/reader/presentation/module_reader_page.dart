@@ -253,7 +253,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// How long the module has been on the screen in this visit; over every visit with the place's [ReadingPlace.seconds].
   final _onScreen = clock.stopwatch();
 
-  /// Whether the module's end, its completion row, has come into view.
+  /// Whether the module's end, its completion row, has come into view by the reader's own scroll.
   bool _reachedEnd = false;
 
   /// Whether the reader marked or unmarked the module by hand in this visit: leaving it then marks nothing, or a
@@ -612,7 +612,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     }
     if (notification case ScrollEndNotification(depth: 0, :final metrics) when _readerScrolled) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
-    if (!_reachedEnd) _reachedEnd = _endInView(metrics);
+    // The end counts once the reader's own hand brought it, or on a module too short to scroll: a page opened at its
+    // last section from a search hit, a link, the day's card or the contents sheet, and only looked at, was marked
+    // completed as it was left, on the time of earlier visits (review 12, C1).
+    if (!_reachedEnd && (_readerScrolled || metrics.maxScrollExtent <= 0)) _reachedEnd = _endInView(metrics);
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     if (notification is ScrollMetricsNotification) _holdHeading();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
