@@ -179,6 +179,31 @@ void main() {
     expect(_painter(tester).selected, 6);
   });
 
+  // Review 12, F2: released nearest the stop already chosen, the caravan stayed where the finger left it.
+  testWidgets('a drag on the strip released nearest the chosen stop walks the caravan back to it', (tester) async {
+    await _pump(tester);
+    final road = SampleCaravan.road('en');
+    final journey = tester.widget<CaravanStrip>(find.byType(CaravanStrip)).journey;
+    final before = journey.t;
+    expect(find.text('Stop 1 of 22'), findsOneWidget);
+
+    final strip = tester.getRect(find.byType(CaravanStrip));
+    final month = strip.width / road.length;
+    final first = road.stops[0].at;
+    final nearer = first + (road.stops[1].at - first) * 0.45;
+    final gesture = await tester.startGesture(Offset(strip.left + nearer * month + 60, strip.center.dy));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      await gesture.moveBy(const Offset(-10, 0));
+    }
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Stop 1 of 22'), findsOneWidget);
+    expect(journey.t, closeTo(before, 0.01));
+  });
+
   testWidgets('All trends finds a trend by its words and goes there', (tester) async {
     final cubit = _cubit();
     await _pump(tester, caravan: cubit);
