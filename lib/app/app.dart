@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/features/about/presentation/pages/about_welcome_step.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_engineering_bazaar/app/app_gate.dart';
+import 'package:ai_engineering_bazaar/app/british_material.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/app/di/app_scope.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
@@ -68,6 +69,7 @@ class _AppState extends State<App> {
             themeAnimationDuration: Duration.zero,
             localizationsDelegates: const [
               S.delegate,
+              BritishMaterialLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
