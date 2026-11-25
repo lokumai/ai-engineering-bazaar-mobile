@@ -364,6 +364,27 @@ void main() {
     expect(find.text('Question 1 of 3'), findsOneWidget);
   });
 
+  // Review 12, F1: with every question answered and See results not tapped, the attempt was not scored yet.
+  testWidgets('Start over asks with every question answered before the results, not after them', (tester) async {
+    await tester.pumpWidget(panelApp(items));
+    await toggle(tester);
+    await tapText(tester, 'One');
+    await tapText(tester, 'Next');
+    await tapText(tester, 'Two');
+    await tapText(tester, 'Next');
+    await tapText(tester, 'Three');
+
+    await tapText(tester, 'Start over');
+    expect(find.text('Start the quiz over?'), findsOneWidget);
+    await tapText(tester, 'Keep going');
+
+    await tapText(tester, 'See results');
+    await tapText(tester, 'Back to the questions');
+    await tapText(tester, 'Start over');
+    expect(find.text('Start the quiz over?'), findsNothing, reason: 'scored once its results showed');
+    expect(find.text('Question 1 of 3'), findsOneWidget);
+  });
+
   testWidgets('Start over on the results clears the answers', (tester) async {
     await pumpPanel(tester, items.sublist(0, 1));
     await toggle(tester);

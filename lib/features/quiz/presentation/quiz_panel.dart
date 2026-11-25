@@ -249,9 +249,10 @@ class _QuestionView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                // Answers given mid-quiz are kept nowhere else, so their loss is asked first (walk-through
-                // 2026-11-24); with none given there is nothing to lose, and with all given the score is kept.
-                final underWay = picks.any((pick) => pick != null) && picks.any((pick) => pick == null);
+                // Answers not scored yet are kept nowhere else, so their loss is asked first (walk-through
+                // 2026-11-24); with none given there is nothing to lose, and once the results were shown the score is
+                // kept. Every question answered but the results not opened is still under way (review 12, F1).
+                final underWay = picks.any((pick) => pick != null) && !cubit.finished;
                 if (!underWay || await _askToStartOver(context)) {
                   if (!cubit.isClosed) cubit.restart();
                 }
