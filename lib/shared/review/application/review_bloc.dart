@@ -30,12 +30,13 @@ final class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     final today = dayNumber(clock.now());
     final next = switch (event) {
       ReviewStarted() => await _store.load(),
-      ReviewAnswered(:final key, :final right, :final length, :final inReview) => history.answered(
+      ReviewAnswered(:final key, :final right, :final length, :final inReview, :final reviewDay) => history.answered(
         key,
         right: right,
         today: today,
         length: length,
         inReview: inReview,
+        reviewDay: reviewDay,
       ),
       ReviewTermLookedUp(:final key) => history.lookedUp(key, today),
       ReviewQuizLengthSeen(:final moduleKey, :final length) => history.seenLength(moduleKey, length),

@@ -20,6 +20,15 @@ void main() {
       history = history.answered('alpha/first#0', right: true, today: today + 1, inReview: true);
       expect((history.day, history.done), (today + 1, 1));
     });
+
+    // Review 12, F4: a review opened before midnight and answered after counted against the new day's cards.
+    test("a Today's review answered after midnight counts on no day, and its card still moves", () {
+      var history = ReviewHistory.empty.answered('alpha/first#0', right: true, today: today, inReview: true);
+      history = history.answered('alpha/first#1', right: true, today: today + 1, inReview: true, reviewDay: today);
+
+      expect(history.doneOn(today + 1), 0, reason: 'the new day starts afresh');
+      expect(history.cards['alpha/first#1']!.box, 1);
+    });
   });
 
   group('lookedUp', () {
