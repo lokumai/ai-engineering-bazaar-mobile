@@ -581,11 +581,7 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
       // `.duckOthers` does) nowhere on the lock screen, the status bar or the headphones (plan 19.8).
       let session = AVAudioSession.sharedInstance()
       try? session.setCategory(.playback, mode: .spokenAudio, options: [])
-      var active = true
-      do { try session.setActive(true) } catch {
-        active = false
-        NSLog("Bazaar speech: the sound could not be taken: %@", error.localizedDescription)
-      }
+      let active = (try? session.setActive(true)) != nil
       // The words being said, and those waiting, are cut; their speak comes back as done.
       if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
       endAll()
