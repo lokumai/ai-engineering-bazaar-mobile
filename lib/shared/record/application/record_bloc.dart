@@ -388,14 +388,18 @@ interface class RecordBloc extends Bloc<RecordEvent, RecordState> {
       await _repository.deleteAll();
     } on FileSystemException catch (error) {
       _log.warn('record erase failed: {}', [error]);
+      var writtenBack = true;
       if (bytes.record != null || bytes.quarantine != null || bytes.previous != null) {
         final put = await _repository.restore(bytes);
-        if (put.write != WriteResult.saved) _log.error('record not written back after a failed erase: {}', [put.write]);
+        writtenBack = put.write == WriteResult.saved;
+        if (!writtenBack) _log.error('record not written back after a failed erase: {}', [put.write]);
       }
       emit(
         RecordReady(
           record: current.record,
-          writeState: const WriteBlocked(),
+          // Written back, the files hold what the screen shows: the write state stays as it was. "Not saved" stood
+          // beside "the progress on this device is unchanged" over a record that was saved (review 12, R2).
+          writeState: writtenBack ? current.writeState : const WriteBlocked(),
           quarantine: current.quarantine,
           quarantineKept: current.quarantineKept,
           launchReadFailed: current.launchReadFailed,

@@ -1076,6 +1076,7 @@ void main() {
       final bloc = _startedFake(async, repository)..add(_toggle);
       async.flushMicrotasks();
       final r = _ready(bloc).record;
+      final written = _ready(bloc).writeState;
       expect(r.signedOff('alpha/first', Track.engineers), _now);
 
       repository.deleteAllError = _injected();
@@ -1087,7 +1088,8 @@ void main() {
 
       final expected = ready(
         record: r,
-        writeState: const WriteBlocked(),
+        // Written back as read, the files hold what the screen shows: no "Not saved" (review 12, R2).
+        writeState: written,
         quarantine: QuarantineReason.newer,
         quarantineKept: true,
       );

@@ -28,7 +28,8 @@ final class WriteTooLarge extends WriteState {
   const WriteTooLarge();
 }
 
-/// A write failed, an erase could not delete the files, or the launch read failed and writes are refused.
+/// A write failed, an erase could not delete the files nor write them back, or the launch read failed and writes are
+/// refused.
 final class WriteBlocked extends WriteState {
   const WriteBlocked();
 }
