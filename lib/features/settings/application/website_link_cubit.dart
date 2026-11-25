@@ -20,9 +20,10 @@ final class WebsiteLinkCubit extends Cubit<WebsiteLinkState> {
 
   Future<void> send() async {
     if (state == WebsiteLinkState.sending) return;
+    // A record that could not be read at launch is never sent: Settings turns the button off (review 12, R1).
     final record = switch (_recordBloc.state) {
-      RecordReady(:final record) => record,
-      RecordLoading() => null,
+      RecordReady(:final record, launchReadFailed: false) => record,
+      RecordReady() || RecordLoading() => null,
     };
     if (record == null) return;
     final text = encodeTransfer(record);

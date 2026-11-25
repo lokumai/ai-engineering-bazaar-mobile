@@ -287,6 +287,20 @@ void main() {
       await expectPlatformGuidelines(tester, platform: TargetPlatform.android);
     });
 
+    // Review 12, R1: after a failed launch read it said there was nothing to send, or sent only what was done since.
+    testWidgets('a record that could not be read at launch is not sent: the button is off', (tester) async {
+      final sheet = _Sheet();
+      await _pump(
+        tester,
+        record: recordBlocAt(record: _completed, writeState: const WriteBlocked(), launchReadFailed: true),
+        sheet: sheet,
+      );
+
+      final button = find.byKey(const ValueKey('settings-send-to-website'));
+      expect(tester.widget<OutlinedButton>(button).onPressed, isNull);
+      expect(sheet.shared, isEmpty);
+    });
+
     testWidgets('with nothing to send it says so and opens no sheet', (tester) async {
       final sheet = _Sheet();
       await _pump(tester, sheet: sheet);

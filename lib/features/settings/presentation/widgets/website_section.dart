@@ -49,6 +49,12 @@ class _WebsiteSectionView extends StatelessWidget {
     final s = S.of(context);
     final scan = context.watch<CodeScanCubit>().state;
     final send = context.watch<WebsiteLinkCubit>().state;
+    // A record that could not be read at launch is not sent, as it is not backed up: the link would carry only what
+    // was done since, or say there is nothing to send (review 12, R1). The notice above says how to read it again.
+    final unread = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final launchReadFailed) => launchReadFailed,
+      RecordLoading() => false,
+    };
     final scanLine = switch (scan.scan) {
       CodeScanNotALink() => s.website_scan_not_a_link,
       CodeScanDenied() => s.website_scan_denied,
@@ -99,7 +105,9 @@ class _WebsiteSectionView extends StatelessWidget {
             text: s.website_to_text,
             action: OutlinedButton.icon(
               key: const ValueKey('settings-send-to-website'),
-              onPressed: send == WebsiteLinkState.sending ? null : () => context.read<WebsiteLinkCubit>().send(),
+              onPressed: send == WebsiteLinkState.sending || unread
+                  ? null
+                  : () => context.read<WebsiteLinkCubit>().send(),
               icon: Icon(shareIcon(context)),
               label: Text(s.data_send_to_website),
             ),
