@@ -212,6 +212,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_region": m4,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
     "brief_end": MessageLookupByLibrary.simpleMessage("That is the module. Its quiz checks what stayed."),
+    "brief_end_no_quiz": MessageLookupByLibrary.simpleMessage("That is the module."),
     "brief_next": MessageLookupByLibrary.simpleMessage("Next card"),
     "brief_open_module": MessageLookupByLibrary.simpleMessage("Open the module"),
     "brief_previous": MessageLookupByLibrary.simpleMessage("Previous card"),
@@ -309,7 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_send_failed": MessageLookupByLibrary.simpleMessage("The share menu did not open."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Send to the website"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("Your progress is too long to fit in a link."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NO MODULE COMPLETED OR TICKED ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
@@ -327,7 +328,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage(
-      "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.",
+      "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.",
     ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
@@ -356,7 +357,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
+      "The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Take the tour again"),
@@ -462,7 +463,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_read_waiting": m41,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Start over"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
-      "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
+      "It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the apprentice over?"),

@@ -411,8 +411,32 @@ void main() {
     await _tap(tester, find.byKey(const Key('brief-next')));
     expect(find.byKey(const Key('brief-next')).hitTestable(), findsOneWidget);
     expect(tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed, isNull, reason: 'the last card');
+    expect(find.text('That is the module. Its quiz checks what stayed.'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('brief-take-quiz')));
     expect(router.state.uri.path, '/quiz/alpha/first');
+  });
+
+  // Review 12, L4: the last card said "Its quiz checks what stayed" for a module with no quiz.
+  testWidgets('the last card of a module with no quiz names none', (tester) async {
+    final doc = testDoc(
+      body: [
+        const HeadingBlock(
+          depth: 2,
+          id: 'sum',
+          mark: null,
+          inlines: [TextInline(text: 'Sum')],
+        ),
+        const ParagraphBlock(inlines: [TextInline(text: 'Lanterns carry light.')], lead: false),
+      ],
+      quiz: const [],
+    );
+    await _pump(tester, record: _completed(['alpha/first']), doc: doc, at: '/practice/brief/alpha/first');
+    while (tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed != null) {
+      await _tap(tester, find.byKey(const Key('brief-next')));
+    }
+
+    expect(find.text('That is the module.'), findsOneWidget);
+    expect(find.byKey(const Key('brief-take-quiz')), findsNothing);
   });
 
   // Review 5, finding 17.

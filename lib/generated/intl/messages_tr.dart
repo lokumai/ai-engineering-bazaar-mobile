@@ -210,6 +210,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_region": m4,
     "block_unknown": MessageLookupByLibrary.simpleMessage("Bu bölüm için uygulamanın daha yeni bir sürümü gerekiyor."),
     "brief_end": MessageLookupByLibrary.simpleMessage("Modül bu kadar. Quizi, aklında kalanı yoklar."),
+    "brief_end_no_quiz": MessageLookupByLibrary.simpleMessage("Modül bu kadar."),
     "brief_next": MessageLookupByLibrary.simpleMessage("Sonraki kart"),
     "brief_open_module": MessageLookupByLibrary.simpleMessage("Modülü aç"),
     "brief_previous": MessageLookupByLibrary.simpleMessage("Önceki kart"),
@@ -311,7 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_send_failed": MessageLookupByLibrary.simpleMessage("Paylaşım menüsü açılmadı."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Web sitesine gönder"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("İlerlemen bir bağlantıya sığmayacak kadar uzun."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA TAMAMLANAN YA DA İŞARETLENEN MODÜL YOK"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Geri al"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Diyagramı tam ekran aç"),
@@ -329,7 +330,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu işlem kaydı bu cihazdan kaldırır. Uygulamanın okuyamadığı bir sürümden kalıp kenara ayrılan kopya da buna dahil.",
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage(
-      "Bu cihazdaki quiz skorları, Pratik geçmişi ve her modülde kalınan okuma ve dinleme yerleri de silinir.",
+      "Bu cihazdaki quiz skorları, Pratik geçmişi ve her modülde kalınan okuma ve dinleme yerleri de silinir. Yedek dosyası bunları tutmaz.",
     ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("SİL"),
@@ -358,7 +359,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Kısa modüller"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu cihazda kalır.",
+      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu cihazda kayıtlı.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Turu baştan izle"),
@@ -464,7 +465,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_read_waiting": m41,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Baştan başlat"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
-      "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar. Kurs ve ilerlemen olduğu gibi kalır.",
+      "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar; açtığı kıyafetler ve app ikonları yeniden kilitlenir, kullandığın ikon kalır. Kurs ve ilerlemen olduğu gibi kalır.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Kalsın"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Çırak baştan başlasın mı?"),

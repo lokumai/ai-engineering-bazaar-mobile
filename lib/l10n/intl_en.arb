@@ -708,7 +708,7 @@
       }
     }
   },
-  "data_tally_nothing": "NOTHING RECORDED ON THIS DEVICE",
+  "data_tally_nothing": "NO MODULE COMPLETED OR TICKED ON THIS DEVICE",
   "@data_tally_nothing": {},
   "erase_mark": "Erase",
   "@erase_mark": {},
@@ -716,7 +716,7 @@
   "@erase_title": {},
   "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
   "@erase_scope": {},
-  "erase_scores": "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.",
+  "erase_scores": "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.",
   "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
@@ -969,7 +969,7 @@
   "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.",
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -1214,7 +1214,7 @@
   },
   "pocket_reset_title": "Start the apprentice over?",
   "@pocket_reset_title": {},
-  "pocket_reset_body": "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
+  "pocket_reset_body": "It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.",
   "@pocket_reset_body": {},
   "pocket_reset_keep": "Keep it",
   "@pocket_reset_keep": {
@@ -1499,6 +1499,8 @@
   "brief_terms": "Key Terms",
   "brief_take_quiz": "Take the quiz",
   "brief_end": "That is the module. Its quiz checks what stayed.",
+  "brief_end_no_quiz": "That is the module.",
+  "@brief_end_no_quiz": {},
   "brief_step": "Card {step} of {count}",
   "@brief_step": {
     "placeholders": {

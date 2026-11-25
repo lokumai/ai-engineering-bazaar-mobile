@@ -209,6 +209,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_region": m4,
     "block_unknown": MessageLookupByLibrary.simpleMessage("این بخش به نسخهٔ جدیدتری از برنامه نیاز دارد."),
     "brief_end": MessageLookupByLibrary.simpleMessage("درس همین بود. آزمونش می‌سنجد چه چیزی در ذهن مانده."),
+    "brief_end_no_quiz": MessageLookupByLibrary.simpleMessage("درس همین بود."),
     "brief_next": MessageLookupByLibrary.simpleMessage("کارت بعدی"),
     "brief_open_module": MessageLookupByLibrary.simpleMessage("باز کردن درس"),
     "brief_previous": MessageLookupByLibrary.simpleMessage("کارت قبلی"),
@@ -310,7 +311,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_send_failed": MessageLookupByLibrary.simpleMessage("منوی اشتراک‌گذاری باز نشد."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("فرستادن به وب‌سایت"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("پیشرفت شما در یک پیوند جا نمی‌شود."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("چیزی روی این دستگاه ثبت نشده است"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("هیچ درسی روی این دستگاه تکمیل یا علامت‌گذاری نشده است"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("برگرداندن"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("نمایش نمودار در تمام صفحه"),
@@ -328,7 +329,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "این کار سابقه را از این دستگاه حذف می‌کند، از جمله کپی‌ای که از نسخه‌ای از برنامه کنار گذاشته شد که این نسخه نمی‌توانست بخواند.",
     ),
     "erase_scores": MessageLookupByLibrary.simpleMessage(
-      "امتیازهای آزمون، سابقهٔ تمرین و جایی که در هر درس خواندن و شنیدن را رها کرده‌اید هم در این دستگاه پاک می‌شوند.",
+      "امتیازهای آزمون، سابقهٔ تمرین و جایی که در هر درس خواندن و شنیدن را رها کرده‌اید هم در این دستگاه پاک می‌شوند. فایل پشتیبان این‌ها را نگه نمی‌دارد.",
     ),
     "erase_title": MessageLookupByLibrary.simpleMessage("همهٔ پیشرفت روی این دستگاه پاک شود؟"),
     "erase_word": MessageLookupByLibrary.simpleMessage("حذف"),
@@ -357,7 +358,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("درس‌های کوتاه"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین دستگاه می‌ماند.",
+      "تمام دوره داخل برنامه است و بدون اتصال خوانده می‌شود. حسابی در کار نیست: پیشرفت شما روی همین دستگاه ذخیره می‌شود.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("روی همین دستگاه، بدون اینترنت"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("دیدن دوبارهٔ گشت"),
@@ -463,7 +464,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_read_waiting": m41,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("شروع از نو"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
-      "همهٔ توکن‌هایی را که خوانده فراموش می‌کند و دوباره از سطح 0 شروع می‌کند. دوره و پیشرفتتان همان‌طور می‌ماند.",
+      "همهٔ توکن‌هایی را که خوانده فراموش می‌کند و دوباره از سطح 0 شروع می‌کند، و لباس‌ها و نمادهای برنامه که باز کرده بود دوباره قفل می‌شوند؛ نماد فعلی می‌ماند. دوره و پیشرفتتان همان‌طور می‌ماند.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("بماند"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("شاگرد از نو شروع شود؟"),

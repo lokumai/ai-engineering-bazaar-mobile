@@ -1177,9 +1177,9 @@ class S {
     );
   }
 
-  /// `NOTHING RECORDED ON THIS DEVICE`
+  /// `NO MODULE COMPLETED OR TICKED ON THIS DEVICE`
   String get data_tally_nothing {
-    return Intl.message('NOTHING RECORDED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
+    return Intl.message('NO MODULE COMPLETED OR TICKED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
   }
 
   /// `Erase`
@@ -1202,10 +1202,10 @@ class S {
     );
   }
 
-  /// `The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.`
+  /// `The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.`
   String get erase_scores {
     return Intl.message(
-      'The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too.',
+      'The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.',
       name: 'erase_scores',
       desc: '',
       args: [],
@@ -1877,10 +1877,10 @@ class S {
     );
   }
 
-  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.`
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.`
   String get guide_offline {
     return Intl.message(
-      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.',
+      'The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.',
       name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -2470,10 +2470,10 @@ class S {
     return Intl.message('Start the apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
   }
 
-  /// `It forgets every token it read and starts again at level 0. The course and its progress stay as they are.`
+  /// `It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.`
   String get pocket_reset_body {
     return Intl.message(
-      'It forgets every token it read and starts again at level 0. The course and its progress stay as they are.',
+      'It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.',
       name: 'pocket_reset_body',
       desc: '',
       args: [],
@@ -3055,6 +3055,11 @@ class S {
   /// `That is the module. Its quiz checks what stayed.`
   String get brief_end {
     return Intl.message('That is the module. Its quiz checks what stayed.', name: 'brief_end', desc: '', args: []);
+  }
+
+  /// `That is the module.`
+  String get brief_end_no_quiz {
+    return Intl.message('That is the module.', name: 'brief_end_no_quiz', desc: '', args: []);
   }
 
   /// `Card {step} of {count}`

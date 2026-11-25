@@ -379,7 +379,7 @@ class _CardView extends StatelessWidget {
               const Center(
                 child: PracticeDisc(hue: BazaarFixedColors.success, icon: Icons.check_rounded),
               ),
-              Text(s.brief_end, textAlign: TextAlign.center, style: body),
+              Text(hasQuiz ? s.brief_end : s.brief_end_no_quiz, textAlign: TextAlign.center, style: body),
               const SizedBox(height: AppSpacing.xs),
               if (hasQuiz)
                 FilledButton.icon(
