@@ -64,7 +64,8 @@ class TourRobotOut extends InheritedWidget {
 }
 
 /// Marks [child] as the place [spot] names, for the tour to find it with [TourTarget.contextOf]. The one drawn last
-/// is the one found, and it is forgotten once it leaves the screen.
+/// is the one found; once it leaves the screen, the one drawn before it is found again (review 12, A1: a second shell
+/// over a full-screen page took the tabs' spot, and once it went the first shell's was forgotten until it rebuilt).
 class TourTarget extends StatefulWidget {
   const TourTarget({super.key, required this.spot, required this.child});
 
@@ -72,12 +73,15 @@ class TourTarget extends StatefulWidget {
   final String spot;
   final Widget child;
 
-  static final Map<String, BuildContext> _live = {};
+  /// The contexts marking each spot, the one drawn last at the end.
+  static final Map<String, List<BuildContext>> _live = {};
 
   /// The context of the place [spot] names while it is on the screen; null otherwise.
   static BuildContext? contextOf(String spot) {
-    final context = _live[spot];
-    return context != null && context.mounted ? context : null;
+    for (final context in (_live[spot] ?? const <BuildContext>[]).reversed) {
+      if (context.mounted) return context;
+    }
+    return null;
   }
 
   @override
@@ -88,7 +92,7 @@ class _TourTargetState extends State<TourTarget> {
   @override
   void initState() {
     super.initState();
-    TourTarget._live[widget.spot] = context;
+    _mark(widget.spot);
   }
 
   @override
@@ -96,7 +100,7 @@ class _TourTargetState extends State<TourTarget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.spot != widget.spot) {
       _forget(oldWidget.spot);
-      TourTarget._live[widget.spot] = context;
+      _mark(widget.spot);
     }
   }
 
@@ -106,8 +110,13 @@ class _TourTargetState extends State<TourTarget> {
     super.dispose();
   }
 
+  void _mark(String spot) => (TourTarget._live[spot] ??= []).add(context);
+
   void _forget(String spot) {
-    if (identical(TourTarget._live[spot], context)) TourTarget._live.remove(spot);
+    final marks = TourTarget._live[spot];
+    if (marks == null) return;
+    marks.removeWhere((mark) => identical(mark, context));
+    if (marks.isEmpty) TourTarget._live.remove(spot);
   }
 
   @override

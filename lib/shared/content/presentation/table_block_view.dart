@@ -18,7 +18,7 @@ class TableBlockView extends StatelessWidget {
   final TableBlock block;
   final BlockRenderContext render;
 
-  /// The widest a cell's text may run before it wraps.
+  /// The widest a cell's text may run before it wraps, at the text's own size.
   static const double cellMaxWidth = 280;
 
   @override
@@ -38,11 +38,14 @@ class TableBlockView extends StatelessWidget {
       color: colors.onSurface,
     );
     final rowHeaderStyle = bodyStyle.copyWith(fontWeight: FontWeight.w600);
+    // The widest grows with the text size, so a cell at a large size still holds a few words a line (review 11,
+    // content 9); the table scrolls sideways past the page.
+    final widest = MediaQuery.textScalerOf(context).scale(cellMaxWidth);
 
     Widget cell(Cell cell, TextStyle style) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: cellMaxWidth),
+        constraints: BoxConstraints(maxWidth: widest),
         child: InlineText(inlines: cell.inlines, style: style, onLink: render.onLink, textAlign: TextAlign.start),
       ),
     );

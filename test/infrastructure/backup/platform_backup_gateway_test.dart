@@ -169,7 +169,8 @@ void main() {
       final file = _FakePlatformFile(bytes: [123, 125])..fakeLength = PlatformBackupGateway.maxBackupBytes + 1;
       final gateway = PlatformBackupGateway(pickFile: () async => file);
 
-      expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+      // Opus review 11, record finding 9: too large, not "could not be opened".
+      expect(await gateway.pickJson(), isA<PickedBackupTooLarge>());
       expect(file.reads, 0, reason: 'never read');
     });
 
@@ -181,7 +182,7 @@ void main() {
         ..chunks = Iterable.generate(1000, (_) => List.filled(chunk, 32));
       final gateway = PlatformBackupGateway(pickFile: () async => file);
 
-      expect(await gateway.pickJson(), isA<PickedBackupUnreadable>());
+      expect(await gateway.pickJson(), isA<PickedBackupTooLarge>());
       expect(file.reads, 0, reason: 'never read whole');
       expect(file.chunksTaken * chunk, lessThanOrEqualTo(PlatformBackupGateway.maxBackupBytes + chunk));
     });

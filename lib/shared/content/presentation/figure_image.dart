@@ -52,6 +52,8 @@ class FigureImage extends StatelessWidget {
             );
             return ContentObjectBuilder(
               sitePath: block.src,
+              // The placeholder is the figure's own height, so the read can wait for the figure to come near.
+              whenNear: true,
               placeholder: SizedBox(
                 width: width,
                 height: reserved,

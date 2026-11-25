@@ -37,6 +37,7 @@ MockRecordBloc recordBlocAt({
   QuarantineReason? quarantine,
   bool quarantineKept = false,
   WriteState writeState = const WriteSaved(),
+  bool launchReadFailed = false,
 }) {
   final bloc = MockRecordBloc();
   whenListen(
@@ -47,7 +48,7 @@ MockRecordBloc recordBlocAt({
       writeState: writeState,
       quarantine: quarantine,
       quarantineKept: quarantineKept,
-      launchReadFailed: false,
+      launchReadFailed: launchReadFailed,
       undo: null,
     ),
   );

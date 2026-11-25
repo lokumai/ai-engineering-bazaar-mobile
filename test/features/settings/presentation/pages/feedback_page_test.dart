@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/settings/presentation/pages/feedback_page.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/section_rule.dart';
@@ -72,6 +74,50 @@ void main() {
 
     expect(find.text('The report was not sent. Try again later.'), findsOneWidget);
     expect(find.text('The quiz froze'), findsOneWidget);
+  });
+
+  // Walk-through 2026-11-24: Back from the page, or another tab, threw the text away.
+  testWidgets('keeps the text not sent when the page is left and opened again, and forgets it once sent', (
+    tester,
+  ) async {
+    final sender = MockFeedbackSender();
+    when(() => sender.send(any())).thenAnswer((_) async {});
+    await _pumpSettings(tester, crashReports: true, sender: sender);
+    await _openPage(tester);
+    await tester.enterText(find.byType(TextField), 'The quiz froze');
+    await tester.pump();
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(FeedbackPage), findsNothing);
+    await _openPage(tester);
+    expect(find.text('The quiz froze'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await _openPage(tester);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
+  });
+
+  // Review 12, S7: left while the report was on its way, the page opened again with the text already sent.
+  testWidgets('forgets the text when the page is left while the report is on its way', (tester) async {
+    final sender = MockFeedbackSender();
+    final sent = Completer<void>();
+    when(() => sender.send(any())).thenAnswer((_) => sent.future);
+    await _pumpSettings(tester, crashReports: true, sender: sender);
+    await _openPage(tester);
+    await tester.enterText(find.byType(TextField), 'The quiz froze');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+    await tester.pump();
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    sent.complete();
+    await _openPage(tester);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
   });
 
   // iOS has no back key to close the keyboard: a tap outside the field or a drag of the page closes it, as in the

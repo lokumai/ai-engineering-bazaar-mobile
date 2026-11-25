@@ -71,6 +71,8 @@ const _ownerWords = {
   'tour_home_head': 'the Apprentice shows its corner: the owner, 2026-11-16',
   'tour_tabs': 'the Apprentice offers to show each tab: the owner, 2026-11-16',
   'tour_settings_customize': 'the Apprentice shows its wardrobe: the owner, 2026-11-16',
+  // The reader's own words on the tour's button, not the app's: review 11, copy 11.
+  'tour_show_me': 'Show me around, said by the reader',
 };
 
 /// `BANS`, `copy-register.test.ts:181-238`. Every pattern but the exclamation mark is case-insensitive, as on the web.
@@ -78,7 +80,8 @@ final _bans = <({String name, RegExp pattern, String why})>[
   (name: 'exclamation mark', pattern: RegExp(r'!'), why: 'Most things are not that exciting.'),
   (
     name: 'anthropomorphism (first person)',
-    pattern: RegExp(r"\b(?:I|I'm|I've|we|we'll|we've|my|our)\b", caseSensitive: false),
+    // "me", "us" and "ours" are the app's own, past the web's list: "write to us" passed it (review 11, copy 11).
+    pattern: RegExp(r"\b(?:I|I'm|I've|me|we|we'll|we've|us|my|our|ours)\b", caseSensitive: false),
     why: 'The software does not speak as a person.',
   ),
   (

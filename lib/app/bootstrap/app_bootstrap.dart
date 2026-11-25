@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/app/bootstrap/native_licences.dart';
 import 'package:ai_engineering_bazaar/shared/app_icon/bazaar_icon.dart';
 import 'package:ai_engineering_bazaar/shared/utils/app_orientations.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/system_bars.dart';
@@ -30,6 +31,7 @@ class AppBootstrap {
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
     registerFontLicences();
+    registerNativeLicences(defaultTargetPlatform);
 
     await AppConstants.initPackageInfo();
 
@@ -59,7 +61,9 @@ class AppBootstrap {
     final sentryActive = appConfig.sentryDsn != null;
     CrashReporter.install(analytics, forwardToAnalytics: !sentryActive);
 
-    Bloc.observer = kDebugMode ? TimeTravelBlocObserver() : AppBlocObserver();
+    Bloc.observer = kDebugMode
+        ? TimeTravelBlocObserver()
+        : AppBlocObserver(report: sentryActive ? reportBlocError : null);
 
     await SystemChrome.setPreferredOrientations(appOrientations());
     await drawUnderSystemBars();

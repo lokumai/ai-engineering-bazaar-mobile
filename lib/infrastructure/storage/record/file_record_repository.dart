@@ -81,13 +81,17 @@ final class FileRecordRepository implements IRecordRepository {
 
   /// Copies the original [bytes] to [quarantine] unless it already holds the same bytes; `record.json` stays. A copy
   /// already there with other bytes, which may never have been saved, is kept as `record-quarantine-previous.json`
-  /// rather than written over (review 9, finding 7).
+  /// rather than written over (review 9, finding 7). The copy goes through `record-quarantine.json.tmp`, so a full disk
+  /// or a killed app never leaves a half copy that the next launch would move over the previous one (opus review 11,
+  /// record finding 6).
   Future<void> _setAside(File quarantine, Uint8List bytes) async {
     if (await quarantine.exists()) {
       if (listEquals(await quarantine.readAsBytes(), bytes)) return;
-      await quarantine.rename((await _quarantinePrevious).path);
+      final previous = await _quarantinePrevious;
+      if (await previous.exists()) _log.warn('record set aside a third time: the oldest copy is replaced', const []);
+      await quarantine.rename(previous.path);
     }
-    await quarantine.writeAsBytes(bytes, flush: true);
+    await _replace(_quarantineTmp, _quarantine, bytes);
   }
 
   @override
@@ -116,8 +120,11 @@ final class FileRecordRepository implements IRecordRepository {
   }
 
   @override
-  Future<StoredBytes> readStored() async =>
-      StoredBytes(record: await _readOrNull(await _record), quarantine: await _readOrNull(await _quarantine));
+  Future<StoredBytes> readStored() async => StoredBytes(
+    record: await _readOrNull(await _record),
+    quarantine: await _readOrNull(await _quarantine),
+    previous: await _readOrNull(await _quarantinePrevious),
+  );
 
   Future<Uint8List?> _readOrNull(File file) async {
     try {
@@ -151,6 +158,9 @@ final class FileRecordRepository implements IRecordRepository {
 
     if (bytes.record case final record?) await attempt(() => _replaceRecord(record));
     if (bytes.quarantine case final quarantine?) await attempt(() => _replace(_quarantineTmp, _quarantine, quarantine));
+    if (bytes.previous case final previous?) {
+      await attempt(() => _replace(_quarantineTmp, _quarantinePrevious, previous));
+    }
     return RestoreResult(write: write, quarantineKept: await (await _quarantine).exists());
   }
 

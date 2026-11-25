@@ -70,3 +70,8 @@ void configureSentryOptions(SentryFlutterOptions options, {required String dsn, 
   options.enableAutoSessionTracking = true;
   options.release = release;
 }
+
+/// Sends an error a bloc reported to Sentry, scrubbed as every event is (opus review 11, arch finding 1).
+void reportBlocError(Object error, StackTrace stackTrace) {
+  Sentry.captureException(error, stackTrace: stackTrace).ignore();
+}

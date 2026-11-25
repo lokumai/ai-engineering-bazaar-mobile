@@ -26,6 +26,9 @@ import 'package:flutter/material.dart' show AppLifecycleState, Icons, Key, ListV
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/record/domain/envelope.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -90,6 +93,39 @@ final _band = find.byKey(const ValueKey('home-continue-band'));
 Finder _inBand(String text) => find.descendant(of: _band, matching: find.text(text));
 
 void main() {
+  // Review 11, record 5: a record set aside at launch left Home, the catalog and the reader at no progress with no word;
+  // the reason was only on Settings.
+  testWidgets('a record set aside at this launch puts a line on Home that opens Settings', (tester) async {
+    final record = MockRecordBloc();
+    whenListen(
+      record,
+      const Stream<RecordState>.empty(),
+      initialState: RecordReady(
+        record: RecordData.empty,
+        writeState: const WriteSaved(),
+        quarantine: QuarantineReason.malformed,
+        quarantineKept: true,
+        launchReadFailed: false,
+        undo: null,
+      ),
+    );
+    final router = const AppRouterFactory().create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router, content: readyContentBloc(null), record: record));
+    await tester.pumpAndSettle();
+
+    final line = find.text('Your stored progress could not be read and was set aside. Settings says more.');
+    expect(line, findsOneWidget);
+    await tester.tap(line);
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/settings');
+  });
+
+  testWidgets('no line on Home when nothing was set aside', (tester) async {
+    await _pumpHome(tester);
+    expect(find.byKey(const ValueKey('home-record-pointer')), findsNothing);
+  });
+
   testWidgets('the band says Up next in Turkish too', (tester) async {
     await _pumpHome(tester, locale: const Locale('tr'));
 

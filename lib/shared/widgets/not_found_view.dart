@@ -2,6 +2,7 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/bazaar_paths.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/web_links.dart';
+import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/utils/external_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,8 +30,12 @@ class NotFoundView extends StatelessWidget {
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: [
-              // The web's 404 links the catalog index, which is the For Engineers catalog root.
-              FilledButton(onPressed: () => context.go(BazaarPaths.catalogEngineers), child: Text(l10n.nav_catalog)),
+              // The web's 404 links the catalog index; here it is the catalog of the reader's track, which the shell
+              // made the address's own, so a For Everyone reader is not moved to For Engineers (review 11, features 2).
+              FilledButton(
+                onPressed: () => context.go(BazaarPaths.catalog(context.read<TrackCubit>().state)),
+                child: Text(l10n.nav_catalog),
+              ),
               OutlinedButton(
                 onPressed: () => openExternalLink(context, context.read<WebLinks>().site),
                 child: Text(l10n.open_on_the_web),

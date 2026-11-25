@@ -74,6 +74,9 @@ class CaravanStrip extends StatelessWidget {
                 final stop = road.nearestStop(journey.t + focusOffset);
                 if (stop >= 0) {
                   journey.rest();
+                  // Walked there here, not only through the choice: the stop already chosen changes nothing, so the
+                  // caravan stood where the finger left it, between stalls (review 12, F2).
+                  journey.walkTo(road.stops[stop].at - focusOffset, instant: MediaQuery.disableAnimationsOf(context));
                   onSelect(stop);
                 }
               },

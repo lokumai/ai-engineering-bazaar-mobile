@@ -33,18 +33,17 @@ void main() {
   group('a scan always ends', () {
     test('a code with an escape that is not UTF-8 in its path is not a link', () async {
       final cubit = await _scanned(_Scanner(text: 'http://example.com/%E9t%E9'));
-      expect(cubit.state.status, CodeScanStatus.notALink);
+      expect(cubit.state.scan, const CodeScanNotALink());
     });
 
     test('a scanner that throws ends the scan as failed', () async {
       final cubit = await _scanned(_Scanner(error: PlatformException(code: 'boom')));
-      expect(cubit.state.status, CodeScanStatus.failed);
+      expect(cubit.state.scan, const CodeScanFailed());
     });
 
     test('a transfer code is still found', () async {
       final cubit = await _scanned(_Scanner(text: 'http://localhost:4321/transfer/#t=abc'));
-      expect(cubit.state.status, CodeScanStatus.found);
-      expect(cubit.state.payload, 'abc');
+      expect(cubit.state.scan, const CodeScanFound('abc'));
     });
   });
 }

@@ -1,3 +1,6 @@
+import 'package:ai_engineering_bazaar/app/shell/listen_completion.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
@@ -9,6 +12,7 @@ import 'package:ai_engineering_bazaar/shared/study/application/study_notes_cubit
 import 'package:ai_engineering_bazaar/shared/reading/application/reading_places_bloc.dart';
 import 'package:ai_engineering_bazaar/shared/reading/domain/reading_place_store.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/home/application/daily_another_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
@@ -17,6 +21,7 @@ import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_ou
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -152,6 +157,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
+      RepositoryProvider<FeedbackDraft>(create: (_) => FeedbackDraft()),
       RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
       RepositoryProvider<ISpeech>.value(value: speech ?? const NoSpeech()),
       RepositoryProvider<IShareSheet>.value(value: shareSheet ?? const NoShareSheet()),
@@ -185,12 +191,26 @@ Widget bazaarTestApp({
           ),
         BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
         BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
+        RepositoryProvider<CatalogSearchIndexes>(create: (_) => CatalogSearchIndexes()),
         BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
         BlocProvider<ListenCubit>(create: (context) => ListenCubit(speech: context.read<ISpeech>())),
+        // Above the pages, as app_scope.dart provides it (opus review 11, record finding 2).
+        BlocProvider<DataBloc>(
+          create: (context) => DataBloc(
+            recordBloc: context.read<RecordBloc>(),
+            gateway: context.read<IBackupGateway>(),
+            repository: context.read<IRecordRepository>(),
+            scores: context.read<QuizScoresBloc>(),
+            review: context.read<ReviewBloc>(),
+            places: context.read<ReadingPlacesBloc>(),
+            listen: context.read<ListenCubit>(),
+          ),
+        ),
         if (caravan != null)
           BlocProvider<CaravanCubit>.value(value: caravan)
         else
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+        BlocProvider<DailyAnotherCubit>(create: (_) => DailyAnotherCubit()),
         BlocProvider<RobotOutfitCubit>(create: (_) => robotOutfit ?? RobotOutfitCubit(store: MemoryRobotOutfitStore())),
         BlocProvider<PocketButtonCubit>(create: (_) => pocketButton ?? PocketButtonCubit()),
         // Not loaded unless a test passes one: no tour shows over the pages.
@@ -227,6 +247,8 @@ Widget bazaarTestApp({
         supportedLocales: S.delegate.supportedLocales,
         locale: locale,
         routerConfig: router,
+        // As the app does, over the router (review 12, A1).
+        builder: (context, child) => ListenCompletion(child: child!),
       ),
     ),
   );

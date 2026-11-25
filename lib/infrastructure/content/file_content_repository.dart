@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -24,7 +25,8 @@ import 'package:ai_engineering_bazaar/infrastructure/content/content_http.dart';
 /// newer content from the site through `http`.
 ///
 /// [readObject] resolves a site path through the current index, then through the indexes this session served before
-/// it, most recent first, so a page open during a refresh keeps its files (spec 3.4.3 row 6). Their objects are all
+/// it, most recent first, so a page open during a refresh keeps the files the new index dropped (spec 3.4.3 row 6); a
+/// file both name is read at the current index's object. Their objects are all
 /// still on the device: in the bundle, or in `objects/`, which only the next start's garbage collection prunes.
 final class FileContentRepository implements IContentRepository {
   FileContentRepository({required this._bundled, required this._cacheDirectory, required this._http});
@@ -218,9 +220,17 @@ final class FileContentRepository implements IContentRepository {
     for (final MapEntry(key: sha256Name, value: sitePath) in pathOf.entries) {
       if (opened.bundledObjects.contains(sha256Name)) continue;
       final object = File('$store/objects/$sha256Name');
-      if (await object.exists()) continue;
+      // One already there from a refresh cut off before is kept only while it still matches its name: a damaged one
+      // was never fetched again, and a document of it failed every refresh after (review 11, content 8).
+      if (await object.exists()) {
+        try {
+          if (await _sha256Of(await object.readAsBytes()) == sha256Name) continue;
+        } on FileSystemException {
+          // Unreadable: fetched again below.
+        }
+      }
       final bytes = await _http.get(sitePath, version: sha256Name);
-      if (sha256.convert(bytes).toString() != sha256Name) throw const _ChecksumMismatch();
+      if (await _sha256Of(bytes) != sha256Name) throw const _ChecksumMismatch();
       await Directory('$store/objects').create(recursive: true);
       await _writeAndRename(object, bytes);
     }
@@ -255,10 +265,16 @@ final class FileContentRepository implements IContentRepository {
     }
 
     for (final module in index.modules) {
-      for (final track in module.tracks.values) {
-        for (final sitePath in track.docs.values) {
+      for (final MapEntry(key: track, value: entry) in module.tracks.entries) {
+        for (final MapEntry(key: lang, value: sitePath) in entry.docs.entries) {
           final json = await text(sitePath);
-          if (json != null) ContentParser.parseModuleDoc(json, index, path: sitePath);
+          if (json == null) continue;
+          final doc = ContentParser.parseModuleDoc(json, index, path: sitePath);
+          // A document is the one its index entry names: completion and Listen record under its own key and track, so
+          // one published under the wrong path would record progress under another module (review 11, content 9).
+          if (doc.key != module.key) throw ContentFormatException(sitePath, 'key');
+          if (doc.track != track) throw ContentFormatException(sitePath, 'track');
+          if (doc.lang != lang) throw ContentFormatException(sitePath, 'lang');
         }
       }
     }
@@ -280,6 +296,14 @@ final class FileContentRepository implements IContentRepository {
     await temporary.writeAsBytes(bytes, flush: true);
     await temporary.rename(file.path);
   }
+
+  /// Above this many bytes an object is hashed in another isolate: a 2.6 MB picture took about 40 ms on the screen's
+  /// thread at each opening of its module (review 11, architecture 4). Every read is still checked.
+  static const _hashApartFrom = 64 * 1024;
+
+  static Future<String> _sha256Of(Uint8List bytes) async => bytes.length > _hashApartFrom
+      ? Isolate.run(() => sha256.convert(bytes).toString())
+      : sha256.convert(bytes).toString();
 
   @override
   Future<Uint8List> readObject(String sitePath) async {
@@ -304,7 +328,7 @@ final class FileContentRepository implements IContentRepository {
       if (error is! PathNotFoundException) _log.warn('content object unreadable: {} {}', [sha256Name, error]);
       throw ContentMissingException(sitePath);
     }
-    if (sha256.convert(bytes).toString() != sha256Name) {
+    if (await _sha256Of(bytes) != sha256Name) {
       try {
         await File('${opened.store.path}/corrupt').writeAsString('');
       } on FileSystemException catch (error) {

@@ -100,6 +100,9 @@ void main() {
     expect(find.text('Finish'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('review-next')));
     expect(find.text('1 of 2 right'), findsOneWidget);
+    // Review 11, copy 4: each row is read question first, then whether it was right.
+    expect(find.bySemanticsLabel(RegExp(r'^1\. .+, correct$')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^2\. .+, not correct$')), findsOneWidget);
 
     final history = review.state.history;
     final today = dayNumber(DateTime.now());
@@ -394,7 +397,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing, reason: 'full screen');
 
     expect(
-      find.bySemanticsLabel('1 of 3'),
+      find.bySemanticsLabel('Card 1 of 3'),
       findsOneWidget,
       reason: 'the Summary on one card as it fits, one card of terms, the end (the owner, 2026-11-18)',
     );
@@ -402,14 +405,38 @@ void main() {
     expect(find.text('Wicks draw oil.', findRichText: true), findsOneWidget);
     await tester.drag(find.byKey(const ValueKey('brief-pager')), const Offset(-300, 0));
     await tester.pumpAndSettle();
-    expect(find.bySemanticsLabel('2 of 3'), findsOneWidget, reason: 'a swipe goes on');
+    expect(find.bySemanticsLabel('Card 2 of 3'), findsOneWidget, reason: 'a swipe goes on');
     expect(find.text('Wick'), findsOneWidget);
     expect(find.text('what burns.', findRichText: true), findsOneWidget);
     await _tap(tester, find.byKey(const Key('brief-next')));
     expect(find.byKey(const Key('brief-next')).hitTestable(), findsOneWidget);
     expect(tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed, isNull, reason: 'the last card');
+    expect(find.text('That is the module. Its quiz checks what stayed.'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('brief-take-quiz')));
     expect(router.state.uri.path, '/quiz/alpha/first');
+  });
+
+  // Review 12, L4: the last card said "Its quiz checks what stayed" for a module with no quiz.
+  testWidgets('the last card of a module with no quiz names none', (tester) async {
+    final doc = testDoc(
+      body: [
+        const HeadingBlock(
+          depth: 2,
+          id: 'sum',
+          mark: null,
+          inlines: [TextInline(text: 'Sum')],
+        ),
+        const ParagraphBlock(inlines: [TextInline(text: 'Lanterns carry light.')], lead: false),
+      ],
+      quiz: const [],
+    );
+    await _pump(tester, record: _completed(['alpha/first']), doc: doc, at: '/practice/brief/alpha/first');
+    while (tester.widget<IconButton>(find.byKey(const Key('brief-next'))).onPressed != null) {
+      await _tap(tester, find.byKey(const Key('brief-next')));
+    }
+
+    expect(find.text('That is the module.'), findsOneWidget);
+    expect(find.byKey(const Key('brief-take-quiz')), findsNothing);
   });
 
   // Review 5, finding 17.

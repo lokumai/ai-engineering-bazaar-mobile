@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 /// A module's sections beside its text on a wide screen, an iPad in landscape (plan 12.10), as the web's section spine
 /// (`SectionSpine.tsx`, `TableOfContents.tsx`): a line at the start with each section's heading against it, the one
 /// in view in the page's ink with its tick out into the gutter, the others muted. A tap scrolls to it. What it tracks
-/// is the scroll position, not completion, so it has no visited state. It does not scroll: a module's sections fit a
-/// tablet's height.
+/// is the scroll position, not completion, so it has no visited state. It scrolls on its own when its sections are
+/// taller than the screen, as at a large reading size: they overflowed, and the last ones could not be tapped (review
+/// 12, C3).
 class SectionSpine extends StatelessWidget {
   const SectionSpine({super.key, required this.sections, required this.current, required this.onTap});
 
@@ -31,38 +32,42 @@ class SectionSpine extends StatelessWidget {
       label: S.of(context).reader_contents,
       child: ValueListenableBuilder<String?>(
         valueListenable: current,
-        builder: (context, inView, _) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final section in sections)
-              InkWell(
-                key: rowKey(section.id),
-                onTap: () => onTap(section.id),
-                child: Container(
-                  constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
-                  alignment: AlignmentDirectional.centerStart,
-                  decoration: BoxDecoration(
-                    border: BorderDirectional(
-                      start: BorderSide(
-                        color: section.id == inView ? colors.onSurface : colors.line,
-                        width: section.id == inView ? 2 : 1,
+        builder: (context, inView, _) => SingleChildScrollView(
+          // Not the page's scroll: the status bar's tap scrolls the text.
+          primary: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final section in sections)
+                InkWell(
+                  key: rowKey(section.id),
+                  onTap: () => onTap(section.id),
+                  child: Container(
+                    constraints: BoxConstraints(minHeight: minTapTarget(Theme.of(context).platform)),
+                    alignment: AlignmentDirectional.centerStart,
+                    decoration: BoxDecoration(
+                      border: BorderDirectional(
+                        start: BorderSide(
+                          color: section.id == inView ? colors.onSurface : colors.line,
+                          width: section.id == inView ? 2 : 1,
+                        ),
                       ),
                     ),
-                  ),
-                  padding: const EdgeInsetsDirectional.only(start: AppSpacing.md, top: 6, bottom: 6),
-                  child: Semantics(
-                    selected: section.id == inView,
-                    child: Text(
-                      section.text,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: section.id == inView ? colors.onSurface : colors.onSurfaceMuted,
-                        fontWeight: section.id == inView ? FontWeight.w600 : FontWeight.w400,
+                    padding: const EdgeInsetsDirectional.only(start: AppSpacing.md, top: 6, bottom: 6),
+                    child: Semantics(
+                      selected: section.id == inView,
+                      child: Text(
+                        section.text,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: section.id == inView ? colors.onSurface : colors.onSurfaceMuted,
+                          fontWeight: section.id == inView ? FontWeight.w600 : FontWeight.w400,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

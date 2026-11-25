@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ai_engineering_bazaar/core/security/sensitive_data_scrubber.dart';
+import 'package:ai_engineering_bazaar/infrastructure/analytics/sentry_scrub.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -233,7 +234,13 @@ void main() {
 
     expect(cases, isNotEmpty);
     for (final entry in cases.cast<Map<String, dynamic>>()) {
-      expect(maskEmails(maskSecrets(entry['input'] as String)), entry['expected'], reason: '${entry['input']}');
+      final masked = maskEmails(maskSecrets(entry['input'] as String));
+      // The reading paths as the Sentry hook masks them after, as NativeSentryScrubber.maskText does.
+      expect(
+        masked.replaceAllMapped(readingPathPattern, (m) => '${m[1]}$secretMask'),
+        entry['expected'],
+        reason: '${entry['input']}',
+      );
     }
   });
 }

@@ -368,6 +368,7 @@ void main() {
           _picked('{"unrelated": true}'): RestoreOutcome.malformed,
           _picked('{"schema":99,"savedAt":"2026-03-15T10:00:00.000Z","data":{}}'): RestoreOutcome.newer,
           const PickedBackupUnreadable(): RestoreOutcome.unreadable,
+          const PickedBackupTooLarge(): RestoreOutcome.tooLarge,
         };
         for (final MapEntry(key: picked, value: outcome) in cases.entries) {
           final bloc = build();
@@ -717,6 +718,29 @@ void main() {
       });
     });
 
+    // Walk-through 2026-11-24: a restore's error stayed on Settings for the whole session.
+    test('leaving Settings clears the backup and restore lines and keeps a reset that can be undone', () async {
+      await onClock(() async {
+        final bloc = build();
+        when(() => gateway.save(any(), any())).thenAnswer((_) async => BackupSaveResult.saved);
+        when(() => gateway.pickJson()).thenAnswer((_) async => const PickedBackupUnreadable());
+        bloc.add(const BackupRequested());
+        await pumpEventQueue();
+        bloc.add(const RestoreRequested());
+        await pumpEventQueue();
+        bloc.add(const DataLinesLeft());
+        await pumpEventQueue();
+        expect(bloc.state, const DataState());
+
+        bloc.add(const ResetConfirmed());
+        await pumpEventQueue();
+        bloc.add(const DataLinesLeft());
+        await pumpEventQueue();
+        expect(bloc.state, const DataState(reset: ResetCounting(10)));
+        await bloc.close();
+      });
+    });
+
     test('reset clears the backup and restore lines', () async {
       await onClock(() async {
         final bloc = build();
@@ -832,17 +856,13 @@ void main() {
       });
     });
 
-    test('a request with no set-aside bytes is an error', () async {
+    // Opus review 11, record finding 9: it was a StateError, and the reader saw nothing.
+    test('a request with no set-aside bytes says the copy was not written', () async {
       await onClock(() async {
         when(() => repository.readStored()).thenAnswer((_) async => _noBytes);
-        final errors = <Object>[];
-        late DataBloc bloc;
-        await runZonedGuarded(() async {
-          bloc = build()..add(const QuarantineExportRequested());
-          await pumpEventQueue();
-        }, (error, _) => errors.add(error));
-        expect(errors.single, isA<StateError>());
-        expect(bloc.state, const DataState());
+        final bloc = build()..add(const QuarantineExportRequested());
+        await pumpEventQueue();
+        expect(bloc.state, const DataState(quarantineCopy: QuarantineCopy.notWritten));
         verifyNever(() => gateway.save(any(), any()));
         await bloc.close();
       });

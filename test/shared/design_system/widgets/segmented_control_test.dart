@@ -1,3 +1,5 @@
+import 'dart:ui' show LocaleStringAttribute;
+
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/segmented_control.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +59,32 @@ void main() {
         isFocusable: true,
       ),
     );
+    handle.dispose();
+  });
+
+  testWidgets('a label in its own language carries that language to the screen reader (review 11, copy 10)', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      themedApp(
+        BazaarSegmentedControl<String>(
+          semanticLabel: 'Language',
+          selected: 'en',
+          onSelected: (_) {},
+          segments: const [
+            BazaarSegment(value: 'en', label: 'English', locale: Locale('en')),
+            BazaarSegment(value: 'fa', label: 'فارسی', locale: Locale('fa')),
+          ],
+        ),
+      ),
+    );
+
+    final label = tester.getSemantics(find.text('فارسی')).getSemanticsData().attributedLabel;
+    expect(label.string, 'فارسی');
+    expect(label.attributes.whereType<LocaleStringAttribute>().map((attribute) => attribute.locale), [
+      const Locale('fa'),
+    ]);
     handle.dispose();
   });
 

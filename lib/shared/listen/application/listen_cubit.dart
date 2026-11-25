@@ -129,9 +129,13 @@ final class ListenCubit extends Cubit<ListenState> {
   }
 
   /// The part the module [module] of [track] goes on from when started, null for its head; null while it is read.
-  int? keptAt(String module, Track track) {
+  /// With its [count] of parts, a place kept for another count, as in another language, is none: [start] drops it, and
+  /// the button said Resume (review 11, content 2).
+  int? keptAt(String module, Track track, {int? count}) {
     if (_session case final session? when session.module == module && session.track == track) return null;
-    return _places[listenPlaceKey(module, track)]?.index;
+    final place = _places[listenPlaceKey(module, track)];
+    if (place == null || (count != null && place.count != count)) return null;
+    return place.index;
   }
 
   /// The parts of the module being read; none while none is.
@@ -368,8 +372,10 @@ final class ListenOn extends ListenState {
   final bool playing;
   final double rate;
 
-  /// Whether it is reading the module [key] of [track].
-  bool reads(String key, Track track) => module == key && this.track == track;
+  /// Whether it is reading the module [key] of [track], and in [language] when one is named: a reading in another
+  /// language is another document's parts (review 11, content 2).
+  bool reads(String key, Track track, {String? language}) =>
+      module == key && this.track == track && (language == null || this.language == language);
 
   @override
   List<Object?> get props => [module, track, title, language, index, count, playing, rate];

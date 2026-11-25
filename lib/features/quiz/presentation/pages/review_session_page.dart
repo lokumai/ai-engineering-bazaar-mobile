@@ -56,6 +56,9 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   /// How an endless session draws its next card; null for the others.
   ReviewItem? Function(ReviewItem last)? _draw;
 
+  /// The reader's day the cards were chosen on, which a Today's review counts its answers on.
+  int? _day;
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -92,6 +95,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
               TermItem() => null,
             },
             inReview: counted,
+            reviewDay: counted ? _day : null,
           ),
         ),
         draw: _draw,
@@ -120,8 +124,9 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
       _draw = (last) => draw(last: last.key);
       return [?draw()];
     }
+    final day = _day = dayNumber(clock.now());
     final keys = switch (widget.kind) {
-      ReviewKind.today => pool.today(history, dayNumber(clock.now())),
+      ReviewKind.today => pool.today(history, day),
       ReviewKind.wrong => pool.wrong(history),
       ReviewKind.endless => const <String>[],
     };

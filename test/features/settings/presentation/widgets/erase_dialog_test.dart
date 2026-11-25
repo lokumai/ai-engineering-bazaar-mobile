@@ -122,7 +122,7 @@ void main() {
     await keep(tester);
 
     await open(tester, data: bloc);
-    expect(find.text('NOTHING RECORDED ON THIS DEVICE'), findsOneWidget);
+    expect(find.text('NO MODULE PROGRESS ON THIS DEVICE'), findsOneWidget);
   });
 
   // Review 10, finding 9: a backup made earlier in the visit may hold less than the phone does now.

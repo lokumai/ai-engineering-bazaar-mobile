@@ -48,7 +48,8 @@ class AboutBloc extends Bloc<AboutEvent, AboutState> {
   }
 
   void _fail(String path, Object error, Emitter<AboutState> emit) {
-    _log.warn('story document {} unreadable: {}', [path, error]);
+    _log.warn('story document unreadable: {}', [error.runtimeType]);
+    _log.debug('story document {} unreadable: {}', [path, error]);
     emit(const AboutFailed());
   }
 }

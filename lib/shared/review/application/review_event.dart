@@ -12,12 +12,15 @@ final class ReviewStarted extends ReviewEvent {
 /// The card [key] was answered, [right] or not: in a module's quiz, in Today's review ([inReview]), or in Wrong
 /// answers. [length] is the module quiz's length for a question.
 final class ReviewAnswered extends ReviewEvent {
-  const ReviewAnswered({required this.key, required this.right, this.length, this.inReview = false});
+  const ReviewAnswered({required this.key, required this.right, this.length, this.inReview = false, this.reviewDay});
 
   final String key;
   final bool right;
   final int? length;
   final bool inReview;
+
+  /// The day the Today's review answered in was opened on, which alone it counts on.
+  final int? reviewDay;
 }
 
 /// The term [key] was looked up, in the glossary or in a module's text (plan 13.3).

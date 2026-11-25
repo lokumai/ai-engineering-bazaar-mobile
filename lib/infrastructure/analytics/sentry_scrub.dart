@@ -67,7 +67,9 @@ SentryEvent sentryBeforeSend(SentryEvent event) {
   if (exceptions != null) {
     for (final ex in exceptions) {
       final v = ex.value;
-      if (v != null) ex.value = _maskText(v);
+      // A FormatException's text quotes the source it failed on, as a stored record's JSON: only its first line, the
+      // message, is sent (review 11, native 2).
+      if (v != null) ex.value = _maskText(ex.type == 'FormatException' ? v.split('\n').first : v);
     }
   }
 
@@ -169,12 +171,24 @@ const Set<String> sentryNavigationTypes = {'didPush', 'didPop', 'didReplace'};
 /// and a transaction passes [sentryBeforeSendTransaction], which keeps the
 /// app start only.
 void installSentryScrubbers(SentryOptions options) {
-  options.beforeSend = (event, hint) => sentryBeforeSend(event);
-  options.beforeSendFeedback = (event, hint) => sentryBeforeSend(event);
+  options.beforeSend = (event, hint) => sentryBeforeSendError(event);
+  options.beforeSendFeedback = (event, hint) => sentryBeforeSendFeedback(event);
   options.beforeSendTransaction = (transaction, hint) => sentryBeforeSendTransaction(transaction);
   options.beforeBreadcrumb = (breadcrumb, hint) => sentryBeforeBreadcrumb(breadcrumb);
   options.enablePrintBreadcrumbs = false;
 }
+
+/// An error event as it leaves the device: [sentryBeforeSend], with no user. sentry_flutter's `LoadContextsIntegration`
+/// copies the native scope's user onto every Dart event, which is the installation id; docs/store-privacy.md and
+/// `privacy_crash` tie that id to the sessions and to Android's native crash and hang reports only (review 12, S2).
+SentryEvent sentryBeforeSendError(SentryEvent event) => sentryBeforeSend(event)..user = null;
+
+/// A Report a problem as it leaves the device: [sentryBeforeSend], with no user and no breadcrumbs. The same merge put
+/// the installation id and the native breadcrumb trail on it, though Report a problem says it carries the text, the
+/// app's version and the device only (review 12, S1).
+SentryEvent sentryBeforeSendFeedback(SentryEvent event) => sentryBeforeSend(event)
+  ..user = null
+  ..breadcrumbs = null;
 
 /// Keeps the app start transaction (`app.start`), how long the app took to
 /// open, and drops every other one before it leaves the device. The app has
@@ -232,12 +246,14 @@ String _maskText(String value) => _maskReading(maskEmails(maskSecrets(value)));
 
 /// A content path under `modules/` or `levels/`, or a course picture under `course-images/`, names what the reader
 /// opened; a report keeps only that it was one (review 3, finding 9; review 4, finding 7), as `privacy_crash` says a
-/// crash report holds nothing of what is read.
+/// crash report holds nothing of what is read. So do a site address or an app route under `courses/` or `sheets/`, a
+/// downloaded object's sha256 under `objects/` (the public index maps it to its module), and a transfer link's `#t=`
+/// payload, which carries the reader's progress (review 11, native 2).
 ///
 /// The white space is spelled out, so `NativeScrubPatterns.kt` holds the same pattern byte for byte and Android masks
 /// the same paths (review 6, finding 16).
 final readingPathPattern = RegExp(
-  r'(api/v1/(?:modules|levels)/|course-images/)[^\t\n\u000b\f\r \u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff,;)\]"]+',
+  r'(api/v1/(?:modules|levels)/|course-images/|(?:courses|sheets)/|objects/|#t=)[^\t\n\u000b\f\r \u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff,;)\]"]+',
 );
 
 String _maskReading(String value) => value.replaceAllMapped(readingPathPattern, (m) => '${m[1]}$secretMask');

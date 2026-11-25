@@ -210,6 +210,25 @@ void main() {
     expect(RegExp(r'^-dontobfuscate$', multiLine: true).hasMatch(rules), isTrue);
   });
 
+  // Opus review 11: R8 dropped the constructors of ML Kit's component registrars, built by reflection, and the release
+  // closed at every launch; debug builds and the device tests do not run R8, so nothing else saw it.
+  test('the Android release keeps the component registrars ML Kit builds by reflection', () {
+    final rules = File('android/app/proguard-rules.pro').readAsStringSync();
+    expect(rules, contains('-keep class * implements com.google.firebase.components.ComponentRegistrar { <init>(); }'));
+    final scanner = File('android/app/src/main/kotlin/dev/lokumai/bazaar/CodeScanner.kt').readAsStringSync();
+    expect(scanner, contains('private val scanner by lazy'), reason: 'the scanner is built at the first scan');
+  });
+
+  // Review 11, native 1: turning off the launcher entry the app was opened through can finish the activity, and a
+  // reading with it; no JVM test runs an activity, so the source is held.
+  test('the Android icon switch waits while a module is read aloud', () {
+    final activity = File('android/app/src/main/kotlin/dev/lokumai/bazaar/MainActivity.kt').readAsStringSync();
+    expect(activity, contains('if (speech?.readingShown == true) return'));
+    expect(activity, contains('it.onReadingEnded = { if (stopped) applyChosenIcon() }'));
+    final speech = File('android/app/src/main/kotlin/dev/lokumai/bazaar/Speech.kt').readAsStringSync();
+    expect(speech, contains('if (wasShown) onReadingEnded?.invoke()'));
+  });
+
   // Review 7, finding 17: each upload to a store takes the next build number, so only the version name is held.
   test('the first release is version 1.0.0, with any build number', () {
     expect(

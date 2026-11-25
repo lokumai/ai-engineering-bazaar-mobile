@@ -16,8 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The key of [spacing]'s segment.
 Key readingSpacingKey(ReadingSpacing spacing) => ValueKey('reading-spacing-${spacing.name}');
 
-/// The Reading settings page, from Settings' Reading settings row (plan 12.5): a paragraph drawn as a module's text is,
-/// in the chosen settings, then the text size on a slider, the line spacing, and the way back to the default. They
+/// The Reading settings page, from Settings' Reading settings row (plan 12.5): the text size on a slider, the line
+/// spacing and the way back to the default, then a paragraph drawn as a module's text is, in the chosen settings. They
 /// change a module's text only, never the menus; a note says so.
 class ReadingStylePage extends StatelessWidget {
   const ReadingStylePage({super.key});
@@ -52,35 +52,6 @@ class ReadingStylePage extends StatelessWidget {
           children: [
             SectionRule(title: s.settings_reading_style),
             const SizedBox(height: AppSpacing.lg),
-            Text(s.reading_preview, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
-            const SizedBox(height: AppSpacing.sm),
-            // As the reader draws a paragraph, so it shows what a module will look like.
-            DecoratedBox(
-              key: previewKey,
-              decoration: BoxDecoration(
-                color: colors.surfaceRaised,
-                border: Border.all(color: colors.line),
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: ReadingStyleScope(
-                  style: style,
-                  child: BlockList(
-                    blocks: [
-                      ParagraphBlock(inlines: [TextInline(text: s.reading_preview_text)], lead: false),
-                    ],
-                    render: BlockRenderContext(
-                      onLink: (_) {},
-                      webPage: null,
-                      headingKey: (_) => GlobalKey(),
-                      diagramThemes: diagramThemes,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
             Row(
               children: [
                 Expanded(child: Text(s.reading_size, style: theme.textTheme.titleSmall)),
@@ -127,6 +98,37 @@ class ReadingStylePage extends StatelessWidget {
                 key: resetKey,
                 onPressed: style == ReadingStyle.standard ? null : cubit.reset,
                 child: Text(s.reading_reset),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            // Under the controls, so the paragraph growing with a larger size or a wider spacing moves none of them
+            // under the finger (walk-through 2026-11-24).
+            Text(s.reading_preview, style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurfaceMuted)),
+            const SizedBox(height: AppSpacing.sm),
+            // As the reader draws a paragraph, so it shows what a module will look like.
+            DecoratedBox(
+              key: previewKey,
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                border: Border.all(color: colors.line),
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: ReadingStyleScope(
+                  style: style,
+                  child: BlockList(
+                    blocks: [
+                      ParagraphBlock(inlines: [TextInline(text: s.reading_preview_text)], lead: false),
+                    ],
+                    render: BlockRenderContext(
+                      onLink: (_) {},
+                      webPage: null,
+                      headingKey: (_) => GlobalKey(),
+                      diagramThemes: diagramThemes,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),

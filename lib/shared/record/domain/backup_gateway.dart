@@ -45,6 +45,15 @@ final class PickedBackupUnreadable extends PickedBackup {
   List<Object?> get props => const [];
 }
 
+/// A file was chosen, but it is larger than any backup the app writes, so it was refused before it was read (opus
+/// review 11, record finding 9: it was "could not be opened").
+final class PickedBackupTooLarge extends PickedBackup {
+  const PickedBackupTooLarge();
+
+  @override
+  List<Object?> get props => const [];
+}
+
 /// Hands a backup to the platform and picks a backup file to restore (spec 3.3.10).
 abstract interface class IBackupGateway {
   /// Offers [bytes] to the reader to keep as [filename]; a failed write throws.

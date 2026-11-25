@@ -8,10 +8,13 @@ import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.da
 import 'package:flutter/material.dart';
 
 /// Opens every trend in a sheet over the page, searched and filtered by year as the web's list under its scene is
-/// (`TrendBrowser.tsx`); the sheet closes on the stop chosen and returns its index, or null.
+/// (`TrendBrowser.tsx`); the sheet closes on the stop chosen and returns its index, or null. It opens over the whole
+/// app, as the Apprentice's own sheet does: in the shell's navigator the Apprentice's round button stood over its rows
+/// and opened its sheet on top of this one (walk-through 2026-11-24).
 Future<int?> showTrendListSheet(BuildContext context, {required CaravanRoad road, required int selected}) =>
     showModalBottomSheet<int>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
@@ -73,9 +76,15 @@ class _TrendListState extends State<TrendList> {
                       ),
                     ),
                   ),
-                  Text(
-                    s.caravan_trend_count(found.length),
-                    style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                  // Its own live node, as the catalog search's count is: a screen reader hears it change as the
+                  // reader types (review 11, copy 1).
+                  Semantics(
+                    container: true,
+                    liveRegion: true,
+                    child: Text(
+                      s.caravan_trend_count(found.length),
+                      style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
+                    ),
                   ),
                 ],
               ),
@@ -119,10 +128,13 @@ class _TrendListState extends State<TrendList> {
           SliverPadding(
             padding: const EdgeInsets.all(AppSpacing.xl),
             sliver: SliverToBoxAdapter(
-              child: Text(
-                s.caravan_no_trend,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  s.caravan_no_trend,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceMuted),
+                ),
               ),
             ),
           )

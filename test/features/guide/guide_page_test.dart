@@ -17,7 +17,7 @@ Future<void> _pump(WidgetTester tester, {TargetPlatform platform = TargetPlatfor
   addTearDown(router.dispose);
   await tester.pumpWidget(bazaarTestApp(router: router, platform: platform));
   await tester.pumpAndSettle();
-  final row = find.text('How the bazaar works');
+  final row = find.text('How the Bazaar works');
   await tester.scrollUntilVisible(row, 200);
   await tester.tap(row);
   await tester.pumpAndSettle();

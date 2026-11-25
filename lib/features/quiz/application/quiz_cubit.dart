@@ -28,6 +28,9 @@ final class QuizCubit extends Cubit<QuizState> {
   /// Whether this attempt's results were shown; Start over begins a new attempt.
   bool _finished = false;
 
+  /// Whether this attempt was scored: its results were shown, so Start over loses no score.
+  bool get finished => _finished;
+
   static List<QuizItem> _nonEmpty(List<QuizItem> items) {
     if (items.isEmpty) throw ArgumentError.value(items, 'items', 'A quiz needs at least one question');
     return items;

@@ -544,8 +544,17 @@ class _Results extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
+        // Each row is read question first, then whether it was right, as the module quiz's recap is; merged, it read
+        // ", correct" before the question (review 11, copy 4).
         for (var i = 0; i < items.length && i < total; i++)
-          MergeSemantics(
+          Semantics(
+            container: true,
+            excludeSemantics: true,
+            label:
+                '${i + 1}. ${switch (items[i]) {
+                  QuestionItem(:final item) => item.question,
+                  TermItem(:final term) => term.name,
+                }}${finished.results[i] ?? false ? s.quiz_recap_correct : s.quiz_recap_wrong}',
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
@@ -560,7 +569,6 @@ class _Results extends StatelessWidget {
                     finished.results[i] ?? false ? Icons.check : Icons.close,
                     size: 20,
                     color: finished.results[i] ?? false ? BazaarFixedColors.success : colors.fault,
-                    semanticLabel: finished.results[i] ?? false ? s.quiz_recap_correct : s.quiz_recap_wrong,
                   ),
                   Expanded(
                     child: Text(switch (items[i]) {

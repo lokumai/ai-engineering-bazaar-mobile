@@ -616,10 +616,10 @@ class S {
     );
   }
 
-  /// `Listening stopped. Where it was left is kept; try again in a moment.`
+  /// `Listening stopped. Your place is kept; try again in a moment.`
   String get listen_not_started {
     return Intl.message(
-      'Listening stopped. Where it was left is kept; try again in a moment.',
+      'Listening stopped. Your place is kept; try again in a moment.',
       name: 'listen_not_started',
       desc: '',
       args: [],
@@ -826,6 +826,16 @@ class S {
     return Intl.message('See what is written For Everyone', name: 'reader_see_everyone', desc: '', args: []);
   }
 
+  /// `The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.`
+  String get record_not_read {
+    return Intl.message(
+      'The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.',
+      name: 'record_not_read',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Not saved: {reason}. Back up to a file to keep it.`
   String record_not_saved(String reason) {
     return Intl.message(
@@ -861,10 +871,12 @@ class S {
     return Intl.message('Questions on this module', name: 'quiz_title', desc: '', args: []);
   }
 
-  /// `{count} questions on the main points of this module`
+  /// `{count, plural, =1{1 question on the main point of this module} other{{count} questions on the main points of this module}}`
   String quiz_subtitle(int count) {
-    return Intl.message(
-      '$count questions on the main points of this module',
+    return Intl.plural(
+      count,
+      one: '1 question on the main point of this module',
+      other: '$count questions on the main points of this module',
       name: 'quiz_subtitle',
       desc: '',
       args: [count],
@@ -884,6 +896,26 @@ class S {
   /// `Start over`
   String get quiz_start_over {
     return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);
+  }
+
+  /// `Start the quiz over?`
+  String get quiz_start_over_title {
+    return Intl.message('Start the quiz over?', name: 'quiz_start_over_title', desc: '', args: []);
+  }
+
+  /// `The answers on this quiz start again; Practice keeps those already given.`
+  String get quiz_start_over_body {
+    return Intl.message(
+      'The answers on this quiz start again; Practice keeps those already given.',
+      name: 'quiz_start_over_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep going`
+  String get quiz_start_over_keep {
+    return Intl.message('Keep going', name: 'quiz_start_over_keep', desc: '', args: []);
   }
 
   /// `Correct.`
@@ -1150,9 +1182,9 @@ class S {
     );
   }
 
-  /// `NOTHING RECORDED ON THIS DEVICE`
+  /// `NO MODULE PROGRESS ON THIS DEVICE`
   String get data_tally_nothing {
-    return Intl.message('NOTHING RECORDED ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
+    return Intl.message('NO MODULE PROGRESS ON THIS DEVICE', name: 'data_tally_nothing', desc: '', args: []);
   }
 
   /// `Erase`
@@ -1175,9 +1207,14 @@ class S {
     );
   }
 
-  /// `The quiz scores on this device are erased too.`
+  /// `The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.`
   String get erase_scores {
-    return Intl.message('The quiz scores on this device are erased too.', name: 'erase_scores', desc: '', args: []);
+    return Intl.message(
+      'The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.',
+      name: 'erase_scores',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `A device backup may still hold an earlier copy of your progress.`
@@ -1255,10 +1292,10 @@ class S {
     );
   }
 
-  /// `Update the app to read it. The stored record is kept on this device unchanged.`
+  /// `Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.`
   String get quarantine_newer_note {
     return Intl.message(
-      'Update the app to read it. The stored record is kept on this device unchanged.',
+      'Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.',
       name: 'quarantine_newer_note',
       desc: '',
       args: [],
@@ -1765,10 +1802,10 @@ class S {
     );
   }
 
-  /// `How the bazaar works`
+  /// `How the Bazaar works`
   String get guide_title {
     return Intl.message(
-      'How the bazaar works',
+      'How the Bazaar works',
       name: 'guide_title',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1845,10 +1882,10 @@ class S {
     );
   }
 
-  /// `The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.`
+  /// `The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.`
   String get guide_offline {
     return Intl.message(
-      'The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.',
+      'The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.',
       name: 'guide_offline',
       desc: 'Welcome\'s first-launch guide (plan 1X).',
       args: [],
@@ -1880,10 +1917,10 @@ class S {
     return Intl.message('Privacy', name: 'privacy_title', desc: '', args: []);
   }
 
-  /// `This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.`
+  /// `This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.`
   String get privacy_no_data {
     return Intl.message(
-      'This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.',
+      'This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.',
       name: 'privacy_no_data',
       desc: '',
       args: [],
@@ -1900,10 +1937,10 @@ class S {
     );
   }
 
-  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.`
+  /// `The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub's; the app keeps none.`
   String get privacy_download {
     return Intl.message(
-      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.',
+      'The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub\'s; the app keeps none.',
       name: 'privacy_download',
       desc: '',
       args: [],
@@ -1930,6 +1967,16 @@ class S {
     );
   }
 
+  /// `Listen reads a module aloud with the device's own voice, and the app sends nothing for it. When the device has no voice installed for the module's language, its speech engine may use an online voice from the engine's maker.`
+  String get privacy_listen {
+    return Intl.message(
+      'Listen reads a module aloud with the device\'s own voice, and the app sends nothing for it. When the device has no voice installed for the module\'s language, its speech engine may use an online voice from the engine\'s maker.',
+      name: 'privacy_listen',
+      desc: 'Privacy: Listen uses the device\'s text-to-speech; with no offline voice installed, the engine may use its maker\'s network voice (review 11, native 10). Device, not phone, as listen_no_voice says.',
+      args: [],
+    );
+  }
+
   /// `Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.`
   String get privacy_feedback_form {
     return Intl.message(
@@ -1940,20 +1987,20 @@ class S {
     );
   }
 
-  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
+  /// `When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.`
   String get privacy_crash {
     return Intl.message(
-      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.',
+      'When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.',
       name: 'privacy_crash',
       desc: '',
       args: [],
     );
   }
 
-  /// `For any question about personal data, write to us.`
+  /// `For any question about personal data, write to the address below.`
   String get privacy_contact {
     return Intl.message(
-      'For any question about personal data, write to us.',
+      'For any question about personal data, write to the address below.',
       name: 'privacy_contact',
       desc: '',
       args: [],
@@ -1965,10 +2012,10 @@ class S {
     return Intl.message('Report a problem', name: 'feedback_title', desc: '', args: []);
   }
 
-  /// `Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.`
+  /// `Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.`
   String get feedback_intro {
     return Intl.message(
-      'Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.',
+      'Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.',
       name: 'feedback_intro',
       desc: '',
       args: [],
@@ -2423,15 +2470,15 @@ class S {
     );
   }
 
-  /// `Start the apprentice over?`
+  /// `Start the Apprentice over?`
   String get pocket_reset_title {
-    return Intl.message('Start the apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
+    return Intl.message('Start the Apprentice over?', name: 'pocket_reset_title', desc: '', args: []);
   }
 
-  /// `It forgets every token it read and starts again at level 0. The course and its progress stay as they are.`
+  /// `It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.`
   String get pocket_reset_body {
     return Intl.message(
-      'It forgets every token it read and starts again at level 0. The course and its progress stay as they are.',
+      'It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.',
       name: 'pocket_reset_body',
       desc: '',
       args: [],
@@ -2458,33 +2505,39 @@ class S {
     );
   }
 
-  /// `modules read`
-  String get pocket_stat_modules {
-    return Intl.message(
-      'modules read',
+  /// `{count, plural, =1{module read} other{modules read}}`
+  String pocket_stat_modules(int count) {
+    return Intl.plural(
+      count,
+      one: 'module read',
+      other: 'modules read',
       name: 'pocket_stat_modules',
       desc: 'Under a number: the course modules the apprentice has read.',
-      args: [],
+      args: [count],
     );
   }
 
-  /// `words known`
-  String get pocket_stat_words {
-    return Intl.message(
-      'words known',
+  /// `{count, plural, =1{word known} other{words known}}`
+  String pocket_stat_words(int count) {
+    return Intl.plural(
+      count,
+      one: 'word known',
+      other: 'words known',
       name: 'pocket_stat_words',
       desc: 'Under a number: the words the apprentice knows.',
-      args: [],
+      args: [count],
     );
   }
 
-  /// `tokens eaten`
-  String get pocket_stat_tokens {
-    return Intl.message(
-      'tokens eaten',
+  /// `{count, plural, =1{token eaten} other{tokens eaten}}`
+  String pocket_stat_tokens(int count) {
+    return Intl.plural(
+      count,
+      one: 'token eaten',
+      other: 'tokens eaten',
       name: 'pocket_stat_tokens',
       desc: 'Under a number: the tokens the apprentice was fed and read.',
-      args: [],
+      args: [count],
     );
   }
 
@@ -2503,7 +2556,7 @@ class S {
     return Intl.message(
       'Apprentice',
       name: 'settings_pocket_button',
-      desc: 'The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab.',
+      desc: 'The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Practice tab.',
       args: [],
     );
   }
@@ -2553,10 +2606,10 @@ class S {
     return Intl.message('Body', name: 'wardrobe_body', desc: 'The wardrobe\'s tab of bodies.', args: []);
   }
 
-  /// `Each level of the apprentice unlocks something new to wear.`
+  /// `Each level of the Apprentice unlocks something new to wear.`
   String get wardrobe_note {
     return Intl.message(
-      'Each level of the apprentice unlocks something new to wear.',
+      'Each level of the Apprentice unlocks something new to wear.',
       name: 'wardrobe_note',
       desc: 'Under the wardrobe\'s choices.',
       args: [],
@@ -2853,9 +2906,9 @@ class S {
     );
   }
 
-  /// `This tour waits in How the bazaar works.`
+  /// `This tour waits in How the Bazaar works.`
   String get tour_settings_guide {
-    return Intl.message('This tour waits in How the bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
+    return Intl.message('This tour waits in How the Bazaar works.', name: 'tour_settings_guide', desc: '', args: []);
   }
 
   /// `Take the tour again`
@@ -3009,9 +3062,14 @@ class S {
     return Intl.message('That is the module. Its quiz checks what stayed.', name: 'brief_end', desc: '', args: []);
   }
 
-  /// `{step} of {count}`
+  /// `That is the module.`
+  String get brief_end_no_quiz {
+    return Intl.message('That is the module.', name: 'brief_end_no_quiz', desc: '', args: []);
+  }
+
+  /// `Card {step} of {count}`
   String brief_step(int step, int count) {
-    return Intl.message('$step of $count', name: 'brief_step', desc: '', args: [step, count]);
+    return Intl.message('Card $step of $count', name: 'brief_step', desc: '', args: [step, count]);
   }
 
   /// `Previous card`
@@ -3072,14 +3130,9 @@ class S {
     return Intl.message('Quizzes by level', name: 'practice_quizzes', desc: '', args: []);
   }
 
-  /// `{right} of {total} right at the last answer`
+  /// `{right} of {total} right last time`
   String practice_latest(int right, int total) {
-    return Intl.message(
-      '$right of $total right at the last answer',
-      name: 'practice_latest',
-      desc: '',
-      args: [right, total],
-    );
+    return Intl.message('$right of $total right last time', name: 'practice_latest', desc: '', args: [right, total]);
   }
 
   /// `Card {step} of {count}`
@@ -3316,10 +3369,10 @@ class S {
     );
   }
 
-  /// `Nothing to send yet: no module is completed or ticked.`
+  /// `Nothing to send yet: no module is completed and no checklist item is ticked.`
   String get data_send_empty {
     return Intl.message(
-      'Nothing to send yet: no module is completed or ticked.',
+      'Nothing to send yet: no module is completed and no checklist item is ticked.',
       name: 'data_send_empty',
       desc: '',
       args: [],
@@ -3339,6 +3392,16 @@ class S {
   /// `Share this module`
   String get reader_share {
     return Intl.message('Share this module', name: 'reader_share', desc: '', args: []);
+  }
+
+  /// `Your stored progress could not be read and was set aside. Settings says more.`
+  String get home_record_set_aside {
+    return Intl.message(
+      'Your stored progress could not be read and was set aside. Settings says more.',
+      name: 'home_record_set_aside',
+      desc: 'A line on Home while the stored progress was set aside at this launch; a tap opens Settings.',
+      args: [],
+    );
   }
 }
 

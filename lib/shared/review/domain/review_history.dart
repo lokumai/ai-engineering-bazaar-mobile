@@ -32,15 +32,24 @@ final class ReviewHistory extends Equatable {
   bool get isEmpty => cards.isEmpty && done == 0;
 
   /// The history after [key] was answered on [today], [right] or not; [length] is its module quiz's length for a
-  /// question, and [inReview] counts the card in Today's review.
-  ReviewHistory answered(String key, {required bool right, required int today, int? length, bool inReview = false}) {
+  /// question, and [inReview] counts the card in Today's review. A Today's review opened on [reviewDay] counts only on
+  /// that day: answered after midnight it counted against the new day's cards (review 12, F4).
+  ReviewHistory answered(
+    String key, {
+    required bool right,
+    required int today,
+    int? length,
+    bool inReview = false,
+    int? reviewDay,
+  }) {
     var history = length == null || isTermKey(key) ? this : seenLength(moduleOfKey(key), length);
     final cards = {...history.cards, key: ReviewCard.after(history.cards[key], right: right, today: today)};
+    final counted = inReview && (reviewDay ?? today) == today;
     return ReviewHistory(
       cards: cards,
       lengths: history.lengths,
-      day: inReview ? today : history.day,
-      done: inReview ? history.doneOn(today) + 1 : history.done,
+      day: counted ? today : history.day,
+      done: counted ? history.doneOn(today) + 1 : history.done,
     );
   }
 

@@ -508,6 +508,8 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
         command.isEnabled = false
       }
       commands.removeAll()
+      // The reading ended or rested: the sound a pause kept goes back to other apps.
+      letSoundGo()
       return
     }
     if commands.isEmpty {
@@ -626,28 +628,49 @@ final class Speech: NSObject, AVSpeechSynthesizerDelegate {
   private func end(_ id: Int) {
     guard ended.insert(id).inserted else { return }
     channel.invokeMethod("done", arguments: id)
-    // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once.
+    // Other sound comes back up once nothing is said: a moment later, as a new speak follows at once. A paused
+    // reading, still on the lock screen, keeps the sound: iOS lets an app in the background take it again only while it
+    // holds it, and Play on the lock screen said nothing after a pause (the owner's iPhone, 2026-11-25).
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-      guard let self, self.parts.isEmpty, !self.synthesizer.isSpeaking else { return }
-      try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+      guard let self, self.commands.isEmpty else { return }
+      self.letSoundGo()
     }
   }
 
+  /// Gives the sound back to other apps once nothing is said and no reading is shown.
+  private func letSoundGo() {
+    guard parts.isEmpty, !synthesizer.isSpeaking else { return }
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+  }
+
+  /// Runs [work] on the main thread, at once when called there: Apple does not say which thread the synthesizer calls
+  /// its delegate on, and [parts], [ended] and the channel are the main thread's (review 11, native 5). The closure
+  /// holds the utterance, so its identifier is not reused before it runs.
+  private func onMain(_ work: @escaping () -> Void) {
+    if Thread.isMainThread { work() } else { DispatchQueue.main.async(execute: work) }
+  }
+
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
-    guard let part = parts[ObjectIdentifier(utterance)] else { return }
-    channel.invokeMethod("part", arguments: ["id": part.id, "index": part.index])
+    onMain { [weak self] in
+      guard let self, let part = self.parts[ObjectIdentifier(utterance)] else { return }
+      self.channel.invokeMethod("part", arguments: ["id": part.id, "index": part.index])
+    }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
-    if part.last { end(part.id) }
+    onMain { [weak self] in
+      guard let self, let part = self.parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+      if part.last { self.end(part.id) }
+    }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-    guard let part = parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
-    let id = part.id
-    parts = parts.filter { $0.value.id != id }
-    end(id)
+    onMain { [weak self] in
+      guard let self, let part = self.parts.removeValue(forKey: ObjectIdentifier(utterance)) else { return }
+      let id = part.id
+      self.parts = self.parts.filter { $0.value.id != id }
+      self.end(id)
+    }
   }
 }
 
@@ -668,9 +691,19 @@ enum LaunchPicture {
     return colour(UInt32(ground))
   }
 
-  /// Keeps [ground] for the next launch and repaints iOS's launch pictures in it.
+  /// The ground and the app's build the launch pictures were last painted for.
+  static let paintedKey = "BazaarLaunchPainted"
+
+  /// Keeps [ground] for the next launch and repaints iOS's launch pictures in it, only when the look or the app's build
+  /// changed since they were last painted: the Dart side names the look on every launch, and rewriting iOS's own files
+  /// each time could race with iOS writing them (review 11, native 6). iOS draws the pictures again after an update,
+  /// which a new build paints again.
   static func keep(_ ground: UInt32) {
     UserDefaults.standard.set(Int(ground), forKey: groundKey)
+    let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+    let painted = "\(ground) \(build)"
+    guard UserDefaults.standard.string(forKey: paintedKey) != painted else { return }
+    UserDefaults.standard.set(painted, forKey: paintedKey)
     paint(ground)
   }
 

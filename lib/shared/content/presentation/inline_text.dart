@@ -6,6 +6,7 @@ import 'package:ai_engineering_bazaar/shared/content/presentation/text_find.dart
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_fonts.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_tokens.g.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -120,7 +121,8 @@ class _InlineTextState extends State<InlineText> implements TextFindTarget {
     );
     if (boxes.isEmpty) return null;
     final rect = boxes.map((box) => box.toRect()).reduce((a, b) => a.expandToInclude(b));
-    return rect.shift(paragraph.localToGlobal(Offset.zero));
+    final at = laidOutTopLeft(paragraph);
+    return at == null ? null : rect.shift(at);
   }
 
   /// The paragraph [object] is or holds.
@@ -251,7 +253,18 @@ class _SpanBuilder {
           padding: EdgeInsetsDirectional.only(end: 0.3 * fontSize),
           child: Transform.translate(
             offset: Offset(0, 0.18 * fontSize),
-            child: LogoView(src: src, mono: mono, fontSize: fontSize),
+            // Inside a link the logo is part of it, as on the web, and a tap on it opens the link; the link's text
+            // already names it to a screen reader (review 11, content 6).
+            child: switch (recognizer) {
+              final TapGestureRecognizer tap? => ExcludeSemantics(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: tap.onTap,
+                  child: LogoView(src: src, mono: mono, fontSize: fontSize),
+                ),
+              ),
+              _ => LogoView(src: src, mono: mono, fontSize: fontSize),
+            },
           ),
         ),
       ),

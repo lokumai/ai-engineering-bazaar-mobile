@@ -16,10 +16,15 @@ import 'package:ai_engineering_bazaar/shared/design_system/widgets/lattice_band.
 import 'package:ai_engineering_bazaar/shared/design_system/widgets/level_hue.dart';
 import 'package:ai_engineering_bazaar/shared/language/language_cubit.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
+import 'package:ai_engineering_bazaar/shared/listen/application/listen_cubit.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/speech.dart';
+import 'package:ai_engineering_bazaar/shared/listen/domain/spoken_parts.dart';
+import 'package:ai_engineering_bazaar/shared/listen/presentation/listen_bar.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -621,4 +626,68 @@ void main() {
 
     await expectPlatformGuidelines(tester, platform: defaultTargetPlatform);
   });
+
+  // Review 11, content 3: the Listen bar pushed the module read aloud again when it was already under the page shown,
+  // so it stood twice in the stack, each copy keeping its own place.
+  testWidgets('the Listen bar goes back to the module read aloud that is under the page, rather than open it twice', (
+    tester,
+  ) async {
+    final router = const AppRouterFactory(initialLocation: '/sheets').create();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(bazaarTestApp(router: router, speech: _Holding()));
+    await tester.pumpAndSettle();
+    unawaited(router.push('/courses/alpha/first'));
+    await tester.pumpAndSettle();
+    tester
+        .element(find.byType(BazaarShell))
+        .read<ListenCubit>()
+        .start(
+          const ListenSession(
+            module: 'alpha/first',
+            track: Track.engineers,
+            title: 'First',
+            language: 'en',
+            parts: [SpokenPart(block: 0, text: 'One.')],
+          ),
+        );
+    await tester.pump();
+    unawaited(router.push('/courses/alpha/second'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(ListenBar));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/courses/alpha/first');
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/sheets');
+  });
+}
+
+/// A voice that goes on saying the first part until it is stopped.
+final class _Holding implements ISpeech {
+  @override
+  Future<bool> canSpeak(String language) async => true;
+
+  @override
+  Future<void> speak(
+    List<String> texts, {
+    required String language,
+    required double rate,
+    required void Function(int index) onPart,
+    String title = '',
+    String? noticeLanguage,
+  }) => Completer<void>().future;
+
+  @override
+  Stream<void> get interruptions => const Stream.empty();
+
+  @override
+  Stream<void> get resumes => const Stream.empty();
+
+  @override
+  Future<void> show(ShownReading? reading) async {}
+
+  @override
+  Future<void> stop() async {}
 }

@@ -54,6 +54,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
     on<UndoTicked>(_onUndoTicked);
     on<QuarantineExportRequested>(_onQuarantineExportRequested, transformer: EventTransformers.dropConcurrent());
     on<QuarantineDeleteConfirmed>(_onQuarantineDeleteConfirmed);
+    on<DataLinesLeft>(_onLinesLeft);
   }
 
   static final _log = AppLogger.getLogger('DataBloc');
@@ -86,6 +87,17 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
   Future<void> close() {
     _stopTicker();
     return super.close();
+  }
+
+  void _onLinesLeft(DataLinesLeft event, Emitter<DataState> emit) {
+    emit(
+      state._with(
+        backup: null,
+        restore: null,
+        quarantineCopy: null,
+        reset: state.reset is ResetCounting ? state.reset : null,
+      ),
+    );
   }
 
   /// Web `onExport` (`DataPanel.tsx:104-137`); `lastExport` is marked only after a confirmed save or share (A19).
@@ -131,6 +143,7 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
       final next = switch (picked) {
         PickedBackupCancelled() => state,
         PickedBackupUnreadable() => state._with(restore: RestoreOutcome.unreadable),
+        PickedBackupTooLarge() => state._with(restore: RestoreOutcome.tooLarge),
         PickedBackupBytes(:final bytes) => switch (parseEnvelope(envelopeTextFrom(decodeRecordBytes(bytes)))) {
           EnvelopeEmpty() => state._with(restore: RestoreOutcome.empty),
           EnvelopeQuarantine(reason: QuarantineReason.newer) => state._with(restore: RestoreOutcome.newer),
@@ -279,7 +292,12 @@ interface class DataBloc extends Bloc<DataEvent, DataState> {
         return;
       }
       final bytes = stored.quarantine;
-      if (bytes == null) throw StateError('no set-aside record to save');
+      // Gone since the notice showed (another erase, a delete): said, rather than a silent error (opus review 11,
+      // record finding 9).
+      if (bytes == null) {
+        emit(state._with(busy: DataBusy.idle, quarantineCopy: QuarantineCopy.notWritten));
+        return;
+      }
       final BackupSaveResult result;
       try {
         result = await _gateway.save(bytes, 'hl-record-quarantine-${nowIso().substring(0, 10)}.json');

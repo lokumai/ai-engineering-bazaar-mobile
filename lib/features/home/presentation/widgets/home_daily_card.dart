@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_engineering_bazaar/features/home/application/daily_card.dart';
+import 'package:ai_engineering_bazaar/features/home/application/daily_another_cubit.dart';
 import 'package:ai_engineering_bazaar/features/home/application/daily_card_cubit.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/content/application/content_bloc.dart';
@@ -52,9 +53,6 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
 
   late int _day = dayNumber(clock.now());
 
-  /// How many times Show another was pressed on [_day].
-  int _another = 0;
-
   /// The card last shown, kept while the next one is read.
   Widget? _last;
   Timer? _midnight;
@@ -91,7 +89,6 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
     if (day != _day && mounted) {
       setState(() {
         _day = day;
-        _another = 0;
       });
     }
   }
@@ -117,7 +114,9 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
     if (index == null || record == null) return _framed(context, null);
     final track = context.watch<TrackCubit>().state;
     final language = context.watch<LanguageCubit>().state;
-    final choice = dailyChoice(index, track, record, language: language, day: _day, another: _another);
+    // How many times Show another was pressed today, kept above the page (review 11, features 7).
+    final another = context.select<DailyAnotherCubit, int>((cubit) => cubit.on(_day));
+    final choice = dailyChoice(index, track, record, language: language, day: _day, another: another);
     // Finished since the day began, it stays the day's card, marked completed.
     final completed = choice != null && trackView(record, track).signedOff(choice.moduleKey, Track.engineers) != null;
     final position = choice == null
@@ -139,7 +138,7 @@ class _HomeDailyCardState extends State<HomeDailyCard> with AutomaticKeepAliveCl
               BazaarPaths.module(track, card.moduleKey),
               extra: ReaderTarget(fragment: card.sectionId, glance: true),
             ),
-            onAnother: () => setState(() => _another++),
+            onAnother: () => context.read<DailyAnotherCubit>().another(_day),
           ),
           DailyCardLoading() => _last,
           DailyCardNone() => _last = null,

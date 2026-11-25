@@ -345,6 +345,46 @@ void main() {
     expect(pressed<FilledButton>(tester, 'Next'), isNull);
   });
 
+  // Walk-through 2026-11-24: Start over threw away a quiz under way without asking.
+  testWidgets('Start over asks first while a quiz is under way, and Keep going keeps its answers', (tester) async {
+    await tester.pumpWidget(panelApp(items));
+    await toggle(tester);
+    await tapText(tester, 'One');
+    expect(find.text('Correct.'), findsOneWidget);
+
+    await tapText(tester, 'Start over');
+    expect(find.text('Start the quiz over?'), findsOneWidget);
+    await tapText(tester, 'Keep going');
+    expect(find.text('Correct.'), findsOneWidget, reason: 'the answer kept');
+
+    await tapText(tester, 'Start over');
+    await tester.tap(find.byKey(const ValueKey('quiz-start-over-confirm')));
+    await tester.pumpAndSettle();
+    expect(find.text('Correct.'), findsNothing);
+    expect(find.text('Question 1 of 3'), findsOneWidget);
+  });
+
+  // Review 12, F1: with every question answered and See results not tapped, the attempt was not scored yet.
+  testWidgets('Start over asks with every question answered before the results, not after them', (tester) async {
+    await tester.pumpWidget(panelApp(items));
+    await toggle(tester);
+    await tapText(tester, 'One');
+    await tapText(tester, 'Next');
+    await tapText(tester, 'Two');
+    await tapText(tester, 'Next');
+    await tapText(tester, 'Three');
+
+    await tapText(tester, 'Start over');
+    expect(find.text('Start the quiz over?'), findsOneWidget);
+    await tapText(tester, 'Keep going');
+
+    await tapText(tester, 'See results');
+    await tapText(tester, 'Back to the questions');
+    await tapText(tester, 'Start over');
+    expect(find.text('Start the quiz over?'), findsNothing, reason: 'scored once its results showed');
+    expect(find.text('Question 1 of 3'), findsOneWidget);
+  });
+
   testWidgets('Start over on the results clears the answers', (tester) async {
     await pumpPanel(tester, items.sublist(0, 1));
     await toggle(tester);

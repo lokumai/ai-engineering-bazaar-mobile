@@ -89,6 +89,18 @@ final class FileTextStore {
     }
   });
 
+  /// Moves the file to `<path>.unreadable`, over an older one there, so the next write does not replace what this
+  /// version of the app could not read: a damaged file, or one a later version wrote in its own shape (opus review 11,
+  /// record finding 7). A file that cannot be moved stays, and the next write replaces it, as before.
+  Future<void> setAside() => _inTurn(() async {
+    try {
+      final file = await _file();
+      if (await file.exists()) await file.rename('${file.path}.unreadable');
+    } on FileSystemException catch (error) {
+      _log.warn('{} not set aside: {}', [_path, error]);
+    }
+  });
+
   /// Removes the file; a file that is not there stays so.
   Future<void> delete() => _inTurn(() async {
     try {

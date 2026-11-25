@@ -27,9 +27,11 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode|colorMode|navigation|touchscreen|mcc|mnc"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+            <!-- Not fontWeightAdjustment (review 11, native 11): Flutter reads Bold text only as the activity starts, so a
+                 change kept here showed no bold until the next launch; the activity is made again instead. -->
             <!-- One activity only (plan 18.5): a link from another app reaches the one running through onNewIntent
                  instead of starting a second copy, with a second engine writing the same record files. -->
             <!-- Specifies an Android theme to apply to this Activity as soon as

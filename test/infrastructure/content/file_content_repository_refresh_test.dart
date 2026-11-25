@@ -139,6 +139,21 @@ void main() {
     expect((await fixtureRepository(cacheRoot).open()).origin, ContentOrigin.bundled);
   });
 
+  // Review 11, content 9: a document published under another module's path would record progress under that module.
+  test('a document that is not the module its path names is format; the current content stays', () async {
+    final refreshed = jsonDecode(utf8.decode(published[refreshedPath]!)) as Map<String, Object?>;
+    final other = utf8.encode(jsonEncode({...refreshed, 'key': 'zeta/elsewhere'}));
+    published[refreshedPath] = other;
+    final index = jsonDecode(utf8.decode(published['api/v1/index.json']!)) as Map<String, Object?>;
+    publishIndex({
+      'files': {...index['files']! as Map<String, Object?>, refreshedPath: sha256.convert(other).toString()},
+    });
+    final repository = await opened(serving(published));
+
+    expect(await repository.refresh(), const ContentRefreshFailed(code: ContentErrorCode.format));
+    expect(await moduleTitle(repository), 'First Module');
+  });
+
   test('an object the cache already holds is not fetched again', () async {
     final site = Map.of(published);
     final requested = <Uri>[];
@@ -192,6 +207,21 @@ void main() {
       expect(await restarted.refresh(), ContentUpdated(index: publishedIndex()));
       expect(requested.map((url) => url.path), ['/api/index.json', '/api/v1/index.json']);
       expect(File('$content/pending').existsSync(), isFalse);
+      expect(await moduleTitle(restarted), 'Refreshed Module');
+    });
+
+    // Review 11, content 8: an object already there was skipped unchecked, so a damaged one was never fetched again.
+    test('an object left by it that no longer matches its name is fetched again', () async {
+      final first = await opened(serving(published));
+      Directory('$content/current.tmp/x').createSync(recursive: true);
+      expect(await first.refresh(), const ContentRefreshFailed(code: ContentErrorCode.storage));
+      File('$content/objects/${refreshedSha(published)}').writeAsStringSync('damaged');
+
+      final requested = <Uri>[];
+      final restarted = fixtureRepository(cacheRoot, site: serving(published, requested: requested));
+      await restarted.open();
+      expect(await restarted.refresh(), ContentUpdated(index: publishedIndex()));
+      expect(requested.map((url) => url.path), contains('/$refreshedPath'));
       expect(await moduleTitle(restarted), 'Refreshed Module');
     });
 

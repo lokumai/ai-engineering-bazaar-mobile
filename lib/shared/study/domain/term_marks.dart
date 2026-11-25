@@ -38,14 +38,27 @@ Map<TextInline, List<TermMark>> termMarks(List<Block> body, List<GlossaryTerm> t
   forms.sort((a, b) => b.$1.length.compareTo(a.$1.length));
   final marks = LinkedHashMap<TextInline, List<TermMark>>.identity();
   if (forms.isEmpty) return marks;
+  // The forms by their first two characters, each with its place in [forms]: a text tries only the forms whose start
+  // stands at one of its word starts, in [forms]' order, rather than every form of the track (review 11, content 4).
+  final byStart = <String, List<int>>{};
+  for (final (place, (form, _)) in forms.indexed) {
+    (byStart[form.substring(0, 2)] ??= []).add(place);
+  }
 
   var seen = <GlossaryTerm>{};
   var skipping = false;
 
   void markText(TextInline inline) {
     final lower = _fold(inline.text);
+    final tried = <int>{};
+    for (var at = 0; at + 1 < lower.length; at++) {
+      if (at > 0 && _letter.hasMatch(lower[at - 1])) continue;
+      if (byStart[lower.substring(at, at + 2)] case final places?) tried.addAll(places);
+    }
+    if (tried.isEmpty) return;
     final found = <TermMark>[];
-    for (final (form, term) in forms) {
+    for (final place in tried.toList()..sort()) {
+      final (form, term) = forms[place];
       if (seen.contains(term)) continue;
       for (var at = lower.indexOf(form); at >= 0; at = lower.indexOf(form, at + 1)) {
         final end = at + form.length;

@@ -68,7 +68,9 @@ class AppRouterFactory {
       debugLogDiagnostics: kDebugMode,
       errorPageBuilder: (context, state) {
         // The page tells the user in the app language; the router's own error, in English, goes to the log.
-        _log.warn('No page for location {}: {}', [state.uri, state.error]);
+        // The location may name a module: a release logs only that there was none (review 11, architecture 11).
+        _log.warn('No page for a location');
+        _log.debug('No page for location {}: {}', [state.uri, state.error]);
         return appRootPage(
           state: state,
           // An error state has no route name or path, so the page is named after the not-found route.
@@ -200,8 +202,8 @@ class AppRouterFactory {
   }
 
   /// The reader of the module the path names, scrolled to the heading a module link or a search hit passes as `extra`,
-  /// the words searched marked, with the quiz feature's panel in its quiz slot (Decision A38). For Everyone documents
-  /// carry no quiz, so their slot stays empty.
+  /// the words searched marked, with the quiz feature's panel in its quiz slot (Decision A38). A module has one quiz on
+  /// both tracks (web D137): a For Everyone document carries it too where the module has one.
   static Widget _reader(GoRouterState state, Track track) {
     final target = ReaderTarget.of(state.extra);
     return ModuleReaderPage(

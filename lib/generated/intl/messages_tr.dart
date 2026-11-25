@@ -38,7 +38,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m8(title) => "Kervan ${title} durağında";
 
-  static String m9(index, count) => "Durak ${index} / ${count}";
+  static String m9(index, count) => "Durak ${index}, toplam ${count}";
 
   static String m10(level) => "Güç: 5 üzerinden ${level}";
 
@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m35(title) => "Sesli okunuyor: ${title}. Aç";
 
-  static String m36(at, count) => "${at} / ${count}";
+  static String m36(at, count) => "${at}, toplam ${count}";
 
   static String m37(rate) => "Hız ${rate}";
 
@@ -110,68 +110,74 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m43(level) => "Çırak, seviye ${level}. Sevmek için dokun.";
 
-  static String m44(count, level) => "Seviye ${level} için ${count}";
+  static String m44(count) => "${Intl.plural(count, other: 'okunan modül')}";
 
-  static String m45(count) =>
+  static String m45(count) => "${Intl.plural(count, other: 'yenen token')}";
+
+  static String m46(count) => "${Intl.plural(count, other: 'bilinen kelime')}";
+
+  static String m47(count, level) => "Seviye ${level} için ${count}";
+
+  static String m48(count) =>
       "${Intl.plural(count, zero: 'Önce bir modülü tamamla', other: 'Tamamlanan ${count} modül')}";
 
-  static String m46(count) => "${Intl.plural(count, zero: 'Henüz terim yok', other: '${count} terim')}";
+  static String m49(count) => "${Intl.plural(count, zero: 'Henüz terim yok', other: '${count} terim')}";
 
-  static String m47(right, total) => "Son cevaplarda ${total} sorudan ${right} doğru";
+  static String m50(right, total) => "Son cevaplarda ${total} sorudan ${right} doğru";
 
-  static String m48(count, minutes) =>
+  static String m51(count, minutes) =>
       "${Intl.plural(count, one: '1 kart', other: '${count} kart')}, yaklaşık ${minutes} dk";
 
-  static String m49(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
+  static String m52(count) => "${Intl.plural(count, zero: 'Şu an yok', one: '1 soru', other: '${count} soru')}";
 
-  static String m50(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
+  static String m53(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quiz')}";
 
-  static String m51(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
+  static String m54(taken, total) => "${total} quizden ${taken} tanesi çözüldü";
 
-  static String m52(index, count) => "Soru ${index} / ${count}";
+  static String m55(index, count) => "Soru ${index}, toplam ${count}";
 
-  static String m53(previous, best, total) =>
+  static String m56(previous, best, total) =>
       "Bir önceki: ${total} sorudan ${previous}. En iyi: ${total} sorudan ${best}.";
 
-  static String m54(score, total) => "${total} sorudan ${score}";
+  static String m57(score, total) => "${total} sorudan ${score}";
 
-  static String m55(count) => "Bu modülün ana noktalarına dair ${count} soru";
+  static String m58(count) => "Bu modülün ana noktalarına dair ${count} soru";
 
-  static String m56(letter) => "Bu değil. Doğru cevap ${letter}.";
+  static String m59(letter) => "Bu değil. Doğru cevap ${letter}.";
 
-  static String m57(date) => "${date} tarihinde tamamlandı";
+  static String m60(date) => "${date} tarihinde tamamlandı";
 
-  static String m58(position, total) => "${total} eşleşmeden ${position}.";
+  static String m61(position, total) => "${total} eşleşmeden ${position}.";
 
-  static String m59(minutes) => "${minutes} dk";
+  static String m62(minutes) => "${minutes} dk";
 
-  static String m60(number, count) => "MODÜL ${number} / ${count}";
+  static String m63(number, count) => "MODÜL ${number}, TOPLAM ${count}";
 
-  static String m61(label) => "${label} · Planlandı";
+  static String m64(label) => "${label} · Planlandı";
 
-  static String m62(hash, date) => "Rev. ${hash} · ${date}";
+  static String m65(hash, date) => "Rev. ${hash} · ${date}";
 
-  static String m63(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
+  static String m66(reason) => "Kaydedilmedi: ${reason}. Korumak için bir dosyaya yedekle.";
 
-  static String m64(step, count) => "Kart ${step}/${count}";
+  static String m67(step, count) => "Kart ${step}, toplam ${count}";
 
-  static String m65(right, total) => "${total} karttan ${right} tanesi doğru";
+  static String m68(right, total) => "${total} karttan ${right} tanesi doğru";
 
-  static String m66(section) => "Bu konu şurada: ${section}";
+  static String m69(section) => "Bu konu şurada: ${section}";
 
-  static String m67(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
+  static String m70(reason) => "Güncelleme kontrolü tamamlanmadı: ${reason}.";
 
-  static String m68(step, count) => "Adım ${step}, toplam ${count}";
+  static String m71(step, count) => "Adım ${step}, toplam ${count}";
 
-  static String m69(count) => "${Intl.plural(count, other: '${count} modül tamamlandı')}";
+  static String m72(count) => "${Intl.plural(count, other: '${count} modül tamamlandı')}";
 
-  static String m70(count) => "${Intl.plural(count, other: '${count} kontrol listesi maddesi işaretli')}";
+  static String m73(count) => "${Intl.plural(count, other: '${count} kontrol listesi maddesi işaretli')}";
 
-  static String m71(name, level) => "${name}, ${level}. seviyede açılır";
+  static String m74(name, level) => "${name}, ${level}. seviyede açılır";
 
-  static String m72(name) => "${name}, giyili";
+  static String m75(name) => "${name}, giyili";
 
-  static String m73(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
+  static String m76(hat, head, body) => "Robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -204,6 +210,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_region": m4,
     "block_unknown": MessageLookupByLibrary.simpleMessage("Bu bölüm için uygulamanın daha yeni bir sürümü gerekiyor."),
     "brief_end": MessageLookupByLibrary.simpleMessage("Modül bu kadar. Quizi, aklında kalanı yoklar."),
+    "brief_end_no_quiz": MessageLookupByLibrary.simpleMessage("Modül bu kadar."),
     "brief_next": MessageLookupByLibrary.simpleMessage("Sonraki kart"),
     "brief_open_module": MessageLookupByLibrary.simpleMessage("Modülü aç"),
     "brief_previous": MessageLookupByLibrary.simpleMessage("Önceki kart"),
@@ -300,12 +307,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("Bu dosya açılamadı."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Dosyadan geri yüklendi."),
     "data_send_empty": MessageLookupByLibrary.simpleMessage(
-      "Henüz gönderilecek bir şey yok: tamamlanan ya da işaretlenen modül yok.",
+      "Henüz gönderilecek bir şey yok: tamamlanan modül ya da işaretlenen kontrol listesi maddesi yok.",
     ),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("Paylaşım menüsü açılmadı."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Web sitesine gönder"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("İlerlemen bir bağlantıya sığmayacak kadar uzun."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA KAYITLI BİR ŞEY YOK"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("BU CİHAZDA MODÜL İLERLEMESİ YOK"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Geri al"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Diyagramı tam ekran aç"),
@@ -322,14 +329,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scope": MessageLookupByLibrary.simpleMessage(
       "Bu işlem kaydı bu cihazdan kaldırır. Uygulamanın okuyamadığı bir sürümden kalıp kenara ayrılan kopya da buna dahil.",
     ),
-    "erase_scores": MessageLookupByLibrary.simpleMessage("Bu cihazdaki quiz skorları da silinir."),
+    "erase_scores": MessageLookupByLibrary.simpleMessage(
+      "Bu cihazdaki quiz skorları, Pratik geçmişi ve her modülde kalınan okuma ve dinleme yerleri de silinir. Yedek dosyası bunları tutmaz.",
+    ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Bu cihazdaki bütün ilerleme silinsin mi?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("SİL"),
     "error_link_open_failed": m27,
     "feedback_failed": MessageLookupByLibrary.simpleMessage("Bildirim gönderilemedi. Daha sonra yeniden dene."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("Ne oldu"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
-      "Neyin ters gittiğini yaz. Bildirim; uygulamanın sürümü, cihazın modeli ve sistemiyle birlikte Sentry\'ye gider, ad ya da e-posta gitmez. Uygulama içindeki e-postaları ve diğer kişisel ayrıntıları cihazdan çıkmadan önce gizler.",
+      "Neyin ters gittiğini yaz. Bildirim; uygulamanın sürümü, cihazın modeli ve sistemiyle birlikte Sentry\'ye gider, ad ya da e-posta gitmez. Uygulama, bildirimdeki e-posta adreslerini cihazdan çıkmadan önce gizler; telefon numarası gibi başka kişisel bilgiler yazma.",
     ),
     "feedback_send": MessageLookupByLibrary.simpleMessage("Gönder"),
     "feedback_sending": MessageLookupByLibrary.simpleMessage("Gönderiliyor"),
@@ -350,7 +359,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Kısa modüller"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu cihazda kalır.",
+      "Kursun tamamı uygulamanın içinde ve bağlantı olmadan okunur. Hesap yok: ilerlemen bu cihazda kayıtlı.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("Bu cihazda, internetsiz"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Turu baştan izle"),
@@ -363,6 +372,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Yolun"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Bekleyen quiz"),
     "home_read_percent": m29,
+    "home_record_set_aside": MessageLookupByLibrary.simpleMessage(
+      "Kayıtlı ilerleme okunamadı ve kenara ayrıldı. Ayrıntısı Ayarlar\'da.",
+    ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("Bütün kataloğu gör"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Sıradaki"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Görseli tam ekran aç"),
@@ -453,15 +465,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_read_waiting": m41,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Baştan başlat"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
-      "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar. Kurs ve ilerlemen olduğu gibi kalır.",
+      "Okuduğu bütün tokenları unutur ve seviye 0\'dan yeniden başlar; açtığı kıyafetler ve app ikonları yeniden kilitlenir, kullandığın ikon kalır. Kurs ve ilerlemen olduğu gibi kalır.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Kalsın"),
     "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Çırak baştan başlasın mı?"),
     "pocket_says": m42,
     "pocket_stage_label": m43,
-    "pocket_stat_modules": MessageLookupByLibrary.simpleMessage("okunan modül"),
-    "pocket_stat_tokens": MessageLookupByLibrary.simpleMessage("yenen token"),
-    "pocket_stat_words": MessageLookupByLibrary.simpleMessage("bilinen kelime"),
+    "pocket_stat_modules": m44,
+    "pocket_stat_tokens": m45,
+    "pocket_stat_words": m46,
     "pocket_stats_title": MessageLookupByLibrary.simpleMessage("Öğrendikleri"),
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("Uyuyor. Uyandırmak için dokun."),
     "pocket_status_cold": MessageLookupByLibrary.simpleMessage("Soğuk: her seferinde en olası kelimeleri söylüyor."),
@@ -479,21 +491,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_status_unreadable": MessageLookupByLibrary.simpleMessage("Şu an bir modülü okuyamadı. Sonra yine dene."),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Sıcaklık"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Çırak"),
-    "pocket_to_next": m44,
+    "pocket_to_next": m47,
     "practice_brief": MessageLookupByLibrary.simpleMessage("Özet"),
-    "practice_brief_count": m45,
+    "practice_brief_count": m48,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "Tamamladığın bir modülün özeti ve temel terimleri, kart kart.",
     ),
     "practice_endless": MessageLookupByLibrary.simpleMessage("Sınırsız tekrar"),
     "practice_endless_lede": MessageLookupByLibrary.simpleMessage("Okuduklarını istediğin kadar pekiştir."),
     "practice_glossary": MessageLookupByLibrary.simpleMessage("Sözlük"),
-    "practice_glossary_count": m46,
-    "practice_latest": m47,
+    "practice_glossary_count": m49,
+    "practice_latest": m50,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("Seviyelere göre quizler"),
     "practice_start": MessageLookupByLibrary.simpleMessage("Başla"),
     "practice_today": MessageLookupByLibrary.simpleMessage("Günün tekrarı"),
-    "practice_today_cards": m48,
+    "practice_today_cards": m51,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("Bugünlük bu kadar"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("Sıradaki kartlar yarın gelir."),
     "practice_today_none": MessageLookupByLibrary.simpleMessage("Bugün tekrar edecek bir şey yok"),
@@ -502,22 +514,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Hatalı cevaplar"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Hepsini cevapla"),
-    "practice_wrong_count": m49,
+    "practice_wrong_count": m52,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("Şu an yanlış cevabın yok."),
-    "privacy_contact": MessageLookupByLibrary.simpleMessage("Kişisel verilerle ilgili her soru için bize yaz."),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage(
+      "Kişisel verilerle ilgili her soru için aşağıdaki adrese yaz.",
+    ),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama kişisel ayrıntıları cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. Sorun bildir\'den gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",
+      "Uygulama çöktüğünde, hatanın düzeltilebilmesi için Sentry\'ye bir çökme raporu gönderir. Uygulamanın sağlığını sürüm sürüm izlemek için ne zaman açılıp kapandığını, açılmasının ne kadar sürdüğünü ve ne zaman donduğunu da bu kuruluma ait rastgele bir numarayla Sentry\'ye bildirir. Bunların hiçbiri adını, ne okuduğunu ya da quiz cevaplarını içermez. Uygulama e-posta adreslerini, parolaları ve erişim anahtarlarını cihazdan çıkmadan önce gizler; Sentry IP adresini saklamaz. “Sorun bildir” ile gönderdiğin bir sorun da Sentry\'ye aynı şekilde gider.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
-      "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır, bizim değil.",
+      "Uygulama kursu web sitesinden indirir; site GitHub Pages\'te barındırılır. GitHub, güvenlik için her ziyaretçinin IP adresini kaydeder ve saklar. Bu kayıt GitHub\'ındır; uygulama böyle bir kayıt tutmaz.",
     ),
     "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
       "Ayarlar\'daki Geri bildirim, tarayıcında Google\'ın anonim bir formunu açar; uygulama bu forma hiçbir şey göndermez.",
     ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("GitHub Pages nedir?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub Genel Gizlilik Bildirimi"),
+    "privacy_listen": MessageLookupByLibrary.simpleMessage(
+      "Dinle, modülü cihazın kendi sesiyle okur; uygulama bunun için hiçbir şey göndermez. Cihazda modülün dilinde yüklü bir ses yoksa, cihazın konuşma motoru, motoru yapan şirketin çevrim içi bir sesini kullanabilir.",
+    ),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "Bu uygulamada hesap, reklam ve takip yoktur; uygulama kişisel veri toplamaz. Neyi nereye gönderdiği aşağıda.",
+      "Bu uygulamada hesap, reklam ve takip yoktur. Neyi nereye gönderdiği aşağıda; hiçbiri sana bağlanmaz.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "İlerlemen, quiz skorların ve ayarların bu cihazda ve açıksa cihazın kendi yedeğinde saklanır; uygulama onları başka bir yere göndermez. Ayarlar\'da İlerlemen bölümünden ilerlemeni yedekleyebilir ve geri yükleyebilir, ilerlemeni ve quiz skorlarını sıfırlayabilirsin.",
@@ -553,7 +570,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "UYGULAMANIN BU SÜRÜMÜ İLERLEMEYİ OKUYAMADI. OKUNMADI.",
     ),
     "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
-      "Okumak için uygulamayı güncelle. Kayıt bu cihazda olduğu gibi duruyor.",
+      "Şimdi bir kopyasını kaydet ve uygulamayı güncelledikten sonra geri yükle. Kayıt bu cihazda olduğu gibi duruyor.",
     ),
     "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
       "İLERLEME, UYGULAMANIN DAHA YENİ BİR SÜRÜMÜYLE YAZILMIŞ. OKUNMADI.",
@@ -564,28 +581,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Sorulara dön"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Doğru."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Bitti"),
-    "quiz_list_count": m50,
-    "quiz_list_taken": m51,
+    "quiz_list_count": m53,
+    "quiz_list_taken": m54,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
-    "quiz_progress": m52,
+    "quiz_progress": m55,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", doğru"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", yanlış"),
-    "quiz_score_before": m53,
-    "quiz_score_count": m54,
+    "quiz_score_before": m56,
+    "quiz_score_count": m57,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("doğru cevap"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("Sonuçları gör"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Baştan başla"),
-    "quiz_subtitle": m55,
+    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage(
+      "Bu quizdeki cevaplar baştan başlar; verilmiş cevaplar Pratik\'te kalır.",
+    ),
+    "quiz_start_over_keep": MessageLookupByLibrary.simpleMessage("Devam et"),
+    "quiz_start_over_title": MessageLookupByLibrary.simpleMessage("Quiz baştan başlasın mı?"),
+    "quiz_subtitle": m58,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Bu modülle ilgili sorular"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage("Bu quiz açılamadı. Kapatıp daha sonra yeniden dene."),
-    "quiz_wrong": m56,
+    "quiz_wrong": m59,
     "reader_auto_completed": MessageLookupByLibrary.simpleMessage("Tamamlandı olarak işaretlendi"),
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Kısmen yazıldı"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Yalnızca bölüm planı"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Başlamadan önce"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Kapat"),
-    "reader_completed_on": m57,
+    "reader_completed_on": m60,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Modülü tamamlama"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("İçindekiler"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("Kursun sonu"),
@@ -594,22 +616,22 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Arama işaretlerini kaldır"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Sonraki eşleşme"),
-    "reader_find_position": m58,
+    "reader_find_position": m61,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("Önceki eşleşme"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Bu modülü tamamlandı olarak işaretle"),
-    "reader_minutes": m59,
-    "reader_module_of": m60,
+    "reader_minutes": m62,
+    "reader_module_of": m63,
     "reader_next": MessageLookupByLibrary.simpleMessage("Sonraki"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage(
       "Bu modülün Herkes için sürümü henüz planlama aşamasında.",
     ),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("Neler yapabileceksin"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("Bu sayfada"),
-    "reader_pager_planned": m61,
+    "reader_pager_planned": m64,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Önceki"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için sürümünü oku"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("Yeniden dene"),
-    "reader_revision": m62,
+    "reader_revision": m65,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Açıklama"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Madde"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Bölüm planı"),
@@ -634,7 +656,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("Rahat"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("Sıkı"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("Geniş"),
-    "record_not_saved": m63,
+    "record_not_read": MessageLookupByLibrary.simpleMessage(
+      "Bu cihazda kayıtlı ilerleme okunamadı ve üzerine hiçbir şey yazılmıyor. Yeniden okumak için dokun.",
+    ),
+    "record_not_saved": m66,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("uygulama dosyasına yazamadı"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("bu cihazda yer kalmadı"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("kayıt, uygulamanın yazabileceğinden büyük"),
@@ -648,9 +673,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_back_home": MessageLookupByLibrary.simpleMessage("Ana sayfaya dön"),
     "review_empty": MessageLookupByLibrary.simpleMessage("Gösterilecek kart yok."),
     "review_finish": MessageLookupByLibrary.simpleMessage("Bitir"),
-    "review_progress": m64,
-    "review_result": m65,
-    "review_section_link": m66,
+    "review_progress": m67,
+    "review_result": m68,
+    "review_section_link": m69,
     "review_term": MessageLookupByLibrary.simpleMessage("Terim"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("Bu hangi terim?"),
     "settings_about": MessageLookupByLibrary.simpleMessage("Hakkında"),
@@ -678,7 +703,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "Uygulama her açılışta siteye daha yeni bir sürüm olup olmadığını sorar.",
     ),
-    "settings_refresh_failed": m67,
+    "settings_refresh_failed": m70,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Uygulama açıldığından beri kontrol edilmedi"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Yeni içerik, uygulamanın daha yeni bir sürümünü gerektiriyor. Almak için uygulamayı güncelle.",
@@ -729,13 +754,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Gezdir"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Turu geç"),
-    "tour_step": m68,
+    "tour_step": m71,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Bir sekme aç, sana orayı göstereyim."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("Mühendisler için"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("Herkes için"),
     "transfer_add": MessageLookupByLibrary.simpleMessage("Bu cihazdaki ilerlemeye ekle"),
     "transfer_added": MessageLookupByLibrary.simpleMessage("Eklendi. Bu cihazdan hiçbir şey silinmedi."),
-    "transfer_completed": m69,
+    "transfer_completed": m72,
     "transfer_empty": MessageLookupByLibrary.simpleMessage("Bu bağlantıda ilerleme yok."),
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
       "Eklemek bu cihazdakileri korur: buradan hiçbir şey silinmez.",
@@ -744,7 +769,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Eklenmedi. Bu cihazda hiçbir şey değişmedi; tekrar denemek için yeniden ekle.",
     ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Yeni bir şey yok: hepsi bu cihazda zaten var."),
-    "transfer_ticked": m70,
+    "transfer_ticked": m73,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Bağlantıdaki ilerleme"),
     "transfer_too_large": MessageLookupByLibrary.simpleMessage(
       "Eklenmedi: bununla bu cihazdaki ilerleme, uygulamanın saklayabileceğinden büyük olurdu. Hiçbir şey değişmedi.",
@@ -755,10 +780,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Gövde"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Şapka"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Kafa"),
-    "wardrobe_item_locked": m71,
-    "wardrobe_item_worn": m72,
+    "wardrobe_item_locked": m74,
+    "wardrobe_item_worn": m75,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage("Çırağın her seviyesi giyecek yeni bir şey açar."),
-    "wardrobe_preview": m73,
+    "wardrobe_preview": m76,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
       "Web sitesinde üstteki Progress\'i aç ve Move to the app\'i seç. Çıkan kodu bu cihazla okut.",
     ),

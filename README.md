@@ -54,7 +54,7 @@ What is done and what is next: [docs/plan.md](docs/plan.md); what changed: [CHAN
 
 ## Privacy and crash reports
 
-The app collects no personal data; the site's [privacy note](https://ai-bazaar.lokum.dev/legend/#privacy) covers it too.
+The app has no account, no ads and no tracking, and nothing it sends is linked to a person; the site's [privacy note](https://ai-bazaar.lokum.dev/legend/#privacy) covers it too.
 Only a prod release built with a Sentry DSN sends anything: crash reports, hangs, how long the app took to open, release-health sessions, and what a reader sends under Report a problem.
 Every report is scrubbed on the device; the Sentry project is in the EU region and keeps no IP address. No route names, screenshots, replay or other traces are sent.
 The DSN stays out of git, in a `sentry_dsn.json` beside `pubspec.yaml`:

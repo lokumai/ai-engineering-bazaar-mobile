@@ -135,6 +135,25 @@ void main() {
     expect(style.state, ReadingStyle.standard);
   });
 
+  // Walk-through 2026-11-24: the preview over the controls grew with the size and moved the spacing under the finger.
+  testWidgets('a larger size moves none of the controls: the preview is under them', (tester) async {
+    final style = ReadingStyleCubit();
+    final router = await _pumpSettings(tester, style: style);
+    router.push('/settings/reading');
+    await tester.pumpAndSettle();
+    final wide = find.byKey(readingSpacingKey(ReadingSpacing.wide));
+    final reset = find.byKey(ReadingStylePage.resetKey);
+    final before = (tester.getTopLeft(wide), tester.getTopLeft(reset));
+
+    await style.chooseSize(ReadingSize.largest);
+    await tester.pumpAndSettle();
+    await style.chooseSpacing(ReadingSpacing.wide);
+    await tester.pumpAndSettle();
+
+    expect((tester.getTopLeft(wide), tester.getTopLeft(reset)), before);
+    expect(tester.getTopLeft(find.byKey(ReadingStylePage.previewKey)).dy, greaterThan(before.$2.dy));
+  });
+
   testWidgets('the page meets the accessibility guidelines', (tester) async {
     final router = await _pumpSettings(tester);
     router.push('/settings/reading');

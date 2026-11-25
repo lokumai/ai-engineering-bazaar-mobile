@@ -39,6 +39,9 @@ class ListenService : Service() {
         /** Whether the service runs, so a paused reading's notice is changed in place, never started again. */
         private var running = false
 
+        /** The service running, to leave the foreground while the reading is paused. */
+        private var instance: ListenService? = null
+
         /** The starts asked for and the stops waiting on them (plan 20.1). */
         private val starts = ListenStarts()
 
@@ -69,9 +72,13 @@ class ListenService : Service() {
          * Names [title], playing or paused, on the notice of the service running (plan 19.8): a paused reading keeps
          * its notice, with Play, until it ends.
          */
-        fun show(context: Context, title: String, playing: Boolean) {
+        fun show(context: Context, title: String, playing: Boolean, keepForeground: Boolean = false) {
             if (!running) return
             val service = context.applicationContext
+            // Paused, nothing is played: the service leaves the foreground and keeps its notice, which the reader may
+            // then swipe away; the next speak brings it back to the foreground (review 11, native 4). Paused for
+            // another app's short prompt, it stays, as the reading goes on by itself when the prompt ends.
+            if (!playing && !keepForeground) runCatching { instance?.stopForeground(STOP_FOREGROUND_DETACH) }
             runCatching {
                 service.getSystemService(NotificationManager::class.java)
                     .notify(NOTICE_ID, notice(service, title, playing))
@@ -85,6 +92,21 @@ class ListenService : Service() {
         fun stop(context: Context) {
             if (!starts.stop()) return
             runCatching { context.stopService(Intent(context, ListenService::class.java)) }
+            // A paused reading's notice is no longer the service's, so it does not go with it.
+            clearNotice(context)
+        }
+
+        /** Takes down a paused reading's notice left from an app ended before, when no service runs. */
+        fun clearStale(context: Context) {
+            if (!running) clearNotice(context)
+        }
+
+        /**
+         * Takes down the notice: a paused reading's stays after its service has gone, as after the app was ended in the
+         * background, with a Play that has no reading behind it.
+         */
+        fun clearNotice(context: Context) {
+            runCatching { context.getSystemService(NotificationManager::class.java).cancel(NOTICE_ID) }
         }
 
         /** [context]'s resources in [language], for the notice's words. */
@@ -133,7 +155,8 @@ class ListenService : Service() {
                 .setContentTitle(title.ifEmpty { words.getString(R.string.listen_reading) })
                 .setContentText(words.getString(if (playing) R.string.listen_reading else R.string.listen_paused))
                 .setContentIntent(open)
-                .setOngoing(true)
+                // A paused reading's notice is no longer a foreground service's, and may be swiped away.
+                .setOngoing(playing)
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_TRANSPORT)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -158,7 +181,14 @@ class ListenService : Service() {
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_PLAY) {
-            onPlay?.invoke()
+            val play = onPlay
+            if (play == null) {
+                // The app was ended since the reading was paused: no reading to play, so its notice goes.
+                clearNotice(this)
+                if (!running) stopSelf(startId)
+            } else {
+                play()
+            }
             return START_NOT_STICKY
         }
         val title = intent?.getStringExtra(EXTRA_TITLE).orEmpty()
@@ -173,7 +203,10 @@ class ListenService : Service() {
                 startForeground(NOTICE_ID, notice)
             }
         }
-        if (foreground.isSuccess) running = true
+        if (foreground.isSuccess) {
+            running = true
+            instance = this
+        }
         if (starts.taken(foreground = foreground.isSuccess)) stopSelf()
         // A service Android stopped is not started again: the voice it kept going has stopped with it.
         return START_NOT_STICKY
@@ -181,6 +214,7 @@ class ListenService : Service() {
 
     override fun onDestroy() {
         running = false
+        if (instance === this) instance = null
         super.onDestroy()
     }
 

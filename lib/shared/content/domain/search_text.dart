@@ -71,8 +71,9 @@ String? joinedVariant(String query, String lang) {
 final wordPattern = RegExp(r'[^\s\p{P}]+', unicode: true);
 
 /// The pieces of a drawn word the search also finds alone, as [tokenize] splits it: the parts a non-joiner joins and
-/// the Latin and Persian runs where the scripts meet.
-final _piece = RegExp('[A-Za-z0-9]+|[\u0600-\u06ff]+|[^A-Za-z0-9\u0600-\u06ff\u200c]+');
+/// the Persian runs and the runs of any other letters where the scripts meet. The other run was ASCII only, so a Turkish
+/// letter split a word, and "de" was marked inside "değer", which the catalog never found (review 11, content 1).
+final _piece = RegExp('[\u0600-\u06ff]+|[^\u0600-\u06ff\u200c]+');
 
 /// Where in [text] the words that answer [terms] in [lang] stand, as start and end: a whole word when it answers, else
 /// each of its pieces that does, so "ها" is marked in "ماژول\u200cها" as the catalog found it there.

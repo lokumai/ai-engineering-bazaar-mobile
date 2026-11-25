@@ -41,6 +41,7 @@ sealed class SiteLink extends Equatable {
       ['courses', final level, final module] when _slug.hasMatch(level) && _slug.hasMatch(module) => SiteModule(
         track,
         '$level/$module',
+        fragment: _heading(uri),
       ),
       _ => null,
     };
@@ -61,6 +62,23 @@ sealed class SiteLink extends Equatable {
 
   /// The segment of the For Everyone pages.
   static const everyoneSegment = 'everyone';
+
+  /// The heading a module link names after `#`, as the site writes its ids; anything else opens the module at its top
+  /// (the release build's walk-through, review 11: the heading was dropped).
+  static String? _heading(Uri uri) {
+    if (!uri.hasFragment) return null;
+    final String id;
+    try {
+      id = Uri.decodeComponent(uri.fragment);
+    } on ArgumentError {
+      return null;
+    } on FormatException {
+      return null;
+    }
+    return _headingId.hasMatch(id) ? id : null;
+  }
+
+  static final _headingId = RegExp(r'^[\p{L}\p{N}_-]{1,120}$', unicode: true);
 
   static SiteLink? _transfer(Uri uri) {
     final String? payload;
@@ -95,15 +113,16 @@ final class SiteLevel extends SiteLink {
   List<Object?> get props => [track, level];
 }
 
-/// The module [moduleKey] (`<level>/<module>`) in [track].
+/// The module [moduleKey] (`<level>/<module>`) in [track], at the heading [fragment] when the link names one.
 final class SiteModule extends SiteLink {
-  const SiteModule(this.track, this.moduleKey);
+  const SiteModule(this.track, this.moduleKey, {this.fragment});
 
   final Track track;
   final String moduleKey;
+  final String? fragment;
 
   @override
-  List<Object?> get props => [track, moduleKey];
+  List<Object?> get props => [track, moduleKey, fragment];
 }
 
 /// A progress transfer, its [payload] as the link carries it (`#t=`).

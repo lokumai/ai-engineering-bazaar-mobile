@@ -362,7 +362,7 @@
   "listen": "Listen",
   "listen_resume": "Resume listening",
   "listen_no_voice": "This device has no voice for this language. Add one in the device's Settings to listen.",
-  "listen_not_started": "Listening stopped. Where it was left is kept; try again in a moment.",
+  "listen_not_started": "Listening stopped. Your place is kept; try again in a moment.",
   "listen_play": "Play",
   "listen_pause": "Pause",
   "listen_back": "Previous paragraph",
@@ -509,6 +509,8 @@
   "@reader_read_for_engineers": {},
   "reader_see_everyone": "See what is written For Everyone",
   "@reader_see_everyone": {},
+  "record_not_read": "The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.",
+  "@record_not_read": {},
   "record_not_saved": "Not saved: {reason}. Back up to a file to keep it.",
   "@record_not_saved": {
     "placeholders": {
@@ -525,7 +527,7 @@
   "@record_not_saved_too_large": {},
   "quiz_title": "Questions on this module",
   "@quiz_title": {},
-  "quiz_subtitle": "{count} questions on the main points of this module",
+  "quiz_subtitle": "{count, plural, =1{1 question on the main point of this module} other{{count} questions on the main points of this module}}",
   "@quiz_subtitle": {
     "placeholders": {
       "count": {
@@ -548,6 +550,12 @@
   "@quiz_back_to_module": {},
   "quiz_start_over": "Start over",
   "@quiz_start_over": {},
+  "quiz_start_over_title": "Start the quiz over?",
+  "@quiz_start_over_title": {},
+  "quiz_start_over_body": "The answers on this quiz start again; Practice keeps those already given.",
+  "@quiz_start_over_body": {},
+  "quiz_start_over_keep": "Keep going",
+  "@quiz_start_over_keep": {},
   "quiz_correct": "Correct.",
   "@quiz_correct": {},
   "quiz_wrong": "Not this one. The answer is {letter}.",
@@ -700,7 +708,7 @@
       }
     }
   },
-  "data_tally_nothing": "NOTHING RECORDED ON THIS DEVICE",
+  "data_tally_nothing": "NO MODULE PROGRESS ON THIS DEVICE",
   "@data_tally_nothing": {},
   "erase_mark": "Erase",
   "@erase_mark": {},
@@ -708,7 +716,7 @@
   "@erase_title": {},
   "erase_scope": "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
   "@erase_scope": {},
-  "erase_scores": "The quiz scores on this device are erased too.",
+  "erase_scores": "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.",
   "@erase_scores": {},
   "erase_backup_statement": "A device backup may still hold an earlier copy of your progress.",
   "@erase_backup_statement": {},
@@ -734,7 +742,7 @@
   "@quarantine_label": {},
   "quarantine_newer_readout": "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
   "@quarantine_newer_readout": {},
-  "quarantine_newer_note": "Update the app to read it. The stored record is kept on this device unchanged.",
+  "quarantine_newer_note": "Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.",
   "@quarantine_newer_note": {},
   "quarantine_malformed_readout": "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
   "@quarantine_malformed_readout": {},
@@ -920,7 +928,7 @@
   "@track_everyone": {
     "description": "The For Everyone track's name; the bundle names tracks in English only."
   },
-  "guide_title": "How the bazaar works",
+  "guide_title": "How the Bazaar works",
   "@guide_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -961,7 +969,7 @@
   "@guide_offline_title": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
-  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
+  "guide_offline": "The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.",
   "@guide_offline": {
     "description": "Welcome's first-launch guide (plan 1X)."
   },
@@ -975,11 +983,11 @@
   },
   "privacy_title": "Privacy",
   "@privacy_title": {},
-  "privacy_no_data": "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
+  "privacy_no_data": "This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.",
   "@privacy_no_data": {},
   "privacy_on_device": "Your progress, your quiz scores and your settings are saved on this device, and in the device's own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
   "@privacy_on_device": {},
-  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub's record, not ours.",
+  "privacy_download": "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub's; the app keeps none.",
   "@privacy_download": {},
   "privacy_scanner_android": "Scan the code uses Google's code scanner from Google Play services. Google receives the device's model and system, the app's version, a random number for this installation and how the scan went, as its own record.",
   "@privacy_scanner_android": {
@@ -989,17 +997,21 @@
   "@privacy_scanner_ios": {
     "description": "Privacy, on iOS: Scan the code reads the code in the app. Names no other platform (App Store guideline 2.3.10)."
   },
+  "privacy_listen": "Listen reads a module aloud with the device's own voice, and the app sends nothing for it. When the device has no voice installed for the module's language, its speech engine may use an online voice from the engine's maker.",
+  "@privacy_listen": {
+    "description": "Privacy: Listen uses the device's text-to-speech; with no offline voice installed, the engine may use its maker's network voice (review 11, native 10). Device, not phone, as listen_no_voice says."
+  },
   "privacy_feedback_form": "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
   "@privacy_feedback_form": {
     "description": "Privacy: the feedback form is Google's, opened by the reader; the app sends nothing to it."
   },
-  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
+  "privacy_crash": "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app's health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
   "@privacy_crash": {},
-  "privacy_contact": "For any question about personal data, write to us.",
+  "privacy_contact": "For any question about personal data, write to the address below.",
   "@privacy_contact": {},
   "feedback_title": "Report a problem",
   "@feedback_title": {},
-  "feedback_intro": "Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.",
+  "feedback_intro": "Write what went wrong. The report goes to Sentry with the app's version and the device's model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.",
   "@feedback_intro": {},
   "feedback_field": "What happened",
   "@feedback_field": {},
@@ -1200,9 +1212,9 @@
   "@pocket_reset": {
     "description": "The button that starts the pocket model again at level 0."
   },
-  "pocket_reset_title": "Start the apprentice over?",
+  "pocket_reset_title": "Start the Apprentice over?",
   "@pocket_reset_title": {},
-  "pocket_reset_body": "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
+  "pocket_reset_body": "It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.",
   "@pocket_reset_body": {},
   "pocket_reset_keep": "Keep it",
   "@pocket_reset_keep": {
@@ -1212,17 +1224,32 @@
   "@pocket_stats_title": {
     "description": "The heading, at the foot of the apprentice's sheet, over what it has read and learnt."
   },
-  "pocket_stat_modules": "modules read",
+  "pocket_stat_modules": "{count, plural, =1{module read} other{modules read}}",
   "@pocket_stat_modules": {
-    "description": "Under a number: the course modules the apprentice has read."
+    "description": "Under a number: the course modules the apprentice has read.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-  "pocket_stat_words": "words known",
+  "pocket_stat_words": "{count, plural, =1{word known} other{words known}}",
   "@pocket_stat_words": {
-    "description": "Under a number: the words the apprentice knows."
+    "description": "Under a number: the words the apprentice knows.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-  "pocket_stat_tokens": "tokens eaten",
+  "pocket_stat_tokens": "{count, plural, =1{token eaten} other{tokens eaten}}",
   "@pocket_stat_tokens": {
-    "description": "Under a number: the tokens the apprentice was fed and read."
+    "description": "Under a number: the tokens the apprentice was fed and read.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "settings_customize": "Customize",
   "@settings_customize": {
@@ -1230,7 +1257,7 @@
   },
   "settings_pocket_button": "Apprentice",
   "@settings_pocket_button": {
-    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Quiz tab."
+    "description": "The title of the choice, on or off, that shows or hides the Apprentice: its corner on Home and its round button on the catalog, the Caravan and the Practice tab."
   },
   "settings_on": "On",
   "@settings_on": {
@@ -1256,7 +1283,7 @@
   "@wardrobe_body": {
     "description": "The wardrobe's tab of bodies."
   },
-  "wardrobe_note": "Each level of the apprentice unlocks something new to wear.",
+  "wardrobe_note": "Each level of the Apprentice unlocks something new to wear.",
   "@wardrobe_note": {
     "description": "Under the wardrobe's choices."
   },
@@ -1412,7 +1439,7 @@
   "@tour_settings_customize": {},
   "tour_settings_website": "Bring your progress from the website here, or send it there.",
   "@tour_settings_website": {},
-  "tour_settings_guide": "This tour waits in How the bazaar works.",
+  "tour_settings_guide": "This tour waits in How the Bazaar works.",
   "@tour_settings_guide": {},
   "guide_replay_tour": "Take the tour again",
   "@guide_replay_tour": {},
@@ -1472,7 +1499,9 @@
   "brief_terms": "Key Terms",
   "brief_take_quiz": "Take the quiz",
   "brief_end": "That is the module. Its quiz checks what stayed.",
-  "brief_step": "{step} of {count}",
+  "brief_end_no_quiz": "That is the module.",
+  "@brief_end_no_quiz": {},
+  "brief_step": "Card {step} of {count}",
   "@brief_step": {
     "placeholders": {
       "step": {
@@ -1500,7 +1529,7 @@
   "glossary_none": "No term matches.",
   "glossary_in": "In these modules",
   "practice_quizzes": "Quizzes by level",
-  "practice_latest": "{right} of {total} right at the last answer",
+  "practice_latest": "{right} of {total} right last time",
   "@practice_latest": {
     "placeholders": {
       "right": {
@@ -1606,12 +1635,16 @@
   "@website_to_title": {},
   "website_to_text": "Send your progress as a link, then open the link on the computer.",
   "@website_to_text": {},
-  "data_send_empty": "Nothing to send yet: no module is completed or ticked.",
+  "data_send_empty": "Nothing to send yet: no module is completed and no checklist item is ticked.",
   "@data_send_empty": {},
   "data_send_failed": "The share menu did not open.",
   "@data_send_failed": {},
   "data_send_too_large": "Your progress is too long to fit in a link.",
   "@data_send_too_large": {},
   "reader_share": "Share this module",
-  "@reader_share": {}
+  "@reader_share": {},
+  "home_record_set_aside": "Your stored progress could not be read and was set aside. Settings says more.",
+  "@home_record_set_aside": {
+    "description": "A line on Home while the stored progress was set aside at this launch; a tap opens Settings."
+  }
 }

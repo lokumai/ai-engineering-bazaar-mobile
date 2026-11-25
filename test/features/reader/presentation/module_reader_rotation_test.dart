@@ -1,6 +1,7 @@
 @Tags(['widget'])
 library;
 
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/section_spine.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -47,6 +48,8 @@ MockContentRepository _sections() {
 ScrollPosition _vertical(WidgetTester tester) => find
     .byType(Scrollable)
     .evaluate()
+    // The page's own, not the sections' beside it.
+    .where((e) => e.findAncestorWidgetOfExactType<SectionSpine>() == null)
     .map((e) => ((e as StatefulElement).state as ScrollableState).position)
     .singleWhere((position) => position.axis == Axis.vertical);
 
@@ -95,4 +98,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(_vertical(tester).pixels, greaterThan(0), reason: 'a narrower column, so not the same pixels');
   });
+
+  testWidgets('a reading size changed with the module open finds the same words (review 11, content 7)', (
+    tester,
+  ) async {
+    await _open(tester, const Size(400, 800));
+    await tester.drag(find.byWidgetPredicate((w) => w is SingleChildScrollView), const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    final before = _topParagraph(tester);
+    expect(before, contains('Section two'));
+
+    tester.platformDispatcher.textScaleFactorTestValue = 1.45;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+    expect(_topParagraph(tester), before);
+  });
+}
+
+/// The paragraph at the top of the reader's view.
+String _topParagraph(WidgetTester tester) {
+  final top = tester.getTopLeft(find.byWidgetPredicate((w) => w is SingleChildScrollView)).dy;
+  String? first;
+  var firstTop = double.infinity;
+  for (final name in const ['Section one', 'Section two', 'Section three']) {
+    for (var i = 0; i < 25; i++) {
+      final text = 'Paragraph $i of $name,';
+      final found = find.textContaining(text, findRichText: true, skipOffstage: false);
+      if (found.evaluate().isEmpty) continue;
+      final rect = tester.getRect(found.first);
+      if (rect.bottom > top + 1 && rect.top < firstTop) {
+        first = text;
+        firstTop = rect.top;
+      }
+    }
+  }
+  return first!;
 }

@@ -457,7 +457,10 @@ final class _DocumentReader {
     final align = List<CellAlign?>.unmodifiable(
       alignNode.list().map((cell) => cell.nullable((cell) => cell.named(CellAlign.values.asNameMap()))),
     );
-    final head = List<Cell>.unmodifiable(node['head'].list().map(_cell));
+    final headNode = node['head'];
+    final head = List<Cell>.unmodifiable(headNode.list().map(_cell));
+    // GFM never makes a table with no head, and Flutter's Table asserts on rows with no cells (review 11, content 5).
+    if (head.isEmpty) headNode.fail();
     if (align.length != head.length) alignNode.fail();
     // A row as wide as the head (plan 2.1): Flutter's Table asserts on rows of unequal length, and the web's tables come
     // from GFM, which pads a short row with empty cells and drops the cells past the head.

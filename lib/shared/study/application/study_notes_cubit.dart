@@ -71,7 +71,8 @@ final class StudyNotesCubit extends Cubit<StudyNotesState> {
         notes.add(notesOf(module.key, await _repository.readModuleDoc(path)));
       } on Object catch (error) {
         // A document that cannot be read leaves its module out rather than Practice with an error, as Home's card does.
-        _log.warn('notes of {} unreadable: {}', [path, error]);
+        _log.warn('notes unreadable: {}', [error.runtimeType]);
+        _log.debug('notes of {} unreadable: {}', [path, error]);
         whole = false;
       }
       // A load for another track, language or content began meanwhile: it owns the state now.

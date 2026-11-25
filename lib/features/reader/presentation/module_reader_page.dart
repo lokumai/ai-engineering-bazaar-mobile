@@ -55,6 +55,7 @@ import 'package:ai_engineering_bazaar/shared/site_links/domain/site_link_ports.d
 import 'package:ai_engineering_bazaar/shared/design_system/share_icon.dart';
 import 'package:ai_engineering_bazaar/shared/content/presentation/content_direction.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/tab_switch.dart';
+import 'package:ai_engineering_bazaar/shared/utils/laid_out.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,8 +65,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// scrolls.
 ///
 /// The app mounts the router only once the content is ready (spec 3.7), so any other content state is a fault. The
-/// reader keeps the index it opened with (spec 3.4.4).
-class ModuleReaderPage extends StatelessWidget {
+/// reader keeps the index it opened with (spec 3.4.4), but for a module that index did not hold, or held as planned or
+/// not written: newer content reopens it, so a site link opened before the start refresh shows the module the refresh
+/// brought (review 11, features 1).
+class ModuleReaderPage extends StatefulWidget {
   const ModuleReaderPage({
     super.key,
     required this.moduleKey,
@@ -93,7 +96,24 @@ class ModuleReaderPage extends StatelessWidget {
   final bool keepsPlace;
 
   @override
+  State<ModuleReaderPage> createState() => _ModuleReaderPageState();
+}
+
+class _ModuleReaderPageState extends State<ModuleReaderPage> {
+  /// The content version the reader was opened over, and how many times newer content reopened it.
+  String? _openedOver;
+  int _reopened = 0;
+
+  void _onContent(BuildContext context, ContentState content) {
+    if (content is! ContentReady || content.index.contentVersion == _openedOver) return;
+    if (context.read<ModuleReaderBloc>().state case ReaderNotFound() || ReaderPlanned() || ReaderNotWritten()) {
+      setState(() => _reopened++);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ModuleReaderPage(:moduleKey, :track, :fragment, :query, :quizBuilder, :keepsPlace) = widget;
     final index = switch (context.read<ContentBloc>().state) {
       ContentReady(:final index) => index,
       final state => throw StateError('The reader needs ready content, not $state'),
@@ -114,24 +134,30 @@ class ModuleReaderPage extends StatelessWidget {
         child: BlocProvider(
           // go_router keys a page by its route pattern, so a go to another module rebuilds this page with a new key;
           // the key makes that a new reader rather than the old module's, and a new language reopens the module in it.
-          key: ValueKey((moduleKey, track, language)),
-          create: (context) => ModuleReaderBloc(
-            repository: context.read<IContentRepository>(),
-            index: index,
-            recordBloc: context.read<RecordBloc>(),
-          )..add(ReaderOpened(key: moduleKey, track: track, language: language)),
-          child: ModuleReaderView(
-            fragment: fragment,
-            query: query,
-            quizBuilder: quizBuilder,
-            place: completed(record.state) ? null : places.state.of(track, moduleKey),
-            onPlace: !keepsPlace
-                ? null
-                : (place) => places.add(
-                    place == null || completed(record.state)
-                        ? ReadingPlaceCleared(track: track, module: moduleKey)
-                        : ReadingPlaceKept(track: track, module: moduleKey, place: place),
-                  ),
+          key: ValueKey((moduleKey, track, language, _reopened)),
+          create: (context) {
+            _openedOver = index.contentVersion;
+            return ModuleReaderBloc(
+              repository: context.read<IContentRepository>(),
+              index: index,
+              recordBloc: context.read<RecordBloc>(),
+            )..add(ReaderOpened(key: moduleKey, track: track, language: language));
+          },
+          child: BlocListener<ContentBloc, ContentState>(
+            listener: _onContent,
+            child: ModuleReaderView(
+              fragment: fragment,
+              query: query,
+              quizBuilder: quizBuilder,
+              place: completed(record.state) ? null : places.state.of(track, moduleKey),
+              onPlace: !keepsPlace
+                  ? null
+                  : (place) => places.add(
+                      place == null || completed(record.state)
+                          ? ReadingPlaceCleared(track: track, module: moduleKey)
+                          : ReadingPlaceKept(track: track, module: moduleKey, place: place),
+                    ),
+            ),
           ),
         ),
       ),
@@ -227,7 +253,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   /// How long the module has been on the screen in this visit; over every visit with the place's [ReadingPlace.seconds].
   final _onScreen = clock.stopwatch();
 
-  /// Whether the module's end, its completion row, has come into view.
+  /// Whether the module's end, its completion row, has come into view by the reader's own scroll.
   bool _reachedEnd = false;
 
   /// Whether the reader marked or unmarked the module by hand in this visit: leaving it then marks nothing, or a
@@ -246,6 +272,20 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
 
   /// The place last kept in this visit, which leaving keeps again with the time spent.
   ReadingPlace? _lastPlace;
+
+  /// Where the page stood when it last came to rest, however it got there, kept or not: the place found again after a
+  /// turn of the screen or a new reading size. A glance from the day's card keeps no place, and a page moved only by the
+  /// contents, a find step or the voice had none to find, so the same pixels showed other words (review 12, C2).
+  ReadingPlace? _anchor;
+
+  /// The width of the module's text when [_anchor] was noted.
+  double? _anchorWidth;
+
+  /// The width the module's text is laid out at; null before it is.
+  double? get _textWidth {
+    final box = _textKey.currentContext?.findRenderObject();
+    return box is RenderBox && box.hasSize ? box.size.width : null;
+  }
 
   /// What marks the module completed as it is left, kept while it is drawn: a page being taken down can read nothing
   /// around it. Null while no written module is drawn.
@@ -289,14 +329,36 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
   }
 
+  /// The screen's size and reading size the page was last laid out at, to find the place again when either changes.
+  (Size, TextScaler)? _laidOutAt;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _reanchor();
     // A page under another one is offstage, and its tickers are off.
     final shown = TickerMode.valuesOf(context).enabled;
     if (_pageShown && !shown) _leaveIfUnderModule();
     _pageShown = shown;
     _countTime();
+  }
+
+  /// Finds the place the reader was at again after the screen turns or the reading size changes while the module is
+  /// open: the same pixels are other words then (review 11, content 7). Before the reader has scrolled, the place it
+  /// opened at is applied again as the metrics change.
+  void _reanchor() {
+    final now = (MediaQuery.sizeOf(context), MediaQuery.textScalerOf(context));
+    final before = _laidOutAt;
+    _laidOutAt = now;
+    final place = _anchor ?? _lastPlace;
+    if (before == null || before == now || place == null || _held != null) return;
+    final width = _anchorWidth;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // A text as wide as when the place was noted, at the same size, shows the same words at the same pixels: the
+      // place found by its share of a section would be a little off, as the last section's end moves with the screen.
+      if (!mounted || (width != null && _textWidth == width && before.$2 == now.$2)) return;
+      _goToPlace(place);
+    });
   }
 
   /// Leaves the module when the page now over it is another module, however it was opened: the Listen bar's title
@@ -352,9 +414,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     return _parts;
   }
 
-  /// Whether [state] reads the module drawn.
+  /// Whether [state] reads the module drawn, in the language drawn: one read in another language leaves this page its
+  /// own Listen, which replaces it, and shows no player counting the other's parts (review 11, content 2).
   bool _readsThis(ListenState state) => switch ((state, _partsOf)) {
-    (final ListenOn on, final doc?) => on.reads(doc.key, doc.track),
+    (final ListenOn on, final doc?) => on.reads(doc.key, doc.track, language: doc.lang),
     _ => false,
   };
 
@@ -380,8 +443,9 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
   }
 
   /// The term whose definition is shown in a bubble, and where it was tapped; null when none is.
-  GlossaryTerm? _bubble;
-  Offset? _bubbleAt;
+  /// The term whose bubble shows, and where it was tapped. A notifier, so the bubble opens and closes without the
+  /// module's text being built again (review 11, content 4).
+  final _bubble = ValueNotifier<({GlossaryTerm term, Offset? at})?>(null);
 
   /// The terms of [doc] from the notes of its track: the module's own first, then the others'. The Key Terms and the
   /// References are not marked.
@@ -417,13 +481,10 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
     // The bubble stands in the page's own box, which starts where this view does: no bar is over it.
     final box = context.findRenderObject();
-    setState(() {
-      _bubble = term;
-      _bubbleAt = at != null && box is RenderBox && box.hasSize ? box.globalToLocal(at) : null;
-    });
+    _bubble.value = (term: term, at: at != null && box is RenderBox && box.hasSize ? box.globalToLocal(at) : null);
   }
 
-  void _closeTerm() => setState(() => _bubble = null);
+  void _closeTerm() => _bubble.value = null;
 
   /// Marks the words searched; null when none were, or once the reader closed the bar.
   TextFinder? _finder;
@@ -465,7 +526,8 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         return;
       }
       final box = _headingKeys[fragment]?.currentContext?.findRenderObject();
-      finder.startAt(box is RenderBox && box.attached ? box.localToGlobal(Offset.zero).dy : double.negativeInfinity);
+      final at = box is RenderBox ? laidOutTopLeft(box) : null;
+      finder.startAt(at?.dy ?? double.negativeInfinity);
     });
   }
 
@@ -474,6 +536,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     _leave();
     _lifecycle.dispose();
     _spoken.dispose();
+    _bubble.dispose();
     _finder?.dispose();
     _readProgress.dispose();
     _currentSection.dispose();
@@ -565,9 +628,12 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
       _held = null;
       _readerScrolled = true;
     }
-    if (notification case ScrollEndNotification(depth: 0, :final metrics) when _readerScrolled) _keepPlace(metrics);
+    if (notification case ScrollEndNotification(depth: 0, :final metrics)) _keepPlace(metrics);
     if (depth != 0 || metrics == null) return false;
-    if (!_reachedEnd) _reachedEnd = _endInView(metrics);
+    // The end counts once the reader's own hand brought it, or on a module too short to scroll: a page opened at its
+    // last section from a search hit, a link, the day's card or the contents sheet, and only looked at, was marked
+    // completed as it was left, on the time of earlier visits (review 12, C1).
+    if (!_reachedEnd && (_readerScrolled || metrics.maxScrollExtent <= 0)) _reachedEnd = _endInView(metrics);
     if (notification is ScrollMetricsNotification && !_moved) _applyPlace();
     if (notification is ScrollMetricsNotification) _holdHeading();
     _readProgress.value = metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1);
@@ -629,11 +695,16 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     return RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
   }
 
-  /// Tells [ModuleReaderView.onPlace] where the page stands: the last heading above the top and the distance past it.
+  /// Notes where the page stands, the last heading above the top and the distance past it, as [_anchor], and tells
+  /// [ModuleReaderView.onPlace] once the reader has scrolled by hand.
   void _keepPlace(ScrollMetrics metrics) {
-    final onPlace = widget.onPlace;
-    if (onPlace == null) return;
-    void keep(ReadingPlace place) => onPlace(_lastPlace = place);
+    final onPlace = _readerScrolled ? widget.onPlace : null;
+    void keep(ReadingPlace place) {
+      _anchor = place;
+      _anchorWidth = _textWidth;
+      if (onPlace != null) onPlace(_lastPlace = place);
+    }
+
     if (metrics.pixels < _topSlack) {
       keep(ReadingPlace(offset: 0, share: 0, at: clock.now(), seconds: _seconds));
       return;
@@ -647,12 +718,15 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
         base = offset;
       }
     }
+    // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
+    // finding 15).
+    final past = (metrics.pixels - base).clamp(0.0, double.infinity);
+    final height = _sectionEnd(base, metrics) - base;
     keep(
       ReadingPlace(
         heading: heading,
-        // A heading up to a pixel below the top counts as above it: the distance past it is at least 0 (review 9,
-        // finding 15).
-        offset: (metrics.pixels - base).clamp(0.0, double.infinity),
+        offset: past,
+        part: height > 0 ? (past / height).clamp(0.0, 1.0) : null,
         share: metrics.maxScrollExtent <= 0 ? 1 : (metrics.pixels / metrics.maxScrollExtent).clamp(0, 1),
         at: clock.now(),
         seconds: _seconds,
@@ -660,18 +734,39 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
     );
   }
 
+  /// Where the section that starts at [base] ends: the next heading below it, or the end of the module.
+  double _sectionEnd(double base, ScrollMetrics metrics) {
+    var end = metrics.maxScrollExtent + metrics.viewportDimension;
+    for (final id in _headingKeys.keys) {
+      final offset = _headingOffset(id);
+      if (offset != null && offset > base + 1 && offset < end) end = offset;
+    }
+    return end;
+  }
+
   /// Scrolls to [ModuleReaderView.place]: its heading and the distance past it, or its share of the page when the
   /// heading is gone from the module.
   void _applyPlace() {
-    final place = widget.place;
-    if (place == null || _fragment != null || !_placeScheduled || !_scroll.hasClients) return;
+    if (_fragment != null || !_placeScheduled) return;
+    _goToPlace(widget.place);
+  }
+
+  /// Scrolls to [place]: its heading and its share of that section, or the pixels past it in a place kept before the
+  /// share was; its share of the page when the heading is gone from the module.
+  void _goToPlace(ReadingPlace? place) {
+    if (place == null || !_scroll.hasClients) return;
     final position = _scroll.position;
     // Built under another page, the module is not laid out and has no length yet; the change of metrics as it comes
     // to the front calls this again (Sentry AI-BAZAAR-MOBILE-3).
     if (!position.hasContentDimensions) return;
     final heading = place.heading;
     final base = heading == null ? 0.0 : _headingOffset(heading);
-    final target = base == null ? place.share * position.maxScrollExtent : base + place.offset;
+    final part = place.part;
+    final target = switch (base) {
+      null => place.share * position.maxScrollExtent,
+      final base when part != null => base + part * (_sectionEnd(base, position) - base),
+      final base => base + place.offset,
+    };
     final clamped = target.clamp(position.minScrollExtent, position.maxScrollExtent);
     if ((clamped - position.pixels).abs() > 0.5) _scroll.jumpTo(clamped);
   }
@@ -909,7 +1004,7 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
                                                 ),
                                                 icon: const Icon(Icons.headphones_rounded, size: 18),
                                                 label: Text(
-                                                  listen.keptAt(doc.key, doc.track) == null
+                                                  listen.keptAt(doc.key, doc.track, count: parts.length) == null
                                                       ? s.listen
                                                       : s.listen_resume,
                                                 ),
@@ -1037,17 +1132,34 @@ class _ModuleReaderViewState extends State<ModuleReaderView> {
             ],
           ),
           // A term's definition over the text (plan 13.9); a tap anywhere else closes it.
-          if (_bubble case final term?) ...[
-            Positioned.fill(
-              child: ModalBarrier(
-                key: const ValueKey('term-barrier'),
-                dismissible: true,
-                onDismiss: _closeTerm,
-                semanticsLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-              ),
+          Positioned.fill(
+            child: ValueListenableBuilder(
+              valueListenable: _bubble,
+              builder: (context, shown, _) => switch (shown) {
+                null => const SizedBox.shrink(),
+                (:final term, :final at) => Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ModalBarrier(
+                        key: const ValueKey('term-barrier'),
+                        dismissible: true,
+                        onDismiss: _closeTerm,
+                        semanticsLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                      ),
+                    ),
+                    TermBubble(
+                      term: term,
+                      at: at,
+                      onLink: (target) {
+                        _closeTerm();
+                        followLink(context, target, scrollTo: _scrollTo, beforeModule: _leaveForAnother);
+                      },
+                    ),
+                  ],
+                ),
+              },
             ),
-            TermBubble(term: term, at: _bubbleAt),
-          ],
+          ),
         ],
       ),
     );

@@ -5,15 +5,36 @@ import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
 import 'package:ai_engineering_bazaar/shared/record/domain/record_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_engineering_bazaar/shared/record/application/record_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The data line of the Settings page (web `DataPanel.tsx:201-268`, Decision A8): the sentence, the buttons Back up,
 /// Restore and Reset on one line and, while the reset can be undone, Undo, then the status lines in a live region.
 ///
 /// Reset is drawn in on-surface (Decision A18) and asks through [showEraseDialog] first. Every action is off while a
-/// flow of [DataBloc] runs.
-class DataLine extends StatelessWidget {
+/// flow of [DataBloc] runs. Its status lines are cleared once Settings is left ([DataLinesLeft]).
+class DataLine extends StatefulWidget {
   const DataLine({super.key});
+
+  @override
+  State<DataLine> createState() => _DataLineState();
+}
+
+class _DataLineState extends State<DataLine> {
+  /// Kept for [dispose], where the context may no longer be read.
+  late final DataBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = context.read<DataBloc>();
+  }
+
+  @override
+  void dispose() {
+    if (!_bloc.isClosed) _bloc.add(const DataLinesLeft());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +42,13 @@ class DataLine extends StatelessWidget {
     final theme = Theme.of(context);
     final state = context.watch<DataBloc>().state;
     final bloc = context.read<DataBloc>();
-    final idle = state.busy == DataBusy.idle;
+    // While the stored record could not be read, nothing here may act on it: a backup would hold none of it, a
+    // restore would write over it and a reset would delete what the reader never saw (opus review 11, record finding 1).
+    final unread = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final launchReadFailed) => launchReadFailed,
+      RecordLoading() => false,
+    };
+    final idle = state.busy == DataBusy.idle && !unread;
     final lines = [
       if (state.backup case final backup?) backupLineText(s, backup),
       if (state.restore case final restore?) _restoreText(s, restore),

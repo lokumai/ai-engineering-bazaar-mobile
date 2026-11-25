@@ -52,7 +52,8 @@ final class DailyCardCubit extends Cubit<DailyCardState> {
       if (!isClosed) emit(card == null ? const DailyCardNone() : DailyCardShown(card));
     } on Object catch (error) {
       // A document that cannot be read leaves Home without a card rather than with an error.
-      _log.warn('no daily card from {}: {}', [choice.docPath, error]);
+      _log.warn('no daily card: {}', [error.runtimeType]);
+      _log.debug('no daily card from {}: {}', [choice.docPath, error]);
       if (!isClosed) emit(const DailyCardNone());
     }
   }

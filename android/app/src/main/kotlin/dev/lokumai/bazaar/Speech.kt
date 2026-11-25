@@ -201,6 +201,9 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
      */
     private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
         .setAudioAttributes(attributes)
+        // The voice plays in the TTS engine's process, which Android's own ducking does not reach: without this the
+        // app was never told of a short prompt, and read over it (review 12, N1).
+        .setWillPauseWhenDucked(true)
         .setOnAudioFocusChangeListener(focus, main)
         .build()
 
@@ -225,16 +228,25 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
     /** Whether a reading is shown, playing or paused: its notice stays while it is (plan 19.8). */
     private var shown = false
 
+    /** Whether a reading is shown, playing or paused; the icon switch waits while one is (review 11, native 1). */
+    val readingShown: Boolean
+        get() = shown
+
+    /** Called when the reading shown ends. */
+    var onReadingEnded: (() -> Unit)? = null
+
     /**
      * Names the reading to the session and the notice: [title] and whether it is [playing], or nothing when [title] is
      * null, which ends the notice once nothing is said.
      */
     private fun show(title: String?, playing: Boolean) {
+        val wasShown = shown
         shown = title != null
         if (title == null) {
             session.isActive = false
             ListenService.session = null
             if (current == null) ListenService.stop(context)
+            if (wasShown) onReadingEnded?.invoke()
             return
         }
         session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
@@ -246,7 +258,9 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         )
         session.isActive = true
         ListenService.session = session.sessionToken
-        ListenService.show(context, title, playing)
+        // Paused for a short prompt, the service stays in the foreground: the reading goes on at the prompt's end from
+        // the background, where Android 12 and later refuse to start a foreground service (review 12, N1).
+        ListenService.show(context, title, playing, keepForeground = ducked)
     }
 
     private val release = Runnable {

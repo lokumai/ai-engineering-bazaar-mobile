@@ -9,8 +9,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Opens the site's links the phone hands the app (plan 17.2): a module, a level or a catalog goes to its page, and a
-/// progress transfer opens the transfer page over the shell (plan 17.1). A link the app has no page for is left alone.
+/// Opens the site's links the phone hands the app (plan 17.2): a catalog goes to its page, a module or a level opens over
+/// its track's catalog, and a progress transfer opens the transfer page over the shell (plan 17.1). A link the app has
+/// no page for is left alone.
 ///
 /// It stands under Welcome, so a link the app was opened with on a first launch waits on the native side until Welcome
 /// is done, and is opened then.
@@ -53,14 +54,21 @@ class _IncomingLinksState extends State<IncomingLinks> {
       case SiteCatalog(:final track):
         widget.router.go(BazaarPaths.catalog(track));
       case SiteLevel(:final track, :final level):
-        widget.router.go(BazaarPaths.level(track, level));
-      case SiteModule(:final track, :final moduleKey):
-        widget.router.go(BazaarPaths.module(track, moduleKey));
+        _openOverCatalog(BazaarPaths.catalog(track), BazaarPaths.level(track, level));
+      case SiteModule(:final track, :final moduleKey, :final fragment):
+        _openOverCatalog(BazaarPaths.catalog(track), BazaarPaths.module(track, moduleKey), extra: fragment);
       case SiteTransfer(:final payload):
         unawaited(widget.router.push(BazaarPaths.transfer, extra: payload));
       case null:
         break;
     }
+  }
+
+  /// Opens [page] over [catalog], as a tap in the catalog does: with a back arrow and an edge swipe back to it. Gone to
+  /// alone, it was the shell's only page, with no way back but a tab (review 11, features 4).
+  void _openOverCatalog(String catalog, String page, {Object? extra}) {
+    widget.router.go(catalog);
+    unawaited(widget.router.push(page, extra: extra));
   }
 
   /// Closes the dialogs and the full-screen quiz above the pages, which the link would leave standing over a page

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_engineering_bazaar/core/logging/app_logger.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/bundle_index.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/content_repository.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -9,6 +10,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// What the catalog's search shows.
+///
+/// One state with fields, by the rule's third exception (form persistence): the words typed and the levels chosen
+/// persist through every step of a search, whose results, reading flag and other track's hits go with them (review 11,
+/// architecture 9).
 final class CatalogSearchState extends Equatable {
   const CatalogSearchState({this.query = '', this.results, this.reading = false, this.levels = const {}, this.other});
 
@@ -37,10 +42,17 @@ final class CatalogSearchState extends Equatable {
 
 /// The catalog's search in one track and one language (plan 7.1). The first query reads the track's module documents
 /// in the language, or in English where a module has none, as the reader opens them, and builds the index once; each
-/// query after that is searched as typed. A document that cannot be read is left out.
+/// query after that is searched as typed. A document that cannot be read is left out. The index is kept in [indexes],
+/// above the page, so a tab left and come back to does not build it again (review 11, architecture 3).
 final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
-  CatalogSearchCubit({required this._repository, required this._bundle, required this._track, required this._language})
-    : super(const CatalogSearchState());
+  CatalogSearchCubit({
+    required this._repository,
+    required this._bundle,
+    required this._track,
+    required this._language,
+    CatalogSearchIndexes? indexes,
+  }) : _indexes = indexes ?? CatalogSearchIndexes(),
+       super(const CatalogSearchState());
 
   static final _log = AppLogger.getLogger('CatalogSearchCubit');
 
@@ -48,6 +60,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
   final BundleIndex _bundle;
   final Track _track;
   final String _language;
+  final CatalogSearchIndexes _indexes;
   Future<CatalogSearchIndex>? _building;
   CatalogSearchIndex? _index;
 
@@ -71,7 +84,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     if (index == null) {
       emit(CatalogSearchState(query: query, reading: true, levels: state.levels));
       try {
-        index = _index = await (_building ??= _build());
+        index = _index = await (_building ??= _indexed(_track, levels: true));
       } on Object catch (error, stack) {
         // A build that failed is not kept: the next query reads the documents again, rather than wait on it for ever.
         _building = null;
@@ -92,7 +105,7 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
     if (!none) return;
     final SearchResults other;
     try {
-      other = (await (_otherBuilding ??= _build(track: _track.other, levels: false))).search(query);
+      other = (await (_otherBuilding ??= _indexed(_track.other, levels: false))).search(query);
     } on Object catch (error, stack) {
       _otherBuilding = null;
       _log.error('other track search index not built: {}\n{}', [error, stack]);
@@ -124,11 +137,18 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
   }
 
   /// The index of [track]'s modules, and of the levels when [levels] is set: the levels are the same in both tracks,
-  /// so the other track's index leaves them out.
-  Future<CatalogSearchIndex> _build({Track? track, bool levels = true}) async {
+  /// so the other track's index leaves them out. One kept is used again.
+  Future<CatalogSearchIndex> _indexed(Track track, {required bool levels}) => _indexes.of((
+    contentVersion: _bundle.contentVersion,
+    track: track,
+    language: _language,
+    levels: levels,
+  ), () => _build(track, levels: levels));
+
+  Future<CatalogSearchIndex> _build(Track track, {required bool levels}) async {
     final entries = <SearchEntry>[];
     for (final module in _bundle.modules) {
-      final docs = module.tracks[track ?? _track]?.docs;
+      final docs = module.tracks[track]?.docs;
       // A module with no document in the track (For Everyone not written) is absent, as on the web.
       final path = docs?[_language] ?? docs?['en'];
       if (path == null) continue;
@@ -136,11 +156,12 @@ final class CatalogSearchCubit extends Cubit<CatalogSearchState> {
         entries.addAll(entriesOf(await _repository.readModuleDoc(path), number: module.number));
       } on Object catch (error) {
         // Any document that cannot be read, a storage error included, is left out rather than stopping the search.
-        _log.warn('module document {} left out of search: {}', [path, error]);
+        _log.warn('a module document left out of search: {}', [error.runtimeType]);
+        _log.debug('module document {} left out of search: {}', [path, error]);
       }
     }
     // The levels after the modules: the web's search finds a level by its name and its blurb.
     if (levels) entries.addAll(_bundle.levels.map(levelEntryOf));
-    return CatalogSearchIndex(entries, lang: _language);
+    return _indexes.make(entries, _language);
   }
 }

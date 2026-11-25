@@ -117,6 +117,7 @@ class _WelcomeTrackViewState extends State<WelcomeTrackView> {
                                   value: language,
                                   label: LanguageCubit.names[language]!,
                                   key: WelcomeTrackView.languageKey(language),
+                                  locale: Locale(language),
                                 ),
                             ],
                           ),

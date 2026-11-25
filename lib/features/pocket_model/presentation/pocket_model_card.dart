@@ -536,6 +536,18 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
     );
   }
 
+  /// Every text [_status] can say, whose tallest the line keeps room for.
+  static List<String> _statuses(S s) => [
+    s.pocket_status_asleep,
+    s.pocket_status_overfit,
+    s.pocket_status_recovered,
+    s.pocket_status_unreadable,
+    s.pocket_status_hallucinating,
+    s.pocket_status_cold,
+    s.pocket_status_newborn,
+    s.pocket_status_hungry,
+  ];
+
   /// The line under its training, or null when there is nothing to say: content, it says nothing.
   String? _status(S s, PocketModelReady state, DateTime now) {
     if (!state.awake) return s.pocket_status_asleep;
@@ -682,17 +694,25 @@ class _PocketModelViewState extends State<_PocketModelView> with SingleTickerPro
             children: [
               TrainingPanel(model: model, curve: state.curve),
               const SizedBox(height: AppSpacing.md),
-              if (_status(s, state, now) case final status?) ...[
-                AnimatedSwitcher(
+              // The line keeps the room of its longest text whether it says something or not, so the buttons
+              // under it stay where the finger is: they moved by a line or two as it came and went (walk-through
+              // 2026-11-24).
+              _StatusRoom(
+                texts: _statuses(s),
+                style: theme.textTheme.bodySmall,
+                child: AnimatedSwitcher(
                   duration: _reduced ? Duration.zero : const Duration(milliseconds: 220),
-                  child: Semantics(
-                    key: ValueKey(status),
-                    liveRegion: true,
-                    child: Text(status, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface)),
-                  ),
+                  child: switch (_status(s, state, now)) {
+                    final status? => Semantics(
+                      key: ValueKey(status),
+                      liveRegion: true,
+                      child: Text(status, style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface)),
+                    ),
+                    null => const SizedBox.shrink(),
+                  },
                 ),
-                const SizedBox(height: AppSpacing.md),
-              ],
+              ),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 spacing: AppSpacing.sm,
                 children: [
@@ -859,6 +879,43 @@ class _ReadModule extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceMuted),
         ),
       ],
+    );
+  }
+}
+
+/// [child] at its start, in a box as tall as the tallest of [texts] laid out in [style] at the width given, at the
+/// reader's text size: the room the status line keeps whatever it says.
+class _StatusRoom extends StatelessWidget {
+  const _StatusRoom({required this.texts, required this.style, required this.child});
+
+  final List<String> texts;
+  final TextStyle? style;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved = DefaultTextStyle.of(context).style.merge(style);
+    final direction = Directionality.of(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    final locale = Localizations.maybeLocaleOf(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var tallest = 0.0;
+        for (final text in texts) {
+          final painter = TextPainter(
+            text: TextSpan(text: text, style: resolved),
+            textDirection: direction,
+            textScaler: scaler,
+            locale: locale,
+          )..layout(maxWidth: constraints.maxWidth);
+          if (painter.height > tallest) tallest = painter.height;
+          painter.dispose();
+        }
+        return ConstrainedBox(
+          constraints: BoxConstraints(minHeight: tallest),
+          child: Align(alignment: AlignmentDirectional.topStart, child: child),
+        );
+      },
     );
   }
 }

@@ -16,9 +16,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_engineering_bazaar/app/di/app_dependencies.dart';
 import 'package:ai_engineering_bazaar/features/caravan/application/caravan_cubit.dart';
+import 'package:ai_engineering_bazaar/features/home/application/daily_another_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_fold_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/quiz/application/quiz_fold_cubit.dart';
+import 'package:ai_engineering_bazaar/features/pocket_model/application/apprentice_mind.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_bloc.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_cubit.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/robot_outfit_store.dart';
@@ -27,6 +31,7 @@ import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.d
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -109,6 +114,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
+        RepositoryProvider<FeedbackDraft>(create: (_) => FeedbackDraft()),
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
         RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
         RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),
@@ -151,6 +157,10 @@ class AppScope extends StatelessWidget {
           BlocProvider<CatalogFoldCubit>(create: (_) => CatalogFoldCubit()),
           // The words in the catalog's search, kept the same way.
           BlocProvider<CatalogQueryCubit>(create: (_) => CatalogQueryCubit()),
+          // Its search indexes, built in another isolate and kept across tab switches (review 11, architecture 3).
+          RepositoryProvider<CatalogSearchIndexes>(
+            create: (_) => CatalogSearchIndexes(make: CatalogSearchIndexes.makeApart),
+          ),
           BlocProvider<QuizFoldCubit>(create: (_) => QuizFoldCubit()),
           // The module read aloud, for the whole app: it goes on across the tabs and with the screen off (plan 15).
           BlocProvider<ListenCubit>(
@@ -159,6 +169,9 @@ class AppScope extends StatelessWidget {
           ),
           // The Caravan's chosen stop, kept the same way, so the tab opens where the caravan was left.
           BlocProvider<CaravanCubit>(create: (_) => CaravanCubit()),
+          // Show another on Home's card, kept the same way, so a tab switch keeps the card chosen (review 11,
+          // features 7).
+          BlocProvider<DailyAnotherCubit>(create: (_) => DailyAnotherCubit()),
           // The pocket model's level, which unlocks the app icons as its wardrobe (plan 9.10): read from its store,
           // then told by the model, without starting the model itself.
           BlocProvider<RobotLevelCubit>(
@@ -179,8 +192,9 @@ class AppScope extends StatelessWidget {
                   repository: context.read<IContentRepository>(),
                   content: context.read<ContentBloc>(),
                 ),
-                // Its training curve is drawn in another isolate (review 5, finding 3).
-                drawCurve: PocketModelBloc.drawApart,
+                // Its language model lives in an isolate of its own, and draws its curve in another (review 5,
+                // finding 3; review 11, architecture 2).
+                mind: IsolateMind(),
                 // In the app's language from the start, not English first and the app's language a moment later.
               )..add(PocketModelStarted(language: _startLanguage));
               // Back from the background it may have fallen asleep there (the owner, 2026-11-16).
@@ -198,14 +212,27 @@ class AppScope extends StatelessWidget {
           BlocProvider<RobotOutfitCubit>(
             create: (context) => RobotOutfitCubit(store: context.read<IRobotOutfitStore>())..load(),
           ),
-          // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
           BlocProvider<ReadingStyleCubit>(
             lazy: false,
             create: (context) => ReadingStyleCubit(store: context.read<IReadingStyleStore>())..load(),
           ),
+          // Whether its button shows, which Settings changes and the shell reads (plan 9.9).
           BlocProvider<PocketButtonCubit>(
             lazy: false,
             create: (context) => PocketButtonCubit(store: context.read<IPocketButtonStore>())..load(),
+          ),
+          // Settings' data flows, above the shell so a tab switch keeps a reset's Undo and the stores it brings back
+          // (opus review 11, record finding 2); before, each visit to Settings made a new one.
+          BlocProvider<DataBloc>(
+            create: (context) => DataBloc(
+              recordBloc: context.read<RecordBloc>(),
+              gateway: context.read<IBackupGateway>(),
+              repository: context.read<IRecordRepository>(),
+              scores: context.read<QuizScoresBloc>(),
+              review: context.read<ReviewBloc>(),
+              places: context.read<ReadingPlacesBloc>(),
+              listen: context.read<ListenCubit>(),
+            ),
           ),
           // The Apprentice's tour, which a first run's Welcome offers and the shell lays over the pages (plan 11.3).
           BlocProvider<TourCubit>(

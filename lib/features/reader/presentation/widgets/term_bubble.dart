@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:ai_engineering_bazaar/shared/content/presentation/inline_text.dart';
@@ -10,9 +12,12 @@ import 'package:ai_engineering_bazaar/shared/study/domain/module_notes.dart';
 /// stands above the place tapped, or under it near the top, and in the middle of the screen when a screen reader opened
 /// it.
 class TermBubble extends StatelessWidget {
-  const TermBubble({super.key, required this.term, required this.at});
+  const TermBubble({super.key, required this.term, required this.at, required this.onLink});
 
   final GlossaryTerm term;
+
+  /// Opens a link of the definition, as the module's own links open (review 11, content 9).
+  final LinkHandler onLink;
 
   /// Where the term was tapped, in the page's own box; null for a screen reader's tap.
   final Offset? at;
@@ -38,7 +43,8 @@ class TermBubble extends StatelessWidget {
           side: BorderSide(color: colors.lineStrong),
           borderRadius: const BorderRadius.all(BazaarRadii.md),
         ),
-        child: Padding(
+        // A long definition at a large text size scrolls inside the bubble, rather than grow past the screen.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -49,7 +55,7 @@ class TermBubble extends StatelessWidget {
               InlineText(
                 inlines: term.definition,
                 style: TextStyle(fontSize: BazaarType.control.size, color: colors.onSurface),
-                onLink: (_) {},
+                onLink: onLink,
               ),
             ],
           ),
@@ -60,9 +66,13 @@ class TermBubble extends StatelessWidget {
       builder: (context, constraints) {
         final width = (constraints.maxWidth - 2 * AppSpacing.lg).clamp(0.0, _widest);
         final local = at;
+        Widget sized(double height) => ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: math.max(0, height)),
+          child: bubble,
+        );
         if (local == null) {
           return Center(
-            child: SizedBox(width: width, child: bubble),
+            child: SizedBox(width: width, child: sized(constraints.maxHeight - 2 * AppSpacing.lg)),
           );
         }
         final left = (local.dx - width / 2).clamp(AppSpacing.lg, constraints.maxWidth - AppSpacing.lg - width);
@@ -75,7 +85,9 @@ class TermBubble extends StatelessWidget {
               width: width,
               top: below ? local.dy + _gap : null,
               bottom: below ? null : constraints.maxHeight - local.dy + _gap,
-              child: bubble,
+              child: sized(
+                below ? constraints.maxHeight - local.dy - _gap - AppSpacing.lg : local.dy - _gap - AppSpacing.lg,
+              ),
             ),
           ],
         );

@@ -48,3 +48,10 @@ final class QuarantineExportRequested extends DataEvent {
 final class QuarantineDeleteConfirmed extends DataEvent {
   const QuarantineDeleteConfirmed();
 }
+
+/// The reader left Settings: the lines that tell how the last action ended are cleared, as the web's panel forgets them
+/// when its page is left (walk-through 2026-11-24: a restore's error stayed for the whole session). A reset's countdown
+/// stays while it can be undone.
+final class DataLinesLeft extends DataEvent {
+  const DataLinesLeft();
+}

@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_page.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/utils/serial_writes.dart';
 
 /// The Apprentice's tour (plan 11.3, the owner, 2026-11-16): for a first run only, it asks on Home whether to show the
 /// reader around; said yes, each tab's first page is shown the first time it is opened. Settings' guide takes it again.
@@ -44,13 +45,11 @@ final class TourCubit extends Cubit<TourRecord?> {
 
   /// The save under way; the next waits for it, so the records reach the store in the order they were made, the last
   /// one last (review 8). A save that failed does not stop the next.
-  Future<void> _saving = Future.value();
+  final _writes = SerialWrites();
 
   Future<void> _keep(TourRecord record) {
     if (isClosed) return Future.value();
     emit(record);
-    final save = _saving.then((_) => _store.save(record), onError: (Object _) => _store.save(record));
-    _saving = save;
-    return save;
+    return _writes.run(() => _store.save(record));
   }
 }

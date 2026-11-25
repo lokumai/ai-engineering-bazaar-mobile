@@ -38,7 +38,8 @@ final class QuizLoader extends Cubit<QuizLoad> {
           : QuizReady(title: version.titleIn(language), items: items);
     } on Object catch (error) {
       // Any error, not only the content's own, ends the spinner (review 5, finding 7).
-      _log.warn('quiz document {} unreadable: {}', [path, error]);
+      _log.warn('quiz document unreadable: {}', [error.runtimeType]);
+      _log.debug('quiz document {} unreadable: {}', [path, error]);
       loaded = const QuizUnreadable();
     }
     // The page may have been left while the document was read (review 5, finding 7).

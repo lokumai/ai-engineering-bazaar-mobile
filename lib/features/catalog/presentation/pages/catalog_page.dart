@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_rows.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_query_cubit.dart';
 import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_cubit.dart';
+import 'package:ai_engineering_bazaar/features/catalog/application/catalog_search_indexes.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_legend.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_overview.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
@@ -72,6 +73,7 @@ class _CatalogPageState extends State<CatalogPage> {
           bundle: index,
           track: track,
           language: language,
+          indexes: context.read<CatalogSearchIndexes>(),
         );
         final kept = context.read<CatalogQueryCubit>().state;
         if (kept.trim().isNotEmpty) unawaited(cubit.search(kept));

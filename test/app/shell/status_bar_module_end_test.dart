@@ -4,6 +4,7 @@ library;
 /// The iOS status bar tap over the reader in the app's router (plan 12.3): the owner found it did not go back to the top
 /// at a module's end on the iPhone, though it did in the middle. A long synthetic module with wide tables, which scroll
 /// sideways inside the page as a real module's do, and the pager at its end.
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/section_spine.dart';
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
@@ -88,6 +89,8 @@ void main() {
         final page = find
             .byType(Scrollable)
             .evaluate()
+            // The page's own, not the sections' beside it.
+            .where((e) => e.findAncestorWidgetOfExactType<SectionSpine>() == null)
             .map((e) => ((e as StatefulElement).state as ScrollableState).position)
             .singleWhere((position) => position.axis == Axis.vertical);
         if (end) {

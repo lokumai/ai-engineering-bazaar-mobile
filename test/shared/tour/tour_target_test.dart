@@ -51,4 +51,25 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     expect(TourTarget.contextOf(TourSpots.tabs), isNull);
   });
+
+  // Review 12, A1: a second shell over a full-screen page marked the tabs too; once it went, the first shell's mark
+  // was forgotten until it rebuilt, and the tour skipped its tabs.
+  testWidgets('once the place drawn last leaves, the one drawn before it is found again', (tester) async {
+    const a = Key('a');
+    Widget marks({required bool second}) => Column(
+      children: [
+        const TourTarget(
+          spot: TourSpots.tabs,
+          child: SizedBox(key: a),
+        ),
+        if (second) const TourTarget(spot: TourSpots.tabs, child: SizedBox()),
+      ],
+    );
+    await tester.pumpWidget(marks(second: true));
+    await tester.pumpWidget(marks(second: false));
+
+    final found = TourTarget.contextOf(TourSpots.tabs)!;
+    expect(find.descendant(of: find.byWidget(found.widget), matching: find.byKey(a)), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
 }

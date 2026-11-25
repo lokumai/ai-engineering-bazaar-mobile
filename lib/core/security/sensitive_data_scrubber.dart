@@ -145,7 +145,13 @@ const String emailMask = '[REDACTED_EMAIL]';
 /// unbounded, a long run of local-part characters without an `@` made it
 /// quadratic, and past Dart's backtracking limit the match failed and the
 /// address after the run was left unmasked.
-final RegExp emailPattern = RegExp(r'[A-Za-z0-9._%+-]{1,64}(?:@|%40)[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}');
+///
+/// Its letters are the Latin ones with their accented and extended forms, Greek, Cyrillic and Arabic, so an address
+/// with a Turkish or other local part or domain is masked whole (review 11, native 2). They are spelled as ranges, not
+/// `\p{L}`, which needs Dart's unicode flag the Kotlin copy cannot share.
+final RegExp emailPattern = RegExp(
+  r'[A-Za-z0-9À-ɏͰ-ϿЀ-ӿ؀-ۿ._%+-]{1,64}(?:@|%40)[A-Za-z0-9À-ɏͰ-ϿЀ-ӿ؀-ۿ-]+(?:\.[A-Za-z0-9À-ɏͰ-ϿЀ-ӿ؀-ۿ-]+)*\.[A-Za-zÀ-ɏͰ-ϿЀ-ӿ؀-ۿ]{2,}',
+);
 
 /// Replace every email address inside [input] with [emailMask].
 ///

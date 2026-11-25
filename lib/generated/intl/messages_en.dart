@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(number) => "Table ${number}";
 
-  static String m5(step, count) => "${step} of ${count}";
+  static String m5(step, count) => "Card ${step} of ${count}";
 
   static String m6(start, end) => "${start} to ${end}";
 
@@ -111,68 +111,75 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m43(level) => "Apprentice, level ${level}. Tap to pet it.";
 
-  static String m44(count, level) => "${count} to level ${level}";
+  static String m44(count) => "${Intl.plural(count, one: 'module read', other: 'modules read')}";
 
-  static String m45(count) =>
+  static String m45(count) => "${Intl.plural(count, one: 'token eaten', other: 'tokens eaten')}";
+
+  static String m46(count) => "${Intl.plural(count, one: 'word known', other: 'words known')}";
+
+  static String m47(count, level) => "${count} to level ${level}";
+
+  static String m48(count) =>
       "${Intl.plural(count, zero: 'Complete a module first', one: '1 completed module', other: '${count} completed modules')}";
 
-  static String m46(count) => "${Intl.plural(count, zero: 'No terms yet', one: '1 term', other: '${count} terms')}";
+  static String m49(count) => "${Intl.plural(count, zero: 'No terms yet', one: '1 term', other: '${count} terms')}";
 
-  static String m47(right, total) => "${right} of ${total} right at the last answer";
+  static String m50(right, total) => "${right} of ${total} right last time";
 
-  static String m48(count, minutes) =>
+  static String m51(count, minutes) =>
       "${Intl.plural(count, one: '1 card', other: '${count} cards')}, about ${minutes} min";
 
-  static String m49(count) => "${Intl.plural(count, zero: 'None now', one: '1 question', other: '${count} questions')}";
+  static String m52(count) => "${Intl.plural(count, zero: 'None now', one: '1 question', other: '${count} questions')}";
 
-  static String m50(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
+  static String m53(count) => "${Intl.plural(count, one: '1 quiz', other: '${count} quizzes')}";
 
-  static String m51(taken, total) => "${taken} of ${total} taken";
+  static String m54(taken, total) => "${taken} of ${total} taken";
 
-  static String m52(index, count) => "Question ${index} of ${count}";
+  static String m55(index, count) => "Question ${index} of ${count}";
 
-  static String m53(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
+  static String m56(previous, best, total) => "The time before: ${previous} of ${total}. Best: ${best} of ${total}.";
 
-  static String m54(score, total) => "${score} of ${total}";
+  static String m57(score, total) => "${score} of ${total}";
 
-  static String m55(count) => "${count} questions on the main points of this module";
+  static String m58(count) =>
+      "${Intl.plural(count, one: '1 question on the main point of this module', other: '${count} questions on the main points of this module')}";
 
-  static String m56(letter) => "Not this one. The answer is ${letter}.";
+  static String m59(letter) => "Not this one. The answer is ${letter}.";
 
-  static String m57(date) => "Completed ${date}";
+  static String m60(date) => "Completed ${date}";
 
-  static String m58(position, total) => "Match ${position} of ${total}";
+  static String m61(position, total) => "Match ${position} of ${total}";
 
-  static String m59(minutes) => "${minutes} min";
+  static String m62(minutes) => "${minutes} min";
 
-  static String m60(number, count) => "MODULE ${number} OF ${count}";
+  static String m63(number, count) => "MODULE ${number} OF ${count}";
 
-  static String m61(label) => "${label} · Planned";
+  static String m64(label) => "${label} · Planned";
 
-  static String m62(hash, date) => "Rev ${hash} · ${date}";
+  static String m65(hash, date) => "Rev ${hash} · ${date}";
 
-  static String m63(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
+  static String m66(reason) => "Not saved: ${reason}. Back up to a file to keep it.";
 
-  static String m64(step, count) => "Card ${step} of ${count}";
+  static String m67(step, count) => "Card ${step} of ${count}";
 
-  static String m65(right, total) => "${right} of ${total} right";
+  static String m68(right, total) => "${right} of ${total} right";
 
-  static String m66(section) => "This is in: ${section}";
+  static String m69(section) => "This is in: ${section}";
 
-  static String m67(reason) => "The check for updates did not finish: ${reason}.";
+  static String m70(reason) => "The check for updates did not finish: ${reason}.";
 
-  static String m68(step, count) => "${step} of ${count}";
+  static String m71(step, count) => "${step} of ${count}";
 
-  static String m69(count) => "${Intl.plural(count, one: '1 module completed', other: '${count} modules completed')}";
+  static String m72(count) => "${Intl.plural(count, one: '1 module completed', other: '${count} modules completed')}";
 
-  static String m70(count) =>
+  static String m73(count) =>
       "${Intl.plural(count, one: '1 checklist item ticked', other: '${count} checklist items ticked')}";
 
-  static String m71(name, level) => "${name}, unlocks at level ${level}";
+  static String m74(name, level) => "${name}, unlocks at level ${level}";
 
-  static String m72(name) => "${name}, worn";
+  static String m75(name) => "${name}, worn";
 
-  static String m73(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
+  static String m76(hat, head, body) => "The robot: ${hat}, ${head}, ${body}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -205,6 +212,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "block_table_region": m4,
     "block_unknown": MessageLookupByLibrary.simpleMessage("This part needs a newer version of the app."),
     "brief_end": MessageLookupByLibrary.simpleMessage("That is the module. Its quiz checks what stayed."),
+    "brief_end_no_quiz": MessageLookupByLibrary.simpleMessage("That is the module."),
     "brief_next": MessageLookupByLibrary.simpleMessage("Next card"),
     "brief_open_module": MessageLookupByLibrary.simpleMessage("Open the module"),
     "brief_previous": MessageLookupByLibrary.simpleMessage("Previous card"),
@@ -298,11 +306,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "data_restore_unreadable": MessageLookupByLibrary.simpleMessage("That file could not be opened."),
     "data_restored": MessageLookupByLibrary.simpleMessage("Restored from the file."),
-    "data_send_empty": MessageLookupByLibrary.simpleMessage("Nothing to send yet: no module is completed or ticked."),
+    "data_send_empty": MessageLookupByLibrary.simpleMessage(
+      "Nothing to send yet: no module is completed and no checklist item is ticked.",
+    ),
     "data_send_failed": MessageLookupByLibrary.simpleMessage("The share menu did not open."),
     "data_send_to_website": MessageLookupByLibrary.simpleMessage("Send to the website"),
     "data_send_too_large": MessageLookupByLibrary.simpleMessage("Your progress is too long to fit in a link."),
-    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NOTHING RECORDED ON THIS DEVICE"),
+    "data_tally_nothing": MessageLookupByLibrary.simpleMessage("NO MODULE PROGRESS ON THIS DEVICE"),
     "data_tally_states": m23,
     "data_undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "diagram_expand": MessageLookupByLibrary.simpleMessage("Open the diagram full screen"),
@@ -319,14 +329,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "erase_scope": MessageLookupByLibrary.simpleMessage(
       "This removes the record from this device, including the copy set aside from a version of the app this one could not read.",
     ),
-    "erase_scores": MessageLookupByLibrary.simpleMessage("The quiz scores on this device are erased too."),
+    "erase_scores": MessageLookupByLibrary.simpleMessage(
+      "The quiz scores, the Practice history and the places kept in each module, read and heard, are erased on this device too. A backup file does not hold them.",
+    ),
     "erase_title": MessageLookupByLibrary.simpleMessage("Erase all progress on this device?"),
     "erase_word": MessageLookupByLibrary.simpleMessage("ERASE"),
     "error_link_open_failed": m27,
     "feedback_failed": MessageLookupByLibrary.simpleMessage("The report was not sent. Try again later."),
     "feedback_field": MessageLookupByLibrary.simpleMessage("What happened"),
     "feedback_intro": MessageLookupByLibrary.simpleMessage(
-      "Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks emails and other personal details in it before it leaves the device.",
+      "Write what went wrong. The report goes to Sentry with the app\'s version and the device\'s model and system, and with no name or email. The app masks the email addresses in it before it leaves the device; do not write other personal details, such as a phone number.",
     ),
     "feedback_send": MessageLookupByLibrary.simpleMessage("Send"),
     "feedback_sending": MessageLookupByLibrary.simpleMessage("Sending"),
@@ -347,11 +359,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "guide_modules_title": MessageLookupByLibrary.simpleMessage("Short modules"),
     "guide_offline": MessageLookupByLibrary.simpleMessage(
-      "The whole course is in the app and reads without a connection. There is no account: your progress stays on this device.",
+      "The whole course is in the app and reads without a connection. There is no account: your progress is saved on this device.",
     ),
     "guide_offline_title": MessageLookupByLibrary.simpleMessage("On this device, offline"),
     "guide_replay_tour": MessageLookupByLibrary.simpleMessage("Take the tour again"),
-    "guide_title": MessageLookupByLibrary.simpleMessage("How the bazaar works"),
+    "guide_title": MessageLookupByLibrary.simpleMessage("How the Bazaar works"),
     "home_after": MessageLookupByLibrary.simpleMessage("Later on"),
     "home_all_complete": MessageLookupByLibrary.simpleMessage("Every written module is complete."),
     "home_continue_reading": MessageLookupByLibrary.simpleMessage("Continue reading"),
@@ -360,6 +372,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_path": MessageLookupByLibrary.simpleMessage("Your path"),
     "home_quiz_waiting": MessageLookupByLibrary.simpleMessage("Quiz waiting"),
     "home_read_percent": m29,
+    "home_record_set_aside": MessageLookupByLibrary.simpleMessage(
+      "Your stored progress could not be read and was set aside. Settings says more.",
+    ),
     "home_see_catalog": MessageLookupByLibrary.simpleMessage("See the whole catalog"),
     "home_up_next": MessageLookupByLibrary.simpleMessage("Up next"),
     "image_expand": MessageLookupByLibrary.simpleMessage("Open the image full screen"),
@@ -394,7 +409,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This device has no voice for this language. Add one in the device\'s Settings to listen.",
     ),
     "listen_not_started": MessageLookupByLibrary.simpleMessage(
-      "Listening stopped. Where it was left is kept; try again in a moment.",
+      "Listening stopped. Your place is kept; try again in a moment.",
     ),
     "listen_open": m35,
     "listen_part": m36,
@@ -450,15 +465,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "pocket_read_waiting": m41,
     "pocket_reset": MessageLookupByLibrary.simpleMessage("Start over"),
     "pocket_reset_body": MessageLookupByLibrary.simpleMessage(
-      "It forgets every token it read and starts again at level 0. The course and its progress stay as they are.",
+      "It forgets every token it read and starts again at level 0, and the outfits and app icons it unlocked lock again; the icon in use stays. The course and its progress stay as they are.",
     ),
     "pocket_reset_keep": MessageLookupByLibrary.simpleMessage("Keep it"),
-    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the apprentice over?"),
+    "pocket_reset_title": MessageLookupByLibrary.simpleMessage("Start the Apprentice over?"),
     "pocket_says": m42,
     "pocket_stage_label": m43,
-    "pocket_stat_modules": MessageLookupByLibrary.simpleMessage("modules read"),
-    "pocket_stat_tokens": MessageLookupByLibrary.simpleMessage("tokens eaten"),
-    "pocket_stat_words": MessageLookupByLibrary.simpleMessage("words known"),
+    "pocket_stat_modules": m44,
+    "pocket_stat_tokens": m45,
+    "pocket_stat_words": m46,
     "pocket_stats_title": MessageLookupByLibrary.simpleMessage("What it learnt"),
     "pocket_status_asleep": MessageLookupByLibrary.simpleMessage("Asleep. Tap it to wake it."),
     "pocket_status_cold": MessageLookupByLibrary.simpleMessage("Cold: it says its likeliest words, every time."),
@@ -476,21 +491,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pocket_temperature": MessageLookupByLibrary.simpleMessage("Temperature"),
     "pocket_title": MessageLookupByLibrary.simpleMessage("Apprentice"),
-    "pocket_to_next": m44,
+    "pocket_to_next": m47,
     "practice_brief": MessageLookupByLibrary.simpleMessage("Recap"),
-    "practice_brief_count": m45,
+    "practice_brief_count": m48,
     "practice_brief_lede": MessageLookupByLibrary.simpleMessage(
       "The Summary and the Key Terms of a module you completed, card by card.",
     ),
     "practice_endless": MessageLookupByLibrary.simpleMessage("Endless review"),
     "practice_endless_lede": MessageLookupByLibrary.simpleMessage("Practice what you\'ve read, as long as you like."),
     "practice_glossary": MessageLookupByLibrary.simpleMessage("Glossary"),
-    "practice_glossary_count": m46,
-    "practice_latest": m47,
+    "practice_glossary_count": m49,
+    "practice_latest": m50,
     "practice_quizzes": MessageLookupByLibrary.simpleMessage("Quizzes by level"),
     "practice_start": MessageLookupByLibrary.simpleMessage("Start"),
     "practice_today": MessageLookupByLibrary.simpleMessage("Today\'s review"),
-    "practice_today_cards": m48,
+    "practice_today_cards": m51,
     "practice_today_done": MessageLookupByLibrary.simpleMessage("That is all for today"),
     "practice_today_done_lede": MessageLookupByLibrary.simpleMessage("The next cards come tomorrow."),
     "practice_today_none": MessageLookupByLibrary.simpleMessage("Nothing to review today"),
@@ -499,22 +514,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "practice_wrong": MessageLookupByLibrary.simpleMessage("Wrong answers"),
     "practice_wrong_all": MessageLookupByLibrary.simpleMessage("Answer them all"),
-    "practice_wrong_count": m49,
+    "practice_wrong_count": m52,
     "practice_wrong_none": MessageLookupByLibrary.simpleMessage("No wrong answers now."),
-    "privacy_contact": MessageLookupByLibrary.simpleMessage("For any question about personal data, write to us."),
+    "privacy_contact": MessageLookupByLibrary.simpleMessage(
+      "For any question about personal data, write to the address below.",
+    ),
     "privacy_crash": MessageLookupByLibrary.simpleMessage(
-      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks personal details before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
+      "When the app crashes, it sends a crash report to Sentry so the fault can be fixed. To follow the app\'s health by version, it also tells Sentry when it opens and closes, how long it took to open and when it froze, with a random number for this installation. None of this holds your name, what you read or your quiz answers. The app masks email addresses, passwords and tokens before they leave the device, and Sentry keeps no IP address. A problem you send under Report a problem goes to Sentry the same way.",
     ),
     "privacy_download": MessageLookupByLibrary.simpleMessage(
-      "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This is GitHub\'s record, not ours.",
+      "The app downloads the course from the website, which is hosted on GitHub Pages. GitHub logs and stores the IP address of every visitor for security. This record is GitHub\'s; the app keeps none.",
     ),
     "privacy_feedback_form": MessageLookupByLibrary.simpleMessage(
       "Feedback in Settings opens an anonymous Google form in your browser, and the app sends nothing to it.",
     ),
     "privacy_github_pages": MessageLookupByLibrary.simpleMessage("What is GitHub Pages?"),
     "privacy_github_statement": MessageLookupByLibrary.simpleMessage("GitHub General Privacy Statement"),
+    "privacy_listen": MessageLookupByLibrary.simpleMessage(
+      "Listen reads a module aloud with the device\'s own voice, and the app sends nothing for it. When the device has no voice installed for the module\'s language, its speech engine may use an online voice from the engine\'s maker.",
+    ),
     "privacy_no_data": MessageLookupByLibrary.simpleMessage(
-      "This app has no account, no ads and no tracking, and collects no personal data. What it sends, and where, is below.",
+      "This app has no account, no ads and no tracking. What it sends, and where, is below; none of it is linked to you.",
     ),
     "privacy_on_device": MessageLookupByLibrary.simpleMessage(
       "Your progress, your quiz scores and your settings are saved on this device, and in the device\'s own backup when it is on; the app sends them nowhere else. Under Your progress in Settings you can back up and restore your progress, and reset your progress and quiz scores.",
@@ -550,7 +570,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "PROGRESS THIS VERSION OF THE APP COULD NOT READ. NOT READ.",
     ),
     "quarantine_newer_note": MessageLookupByLibrary.simpleMessage(
-      "Update the app to read it. The stored record is kept on this device unchanged.",
+      "Save a copy now, and restore it after updating the app. The stored record is kept on this device unchanged.",
     ),
     "quarantine_newer_readout": MessageLookupByLibrary.simpleMessage(
       "PROGRESS WRITTEN BY A NEWER VERSION OF THE APP. NOT READ.",
@@ -561,30 +581,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_back_to_questions": MessageLookupByLibrary.simpleMessage("Back to the questions"),
     "quiz_correct": MessageLookupByLibrary.simpleMessage("Correct."),
     "quiz_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "quiz_list_count": m50,
-    "quiz_list_taken": m51,
+    "quiz_list_count": m53,
+    "quiz_list_taken": m54,
     "quiz_next": MessageLookupByLibrary.simpleMessage("Next"),
     "quiz_previous": MessageLookupByLibrary.simpleMessage("Previous"),
-    "quiz_progress": m52,
+    "quiz_progress": m55,
     "quiz_recap_correct": MessageLookupByLibrary.simpleMessage(", correct"),
     "quiz_recap_wrong": MessageLookupByLibrary.simpleMessage(", not correct"),
-    "quiz_score_before": m53,
-    "quiz_score_count": m54,
+    "quiz_score_before": m56,
+    "quiz_score_count": m57,
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
-    "quiz_subtitle": m55,
+    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage(
+      "The answers on this quiz start again; Practice keeps those already given.",
+    ),
+    "quiz_start_over_keep": MessageLookupByLibrary.simpleMessage("Keep going"),
+    "quiz_start_over_title": MessageLookupByLibrary.simpleMessage("Start the quiz over?"),
+    "quiz_subtitle": m58,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(
       "This quiz could not be opened. Close it and try again later.",
     ),
-    "quiz_wrong": m56,
+    "quiz_wrong": m59,
     "reader_auto_completed": MessageLookupByLibrary.simpleMessage("Marked as completed"),
     "reader_band_partly_written": MessageLookupByLibrary.simpleMessage("Partly written"),
     "reader_band_parts_only": MessageLookupByLibrary.simpleMessage("Schedule of parts only"),
     "reader_before_you_start": MessageLookupByLibrary.simpleMessage("Before you start"),
     "reader_close": MessageLookupByLibrary.simpleMessage("Close"),
-    "reader_completed_on": m57,
+    "reader_completed_on": m60,
     "reader_completion_region": MessageLookupByLibrary.simpleMessage("Module completion"),
     "reader_contents": MessageLookupByLibrary.simpleMessage("Contents"),
     "reader_end_of_course": MessageLookupByLibrary.simpleMessage("End of the course"),
@@ -593,20 +618,20 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reader_find_close": MessageLookupByLibrary.simpleMessage("Stop marking the search"),
     "reader_find_next": MessageLookupByLibrary.simpleMessage("Next match"),
-    "reader_find_position": m58,
+    "reader_find_position": m61,
     "reader_find_previous": MessageLookupByLibrary.simpleMessage("Previous match"),
     "reader_mark_complete": MessageLookupByLibrary.simpleMessage("Mark this module as complete"),
-    "reader_minutes": m59,
-    "reader_module_of": m60,
+    "reader_minutes": m62,
+    "reader_module_of": m63,
     "reader_next": MessageLookupByLibrary.simpleMessage("Next"),
     "reader_not_written": MessageLookupByLibrary.simpleMessage("The For Everyone version of this module is planned."),
     "reader_objectives": MessageLookupByLibrary.simpleMessage("What you will be able to do"),
     "reader_on_this_page": MessageLookupByLibrary.simpleMessage("On this page"),
-    "reader_pager_planned": m61,
+    "reader_pager_planned": m64,
     "reader_previous": MessageLookupByLibrary.simpleMessage("Previous"),
     "reader_read_for_engineers": MessageLookupByLibrary.simpleMessage("Read it For Engineers"),
     "reader_retry": MessageLookupByLibrary.simpleMessage("Try again"),
-    "reader_revision": m62,
+    "reader_revision": m65,
     "reader_schedule_description": MessageLookupByLibrary.simpleMessage("Description"),
     "reader_schedule_item": MessageLookupByLibrary.simpleMessage("Item"),
     "reader_schedule_of_parts": MessageLookupByLibrary.simpleMessage("Schedule of parts"),
@@ -631,7 +656,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "reading_spacing_comfortable": MessageLookupByLibrary.simpleMessage("Comfortable"),
     "reading_spacing_tight": MessageLookupByLibrary.simpleMessage("Tight"),
     "reading_spacing_wide": MessageLookupByLibrary.simpleMessage("Wide"),
-    "record_not_saved": m63,
+    "record_not_read": MessageLookupByLibrary.simpleMessage(
+      "The progress stored on this device could not be read, and nothing is written over it. Tap to read it again.",
+    ),
+    "record_not_saved": m66,
     "record_not_saved_blocked": MessageLookupByLibrary.simpleMessage("the app could not write its file"),
     "record_not_saved_quota": MessageLookupByLibrary.simpleMessage("this device has no space left"),
     "record_not_saved_too_large": MessageLookupByLibrary.simpleMessage("the record is larger than the app will write"),
@@ -645,9 +673,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "review_back_home": MessageLookupByLibrary.simpleMessage("Back to Home"),
     "review_empty": MessageLookupByLibrary.simpleMessage("No cards to show."),
     "review_finish": MessageLookupByLibrary.simpleMessage("Finish"),
-    "review_progress": m64,
-    "review_result": m65,
-    "review_section_link": m66,
+    "review_progress": m67,
+    "review_result": m68,
+    "review_section_link": m69,
     "review_term": MessageLookupByLibrary.simpleMessage("Term"),
     "review_term_ask": MessageLookupByLibrary.simpleMessage("Which term is this?"),
     "settings_about": MessageLookupByLibrary.simpleMessage("About"),
@@ -677,7 +705,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_refresh_every_start": MessageLookupByLibrary.simpleMessage(
       "At every start the app asks the site for a newer version.",
     ),
-    "settings_refresh_failed": m67,
+    "settings_refresh_failed": m70,
     "settings_refresh_idle": MessageLookupByLibrary.simpleMessage("Not checked since the app started"),
     "settings_refresh_needs_app_update": MessageLookupByLibrary.simpleMessage(
       "Newer content needs a newer version of the app. Update the app to get it.",
@@ -721,20 +749,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "tour_settings_customize": MessageLookupByLibrary.simpleMessage(
       "My wardrobe: dress me up, or change the app icon.",
     ),
-    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the bazaar works."),
+    "tour_settings_guide": MessageLookupByLibrary.simpleMessage("This tour waits in How the Bazaar works."),
     "tour_settings_reading": MessageLookupByLibrary.simpleMessage("Audience, language, appearance and text size."),
     "tour_settings_website": MessageLookupByLibrary.simpleMessage(
       "Bring your progress from the website here, or send it there.",
     ),
     "tour_show_me": MessageLookupByLibrary.simpleMessage("Show me around"),
     "tour_skip": MessageLookupByLibrary.simpleMessage("Skip the tour"),
-    "tour_step": m68,
+    "tour_step": m71,
     "tour_tabs": MessageLookupByLibrary.simpleMessage("Open a tab and I\'ll show you around it."),
     "track_engineers": MessageLookupByLibrary.simpleMessage("For Engineers"),
     "track_everyone": MessageLookupByLibrary.simpleMessage("For Everyone"),
     "transfer_add": MessageLookupByLibrary.simpleMessage("Add to this device\'s progress"),
     "transfer_added": MessageLookupByLibrary.simpleMessage("Added. Nothing on this device was removed."),
-    "transfer_completed": m69,
+    "transfer_completed": m72,
     "transfer_empty": MessageLookupByLibrary.simpleMessage("This link carries no progress."),
     "transfer_keeps": MessageLookupByLibrary.simpleMessage(
       "Adding it keeps everything on this device: nothing here is removed.",
@@ -743,7 +771,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Not added. Nothing on this device changed; Add tries again.",
     ),
     "transfer_nothing_new": MessageLookupByLibrary.simpleMessage("Nothing new: this device already has all of it."),
-    "transfer_ticked": m70,
+    "transfer_ticked": m73,
     "transfer_title": MessageLookupByLibrary.simpleMessage("Progress from a link"),
     "transfer_too_large": MessageLookupByLibrary.simpleMessage(
       "Not added: with it, the progress on this device would be larger than the app can keep. Nothing was changed.",
@@ -754,12 +782,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "wardrobe_body": MessageLookupByLibrary.simpleMessage("Body"),
     "wardrobe_hat": MessageLookupByLibrary.simpleMessage("Hat"),
     "wardrobe_head": MessageLookupByLibrary.simpleMessage("Head"),
-    "wardrobe_item_locked": m71,
-    "wardrobe_item_worn": m72,
+    "wardrobe_item_locked": m74,
+    "wardrobe_item_worn": m75,
     "wardrobe_note": MessageLookupByLibrary.simpleMessage(
-      "Each level of the apprentice unlocks something new to wear.",
+      "Each level of the Apprentice unlocks something new to wear.",
     ),
-    "wardrobe_preview": m73,
+    "wardrobe_preview": m76,
     "website_from_text": MessageLookupByLibrary.simpleMessage(
       "On the website, open Progress at the top and choose Move to the app. Scan the code it shows with this device.",
     ),

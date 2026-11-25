@@ -88,35 +88,59 @@
     "expected": "statusCode=404 countryCode=TR"
   },
   {
-    "input": "\u017fBearer abcdef123",
-    "expected": "\u017fBearer [REDACTED]"
+    "input": "ſBearer abcdef123",
+    "expected": "ſBearer [REDACTED]"
   },
   {
-    "input": "\u212aBearer abcdef123",
-    "expected": "\u212aBearer [REDACTED]"
+    "input": "KBearer abcdef123",
+    "expected": "KBearer [REDACTED]"
   },
   {
-    "input": "Bearer\ufeffat-opaque-0a1b2c3d",
+    "input": "Bearer﻿at-opaque-0a1b2c3d",
     "expected": "Bearer [REDACTED]"
   },
   {
-    "input": "Bearer\u00a0at-opaque-0a1b2c3d",
+    "input": "Bearer at-opaque-0a1b2c3d",
     "expected": "Bearer [REDACTED]"
   },
   {
-    "input": "Bearer\u0085at-opaque-0a1b2c3d",
+    "input": "Bearerat-opaque-0a1b2c3d",
     "expected": "Bearer [REDACTED]"
   },
   {
-    "input": "{\"token\"\u00a0:\u0085\"rt-9f8e7d6c\"}",
-    "expected": "{\"token\"\u00a0:\u0085\"[REDACTED]\"}"
+    "input": "{\"token\" :\"rt-9f8e7d6c\"}",
+    "expected": "{\"token\" :\"[REDACTED]\"}"
   },
   {
-    "input": "password=abc\u0085def",
+    "input": "password=abcdef",
     "expected": "password=[REDACTED]"
   },
   {
-    "input": "password=abc\u3000def",
-    "expected": "password=[REDACTED]\u3000def"
+    "input": "password=abc　def",
+    "expected": "password=[REDACTED]　def"
+  },
+  {
+    "input": "write to gülşen.yılmaz@örnek.com.tr or ali@örnek.com",
+    "expected": "write to [REDACTED_EMAIL] or [REDACTED_EMAIL]"
+  },
+  {
+    "input": "from gülşen@gmail.com today",
+    "expected": "from [REDACTED_EMAIL] today"
+  },
+  {
+    "input": "opened https://ai-bazaar.lokum.dev/tr/courses/foundations/what-is-an-llm/ then",
+    "expected": "opened https://ai-bazaar.lokum.dev/tr/courses/[REDACTED] then"
+  },
+  {
+    "input": "route /everyone/courses/alpha/first and /sheets/alpha",
+    "expected": "route /everyone/courses/[REDACTED] and /sheets/[REDACTED]"
+  },
+  {
+    "input": "PathNotFoundException: cache/content/objects/abababababababababababababababababababababababababababababababab (OS Error)",
+    "expected": "PathNotFoundException: cache/content/objects/[REDACTED] (OS Error)"
+  },
+  {
+    "input": "link aibazaar://transfer#t=eNpLtDK0qi62MrRSKkktLlGyAgAb5gQh opened",
+    "expected": "link aibazaar://transfer#t=[REDACTED] opened"
   }
 ]

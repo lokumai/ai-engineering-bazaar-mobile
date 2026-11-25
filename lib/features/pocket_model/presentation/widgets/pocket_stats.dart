@@ -34,9 +34,9 @@ class PocketStats extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final (count, label) in [
-                (model.readings.length, s.pocket_stat_modules),
-                (known, s.pocket_stat_words),
-                (model.total, s.pocket_stat_tokens),
+                (model.readings.length, s.pocket_stat_modules(model.readings.length)),
+                (known, s.pocket_stat_words(known)),
+                (model.total, s.pocket_stat_tokens(model.total)),
               ])
                 Expanded(
                   child: _Stat(value: number.format(count), label: label),

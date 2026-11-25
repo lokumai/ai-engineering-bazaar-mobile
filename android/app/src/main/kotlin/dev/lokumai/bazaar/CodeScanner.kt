@@ -49,14 +49,28 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
         }
     }
 
-    private val scanner = GmsBarcodeScanning.getClient(
-        activity,
-        GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build(),
-    )
+    // Built at the first scan, not with the activity (opus review 11): a client that cannot be built answers that scan
+    // `no-scanner` rather than closing the app at its start, as R8's loss of ML Kit's registrars once did.
+    private val scanner by lazy {
+        GmsBarcodeScanning.getClient(
+            activity,
+            GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build(),
+        )
+    }
 
-    private val installer = ModuleInstall.getClient(activity)
+    private val installer by lazy { ModuleInstall.getClient(activity) }
+
+    /** The listener of the install under way, taken off when the activity goes (review 11, native 12). */
+    private var listening: InstallStatusListener? = null
 
     private fun scan(result: Once) {
+        try {
+            scanner
+            installer
+        } catch (error: RuntimeException) {
+            result.error("no-scanner", error.message, null)
+            return
+        }
         installer.areModulesAvailable(scanner)
             .addOnSuccessListener { answer ->
                 if (answer.areModulesAvailable()) start(result) else install(result)
@@ -84,10 +98,12 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
             }
         }
         limit = Runnable {
+            if (listening === listener) listening = null
             installer.unregisterListener(listener)
             result.error("no-scanner", "module not in place after ${INSTALL_LIMIT_MS / 1000} s", null)
         }
         main.postDelayed(limit, INSTALL_LIMIT_MS)
+        listening = listener
         val request = ModuleInstallRequest.newBuilder().addApi(scanner).setListener(listener).build()
         installer.installModules(request)
             .addOnSuccessListener { answer ->
@@ -103,6 +119,7 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
     }
 
     private fun done(listener: InstallStatusListener, limit: Runnable) {
+        if (listening === listener) listening = null
         installer.unregisterListener(listener)
         main.removeCallbacks(limit)
     }
@@ -116,6 +133,8 @@ class CodeScanner(private val activity: Activity, messenger: BinaryMessenger) {
 
     fun close() {
         main.removeCallbacksAndMessages(null)
+        listening?.let { listener -> runCatching { installer.unregisterListener(listener) } }
+        listening = null
         channel.setMethodCallHandler(null)
     }
 

@@ -104,6 +104,7 @@ HomeOverview homeOverview(
   final reading = _lastLeft(places, track, open.toSet());
   final shown = reading?.key ?? first;
 
+  final counts = categoryProgress(view, curriculum);
   return HomeOverview(
     next: reading != null
         ? entryOf(reading.key, track, reading.place.share)
@@ -111,15 +112,13 @@ HomeOverview homeOverview(
         ? null
         : entryOf(first, track),
     after: [for (final key in open.where((key) => key != shown).take(HomeOverview.afterCount)) entryOf(key, track)],
+    // The catalog's counts, the level's declared total with its planned modules, so Home and the catalog say the same
+    // of a level (review 11, features 5); a level with no module written yet is left off the path.
     levels: [
       for (final (position, level) in index.levels.indexed)
-        if (_written(curriculum, level.slug) case final written when written.isNotEmpty)
-          HomeLevel(
-            level: level,
-            position: position,
-            done: written.where((fact) => isSigned(fact, view)).length,
-            total: written.length,
-          ),
+        if (_written(curriculum, level.slug).isNotEmpty)
+          if (counts[level.slug] case final count?)
+            HomeLevel(level: level, position: position, done: count.approved, total: count.total),
     ],
   );
 }

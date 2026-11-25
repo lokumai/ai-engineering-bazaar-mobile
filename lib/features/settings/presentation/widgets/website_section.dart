@@ -49,14 +49,20 @@ class _WebsiteSectionView extends StatelessWidget {
     final s = S.of(context);
     final scan = context.watch<CodeScanCubit>().state;
     final send = context.watch<WebsiteLinkCubit>().state;
-    final scanLine = switch (scan.status) {
-      CodeScanStatus.notALink => s.website_scan_not_a_link,
-      CodeScanStatus.denied => s.website_scan_denied,
-      CodeScanStatus.failed => s.website_scan_failed,
+    // A record that could not be read at launch is not sent, as it is not backed up: the link would carry only what
+    // was done since, or say there is nothing to send (review 12, R1). The notice above says how to read it again.
+    final unread = switch (context.watch<RecordBloc>().state) {
+      RecordReady(:final launchReadFailed) => launchReadFailed,
+      RecordLoading() => false,
+    };
+    final scanLine = switch (scan.scan) {
+      CodeScanNotALink() => s.website_scan_not_a_link,
+      CodeScanDenied() => s.website_scan_denied,
+      CodeScanFailed() => s.website_scan_failed,
       // Google's scanner may first be fetched by Play services, a wait with the button off and no word (review 3,
       // finding 8).
-      CodeScanStatus.scanning => s.website_scan_opening,
-      CodeScanStatus.idle || CodeScanStatus.found => null,
+      CodeScanScanning() => s.website_scan_opening,
+      CodeScanIdle() || CodeScanFound() => null,
     };
     final sendLine = switch (send) {
       WebsiteLinkState.empty => s.data_send_empty,
@@ -65,10 +71,12 @@ class _WebsiteSectionView extends StatelessWidget {
       WebsiteLinkState.idle || WebsiteLinkState.sending => null,
     };
     return BlocListener<CodeScanCubit, CodeScanState>(
-      listenWhen: (previous, current) => current.status == CodeScanStatus.found && current.payload != null,
+      listenWhen: (previous, current) => current.scan is CodeScanFound,
       listener: (context, state) {
-        context.read<CodeScanCubit>().opened();
-        context.push(BazaarPaths.transfer, extra: state.payload);
+        if (state.scan case CodeScanFound(:final payload)) {
+          context.read<CodeScanCubit>().opened();
+          context.push(BazaarPaths.transfer, extra: payload);
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,7 +88,7 @@ class _WebsiteSectionView extends StatelessWidget {
             action: scan.available
                 ? OutlinedButton.icon(
                     key: const ValueKey('settings-scan-code'),
-                    onPressed: scan.status == CodeScanStatus.scanning
+                    onPressed: scan.scan is CodeScanScanning
                         ? null
                         : () => context.read<CodeScanCubit>().scan(
                             s.website_scan_title,
@@ -97,7 +105,9 @@ class _WebsiteSectionView extends StatelessWidget {
             text: s.website_to_text,
             action: OutlinedButton.icon(
               key: const ValueKey('settings-send-to-website'),
-              onPressed: send == WebsiteLinkState.sending ? null : () => context.read<WebsiteLinkCubit>().send(),
+              onPressed: send == WebsiteLinkState.sending || unread
+                  ? null
+                  : () => context.read<WebsiteLinkCubit>().send(),
               icon: Icon(shareIcon(context)),
               label: Text(s.data_send_to_website),
             ),

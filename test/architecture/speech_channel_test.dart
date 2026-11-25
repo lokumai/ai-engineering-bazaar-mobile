@@ -232,6 +232,15 @@ void main() {
     expect(ios, contains('AVAudioSession.routeChangeNotification'));
     expect(ios, contains('.oldDeviceUnavailable'));
     expect(ios, contains('let active = (try? session.setActive(true)) != nil'));
+    // A pause keeps the sound while the reading is on the lock screen, or Play there is refused in the background
+    // (the owner's iPhone, 2026-11-25); it goes back to other apps once no reading is shown.
+    expect(ios, contains('guard let self, self.commands.isEmpty else { return }'));
+    expect(
+      ios,
+      contains(
+        'commands.removeAll()\n      // The reading ended or rested: the sound a pause kept goes back to other apps.\n      letSoundGo()',
+      ),
+    );
     expect(ios, contains('connection.videoRotationAngle = angle'), reason: "the scanner's picture turns (plan 20.9)");
   });
 }

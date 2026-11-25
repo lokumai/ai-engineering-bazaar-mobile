@@ -1,6 +1,7 @@
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/track/track_store.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ai_engineering_bazaar/shared/utils/serial_writes.dart';
 
 /// The current track, For Engineers until the chosen one is read.
 ///
@@ -30,15 +31,8 @@ final class TrackCubit extends Cubit<Track> {
     select(track);
     // One choice is written at a time, in the order made: the store clears the other choices before it keeps this one,
     // so two quick choices written at once could leave both kept, and the next start take the wrong one.
-    final previous = _saving;
-    final saving = _saving = () async {
-      // A write that failed was logged by the store; the next one still runs.
-      await previous.catchError((Object _) {});
-      await _store.choose(track);
-    }();
-    await saving;
+    await _writes.run(() => _store.choose(track));
   }
 
-  /// The write of the last choice, which the next one waits for.
-  Future<void> _saving = Future<void>.value();
+  final _writes = SerialWrites();
 }

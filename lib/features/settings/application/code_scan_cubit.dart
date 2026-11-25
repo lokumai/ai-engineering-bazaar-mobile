@@ -22,30 +22,30 @@ final class CodeScanCubit extends Cubit<CodeScanState> {
 
   /// Opens the camera with [title] over it and [cancel] on its way back.
   Future<void> scan(String title, {required String cancel}) async {
-    if (!state.available || state.status == CodeScanStatus.scanning) return;
-    emit(state.copyWith(status: CodeScanStatus.scanning));
-    CodeScanState next;
+    if (!state.available || state.scan is CodeScanScanning) return;
+    emit(state.at(const CodeScanScanning()));
+    CodeScan next;
     try {
       next = switch (await _scanner.scan(title, cancel: cancel)) {
         ScanRead(:final text) => switch (_linkIn(text)) {
-          SiteTransfer(:final payload) => state.copyWith(status: CodeScanStatus.found, payload: payload),
-          _ => state.copyWith(status: CodeScanStatus.notALink),
+          SiteTransfer(:final payload) => CodeScanFound(payload),
+          _ => const CodeScanNotALink(),
         },
-        ScanCancelled() => state.copyWith(status: CodeScanStatus.idle),
-        ScanDenied() => state.copyWith(status: CodeScanStatus.denied),
-        ScanFailed() => state.copyWith(status: CodeScanStatus.failed),
+        ScanCancelled() => const CodeScanIdle(),
+        ScanDenied() => const CodeScanDenied(),
+        ScanFailed() => const CodeScanFailed(),
       };
     } on Object {
       // Whatever went wrong, the scan ends, or the button stays dead until Settings is opened again (review 5,
       // finding 1).
-      next = state.copyWith(status: CodeScanStatus.failed);
+      next = const CodeScanFailed();
     }
-    if (!isClosed) emit(next);
+    if (!isClosed) emit(state.at(next));
   }
 
   /// The transfer page was opened with what was found.
   void opened() {
-    if (state.status == CodeScanStatus.found) emit(state.copyWith(status: CodeScanStatus.idle));
+    if (state.scan is CodeScanFound) emit(state.at(const CodeScanIdle()));
   }
 
   /// The link in a code. The site builds its code from the address it is opened at, so a code from a copy of the site
@@ -65,22 +65,55 @@ final class CodeScanCubit extends Cubit<CodeScanState> {
   }
 }
 
-/// Where a scan is.
-enum CodeScanStatus { idle, scanning, found, notALink, denied, failed }
+/// Where a scan is: a sealed family, so a payload exists only once a transfer was found (review 11, architecture 9).
+sealed class CodeScan extends Equatable {
+  const CodeScan();
 
+  @override
+  List<Object?> get props => [];
+}
+
+final class CodeScanIdle extends CodeScan {
+  const CodeScanIdle();
+}
+
+final class CodeScanScanning extends CodeScan {
+  const CodeScanScanning();
+}
+
+/// A progress link was read; [payload] opens the transfer page.
+final class CodeScanFound extends CodeScan {
+  const CodeScanFound(this.payload);
+
+  final String payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class CodeScanNotALink extends CodeScan {
+  const CodeScanNotALink();
+}
+
+final class CodeScanDenied extends CodeScan {
+  const CodeScanDenied();
+}
+
+final class CodeScanFailed extends CodeScan {
+  const CodeScanFailed();
+}
+
+/// Whether the phone can scan, and where the [scan] is. One state with two fields, by the rule's third exception (form
+/// persistence): [available] is asked once and persists through every step of a scan, which is itself sealed.
 final class CodeScanState extends Equatable {
-  const CodeScanState({this.available = false, this.status = CodeScanStatus.idle, this.payload});
+  const CodeScanState({this.available = false, this.scan = const CodeScanIdle()});
 
   /// Whether this phone can scan in the app; false until asked.
   final bool available;
-  final CodeScanStatus status;
+  final CodeScan scan;
 
-  /// The transfer's payload once one was [CodeScanStatus.found].
-  final String? payload;
-
-  CodeScanState copyWith({required CodeScanStatus status, String? payload}) =>
-      CodeScanState(available: available, status: status, payload: payload);
+  CodeScanState at(CodeScan scan) => CodeScanState(available: available, scan: scan);
 
   @override
-  List<Object?> get props => [available, status, payload];
+  List<Object?> get props => [available, scan];
 }

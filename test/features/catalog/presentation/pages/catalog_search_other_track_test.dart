@@ -3,6 +3,7 @@ library;
 
 import 'package:ai_engineering_bazaar/app/router/app_router.dart';
 import 'package:ai_engineering_bazaar/features/catalog/presentation/widgets/catalog_search.dart';
+import 'package:ai_engineering_bazaar/features/reader/presentation/widgets/pager.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/documents.dart';
 import 'package:ai_engineering_bazaar/shared/content/domain/track.dart';
 import 'package:ai_engineering_bazaar/shared/navigation/reader_target.dart';
@@ -26,6 +27,9 @@ MockContentRepository _repository() {
     return testDoc(
       key: key,
       title: 'Module $key',
+      next: key == 'alpha/first'
+          ? const Ref(key: 'alpha/second', number: 2, title: 'Second', drawn: true, track: Track.engineers, lang: 'en')
+          : null,
       body: [
         ParagraphBlock(
           inlines: [TextInline(text: everyone ? 'A gentle story about reading.' : 'The tokenizer splits the text.')],
@@ -83,5 +87,23 @@ void main() {
 
     expect(find.byKey(const ValueKey('catalog-search-other-track')), findsNothing);
     expect(find.textContaining('In For Engineers'), findsNothing);
+  });
+
+  // Review 11, features 9: Next in a module opened as a visit went on without the flag, and the track switched.
+  testWidgets("Next in a module of the other track, opened as a visit, keeps the reader's track", (tester) async {
+    final (router, track) = await _pumpEveryone(tester);
+    router.push('/courses/alpha/first', extra: const ReaderTarget(visit: true)).ignore();
+    await tester.pumpAndSettle();
+    expect(track.state, Track.everyone);
+
+    final next = find.descendant(of: find.byType(Pager), matching: find.byType(FilledButton));
+    await tester.ensureVisible(next);
+    await tester.pumpAndSettle();
+    await tester.tap(next);
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, isNot('/courses/alpha/first'));
+    expect(router.state.uri.path, startsWith('/courses/'));
+    expect(track.state, Track.everyone);
   });
 }

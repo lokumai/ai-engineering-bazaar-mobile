@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.plugin.common.MethodChannel
 import io.sentry.Sentry
 
@@ -46,6 +47,16 @@ class MainActivity : FlutterActivity() {
 
     override fun getCachedEngineGroupId(): String? = null
 
+    /**
+     * The engine's flags and the Dart entry's arguments are the app's own, never an intent's: the activity is exported,
+     * so any app could start it with extras such as dart-flags, which end the app in a release build (review 11,
+     * native 7; review 10 closed the cached engine's id the same way).
+     */
+    @Suppress("DEPRECATION")
+    override fun getFlutterShellArgs(): FlutterShellArgs = FlutterShellArgs(arrayOf<String>())
+
+    override fun getDartEntrypointArgs(): List<String>? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // nativeSdkReady (lib/infrastructure/analytics/native_sentry_start.dart) asks whether MainApplication started
@@ -73,7 +84,12 @@ class MainActivity : FlutterActivity() {
             }
         handleLaunchGround(flutterEngine)
         // lib/infrastructure/speech/phone_speech.dart reads a module aloud with the phone's own voice.
-        speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger)
+        // A paused reading's notice outlives an app ended in the background; this app has no reading yet.
+        ListenService.clearStale(this)
+        speech = Speech(this, flutterEngine.dartExecutor.binaryMessenger).also {
+            // An icon chosen while a module was read aloud reaches the launcher once the reading ends in the background.
+            it.onReadingEnded = { if (stopped) applyChosenIcon() }
+        }
         // lib/infrastructure/links/link_channel.dart opens the site's links in the app; the one the app was opened
         // with waits for it.
         links = Links(this, flutterEngine.dartExecutor.binaryMessenger).also { if (!restored) it.receive(intent) }
@@ -112,8 +128,11 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        speech?.onReadingEnded = null
         speech?.close()
         speech = null
+        // An icon still waiting on a reading reaches the launcher as the activity goes.
+        applyChosenIcon()
         links?.close()
         links = null
         shareSheet?.close()
@@ -141,11 +160,29 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    /** Whether the activity is in the background, where a chosen icon may reach the launcher. */
+    private var stopped = false
+
+    override fun onStart() {
+        super.onStart()
+        stopped = false
+    }
+
     override fun onStop() {
         super.onStop()
-        chosenIcon?.let {
-            AppIconSwitch.apply(this, it)
-            chosenIcon = null
-        }
+        stopped = true
+        applyChosenIcon()
+    }
+
+    /**
+     * Sends the icon the reader chose to the launcher, unless a module is being read aloud: turning off the launcher entry
+     * the app was opened through can finish its activity even with DONT_KILL_APP, and the reading with it (review 11,
+     * native 1). It then waits for the reading to end in the background, or for the next time the app goes there.
+     */
+    private fun applyChosenIcon() {
+        val icon = chosenIcon ?: return
+        if (speech?.readingShown == true) return
+        AppIconSwitch.apply(this, icon)
+        chosenIcon = null
     }
 }

@@ -136,6 +136,12 @@ final List<_Rejection> _rejections = [
       _table(align: [null, null], headCells: 3),
     ],
   ),
+  // Review 11, content 5: Flutter's Table asserts on a table whose rows have no cells.
+  (
+    field: 'body[0].head',
+    why: 'a table with no head cells',
+    mutate: (json) => json['body'] = [_table(align: [], headCells: 0)],
+  ),
   (
     field: 'body[0].number',
     why: 'a caption number that is not digits',
