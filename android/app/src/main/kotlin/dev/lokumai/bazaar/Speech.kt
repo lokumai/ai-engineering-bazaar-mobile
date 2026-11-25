@@ -201,6 +201,9 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
      */
     private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
         .setAudioAttributes(attributes)
+        // The voice plays in the TTS engine's process, which Android's own ducking does not reach: without this the
+        // app was never told of a short prompt, and read over it (review 12, N1).
+        .setWillPauseWhenDucked(true)
         .setOnAudioFocusChangeListener(focus, main)
         .build()
 
@@ -255,7 +258,9 @@ class Speech(private val context: Context, messenger: BinaryMessenger) : MethodC
         )
         session.isActive = true
         ListenService.session = session.sessionToken
-        ListenService.show(context, title, playing)
+        // Paused for a short prompt, the service stays in the foreground: the reading goes on at the prompt's end from
+        // the background, where Android 12 and later refuse to start a foreground service (review 12, N1).
+        ListenService.show(context, title, playing, keepForeground = ducked)
     }
 
     private val release = Runnable {

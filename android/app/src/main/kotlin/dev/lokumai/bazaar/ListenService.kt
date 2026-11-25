@@ -72,12 +72,13 @@ class ListenService : Service() {
          * Names [title], playing or paused, on the notice of the service running (plan 19.8): a paused reading keeps
          * its notice, with Play, until it ends.
          */
-        fun show(context: Context, title: String, playing: Boolean) {
+        fun show(context: Context, title: String, playing: Boolean, keepForeground: Boolean = false) {
             if (!running) return
             val service = context.applicationContext
             // Paused, nothing is played: the service leaves the foreground and keeps its notice, which the reader may
-            // then swipe away; the next speak brings it back to the foreground (review 11, native 4).
-            if (!playing) runCatching { instance?.stopForeground(STOP_FOREGROUND_DETACH) }
+            // then swipe away; the next speak brings it back to the foreground (review 11, native 4). Paused for
+            // another app's short prompt, it stays, as the reading goes on by itself when the prompt ends.
+            if (!playing && !keepForeground) runCatching { instance?.stopForeground(STOP_FOREGROUND_DETACH) }
             runCatching {
                 service.getSystemService(NotificationManager::class.java)
                     .notify(NOTICE_ID, notice(service, title, playing))
