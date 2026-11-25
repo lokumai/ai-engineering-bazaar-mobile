@@ -1,3 +1,4 @@
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/data_bloc.dart';
 import 'package:ai_engineering_bazaar/features/tour/application/tour_cubit.dart';
 import 'package:ai_engineering_bazaar/features/tour/domain/tour_record.dart';
@@ -155,6 +156,7 @@ Widget bazaarTestApp({
       RepositoryProvider<IBackupGateway>.value(value: backupGateway ?? MockBackupGateway()),
       RepositoryProvider<IRecordRepository>.value(value: recordRepository ?? MockRecordRepository()),
       RepositoryProvider<IFeedbackSender>.value(value: feedbackSender ?? MockFeedbackSender()),
+      RepositoryProvider<FeedbackDraft>(create: (_) => FeedbackDraft()),
       RepositoryProvider<IPocketModelStore>.value(value: pocketStore ?? MemoryPocketModelStore()),
       RepositoryProvider<ISpeech>.value(value: speech ?? const NoSpeech()),
       RepositoryProvider<IShareSheet>.value(value: shareSheet ?? const NoShareSheet()),

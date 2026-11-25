@@ -31,6 +31,7 @@ import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_cubit.d
 import 'package:ai_engineering_bazaar/shared/pocket_button/pocket_button_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_model_store.dart';
 import 'package:ai_engineering_bazaar/features/pocket_model/application/pocket_texts.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_sender.dart';
 import 'package:ai_engineering_bazaar/features/welcome/application/welcome_store.dart';
 import 'package:ai_engineering_bazaar/infrastructure/config/environment.dart';
@@ -113,6 +114,7 @@ class AppScope extends StatelessWidget {
         RepositoryProvider<IReviewStore>(create: (_) => dependencies.createReviewStore()),
         RepositoryProvider<IReadingPlaceStore>(create: (_) => dependencies.createReadingPlaceStore()),
         RepositoryProvider<IFeedbackSender>(create: (_) => dependencies.createFeedbackSender()),
+        RepositoryProvider<FeedbackDraft>(create: (_) => FeedbackDraft()),
         RepositoryProvider<IPocketModelStore>(create: (_) => dependencies.createPocketModelStore()),
         RepositoryProvider<IRobotOutfitStore>(create: (_) => dependencies.createRobotOutfitStore()),
         RepositoryProvider<IPocketButtonStore>(create: (_) => dependencies.createPocketButtonStore()),

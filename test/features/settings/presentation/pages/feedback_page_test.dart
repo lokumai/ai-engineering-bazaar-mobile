@@ -74,6 +74,31 @@ void main() {
     expect(find.text('The quiz froze'), findsOneWidget);
   });
 
+  // Walk-through 2026-11-24: Back from the page, or another tab, threw the text away.
+  testWidgets('keeps the text not sent when the page is left and opened again, and forgets it once sent', (
+    tester,
+  ) async {
+    final sender = MockFeedbackSender();
+    when(() => sender.send(any())).thenAnswer((_) async {});
+    await _pumpSettings(tester, crashReports: true, sender: sender);
+    await _openPage(tester);
+    await tester.enterText(find.byType(TextField), 'The quiz froze');
+    await tester.pump();
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(FeedbackPage), findsNothing);
+    await _openPage(tester);
+    expect(find.text('The quiz froze'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await _openPage(tester);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
+  });
+
   // iOS has no back key to close the keyboard: a tap outside the field or a drag of the page closes it, as in the
   // catalog's search, and the field keeps a few lines so it fits above the keyboard (the owner, 2026-11-13).
   testWidgets('a tap outside the field or a drag of the page closes the keyboard', (tester) async {

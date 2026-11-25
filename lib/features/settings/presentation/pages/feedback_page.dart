@@ -1,4 +1,5 @@
 import 'package:ai_engineering_bazaar/features/settings/application/feedback_bloc.dart';
+import 'package:ai_engineering_bazaar/features/settings/application/feedback_draft.dart';
 import 'package:ai_engineering_bazaar/generated/l10n.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/bazaar_theme.dart';
 import 'package:ai_engineering_bazaar/shared/design_system/tokens/app_spacing.dart';
@@ -24,7 +25,11 @@ class FeedbackPage extends StatefulWidget {
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
-  final _controller = TextEditingController();
+  /// The text not sent yet, kept by the app while it runs, so the page opens with it again.
+  late final FeedbackDraft _draft = context.read<FeedbackDraft>();
+  late final _controller = TextEditingController(text: _draft.text)..addListener(_keep);
+
+  void _keep() => _draft.text = _controller.text;
 
   @override
   void dispose() {
@@ -37,35 +42,39 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final s = S.of(context);
     final theme = Theme.of(context);
     final state = context.watch<FeedbackBloc>().state;
-    return Scaffold(
-      // The shell's scaffold already makes room for the keyboard; this one making it again shrank the page by the
-      // keyboard twice and cut the field in half.
-      resizeToAvoidBottomInset: false,
-      body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SectionRule(title: s.feedback_title),
-            const SizedBox(height: AppSpacing.md),
-            Text(s.feedback_intro, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: AppSpacing.lg),
-            switch (state) {
-              FeedbackSent() => Semantics(
-                liveRegion: true,
-                child: Text(
-                  s.feedback_sent,
-                  style: theme.textTheme.bodyLarge?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+    return BlocListener<FeedbackBloc, FeedbackState>(
+      listenWhen: (_, state) => state is FeedbackSent,
+      listener: (_, _) => _draft.text = '',
+      child: Scaffold(
+        // The shell's scaffold already makes room for the keyboard; this one making it again shrank the page by the
+        // keyboard twice and cut the field in half.
+        resizeToAvoidBottomInset: false,
+        body: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SectionRule(title: s.feedback_title),
+              const SizedBox(height: AppSpacing.md),
+              Text(s.feedback_intro, style: theme.textTheme.bodyMedium),
+              const SizedBox(height: AppSpacing.lg),
+              switch (state) {
+                FeedbackSent() => Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    s.feedback_sent,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: context.bazaarColors.onSurfaceTitle),
+                  ),
                 ),
-              ),
-              FeedbackEditing() || FeedbackSending() || FeedbackFailed() => _Form(
-                controller: _controller,
-                sending: state is FeedbackSending,
-                failed: state is FeedbackFailed,
-              ),
-            },
-          ],
+                FeedbackEditing() || FeedbackSending() || FeedbackFailed() => _Form(
+                  controller: _controller,
+                  sending: state is FeedbackSending,
+                  failed: state is FeedbackFailed,
+                ),
+              },
+            ],
+          ),
         ),
       ),
     );
