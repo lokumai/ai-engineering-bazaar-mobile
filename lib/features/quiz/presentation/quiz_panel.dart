@@ -247,7 +247,17 @@ class _QuestionView extends StatelessWidget {
                 ],
               ),
             ),
-            TextButton(onPressed: cubit.restart, child: Text(s.quiz_start_over)),
+            TextButton(
+              onPressed: () async {
+                // Answers given mid-quiz are kept nowhere else, so their loss is asked first (walk-through
+                // 2026-11-24); with none given there is nothing to lose, and with all given the score is kept.
+                final underWay = picks.any((pick) => pick != null) && picks.any((pick) => pick == null);
+                if (!underWay || await _askToStartOver(context)) {
+                  if (!cubit.isClosed) cubit.restart();
+                }
+              },
+              child: Text(s.quiz_start_over),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -480,4 +490,28 @@ class _RecapRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Asks before a quiz under way starts over; true for Start over, false when the dialog closes any other way.
+Future<bool> _askToStartOver(BuildContext context) async {
+  final again = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final s = S.of(context);
+      return AlertDialog(
+        scrollable: true,
+        title: Text(s.quiz_start_over_title),
+        content: Text(s.quiz_start_over_body),
+        actions: [
+          TextButton(
+            key: const ValueKey('quiz-start-over-confirm'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(s.quiz_start_over),
+          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(s.quiz_start_over_keep)),
+        ],
+      );
+    },
+  );
+  return again ?? false;
 }

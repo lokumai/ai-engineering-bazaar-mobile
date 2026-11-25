@@ -590,6 +590,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("answered correctly"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("See results"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("Start over"),
+    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage("The answers given so far are cleared."),
+    "quiz_start_over_keep": MessageLookupByLibrary.simpleMessage("Keep going"),
+    "quiz_start_over_title": MessageLookupByLibrary.simpleMessage("Start the quiz over?"),
     "quiz_subtitle": m58,
     "quiz_title": MessageLookupByLibrary.simpleMessage("Questions on this module"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(

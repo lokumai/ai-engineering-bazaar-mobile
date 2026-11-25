@@ -593,6 +593,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quiz_score_rest": MessageLookupByLibrary.simpleMessage("را درست پاسخ دادید"),
     "quiz_see_results": MessageLookupByLibrary.simpleMessage("دیدن نتیجه‌ها"),
     "quiz_start_over": MessageLookupByLibrary.simpleMessage("شروع دوباره"),
+    "quiz_start_over_body": MessageLookupByLibrary.simpleMessage("پاسخ‌هایی که تا اینجا داده‌اید پاک می‌شوند."),
+    "quiz_start_over_keep": MessageLookupByLibrary.simpleMessage("ادامه دهید"),
+    "quiz_start_over_title": MessageLookupByLibrary.simpleMessage("آزمون از نو شروع شود؟"),
     "quiz_subtitle": m58,
     "quiz_title": MessageLookupByLibrary.simpleMessage("پرسش‌های این درس"),
     "quiz_unavailable": MessageLookupByLibrary.simpleMessage(

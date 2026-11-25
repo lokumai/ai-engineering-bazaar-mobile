@@ -898,6 +898,21 @@ class S {
     return Intl.message('Start over', name: 'quiz_start_over', desc: '', args: []);
   }
 
+  /// `Start the quiz over?`
+  String get quiz_start_over_title {
+    return Intl.message('Start the quiz over?', name: 'quiz_start_over_title', desc: '', args: []);
+  }
+
+  /// `The answers given so far are cleared.`
+  String get quiz_start_over_body {
+    return Intl.message('The answers given so far are cleared.', name: 'quiz_start_over_body', desc: '', args: []);
+  }
+
+  /// `Keep going`
+  String get quiz_start_over_keep {
+    return Intl.message('Keep going', name: 'quiz_start_over_keep', desc: '', args: []);
+  }
+
   /// `Correct.`
   String get quiz_correct {
     return Intl.message('Correct.', name: 'quiz_correct', desc: '', args: []);
