@@ -46,8 +46,9 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
 
   // Golden tests (alchemist) render under the light bazaarTheme (Android) by default;
   // dark-theme scenarios wrap their child in the dark bazaarTheme explicitly.
-  // Platform goldens are disabled so only the CI (Ahem-rendered) variant runs —
-  // identical output on macOS/Linux/CI, no font-rendering flake.
+  // Platform goldens are disabled so only the CI (Ahem-rendered) variant runs, the same on Linux and CI.
+  // On macOS it still differs by a fraction of a percent (edge smoothing), so the Mac release gate skips
+  // the golden tag (scripts/release_checks.sh).
   return AlchemistConfig.runWithConfig(
     config: AlchemistConfig(
       theme: bazaarTheme(brightness: Brightness.light, platform: TargetPlatform.android),

@@ -137,7 +137,7 @@ R8 shrinks the release but keeps every class name (`android/app/proguard-rules.p
 
 ### iOS
 
-Archive on the Mac, with the team's account signed in to Xcode: `scripts/run_ios_build.sh` runs the same checks and the gate, then `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`; upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer.
+Archive on the Mac, with the team's account signed in to Xcode: `scripts/run_ios_build.sh` runs the same checks and the gate, then `fvm flutter build ipa --release --target lib/main/main_prod.dart --dart-define-from-file=sentry_dsn.json`; upload `build/ios/ipa/*.ipa` with Transporter or from Xcode's Organizer. On the Mac the gate leaves out the golden tests: their images differ there by a fraction of a percent, and CI has run them on the same commit.
 
 Then give Sentry the build's symbols, so an app hang reported by iOS shows the app's own frames by name rather than as addresses (Dart crash reports do not need them):
 
